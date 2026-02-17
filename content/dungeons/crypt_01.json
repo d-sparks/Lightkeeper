@@ -446,6 +446,13 @@
       "patrol": "guard"
     }
   ],
+  "npcSpawns": [
+    {
+      "type": "old_keeper",
+      "x": 5,
+      "y": 3
+    }
+  ],
   "exits": [
     {
       "x": 17,

@@ -1,0 +1,27 @@
+{
+  "old_keeper": {
+    "name": "Old Keeper",
+    "dialogue": [
+      {
+        "speaker": "Old Keeper",
+        "text": "Halt, traveler. You have the look of someone seeking the deep dark."
+      },
+      {
+        "speaker": "Old Keeper",
+        "text": "I was a Lightkeeper once... before the relays failed and the shadows crept in."
+      },
+      {
+        "speaker": "Old Keeper",
+        "text": "The creatures down there feed on broken light. They'll take everything from you if you let them."
+      },
+      {
+        "speaker": "Old Keeper",
+        "text": "A word of advice: never carry more than you can afford to lose. Death has a price in these crypts."
+      },
+      {
+        "speaker": "Old Keeper",
+        "text": "Now go. The stairs await, and the dark won't keep itself at bay."
+      }
+    ]
+  }
+}

@@ -9,6 +9,9 @@
   const canvas = document.getElementById('game-canvas');
   const healthFill = document.getElementById('health-fill');
   const hudName = document.getElementById('hud-name');
+  const dialogueOverlay = document.getElementById('dialogue-overlay');
+  const dialogueSpeaker = document.getElementById('dialogue-speaker');
+  const dialogueText = document.getElementById('dialogue-text');
 
   // --- Instances ---
   const net = new NetClient();
@@ -17,6 +20,52 @@
 
   // --- State ---
   let joined = false;
+
+  // --- Dialogue state ---
+  let dialogueActive = false;
+  let dialogueLines = [];    // Array of { speaker, text }
+  let dialogueIndex = 0;
+
+  function showDialogue(lines) {
+    dialogueLines = lines;
+    dialogueIndex = 0;
+    dialogueActive = true;
+    updateDialogueDisplay();
+    dialogueOverlay.style.display = 'block';
+  }
+
+  function advanceDialogue() {
+    dialogueIndex++;
+    if (dialogueIndex >= dialogueLines.length) {
+      closeDialogue();
+      return;
+    }
+    updateDialogueDisplay();
+  }
+
+  function closeDialogue() {
+    dialogueActive = false;
+    dialogueLines = [];
+    dialogueIndex = 0;
+    dialogueOverlay.style.display = 'none';
+  }
+
+  function updateDialogueDisplay() {
+    const line = dialogueLines[dialogueIndex];
+    if (!line) return;
+    dialogueSpeaker.textContent = line.speaker;
+    dialogueText.textContent = line.text;
+  }
+
+  // --- Interact handler ---
+  input.onInteract = function () {
+    if (dialogueActive) {
+      advanceDialogue();
+      return;
+    }
+    // Send interact request to server
+    net.send({ type: CONSTANTS.MSG.INTERACT });
+  };
 
   // --- Join flow ---
   function doJoin() {
@@ -58,6 +107,12 @@
         healthFill.style.width = `${pct}%`;
         hudName.textContent = me.name;
       }
+    }
+  });
+
+  net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {
+    if (msg.dialogue && msg.dialogue.length > 0) {
+      showDialogue(msg.dialogue);
     }
   });
 

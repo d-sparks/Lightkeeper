@@ -12,6 +12,9 @@ class InputHandler {
     this.lastSent = '';  // Avoid sending duplicate input states
     this.active = false;
 
+    // Callback for interact key
+    this.onInteract = null;
+
     // Key mappings: keyboard key -> game action
     this.keyMap = {
       'ArrowUp':    'up',
@@ -41,6 +44,13 @@ class InputHandler {
   }
 
   onKeyDown(e) {
+    // Interact key (E or Enter)
+    if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') {
+      e.preventDefault();
+      if (this.onInteract) this.onInteract();
+      return;
+    }
+
     const action = this.keyMap[e.key];
     if (action) {
       e.preventDefault();
