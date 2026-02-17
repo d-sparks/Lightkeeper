@@ -26,6 +26,9 @@ class Renderer {
     // Tile color cache (Phase 1 placeholder rendering)
     this.tileColors = {};
 
+    // Floating damage numbers
+    this.damageNumbers = [];
+
     // Disable smoothing for crisp pixels
     this.ctx.imageSmoothingEnabled = false;
   }
@@ -46,6 +49,7 @@ class Renderer {
       'door_closed':   '#7a6a4a',
       'door_open':     '#4a3a2a',
       'stairs_down':   '#6a3a8a',
+      'stairs_up':     '#3a8a6a',
       'water':         '#2a4a6a',
       'void':          '#0d0d1a',
     };
@@ -88,8 +92,14 @@ class Renderer {
     // Draw NPCs
     this.renderNPCs(ctx, ts);
 
+    // Draw monsters
+    this.renderMonsters(ctx, ts);
+
     // Draw players
     this.renderPlayers(ctx, ts);
+
+    // Draw floating damage numbers
+    this.renderDamageNumbers(ctx);
 
     // Draw minimap
     this.renderMinimap(ctx);
@@ -164,17 +174,19 @@ class Renderer {
       const ex = (exit.x + 0.5) * ts - this.camX;
       const ey = (exit.y + 0.5) * ts - this.camY;
 
-      ctx.fillStyle = `rgba(171, 71, 188, ${0.3 + 0.3 * pulse})`;
+      const exitColor = exit.type === 'stairs_up' ? '38, 166, 154' : '171, 71, 188';
+      ctx.fillStyle = `rgba(${exitColor}, ${0.3 + 0.3 * pulse})`;
       ctx.beginPath();
       ctx.arc(ex, ey, ts * 0.35, 0, Math.PI * 2);
       ctx.fill();
 
-      // Down arrow
+      // Arrow direction
+      const isUp = exit.type === 'stairs_up';
       ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + 0.3 * pulse})`;
       ctx.font = `${ts * 0.5}px Courier New`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('▼', ex, ey);
+      ctx.fillText(isUp ? '▲' : '▼', ex, ey);
     }
   }
 
@@ -293,6 +305,91 @@ class Renderer {
     }
   }
 
+  renderMonsters(ctx, ts) {
+    if (!this.state || !this.state.monsters) return;
+
+    for (const mob of this.state.monsters) {
+      const mx = mob.x - this.camX;
+      const my = mob.y - this.camY;
+      const r = CONSTANTS.MONSTER_COLLISION_RADIUS || 10;
+
+      // Monster body (circle, red)
+      ctx.fillStyle = CONSTANTS.COLORS.monster;
+      ctx.beginPath();
+      ctx.arc(mx, my, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Facing indicator
+      const fd = r + 3;
+      ctx.fillStyle = '#faa';
+      ctx.beginPath();
+      ctx.arc(mx + Math.cos(mob.facing) * fd, my + Math.sin(mob.facing) * fd, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Name tag
+      ctx.fillStyle = '#e57373';
+      ctx.font = '10px Courier New';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(mob.name, mx, my - r - 6);
+
+      // Health bar
+      const barW = 26;
+      const barH = 3;
+      const barX = mx - barW / 2;
+      const barY = my - r - 4;
+      const hp = mob.health / mob.maxHealth;
+      ctx.fillStyle = '#333';
+      ctx.fillRect(barX, barY, barW, barH);
+      ctx.fillStyle = hp > 0.5 ? '#e53935' : '#ff6f00';
+      ctx.fillRect(barX, barY, barW * hp, barH);
+    }
+  }
+
+  processEvents(events) {
+    if (!events) return;
+    for (const ev of events) {
+      if (ev.type === 'damage') {
+        this.damageNumbers.push({
+          text: `-${ev.amount}`,
+          x: ev.x,
+          y: ev.y,
+          age: 0,
+          maxAge: 1.0,
+          color: ev.targetId.startsWith('mob_') ? '#ffa726' : '#e53935',
+        });
+      }
+    }
+  }
+
+  renderDamageNumbers(ctx) {
+    const dt = 1 / 60; // approximate frame time
+    this.damageNumbers = this.damageNumbers.filter(dn => {
+      dn.age += dt;
+      if (dn.age >= dn.maxAge) return false;
+
+      const alpha = 1 - (dn.age / dn.maxAge);
+      const offsetY = dn.age * 40; // float upward
+      const sx = dn.x - this.camX;
+      const sy = dn.y - this.camY - offsetY;
+
+      ctx.fillStyle = dn.color.replace(')', `,${alpha})`).replace('rgb', 'rgba');
+      // Simpler approach: set globalAlpha
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = dn.color;
+      ctx.font = 'bold 13px Courier New';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(dn.text, sx, sy);
+      ctx.globalAlpha = 1;
+      return true;
+    });
+  }
+
   renderMinimap(ctx) {
     if (!this.map) return;
 
@@ -330,13 +427,23 @@ class Renderer {
       }
     }
 
+    // Monsters on minimap
+    if (this.state && this.state.monsters) {
+      for (const mob of this.state.monsters) {
+        const dotX = mmX + (mob.x / ts) * scale;
+        const dotY = mmY + (mob.y / ts) * scale;
+        ctx.fillStyle = CONSTANTS.COLORS.monster;
+        ctx.fillRect(dotX - 1, dotY - 1, 2, 2);
+      }
+    }
+
     // Viewport rectangle
-    const ts = CONSTANTS.TILE_SIZE;
+    const ts2 = CONSTANTS.TILE_SIZE;
     ctx.strokeStyle = 'rgba(255,255,255,0.3)';
     ctx.lineWidth = 1;
     ctx.strokeRect(
-      mmX + (this.camX / ts) * scale,
-      mmY + (this.camY / ts) * scale,
+      mmX + (this.camX / ts2) * scale,
+      mmY + (this.camY / ts2) * scale,
       CONSTANTS.VIEWPORT_TILES_X * scale,
       CONSTANTS.VIEWPORT_TILES_Y * scale
     );

@@ -10,6 +10,7 @@
     "4": { "name": "door_closed",  "solid": true,  "interactable": "door" },
     "5": { "name": "door_open",    "solid": false, "interactable": "door" },
     "6": { "name": "stairs_down",  "solid": false, "exit": true },
-    "7": { "name": "water",        "solid": true  }
+    "7": { "name": "water",        "solid": true  },
+    "8": { "name": "stairs_up",   "solid": false, "exit": true }
   }
 }
