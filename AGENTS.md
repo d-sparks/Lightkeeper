@@ -4,7 +4,7 @@ Guide for AI agents working on Lightkeeper.
 
 ## Branch Workflow
 
-Always develop on a `claude/` prefixed branch (e.g. `claude/dev-...`). Never push directly to `main`. Open a PR when the work is ready for review.
+Develop on the `Claude/dev-7szMH` branch. Never push directly to `main`. Open a PR when the work is ready for review.
 
 ## Running the Project
 
