@@ -48,9 +48,9 @@ class Physics {
     }
   }
 
-  // Check if a circle at (px, py) with PLAYER_RADIUS collides with any solid tile
-  collidesAt(px, py, dungeon) {
-    const r = CONSTANTS.PLAYER_RADIUS;
+  // Check if a circle at (px, py) collides with any solid tile
+  collidesAt(px, py, dungeon, radius) {
+    const r = radius || CONSTANTS.PLAYER_RADIUS;
     const ts = CONSTANTS.TILE_SIZE;
 
     // Check all tiles the bounding box could overlap

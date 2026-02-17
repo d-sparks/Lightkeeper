@@ -229,6 +229,11 @@
 const TILE_SIZE = 32;
 const PLAYER_RADIUS = 12;
 const PLAYER_SPEED = 4;
+const MONSTER_COLLISION_RADIUS = 10;
+const MONSTER_AGGRO_RANGE = 8;
+const PLAYER_ATTACK_RANGE = 1.5;
+const PLAYER_ATTACK_DAMAGE = 15;
+const PLAYER_ATTACK_COOLDOWN = 0.5;
 
 const NPC_INTERACT_RANGE = 2.5;
 
@@ -236,11 +241,13 @@ const COLORS = {
   floor:      '#2a2a3d',
   cracked:    '#332a3d',
   wall:       '#5a5a7a',
-  stairs:     '#6a3a8a',
+  stairsDown: '#6a3a8a',
+  stairsUp:   '#3a8a6a',
   void:       '#0d0d1a',
   background: '#1a1a2e',
   player:     ['#4fc3f7', '#ef5350', '#66bb6a', '#ffa726'],
   npc:        '#64b5f6',
+  monster:    '#e53935',
 };
 
 // ============================================================
@@ -288,39 +295,164 @@ window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 // ============================================================
-// MAP
+// MAP — Multi-floor system
 // ============================================================
-const MAP_LAYOUT = [
-  '3333333333333333333333333',
-  '3111113333333333333333333',
-  '3111113333333333333333333',
-  '3111111113333333333333333',
-  '3111113313333333333333333',
-  '3333333313333333333333333',
-  '3333333311111113333333333',
-  '3333333311111113333333333',
-  '3333333311111111113333333',
-  '3333333311121113133333333',
-  '3333333333333333133333333',
-  '3333333333333331111133333',
-  '3333333333333331111133333',
-  '3333333333333331161133333',
-  '3333333333333331111133333',
-  '3333333333333333333333333',
-];
+const FLOORS = {
+  crypt_01: {
+    name: 'The Shallow Crypt',
+    layout: [
+      '3333333333333333333333333',
+      '3111113333333333333333333',
+      '3111113333333333333333333',
+      '3111111113333333333333333',
+      '3111113313333333333333333',
+      '3333333313333333333333333',
+      '3333333311111113333333333',
+      '3333333311111113333333333',
+      '3333333311111111113333333',
+      '3333333311121113133333333',
+      '3333333333333333133333333',
+      '3333333333333331111133333',
+      '3333333333333331111133333',
+      '3333333333333331161133333',
+      '3333333333333331111133333',
+      '3333333333333333333333333',
+    ],
+    spawns: [{ x:2,y:2 },{ x:3,y:2 },{ x:2,y:3 },{ x:3,y:3 }],
+    exits: [{ x:17, y:13, type:'stairs_down', leadsTo:'crypt_02', spawnX:3, spawnY:3 }],
+    npcs: [{
+      id: 'old_keeper', name: 'Old Keeper',
+      x: 5, y: 3,
+      dialogue: [
+        { speaker: 'Old Keeper', text: 'Halt, traveler. You have the look of someone seeking the deep dark.' },
+        { speaker: 'Old Keeper', text: 'I was a Lightkeeper once... before the relays failed and the shadows crept in.' },
+        { speaker: 'Old Keeper', text: 'The creatures down there feed on broken light. They\'ll take everything from you if you let them.' },
+        { speaker: 'Old Keeper', text: 'A word of advice: never carry more than you can afford to lose. Death has a price in these crypts.' },
+        { speaker: 'Old Keeper', text: 'Now go. The stairs await, and the dark won\'t keep itself at bay.' },
+      ],
+    }],
+    monsterSpawns: [],
+  },
+  crypt_02: {
+    name: 'The Bone Chamber',
+    layout: [
+      '3333333333333333333333333',
+      '3333333333333333333333333',
+      '3381113333333333333333333',
+      '3311113333333333333333333',
+      '3311133333333333333333333',
+      '3311111111111113333333333',
+      '3333311111111113333333333',
+      '3333311112111113333333333',
+      '3333311111111113333333333',
+      '3333311111111113333333333',
+      '3333311111111113333333333',
+      '3333333333333333333333333',
+      '3333333333333333333333333',
+      '3333333333333333333333333',
+      '3333333333333333333333333',
+      '3333333333333333333333333',
+    ],
+    spawns: [{ x:3,y:3 },{ x:4,y:3 },{ x:3,y:2 },{ x:4,y:2 }],
+    exits: [{ x:2, y:2, type:'stairs_up', leadsTo:'crypt_01', spawnX:17, spawnY:12 }],
+    npcs: [],
+    monsterSpawns: [
+      { type:'skeleton', x:8, y:7, count:2 },
+      { type:'skeleton', x:11, y:9, count:1 },
+    ],
+  },
+};
 
-const MAP_W = MAP_LAYOUT[0].length;
-const MAP_H = MAP_LAYOUT.length;
-const MAP_DATA = [];
-for (let y = 0; y < MAP_H; y++)
-  for (let x = 0; x < MAP_W; x++)
-    MAP_DATA.push(parseInt(MAP_LAYOUT[y][x]));
+const MONSTER_DEFS = {
+  skeleton: { name:'Skeleton', health:30, speed:1.5, damage:8, attackRange:1, attackSpeed:1.0 },
+};
+
+// Active floor state
+let currentFloorId = 'crypt_01';
+let MAP_W = 25, MAP_H = 16;
+let MAP_DATA = [];
+let currentExits = [];
+let currentNpcs = [];
+let monsters = [];
+let damageNumbers = [];
+let transitionCooldown = 0;
 
 const TILE_SOLID = { 0: true, 3: true };
-const TILE_COLOR = {
-  0: COLORS.void, 1: COLORS.floor, 2: COLORS.cracked,
-  3: COLORS.wall, 6: COLORS.stairs,
-};
+
+function getTileColor(tid) {
+  if (tid === 0) return COLORS.void;
+  if (tid === 1) return COLORS.floor;
+  if (tid === 2) return COLORS.cracked;
+  if (tid === 3) return COLORS.wall;
+  if (tid === 6) return COLORS.stairsDown;
+  if (tid === 8) return COLORS.stairsUp;
+  return '#ff00ff';
+}
+
+function loadFloor(floorId, spawnX, spawnY) {
+  const floor = FLOORS[floorId];
+  if (!floor) return;
+
+  currentFloorId = floorId;
+  MAP_W = floor.layout[0].length;
+  MAP_H = floor.layout.length;
+  MAP_DATA = [];
+  for (let y = 0; y < MAP_H; y++)
+    for (let x = 0; x < MAP_W; x++)
+      MAP_DATA.push(parseInt(floor.layout[y][x]));
+
+  currentExits = floor.exits;
+  currentNpcs = floor.npcs.map(n => ({
+    ...n,
+    x: (n.x + 0.5) * TILE_SIZE,
+    y: (n.y + 0.5) * TILE_SIZE,
+  }));
+
+  // Spawn monsters
+  monsters = [];
+  for (const spawn of floor.monsterSpawns) {
+    const def = MONSTER_DEFS[spawn.type];
+    if (!def) continue;
+    const count = spawn.count || 1;
+    for (let i = 0; i < count; i++) {
+      const offsetX = count > 1 ? (i - (count - 1) / 2) * 1.5 : 0;
+      monsters.push({
+        id: `mob_${monsters.length}`,
+        name: def.name,
+        x: (spawn.x + 0.5 + offsetX) * TILE_SIZE,
+        y: (spawn.y + 0.5) * TILE_SIZE,
+        health: def.health,
+        maxHealth: def.health,
+        speed: def.speed,
+        damage: def.damage,
+        attackRange: (def.attackRange || 1) * TILE_SIZE,
+        attackCooldown: 1 / (def.attackSpeed || 1),
+        attackTimer: 0,
+        facing: 0,
+      });
+    }
+  }
+
+  // Move all players to spawn positions
+  const spawns = floor.spawns;
+  for (let i = 0; i < players.length; i++) {
+    const sp = spawns[i] || spawns[0];
+    if (spawnX != null && spawnY != null) {
+      // Use explicit spawn position (from stairs)
+      const offX = (i % 2) * 1;
+      const offY = Math.floor(i / 2) * 1;
+      players[i].x = (spawnX + 0.5 + offX) * TILE_SIZE;
+      players[i].y = (spawnY + 0.5 + offY) * TILE_SIZE;
+    } else {
+      players[i].x = (sp.x + 0.5) * TILE_SIZE;
+      players[i].y = (sp.y + 0.5) * TILE_SIZE;
+    }
+  }
+
+  transitionCooldown = 1.5;
+  damageNumbers = [];
+  closeDialogue();
+}
 
 function isSolid(tx, ty) {
   if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return true;
@@ -330,36 +462,21 @@ function isSolid(tx, ty) {
 // ============================================================
 // PLAYERS
 // ============================================================
-const SPAWNS = [{ x:2,y:2 },{ x:3,y:2 },{ x:2,y:3 },{ x:3,y:3 }];
-const players = SPAWNS.map((sp, i) => ({
+const players = [0,1,2,3].map(i => ({
   id: i,
   name: ['Hero', 'Rogue', 'Mage', 'Cleric'][i],
-  x: (sp.x + 0.5) * TILE_SIZE,
-  y: (sp.y + 0.5) * TILE_SIZE,
+  x: 0, y: 0, // set by loadFloor
   facing: 0,
   health: [100, 80, 100, 90][i],
   maxHealth: 100,
   colorIndex: i,
+  attackTimer: 0,
 }));
 let activePlayer = 0;
 const aiTimers = players.map(() => ({ nextChange: 0, dx: 0, dy: 0 }));
 
-// ============================================================
-// NPCs
-// ============================================================
-const npcs = [{
-  id: 'old_keeper',
-  name: 'Old Keeper',
-  x: (5 + 0.5) * TILE_SIZE,
-  y: (3 + 0.5) * TILE_SIZE,
-  dialogue: [
-    { speaker: 'Old Keeper', text: 'Halt, traveler. You have the look of someone seeking the deep dark.' },
-    { speaker: 'Old Keeper', text: 'I was a Lightkeeper once... before the relays failed and the shadows crept in.' },
-    { speaker: 'Old Keeper', text: 'The creatures down there feed on broken light. They\'ll take everything from you if you let them.' },
-    { speaker: 'Old Keeper', text: 'A word of advice: never carry more than you can afford to lose. Death has a price in these crypts.' },
-    { speaker: 'Old Keeper', text: 'Now go. The stairs await, and the dark won\'t keep itself at bay.' },
-  ],
-}];
+// Initial load
+loadFloor('crypt_01');
 
 // ============================================================
 // DIALOGUE STATE
@@ -413,7 +530,7 @@ function tryInteract() {
 function getNearbyNPC() {
   const me = players[activePlayer];
   const range = NPC_INTERACT_RANGE * TILE_SIZE;
-  for (const npc of npcs) {
+  for (const npc of currentNpcs) {
     const dx = npc.x - me.x, dy = npc.y - me.y;
     if (Math.sqrt(dx * dx + dy * dy) < range) return npc;
   }
@@ -558,8 +675,8 @@ document.addEventListener('gesturechange', (e) => e.preventDefault());
 // ============================================================
 // PHYSICS
 // ============================================================
-function collidesAt(px, py) {
-  const r = PLAYER_RADIUS;
+function collidesAt(px, py, radius) {
+  const r = radius || PLAYER_RADIUS;
   const minTX = Math.floor((px - r) / TILE_SIZE);
   const maxTX = Math.floor((px + r) / TILE_SIZE);
   const minTY = Math.floor((py - r) / TILE_SIZE);
@@ -602,7 +719,6 @@ function update(dt, now) {
   if (keys.down)  dy += 1;
   if (keys.left)  dx -= 1;
   if (keys.right) dx += 1;
-  // Clamp
   const len = Math.sqrt(dx * dx + dy * dy);
   if (len > 1) { dx /= len; dy /= len; }
 
@@ -615,7 +731,7 @@ function update(dt, now) {
     interactBtn.classList.toggle('visible', !!nearbyNPC || dialogueActive);
   }
 
-  // AI for others
+  // AI for other party members
   for (let i = 0; i < players.length; i++) {
     if (i === activePlayer) continue;
     const ai = aiTimers[i];
@@ -625,6 +741,87 @@ function update(dt, now) {
       ai.nextChange = now + 500 + Math.random() * 2000;
     }
     movePlayer(players[i], ai.dx, ai.dy, dt * 0.5);
+  }
+
+  // Monster AI
+  for (let mi = monsters.length - 1; mi >= 0; mi--) {
+    const mob = monsters[mi];
+    mob.attackTimer = Math.max(0, mob.attackTimer - dt);
+
+    // Find nearest player
+    let nearest = null, nearestDist = Infinity;
+    for (const p of players) {
+      const ddx = p.x - mob.x, ddy = p.y - mob.y;
+      const d = Math.sqrt(ddx * ddx + ddy * ddy);
+      if (d < nearestDist) { nearest = p; nearestDist = d; }
+    }
+    if (!nearest) continue;
+
+    const aggroRange = MONSTER_AGGRO_RANGE * TILE_SIZE;
+    if (nearestDist > aggroRange) continue;
+
+    if (nearestDist > mob.attackRange) {
+      // Chase
+      const cdx = nearest.x - mob.x, cdy = nearest.y - mob.y;
+      const clen = Math.sqrt(cdx * cdx + cdy * cdy);
+      if (clen > 0) {
+        const speed = mob.speed * TILE_SIZE * dt;
+        const nx = mob.x + (cdx / clen) * speed;
+        const ny = mob.y + (cdy / clen) * speed;
+        if (!collidesAt(nx, mob.y, MONSTER_COLLISION_RADIUS)) mob.x = nx;
+        if (!collidesAt(mob.x, ny, MONSTER_COLLISION_RADIUS)) mob.y = ny;
+        mob.facing = Math.atan2(cdy, cdx);
+      }
+    } else if (mob.attackTimer <= 0) {
+      // Attack
+      nearest.health -= mob.damage;
+      mob.attackTimer = mob.attackCooldown;
+      damageNumbers.push({ text: `-${mob.damage}`, x: nearest.x, y: nearest.y, age: 0, color: '#e53935' });
+      if (nearest.health <= 0) {
+        nearest.health = nearest.maxHealth;
+        const sp = FLOORS[currentFloorId].spawns[0];
+        nearest.x = (sp.x + 0.5) * TILE_SIZE;
+        nearest.y = (sp.y + 0.5) * TILE_SIZE;
+      }
+    }
+  }
+
+  // Player auto-attack
+  const atkRange = PLAYER_ATTACK_RANGE * TILE_SIZE;
+  for (const p of players) {
+    if (!p.attackTimer) p.attackTimer = 0;
+    p.attackTimer = Math.max(0, p.attackTimer - dt);
+    if (p.attackTimer > 0) continue;
+
+    let nearMob = null, nearDist = Infinity;
+    for (const mob of monsters) {
+      const adx = mob.x - p.x, ady = mob.y - p.y;
+      const ad = Math.sqrt(adx * adx + ady * ady);
+      if (ad < atkRange && ad < nearDist) { nearMob = mob; nearDist = ad; }
+    }
+    if (nearMob) {
+      nearMob.health -= PLAYER_ATTACK_DAMAGE;
+      p.attackTimer = PLAYER_ATTACK_COOLDOWN;
+      damageNumbers.push({ text: `-${PLAYER_ATTACK_DAMAGE}`, x: nearMob.x, y: nearMob.y, age: 0, color: '#ffa726' });
+      if (nearMob.health <= 0) {
+        monsters.splice(monsters.indexOf(nearMob), 1);
+      }
+    }
+  }
+
+  // Floor transitions
+  if (transitionCooldown > 0) {
+    transitionCooldown -= dt;
+  } else {
+    const me = players[activePlayer];
+    const ptx = Math.floor(me.x / TILE_SIZE);
+    const pty = Math.floor(me.y / TILE_SIZE);
+    for (const exit of currentExits) {
+      if (ptx === exit.x && pty === exit.y) {
+        loadFloor(exit.leadsTo, exit.spawnX, exit.spawnY);
+        break;
+      }
+    }
   }
 }
 
@@ -656,27 +853,31 @@ function render(now) {
       const tid = MAP_DATA[ty * MAP_W + tx];
       const sx = tx * TILE_SIZE - camX;
       const sy = ty * TILE_SIZE - camY;
-      ctx.fillStyle = TILE_COLOR[tid] || '#ff00ff';
+      ctx.fillStyle = getTileColor(tid);
       ctx.fillRect(sx, sy, TILE_SIZE, TILE_SIZE);
       ctx.strokeStyle = 'rgba(255,255,255,0.03)';
       ctx.strokeRect(sx, sy, TILE_SIZE, TILE_SIZE);
     }
   }
 
-  // Exit
+  // Exits
   const pulse = 0.5 + 0.5 * Math.sin(now / 500);
-  const ex = (17 + 0.5) * TILE_SIZE - camX;
-  const ey = (13 + 0.5) * TILE_SIZE - camY;
-  ctx.fillStyle = `rgba(171,71,188,${0.3 + 0.3 * pulse})`;
-  ctx.beginPath(); ctx.arc(ex, ey, TILE_SIZE * 0.35, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = `rgba(255,255,255,${0.5 + 0.3 * pulse})`;
-  ctx.font = `${TILE_SIZE * 0.5}px Courier New`;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('▼', ex, ey);
+  for (const exit of currentExits) {
+    const ex = (exit.x + 0.5) * TILE_SIZE - camX;
+    const ey = (exit.y + 0.5) * TILE_SIZE - camY;
+    const isUp = exit.type === 'stairs_up';
+    const exitClr = isUp ? '38,166,154' : '171,71,188';
+    ctx.fillStyle = `rgba(${exitClr},${0.3 + 0.3 * pulse})`;
+    ctx.beginPath(); ctx.arc(ex, ey, TILE_SIZE * 0.35, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = `rgba(255,255,255,${0.5 + 0.3 * pulse})`;
+    ctx.font = `${TILE_SIZE * 0.5}px Courier New`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(isUp ? '▲' : '▼', ex, ey);
+  }
 
   // NPCs
   const npcPulse = 0.5 + 0.5 * Math.sin(now / 800);
-  for (const npc of npcs) {
+  for (const npc of currentNpcs) {
     const nx = npc.x - camX, ny = npc.y - camY;
     const r = PLAYER_RADIUS;
 
@@ -706,6 +907,27 @@ function render(now) {
       ctx.textAlign = 'center'; ctx.textBaseline = 'top';
       ctx.fillText('[E] Talk', nx, ny + r + 4);
     }
+  }
+
+  // Monsters
+  for (const mob of monsters) {
+    const mx = mob.x - camX, my = mob.y - camY;
+    const mr = MONSTER_COLLISION_RADIUS;
+    ctx.fillStyle = COLORS.monster;
+    ctx.beginPath(); ctx.arc(mx, my, mr, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 2; ctx.stroke();
+    const mfd = mr + 3;
+    ctx.fillStyle = '#faa';
+    ctx.beginPath(); ctx.arc(mx + Math.cos(mob.facing) * mfd, my + Math.sin(mob.facing) * mfd, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#e57373'; ctx.font = '10px Courier New';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(mob.name, mx, my - mr - 6);
+    const mbW = 26, mbH = 3;
+    const mbx = mx - mbW / 2, mby = my - mr - 4;
+    const mhp = mob.health / mob.maxHealth;
+    ctx.fillStyle = '#333'; ctx.fillRect(mbx, mby, mbW, mbH);
+    ctx.fillStyle = mhp > 0.5 ? '#e53935' : '#ff6f00';
+    ctx.fillRect(mbx, mby, mbW * mhp, mbH);
   }
 
   // Players
@@ -745,6 +967,22 @@ function render(now) {
     }
   }
 
+  // Damage numbers
+  const dnDt = 1 / 60;
+  for (let di = damageNumbers.length - 1; di >= 0; di--) {
+    const dn = damageNumbers[di];
+    dn.age += dnDt;
+    if (dn.age >= 1.0) { damageNumbers.splice(di, 1); continue; }
+    const alpha = 1 - dn.age;
+    const offY = dn.age * 40;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = dn.color;
+    ctx.font = 'bold 13px Courier New';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(dn.text, dn.x - camX, dn.y - camY - offY);
+    ctx.globalAlpha = 1;
+  }
+
   // Minimap
   const mScale = 3;
   const mmW = MAP_W * mScale, mmH = MAP_H * mScale;
@@ -763,17 +1001,24 @@ function render(now) {
     ctx.fillStyle = i === activePlayer ? '#fff' : COLORS.player[p.colorIndex];
     ctx.fillRect(mmX + (p.x / TILE_SIZE) * mScale - 1, mmY + (p.y / TILE_SIZE) * mScale - 1, 3, 3);
   }
+  // Monsters on minimap
+  for (const mob of monsters) {
+    ctx.fillStyle = COLORS.monster;
+    ctx.fillRect(mmX + (mob.x / TILE_SIZE) * mScale - 1, mmY + (mob.y / TILE_SIZE) * mScale - 1, 2, 2);
+  }
   ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
   ctx.strokeRect(mmX + (camX / TILE_SIZE) * mScale, mmY + (camY / TILE_SIZE) * mScale,
     VIEWPORT_TX * mScale, VIEWPORT_TY * mScale);
 
-  // Active player label (top-left)
+  // HUD (top-left)
   ctx.fillStyle = COLORS.player[activePlayer];
   ctx.font = 'bold 12px Courier New';
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   ctx.fillText(`${players[activePlayer].name}`, 8, 8);
   ctx.fillStyle = '#666'; ctx.font = '10px Courier New';
   ctx.fillText(`HP ${players[activePlayer].health}/${players[activePlayer].maxHealth}`, 8, 22);
+  ctx.fillStyle = '#555'; ctx.font = '9px Courier New';
+  ctx.fillText(FLOORS[currentFloorId].name, 8, 34);
 }
 
 // ============================================================

@@ -99,6 +99,11 @@
   net.on(CONSTANTS.MSG.STATE, (msg) => {
     renderer.setState(msg);
 
+    // Process combat events for damage numbers
+    if (msg.events) {
+      renderer.processEvents(msg.events);
+    }
+
     // Update HUD
     if (renderer.myId) {
       const me = msg.players.find(p => p.id === renderer.myId);
@@ -108,6 +113,13 @@
         hudName.textContent = me.name;
       }
     }
+  });
+
+  net.on(CONSTANTS.MSG.FLOOR_CHANGE, (msg) => {
+    console.log('[Game] Floor change!', msg.map.name);
+    renderer.setMap(msg.map, msg.tileset);
+    // Close any open dialogue
+    closeDialogue();
   });
 
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {

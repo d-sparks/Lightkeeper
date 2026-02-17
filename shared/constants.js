@@ -45,6 +45,13 @@ const CONSTANTS = {
   // NPC interaction
   NPC_INTERACT_RANGE: 2.5,   // Tiles distance to interact with NPC
 
+  // Combat
+  MONSTER_AGGRO_RANGE: 8,    // Tiles distance to aggro
+  MONSTER_COLLISION_RADIUS: 10,
+  PLAYER_ATTACK_RANGE: 1.5,  // Tiles distance for auto-attack
+  PLAYER_ATTACK_DAMAGE: 15,
+  PLAYER_ATTACK_COOLDOWN: 0.5, // Seconds between player attacks
+
   // Network message types
   MSG: {
     // Client -> Server
@@ -61,6 +68,7 @@ const CONSTANTS = {
     EVENT:         'event',
     DIALOGUE:      'dialogue',
     DIALOGUE_END:  'dialogue_end',
+    FLOOR_CHANGE:  'floor_change',
   },
 };
 

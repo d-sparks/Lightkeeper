@@ -20,10 +20,9 @@ content.loadAll();
 const gameLoop = new GameLoop(content);
 gameLoop.start();
 
-// Default room + dungeon for Phase 1
-const DEFAULT_ROOM = 'lobby';
-const DEFAULT_DUNGEON = 'crypt_01';
-gameLoop.createRoom(DEFAULT_ROOM, DEFAULT_DUNGEON);
+// Default room + dungeon
+const DEFAULT_ROOM = 'crypt_01';
+gameLoop.createRoom(DEFAULT_ROOM, 'crypt_01');
 
 // --- HTTP server (serves client files) ---
 const MIME_TYPES = {
@@ -54,22 +53,15 @@ function serveFile(res, filePath) {
 const httpServer = http.createServer((req, res) => {
   let urlPath = req.url.split('?')[0];
 
-  // Route: / → client/index.html
   if (urlPath === '/') {
     return serveFile(res, path.join(CLIENT_DIR, 'index.html'));
   }
-
-  // Route: /shared/* → shared files
   if (urlPath.startsWith('/shared/')) {
     return serveFile(res, path.join(SHARED_DIR, urlPath.slice(8)));
   }
-
-  // Route: /content/* → content files (maps, tilesets, etc.)
   if (urlPath.startsWith('/content/')) {
     return serveFile(res, path.join(CONTENT_DIR, urlPath.slice(9)));
   }
-
-  // Route: everything else → client directory
   serveFile(res, path.join(CLIENT_DIR, urlPath));
 });
 
@@ -79,8 +71,9 @@ let nextPlayerId = 1;
 
 wss.on('connection', (ws) => {
   const playerId = `p${nextPlayerId++}`;
-  let playerRoom = null;
-  let playerName = null;
+  ws.playerId = playerId;
+  ws.playerRoom = null;
+  ws.playerName = null;
 
   console.log(`[WS] Client connected: ${playerId}`);
 
@@ -94,17 +87,16 @@ wss.on('connection', (ws) => {
 
     switch (msg.type) {
       case CONSTANTS.MSG.JOIN: {
-        playerName = msg.name || `Player ${nextPlayerId}`;
-        playerRoom = DEFAULT_ROOM;
+        ws.playerName = msg.name || `Player ${nextPlayerId}`;
+        ws.playerRoom = DEFAULT_ROOM;
 
-        const player = gameLoop.addPlayer(playerRoom, playerId, playerName);
+        const player = gameLoop.addPlayer(ws.playerRoom, playerId, ws.playerName);
         if (!player) {
           ws.send(JSON.stringify({ type: 'error', message: 'Could not join room' }));
           return;
         }
 
-        // Send welcome message with player ID and map data
-        const room = gameLoop.getRoom(playerRoom);
+        const room = gameLoop.getRoom(ws.playerRoom);
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.WELCOME,
           playerId,
@@ -112,25 +104,24 @@ wss.on('connection', (ws) => {
           tileset: content.getTileset(room.dungeon.tileset),
         }));
 
-        // Broadcast join event to others in the room
-        broadcast(playerRoom, {
+        broadcast(ws.playerRoom, {
           type: CONSTANTS.MSG.PLAYER_JOIN,
           playerId,
-          name: playerName,
+          name: ws.playerName,
         }, playerId);
         break;
       }
 
       case CONSTANTS.MSG.INPUT: {
-        if (playerRoom) {
-          gameLoop.setPlayerInput(playerRoom, playerId, msg.keys);
+        if (ws.playerRoom) {
+          gameLoop.setPlayerInput(ws.playerRoom, playerId, msg.keys);
         }
         break;
       }
 
       case CONSTANTS.MSG.INTERACT: {
-        if (!playerRoom) break;
-        const result = gameLoop.tryInteract(playerRoom, playerId);
+        if (!ws.playerRoom) break;
+        const result = gameLoop.tryInteract(ws.playerRoom, playerId);
         if (result) {
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.DIALOGUE,
@@ -145,9 +136,9 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     console.log(`[WS] Client disconnected: ${playerId}`);
-    if (playerRoom) {
-      gameLoop.removePlayer(playerRoom, playerId);
-      broadcast(playerRoom, {
+    if (ws.playerRoom) {
+      gameLoop.removePlayer(ws.playerRoom, playerId);
+      broadcast(ws.playerRoom, {
         type: CONSTANTS.MSG.PLAYER_LEAVE,
         playerId,
       });
@@ -159,24 +150,58 @@ wss.on('connection', (ws) => {
   });
 });
 
-// Broadcast a message to all clients in a room, optionally excluding one
+// Broadcast to all clients in a room, optionally excluding one
 function broadcast(roomId, message, excludeId) {
   const json = JSON.stringify(message);
   wss.clients.forEach((client) => {
-    if (client.readyState === 1) {  // WebSocket.OPEN
-      client.send(json);
+    if (client.readyState === 1 && client.playerRoom === roomId) {
+      if (!excludeId || client.playerId !== excludeId) {
+        client.send(json);
+      }
     }
   });
 }
 
-// State broadcast loop - sends game state to all connected clients
+function findClientByPlayerId(playerId) {
+  for (const client of wss.clients) {
+    if (client.playerId === playerId && client.readyState === 1) {
+      return client;
+    }
+  }
+  return null;
+}
+
+// State broadcast loop
 setInterval(() => {
+  // Process floor transitions
+  const transitions = gameLoop.consumeTransitions();
+  for (const t of transitions) {
+    const ws = findClientByPlayerId(t.playerId);
+    if (!ws) continue;
+
+    const player = gameLoop.removePlayer(t.fromRoom, t.playerId);
+    if (!player) continue;
+
+    const targetRoom = gameLoop.getOrCreateRoom(t.toDungeon);
+    if (!targetRoom) continue;
+
+    gameLoop.addPlayerAt(t.toDungeon, player, t.spawnX, t.spawnY);
+    ws.playerRoom = t.toDungeon;
+
+    ws.send(JSON.stringify({
+      type: CONSTANTS.MSG.FLOOR_CHANGE,
+      map: targetRoom.dungeon,
+      tileset: content.getTileset(targetRoom.dungeon.tileset),
+    }));
+  }
+
+  // Send state to each room's players
   for (const [roomId, room] of gameLoop.rooms) {
     const state = gameLoop.getRoomState(roomId);
     if (!state) continue;
     const json = JSON.stringify(state);
     wss.clients.forEach((client) => {
-      if (client.readyState === 1) {
+      if (client.readyState === 1 && client.playerRoom === roomId) {
         client.send(json);
       }
     });

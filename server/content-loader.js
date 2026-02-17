@@ -68,6 +68,10 @@ class ContentLoader {
     console.log(`[Content]   NPCs: ${Object.keys(this.npcs).length} types`);
   }
 
+  getMonster(id) {
+    return this.monsters[id] || null;
+  }
+
   getNPC(id) {
     return this.npcs[id] || null;
   }

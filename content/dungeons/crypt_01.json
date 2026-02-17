@@ -458,7 +458,9 @@
       "x": 17,
       "y": 13,
       "leadsTo": "crypt_02",
-      "type": "stairs_down"
+      "type": "stairs_down",
+      "spawnX": 3,
+      "spawnY": 3
     }
   ]
 }
