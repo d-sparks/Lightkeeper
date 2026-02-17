@@ -116,6 +116,40 @@
       font-size: 11px;
       color: #555;
     }
+
+    /* Dialogue overlay */
+    #dialogue-overlay {
+      display: none;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 26, 0.92);
+      border-top: 2px solid #64b5f6;
+      padding: 14px 18px 12px;
+      pointer-events: auto;
+    }
+
+    #dialogue-overlay .dialogue-speaker {
+      font-size: 12px;
+      color: #64b5f6;
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+    }
+
+    #dialogue-overlay .dialogue-text {
+      font-size: 14px;
+      color: #ddd;
+      line-height: 1.4;
+      min-height: 38px;
+    }
+
+    #dialogue-overlay .dialogue-prompt {
+      font-size: 10px;
+      color: #777;
+      margin-top: 8px;
+      text-align: right;
+    }
   </style>
 </head>
 <body>
@@ -134,6 +168,11 @@
     <div id="hud">
       <div class="health-bar"><div class="health-bar-fill" id="health-fill"></div></div>
       <div class="player-name" id="hud-name"></div>
+    </div>
+    <div id="dialogue-overlay">
+      <div class="dialogue-speaker" id="dialogue-speaker"></div>
+      <div class="dialogue-text" id="dialogue-text"></div>
+      <div class="dialogue-prompt">[E] Continue</div>
     </div>
   </div>
 

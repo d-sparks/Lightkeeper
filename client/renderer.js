@@ -85,6 +85,9 @@ class Renderer {
     // Draw exit points
     this.renderExits(ctx, ts);
 
+    // Draw NPCs
+    this.renderNPCs(ctx, ts);
+
     // Draw players
     this.renderPlayers(ctx, ts);
 
@@ -172,6 +175,58 @@ class Renderer {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('▼', ex, ey);
+    }
+  }
+
+  renderNPCs(ctx, ts) {
+    if (!this.state || !this.state.npcs) return;
+
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 800);
+
+    for (const npc of this.state.npcs) {
+      const nx = npc.x - this.camX;
+      const ny = npc.y - this.camY;
+
+      // NPC body (diamond shape)
+      ctx.fillStyle = CONSTANTS.COLORS.npc;
+      ctx.beginPath();
+      const r = CONSTANTS.PLAYER_RADIUS;
+      ctx.moveTo(nx, ny - r);       // top
+      ctx.lineTo(nx + r, ny);       // right
+      ctx.lineTo(nx, ny + r);       // bottom
+      ctx.lineTo(nx - r, ny);       // left
+      ctx.closePath();
+      ctx.fill();
+
+      // Outline
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Name tag
+      ctx.fillStyle = '#64b5f6';
+      ctx.font = '11px Courier New';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(npc.name, nx, ny - r - 6);
+
+      // Interact prompt if local player is nearby
+      if (this.myId && this.state) {
+        const me = this.state.players.find(p => p.id === this.myId);
+        if (me) {
+          const dx = npc.x - me.x;
+          const dy = npc.y - me.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const range = CONSTANTS.NPC_INTERACT_RANGE * CONSTANTS.TILE_SIZE;
+          if (dist < range) {
+            ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + 0.3 * pulse})`;
+            ctx.font = '10px Courier New';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText('[E] Talk', nx, ny + r + 4);
+          }
+        }
+      }
     }
   }
 

@@ -127,6 +127,19 @@ wss.on('connection', (ws) => {
         }
         break;
       }
+
+      case CONSTANTS.MSG.INTERACT: {
+        if (!playerRoom) break;
+        const result = gameLoop.tryInteract(playerRoom, playerId);
+        if (result) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.DIALOGUE,
+            npcId: result.npcId,
+            dialogue: result.dialogue,
+          }));
+        }
+        break;
+      }
     }
   });
 

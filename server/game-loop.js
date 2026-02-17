@@ -31,15 +31,35 @@ class GameLoop {
       return null;
     }
 
+    // Create NPC instances from dungeon spawn data
+    const npcs = new Map();
+    if (dungeon.npcSpawns) {
+      for (let i = 0; i < dungeon.npcSpawns.length; i++) {
+        const spawn = dungeon.npcSpawns[i];
+        const npcDef = this.content.getNPC(spawn.type);
+        if (!npcDef) continue;
+        const npcId = `npc_${spawn.type}_${i}`;
+        npcs.set(npcId, {
+          id: npcId,
+          type: spawn.type,
+          name: npcDef.name,
+          x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
+          y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
+          dialogue: npcDef.dialogue,
+        });
+      }
+    }
+
     const room = {
       id: roomId,
       dungeon,
       players: new Map(),  // playerId -> Player
+      npcs,                // npcId -> NPC
       tick: 0,
       nextSpawnIndex: 0,
     };
     this.rooms.set(roomId, room);
-    console.log(`[GameLoop] Room "${roomId}" created with dungeon "${dungeon.name}"`);
+    console.log(`[GameLoop] Room "${roomId}" created with dungeon "${dungeon.name}" (${npcs.size} NPCs)`);
     return room;
   }
 
@@ -106,6 +126,31 @@ class GameLoop {
     }
   }
 
+  // Try to interact with the nearest NPC in range
+  tryInteract(roomId, playerId) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player) return null;
+
+    const range = CONSTANTS.NPC_INTERACT_RANGE * CONSTANTS.TILE_SIZE;
+    let closest = null;
+    let closestDist = Infinity;
+
+    for (const [npcId, npc] of room.npcs) {
+      const dx = npc.x - player.x;
+      const dy = npc.y - player.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < range && dist < closestDist) {
+        closest = npc;
+        closestDist = dist;
+      }
+    }
+
+    if (!closest) return null;
+    return { npcId: closest.id, dialogue: closest.dialogue };
+  }
+
   // Build the state snapshot to send to clients
   getRoomState(roomId) {
     const room = this.rooms.get(roomId);
@@ -125,10 +170,21 @@ class GameLoop {
       });
     }
 
+    const npcs = [];
+    for (const [nid, n] of room.npcs) {
+      npcs.push({
+        id: n.id,
+        name: n.name,
+        x: n.x,
+        y: n.y,
+      });
+    }
+
     return {
       type: CONSTANTS.MSG.STATE,
       tick: room.tick,
       players,
+      npcs,
     };
   }
 }

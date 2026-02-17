@@ -25,6 +25,7 @@ const CONSTANTS = {
     floor:   '#2a2a3d',
     wall:    '#5a5a7a',
     player:  ['#4fc3f7', '#ef5350', '#66bb6a', '#ffa726'],  // Per-player colors
+    npc:     '#64b5f6',
     monster: '#e53935',
     item:    '#fdd835',
     exit:    '#ab47bc',
@@ -41,11 +42,15 @@ const CONSTANTS = {
     legendary: '#ff9800',
   },
 
+  // NPC interaction
+  NPC_INTERACT_RANGE: 2.5,   // Tiles distance to interact with NPC
+
   // Network message types
   MSG: {
     // Client -> Server
     JOIN:          'join',
     INPUT:         'input',
+    INTERACT:      'interact',
 
     // Server -> Client
     WELCOME:       'welcome',
@@ -54,6 +59,8 @@ const CONSTANTS = {
     PLAYER_JOIN:   'player_join',
     PLAYER_LEAVE:  'player_leave',
     EVENT:         'event',
+    DIALOGUE:      'dialogue',
+    DIALOGUE_END:  'dialogue_end',
   },
 };
 
