@@ -117,6 +117,67 @@
       border-color: rgba(255,167,38,0.5);
     }
 
+    #interact-btn {
+      position: absolute;
+      right: 110px;
+      bottom: 45px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(100,181,246,0.1);
+      border: 2px solid rgba(100,181,246,0.25);
+      color: #64b5f6;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    #interact-btn.visible { display: flex; }
+
+    #interact-btn:active {
+      background: rgba(100,181,246,0.3);
+      border-color: rgba(100,181,246,0.6);
+    }
+
+    #dialogue-overlay {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 26, 0.92);
+      border-top: 2px solid #64b5f6;
+      padding: 14px 18px 12px;
+      z-index: 100;
+    }
+
+    #dialogue-speaker {
+      font-size: 12px;
+      color: #64b5f6;
+      font-family: 'Courier New', monospace;
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+    }
+
+    #dialogue-text {
+      font-size: 14px;
+      color: #ddd;
+      font-family: 'Courier New', monospace;
+      line-height: 1.4;
+      min-height: 38px;
+    }
+
+    #dialogue-prompt {
+      font-size: 10px;
+      color: #777;
+      font-family: 'Courier New', monospace;
+      margin-top: 8px;
+      text-align: right;
+    }
+
     .info-text {
       font-size: 10px;
       color: #444;
@@ -144,7 +205,7 @@
   <canvas id="game"></canvas>
 </div>
 
-<div class="info-text desktop-only">WASD / Arrows = Move &nbsp;|&nbsp; 1-4 = Switch character</div>
+<div class="info-text desktop-only">WASD / Arrows = Move &nbsp;|&nbsp; 1-4 = Switch character &nbsp;|&nbsp; E = Interact</div>
 
 <div id="controls">
   <div id="joystick-zone">
@@ -152,6 +213,13 @@
     <div id="joystick-thumb"></div>
   </div>
   <div id="switch-btn" role="button">Switch<br>Char</div>
+  <div id="interact-btn" role="button">Talk</div>
+</div>
+
+<div id="dialogue-overlay">
+  <div id="dialogue-speaker"></div>
+  <div id="dialogue-text"></div>
+  <div id="dialogue-prompt">[E] Continue</div>
 </div>
 
 <script>
@@ -162,6 +230,8 @@ const TILE_SIZE = 32;
 const PLAYER_RADIUS = 12;
 const PLAYER_SPEED = 4;
 
+const NPC_INTERACT_RANGE = 2.5;
+
 const COLORS = {
   floor:      '#2a2a3d',
   cracked:    '#332a3d',
@@ -170,6 +240,7 @@ const COLORS = {
   void:       '#0d0d1a',
   background: '#1a1a2e',
   player:     ['#4fc3f7', '#ef5350', '#66bb6a', '#ffa726'],
+  npc:        '#64b5f6',
 };
 
 // ============================================================
@@ -274,6 +345,82 @@ let activePlayer = 0;
 const aiTimers = players.map(() => ({ nextChange: 0, dx: 0, dy: 0 }));
 
 // ============================================================
+// NPCs
+// ============================================================
+const npcs = [{
+  id: 'old_keeper',
+  name: 'Old Keeper',
+  x: (5 + 0.5) * TILE_SIZE,
+  y: (3 + 0.5) * TILE_SIZE,
+  dialogue: [
+    { speaker: 'Old Keeper', text: 'Halt, traveler. You have the look of someone seeking the deep dark.' },
+    { speaker: 'Old Keeper', text: 'I was a Lightkeeper once... before the relays failed and the shadows crept in.' },
+    { speaker: 'Old Keeper', text: 'The creatures down there feed on broken light. They\'ll take everything from you if you let them.' },
+    { speaker: 'Old Keeper', text: 'A word of advice: never carry more than you can afford to lose. Death has a price in these crypts.' },
+    { speaker: 'Old Keeper', text: 'Now go. The stairs await, and the dark won\'t keep itself at bay.' },
+  ],
+}];
+
+// ============================================================
+// DIALOGUE STATE
+// ============================================================
+const dialogueOverlay = document.getElementById('dialogue-overlay');
+const dialogueSpeaker = document.getElementById('dialogue-speaker');
+const dialogueTextEl = document.getElementById('dialogue-text');
+const interactBtn = document.getElementById('interact-btn');
+
+let dialogueActive = false;
+let dialogueLines = [];
+let dialogueIndex = 0;
+let nearbyNPC = null;
+
+function showDialogue(lines) {
+  dialogueLines = lines;
+  dialogueIndex = 0;
+  dialogueActive = true;
+  updateDialogueDisplay();
+  dialogueOverlay.style.display = 'block';
+}
+
+function advanceDialogue() {
+  dialogueIndex++;
+  if (dialogueIndex >= dialogueLines.length) {
+    closeDialogue();
+    return;
+  }
+  updateDialogueDisplay();
+}
+
+function closeDialogue() {
+  dialogueActive = false;
+  dialogueLines = [];
+  dialogueIndex = 0;
+  dialogueOverlay.style.display = 'none';
+}
+
+function updateDialogueDisplay() {
+  const line = dialogueLines[dialogueIndex];
+  if (!line) return;
+  dialogueSpeaker.textContent = line.speaker;
+  dialogueTextEl.textContent = line.text;
+}
+
+function tryInteract() {
+  if (dialogueActive) { advanceDialogue(); return; }
+  if (nearbyNPC) showDialogue(nearbyNPC.dialogue);
+}
+
+function getNearbyNPC() {
+  const me = players[activePlayer];
+  const range = NPC_INTERACT_RANGE * TILE_SIZE;
+  for (const npc of npcs) {
+    const dx = npc.x - me.x, dy = npc.y - me.y;
+    if (Math.sqrt(dx * dx + dy * dy) < range) return npc;
+  }
+  return null;
+}
+
+// ============================================================
 // INPUT — Keyboard
 // ============================================================
 const keys = { up: false, down: false, left: false, right: false };
@@ -282,6 +429,7 @@ const keyMap = {
   w:'up',W:'up',s:'down',S:'down',a:'left',A:'left',d:'right',D:'right',
 };
 window.addEventListener('keydown', (e) => {
+  if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') { e.preventDefault(); tryInteract(); return; }
   if (e.key >= '1' && e.key <= '4') { activePlayer = parseInt(e.key) - 1; return; }
   const a = keyMap[e.key]; if (a) { e.preventDefault(); keys[a] = true; }
 });
@@ -387,6 +535,22 @@ switchBtn.addEventListener('click', (e) => {
   activePlayer = (activePlayer + 1) % players.length;
 });
 
+// Interact button (touch)
+interactBtn.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  tryInteract();
+}, { passive: false });
+
+interactBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  tryInteract();
+});
+
+// Also allow tapping dialogue overlay to advance
+dialogueOverlay.addEventListener('click', () => {
+  if (dialogueActive) advanceDialogue();
+});
+
 // Prevent accidental zooming / scrolling
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 document.addEventListener('gesturechange', (e) => e.preventDefault());
@@ -443,6 +607,13 @@ function update(dt, now) {
   if (len > 1) { dx /= len; dy /= len; }
 
   movePlayer(players[activePlayer], dx, dy, dt);
+
+  // Check nearby NPC for interact prompt
+  nearbyNPC = getNearbyNPC();
+  const isMobile = ('ontouchstart' in window);
+  if (isMobile) {
+    interactBtn.classList.toggle('visible', !!nearbyNPC || dialogueActive);
+  }
 
   // AI for others
   for (let i = 0; i < players.length; i++) {
@@ -502,6 +673,40 @@ function render(now) {
   ctx.font = `${TILE_SIZE * 0.5}px Courier New`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText('▼', ex, ey);
+
+  // NPCs
+  const npcPulse = 0.5 + 0.5 * Math.sin(now / 800);
+  for (const npc of npcs) {
+    const nx = npc.x - camX, ny = npc.y - camY;
+    const r = PLAYER_RADIUS;
+
+    // Diamond shape
+    ctx.fillStyle = COLORS.npc;
+    ctx.beginPath();
+    ctx.moveTo(nx, ny - r);
+    ctx.lineTo(nx + r, ny);
+    ctx.lineTo(nx, ny + r);
+    ctx.lineTo(nx - r, ny);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Name tag
+    ctx.fillStyle = '#64b5f6';
+    ctx.font = '11px Courier New';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(npc.name, nx, ny - r - 6);
+
+    // Interact prompt
+    if (nearbyNPC === npc && !dialogueActive) {
+      ctx.fillStyle = `rgba(255,255,255,${0.5 + 0.3 * npcPulse})`;
+      ctx.font = '10px Courier New';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText('[E] Talk', nx, ny + r + 4);
+    }
+  }
 
   // Players
   for (let i = 0; i < players.length; i++) {
