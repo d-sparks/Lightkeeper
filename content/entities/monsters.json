@@ -1,0 +1,29 @@
+{
+  "skeleton": {
+    "name": "Skeleton",
+    "sprite": "sprites/skeleton.png",
+    "size": [16, 16],
+    "health": 30,
+    "speed": 1.5,
+    "damage": 8,
+    "attackRange": 1,
+    "attackSpeed": 1.0,
+    "ai": "melee_chase",
+    "lootTable": "skeleton_common",
+    "xp": 10
+  },
+  "skeleton_archer": {
+    "name": "Skeleton Archer",
+    "sprite": "sprites/skeleton_archer.png",
+    "size": [16, 16],
+    "health": 20,
+    "speed": 1.0,
+    "damage": 12,
+    "attackRange": 8,
+    "attackSpeed": 0.7,
+    "projectile": "arrow_bone",
+    "ai": "ranged_kite",
+    "lootTable": "skeleton_common",
+    "xp": 15
+  }
+}
