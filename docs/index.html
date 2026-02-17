@@ -475,9 +475,6 @@ const players = [0,1,2,3].map(i => ({
 let activePlayer = 0;
 const aiTimers = players.map(() => ({ nextChange: 0, dx: 0, dy: 0 }));
 
-// Initial load
-loadFloor('crypt_01');
-
 // ============================================================
 // DIALOGUE STATE
 // ============================================================
@@ -1022,8 +1019,9 @@ function render(now) {
 }
 
 // ============================================================
-// GAME LOOP
+// INIT + GAME LOOP
 // ============================================================
+loadFloor('crypt_01');
 let lastTime = performance.now();
 function loop(now) {
   const dt = Math.min((now - lastTime) / 1000, 0.1);
