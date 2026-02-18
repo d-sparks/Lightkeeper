@@ -101,6 +101,51 @@ class GameLoop {
     }
   }
 
+  reloadRoom(roomId) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+
+    const dungeon = this.content.getDungeon(room.dungeonId);
+    if (!dungeon) return null;
+
+    room.dungeon = dungeon;
+
+    // Respawn NPCs from updated data
+    room.npcs.clear();
+    if (dungeon.npcSpawns) {
+      for (let i = 0; i < dungeon.npcSpawns.length; i++) {
+        const spawn = dungeon.npcSpawns[i];
+        const npcDef = this.content.getNPC(spawn.type);
+        if (!npcDef) continue;
+        const npcId = `npc_${spawn.type}_${i}`;
+        room.npcs.set(npcId, {
+          id: npcId,
+          type: spawn.type,
+          name: npcDef.name,
+          x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
+          y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
+          dialogue: npcDef.dialogue,
+        });
+      }
+    }
+
+    // Respawn monsters from updated data
+    room.monsters.clear();
+    room.nextMonsterId = 0;
+    this.spawnMonsters(room);
+
+    // Move players to spawn point (they may be standing in a wall now)
+    const spawn = dungeon.spawns && dungeon.spawns[0] || { x: 2, y: 2 };
+    for (const [pid, player] of room.players) {
+      player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
+      player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
+      player.health = player.maxHealth;
+    }
+
+    console.log(`[GameLoop] Room "${roomId}" reloaded with updated dungeon data`);
+    return room;
+  }
+
   getRoom(roomId) {
     return this.rooms.get(roomId);
   }

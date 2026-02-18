@@ -19,6 +19,7 @@ const api = {
   async getTilesets() { return (await fetch('/api/editor/tilesets')).json(); },
   async getMonsters() { return (await fetch('/api/editor/monsters')).json(); },
   async getNPCs() { return (await fetch('/api/editor/npcs')).json(); },
+  async reload() { return (await fetch('/api/editor/reload', { method: 'POST' })).json(); },
 };
 
 // ─── Tile colors (match game rendering) ─────────────────────
@@ -212,6 +213,16 @@ function Editor({ dungeonId, onBack }) {
     } catch { showToast('Save failed', 'error'); }
   };
 
+  const saveAndReload = async () => {
+    if (!dungeon) return;
+    try {
+      await api.saveDungeon(dungeon.id, dungeon);
+      setDirty(false);
+      const result = await api.reload();
+      showToast(`Reloaded ${result.reloaded.length} room(s)`, 'success');
+    } catch { showToast('Reload failed', 'error'); }
+  };
+
   if (!dungeon) return html`<div style="padding:40px;text-align:center;color:var(--text-dim)">Loading...</div>`;
 
   const tileset = tilesets.find(t => t.id === dungeon.tileset);
@@ -235,6 +246,7 @@ function Editor({ dungeonId, onBack }) {
       <div class="topbar-spacer" />
       <button class="topbar-btn" onClick=${() => setShowProps(true)}>Props</button>
       <button class="topbar-btn primary" onClick=${save}>${dirty ? 'Save*' : 'Save'}</button>
+      <button class="topbar-btn danger" onClick=${saveAndReload}>Reload</button>
     </div>
     <div class="editor-main">
       <${TileCanvas}
