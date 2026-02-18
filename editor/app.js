@@ -1,0 +1,736 @@
+import { h, render, Component } from 'https://esm.sh/preact@10.19.3';
+import { useState, useEffect, useRef, useCallback } from 'https://esm.sh/preact@10.19.3/hooks';
+import htm from 'https://esm.sh/htm@3.1.1';
+
+const html = htm.bind(h);
+
+// ─── API helpers ────────────────────────────────────────────
+const api = {
+  async listDungeons() { return (await fetch('/api/editor/dungeons')).json(); },
+  async getDungeon(id) { return (await fetch(`/api/editor/dungeons/${id}`)).json(); },
+  async saveDungeon(id, data) {
+    const exists = await fetch(`/api/editor/dungeons/${id}`);
+    if (exists.status === 200) {
+      return (await fetch(`/api/editor/dungeons/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json();
+    }
+    return (await fetch('/api/editor/dungeons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json();
+  },
+  async deleteDungeon(id) { return (await fetch(`/api/editor/dungeons/${id}`, { method: 'DELETE' })).json(); },
+  async getTilesets() { return (await fetch('/api/editor/tilesets')).json(); },
+  async getMonsters() { return (await fetch('/api/editor/monsters')).json(); },
+  async getNPCs() { return (await fetch('/api/editor/npcs')).json(); },
+};
+
+// ─── Tile colors (match game rendering) ─────────────────────
+const TILE_COLORS = {
+  0: '#111122',   // void
+  1: '#2a2a3d',   // stone_floor
+  2: '#33334d',   // cracked_floor
+  3: '#5a5a7a',   // stone_wall
+  4: '#8b6914',   // door_closed
+  5: '#6b8914',   // door_open
+  6: '#ab47bc',   // stairs_down
+  7: '#1a3a6a',   // water
+  8: '#7b37ac',   // stairs_up
+};
+
+const SPAWN_COLORS = {
+  player_start: '#4fc3f7',
+  monster: '#e53935',
+  npc: '#64b5f6',
+  exit: '#ab47bc',
+};
+
+// ─── Toast ──────────────────────────────────────────────────
+let toastTimeout;
+function showToast(msg, type = '') {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'toast' + (type ? ` ${type}` : '');
+  el.style.display = 'block';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.style.display = 'none', 2000);
+}
+
+// ─── App ────────────────────────────────────────────────────
+function App() {
+  const [view, setView] = useState('list');        // 'list' | 'edit'
+  const [dungeonId, setDungeonId] = useState(null);
+
+  const openEditor = (id) => { setDungeonId(id); setView('edit'); };
+  const backToList = () => { setView('list'); setDungeonId(null); };
+
+  return html`
+    <div id="toast" class="toast" style="display:none"></div>
+    ${view === 'list'
+      ? html`<${DungeonList} onOpen=${openEditor} />`
+      : html`<${Editor} dungeonId=${dungeonId} onBack=${backToList} />`
+    }
+  `;
+}
+
+// ─── Dungeon List ───────────────────────────────────────────
+function DungeonList({ onOpen }) {
+  const [dungeons, setDungeons] = useState([]);
+  const [showNew, setShowNew] = useState(false);
+
+  useEffect(() => { api.listDungeons().then(setDungeons); }, []);
+
+  const createDungeon = async (id, name, width, height) => {
+    const data = Array(width * height).fill(3);
+    // Carve a small starting room in the center
+    const cx = Math.floor(width / 2), cy = Math.floor(height / 2);
+    for (let dy = -2; dy <= 2; dy++)
+      for (let dx = -2; dx <= 2; dx++) {
+        const tx = cx + dx, ty = cy + dy;
+        if (tx >= 0 && tx < width && ty >= 0 && ty < height)
+          data[ty * width + tx] = 1;
+      }
+
+    const dungeon = {
+      id, name, depth: 1, tileset: 'crypt', tileSize: 32,
+      width, height, data,
+      spawns: [{ x: cx, y: cy, type: 'player_start' }],
+      monsterSpawns: [], npcSpawns: [], exits: []
+    };
+    try {
+      await api.saveDungeon(id, dungeon);
+      showToast('Dungeon created', 'success');
+      setShowNew(false);
+      api.listDungeons().then(setDungeons);
+    } catch { showToast('Failed to create', 'error'); }
+  };
+
+  return html`
+    <div class="dungeon-list-page">
+      <div class="dungeon-list-header">
+        <h1>Level Editor</h1>
+        <button class="topbar-btn primary" onClick=${() => setShowNew(true)}>+ New</button>
+      </div>
+      <div class="dungeon-cards">
+        ${dungeons.map(d => html`
+          <div class="dungeon-card" key=${d.id} onClick=${() => onOpen(d.id)}>
+            <div class="dungeon-card-info">
+              <h3>${d.name}</h3>
+              <p>${d.id} · ${d.width}x${d.height} · depth ${d.depth}</p>
+            </div>
+            <div class="dungeon-card-arrow">›</div>
+          </div>
+        `)}
+        ${dungeons.length === 0 && html`<p style="color: var(--text-dim); text-align: center; padding: 40px 0;">No dungeons yet. Create one!</p>`}
+      </div>
+      ${showNew && html`<${NewDungeonModal} onCreate=${createDungeon} onClose=${() => setShowNew(false)} />`}
+    </div>
+  `;
+}
+
+// ─── New Dungeon Modal ──────────────────────────────────────
+function NewDungeonModal({ onCreate, onClose }) {
+  const [id, setId] = useState('');
+  const [name, setName] = useState('');
+  const [width, setWidth] = useState(25);
+  const [height, setHeight] = useState(16);
+
+  const submit = () => {
+    const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!safeId || !name) return;
+    onCreate(safeId, name, Number(width), Number(height));
+  };
+
+  return html`
+    <div class="modal-overlay" onClick=${(e) => e.target === e.currentTarget && onClose()}>
+      <div class="modal">
+        <h2>New Dungeon</h2>
+        <div class="field">
+          <label>ID (e.g. crypt_03)</label>
+          <input value=${id} onInput=${e => setId(e.target.value)} placeholder="dungeon_id" />
+        </div>
+        <div class="field">
+          <label>Name</label>
+          <input value=${name} onInput=${e => setName(e.target.value)} placeholder="The Dark Passage" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Width</label>
+            <input type="number" value=${width} onInput=${e => setWidth(e.target.value)} min="5" max="100" />
+          </div>
+          <div class="field">
+            <label>Height</label>
+            <input type="number" value=${height} onInput=${e => setHeight(e.target.value)} min="5" max="100" />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button onClick=${onClose}>Cancel</button>
+          <button class="primary" onClick=${submit}>Create</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Editor ─────────────────────────────────────────────────
+function Editor({ dungeonId, onBack }) {
+  const [dungeon, setDungeon] = useState(null);
+  const [tilesets, setTilesets] = useState([]);
+  const [monsters, setMonsters] = useState({});
+  const [npcs, setNPCs] = useState({});
+  const [tool, setTool] = useState('paint');          // paint | erase | spawn | select
+  const [selectedTile, setSelectedTile] = useState(1); // tile ID to paint
+  const [spawnMode, setSpawnMode] = useState('player_start'); // player_start | monster | npc | exit
+  const [dirty, setDirty] = useState(false);
+  const [showProps, setShowProps] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      api.getDungeon(dungeonId),
+      api.getTilesets(),
+      api.getMonsters(),
+      api.getNPCs()
+    ]).then(([d, t, m, n]) => {
+      setDungeon(d);
+      setTilesets(t);
+      setMonsters(m);
+      setNPCs(n);
+    });
+  }, [dungeonId]);
+
+  const updateDungeon = useCallback((updater) => {
+    setDungeon(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
+      return next;
+    });
+    setDirty(true);
+  }, []);
+
+  const save = async () => {
+    if (!dungeon) return;
+    try {
+      await api.saveDungeon(dungeon.id, dungeon);
+      setDirty(false);
+      showToast('Saved!', 'success');
+    } catch { showToast('Save failed', 'error'); }
+  };
+
+  if (!dungeon) return html`<div style="padding:40px;text-align:center;color:var(--text-dim)">Loading...</div>`;
+
+  const tileset = tilesets.find(t => t.id === dungeon.tileset);
+  const tiles = tileset ? tileset.tiles : {};
+
+  const panelContent = html`
+    <${ToolSelector} tool=${tool} setTool=${setTool} spawnMode=${spawnMode} setSpawnMode=${setSpawnMode} />
+    ${tool === 'paint' && html`<${TilePalette} tiles=${tiles} selected=${selectedTile} onSelect=${setSelectedTile} />`}
+    ${tool === 'spawn' && html`<${SpawnPanel}
+      dungeon=${dungeon} updateDungeon=${updateDungeon}
+      spawnMode=${spawnMode} setSpawnMode=${setSpawnMode}
+      monsters=${monsters} npcs=${npcs}
+    />`}
+    <${SpawnList} dungeon=${dungeon} updateDungeon=${updateDungeon} />
+  `;
+
+  return html`
+    <div class="topbar">
+      <button class="topbar-btn" onClick=${onBack}>← Back</button>
+      <h1>${dungeon.name}</h1>
+      <div class="topbar-spacer" />
+      <button class="topbar-btn" onClick=${() => setShowProps(true)}>Props</button>
+      <button class="topbar-btn primary" onClick=${save}>${dirty ? 'Save*' : 'Save'}</button>
+    </div>
+    <div class="editor-main">
+      <${TileCanvas}
+        dungeon=${dungeon} tiles=${tiles} tool=${tool}
+        selectedTile=${selectedTile} spawnMode=${spawnMode}
+        updateDungeon=${updateDungeon}
+        monsters=${monsters} npcs=${npcs}
+      />
+      <div class="side-panel">${panelContent}</div>
+    </div>
+    <div class="bottom-sheet" id="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-content">${panelContent}</div>
+    </div>
+    ${showProps && html`<${PropertiesModal} dungeon=${dungeon} tilesets=${tilesets}
+      updateDungeon=${updateDungeon} onClose=${() => setShowProps(false)} />`}
+  `;
+}
+
+// ─── Tool Selector ──────────────────────────────────────────
+function ToolSelector({ tool, setTool, spawnMode, setSpawnMode }) {
+  return html`
+    <div class="panel-section">
+      <h3>Tool</h3>
+      <div class="tool-bar">
+        <button class="tool-btn ${tool === 'paint' ? 'selected' : ''}" onClick=${() => setTool('paint')}>Paint</button>
+        <button class="tool-btn ${tool === 'erase' ? 'selected' : ''}" onClick=${() => setTool('erase')}>Erase</button>
+        <button class="tool-btn ${tool === 'spawn' ? 'selected' : ''}" onClick=${() => setTool('spawn')}>Spawn</button>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Tile Palette ───────────────────────────────────────────
+function TilePalette({ tiles, selected, onSelect }) {
+  const entries = Object.entries(tiles);
+  return html`
+    <div class="panel-section">
+      <h3>Tiles</h3>
+      <div class="tile-grid">
+        ${entries.map(([id, tile]) => html`
+          <button key=${id}
+            class="tile-btn ${Number(id) === selected ? 'selected' : ''}"
+            onClick=${() => onSelect(Number(id))}>
+            <div class="tile-swatch" style="background:${TILE_COLORS[id] || '#333'}"></div>
+            ${tile.name.replace(/_/g, ' ')}
+          </button>
+        `)}
+      </div>
+    </div>
+  `;
+}
+
+// ─── Spawn Panel ────────────────────────────────────────────
+function SpawnPanel({ dungeon, updateDungeon, spawnMode, setSpawnMode, monsters, npcs }) {
+  return html`
+    <div class="panel-section">
+      <h3>Place Spawns</h3>
+      <div class="tool-bar" style="flex-wrap:wrap">
+        <button class="tool-btn ${spawnMode === 'player_start' ? 'selected' : ''}"
+          onClick=${() => setSpawnMode('player_start')}
+          style="border-color:${SPAWN_COLORS.player_start}">Player</button>
+        <button class="tool-btn ${spawnMode === 'monster' ? 'selected' : ''}"
+          onClick=${() => setSpawnMode('monster')}
+          style="border-color:${SPAWN_COLORS.monster}">Monster</button>
+        <button class="tool-btn ${spawnMode === 'npc' ? 'selected' : ''}"
+          onClick=${() => setSpawnMode('npc')}
+          style="border-color:${SPAWN_COLORS.npc}">NPC</button>
+        <button class="tool-btn ${spawnMode === 'exit' ? 'selected' : ''}"
+          onClick=${() => setSpawnMode('exit')}
+          style="border-color:${SPAWN_COLORS.exit}">Exit</button>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:8px">Tap a floor tile to place.</p>
+    </div>
+  `;
+}
+
+// ─── Spawn List ─────────────────────────────────────────────
+function SpawnList({ dungeon, updateDungeon }) {
+  const allSpawns = [
+    ...dungeon.spawns.map((s, i) => ({ ...s, _kind: 'spawn', _i: i, _label: `Player (${s.x},${s.y})` })),
+    ...dungeon.monsterSpawns.map((s, i) => ({ ...s, _kind: 'monster', _i: i, _label: `${s.type} (${s.x},${s.y}) x${s.count}` })),
+    ...dungeon.npcSpawns.map((s, i) => ({ ...s, _kind: 'npc', _i: i, _label: `${s.type} (${s.x},${s.y})` })),
+    ...dungeon.exits.map((s, i) => ({ ...s, _kind: 'exit', _i: i, _label: `Exit→${s.leadsTo} (${s.x},${s.y})` })),
+  ];
+
+  const remove = (kind, idx) => {
+    updateDungeon(prev => {
+      const d = { ...prev };
+      if (kind === 'spawn') d.spawns = d.spawns.filter((_, i) => i !== idx);
+      else if (kind === 'monster') d.monsterSpawns = d.monsterSpawns.filter((_, i) => i !== idx);
+      else if (kind === 'npc') d.npcSpawns = d.npcSpawns.filter((_, i) => i !== idx);
+      else if (kind === 'exit') d.exits = d.exits.filter((_, i) => i !== idx);
+      return d;
+    });
+  };
+
+  if (allSpawns.length === 0) return null;
+
+  const colorFor = (kind) => {
+    if (kind === 'spawn') return SPAWN_COLORS.player_start;
+    if (kind === 'monster') return SPAWN_COLORS.monster;
+    if (kind === 'npc') return SPAWN_COLORS.npc;
+    return SPAWN_COLORS.exit;
+  };
+
+  return html`
+    <div class="panel-section">
+      <h3>Spawns (${allSpawns.length})</h3>
+      <div class="spawn-list">
+        ${allSpawns.map(s => html`
+          <div class="spawn-item" key="${s._kind}-${s._i}">
+            <div class="spawn-dot" style="background:${colorFor(s._kind)}"></div>
+            <span>${s._label}</span>
+            <button class="spawn-remove" onClick=${() => remove(s._kind, s._i)}>×</button>
+          </div>
+        `)}
+      </div>
+    </div>
+  `;
+}
+
+// ─── Properties Modal ───────────────────────────────────────
+function PropertiesModal({ dungeon, tilesets, updateDungeon, onClose }) {
+  const [name, setName] = useState(dungeon.name);
+  const [depth, setDepth] = useState(dungeon.depth);
+  const [tileset, setTileset] = useState(dungeon.tileset);
+  const [width, setWidth] = useState(dungeon.width);
+  const [height, setHeight] = useState(dungeon.height);
+
+  const apply = () => {
+    const newW = Math.max(5, Math.min(100, Number(width)));
+    const newH = Math.max(5, Math.min(100, Number(height)));
+
+    updateDungeon(prev => {
+      const d = { ...prev, name, depth: Number(depth), tileset };
+      // Resize grid if dimensions changed
+      if (newW !== prev.width || newH !== prev.height) {
+        const newData = Array(newW * newH).fill(3);
+        for (let y = 0; y < Math.min(prev.height, newH); y++) {
+          for (let x = 0; x < Math.min(prev.width, newW); x++) {
+            newData[y * newW + x] = prev.data[y * prev.width + x];
+          }
+        }
+        d.width = newW;
+        d.height = newH;
+        d.data = newData;
+        // Remove out-of-bounds spawns
+        d.spawns = d.spawns.filter(s => s.x < newW && s.y < newH);
+        d.monsterSpawns = d.monsterSpawns.filter(s => s.x < newW && s.y < newH);
+        d.npcSpawns = d.npcSpawns.filter(s => s.x < newW && s.y < newH);
+        d.exits = d.exits.filter(s => s.x < newW && s.y < newH);
+      }
+      return d;
+    });
+    onClose();
+  };
+
+  return html`
+    <div class="modal-overlay" onClick=${e => e.target === e.currentTarget && onClose()}>
+      <div class="modal">
+        <h2>Dungeon Properties</h2>
+        <div class="field">
+          <label>Name</label>
+          <input value=${name} onInput=${e => setName(e.target.value)} />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Depth</label>
+            <input type="number" value=${depth} onInput=${e => setDepth(e.target.value)} min="1" />
+          </div>
+          <div class="field">
+            <label>Tileset</label>
+            <select value=${tileset} onChange=${e => setTileset(e.target.value)}>
+              ${tilesets.map(t => html`<option key=${t.id} value=${t.id}>${t.id}</option>`)}
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Width</label>
+            <input type="number" value=${width} onInput=${e => setWidth(e.target.value)} min="5" max="100" />
+          </div>
+          <div class="field">
+            <label>Height</label>
+            <input type="number" value=${height} onInput=${e => setHeight(e.target.value)} min="5" max="100" />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button onClick=${onClose}>Cancel</button>
+          <button class="primary" onClick=${apply}>Apply</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Tile Canvas (the core painting surface) ────────────────
+function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, updateDungeon, monsters, npcs }) {
+  const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
+  const stateRef = useRef({
+    offsetX: 0, offsetY: 0, scale: 1,
+    isPanning: false, isPainting: false,
+    lastPanX: 0, lastPanY: 0,
+    pinchDist: 0,
+  });
+
+  const CELL = 24;
+
+  // --- Draw ---
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !dungeon) return;
+    const ctx = canvas.getContext('2d');
+    const st = stateRef.current;
+    const w = canvas.width, h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.save();
+    ctx.translate(st.offsetX, st.offsetY);
+    ctx.scale(st.scale, st.scale);
+
+    const cellSize = CELL;
+
+    // Draw tiles
+    for (let y = 0; y < dungeon.height; y++) {
+      for (let x = 0; x < dungeon.width; x++) {
+        const tileId = dungeon.data[y * dungeon.width + x];
+        ctx.fillStyle = TILE_COLORS[tileId] || '#333';
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      }
+    }
+
+    // Draw spawns
+    const drawMarker = (x, y, color, label) => {
+      const cx = x * cellSize + cellSize / 2;
+      const cy = y * cellSize + cellSize / 2;
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.arc(cx, cy, cellSize * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      if (label) {
+        ctx.fillStyle = '#fff';
+        ctx.font = `${Math.max(7, cellSize * 0.35)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, cx, cy);
+      }
+    };
+
+    for (const s of dungeon.spawns) drawMarker(s.x, s.y, SPAWN_COLORS.player_start, 'P');
+    for (const s of dungeon.monsterSpawns) drawMarker(s.x, s.y, SPAWN_COLORS.monster, 'M');
+    for (const s of dungeon.npcSpawns) drawMarker(s.x, s.y, SPAWN_COLORS.npc, 'N');
+    for (const s of dungeon.exits) drawMarker(s.x, s.y, SPAWN_COLORS.exit, 'E');
+
+    ctx.restore();
+  }, [dungeon]);
+
+  // --- Resize canvas ---
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const canvas = canvasRef.current;
+    if (!wrap || !canvas) return;
+
+    const ro = new ResizeObserver(() => {
+      canvas.width = wrap.clientWidth;
+      canvas.height = wrap.clientHeight;
+      draw();
+    });
+    ro.observe(wrap);
+    return () => ro.disconnect();
+  }, [draw]);
+
+  useEffect(() => { draw(); }, [draw, dungeon]);
+
+  // Center on initial load
+  useEffect(() => {
+    if (!dungeon || !wrapRef.current) return;
+    const wrap = wrapRef.current;
+    const totalW = dungeon.width * CELL;
+    const totalH = dungeon.height * CELL;
+    const st = stateRef.current;
+    st.scale = Math.min(wrap.clientWidth / totalW, wrap.clientHeight / totalH, 2) * 0.9;
+    st.offsetX = (wrap.clientWidth - totalW * st.scale) / 2;
+    st.offsetY = (wrap.clientHeight - totalH * st.scale) / 2;
+    draw();
+  }, [dungeon?.id]);
+
+  // --- Convert screen pos to grid cell ---
+  const screenToCell = (clientX, clientY) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    const st = stateRef.current;
+    const sx = clientX - rect.left;
+    const sy = clientY - rect.top;
+    const wx = (sx - st.offsetX) / st.scale;
+    const wy = (sy - st.offsetY) / st.scale;
+    const gx = Math.floor(wx / CELL);
+    const gy = Math.floor(wy / CELL);
+    if (gx < 0 || gy < 0 || gx >= dungeon.width || gy >= dungeon.height) return null;
+    return { x: gx, y: gy };
+  };
+
+  // --- Apply tool at cell ---
+  const applyTool = useCallback((cell) => {
+    if (!cell) return;
+    if (tool === 'paint') {
+      updateDungeon(prev => {
+        const idx = cell.y * prev.width + cell.x;
+        if (prev.data[idx] === selectedTile) return prev;
+        const data = [...prev.data];
+        data[idx] = selectedTile;
+        return { ...prev, data };
+      });
+    } else if (tool === 'erase') {
+      updateDungeon(prev => {
+        const idx = cell.y * prev.width + cell.x;
+        if (prev.data[idx] === 0) return prev;
+        const data = [...prev.data];
+        data[idx] = 0;
+        return { ...prev, data };
+      });
+    } else if (tool === 'spawn') {
+      updateDungeon(prev => {
+        const d = { ...prev };
+        if (spawnMode === 'player_start') {
+          d.spawns = [...d.spawns, { x: cell.x, y: cell.y, type: 'player_start' }];
+        } else if (spawnMode === 'monster') {
+          const monsterTypes = Object.keys(monsters);
+          const type = monsterTypes[0] || 'skeleton';
+          d.monsterSpawns = [...d.monsterSpawns, { type, x: cell.x, y: cell.y, count: 1, patrol: 'wander' }];
+        } else if (spawnMode === 'npc') {
+          const npcTypes = Object.keys(npcs);
+          const type = npcTypes[0] || 'old_keeper';
+          d.npcSpawns = [...d.npcSpawns, { type, x: cell.x, y: cell.y }];
+        } else if (spawnMode === 'exit') {
+          d.exits = [...d.exits, { x: cell.x, y: cell.y, leadsTo: '', type: 'stairs_down', spawnX: 3, spawnY: 3 }];
+        }
+        return d;
+      });
+    }
+  }, [tool, selectedTile, spawnMode, updateDungeon, monsters, npcs]);
+
+  // --- Mouse events ---
+  const onPointerDown = (e) => {
+    const st = stateRef.current;
+    // Right-click or two-finger = pan
+    if (e.button === 1 || e.button === 2 || e.ctrlKey || e.metaKey) {
+      st.isPanning = true;
+      st.lastPanX = e.clientX;
+      st.lastPanY = e.clientY;
+      e.preventDefault();
+      return;
+    }
+    if (tool === 'spawn') {
+      // Single tap for spawns
+      const cell = screenToCell(e.clientX, e.clientY);
+      applyTool(cell);
+    } else {
+      st.isPainting = true;
+      const cell = screenToCell(e.clientX, e.clientY);
+      applyTool(cell);
+    }
+  };
+
+  const onPointerMove = (e) => {
+    const st = stateRef.current;
+    if (st.isPanning) {
+      st.offsetX += e.clientX - st.lastPanX;
+      st.offsetY += e.clientY - st.lastPanY;
+      st.lastPanX = e.clientX;
+      st.lastPanY = e.clientY;
+      draw();
+      return;
+    }
+    if (st.isPainting && tool !== 'spawn') {
+      const cell = screenToCell(e.clientX, e.clientY);
+      applyTool(cell);
+    }
+  };
+
+  const onPointerUp = () => {
+    const st = stateRef.current;
+    st.isPanning = false;
+    st.isPainting = false;
+  };
+
+  // --- Touch events (pinch zoom + two-finger pan) ---
+  const onTouchStart = (e) => {
+    const st = stateRef.current;
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      st.isPanning = true;
+      st.isPainting = false;
+      const t0 = e.touches[0], t1 = e.touches[1];
+      st.pinchDist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+      st.lastPanX = (t0.clientX + t1.clientX) / 2;
+      st.lastPanY = (t0.clientY + t1.clientY) / 2;
+      return;
+    }
+    if (e.touches.length === 1) {
+      const t = e.touches[0];
+      if (tool === 'spawn') {
+        const cell = screenToCell(t.clientX, t.clientY);
+        applyTool(cell);
+      } else {
+        st.isPainting = true;
+        const cell = screenToCell(t.clientX, t.clientY);
+        applyTool(cell);
+      }
+    }
+  };
+
+  const onTouchMove = (e) => {
+    const st = stateRef.current;
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const t0 = e.touches[0], t1 = e.touches[1];
+      const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+      const midX = (t0.clientX + t1.clientX) / 2;
+      const midY = (t0.clientY + t1.clientY) / 2;
+
+      // Zoom
+      if (st.pinchDist > 0) {
+        const zoomFactor = dist / st.pinchDist;
+        const rect = canvasRef.current.getBoundingClientRect();
+        const cx = midX - rect.left;
+        const cy = midY - rect.top;
+        const newScale = Math.max(0.3, Math.min(5, st.scale * zoomFactor));
+        st.offsetX = cx - (cx - st.offsetX) * (newScale / st.scale);
+        st.offsetY = cy - (cy - st.offsetY) * (newScale / st.scale);
+        st.scale = newScale;
+      }
+      st.pinchDist = dist;
+
+      // Pan
+      st.offsetX += midX - st.lastPanX;
+      st.offsetY += midY - st.lastPanY;
+      st.lastPanX = midX;
+      st.lastPanY = midY;
+      draw();
+      return;
+    }
+    if (e.touches.length === 1 && st.isPainting && tool !== 'spawn') {
+      const t = e.touches[0];
+      const cell = screenToCell(t.clientX, t.clientY);
+      applyTool(cell);
+    }
+  };
+
+  const onTouchEnd = (e) => {
+    if (e.touches.length < 2) {
+      stateRef.current.isPanning = false;
+      stateRef.current.pinchDist = 0;
+    }
+    if (e.touches.length === 0) {
+      stateRef.current.isPainting = false;
+    }
+  };
+
+  // --- Wheel zoom ---
+  const onWheel = (e) => {
+    e.preventDefault();
+    const st = stateRef.current;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const cx = e.clientX - rect.left;
+    const cy = e.clientY - rect.top;
+    const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+    const newScale = Math.max(0.3, Math.min(5, st.scale * zoomFactor));
+    st.offsetX = cx - (cx - st.offsetX) * (newScale / st.scale);
+    st.offsetY = cy - (cy - st.offsetY) * (newScale / st.scale);
+    st.scale = newScale;
+    draw();
+  };
+
+  return html`
+    <div class="canvas-wrap" ref=${wrapRef}
+      onContextMenu=${e => e.preventDefault()}>
+      <canvas ref=${canvasRef}
+        onPointerDown=${onPointerDown}
+        onPointerMove=${onPointerMove}
+        onPointerUp=${onPointerUp}
+        onPointerLeave=${onPointerUp}
+        onTouchStart=${onTouchStart}
+        onTouchMove=${onTouchMove}
+        onTouchEnd=${onTouchEnd}
+        onWheel=${onWheel}
+        style="touch-action:none"
+      />
+    </div>
+  `;
+}
+
+// ─── Mount ──────────────────────────────────────────────────
+render(html`<${App} />`, document.getElementById('app'));

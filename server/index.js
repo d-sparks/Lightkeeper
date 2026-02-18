@@ -5,12 +5,14 @@ const { WebSocketServer } = require('ws');
 const CONSTANTS = require('../shared/constants');
 const ContentLoader = require('./content-loader');
 const GameLoop = require('./game-loop');
+const { handleEditorAPI } = require('./editor-api');
 
 // --- Configuration ---
 const PORT = process.env.PORT || 3000;
 const CONTENT_DIR = path.join(__dirname, '..', 'content');
 const CLIENT_DIR = path.join(__dirname, '..', 'client');
 const SHARED_DIR = path.join(__dirname, '..', 'shared');
+const EDITOR_DIR = path.join(__dirname, '..', 'editor');
 
 // --- Load game content ---
 const content = new ContentLoader(CONTENT_DIR);
@@ -52,6 +54,20 @@ function serveFile(res, filePath) {
 
 const httpServer = http.createServer((req, res) => {
   let urlPath = req.url.split('?')[0];
+
+  // Editor API
+  if (urlPath.startsWith('/api/editor/')) {
+    const handled = handleEditorAPI(req, res);
+    if (handled !== false) return;
+  }
+
+  // Editor static files
+  if (urlPath === '/editor' || urlPath === '/editor/') {
+    return serveFile(res, path.join(EDITOR_DIR, 'index.html'));
+  }
+  if (urlPath.startsWith('/editor/')) {
+    return serveFile(res, path.join(EDITOR_DIR, urlPath.slice(8)));
+  }
 
   if (urlPath === '/') {
     return serveFile(res, path.join(CLIENT_DIR, 'index.html'));
