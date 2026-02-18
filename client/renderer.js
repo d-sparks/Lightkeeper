@@ -5,9 +5,13 @@ class Renderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
 
+    // Viewport tiles (can be updated dynamically by resizeToFit)
+    this.viewportTX = CONSTANTS.VIEWPORT_TILES_X;
+    this.viewportTY = CONSTANTS.VIEWPORT_TILES_Y;
+
     // Viewport size in pixels
-    this.viewW = CONSTANTS.VIEWPORT_TILES_X * CONSTANTS.TILE_SIZE;
-    this.viewH = CONSTANTS.VIEWPORT_TILES_Y * CONSTANTS.TILE_SIZE;
+    this.viewW = this.viewportTX * CONSTANTS.TILE_SIZE;
+    this.viewH = this.viewportTY * CONSTANTS.TILE_SIZE;
     this.canvas.width = this.viewW;
     this.canvas.height = this.viewH;
 
@@ -30,6 +34,35 @@ class Renderer {
     this.damageNumbers = [];
 
     // Disable smoothing for crisp pixels
+    this.ctx.imageSmoothingEnabled = false;
+  }
+
+  // Resize canvas to fit available space (called on window resize)
+  resizeToFit(availW, availH) {
+    const isMobile = ('ontouchstart' in window);
+    const targetTilePx = isMobile ? 28 : 32;
+
+    let tx = Math.floor(availW / targetTilePx) | 1;
+    let ty = Math.floor(availH / targetTilePx) | 1;
+    if (tx % 2 === 0) tx--;
+    if (ty % 2 === 0) ty--;
+    tx = Math.max(9, Math.min(tx, 25));
+    ty = Math.max(7, Math.min(ty, 19));
+
+    this.viewportTX = tx;
+    this.viewportTY = ty;
+    this.viewW = tx * CONSTANTS.TILE_SIZE;
+    this.viewH = ty * CONSTANTS.TILE_SIZE;
+    this.canvas.width = this.viewW;
+    this.canvas.height = this.viewH;
+
+    // Scale canvas to fill available space
+    const scaleX = availW / this.viewW;
+    const scaleY = availH / this.viewH;
+    const scale = Math.min(scaleX, scaleY);
+    this.canvas.style.width = `${Math.floor(this.viewW * scale)}px`;
+    this.canvas.style.height = `${Math.floor(this.viewH * scale)}px`;
+
     this.ctx.imageSmoothingEnabled = false;
   }
 
@@ -444,8 +477,8 @@ class Renderer {
     ctx.strokeRect(
       mmX + (this.camX / ts2) * scale,
       mmY + (this.camY / ts2) * scale,
-      CONSTANTS.VIEWPORT_TILES_X * scale,
-      CONSTANTS.VIEWPORT_TILES_Y * scale
+      this.viewportTX * scale,
+      this.viewportTY * scale
     );
   }
 }

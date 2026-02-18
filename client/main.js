@@ -18,6 +18,16 @@
   const input = new InputHandler(net);
   const renderer = new Renderer(canvas);
 
+  // --- Responsive canvas sizing ---
+  function resizeCanvas() {
+    const availW = gameContainer.clientWidth;
+    const availH = gameContainer.clientHeight;
+    if (availW > 0 && availH > 0) {
+      renderer.resizeToFit(availW, availH);
+    }
+  }
+  window.addEventListener('resize', resizeCanvas);
+
   // --- State ---
   let joined = false;
 
@@ -57,6 +67,11 @@
     dialogueText.textContent = line.text;
   }
 
+  // Allow tapping dialogue overlay to advance (touch-friendly)
+  dialogueOverlay.addEventListener('click', () => {
+    if (dialogueActive) advanceDialogue();
+  });
+
   // --- Interact handler ---
   input.onInteract = function () {
     if (dialogueActive) {
@@ -87,8 +102,11 @@
 
     // Switch from join screen to game
     joinScreen.style.display = 'none';
-    gameContainer.style.display = 'block';
+    gameContainer.style.display = 'flex';
     canvas.focus();
+
+    // Size canvas now that container is visible
+    resizeCanvas();
 
     input.start();
     joined = true;
