@@ -4,7 +4,7 @@ Guide for AI agents working on Lightkeeper.
 
 ## Branch Workflow
 
-Each Claude Code session is assigned its own branch automatically. Never push directly to `main`. Open PRs targeting `claude/dev-7szMH` (the long-lived dev branch), not `main`. The dev branch gets merged to `main` when ready for release.
+Each Claude Code session is assigned its own branch automatically. Never push directly to `main`. Open PRs targeting `main`.
 
 ## Running the Project
 
