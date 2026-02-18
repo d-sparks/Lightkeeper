@@ -209,6 +209,6 @@ setInterval(() => {
 }, CONSTANTS.TICK_INTERVAL);
 
 // --- Start ---
-httpServer.listen(PORT, () => {
-  console.log(`\n🏰 Dungeon Crawler server running at http://localhost:${PORT}\n`);
+httpServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n🏰 Dungeon Crawler server running at http://0.0.0.0:${PORT}\n`);
 });
