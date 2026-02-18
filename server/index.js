@@ -61,6 +61,35 @@ const httpServer = http.createServer((req, res) => {
     if (handled !== false) return;
   }
 
+  // Editor reload endpoint
+  if (urlPath === '/api/editor/reload' && req.method === 'POST') {
+    content.loadAll();
+
+    // Reload all active rooms and notify connected players
+    const reloaded = [];
+    for (const [roomId, room] of gameLoop.rooms) {
+      const updated = gameLoop.reloadRoom(roomId);
+      if (!updated) continue;
+      reloaded.push(roomId);
+
+      const tileset = content.getTileset(updated.dungeon.tileset);
+      const msg = JSON.stringify({
+        type: CONSTANTS.MSG.FLOOR_CHANGE,
+        map: updated.dungeon,
+        tileset,
+      });
+      wss.clients.forEach((client) => {
+        if (client.readyState === 1 && client.playerRoom === roomId) {
+          client.send(msg);
+        }
+      });
+    }
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ reloaded }));
+    return;
+  }
+
   // Editor static files
   if (urlPath === '/editor' || urlPath === '/editor/') {
     return serveFile(res, path.join(EDITOR_DIR, 'index.html'));
