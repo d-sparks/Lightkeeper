@@ -426,6 +426,7 @@ class Renderer {
   renderMinimap(ctx) {
     if (!this.map) return;
 
+    const ts = CONSTANTS.TILE_SIZE;
     const scale = 3;  // pixels per tile on minimap
     const mmW = this.map.width * scale;
     const mmH = this.map.height * scale;
@@ -450,7 +451,6 @@ class Renderer {
 
     // Players on minimap
     if (this.state) {
-      const ts = CONSTANTS.TILE_SIZE;
       for (const player of this.state.players) {
         const dotX = mmX + (player.x / ts) * scale;
         const dotY = mmY + (player.y / ts) * scale;
@@ -471,12 +471,11 @@ class Renderer {
     }
 
     // Viewport rectangle
-    const ts2 = CONSTANTS.TILE_SIZE;
     ctx.strokeStyle = 'rgba(255,255,255,0.3)';
     ctx.lineWidth = 1;
     ctx.strokeRect(
-      mmX + (this.camX / ts2) * scale,
-      mmY + (this.camY / ts2) * scale,
+      mmX + (this.camX / ts) * scale,
+      mmY + (this.camY / ts) * scale,
       this.viewportTX * scale,
       this.viewportTY * scale
     );
