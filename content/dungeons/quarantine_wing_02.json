@@ -1,6 +1,6 @@
 {
   "id": "quarantine_wing_02",
-  "name": "Quarantine Wing - Deep Storage",
+  "name": "Occupied Wing - Deep Storage",
   "depth": 2,
   "tileset": "crypt",
   "tileSize": 32,
@@ -31,10 +31,10 @@
     { "x": 6, "y": 1, "type": "player_start" }
   ],
   "monsterSpawns": [
-    { "type": "hive_drone", "x": 14, "y": 4, "count": 2, "patrol": "wander" },
-    { "type": "hive_spitter", "x": 20, "y": 6, "count": 1, "patrol": "guard" },
-    { "type": "hive_drone", "x": 15, "y": 10, "count": 2, "patrol": "wander" },
-    { "type": "hive_spitter", "x": 19, "y": 9, "count": 1, "patrol": "guard" }
+    { "type": "luddite_brawler", "x": 14, "y": 4, "count": 2, "patrol": "wander" },
+    { "type": "luddite_scrapper", "x": 20, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 15, "y": 10, "count": 2, "patrol": "wander" },
+    { "type": "luddite_scrapper", "x": 19, "y": 9, "count": 1, "patrol": "guard" }
   ],
   "npcSpawns": [],
   "itemSpawns": [
@@ -50,7 +50,7 @@
       "id": "enter_deep_storage",
       "event": "room_entered",
       "actions": [
-        { "type": "showMessage", "text": "Resin coats the walls in thick, hardened slabs. Something is nesting down here." }
+        { "type": "showMessage", "text": "Crates have been torn open and ransacked. The luddites have been stripping this place for parts — to destroy them." }
       ],
       "once": true
     }
