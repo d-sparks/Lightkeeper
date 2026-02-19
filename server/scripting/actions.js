@@ -183,6 +183,7 @@ class ActionExecutor {
       type: action.itemType,
       name: itemDef.name,
       rarity: itemDef.rarity || 'common',
+      category: itemDef.type || 'misc',
     });
 
     // Notify client of inventory change

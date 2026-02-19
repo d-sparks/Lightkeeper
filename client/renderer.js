@@ -557,6 +557,15 @@ class Renderer {
           maxAge: 1.0,
           color: ev.targetId.startsWith('mob_') ? '#ffa726' : '#e53935',
         });
+      } else if (ev.type === 'heal') {
+        this.damageNumbers.push({
+          text: `+${ev.amount}`,
+          x: ev.x,
+          y: ev.y,
+          age: 0,
+          maxAge: 1.0,
+          color: '#4caf50',
+        });
       } else if (ev.type === 'pickup') {
         this.damageNumbers.push({
           text: `+${ev.itemName}`,

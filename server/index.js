@@ -380,6 +380,19 @@ wss.on('connection', (ws) => {
         }
         break;
       }
+
+      case CONSTANTS.MSG.USE_ITEM: {
+        if (!ws.playerRoom) break;
+        const useResult = gameLoop.tryUseItem(ws.playerRoom, playerId, msg.index);
+        if (useResult) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.INVENTORY,
+            items: useResult.inventory,
+            equipment: useResult.equipment,
+          }));
+        }
+        break;
+      }
     }
   });
 
