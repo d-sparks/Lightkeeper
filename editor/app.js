@@ -456,6 +456,7 @@ function Editor({ dungeonId, onBack }) {
   const [showProps, setShowProps] = useState(false);
   const [showNPCEditor, setShowNPCEditor] = useState(false);
   const [showItemEditor, setShowItemEditor] = useState(false);
+  const [selectedSpawn, setSelectedSpawn] = useState(null); // { kind, index } for move tool
 
   // Undo/redo
   const undoStackRef = useRef([]);
@@ -562,14 +563,21 @@ function Editor({ dungeonId, onBack }) {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [undo, redo]);
 
+  // Clear spawn selection when switching away from move tool
+  useEffect(() => {
+    if (tool !== 'move') setSelectedSpawn(null);
+  }, [tool]);
+
   if (!dungeon) return html`<div style="padding:40px;text-align:center;color:var(--text-dim)">Loading...</div>`;
 
   const tileset = tilesets.find(t => t.id === dungeon.tileset);
   const tiles = tileset ? tileset.tiles : {};
 
   const panelContent = html`
-    <${ToolSelector} tool=${tool} setTool=${setTool} spawnMode=${spawnMode} setSpawnMode=${setSpawnMode} />
+    <${ToolSelector} tool=${tool} setTool=${setTool} />
     ${tool === 'paint' && html`<${TilePalette} tiles=${tiles} selected=${selectedTile} onSelect=${setSelectedTile} />`}
+    ${tool === 'move' && html`<${MovePanel} dungeon=${dungeon} updateDungeon=${updateDungeon}
+      selectedSpawn=${selectedSpawn} setSelectedSpawn=${setSelectedSpawn} />`}
     ${tool === 'spawn' && html`<${SpawnPanel}
       dungeon=${dungeon} updateDungeon=${updateDungeon}
       spawnMode=${spawnMode} setSpawnMode=${setSpawnMode}
@@ -601,6 +609,7 @@ function Editor({ dungeonId, onBack }) {
         spawnEntityType=${spawnEntityType}
         updateDungeon=${updateDungeon}
         onStrokeStart=${beginStroke} onStrokeEnd=${endStroke}
+        selectedSpawn=${selectedSpawn} onSelectSpawn=${setSelectedSpawn}
         monsters=${monsters} npcs=${npcs} items=${items}
       />
       <div class="side-panel">${panelContent}</div>
@@ -619,7 +628,7 @@ function Editor({ dungeonId, onBack }) {
 }
 
 // ─── Tool Selector ──────────────────────────────────────────
-function ToolSelector({ tool, setTool, spawnMode, setSpawnMode }) {
+function ToolSelector({ tool, setTool }) {
   return html`
     <div class="panel-section">
       <h3>Tool</h3>
@@ -627,6 +636,7 @@ function ToolSelector({ tool, setTool, spawnMode, setSpawnMode }) {
         <button class="tool-btn ${tool === 'paint' ? 'selected' : ''}" onClick=${() => setTool('paint')}>Paint</button>
         <button class="tool-btn ${tool === 'erase' ? 'selected' : ''}" onClick=${() => setTool('erase')}>Erase</button>
         <button class="tool-btn ${tool === 'spawn' ? 'selected' : ''}" onClick=${() => setTool('spawn')}>Spawn</button>
+        <button class="tool-btn ${tool === 'move' ? 'selected' : ''}" onClick=${() => setTool('move')}>Move</button>
       </div>
     </div>
   `;
@@ -834,8 +844,123 @@ function PropertiesModal({ dungeon, tilesets, updateDungeon, onClose }) {
   `;
 }
 
+// ─── Spawn lookup helper ─────────────────────────────────────
+function findSpawnAt(dungeon, x, y) {
+  const ei = dungeon.exits.findIndex(s => s.x === x && s.y === y);
+  if (ei !== -1) return { kind: 'exit', index: ei };
+  const ni = dungeon.npcSpawns.findIndex(s => s.x === x && s.y === y);
+  if (ni !== -1) return { kind: 'npc', index: ni };
+  const mi = dungeon.monsterSpawns.findIndex(s => s.x === x && s.y === y);
+  if (mi !== -1) return { kind: 'monster', index: mi };
+  const ii = (dungeon.itemSpawns || []).findIndex(s => s.x === x && s.y === y);
+  if (ii !== -1) return { kind: 'item', index: ii };
+  const pi = dungeon.spawns.findIndex(s => s.x === x && s.y === y);
+  if (pi !== -1) return { kind: 'spawn', index: pi };
+  return null;
+}
+
+function getSpawnData(dungeon, sel) {
+  if (!sel) return null;
+  if (sel.kind === 'spawn') return dungeon.spawns[sel.index];
+  if (sel.kind === 'monster') return dungeon.monsterSpawns[sel.index];
+  if (sel.kind === 'npc') return dungeon.npcSpawns[sel.index];
+  if (sel.kind === 'item') return (dungeon.itemSpawns || [])[sel.index];
+  if (sel.kind === 'exit') return dungeon.exits[sel.index];
+  return null;
+}
+
+// ─── Move Panel (properties for selected spawn) ─────────────
+function MovePanel({ dungeon, updateDungeon, selectedSpawn, setSelectedSpawn }) {
+  if (!selectedSpawn) {
+    return html`
+      <div class="panel-section">
+        <h3>Move</h3>
+        <p style="font-size:11px;color:var(--text-dim)">Click a spawn to select it, then click another tile to move it.</p>
+      </div>
+    `;
+  }
+
+  const spawn = getSpawnData(dungeon, selectedSpawn);
+  if (!spawn) { setSelectedSpawn(null); return null; }
+
+  const kind = selectedSpawn.kind;
+  const label = kind === 'spawn' ? 'Player Start'
+    : kind === 'exit' ? 'Exit / Stairs'
+    : kind === 'monster' ? `Monster: ${spawn.type}`
+    : kind === 'npc' ? `NPC: ${spawn.type}`
+    : kind === 'item' ? `Item: ${spawn.type}`
+    : 'Unknown';
+
+  const updateProp = (field, value) => {
+    updateDungeon(prev => {
+      const d = { ...prev };
+      if (kind === 'spawn') { d.spawns = [...d.spawns]; d.spawns[selectedSpawn.index] = { ...d.spawns[selectedSpawn.index], [field]: value }; }
+      else if (kind === 'monster') { d.monsterSpawns = [...d.monsterSpawns]; d.monsterSpawns[selectedSpawn.index] = { ...d.monsterSpawns[selectedSpawn.index], [field]: value }; }
+      else if (kind === 'npc') { d.npcSpawns = [...d.npcSpawns]; d.npcSpawns[selectedSpawn.index] = { ...d.npcSpawns[selectedSpawn.index], [field]: value }; }
+      else if (kind === 'item') { d.itemSpawns = [...(d.itemSpawns || [])]; d.itemSpawns[selectedSpawn.index] = { ...d.itemSpawns[selectedSpawn.index], [field]: value }; }
+      else if (kind === 'exit') { d.exits = [...d.exits]; d.exits[selectedSpawn.index] = { ...d.exits[selectedSpawn.index], [field]: value }; }
+      return d;
+    });
+  };
+
+  return html`
+    <div class="panel-section">
+      <h3>Move</h3>
+      <div class="move-selected-info">
+        <span class="spawn-dot" style="background:${SPAWN_COLORS[kind === 'spawn' ? 'player_start' : kind]}"></span>
+        <strong>${label}</strong> at (${spawn.x}, ${spawn.y})
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);margin:6px 0 8px">Click a tile to move, or edit properties below.</p>
+
+      ${kind === 'exit' && html`
+        <div class="field">
+          <label>Leads To (dungeon ID)</label>
+          <input value=${spawn.leadsTo || ''} onInput=${e => updateProp('leadsTo', e.target.value)} placeholder="e.g. crypt_02" />
+        </div>
+        <div class="field">
+          <label>Stair Type</label>
+          <select value=${spawn.type || 'stairs_down'} onChange=${e => updateProp('type', e.target.value)}>
+            <option value="stairs_down">stairs_down</option>
+            <option value="stairs_up">stairs_up</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Spawn X</label>
+            <input type="number" value=${spawn.spawnX || 0} onInput=${e => updateProp('spawnX', Number(e.target.value))} min="0" />
+          </div>
+          <div class="field">
+            <label>Spawn Y</label>
+            <input type="number" value=${spawn.spawnY || 0} onInput=${e => updateProp('spawnY', Number(e.target.value))} min="0" />
+          </div>
+        </div>
+      `}
+
+      ${kind === 'monster' && html`
+        <div class="field-row">
+          <div class="field">
+            <label>Count</label>
+            <input type="number" value=${spawn.count || 1} onInput=${e => updateProp('count', Math.max(1, Number(e.target.value)))} min="1" />
+          </div>
+          <div class="field">
+            <label>Patrol</label>
+            <select value=${spawn.patrol || 'wander'} onChange=${e => updateProp('patrol', e.target.value)}>
+              <option value="wander">wander</option>
+              <option value="stationary">stationary</option>
+              <option value="patrol">patrol</option>
+            </select>
+          </div>
+        </div>
+      `}
+
+      <button class="tool-btn" style="margin-top:4px;border-color:var(--text-dim)"
+        onClick=${() => setSelectedSpawn(null)}>Deselect</button>
+    </div>
+  `;
+}
+
 // ─── Tile Canvas (the core painting surface) ────────────────
-function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, onStrokeStart, onStrokeEnd, monsters, npcs, items }) {
+function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, onStrokeStart, onStrokeEnd, selectedSpawn, onSelectSpawn, monsters, npcs, items }) {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const stateRef = useRef({
@@ -900,8 +1025,23 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
     }
     for (const s of dungeon.exits) drawMarker(s.x, s.y, SPAWN_COLORS.exit, 'E');
 
+    // Draw selection highlight for move tool
+    if (selectedSpawn) {
+      const s = getSpawnData(dungeon, selectedSpawn);
+      if (s) {
+        const cx = s.x * cellSize + cellSize / 2;
+        const cy = s.y * cellSize + cellSize / 2;
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, cellSize * 0.45, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.lineWidth = 1;
+      }
+    }
+
     ctx.restore();
-  }, [dungeon]);
+  }, [dungeon, selectedSpawn]);
 
   // --- Resize canvas ---
   useEffect(() => {
@@ -986,8 +1126,30 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
         }
         return d;
       });
+    } else if (tool === 'move') {
+      const hit = findSpawnAt(dungeon, cell.x, cell.y);
+      if (selectedSpawn) {
+        if (hit && hit.kind === selectedSpawn.kind && hit.index === selectedSpawn.index) {
+          onSelectSpawn(null); // Deselect on same spawn
+        } else {
+          // Move the selected spawn to this cell
+          updateDungeon(prev => {
+            const d = { ...prev };
+            const k = selectedSpawn.kind;
+            if (k === 'spawn') { d.spawns = [...d.spawns]; d.spawns[selectedSpawn.index] = { ...d.spawns[selectedSpawn.index], x: cell.x, y: cell.y }; }
+            else if (k === 'monster') { d.monsterSpawns = [...d.monsterSpawns]; d.monsterSpawns[selectedSpawn.index] = { ...d.monsterSpawns[selectedSpawn.index], x: cell.x, y: cell.y }; }
+            else if (k === 'npc') { d.npcSpawns = [...d.npcSpawns]; d.npcSpawns[selectedSpawn.index] = { ...d.npcSpawns[selectedSpawn.index], x: cell.x, y: cell.y }; }
+            else if (k === 'item') { d.itemSpawns = [...(d.itemSpawns || [])]; d.itemSpawns[selectedSpawn.index] = { ...d.itemSpawns[selectedSpawn.index], x: cell.x, y: cell.y }; }
+            else if (k === 'exit') { d.exits = [...d.exits]; d.exits[selectedSpawn.index] = { ...d.exits[selectedSpawn.index], x: cell.x, y: cell.y }; }
+            return d;
+          });
+          onSelectSpawn(null);
+        }
+      } else if (hit) {
+        onSelectSpawn(hit);
+      }
     }
-  }, [tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, monsters, npcs, items]);
+  }, [tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, monsters, npcs, items, selectedSpawn, onSelectSpawn, dungeon]);
 
   // --- Mouse events ---
   const onPointerDown = (e) => {
@@ -1000,8 +1162,8 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
       e.preventDefault();
       return;
     }
-    if (tool === 'spawn') {
-      // Single tap for spawns
+    if (tool === 'spawn' || tool === 'move') {
+      // Single tap for spawns and move
       const cell = screenToCell(e.clientX, e.clientY);
       applyTool(cell);
     } else {
@@ -1022,7 +1184,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
       draw();
       return;
     }
-    if (st.isPainting && tool !== 'spawn') {
+    if (st.isPainting && tool !== 'spawn' && tool !== 'move') {
       const cell = screenToCell(e.clientX, e.clientY);
       applyTool(cell);
     }
@@ -1050,7 +1212,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
     }
     if (e.touches.length === 1) {
       const t = e.touches[0];
-      if (tool === 'spawn') {
+      if (tool === 'spawn' || tool === 'move') {
         const cell = screenToCell(t.clientX, t.clientY);
         applyTool(cell);
       } else {
@@ -1092,7 +1254,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
       draw();
       return;
     }
-    if (e.touches.length === 1 && st.isPainting && tool !== 'spawn') {
+    if (e.touches.length === 1 && st.isPainting && tool !== 'spawn' && tool !== 'move') {
       const t = e.touches[0];
       const cell = screenToCell(t.clientX, t.clientY);
       applyTool(cell);
