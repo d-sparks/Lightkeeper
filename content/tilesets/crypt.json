@@ -11,6 +11,15 @@
     "5": { "name": "door_open",    "solid": false, "interactable": "door", "togglesTo": 4 },
     "6": { "name": "stairs_down",  "solid": false, "exit": true },
     "7": { "name": "water",        "solid": true  },
-    "8": { "name": "stairs_up",   "solid": false, "exit": true }
+    "8": { "name": "stairs_up",   "solid": false, "exit": true },
+    "9": {
+      "name": "locked_door",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasItem": "iron_key" }],
+      "failMessage": "The door is locked. You need a key.",
+      "onInteract": [{ "type": "removeItem", "itemType": "iron_key" }]
+    }
   }
 }

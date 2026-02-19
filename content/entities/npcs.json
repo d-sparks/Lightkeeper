@@ -22,13 +22,67 @@
         "speaker": "Old Keeper",
         "text": "Now go. The stairs await, and the dark won't keep itself at bay."
       }
+    ],
+    "dialogues": {
+      "default": [
+        {
+          "speaker": "Old Keeper",
+          "text": "Halt, traveler. You have the look of someone seeking the deep dark."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "I was a Lightkeeper once... before the relays failed and the shadows crept in."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "The creatures down there feed on broken light. They'll take everything from you if you let them."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "A word of advice: never carry more than you can afford to lose. Death has a price in these crypts."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "Now go. The stairs await, and the dark won't keep itself at bay."
+        }
+      ],
+      "has_key": [
+        {
+          "speaker": "Old Keeper",
+          "text": "You found the iron key? Good. The locked door to the east should yield to it."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "Be careful what lies beyond. Not all doors are meant to be opened."
+        }
+      ],
+      "explored_crypt_02": [
+        {
+          "speaker": "Old Keeper",
+          "text": "You've seen the Bone Chamber and returned alive. That's more than most can say."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "The deeper you go, the darker it gets. But you already knew that."
+        }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "visited_crypt_02" }],
+        "use": "explored_crypt_02"
+      },
+      {
+        "conditions": [{ "hasItem": "iron_key" }],
+        "use": "has_key"
+      }
     ]
   },
   "sol_engineer_1": {
     "name": "Apprentice Sol Engineer",
     "dialogue": [
       {
-        "speaker": "sol_engineer_1",
+        "speaker": "Apprentice Sol Engineer",
         "text": "You must be here to pickup the old Sol Unit. The repairs are almost complete."
       }
     ]

@@ -41,5 +41,15 @@
   ],
   "exits": [
     { "x": 2, "y": 2, "leadsTo": "crypt_01", "type": "stairs_up", "spawnX": 17, "spawnY": 12 }
+  ],
+  "triggers": [
+    {
+      "id": "mark_visited_crypt_02",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "visited_crypt_02", "scope": "player" }
+      ],
+      "once": true
+    }
   ]
 }

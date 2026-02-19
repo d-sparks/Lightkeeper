@@ -121,6 +121,80 @@ function handleEditorAPI(req, res) {
     }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
   }
 
+  // --- Tilesets (PUT) ---
+  const tilesetMatch = url.match(/^\/api\/editor\/tilesets\/([a-zA-Z0-9_-]+)$/);
+  if (tilesetMatch && method === 'PUT') {
+    const id = tilesetMatch[1];
+    return parseBody(req).then(data => {
+      data.id = id;
+      const filePath = path.join(CONTENT_DIR, 'tilesets', `${id}.json`);
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      return json(res, 200, data);
+    }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
+  }
+
+  // --- Scripting: Dungeon triggers ---
+  // GET /api/editor/dungeons/:id/triggers - get triggers for a dungeon
+  const triggerGetMatch = url.match(/^\/api\/editor\/dungeons\/([a-zA-Z0-9_-]+)\/triggers$/);
+  if (triggerGetMatch && method === 'GET') {
+    const id = triggerGetMatch[1];
+    const filePath = path.join(CONTENT_DIR, 'dungeons', `${id}.json`);
+    if (!fs.existsSync(filePath)) return json(res, 404, { error: 'Dungeon not found' });
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    return json(res, 200, data.triggers || []);
+  }
+
+  // PUT /api/editor/dungeons/:id/triggers - replace triggers for a dungeon
+  if (triggerGetMatch && method === 'PUT') {
+    const id = triggerGetMatch[1];
+    const filePath = path.join(CONTENT_DIR, 'dungeons', `${id}.json`);
+    if (!fs.existsSync(filePath)) return json(res, 404, { error: 'Dungeon not found' });
+    return parseBody(req).then(triggers => {
+      if (!Array.isArray(triggers)) return json(res, 400, { error: 'Triggers must be an array' });
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      data.triggers = triggers;
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      return json(res, 200, data.triggers);
+    }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
+  }
+
+  // --- Scripting: Reference data ---
+  // GET /api/editor/scripting/events - list available event types
+  if (url === '/api/editor/scripting/events' && method === 'GET') {
+    return json(res, 200, {
+      events: [
+        { id: 'item_picked_up', description: 'Player picks up a ground item', payloadFields: ['itemType', 'itemName'] },
+        { id: 'monster_killed', description: 'Player kills a monster', payloadFields: ['monsterType', 'monsterId'] },
+        { id: 'npc_interacted', description: 'Player talks to an NPC', payloadFields: ['npcType', 'npcId'] },
+        { id: 'door_interacted', description: 'Player opens/closes a door', payloadFields: ['tileX', 'tileY'] },
+        { id: 'room_entered', description: 'Player enters a room', payloadFields: ['dungeonId'] },
+        { id: 'player_death', description: 'Player dies', payloadFields: [] },
+        { id: 'flag_changed', description: 'A flag value changed', payloadFields: ['flag', 'value', 'scope'] },
+      ],
+      conditionTypes: [
+        { id: 'hasFlag', description: 'Check if a flag is set (truthy) or equals a value', fields: ['hasFlag', 'value?', 'scope?'] },
+        { id: 'hasItem', description: 'Check if player has an item type in inventory', fields: ['hasItem'] },
+        { id: 'flagGreaterThan', description: 'Check if a numeric flag is greater than a value', fields: ['flag', 'value', 'scope?'] },
+        { id: 'flagLessThan', description: 'Check if a numeric flag is less than a value', fields: ['flag', 'value', 'scope?'] },
+        { id: 'and', description: 'All sub-conditions must be true', fields: ['conditions[]'] },
+        { id: 'or', description: 'At least one sub-condition must be true', fields: ['conditions[]'] },
+        { id: 'not', description: 'Negate a sub-condition', fields: ['condition'] },
+      ],
+      actionTypes: [
+        { id: 'setFlag', description: 'Set a flag value', fields: ['flag', 'value?', 'scope?'] },
+        { id: 'removeFlag', description: 'Remove a flag', fields: ['flag', 'scope?'] },
+        { id: 'incrementFlag', description: 'Add to a numeric flag', fields: ['flag', 'amount?', 'scope?'] },
+        { id: 'setDialogue', description: 'Change an NPC\'s active dialogue set', fields: ['npc', 'dialogueId'] },
+        { id: 'removeEntity', description: 'Remove an entity from the room', fields: ['entityType', 'entityId?', 'npcType?', 'monsterType?', 'itemType?'] },
+        { id: 'spawnItem', description: 'Spawn a ground item', fields: ['itemType', 'x', 'y'] },
+        { id: 'giveItem', description: 'Add an item to player inventory', fields: ['itemType'] },
+        { id: 'removeItem', description: 'Remove an item from player inventory', fields: ['itemType'] },
+        { id: 'showMessage', description: 'Show a message to the player', fields: ['text'] },
+        { id: 'toggleTile', description: 'Toggle a tile (e.g. open a door)', fields: ['x', 'y'] },
+      ],
+    });
+  }
+
   return false; // Not handled
 }
 
