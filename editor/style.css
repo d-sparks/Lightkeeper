@@ -73,6 +73,7 @@ html, body {
 .topbar-btn.primary { background: var(--accent-dim); border-color: var(--accent); color: #fff; }
 .topbar-btn.primary:active { background: var(--accent); }
 .topbar-btn.danger { border-color: var(--danger); color: var(--danger); }
+.topbar-btn:disabled { opacity: 0.4; cursor: default; }
 
 /* --- Main layout --- */
 .editor-main {
@@ -678,3 +679,15 @@ html, body {
 }
 .branch-load-btn:active { background: var(--border); }
 .branch-load-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* --- Move panel --- */
+.move-selected-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--accent-dim);
+  border-radius: 6px;
+  font-size: 12px;
+}
