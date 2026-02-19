@@ -24,9 +24,12 @@ content.loadAll();
 const gameLoop = new GameLoop(content);
 gameLoop.start();
 
-// Default room + dungeon
-const DEFAULT_ROOM = 'crypt_01';
-gameLoop.createRoom(DEFAULT_ROOM, 'crypt_01');
+// Default room + dungeon (read from content/settings.json)
+function getDefaultRoom() {
+  return content.getSpawnRoom() || 'crypt_01';
+}
+const DEFAULT_ROOM = getDefaultRoom();
+gameLoop.createRoom(DEFAULT_ROOM, DEFAULT_ROOM);
 
 // --- HTTP server (serves client files) ---
 const MIME_TYPES = {
@@ -276,7 +279,9 @@ wss.on('connection', (ws) => {
     switch (msg.type) {
       case CONSTANTS.MSG.JOIN: {
         ws.playerName = msg.name || `Player ${nextPlayerId}`;
-        ws.playerRoom = DEFAULT_ROOM;
+        const spawnRoom = getDefaultRoom();
+        const room0 = gameLoop.getOrCreateRoom(spawnRoom);
+        ws.playerRoom = spawnRoom;
 
         const player = gameLoop.addPlayer(ws.playerRoom, playerId, ws.playerName);
         if (!player) {
