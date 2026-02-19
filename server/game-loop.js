@@ -14,6 +14,10 @@ class GameLoop {
     this.interval = null;
     this.pendingTransitions = [];
 
+    // Track killed monsters per dungeon so they stay dead across room destruction/recreation
+    // Map<dungeonId, Set<spawnKey>>  where spawnKey = "spawnIdx:subIdx"
+    this.killedMonsters = new Map();
+
     // Scripting subsystem
     this.flagStore = new FlagStore();
     this.eventBus = new EventBus();
@@ -132,15 +136,20 @@ class GameLoop {
 
   spawnMonsters(room) {
     if (!room.dungeon.monsterSpawns) return;
-    for (const spawn of room.dungeon.monsterSpawns) {
+    const killed = this.killedMonsters.get(room.dungeonId);
+    for (let si = 0; si < room.dungeon.monsterSpawns.length; si++) {
+      const spawn = room.dungeon.monsterSpawns[si];
       const def = this.content.getMonster(spawn.type);
       if (!def) continue;
       const count = spawn.count || 1;
       for (let i = 0; i < count; i++) {
+        const spawnKey = `${si}:${i}`;
+        if (killed && killed.has(spawnKey)) continue;  // Stay dead
         const id = `mob_${room.nextMonsterId++}`;
         const offsetX = count > 1 ? (i - (count - 1) / 2) * 1.5 : 0;
         room.monsters.set(id, {
           id,
+          spawnKey,
           type: spawn.type,
           name: def.name,
           x: (spawn.x + 0.5 + offsetX) * CONSTANTS.TILE_SIZE,
@@ -213,9 +222,10 @@ class GameLoop {
       }
     }
 
-    // Respawn monsters from updated data
+    // Respawn monsters from updated data (clear killed state for editor reload)
     room.monsters.clear();
     room.nextMonsterId = 0;
+    this.killedMonsters.delete(room.dungeonId);
     this.spawnMonsters(room);
 
     // Move players to spawn point (they may be standing in a wall now)
@@ -460,6 +470,14 @@ class GameLoop {
           });
           room.monsters.delete(nearestMob.id);
 
+          // Record the kill so monster stays dead when room is revisited
+          if (nearestMob.spawnKey) {
+            if (!this.killedMonsters.has(room.dungeonId)) {
+              this.killedMonsters.set(room.dungeonId, new Set());
+            }
+            this.killedMonsters.get(room.dungeonId).add(nearestMob.spawnKey);
+          }
+
           // Emit monster_killed scripting event
           const ctx = this._scriptContext(pid, room.id);
           this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
@@ -526,10 +544,12 @@ class GameLoop {
     if (closestItem) {
       // Pick up the item: remove from ground, add to inventory
       room.items.delete(closestItem.id);
+      const closestItemDef = this.content.getItem(closestItem.type);
       player.inventory.push({
         type: closestItem.type,
         name: closestItem.name,
         rarity: closestItem.rarity,
+        category: closestItemDef ? closestItemDef.type : 'misc',
       });
       room.events.push({
         type: 'pickup',
@@ -688,6 +708,7 @@ class GameLoop {
       type: item.type,
       name: item.name,
       rarity: item.rarity,
+      category: item.category || itemDef.type || 'misc',
       slot: slot,
       stats: itemDef.stats || {},
     };
@@ -711,8 +732,45 @@ class GameLoop {
       type: equipped.type,
       name: equipped.name,
       rarity: equipped.rarity,
+      category: equipped.category || 'misc',
     });
 
+    return { inventory: player.inventory, equipment: player.equipment };
+  }
+
+  // Use a consumable item from inventory
+  tryUseItem(roomId, playerId, inventoryIndex) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player) return null;
+
+    if (inventoryIndex < 0 || inventoryIndex >= player.inventory.length) return null;
+    const item = player.inventory[inventoryIndex];
+
+    // Look up item definition
+    const itemDef = this.content.getItem(item.type);
+    if (!itemDef || itemDef.type !== 'consumable' || !itemDef.effect) return null;
+
+    let used = false;
+
+    // Heal effect
+    if (itemDef.effect.heal) {
+      if (player.health >= player.maxHealth) return null; // Already full
+      const healAmount = Math.min(itemDef.effect.heal, player.maxHealth - player.health);
+      player.health += healAmount;
+      used = true;
+
+      room.events.push({
+        type: 'heal', targetId: player.id,
+        amount: healAmount, x: player.x, y: player.y,
+      });
+    }
+
+    if (!used) return null;
+
+    // Remove the consumed item
+    player.inventory.splice(inventoryIndex, 1);
     return { inventory: player.inventory, equipment: player.equipment };
   }
 

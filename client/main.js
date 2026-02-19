@@ -131,16 +131,28 @@
         '<span style="color:' + rarityColor + '">' + item.name + '</span>';
 
       // Check if item is equippable (weapon type has a slot)
-      if (item.type === 'weapon' || item.slot) {
+      if (item.category === 'weapon' || item.slot) {
         html += '<span class="inv-slot-tag">equip</span>';
+      }
+
+      // Check if item is consumable (usable)
+      if (item.category === 'consumable') {
+        html += '<span class="inv-use-tag">use</span>';
       }
       div.innerHTML = html;
 
-      // Click to equip
       const idx = i;
-      div.addEventListener('click', () => {
-        net.send({ type: CONSTANTS.MSG.EQUIP, index: idx });
-      });
+      if (item.category === 'consumable') {
+        // Tap to use consumable
+        div.addEventListener('click', () => {
+          net.send({ type: CONSTANTS.MSG.USE_ITEM, index: idx });
+        });
+      } else {
+        // Click to equip
+        div.addEventListener('click', () => {
+          net.send({ type: CONSTANTS.MSG.EQUIP, index: idx });
+        });
+      }
 
       inventoryList.appendChild(div);
     }

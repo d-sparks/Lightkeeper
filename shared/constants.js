@@ -65,6 +65,7 @@ const CONSTANTS = {
     INTERACT:      'interact',
     EQUIP:         'equip',
     UNEQUIP:       'unequip',
+    USE_ITEM:      'use_item',
 
     // Server -> Client
     WELCOME:       'welcome',

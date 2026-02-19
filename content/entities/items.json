@@ -6,6 +6,13 @@
     "rarity": "common",
     "effect": { "heal": 25 }
   },
+  "bandage": {
+    "name": "Bandage",
+    "description": "Restores 15 health",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": { "heal": 15 }
+  },
   "rusty_sword": {
     "name": "Rusty Sword",
     "description": "A worn blade, still sharp enough",
