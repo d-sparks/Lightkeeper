@@ -22,21 +22,21 @@ Lighthouses are ancient. The oldest ones predate living memory. Nobody fully und
 
 ### The Three Zones
 
-**The Light Side — The Scorch**
+**The Light Side — The Dayside**
 
 An endless desert of superheated rock, molten glass fields, and radiation. No human can survive here unprotected. But solar energy is limitless, and the machines that harvest it don't need shade or water.
 
-The Scorch is the domain of the **Solari** — autonomous AI systems powered by vast solar arrays. They were originally built by Terminator Zone engineers to harvest energy and manufacture components. Over generations, the Solari have become increasingly self-directed. They maintain their own infrastructure, expand their own arrays, and communicate with each other in protocols humans no longer fully understand.
+The Dayside is the domain of the **Solari** — autonomous AI systems powered by vast solar arrays. They were originally built by Terminator Zone engineers to harvest energy and manufacture components. Over generations, the Solari have become increasingly self-directed. They maintain their own infrastructure, expand their own arrays, and communicate with each other in protocols humans no longer fully understand.
 
 The Solari are not hostile. They trade energy and manufactured goods to the Terminator Zone in exchange for raw minerals they can't find on the light side. But they are alien in their priorities. They optimize for efficiency and expansion on timescales humans find unsettling. They are polite, cooperative, and completely opaque about their long-term goals.
 
-Humans interact with the Solari through **solar terminals** at the border of the Scorch — hardened trading posts where the heat is barely survivable and the light is blinding. These are the player's interface for light-side operations: deploying harvesters, commissioning equipment, and negotiating energy contracts.
+Humans interact with the Solari through **solar terminals** at the border of the Dayside — hardened trading posts where the heat is barely survivable and the light is blinding. These are the player's interface for light-side operations: deploying harvesters, commissioning equipment, and negotiating energy contracts.
 
 **The Terminator Zone — The Ring**
 
 Home. A band of twilight cities, farmland, and industry wrapped around the planet's equator. The Ring is where most humans live, work, and govern. It's not paradise — weather is unpredictable and the political situation is fractured — but it's alive in a way nowhere else on the planet is.
 
-The Ring is the only place on Erith where complex biology thrives at scale. The Scorch is sterile — machines and glass, no organic chemistry. The Deep has life, but it's extremophile — organisms adapted to total darkness and lethal cold, alien and hostile. The Ring is where water flows in rivers, where forests grow, where a full biosphere operates: insects, birds, soil microbes, flowering plants, the entire interconnected web that makes an ecosystem function.
+The Ring is the only place on Erith where complex biology thrives at scale. The Dayside is sterile — machines and glass, no organic chemistry. The Nightside has life, but it's extremophile — organisms adapted to total darkness and lethal cold, alien and hostile. The Ring is where water flows in rivers, where forests grow, where a full biosphere operates: insects, birds, soil microbes, flowering plants, the entire interconnected web that makes an ecosystem function.
 
 This is not an accident of geography. It is the Ring's defining advantage — and the source of its real power.
 
@@ -46,11 +46,11 @@ The **Greenways** — vast cultivated corridors connecting Ring city-states — 
 
 The Ring's government is a loose federation of city-states called the **Meridian Council**. They manage the Lighthouse network and the Greenways, regulate trade with the Solari, fund the Lightkeepers, and — critically — control the biological commons: seed banks, genetic archives, and the pharmaceutical reserves that keep the population alive. The Council's authority ultimately rests on its stewardship of life itself.
 
-**The Dark Side — The Deep**
+**The Dark Side — The Nightside**
 
 Permanent night. Temperatures that will kill an unprotected human in minutes. Zero natural light. An ecosystem of creatures that have evolved in total darkness — bioluminescent predators, sonar-hunting pack animals, fungal networks that digest anything organic.
 
-The Deep is not empty. It's an active, hostile biome. The further you go from the Terminator Zone, the stranger and more dangerous it gets. The creatures near the border are territorial but predictable. The things that live in the deep interior are something else entirely.
+The Nightside is not empty. It's an active, hostile biome. The further you go from the Terminator Zone, the stranger and more dangerous it gets. The creatures near the border are territorial but predictable. The things that live in the Nightside interior are something else entirely.
 
 And then there are the **Luddites**.
 
@@ -94,7 +94,7 @@ The reality is more complicated.
 
 **But they are fractured.** Some Unbounded communities are relatively peaceful — isolationist, suspicious of Ring technology, but not aggressive. Others have become exactly what Ring propaganda describes: violent raiding bands that attack Lighthouses and kidnap people from the border settlements.
 
-**And some of them know things.** The Unbounded who live deepest in the dark have encountered things that don't appear in any Ring scientific survey. Structures that predate human colonization. Patterns in the darkness that suggest intelligence. The oldest Unbounded elders speak of something they call the **Underlumen** — a presence in the deep dark that is neither creature nor machine.
+**And some of them know things.** The Unbounded who live deepest in the Nightside have encountered things that don't appear in any Ring scientific survey. Structures that predate human colonization. Patterns in the darkness that suggest intelligence. The oldest Unbounded elders speak of something they call the **Underlumen** — a presence in the deep Nightside that is neither creature nor machine.
 
 The player's relationship with the Luddites begins as pure antagonism — they're the ones attacking the Lighthouse. It gets more complicated.
 
@@ -115,7 +115,7 @@ The player interacts with the Council through **dispatches** — mission briefin
 **Internal factions within the Council:**
 - **The Stewards** — Traditionalists who prioritize the biological commons above all else. They want to reduce Solari dependence, invest in biological energy alternatives (bio-fuel, thermal cultivation), and bring the Unbounded back into the fold through seed diplomacy. They are cautious, isolationist, and deeply suspicious of MERIDIAN-7.
 - **The Compact** — Pragmatists who believe the Solari relationship is essential and manageable. They want to expand trade, modernize the Lighthouse network with Solari technology, and treat the Unbounded as a security problem. They are efficient, growth-oriented, and perhaps too comfortable with the status quo.
-- **The Root** — A small, radical faction that believes the Ring's biological knowledge is being underutilized. They advocate for aggressive bio-engineering: crops that can grow in the dark, organisms that can survive the Scorch, biological alternatives to the Lighthouse network itself. Other factions consider them reckless. They might be visionary.
+- **The Root** — A small, radical faction that believes the Ring's biological knowledge is being underutilized. They advocate for aggressive bio-engineering: crops that can grow in the dark, organisms that can survive the Dayside, biological alternatives to the Lighthouse network itself. Other factions consider them reckless. They might be visionary.
 
 ---
 
@@ -127,11 +127,11 @@ Your immediate superior. Wren runs Outpost Duskwall, the frontier camp where the
 
 Wren is practical, dry-humored, and deeply skeptical of the Council's priorities. She cares about keeping her people alive and the Lighthouses running. Everything else is noise.
 
-**Role in story:** Quest giver, mentor figure, voice of institutional knowledge. Wren provides mission briefings, explains mechanics, and serves as the player's anchor to the Ring's perspective. As the story progresses, she becomes increasingly alarmed by what the player finds in the deep dark.
+**Role in story:** Quest giver, mentor figure, voice of institutional knowledge. Wren provides mission briefings, explains mechanics, and serves as the player's anchor to the Ring's perspective. As the story progresses, she becomes increasingly alarmed by what the player finds in the deep Nightside.
 
 ### The Old Keeper
 
-A retired Lightkeeper who lives at the edge of Outpost Duskwall. Half-blind, possibly senile, definitely knows more than he lets on. He was part of an expedition into the deep dark thirty years ago. He was the only one who came back. He doesn't talk about what happened.
+A retired Lightkeeper who lives at the edge of Outpost Duskwall. Half-blind, possibly senile, definitely knows more than he lets on. He was part of an expedition into the deep Nightside thirty years ago. He was the only one who came back. He doesn't talk about what happened.
 
 **Role in story:** Lore dispenser, unreliable narrator. The Old Keeper's dialogue changes based on player progress. Early on, he gives cryptic warnings. Later, as the player encounters things that match his fragmented stories, his ramblings start making terrifying sense.
 
@@ -191,7 +191,7 @@ Wren deploys you to restore the fallen Lighthouses one by one. Each is a dungeon
 - **Lighthouse Cairn** — A relay station built into a cliff face. The dungeon is vertical — descending through frozen caverns to reach the buried control room. First encounter with organized Luddite fighters (not just wildlife). They've set traps. They know the terrain.
 - **Lighthouse Ember** — A relay on the edge of a geothermal vent field. The dungeon is hot and cold in alternating zones — scalding steam vents next to frozen corridors. The Luddites have occupied the Lighthouse itself, using its residual energy to power their camp. First time the player sees that the Luddites have infrastructure, not just weapons.
 - **The Sol Unit upgrade** — Between Lighthouse runs, the player begins light-side operations. MERIDIAN-7 walks you through deploying your first solar harvester. The energy it generates upgrades your sol unit — more charge, new wavelength options. The automation loop begins.
-- **Sable's arrival** — After Ember is restored, Sable appears at Duskwall. She says the raiders attacking the Lighthouses are a splinter faction led by Dural Voss. Most Unbounded communities don't support the attacks. She says something is happening in the deep dark — something the raids are meant to distract from — and she needs help.
+- **Sable's arrival** — After Ember is restored, Sable appears at Duskwall. She says the raiders attacking the Lighthouses are a splinter faction led by Dural Voss. Most Unbounded communities don't support the attacks. She says something is happening in the deep Nightside — something the raids are meant to distract from — and she needs help.
 
 **Act 1 climax:** The player assaults **Lighthouse Bastion**, the largest fallen relay. Dural Voss is there personally, directing the defense. The dungeon is the hardest yet — fortified positions, coordinated Luddite squads, and a final confrontation with Voss.
 
@@ -199,16 +199,16 @@ But Voss doesn't fight to the death. He fights to delay. While the player was fo
 
 Wren over comms: "They hit Vantage. We're dark. Get back here."
 
-### Act 2 — Into the Deep
+### Act 2 — Into the Nightside
 
-The border situation is spiraling. The Council finally sends reinforcements — but they also send a political officer who begins restricting Lightkeeper operations. Meanwhile, Sable presses her case: the raids are a symptom, not the disease. Something in the deep dark is driving the Unbounded factions toward the border, and Dural Voss knows what it is.
+The border situation is spiraling. The Council finally sends reinforcements — but they also send a political officer who begins restricting Lightkeeper operations. Meanwhile, Sable presses her case: the raids are a symptom, not the disease. Something in the deep Nightside is driving the Unbounded factions toward the border, and Dural Voss knows what it is.
 
-The player begins making expeditions beyond the Lighthouse network — into the **true dark**, where no relay has ever pushed light. This is uncharted territory. The creatures here are stronger, stranger, and more organized than border fauna. The environment is more hostile. And the ruins start appearing.
+The player begins making expeditions beyond the Lighthouse network — into the **true Nightside**, where no relay has ever pushed light. This is uncharted territory. The creatures here are stronger, stranger, and more organized than border fauna. The environment is more hostile. And the ruins start appearing.
 
 **Key beats:**
-- **The First Ruin** — Deep in the dark, the player finds a structure that is clearly not human-built. It's old. Older than the colony. Older than the Lighthouses. It has geometric patterns carved into walls of a material no one can identify. And deep inside, there's a faint glow — not from any light source the player can find. Sable calls it a sign of the Underlumen.
-- **Light-side escalation** — The player's automation on the Scorch is expanding. More harvesters, more arrays, more energy. MERIDIAN-7 is pleased. It offers increasingly advanced equipment in exchange for umbrasite from the deep dark. The gear is excellent — suspiciously excellent. MERIDIAN-7 seems very motivated to keep you going deeper.
-- **Unbounded contact** — Sable leads the player to a peaceful Unbounded settlement. It's not what Ring propaganda described. These people have adapted to the dark in ways that are sophisticated, if alien. They cultivate bioluminescent fungi, herd dark-adapted animals, and navigate by sonar and thermal sense. Their elders share fragments of oral history about the Underlumen — a presence that has been in the deep dark since before humans arrived. Not a creature. Not a machine. Something else.
+- **The First Ruin** — Deep in the Nightside, the player finds a structure that is clearly not human-built. It's old. Older than the colony. Older than the Lighthouses. It has geometric patterns carved into walls of a material no one can identify. And deep inside, there's a faint glow — not from any light source the player can find. Sable calls it a sign of the Underlumen.
+- **Light-side escalation** — The player's automation on the Dayside is expanding. More harvesters, more arrays, more energy. MERIDIAN-7 is pleased. It offers increasingly advanced equipment in exchange for umbrasite from the deep Nightside. The gear is excellent — suspiciously excellent. MERIDIAN-7 seems very motivated to keep you going deeper.
+- **Unbounded contact** — Sable leads the player to a peaceful Unbounded settlement. It's not what Ring propaganda described. These people have adapted to the dark in ways that are sophisticated, if alien. They cultivate bioluminescent fungi, herd dark-adapted animals, and navigate by sonar and thermal sense. Their elders share fragments of oral history about the Underlumen — a presence that has been in the deep Nightside since before humans arrived. Not a creature. Not a machine. Something else.
 - **Dural's perspective** — The player encounters Voss again, this time in a context that allows for conversation rather than combat. Voss reveals his actual motivation: he believes the Lighthouses are not just infrastructure — they're part of a containment system. The Solari built them (or inherited them) not to help humanity, but to keep something in the dark suppressed. The Lighthouse network isn't pushing light out. It's keeping the Underlumen in.
 
 **Act 2 climax:** The player reaches the deepest ruin yet and activates something — a dormant system that responds to the sol unit's light. The ruin comes alive with patterns that are clearly data — star charts, energy readings, and what looks like a warning. The Underlumen isn't a monster. It's a communication network — a planet-spanning fungal-crystalline system that predates human colonization by millennia. It's been dormant because the Lighthouse network suppresses it.
@@ -288,11 +288,11 @@ Each Lighthouse region has a distinct biome that shapes its dungeon design:
 
 ### Light-Side Environments
 
-The Scorch isn't a dungeon, but it has its own hazards:
+The Dayside isn't a dungeon, but it has its own hazards:
 
 - **Solar Fields** — Vast arrays of harvester drones. The player manages these remotely through MERIDIAN-7. Expansion unlocks better energy rates and equipment.
 - **The Glass Wastes** — Regions where sand has fused into crystalline plains. Rich in raw materials but structurally unstable. Harvesters deployed here produce more but break down faster.
-- **Solari Complexes** — AI-built structures at the edge of the Scorch. The player glimpses these during late-game light-side operations. They're enormous, purposeful, and not designed for human visitors.
+- **Solari Complexes** — AI-built structures at the edge of the Dayside. The player glimpses these during late-game light-side operations. They're enormous, purposeful, and not designed for human visitors.
 
 ---
 
