@@ -10,7 +10,9 @@
     "name": "Rusty Sword",
     "description": "A worn blade, still sharp enough",
     "type": "weapon",
-    "rarity": "common"
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": { "attackDamage": 5 }
   },
   "torch": {
     "name": "Torch",

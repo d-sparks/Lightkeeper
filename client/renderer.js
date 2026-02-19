@@ -386,14 +386,42 @@ class Renderer {
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Facing direction indicator (small dot)
-      const faceDist = CONSTANTS.PLAYER_RADIUS + 4;
-      const fx = px + Math.cos(player.facing) * faceDist;
-      const fy = py + Math.sin(player.facing) * faceDist;
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(fx, fy, 3, 0, Math.PI * 2);
-      ctx.fill();
+      // Weapon indicator (if equipped, draw a small line in the facing direction)
+      if (player.weapon) {
+        const wLen = CONSTANTS.PLAYER_RADIUS + 10;
+        const wBaseX = px + Math.cos(player.facing) * (CONSTANTS.PLAYER_RADIUS - 2);
+        const wBaseY = py + Math.sin(player.facing) * (CONSTANTS.PLAYER_RADIUS - 2);
+        const wTipX = px + Math.cos(player.facing) * wLen;
+        const wTipY = py + Math.sin(player.facing) * wLen;
+        ctx.strokeStyle = '#b8975a';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(wBaseX, wBaseY);
+        ctx.lineTo(wTipX, wTipY);
+        ctx.stroke();
+        // Small crossguard
+        const midX = (wBaseX + wTipX) / 2;
+        const midY = (wBaseY + wTipY) / 2;
+        const perpX = -Math.sin(player.facing) * 4;
+        const perpY = Math.cos(player.facing) * 4;
+        ctx.strokeStyle = '#8a6a3a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(midX + perpX, midY + perpY);
+        ctx.lineTo(midX - perpX, midY - perpY);
+        ctx.stroke();
+        ctx.lineCap = 'butt';
+      } else {
+        // Facing direction indicator (small dot) - only when no weapon
+        const faceDist = CONSTANTS.PLAYER_RADIUS + 4;
+        const fx = px + Math.cos(player.facing) * faceDist;
+        const fy = py + Math.sin(player.facing) * faceDist;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(fx, fy, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       // Name tag
       ctx.fillStyle = isMe ? '#fff' : 'rgba(255,255,255,0.7)';

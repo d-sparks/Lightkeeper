@@ -14,6 +14,7 @@
   const dialogueText = document.getElementById('dialogue-text');
   const inventoryPanel = document.getElementById('inventory-panel');
   const inventoryList = document.getElementById('inventory-list');
+  const equipmentSlots = document.getElementById('equipment-slots');
 
   // --- Instances ---
   const net = new NetClient();
@@ -74,15 +75,43 @@
     if (dialogueActive) advanceDialogue();
   });
 
-  // --- Inventory state ---
+  // --- Inventory & equipment state ---
   let inventoryOpen = false;
   let inventoryItems = [];
+  let equipmentState = { weapon: null, armor: null, accessory: null };
 
   function toggleInventory() {
     inventoryOpen = !inventoryOpen;
     inventoryPanel.style.display = inventoryOpen ? 'block' : 'none';
     if (inventoryOpen) {
+      renderEquipmentSlots();
       renderInventoryList();
+    }
+  }
+
+  function renderEquipmentSlots() {
+    // Clear existing slot elements (keep the label)
+    const label = equipmentSlots.querySelector('.equip-label');
+    equipmentSlots.innerHTML = '';
+    equipmentSlots.appendChild(label);
+
+    for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
+      const div = document.createElement('div');
+      div.className = 'equip-slot';
+      const equipped = equipmentState[slot];
+      if (equipped) {
+        const rarityColor = CONSTANTS.RARITY_COLORS[equipped.rarity] || CONSTANTS.RARITY_COLORS.common;
+        div.innerHTML = '<span class="slot-name">' + slot + '</span>' +
+          '<span class="inv-dot" style="background:' + rarityColor + '"></span>' +
+          '<span class="slot-item" style="color:' + rarityColor + '">' + equipped.name + '</span>';
+        div.addEventListener('click', () => {
+          net.send({ type: CONSTANTS.MSG.UNEQUIP, slot: slot });
+        });
+      } else {
+        div.innerHTML = '<span class="slot-name">' + slot + '</span>' +
+          '<span class="slot-empty">- empty -</span>';
+      }
+      equipmentSlots.appendChild(div);
     }
   }
 
@@ -92,12 +121,26 @@
       return;
     }
     inventoryList.innerHTML = '';
-    for (const item of inventoryItems) {
+    for (let i = 0; i < inventoryItems.length; i++) {
+      const item = inventoryItems[i];
       const div = document.createElement('div');
       div.className = 'inv-item';
       const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
-      div.innerHTML = '<span class="inv-dot" style="background:' + rarityColor + '"></span>' +
+      let html = '<span class="inv-dot" style="background:' + rarityColor + '"></span>' +
         '<span style="color:' + rarityColor + '">' + item.name + '</span>';
+
+      // Check if item is equippable (weapon type has a slot)
+      if (item.type === 'weapon' || item.slot) {
+        html += '<span class="inv-slot-tag">equip</span>';
+      }
+      div.innerHTML = html;
+
+      // Click to equip
+      const idx = i;
+      div.addEventListener('click', () => {
+        net.send({ type: CONSTANTS.MSG.EQUIP, index: idx });
+      });
+
       inventoryList.appendChild(div);
     }
   }
@@ -196,7 +239,11 @@
 
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {
     inventoryItems = msg.items || [];
+    if (msg.equipment) {
+      equipmentState = msg.equipment;
+    }
     if (inventoryOpen) {
+      renderEquipmentSlots();
       renderInventoryList();
     }
   });

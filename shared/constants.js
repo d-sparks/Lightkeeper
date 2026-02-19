@@ -42,6 +42,9 @@ const CONSTANTS = {
     legendary: '#ff9800',
   },
 
+  // Equipment slots
+  EQUIPMENT_SLOTS: ['weapon', 'armor', 'accessory'],
+
   // Interaction ranges (in tiles)
   NPC_INTERACT_RANGE: 2.5,   // Tiles distance to interact with NPC
   DOOR_INTERACT_RANGE: 1.8,  // Tiles distance to interact with doors
@@ -60,6 +63,8 @@ const CONSTANTS = {
     JOIN:          'join',
     INPUT:         'input',
     INTERACT:      'interact',
+    EQUIP:         'equip',
+    UNEQUIP:       'unequip',
 
     // Server -> Client
     WELCOME:       'welcome',
