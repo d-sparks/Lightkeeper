@@ -457,6 +457,13 @@ function Editor({ dungeonId, onBack }) {
   const [showNPCEditor, setShowNPCEditor] = useState(false);
   const [showItemEditor, setShowItemEditor] = useState(false);
 
+  // Undo/redo
+  const undoStackRef = useRef([]);
+  const redoStackRef = useRef([]);
+  const strokeActiveRef = useRef(false);
+  const strokeSnapshotTakenRef = useRef(false);
+  const MAX_UNDO = 50;
+
   useEffect(() => {
     Promise.all([
       api.getDungeon(dungeonId),
@@ -476,9 +483,45 @@ function Editor({ dungeonId, onBack }) {
   const updateDungeon = useCallback((updater) => {
     setDungeon(prev => {
       const next = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
+      if (next === prev) return prev; // No change, skip undo snapshot
+      // Push snapshot to undo stack (once per stroke, or every time if not in a stroke)
+      if (!strokeActiveRef.current || !strokeSnapshotTakenRef.current) {
+        undoStackRef.current.push(JSON.stringify(prev));
+        if (undoStackRef.current.length > MAX_UNDO) undoStackRef.current.shift();
+        redoStackRef.current.length = 0;
+        if (strokeActiveRef.current) strokeSnapshotTakenRef.current = true;
+      }
       return next;
     });
     setDirty(true);
+  }, []);
+
+  const undo = useCallback(() => {
+    if (undoStackRef.current.length === 0) return;
+    setDungeon(prev => {
+      redoStackRef.current.push(JSON.stringify(prev));
+      return JSON.parse(undoStackRef.current.pop());
+    });
+    setDirty(true);
+  }, []);
+
+  const redo = useCallback(() => {
+    if (redoStackRef.current.length === 0) return;
+    setDungeon(prev => {
+      undoStackRef.current.push(JSON.stringify(prev));
+      return JSON.parse(redoStackRef.current.pop());
+    });
+    setDirty(true);
+  }, []);
+
+  const beginStroke = useCallback(() => {
+    strokeActiveRef.current = true;
+    strokeSnapshotTakenRef.current = false;
+  }, []);
+
+  const endStroke = useCallback(() => {
+    strokeActiveRef.current = false;
+    strokeSnapshotTakenRef.current = false;
   }, []);
 
   const save = async () => {
@@ -499,6 +542,25 @@ function Editor({ dungeonId, onBack }) {
       showToast(`Reloaded ${result.reloaded.length} room(s)`, 'success');
     } catch { showToast('Reload failed', 'error'); }
   };
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      const key = e.key.toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      } else if ((e.ctrlKey || e.metaKey) && key === 'y') {
+        e.preventDefault();
+        redo();
+      } else if ((e.ctrlKey || e.metaKey) && key === 'z' && e.shiftKey) {
+        e.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [undo, redo]);
 
   if (!dungeon) return html`<div style="padding:40px;text-align:center;color:var(--text-dim)">Loading...</div>`;
 
@@ -526,6 +588,8 @@ function Editor({ dungeonId, onBack }) {
       <button class="topbar-btn" onClick=${onBack}>← Back</button>
       <h1>${dungeon.name}</h1>
       <div class="topbar-spacer" />
+      <button class="topbar-btn" onClick=${undo} disabled=${undoStackRef.current.length === 0} title="Undo (Ctrl+Z)">Undo</button>
+      <button class="topbar-btn" onClick=${redo} disabled=${redoStackRef.current.length === 0} title="Redo (Ctrl+Y)">Redo</button>
       <button class="topbar-btn" onClick=${() => setShowProps(true)}>Props</button>
       <button class="topbar-btn primary" onClick=${save}>${dirty ? 'Save*' : 'Save'}</button>
       <button class="topbar-btn danger" onClick=${saveAndReload}>Reload</button>
@@ -536,6 +600,7 @@ function Editor({ dungeonId, onBack }) {
         selectedTile=${selectedTile} spawnMode=${spawnMode}
         spawnEntityType=${spawnEntityType}
         updateDungeon=${updateDungeon}
+        onStrokeStart=${beginStroke} onStrokeEnd=${endStroke}
         monsters=${monsters} npcs=${npcs} items=${items}
       />
       <div class="side-panel">${panelContent}</div>
@@ -770,7 +835,7 @@ function PropertiesModal({ dungeon, tilesets, updateDungeon, onClose }) {
 }
 
 // ─── Tile Canvas (the core painting surface) ────────────────
-function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, monsters, npcs, items }) {
+function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, onStrokeStart, onStrokeEnd, monsters, npcs, items }) {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const stateRef = useRef({
@@ -940,6 +1005,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
       const cell = screenToCell(e.clientX, e.clientY);
       applyTool(cell);
     } else {
+      onStrokeStart();
       st.isPainting = true;
       const cell = screenToCell(e.clientX, e.clientY);
       applyTool(cell);
@@ -964,6 +1030,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
 
   const onPointerUp = () => {
     const st = stateRef.current;
+    if (st.isPainting) onStrokeEnd();
     st.isPanning = false;
     st.isPainting = false;
   };
@@ -987,6 +1054,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
         const cell = screenToCell(t.clientX, t.clientY);
         applyTool(cell);
       } else {
+        onStrokeStart();
         st.isPainting = true;
         const cell = screenToCell(t.clientX, t.clientY);
         applyTool(cell);
@@ -1037,6 +1105,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
       stateRef.current.pinchDist = 0;
     }
     if (e.touches.length === 0) {
+      if (stateRef.current.isPainting) onStrokeEnd();
       stateRef.current.isPainting = false;
     }
   };

@@ -73,6 +73,7 @@ html, body {
 .topbar-btn.primary { background: var(--accent-dim); border-color: var(--accent); color: #fff; }
 .topbar-btn.primary:active { background: var(--accent); }
 .topbar-btn.danger { border-color: var(--danger); color: var(--danger); }
+.topbar-btn:disabled { opacity: 0.4; cursor: default; }
 
 /* --- Main layout --- */
 .editor-main {
