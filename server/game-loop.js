@@ -834,13 +834,13 @@ class GameLoop {
 
     const npcs = [];
     for (const [nid, n] of room.npcs) {
-      npcs.push({ id: n.id, name: n.name, x: n.x, y: n.y });
+      npcs.push({ id: n.id, type: n.type, name: n.name, x: n.x, y: n.y });
     }
 
     const monsters = [];
     for (const [mid, m] of room.monsters) {
       monsters.push({
-        id: m.id, name: m.name,
+        id: m.id, type: m.type, name: m.name,
         x: Math.round(m.x * 10) / 10,
         y: Math.round(m.y * 10) / 10,
         facing: Math.round(m.facing * 100) / 100,
