@@ -6,6 +6,13 @@
     "rarity": "common",
     "effect": { "heal": 25 }
   },
+  "bandage": {
+    "name": "Bandage",
+    "description": "A basic field dressing. Restores 15 health.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": { "heal": 15 }
+  },
   "rusty_sword": {
     "name": "Rusty Sword",
     "description": "A worn blade, still sharp enough",
@@ -25,5 +32,19 @@
     "description": "Opens something somewhere",
     "type": "key",
     "rarity": "uncommon"
+  },
+  "titanium_cylinders": {
+    "name": "Titanium Cylinders",
+    "description": "Precision-machined power cylinders for a Sol Unit.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "sol_unit": {
+    "name": "Sol Unit",
+    "description": "Standard-issue solar energy weapon. Can be upgraded.",
+    "type": "weapon",
+    "rarity": "rare",
+    "slot": "weapon",
+    "stats": { "attackDamage": 12 }
   }
 }

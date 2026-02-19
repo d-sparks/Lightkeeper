@@ -25,8 +25,8 @@ const gameLoop = new GameLoop(content);
 gameLoop.start();
 
 // Default room + dungeon
-const DEFAULT_ROOM = 'crypt_01';
-gameLoop.createRoom(DEFAULT_ROOM, 'crypt_01');
+const DEFAULT_ROOM = 'outpost_entrance';
+gameLoop.createRoom(DEFAULT_ROOM, 'outpost_entrance');
 
 // --- HTTP server (serves client files) ---
 const MIME_TYPES = {
