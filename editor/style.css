@@ -455,3 +455,112 @@ html, body {
   flex-direction: column;
   gap: 4px;
 }
+
+/* Entity editor modals (NPC/Item editors) */
+.entity-editor-modal {
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.entity-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.entity-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+}
+.entity-tab:active { background: var(--border); }
+.entity-tab.selected { border-color: var(--accent); background: var(--accent-dim); color: #fff; }
+
+.entity-tab-remove {
+  font-size: 13px;
+  color: var(--danger);
+  cursor: pointer;
+  margin-left: 2px;
+}
+
+.entity-add-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.entity-add-row input {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+.entity-add-row input:focus { border-color: var(--accent); }
+
+.entity-add-row button {
+  height: 32px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent-dim);
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Dialogue line editor */
+.dialogue-list {
+  margin-bottom: 8px;
+}
+
+.dialogue-line {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin-bottom: 6px;
+  padding: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.dialogue-speaker {
+  width: 80px;
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+}
+.dialogue-speaker:focus { border-color: var(--accent); }
+
+.dialogue-text {
+  flex: 1;
+  min-height: 28px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+}
+.dialogue-text:focus { border-color: var(--accent); }

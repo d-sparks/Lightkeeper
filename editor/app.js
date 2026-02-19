@@ -33,6 +33,9 @@ const api = {
   async getTilesets() { return (await checkedFetch('/api/editor/tilesets')).json(); },
   async getMonsters() { return (await checkedFetch('/api/editor/monsters')).json(); },
   async getNPCs() { return (await checkedFetch('/api/editor/npcs')).json(); },
+  async saveNPCs(data) { return (await checkedFetch('/api/editor/npcs', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json(); },
+  async getItems() { return (await checkedFetch('/api/editor/items')).json(); },
+  async saveItems(data) { return (await checkedFetch('/api/editor/items', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json(); },
   async reload() { return (await checkedFetch('/api/editor/reload', { method: 'POST' })).json(); },
   async publish(message) {
     const res = await checkedFetch('/api/editor/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message }) });
@@ -58,6 +61,7 @@ const SPAWN_COLORS = {
   monster: '#e53935',
   npc: '#64b5f6',
   exit: '#ab47bc',
+  item: '#fdd835',
 };
 
 // ─── Toast ──────────────────────────────────────────────────
@@ -181,7 +185,7 @@ function DungeonList({ onOpen, gitConfigured }) {
       id, name, depth: 1, tileset: 'crypt', tileSize: 32,
       width, height, data,
       spawns: [{ x: cx, y: cy, type: 'player_start' }],
-      monsterSpawns: [], npcSpawns: [], exits: []
+      monsterSpawns: [], npcSpawns: [], exits: [], itemSpawns: []
     };
     try {
       await api.saveDungeon(id, dungeon);
@@ -301,23 +305,29 @@ function Editor({ dungeonId, onBack }) {
   const [tilesets, setTilesets] = useState([]);
   const [monsters, setMonsters] = useState({});
   const [npcs, setNPCs] = useState({});
+  const [items, setItems] = useState({});
   const [tool, setTool] = useState('paint');          // paint | erase | spawn | select
   const [selectedTile, setSelectedTile] = useState(1); // tile ID to paint
-  const [spawnMode, setSpawnMode] = useState('player_start'); // player_start | monster | npc | exit
+  const [spawnMode, setSpawnMode] = useState('player_start'); // player_start | monster | npc | exit | item
+  const [spawnEntityType, setSpawnEntityType] = useState(''); // specific entity type for spawn
   const [dirty, setDirty] = useState(false);
   const [showProps, setShowProps] = useState(false);
+  const [showNPCEditor, setShowNPCEditor] = useState(false);
+  const [showItemEditor, setShowItemEditor] = useState(false);
 
   useEffect(() => {
     Promise.all([
       api.getDungeon(dungeonId),
       api.getTilesets(),
       api.getMonsters(),
-      api.getNPCs()
-    ]).then(([d, t, m, n]) => {
+      api.getNPCs(),
+      api.getItems()
+    ]).then(([d, t, m, n, it]) => {
       setDungeon(d);
       setTilesets(t);
       setMonsters(m);
       setNPCs(n);
+      setItems(it);
     });
   }, [dungeonId]);
 
@@ -359,9 +369,14 @@ function Editor({ dungeonId, onBack }) {
     ${tool === 'spawn' && html`<${SpawnPanel}
       dungeon=${dungeon} updateDungeon=${updateDungeon}
       spawnMode=${spawnMode} setSpawnMode=${setSpawnMode}
-      monsters=${monsters} npcs=${npcs}
+      spawnEntityType=${spawnEntityType} setSpawnEntityType=${setSpawnEntityType}
+      monsters=${monsters} npcs=${npcs} items=${items}
     />`}
     <${SpawnList} dungeon=${dungeon} updateDungeon=${updateDungeon} />
+    <${EntitySection}
+      onEditNPCs=${() => setShowNPCEditor(true)}
+      onEditItems=${() => setShowItemEditor(true)}
+    />
   `;
 
   return html`
@@ -377,8 +392,9 @@ function Editor({ dungeonId, onBack }) {
       <${TileCanvas}
         dungeon=${dungeon} tiles=${tiles} tool=${tool}
         selectedTile=${selectedTile} spawnMode=${spawnMode}
+        spawnEntityType=${spawnEntityType}
         updateDungeon=${updateDungeon}
-        monsters=${monsters} npcs=${npcs}
+        monsters=${monsters} npcs=${npcs} items=${items}
       />
       <div class="side-panel">${panelContent}</div>
     </div>
@@ -388,6 +404,10 @@ function Editor({ dungeonId, onBack }) {
     </div>
     ${showProps && html`<${PropertiesModal} dungeon=${dungeon} tilesets=${tilesets}
       updateDungeon=${updateDungeon} onClose=${() => setShowProps(false)} />`}
+    ${showNPCEditor && html`<${NPCEditorModal} npcs=${npcs} setNPCs=${setNPCs}
+      onClose=${() => setShowNPCEditor(false)} />`}
+    ${showItemEditor && html`<${ItemEditorModal} items=${items} setItems=${setItems}
+      onClose=${() => setShowItemEditor(false)} />`}
   `;
 }
 
@@ -426,24 +446,58 @@ function TilePalette({ tiles, selected, onSelect }) {
 }
 
 // ─── Spawn Panel ────────────────────────────────────────────
-function SpawnPanel({ dungeon, updateDungeon, spawnMode, setSpawnMode, monsters, npcs }) {
+function SpawnPanel({ dungeon, updateDungeon, spawnMode, setSpawnMode, spawnEntityType, setSpawnEntityType, monsters, npcs, items }) {
+  // Auto-select first entity type when mode changes
+  const getDefaultType = (mode) => {
+    if (mode === 'monster') return Object.keys(monsters)[0] || 'skeleton';
+    if (mode === 'npc') return Object.keys(npcs)[0] || 'old_keeper';
+    if (mode === 'item') return Object.keys(items)[0] || 'health_potion';
+    return '';
+  };
+
+  const changeMode = (mode) => {
+    setSpawnMode(mode);
+    setSpawnEntityType(getDefaultType(mode));
+  };
+
+  // Entity type dropdown for monster/npc/item
+  let entityOptions = null;
+  if (spawnMode === 'monster') {
+    entityOptions = Object.entries(monsters).map(([id, m]) => ({ id, name: m.name }));
+  } else if (spawnMode === 'npc') {
+    entityOptions = Object.entries(npcs).map(([id, n]) => ({ id, name: n.name }));
+  } else if (spawnMode === 'item') {
+    entityOptions = Object.entries(items).map(([id, it]) => ({ id, name: it.name }));
+  }
+
   return html`
     <div class="panel-section">
       <h3>Place Spawns</h3>
       <div class="tool-bar" style="flex-wrap:wrap">
         <button class="tool-btn ${spawnMode === 'player_start' ? 'selected' : ''}"
-          onClick=${() => setSpawnMode('player_start')}
+          onClick=${() => changeMode('player_start')}
           style="border-color:${SPAWN_COLORS.player_start}">Player</button>
         <button class="tool-btn ${spawnMode === 'monster' ? 'selected' : ''}"
-          onClick=${() => setSpawnMode('monster')}
+          onClick=${() => changeMode('monster')}
           style="border-color:${SPAWN_COLORS.monster}">Monster</button>
         <button class="tool-btn ${spawnMode === 'npc' ? 'selected' : ''}"
-          onClick=${() => setSpawnMode('npc')}
+          onClick=${() => changeMode('npc')}
           style="border-color:${SPAWN_COLORS.npc}">NPC</button>
+        <button class="tool-btn ${spawnMode === 'item' ? 'selected' : ''}"
+          onClick=${() => changeMode('item')}
+          style="border-color:${SPAWN_COLORS.item}">Item</button>
         <button class="tool-btn ${spawnMode === 'exit' ? 'selected' : ''}"
-          onClick=${() => setSpawnMode('exit')}
+          onClick=${() => changeMode('exit')}
           style="border-color:${SPAWN_COLORS.exit}">Exit</button>
       </div>
+      ${entityOptions && entityOptions.length > 0 && html`
+        <div class="field" style="margin-top:8px;margin-bottom:0">
+          <label>Type</label>
+          <select value=${spawnEntityType} onChange=${e => setSpawnEntityType(e.target.value)}>
+            ${entityOptions.map(o => html`<option key=${o.id} value=${o.id}>${o.name} (${o.id})</option>`)}
+          </select>
+        </div>
+      `}
       <p style="font-size:11px;color:var(--text-dim);margin-top:8px">Tap a floor tile to place.</p>
     </div>
   `;
@@ -455,6 +509,7 @@ function SpawnList({ dungeon, updateDungeon }) {
     ...dungeon.spawns.map((s, i) => ({ ...s, _kind: 'spawn', _i: i, _label: `Player (${s.x},${s.y})` })),
     ...dungeon.monsterSpawns.map((s, i) => ({ ...s, _kind: 'monster', _i: i, _label: `${s.type} (${s.x},${s.y}) x${s.count}` })),
     ...dungeon.npcSpawns.map((s, i) => ({ ...s, _kind: 'npc', _i: i, _label: `${s.type} (${s.x},${s.y})` })),
+    ...(dungeon.itemSpawns || []).map((s, i) => ({ ...s, _kind: 'item', _i: i, _label: `${s.type} (${s.x},${s.y})` })),
     ...dungeon.exits.map((s, i) => ({ ...s, _kind: 'exit', _i: i, _label: `Exit→${s.leadsTo} (${s.x},${s.y})` })),
   ];
 
@@ -464,6 +519,7 @@ function SpawnList({ dungeon, updateDungeon }) {
       if (kind === 'spawn') d.spawns = d.spawns.filter((_, i) => i !== idx);
       else if (kind === 'monster') d.monsterSpawns = d.monsterSpawns.filter((_, i) => i !== idx);
       else if (kind === 'npc') d.npcSpawns = d.npcSpawns.filter((_, i) => i !== idx);
+      else if (kind === 'item') d.itemSpawns = (d.itemSpawns || []).filter((_, i) => i !== idx);
       else if (kind === 'exit') d.exits = d.exits.filter((_, i) => i !== idx);
       return d;
     });
@@ -475,6 +531,7 @@ function SpawnList({ dungeon, updateDungeon }) {
     if (kind === 'spawn') return SPAWN_COLORS.player_start;
     if (kind === 'monster') return SPAWN_COLORS.monster;
     if (kind === 'npc') return SPAWN_COLORS.npc;
+    if (kind === 'item') return SPAWN_COLORS.item;
     return SPAWN_COLORS.exit;
   };
 
@@ -523,6 +580,7 @@ function PropertiesModal({ dungeon, tilesets, updateDungeon, onClose }) {
         d.spawns = d.spawns.filter(s => s.x < newW && s.y < newH);
         d.monsterSpawns = d.monsterSpawns.filter(s => s.x < newW && s.y < newH);
         d.npcSpawns = d.npcSpawns.filter(s => s.x < newW && s.y < newH);
+        if (d.itemSpawns) d.itemSpawns = d.itemSpawns.filter(s => s.x < newW && s.y < newH);
         d.exits = d.exits.filter(s => s.x < newW && s.y < newH);
       }
       return d;
@@ -570,7 +628,7 @@ function PropertiesModal({ dungeon, tilesets, updateDungeon, onClose }) {
 }
 
 // ─── Tile Canvas (the core painting surface) ────────────────
-function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, updateDungeon, monsters, npcs }) {
+function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, monsters, npcs, items }) {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const stateRef = useRef({
@@ -630,6 +688,9 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, updateDunge
     for (const s of dungeon.spawns) drawMarker(s.x, s.y, SPAWN_COLORS.player_start, 'P');
     for (const s of dungeon.monsterSpawns) drawMarker(s.x, s.y, SPAWN_COLORS.monster, 'M');
     for (const s of dungeon.npcSpawns) drawMarker(s.x, s.y, SPAWN_COLORS.npc, 'N');
+    if (dungeon.itemSpawns) {
+      for (const s of dungeon.itemSpawns) drawMarker(s.x, s.y, SPAWN_COLORS.item, 'I');
+    }
     for (const s of dungeon.exits) drawMarker(s.x, s.y, SPAWN_COLORS.exit, 'E');
 
     ctx.restore();
@@ -704,20 +765,22 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, updateDunge
         if (spawnMode === 'player_start') {
           d.spawns = [...d.spawns, { x: cell.x, y: cell.y, type: 'player_start' }];
         } else if (spawnMode === 'monster') {
-          const monsterTypes = Object.keys(monsters);
-          const type = monsterTypes[0] || 'skeleton';
+          const type = spawnEntityType || Object.keys(monsters)[0] || 'skeleton';
           d.monsterSpawns = [...d.monsterSpawns, { type, x: cell.x, y: cell.y, count: 1, patrol: 'wander' }];
         } else if (spawnMode === 'npc') {
-          const npcTypes = Object.keys(npcs);
-          const type = npcTypes[0] || 'old_keeper';
+          const type = spawnEntityType || Object.keys(npcs)[0] || 'old_keeper';
           d.npcSpawns = [...d.npcSpawns, { type, x: cell.x, y: cell.y }];
+        } else if (spawnMode === 'item') {
+          const type = spawnEntityType || Object.keys(items)[0] || 'health_potion';
+          if (!d.itemSpawns) d.itemSpawns = [];
+          d.itemSpawns = [...d.itemSpawns, { type, x: cell.x, y: cell.y }];
         } else if (spawnMode === 'exit') {
           d.exits = [...d.exits, { x: cell.x, y: cell.y, leadsTo: '', type: 'stairs_down', spawnX: 3, spawnY: 3 }];
         }
         return d;
       });
     }
-  }, [tool, selectedTile, spawnMode, updateDungeon, monsters, npcs]);
+  }, [tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, monsters, npcs, items]);
 
   // --- Mouse events ---
   const onPointerDown = (e) => {
@@ -865,6 +928,285 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, updateDunge
         onWheel=${onWheel}
         style="touch-action:none"
       />
+    </div>
+  `;
+}
+
+// ─── Entity Section (sidebar) ──────────────────────────────
+function EntitySection({ onEditNPCs, onEditItems }) {
+  return html`
+    <div class="panel-section">
+      <h3>Entities</h3>
+      <div class="tool-bar">
+        <button class="tool-btn" onClick=${onEditNPCs}
+          style="border-color:${SPAWN_COLORS.npc}">Edit NPCs</button>
+        <button class="tool-btn" onClick=${onEditItems}
+          style="border-color:${SPAWN_COLORS.item}">Edit Items</button>
+      </div>
+    </div>
+  `;
+}
+
+// ─── NPC Editor Modal ──────────────────────────────────────
+function NPCEditorModal({ npcs, setNPCs, onClose }) {
+  const [localNPCs, setLocalNPCs] = useState(JSON.parse(JSON.stringify(npcs)));
+  const [selectedId, setSelectedId] = useState(Object.keys(npcs)[0] || '');
+  const [newId, setNewId] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const npcIds = Object.keys(localNPCs);
+  const current = selectedId ? localNPCs[selectedId] : null;
+
+  const updateCurrent = (updater) => {
+    setLocalNPCs(prev => {
+      const copy = JSON.parse(JSON.stringify(prev));
+      if (copy[selectedId]) {
+        updater(copy[selectedId]);
+      }
+      return copy;
+    });
+  };
+
+  const addNPC = () => {
+    const id = newId.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!id || localNPCs[id]) return;
+    setLocalNPCs(prev => ({
+      ...prev,
+      [id]: { name: id, dialogue: [{ speaker: id, text: 'Hello, traveler.' }] }
+    }));
+    setSelectedId(id);
+    setNewId('');
+  };
+
+  const removeNPC = (id) => {
+    setLocalNPCs(prev => {
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
+    });
+    if (selectedId === id) setSelectedId(Object.keys(localNPCs).find(k => k !== id) || '');
+  };
+
+  const updateDialogueLine = (idx, field, value) => {
+    updateCurrent(npc => { npc.dialogue[idx][field] = value; });
+  };
+
+  const addDialogueLine = () => {
+    updateCurrent(npc => {
+      npc.dialogue.push({ speaker: current.name, text: '' });
+    });
+  };
+
+  const removeDialogueLine = (idx) => {
+    updateCurrent(npc => { npc.dialogue.splice(idx, 1); });
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const result = await api.saveNPCs(localNPCs);
+      setNPCs(result);
+      showToast('NPCs saved!', 'success');
+      onClose();
+    } catch { showToast('Save failed', 'error'); }
+    setSaving(false);
+  };
+
+  return html`
+    <div class="modal-overlay" onClick=${e => e.target === e.currentTarget && onClose()}>
+      <div class="modal entity-editor-modal">
+        <h2>Edit NPCs</h2>
+
+        <div class="entity-tabs">
+          ${npcIds.map(id => html`
+            <button key=${id} class="entity-tab ${id === selectedId ? 'selected' : ''}"
+              onClick=${() => setSelectedId(id)}>
+              ${localNPCs[id].name}
+              <span class="entity-tab-remove" onClick=${(e) => { e.stopPropagation(); removeNPC(id); }}>×</span>
+            </button>
+          `)}
+        </div>
+
+        <div class="entity-add-row">
+          <input value=${newId} onInput=${e => setNewId(e.target.value)} placeholder="new_npc_id" style="flex:1" />
+          <button class="primary" onClick=${addNPC} style="width:60px">Add</button>
+        </div>
+
+        ${current && html`
+          <div class="field">
+            <label>Name</label>
+            <input value=${current.name} onInput=${e => updateCurrent(npc => { npc.name = e.target.value; })} />
+          </div>
+
+          <div class="dialogue-list">
+            <label style="font-size:12px;color:var(--text-dim);margin-bottom:4px;display:block">Dialogue Lines</label>
+            ${(current.dialogue || []).map((line, idx) => html`
+              <div class="dialogue-line" key=${idx}>
+                <input class="dialogue-speaker" value=${line.speaker}
+                  onInput=${e => updateDialogueLine(idx, 'speaker', e.target.value)}
+                  placeholder="Speaker" />
+                <textarea class="dialogue-text" value=${line.text}
+                  onInput=${e => updateDialogueLine(idx, 'text', e.target.value)}
+                  placeholder="Dialogue text..." rows="2" />
+                <button class="spawn-remove" onClick=${() => removeDialogueLine(idx)}>×</button>
+              </div>
+            `)}
+            <button class="tool-btn" onClick=${addDialogueLine} style="margin-top:4px;border-color:var(--accent)">+ Add Line</button>
+          </div>
+        `}
+
+        <div class="modal-actions">
+          <button onClick=${onClose}>Cancel</button>
+          <button class="primary" onClick=${save} disabled=${saving}>${saving ? 'Saving...' : 'Save'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Item Editor Modal ─────────────────────────────────────
+function ItemEditorModal({ items, setItems, onClose }) {
+  const [localItems, setLocalItems] = useState(JSON.parse(JSON.stringify(items)));
+  const [selectedId, setSelectedId] = useState(Object.keys(items)[0] || '');
+  const [newId, setNewId] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const itemIds = Object.keys(localItems);
+  const current = selectedId ? localItems[selectedId] : null;
+
+  const updateCurrent = (updater) => {
+    setLocalItems(prev => {
+      const copy = JSON.parse(JSON.stringify(prev));
+      if (copy[selectedId]) {
+        updater(copy[selectedId]);
+      }
+      return copy;
+    });
+  };
+
+  const addItem = () => {
+    const id = newId.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!id || localItems[id]) return;
+    setLocalItems(prev => ({
+      ...prev,
+      [id]: { name: id, description: '', type: 'misc', rarity: 'common' }
+    }));
+    setSelectedId(id);
+    setNewId('');
+  };
+
+  const removeItem = (id) => {
+    setLocalItems(prev => {
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
+    });
+    if (selectedId === id) setSelectedId(Object.keys(localItems).find(k => k !== id) || '');
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const result = await api.saveItems(localItems);
+      setItems(result);
+      showToast('Items saved!', 'success');
+      onClose();
+    } catch { showToast('Save failed', 'error'); }
+    setSaving(false);
+  };
+
+  return html`
+    <div class="modal-overlay" onClick=${e => e.target === e.currentTarget && onClose()}>
+      <div class="modal entity-editor-modal">
+        <h2>Edit Items</h2>
+
+        <div class="entity-tabs">
+          ${itemIds.map(id => html`
+            <button key=${id} class="entity-tab ${id === selectedId ? 'selected' : ''}"
+              onClick=${() => setSelectedId(id)}>
+              ${localItems[id].name}
+              <span class="entity-tab-remove" onClick=${(e) => { e.stopPropagation(); removeItem(id); }}>×</span>
+            </button>
+          `)}
+        </div>
+
+        <div class="entity-add-row">
+          <input value=${newId} onInput=${e => setNewId(e.target.value)} placeholder="new_item_id" style="flex:1" />
+          <button class="primary" onClick=${addItem} style="width:60px">Add</button>
+        </div>
+
+        ${current && html`
+          <div class="field">
+            <label>Name</label>
+            <input value=${current.name} onInput=${e => updateCurrent(it => { it.name = e.target.value; })} />
+          </div>
+          <div class="field">
+            <label>Description</label>
+            <input value=${current.description || ''} onInput=${e => updateCurrent(it => { it.description = e.target.value; })} />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Type</label>
+              <select value=${current.type || 'misc'} onChange=${e => updateCurrent(it => { it.type = e.target.value; })}>
+                <option value="consumable">consumable</option>
+                <option value="weapon">weapon</option>
+                <option value="armor">armor</option>
+                <option value="accessory">accessory</option>
+                <option value="key">key</option>
+                <option value="misc">misc</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Rarity</label>
+              <select value=${current.rarity || 'common'} onChange=${e => updateCurrent(it => { it.rarity = e.target.value; })}>
+                <option value="common">common</option>
+                <option value="uncommon">uncommon</option>
+                <option value="rare">rare</option>
+                <option value="epic">epic</option>
+                <option value="legendary">legendary</option>
+              </select>
+            </div>
+          </div>
+          ${(current.type === 'weapon' || current.type === 'armor' || current.type === 'accessory') && html`
+            <div class="field-row">
+              <div class="field">
+                <label>Equipment Slot</label>
+                <select value=${current.slot || ''} onChange=${e => updateCurrent(it => { it.slot = e.target.value || undefined; })}>
+                  <option value="">None</option>
+                  <option value="weapon">weapon</option>
+                  <option value="armor">armor</option>
+                  <option value="accessory">accessory</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Attack Bonus</label>
+                <input type="number" value=${(current.stats && current.stats.attackDamage) || 0}
+                  onInput=${e => updateCurrent(it => {
+                    const v = Number(e.target.value);
+                    if (v > 0) { if (!it.stats) it.stats = {}; it.stats.attackDamage = v; }
+                    else { if (it.stats) delete it.stats.attackDamage; if (it.stats && Object.keys(it.stats).length === 0) delete it.stats; }
+                  })} min="0" />
+              </div>
+            </div>
+          `}
+          ${current.type === 'consumable' && html`
+            <div class="field">
+              <label>Heal Amount</label>
+              <input type="number" value=${(current.effect && current.effect.heal) || 0}
+                onInput=${e => updateCurrent(it => {
+                  const v = Number(e.target.value);
+                  if (v > 0) { if (!it.effect) it.effect = {}; it.effect.heal = v; }
+                  else { if (it.effect) delete it.effect.heal; if (it.effect && Object.keys(it.effect).length === 0) delete it.effect; }
+                })} min="0" />
+            </div>
+          `}
+        `}
+
+        <div class="modal-actions">
+          <button onClick=${onClose}>Cancel</button>
+          <button class="primary" onClick=${save} disabled=${saving}>${saving ? 'Saving...' : 'Save'}</button>
+        </div>
+      </div>
     </div>
   `;
 }
