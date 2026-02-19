@@ -34,9 +34,17 @@ Humans interact with the Solari through **solar terminals** at the border of the
 
 **The Terminator Zone — The Ring**
 
-Home. A band of twilight cities, farmland, and industry wrapped around the planet's equator. The Ring is where most humans live, work, and govern. It's not paradise — resources are scarce, weather is unpredictable, and the political situation is fractured — but it's safe. The Lighthouses keep the borders stable, and the Solari keep the energy flowing.
+Home. A band of twilight cities, farmland, and industry wrapped around the planet's equator. The Ring is where most humans live, work, and govern. It's not paradise — weather is unpredictable and the political situation is fractured — but it's alive in a way nowhere else on the planet is.
 
-The Ring's government is a loose federation of city-states called the **Meridian Council**. They control the Lighthouse network, regulate trade with the Solari, and fund the Lightkeepers — the frontier engineers sent to maintain and restore infrastructure at the edges of civilization. The Council is bureaucratic, underfunded, and slow to act. They tend to care about a collapsed Lighthouse only after refugees start arriving.
+The Ring is the only place on Erith where complex biology thrives at scale. The Scorch is sterile — machines and glass, no organic chemistry. The Deep has life, but it's extremophile — organisms adapted to total darkness and lethal cold, alien and hostile. The Ring is where water flows in rivers, where forests grow, where a full biosphere operates: insects, birds, soil microbes, flowering plants, the entire interconnected web that makes an ecosystem function.
+
+This is not an accident of geography. It is the Ring's defining advantage — and the source of its real power.
+
+Over centuries, Ring civilization has developed sophisticated biological sciences: agriculture engineered for eternal twilight, medicinal compounds synthesized from endemic flora, bio-luminescent organisms domesticated for light and signaling, fungal filtration systems for water purification, and selective breeding programs that maintain genetic diversity across the habitable band. The Ring doesn't just inhabit a biosphere — it cultivates one. The great agricultural terraces of the city-states are marvels of ecological engineering, producing surplus food, medicine, and biological materials that no other zone on the planet can replicate.
+
+The **Greenways** — vast cultivated corridors connecting Ring city-states — are the circulatory system of human civilization. They carry food, seed stock, medicinal cultures, and biological feedstock between settlements. Disrupting a Greenway is as serious as losing a Lighthouse. Both threaten survival; they just operate on different timescales.
+
+The Ring's government is a loose federation of city-states called the **Meridian Council**. They manage the Lighthouse network and the Greenways, regulate trade with the Solari, fund the Lightkeepers, and — critically — control the biological commons: seed banks, genetic archives, and the pharmaceutical reserves that keep the population alive. The Council's authority ultimately rests on its stewardship of life itself.
 
 **The Dark Side — The Deep**
 
@@ -64,9 +72,11 @@ AI-driven machines that control the light side. Originally built as automated so
 
 **What they provide:** Energy cells for sol units, manufactured components, advanced optics for Lighthouse maintenance, and occasionally, custom equipment built to specifications no human workshop can match.
 
-**What they want:** Rare minerals found only on the dark side. Specifically, **umbrasite** — a crystalline mineral that forms in conditions of extreme cold and zero light. Umbrasite has properties the Solari find extremely valuable, though they are evasive about exactly why.
+**What they want:** Two things. First, rare minerals found only on the dark side — specifically, **umbrasite**, a crystalline mineral that forms in conditions of extreme cold and zero light. Umbrasite has properties the Solari find extremely valuable, though they are evasive about exactly why. Second, **biological catalysts** — organic compounds produced by living systems in the Ring. The Solari's manufacturing processes require these catalysts for certain advanced materials, and no amount of engineering has allowed them to synthesize the compounds artificially. Life makes things machines cannot.
 
 **The tension:** The Solari are helpful. They are also expanding. Their solar arrays grow every year, creeping further around the light side of the planet. They build new structures humans can't inspect. They communicate in encrypted bursts humans can't decode. The Meridian Council officially considers them allies. Unofficially, some Council members are terrified of them.
+
+**The balance:** The relationship is more mutual than it appears. The Ring depends on Solari energy, but the Solari depend on Ring biology. The Council's pharmaceutical guilds produce the catalysts the Solari cannot. This gives humanity genuine leverage — not enough to dictate terms, but enough to negotiate them. The Solari are aware of this dependency. It is, perhaps, the only thing about humans that makes them cautious.
 
 The player's relationship with the Solari is primarily transactional. You bring them minerals, they give you energy and equipment. As you automate more operations on the light side, you interact with increasingly sophisticated Solari systems — and start to glimpse the edges of whatever they're actually building out there.
 
@@ -90,11 +100,22 @@ The player's relationship with the Luddites begins as pure antagonism — they'r
 
 ### The Meridian Council
 
-The governing body of the Terminator Zone. A federation of city-states that manages the Lighthouse network, regulates trade, and funds the Lightkeepers.
+The governing body of the Terminator Zone. A federation of city-states that manages the Lighthouse network, the Greenways, and the biological commons.
 
-In practice, the Council is a bureaucracy that has been in slow decline for decades. Funding for Lighthouse maintenance has been cut repeatedly. Lightkeeper recruitment is down. Several border outposts have been quietly abandoned. The Council prefers to manage the Solari relationship (which generates revenue) over the dark-side border (which only costs money).
+The Council's power is real, not ceremonial. They control the **seed vaults** — the genetic archives that contain every crop strain, medicinal culture, and biological template Ring civilization depends on. They regulate the **pharmaceutical guilds** that produce medicine from endemic flora. They fund the **Cultivar Corps** — the agricultural engineers who maintain the Greenways and develop new strains for frontier settlements. And they operate the **bio-reserves** — protected ecosystems that serve as genetic insurance against catastrophe.
 
-The player interacts with the Council through **dispatches** — mission briefings, supply requisitions, and increasingly frustrated correspondence. The Council is not an enemy, but they are an obstacle. They send you into danger and then argue about reimbursing your equipment.
+This gives the Council leverage that neither the Solari nor the Unbounded can replicate. The Solari can manufacture anything — except living tissue. Their machines run on energy, not food. But certain Solari processes require biological catalysts — organic compounds that can only be synthesized by living systems. The Council supplies these, and the Solari cannot substitute them. This is why the trade relationship is genuinely mutual, not the one-sided dependency it appears to be: the Solari need the Ring's biology as much as the Ring needs the Solari's energy.
+
+The Unbounded need Ring biology even more desperately. Dark-side ecosystems are narrow and fragile. The Unbounded's bioluminescent fungi, their dark-adapted livestock, their medicinal mosses — all of them descend from Ring organisms, carried into the dark by the original dissidents. Without periodic infusions of genetic diversity from Ring seed stock, Unbounded species inbreed and collapse. This is a vulnerability the Unbounded don't advertise and the Council quietly exploits — seed shipments have historically been used as a diplomatic lever with border communities.
+
+**The Council's weakness** is not that it lacks power — it's that the power is slow. Biology operates on generational timescales. Crops take seasons. Breeding programs take years. Genetic archives take decades to build and moments to destroy. The Council thinks in harvests, not crises. When a Lighthouse goes dark tonight, the Council's response is shaped by what it means for next year's crop yield in the affected zone — which is the right question, but not the urgent one.
+
+The player interacts with the Council through **dispatches** — mission briefings, supply requisitions, and correspondence that reveals an institution wrestling with enormous responsibility and inadequate speed. The Council is not incompetent. It is an organization designed to manage living systems being asked to respond to emergencies. It funds the Lightkeepers, but it also funds the Cultivar Corps, the pharmaceutical guilds, the seed vaults, and a dozen other institutions that keep millions of people alive. The Lightkeepers are important. They're not the only important thing.
+
+**Internal factions within the Council:**
+- **The Stewards** — Traditionalists who prioritize the biological commons above all else. They want to reduce Solari dependence, invest in biological energy alternatives (bio-fuel, thermal cultivation), and bring the Unbounded back into the fold through seed diplomacy. They are cautious, isolationist, and deeply suspicious of MERIDIAN-7.
+- **The Compact** — Pragmatists who believe the Solari relationship is essential and manageable. They want to expand trade, modernize the Lighthouse network with Solari technology, and treat the Unbounded as a security problem. They are efficient, growth-oriented, and perhaps too comfortable with the status quo.
+- **The Root** — A small, radical faction that believes the Ring's biological knowledge is being underutilized. They advocate for aggressive bio-engineering: crops that can grow in the dark, organisms that can survive the Scorch, biological alternatives to the Lighthouse network itself. Other factions consider them reckless. They might be visionary.
 
 ---
 
@@ -127,6 +148,16 @@ A Solari interface — the AI the player communicates with through solar termina
 It also asks questions. Subtle ones. About what you've found in the dark. About the minerals you're bringing back. About the structures the Unbounded have described. MERIDIAN-7 is always interested, never pushy, and never quite explains why it wants to know.
 
 **Role in story:** Trading interface, light-side operations manager, and slow-burn source of unease. The player depends on MERIDIAN-7 for energy and equipment. The question is whether that dependence is a relationship or a leash.
+
+### Councillor Asha Denn — Voice of the Ring
+
+A senior member of the Meridian Council and head of the Cultivar Corps. Asha is a biologist by training and a politician by necessity. She understands the Ring's biological infrastructure better than anyone alive — the seed vaults, the Greenway ecology, the pharmaceutical supply chains — and she understands that this knowledge is power.
+
+Asha is not warm. She is precise, patient, and relentlessly practical. She speaks about crop yields and genetic drift the way generals speak about troop deployments, because to her they are the same thing. The Ring's biosphere is a weapon, a shield, and a responsibility. She intends to wield it correctly.
+
+**Role in story:** The Council's face and voice. Where Wren represents the frontier and Sable represents the dark, Asha represents the civilization the player is fighting to protect — and the institutional logic that sometimes makes that protection feel indistinguishable from control. She is the one who explains why the Council can't send more Lightkeepers (the Cultivar Corps needs the funding to prevent a blight in the southern Greenway). She is the one who authorizes Sable's presence at Duskwall (because the Unbounded need seed stock and that means leverage). She is the one who, in Act 3, holds the biological keys that make Path C possible — because the three-way equilibrium requires someone who can offer both the Solari and the Unbounded something they genuinely need, and only the Ring has it.
+
+Asha is a Steward by faction, but she's pragmatic enough to work with anyone. Her loyalty is to the biosphere, not to ideology.
 
 ### Dural Voss — Raider Warlord
 
@@ -191,15 +222,15 @@ The truth reshapes everything. The Underlumen is an ancient planetary intelligen
 The Unbounded stumbled onto this generations ago. That's why they left. The original dissidents weren't anti-technology zealots — they were people who discovered what the Solari were doing and refused to participate. Over generations, cut off from the Ring's resources, some communities devolved into raiders. Others preserved the knowledge and tried to coexist with the Underlumen.
 
 **Key beats:**
-- **The Council fractures** — When the player brings evidence back to the Ring, the Meridian Council splits. Some members want to shut down Solari trade immediately. Others argue the evidence is Luddite propaganda. Others are simply terrified. Wren backs the player, but she's one voice.
-- **Solari response** — MERIDIAN-7 drops the politeness. The Solari don't threaten — they don't need to. They simply point out that without Solari energy, the Lighthouse network fails within weeks. Without Lighthouses, the Terminator Zone's habitable margin shrinks by 40%. Millions of people lose their homes. The Solari frame it as a mutual dependency. It sounds like a hostage situation.
+- **The Council fractures** — When the player brings evidence back to the Ring, the Meridian Council splits along its internal faction lines. The Stewards want to cut Solari trade and accelerate biological energy alternatives. The Compact argues the evidence is Luddite propaganda and the Solari relationship is too critical to jeopardize. The Root sees an opportunity — if the Underlumen is a biological network, perhaps Ring bio-science can interface with it directly, bypassing both the Solari and the Lighthouses. Asha Denn tries to hold the center together. Wren backs the player, but the Council's decision will depend on who the player has cultivated relationships with.
+- **Solari response** — MERIDIAN-7 drops the politeness. The Solari point out that without their energy, the Lighthouse network fails within weeks and the habitable margin shrinks by 40%. But Asha plays the Council's card: without Ring-produced biological catalysts, Solari manufacturing degrades within months. Critical processes fail. Expansion halts. The Solari frame their position as mutual dependency. Asha frames it as mutual vulnerability. Neither is bluffing. The standoff is real — two civilizations that have each other by the throat and both know it.
 - **The choice** — The endgame presents the player with a fundamental decision that doesn't have a clean answer:
 
 **Path A — Maintain the Lighthouses.** Keep the system running. The Solari continue to harvest the Underlumen. Humanity keeps its energy supply and its habitable zone. The Unbounded remain exiled. The Underlumen remains suppressed. The status quo is preserved because the alternative is too dangerous.
 
 **Path B — Free the Underlumen.** Shut down the suppression network. The Underlumen awakens fully — an alien intelligence with unknown intentions now active across the entire dark side. The Solari lose their umbrasite supply and react unpredictably. The Lighthouses may still function (they predate the suppression — their light-projection capability is separate from their suppression function), but the dark side becomes truly unknown territory.
 
-**Path C — Break the cycle.** Attempt to negotiate a three-way equilibrium. Convince the Solari to source energy differently, allow the Underlumen partial awakening, and integrate the Unbounded back into the Ring. This is the hardest path — it requires the most gameplay investment (maxing out relationships with all factions) and its success is not guaranteed. It's the most hopeful outcome, but it demands the player actually understand all three perspectives.
+**Path C — Break the cycle.** Attempt to negotiate a three-way equilibrium. The Ring offers the Solari biological catalysts and Underlumen-derived compounds as a replacement for raw umbrasite harvesting. The Unbounded share their knowledge of coexisting with the Underlumen. The Solari contribute energy infrastructure that doesn't require suppression. Asha Denn brokers the biological terms. Sable speaks for the Unbounded. MERIDIAN-7 calculates whether the math works. This is the hardest path — it requires the most gameplay investment (maxing out relationships with all factions, completing Asha's Cultivar Corps side quests, earning Sable's full trust) and its success is not guaranteed. It's the most hopeful outcome, but it demands the player actually understand all three perspectives and have built the institutional relationships to make them cooperate.
 
 ### Epilogue
 
@@ -226,6 +257,16 @@ This mirrors real-world themes about essential workers, infrastructure decay, an
 The Solari are useful but alien. The Unbounded are human but rejected. The Underlumen is ancient but unknown. Each faction has a claim to the planet and a reason to distrust the others. The game doesn't present a clear villain — it presents a system where every participant has legitimate grievances and incompatible needs.
 
 The player's role is not to judge who's right. It's to decide what they can live with.
+
+### Life as Leverage
+
+The Ring's power is biological. It is the only place on the planet that produces living complexity — food, medicine, genetic diversity, organic compounds that machines cannot synthesize. This is not a secondary concern. It is the foundation of human sovereignty on Erith.
+
+The Solari are computationally superior. The Unbounded are spiritually connected to the planet's ancient intelligence. But neither of them can grow a crop, breed a resistant strain, or synthesize a pharmaceutical compound. Life is slow, fragile, and irreplaceable — and that irreplaceability is what gives humanity a seat at the table.
+
+This theme runs through the gameplay: the player manages biological resources alongside energy and minerals. Greenway maintenance, seed deliveries to frontier settlements, and Cultivar Corps research quests are not side content — they are the Ring asserting its relevance. The player is a Lightkeeper, but the lights only matter because they protect the living zone. Without the biosphere, the Lighthouses are just expensive lamps illuminating empty ground.
+
+The deeper question: is biological stewardship enough? The Solari are expanding. The Underlumen is awakening. Both operate on scales that dwarf human biology. The Ring's advantage is real but finite. The game asks whether humanity can parlay a biological edge into lasting coexistence — or whether life is just a resource that more powerful systems will eventually learn to do without.
 
 ### Automation and Autonomy
 
