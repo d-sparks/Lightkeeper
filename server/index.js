@@ -97,6 +97,99 @@ const httpServer = http.createServer((req, res) => {
       return;
     }
 
+    // List remote branches
+    if (urlPath === '/api/editor/branches' && req.method === 'GET') {
+      try {
+        const branches = contentGit.listBranches();
+        const activeBranch = contentGit.getActiveBranch();
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ branches, activeBranch }));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+      return;
+    }
+
+    // Load content from a specific branch
+    if (urlPath === '/api/editor/branches/load' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const { branch } = JSON.parse(body);
+          if (!branch) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Missing branch name' }));
+            return;
+          }
+          const result = contentGit.loadBranchContent(branch);
+          content.loadAll();
+
+          // Reload active rooms and notify players
+          const reloaded = [];
+          for (const [roomId] of gameLoop.rooms) {
+            const updated = gameLoop.reloadRoom(roomId);
+            if (!updated) continue;
+            reloaded.push(roomId);
+            const tileset = content.getTileset(updated.dungeon.tileset);
+            const msg = JSON.stringify({
+              type: CONSTANTS.MSG.FLOOR_CHANGE,
+              map: updated.dungeon,
+              tileset,
+            });
+            wss.clients.forEach((client) => {
+              if (client.readyState === 1 && client.playerRoom === roomId) {
+                client.send(msg);
+              }
+            });
+          }
+
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ...result, reloaded }));
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: e.message }));
+        }
+      });
+      return;
+    }
+
+    // Refresh content from the currently loaded branch
+    if (urlPath === '/api/editor/branches/refresh' && req.method === 'POST') {
+      try {
+        const result = contentGit.refreshBranchContent();
+        content.loadAll();
+
+        // Reload active rooms and notify players
+        const reloaded = [];
+        for (const [roomId] of gameLoop.rooms) {
+          const updated = gameLoop.reloadRoom(roomId);
+          if (!updated) continue;
+          reloaded.push(roomId);
+          const tileset = content.getTileset(updated.dungeon.tileset);
+          const msg = JSON.stringify({
+            type: CONSTANTS.MSG.FLOOR_CHANGE,
+            map: updated.dungeon,
+            tileset,
+          });
+          wss.clients.forEach((client) => {
+            if (client.readyState === 1 && client.playerRoom === roomId) {
+              client.send(msg);
+            }
+          });
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ...result, reloaded }));
+      } catch (e) {
+        const status = e.message.includes('No branch') ? 400 : 500;
+        res.writeHead(status, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+      return;
+    }
+
     const handled = handleEditorAPI(req, res);
     if (handled !== false) return;
   }
