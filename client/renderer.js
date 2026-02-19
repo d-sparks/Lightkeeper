@@ -1,25 +1,23 @@
-// Renderer - draws the game world on a <canvas>
+// Renderer - draws the game world using PixiJS
+// Retained-mode: create display objects once, update properties each frame.
 
 class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext('2d');
 
-    // Viewport tiles (can be updated dynamically by resizeToFit)
+    // Viewport tiles
     this.viewportTX = CONSTANTS.VIEWPORT_TILES_X;
     this.viewportTY = CONSTANTS.VIEWPORT_TILES_Y;
 
     // Viewport size in pixels
     this.viewW = this.viewportTX * CONSTANTS.TILE_SIZE;
     this.viewH = this.viewportTY * CONSTANTS.TILE_SIZE;
-    this.canvas.width = this.viewW;
-    this.canvas.height = this.viewH;
 
     // Camera position (top-left corner in world pixels)
     this.camX = 0;
     this.camY = 0;
 
-    // Map + tileset data (set when server sends it)
+    // Map + tileset data
     this.map = null;
     this.tileset = null;
 
@@ -27,23 +25,134 @@ class Renderer {
     this.state = null;
     this.myId = null;
 
-    // Tile color cache (fallback when sprites haven't loaded)
-    this.tileColors = {};
-
     // Floating damage numbers
     this.damageNumbers = [];
 
-    // Sprite image cache: path -> { img, loaded, failed }
-    this.spriteCache = {};
+    // Tile color fallbacks
+    this.tileColors = {};
 
-    // Tileset sprite sheet (loaded when setMap is called)
-    this.tilesetImage = null;
+    // PixiJS Application (initialized asynchronously)
+    this.app = null;
+    this.ready = false;
 
-    // Disable smoothing for crisp pixels
-    this.ctx.imageSmoothingEnabled = false;
+    // Layer containers
+    this.worldContainer = null;   // moves with camera
+    this.tileContainer = null;    // tile sprites
+    this.entityContainer = null;  // entities sorted by Y
+    this.overlayContainer = null; // fixed UI (minimap, damage numbers)
+
+    // Tile sprite pool (reused across frames)
+    this.tileSprites = [];        // flat array of PIXI.Sprite for visible area
+    this.tileRows = 0;
+    this.tileCols = 0;
+
+    // Tileset texture references
+    this.tileTextures = {};       // tileId -> PIXI.Texture (region of sprite sheet)
+    this.tilesetLoaded = false;
+
+    // Entity sprite pools: id -> { container, sprite, nameTag, healthBar, ... }
+    this.playerSprites = new Map();
+    this.monsterSprites = new Map();
+    this.npcSprites = new Map();
+    this.itemSprites = new Map();
+
+    // Sprite texture cache: path -> PIXI.Texture
+    this.textureCache = {};
+
+    // Minimap graphics
+    this.minimapGfx = null;
+
+    // Damage number containers
+    this.dmgContainer = null;
+
+    // Spawn/exit graphics
+    this.spawnGfx = null;
+    this.exitGfx = null;
+
+    // Door prompt graphics
+    this.doorPromptContainer = null;
+
+    this._initPixi();
   }
 
-  // Resize canvas to fit available space (called on window resize)
+  async _initPixi() {
+    this.app = new PIXI.Application({
+      view: this.canvas,
+      width: this.viewW,
+      height: this.viewH,
+      backgroundColor: 0x1a1a2e,
+      antialias: false,
+      resolution: 1,
+      autoDensity: false,
+      autoStart: false,  // We drive rendering from our own game loop
+    });
+
+    // Crisp pixel rendering
+    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+    PIXI.settings.ROUND_PIXELS = true;
+
+    // World container (scrolls with camera)
+    this.worldContainer = new PIXI.Container();
+    this.app.stage.addChild(this.worldContainer);
+
+    // Tile layer
+    this.tileContainer = new PIXI.Container();
+    this.worldContainer.addChild(this.tileContainer);
+
+    // Spawn/exit graphics layer
+    this.spawnGfx = new PIXI.Graphics();
+    this.worldContainer.addChild(this.spawnGfx);
+    this.exitGfx = new PIXI.Graphics();
+    this.worldContainer.addChild(this.exitGfx);
+
+    // Entity layer (Y-sorted)
+    this.entityContainer = new PIXI.Container();
+    this.entityContainer.sortableChildren = true;
+    this.worldContainer.addChild(this.entityContainer);
+
+    // Door prompt layer
+    this.doorPromptContainer = new PIXI.Container();
+    this.worldContainer.addChild(this.doorPromptContainer);
+
+    // Fixed overlay layer (minimap, damage numbers)
+    this.overlayContainer = new PIXI.Container();
+    this.app.stage.addChild(this.overlayContainer);
+
+    this.minimapGfx = new PIXI.Graphics();
+    this.overlayContainer.addChild(this.minimapGfx);
+
+    this.dmgContainer = new PIXI.Container();
+    this.overlayContainer.addChild(this.dmgContainer);
+
+    this.ready = true;
+  }
+
+  // --- Texture loading ---
+
+  loadTexture(spritePath) {
+    if (this.textureCache[spritePath]) return this.textureCache[spritePath];
+    const tex = PIXI.Texture.from('/content/' + spritePath);
+    tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
+    this.textureCache[spritePath] = tex;
+    return tex;
+  }
+
+  _buildTileTextures() {
+    if (!this.tileset || !this.tileset.image) return;
+    const baseTex = PIXI.BaseTexture.from('/content/' + this.tileset.image, {
+      scaleMode: PIXI.SCALE_MODES.NEAREST,
+    });
+    const sz = CONSTANTS.SPRITE_SIZE;
+    for (const id of Object.keys(this.tileset.tiles)) {
+      const numId = parseInt(id);
+      const rect = new PIXI.Rectangle(numId * sz, 0, sz, sz);
+      this.tileTextures[id] = new PIXI.Texture(baseTex, rect);
+    }
+    this.tilesetLoaded = true;
+  }
+
+  // --- Public API (same as before) ---
+
   resizeToFit(availW, availH) {
     const isMobile = ('ontouchstart' in window);
     const targetTilePx = isMobile ? 28 : 32;
@@ -59,8 +168,10 @@ class Renderer {
     this.viewportTY = ty;
     this.viewW = tx * CONSTANTS.TILE_SIZE;
     this.viewH = ty * CONSTANTS.TILE_SIZE;
-    this.canvas.width = this.viewW;
-    this.canvas.height = this.viewH;
+
+    if (this.app) {
+      this.app.renderer.resize(this.viewW, this.viewH);
+    }
 
     // Scale canvas to fill available space
     const scaleX = availW / this.viewW;
@@ -69,55 +180,35 @@ class Renderer {
     this.canvas.style.width = `${Math.floor(this.viewW * scale)}px`;
     this.canvas.style.height = `${Math.floor(this.viewH * scale)}px`;
 
-    this.ctx.imageSmoothingEnabled = false;
-  }
-
-  // Load a sprite image (returns cached entry, starts async load if needed)
-  loadSprite(spritePath) {
-    if (this.spriteCache[spritePath]) return this.spriteCache[spritePath];
-
-    const entry = { img: new Image(), loaded: false, failed: false };
-    entry.img.onload = () => { entry.loaded = true; };
-    entry.img.onerror = () => { entry.failed = true; };
-    entry.img.src = '/content/' + spritePath;
-    this.spriteCache[spritePath] = entry;
-    return entry;
-  }
-
-  // Get a loaded sprite, or null if not ready
-  getSprite(spritePath) {
-    if (!spritePath) return null;
-    const entry = this.loadSprite(spritePath);
-    return entry.loaded ? entry.img : null;
+    // Rebuild tile sprite pool on resize
+    this._rebuildTilePool();
   }
 
   setMap(map, tileset) {
     this.map = map;
     this.tileset = tileset;
     this.buildTileColors();
-
-    // Load the tileset sprite sheet
-    if (tileset && tileset.image) {
-      this.loadSprite(tileset.image);
-    }
+    this.tilesetLoaded = false;
+    this.tileTextures = {};
+    this._buildTileTextures();
+    this._rebuildTilePool();
   }
 
   buildTileColors() {
     if (!this.tileset) return;
-    // Fallback colors for each tile type (used when sprite sheet isn't loaded)
     const colorMap = {
-      'stone_floor':   '#2a2a3d',
-      'cracked_floor': '#332a3d',
-      'stone_wall':    '#5a5a7a',
-      'door_closed':   '#7a6a4a',
-      'door_open':     '#4a3a2a',
-      'stairs_down':   '#6a3a8a',
-      'stairs_up':     '#3a8a6a',
-      'water':         '#2a4a6a',
-      'void':          '#0d0d1a',
+      'stone_floor':   0x2a2a3d,
+      'cracked_floor': 0x332a3d,
+      'stone_wall':    0x5a5a7a,
+      'door_closed':   0x7a6a4a,
+      'door_open':     0x4a3a2a,
+      'stairs_down':   0x6a3a8a,
+      'stairs_up':     0x3a8a6a,
+      'water':         0x2a4a6a,
+      'void':          0x0d0d1a,
     };
     for (const [id, tile] of Object.entries(this.tileset.tiles)) {
-      this.tileColors[id] = colorMap[tile.name] || '#ff00ff';  // Magenta = missing
+      this.tileColors[id] = colorMap[tile.name] !== undefined ? colorMap[tile.name] : 0xff00ff;
     }
   }
 
@@ -129,49 +220,57 @@ class Renderer {
     this.myId = id;
   }
 
-  // Main render call - called every animation frame
-  render() {
-    const ctx = this.ctx;
+  // --- Tile pool management ---
+
+  _rebuildTilePool() {
+    if (!this.tileContainer) return;
+
+    // Remove old tile sprites
+    this.tileContainer.removeChildren();
+    this.tileSprites = [];
+
+    // Create a grid of tile sprites covering the viewport + 1 tile margin
     const ts = CONSTANTS.TILE_SIZE;
+    this.tileCols = Math.ceil(this.viewW / ts) + 2;
+    this.tileRows = Math.ceil(this.viewH / ts) + 2;
 
-    // Clear
-    ctx.fillStyle = CONSTANTS.COLORS.background;
-    ctx.fillRect(0, 0, this.viewW, this.viewH);
+    for (let i = 0; i < this.tileRows * this.tileCols; i++) {
+      const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+      sprite.width = ts;
+      sprite.height = ts;
+      sprite.visible = false;
+      this.tileContainer.addChild(sprite);
+      this.tileSprites.push(sprite);
+    }
+  }
 
-    if (!this.map || !this.state) return;
+  // --- Main render call ---
 
-    // Update camera to follow local player
+  render() {
+    if (!this.ready || !this.map || !this.state) return;
+
     this.updateCamera();
 
-    // Draw tile map
-    this.renderMap(ctx, ts);
+    // Position world container (camera offset)
+    this.worldContainer.x = -Math.round(this.camX);
+    this.worldContainer.y = -Math.round(this.camY);
 
-    // Draw spawn points (subtle markers)
-    this.renderSpawns(ctx, ts);
+    this.renderMap();
+    this.renderSpawns();
+    this.renderExits();
+    this.renderItems();
+    this.renderNPCs();
+    this.renderMonsters();
+    this.renderPlayers();
+    this.renderDoorPrompts();
+    this.renderDamageNumbers();
+    this.renderMinimap();
 
-    // Draw exit points
-    this.renderExits(ctx, ts);
+    // Y-sort the entity container
+    this.entityContainer.sortChildren();
 
-    // Draw ground items
-    this.renderItems(ctx, ts);
-
-    // Draw NPCs
-    this.renderNPCs(ctx, ts);
-
-    // Draw monsters
-    this.renderMonsters(ctx, ts);
-
-    // Draw players
-    this.renderPlayers(ctx, ts);
-
-    // Draw door interact prompts
-    this.renderDoorPrompts(ctx, ts);
-
-    // Draw floating damage numbers
-    this.renderDamageNumbers(ctx);
-
-    // Draw minimap
-    this.renderMinimap(ctx);
+    // Flush PixiJS scene to WebGL/canvas
+    this.app.render();
   }
 
   updateCamera() {
@@ -179,403 +278,460 @@ class Renderer {
     const me = this.state.players.find(p => p.id === this.myId);
     if (!me) return;
 
-    // Center camera on player
     const targetX = me.x - this.viewW / 2;
     const targetY = me.y - this.viewH / 2;
 
-    // Clamp to map bounds
     const mapW = this.map.width * CONSTANTS.TILE_SIZE;
     const mapH = this.map.height * CONSTANTS.TILE_SIZE;
     this.camX = Math.max(0, Math.min(targetX, mapW - this.viewW));
     this.camY = Math.max(0, Math.min(targetY, mapH - this.viewH));
   }
 
-  renderMap(ctx, ts) {
-    // Only draw tiles visible in the viewport
+  // --- Tile rendering ---
+
+  renderMap() {
+    const ts = CONSTANTS.TILE_SIZE;
     const startTX = Math.floor(this.camX / ts);
     const startTY = Math.floor(this.camY / ts);
-    const endTX = Math.ceil((this.camX + this.viewW) / ts);
-    const endTY = Math.ceil((this.camY + this.viewH) / ts);
 
-    // Try to use the tileset sprite sheet
-    const tilesetImg = this.tileset ? this.getSprite(this.tileset.image) : null;
-    const spriteSz = CONSTANTS.SPRITE_SIZE;  // 16px native sprite size
+    let idx = 0;
+    for (let row = 0; row < this.tileRows; row++) {
+      for (let col = 0; col < this.tileCols; col++) {
+        const sprite = this.tileSprites[idx++];
+        if (!sprite) continue;
 
-    for (let ty = startTY; ty <= endTY; ty++) {
-      for (let tx = startTX; tx <= endTX; tx++) {
-        if (tx < 0 || ty < 0 || tx >= this.map.width || ty >= this.map.height) continue;
+        const tx = startTX + col;
+        const ty = startTY + row;
 
-        const tileId = this.map.data[ty * this.map.width + tx];
-        const screenX = tx * ts - this.camX;
-        const screenY = ty * ts - this.camY;
-
-        if (tilesetImg) {
-          // Draw from sprite sheet: tiles are arranged horizontally, each 16x16
-          const srcX = tileId * spriteSz;
-          ctx.drawImage(tilesetImg, srcX, 0, spriteSz, spriteSz, screenX, screenY, ts, ts);
-        } else {
-          // Fallback: solid color fill
-          const color = this.tileColors[String(tileId)] || '#ff00ff';
-          ctx.fillStyle = color;
-          ctx.fillRect(screenX, screenY, ts, ts);
-
-          // Door visual indicator
-          const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
-          if (tileDef && tileDef.interactable === 'door') {
-            if (tileDef.solid) {
-              ctx.strokeStyle = '#b8975a';
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              ctx.moveTo(screenX + 4, screenY + ts / 2);
-              ctx.lineTo(screenX + ts - 4, screenY + ts / 2);
-              ctx.stroke();
-              ctx.beginPath();
-              ctx.moveTo(screenX + ts / 2, screenY + 4);
-              ctx.lineTo(screenX + ts / 2, screenY + ts - 4);
-              ctx.stroke();
-            } else {
-              ctx.strokeStyle = 'rgba(122, 106, 74, 0.5)';
-              ctx.lineWidth = 2;
-              ctx.beginPath();
-              ctx.moveTo(screenX + 2, screenY + 4);
-              ctx.lineTo(screenX + 2, screenY + ts - 4);
-              ctx.stroke();
-              ctx.beginPath();
-              ctx.moveTo(screenX + ts - 2, screenY + 4);
-              ctx.lineTo(screenX + ts - 2, screenY + ts - 4);
-              ctx.stroke();
-            }
-          }
+        if (tx < 0 || ty < 0 || tx >= this.map.width || ty >= this.map.height) {
+          sprite.visible = false;
+          continue;
         }
 
-        // Subtle grid lines
-        ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-        ctx.strokeRect(screenX, screenY, ts, ts);
+        const tileId = String(this.map.data[ty * this.map.width + tx]);
+        sprite.visible = true;
+        sprite.x = tx * ts;
+        sprite.y = ty * ts;
+        sprite.width = ts;
+        sprite.height = ts;
+
+        if (this.tilesetLoaded && this.tileTextures[tileId]) {
+          sprite.texture = this.tileTextures[tileId];
+          sprite.tint = 0xffffff;
+        } else {
+          // Fallback: white texture tinted to tile color
+          sprite.texture = PIXI.Texture.WHITE;
+          sprite.tint = this.tileColors[tileId] !== undefined ? this.tileColors[tileId] : 0xff00ff;
+        }
+      }
+    }
+
+    // Hide any remaining sprites in pool
+    while (idx < this.tileSprites.length) {
+      this.tileSprites[idx++].visible = false;
+    }
+  }
+
+  // --- Spawn markers ---
+
+  renderSpawns() {
+    this.spawnGfx.clear();
+    if (!this.map.spawns) return;
+    const ts = CONSTANTS.TILE_SIZE;
+
+    this.spawnGfx.lineStyle(1, 0x26a69a, 0.3);
+    for (const spawn of this.map.spawns) {
+      const sx = (spawn.x + 0.5) * ts;
+      const sy = (spawn.y + 0.5) * ts;
+      this.spawnGfx.drawCircle(sx, sy, ts * 0.3);
+    }
+  }
+
+  // --- Exit markers ---
+
+  renderExits() {
+    this.exitGfx.clear();
+    if (!this.map.exits) return;
+    const ts = CONSTANTS.TILE_SIZE;
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 500);
+
+    for (const exit of this.map.exits) {
+      const ex = (exit.x + 0.5) * ts;
+      const ey = (exit.y + 0.5) * ts;
+      const isUp = exit.type === 'stairs_up';
+      const color = isUp ? 0x26a69a : 0xab47bc;
+
+      this.exitGfx.beginFill(color, 0.3 + 0.3 * pulse);
+      this.exitGfx.drawCircle(ex, ey, ts * 0.35);
+      this.exitGfx.endFill();
+    }
+  }
+
+  // --- Entity helpers ---
+
+  _getOrCreateEntityContainer(pool, id) {
+    if (pool.has(id)) return pool.get(id);
+
+    const container = new PIXI.Container();
+    container.sortableChildren = false;
+
+    const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+    sprite.anchor.set(0.5);
+    container.addChild(sprite);
+
+    const nameTag = new PIXI.Text('', {
+      fontFamily: 'Courier New',
+      fontSize: 11,
+      fill: 0xffffff,
+      align: 'center',
+    });
+    nameTag.anchor.set(0.5, 1);
+    container.addChild(nameTag);
+
+    // Health bar: bg + fill
+    const healthBg = new PIXI.Graphics();
+    container.addChild(healthBg);
+    const healthFill = new PIXI.Graphics();
+    container.addChild(healthFill);
+
+    // Extra text for prompts
+    const promptText = new PIXI.Text('', {
+      fontFamily: 'Courier New',
+      fontSize: 10,
+      fill: 0xffffff,
+      align: 'center',
+    });
+    promptText.anchor.set(0.5, 0);
+    promptText.visible = false;
+    container.addChild(promptText);
+
+    // Extra text for item name
+    const extraText = new PIXI.Text('', {
+      fontFamily: 'Courier New',
+      fontSize: 9,
+      fill: 0xffffff,
+      align: 'center',
+    });
+    extraText.anchor.set(0.5, 0);
+    extraText.visible = false;
+    container.addChild(extraText);
+
+    this.entityContainer.addChild(container);
+
+    const entry = { container, sprite, nameTag, healthBg, healthFill, promptText, extraText };
+    pool.set(id, entry);
+    return entry;
+  }
+
+  _cleanupPool(pool, activeIds) {
+    for (const [id, entry] of pool) {
+      if (!activeIds.has(id)) {
+        this.entityContainer.removeChild(entry.container);
+        entry.container.destroy({ children: true });
+        pool.delete(id);
       }
     }
   }
 
-  renderSpawns(ctx, ts) {
-    if (!this.map.spawns) return;
-    for (const spawn of this.map.spawns) {
-      const sx = (spawn.x + 0.5) * ts - this.camX;
-      const sy = (spawn.y + 0.5) * ts - this.camY;
-
-      ctx.strokeStyle = 'rgba(38, 166, 154, 0.3)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(sx, sy, ts * 0.3, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-  }
-
-  renderExits(ctx, ts) {
-    if (!this.map.exits) return;
-    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 500);  // Pulsing effect
-
-    for (const exit of this.map.exits) {
-      const ex = (exit.x + 0.5) * ts - this.camX;
-      const ey = (exit.y + 0.5) * ts - this.camY;
-
-      const exitColor = exit.type === 'stairs_up' ? '38, 166, 154' : '171, 71, 188';
-      ctx.fillStyle = `rgba(${exitColor}, ${0.3 + 0.3 * pulse})`;
-      ctx.beginPath();
-      ctx.arc(ex, ey, ts * 0.35, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Arrow direction
-      const isUp = exit.type === 'stairs_up';
-      ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + 0.3 * pulse})`;
-      ctx.font = `${ts * 0.5}px Courier New`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(isUp ? '\u25B2' : '\u25BC', ex, ey);
-    }
-  }
-
-  // Draw a sprite centered at (cx, cy), scaled from 16x16 to drawSize x drawSize
-  drawSpriteAt(ctx, spritePath, cx, cy, drawSize) {
-    const img = this.getSprite(spritePath);
-    if (img) {
-      const half = drawSize / 2;
-      ctx.drawImage(img, 0, 0, img.width, img.height, cx - half, cy - half, drawSize, drawSize);
+  _setSpriteTexture(sprite, spritePath, fallbackSize) {
+    const tex = this.loadTexture(spritePath);
+    if (tex.valid) {
+      sprite.texture = tex;
+      sprite.tint = 0xffffff;
+      const ts = CONSTANTS.TILE_SIZE;
+      sprite.width = ts;
+      sprite.height = ts;
       return true;
     }
+    // Texture is loading — use fallback (white square tinted)
+    sprite.texture = PIXI.Texture.WHITE;
+    sprite.width = fallbackSize || 20;
+    sprite.height = fallbackSize || 20;
     return false;
   }
 
-  renderItems(ctx, ts) {
-    if (!this.state || !this.state.items) return;
+  _drawHealthBar(healthBg, healthFill, x, y, w, h, pct, barColor) {
+    healthBg.clear();
+    healthBg.beginFill(0x333333);
+    healthBg.drawRect(x - w / 2, y, w, h);
+    healthBg.endFill();
 
-    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 600);
-    const bob = Math.sin(Date.now() / 400) * 2;  // Subtle floating bob
-
-    for (const item of this.state.items) {
-      const ix = item.x - this.camX;
-      const iy = item.y - this.camY + bob;
-      const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
-
-      // Glow effect
-      ctx.fillStyle = `rgba(${parseInt(rarityColor.slice(1,3),16)}, ${parseInt(rarityColor.slice(3,5),16)}, ${parseInt(rarityColor.slice(5,7),16)}, ${0.15 + 0.1 * pulse})`;
-      ctx.beginPath();
-      ctx.arc(ix, iy, 10, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Try sprite first, fall back to diamond shape
-      const spritePath = 'sprites/' + item.type + '.png';
-      if (!this.drawSpriteAt(ctx, spritePath, ix, iy, 20)) {
-        // Fallback: small diamond
-        ctx.fillStyle = rarityColor;
-        ctx.beginPath();
-        const r = 5;
-        ctx.moveTo(ix, iy - r);
-        ctx.lineTo(ix + r, iy);
-        ctx.lineTo(ix, iy + r);
-        ctx.lineTo(ix - r, iy);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      // Interact prompt if local player is nearby
-      if (this.myId && this.state) {
-        const me = this.state.players.find(p => p.id === this.myId);
-        if (me) {
-          const dx = item.x - me.x;
-          const dy = item.y - me.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const range = CONSTANTS.ITEM_PICKUP_RANGE * CONSTANTS.TILE_SIZE;
-          if (dist < range) {
-            ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + 0.3 * pulse})`;
-            ctx.font = '10px Courier New';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            ctx.fillText('[E] Pick up', ix, iy + 12);
-            // Item name below
-            ctx.fillStyle = rarityColor;
-            ctx.font = '9px Courier New';
-            ctx.fillText(item.name, ix, iy + 24);
-          }
-        }
-      }
-    }
+    healthFill.clear();
+    healthFill.beginFill(barColor);
+    healthFill.drawRect(x - w / 2, y, w * pct, h);
+    healthFill.endFill();
   }
 
-  renderNPCs(ctx, ts) {
+  // --- Items ---
+
+  renderItems() {
+    if (!this.state || !this.state.items) return;
+
+    const activeIds = new Set();
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 600);
+    const bob = Math.sin(Date.now() / 400) * 2;
+    const me = this.myId ? this.state.players.find(p => p.id === this.myId) : null;
+
+    for (const item of this.state.items) {
+      activeIds.add(item.id);
+      const entry = this._getOrCreateEntityContainer(this.itemSprites, item.id);
+      const { container, sprite, nameTag, healthBg, healthFill, promptText, extraText } = entry;
+
+      container.x = item.x;
+      container.y = item.y + bob;
+      container.zIndex = item.y;
+
+      // Hide health bar for items
+      healthBg.clear();
+      healthFill.clear();
+
+      // Sprite
+      const spritePath = 'sprites/' + item.type + '.png';
+      const loaded = this._setSpriteTexture(sprite, spritePath, 20);
+      if (!loaded) {
+        // Fallback color tint based on rarity
+        const rarityColors = {
+          common: 0xffffff, uncommon: 0x4caf50, rare: 0x2196f3,
+          epic: 0x9c27b0, legendary: 0xff9800,
+        };
+        sprite.tint = rarityColors[item.rarity] || 0xffffff;
+      }
+      sprite.alpha = 0.8 + 0.2 * pulse;
+
+      // Name tag hidden for items unless nearby
+      nameTag.visible = false;
+
+      // Check proximity for pickup prompt
+      if (me) {
+        const dx = item.x - me.x;
+        const dy = item.y - me.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const range = CONSTANTS.ITEM_PICKUP_RANGE * CONSTANTS.TILE_SIZE;
+        if (dist < range) {
+          promptText.text = '[E] Pick up';
+          promptText.y = 12;
+          promptText.alpha = 0.5 + 0.3 * pulse;
+          promptText.visible = true;
+
+          extraText.text = item.name;
+          const rarityHex = CONSTANTS.RARITY_COLORS[item.rarity] || '#ffffff';
+          extraText.style.fill = rarityHex;
+          extraText.y = 24;
+          extraText.visible = true;
+        } else {
+          promptText.visible = false;
+          extraText.visible = false;
+        }
+      } else {
+        promptText.visible = false;
+        extraText.visible = false;
+      }
+    }
+
+    this._cleanupPool(this.itemSprites, activeIds);
+  }
+
+  // --- NPCs ---
+
+  renderNPCs() {
     if (!this.state || !this.state.npcs) return;
 
+    const activeIds = new Set();
     const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 800);
+    const me = this.myId ? this.state.players.find(p => p.id === this.myId) : null;
+    const r = CONSTANTS.PLAYER_RADIUS;
 
     for (const npc of this.state.npcs) {
-      const nx = npc.x - this.camX;
-      const ny = npc.y - this.camY;
-      const r = CONSTANTS.PLAYER_RADIUS;
+      activeIds.add(npc.id);
+      const entry = this._getOrCreateEntityContainer(this.npcSprites, npc.id);
+      const { container, sprite, nameTag, healthBg, healthFill, promptText } = entry;
 
-      // Try sprite first
+      container.x = npc.x;
+      container.y = npc.y;
+      container.zIndex = npc.y;
+
+      // Sprite
       const spritePath = 'sprites/npc_default.png';
-      if (!this.drawSpriteAt(ctx, spritePath, nx, ny, ts)) {
-        // Fallback: diamond shape
-        ctx.fillStyle = CONSTANTS.COLORS.npc;
-        ctx.beginPath();
-        ctx.moveTo(nx, ny - r);
-        ctx.lineTo(nx + r, ny);
-        ctx.lineTo(nx, ny + r);
-        ctx.lineTo(nx - r, ny);
-        ctx.closePath();
-        ctx.fill();
+      const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+      if (!loaded) sprite.tint = 0x64b5f6;
 
-        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+      // Name tag
+      nameTag.text = npc.name;
+      nameTag.style.fill = '#64b5f6';
+      nameTag.y = -r - 6;
+      nameTag.visible = true;
+
+      // No health bar for NPCs
+      healthBg.clear();
+      healthFill.clear();
+
+      // Talk prompt
+      if (me) {
+        const dx = npc.x - me.x;
+        const dy = npc.y - me.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const range = CONSTANTS.NPC_INTERACT_RANGE * CONSTANTS.TILE_SIZE;
+        if (dist < range) {
+          promptText.text = '[E] Talk';
+          promptText.y = r + 4;
+          promptText.alpha = 0.5 + 0.3 * pulse;
+          promptText.visible = true;
+        } else {
+          promptText.visible = false;
+        }
+      } else {
+        promptText.visible = false;
+      }
+    }
+
+    this._cleanupPool(this.npcSprites, activeIds);
+  }
+
+  // --- Monsters ---
+
+  renderMonsters() {
+    if (!this.state || !this.state.monsters) return;
+
+    const activeIds = new Set();
+    const r = CONSTANTS.MONSTER_COLLISION_RADIUS || 10;
+
+    for (const mob of this.state.monsters) {
+      activeIds.add(mob.id);
+      const entry = this._getOrCreateEntityContainer(this.monsterSprites, mob.id);
+      const { container, sprite, nameTag, healthBg, healthFill, promptText } = entry;
+
+      container.x = mob.x;
+      container.y = mob.y;
+      container.zIndex = mob.y;
+
+      // Sprite
+      const spritePath = mob.type ? 'sprites/' + mob.type + '.png' : null;
+      if (spritePath) {
+        const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+        if (!loaded) sprite.tint = 0xe53935;
+      } else {
+        sprite.texture = PIXI.Texture.WHITE;
+        sprite.width = r * 2;
+        sprite.height = r * 2;
+        sprite.tint = 0xe53935;
       }
 
       // Name tag
-      ctx.fillStyle = '#64b5f6';
-      ctx.font = '11px Courier New';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(npc.name, nx, ny - r - 6);
+      nameTag.text = mob.name;
+      nameTag.style.fill = '#e57373';
+      nameTag.y = -r - 6;
+      nameTag.visible = true;
 
-      // Interact prompt if local player is nearby
-      if (this.myId && this.state) {
-        const me = this.state.players.find(p => p.id === this.myId);
-        if (me) {
-          const dx = npc.x - me.x;
-          const dy = npc.y - me.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const range = CONSTANTS.NPC_INTERACT_RANGE * CONSTANTS.TILE_SIZE;
-          if (dist < range) {
-            ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + 0.3 * pulse})`;
-            ctx.font = '10px Courier New';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            ctx.fillText('[E] Talk', nx, ny + r + 4);
-          }
-        }
-      }
+      // Health bar
+      const hp = mob.health / mob.maxHealth;
+      const barColor = hp > 0.5 ? 0xe53935 : 0xff6f00;
+      this._drawHealthBar(healthBg, healthFill, 0, -r - 4, 26, 3, hp, barColor);
+
+      promptText.visible = false;
     }
+
+    this._cleanupPool(this.monsterSprites, activeIds);
   }
 
-  renderPlayers(ctx, ts) {
+  // --- Players ---
+
+  renderPlayers() {
     if (!this.state) return;
 
+    const activeIds = new Set();
     const playerSpriteNames = ['player_blue', 'player_red', 'player_green', 'player_orange'];
+    const r = CONSTANTS.PLAYER_RADIUS;
 
     for (const player of this.state.players) {
-      const px = player.x - this.camX;
-      const py = player.y - this.camY;
-      const color = CONSTANTS.COLORS.player[player.colorIndex] || '#ffffff';
+      activeIds.add(player.id);
+      const entry = this._getOrCreateEntityContainer(this.playerSprites, player.id);
+      const { container, sprite, nameTag, healthBg, healthFill, promptText } = entry;
       const isMe = player.id === this.myId;
 
-      // Try sprite first
+      container.x = player.x;
+      container.y = player.y;
+      container.zIndex = player.y;
+
+      // Sprite
       const spriteName = playerSpriteNames[player.colorIndex] || 'player_blue';
       const spritePath = 'sprites/' + spriteName + '.png';
-      const usedSprite = this.drawSpriteAt(ctx, spritePath, px, py, ts);
-
-      if (!usedSprite) {
-        // Fallback: circle
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.arc(px, py, CONSTANTS.PLAYER_RADIUS, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = 'rgba(0,0,0,0.4)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+      const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+      if (!loaded) {
+        const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
+        sprite.tint = playerColors[player.colorIndex] || 0xffffff;
       }
 
-      // Weapon indicator (if equipped, draw a small line in the facing direction)
+      // Name tag
+      nameTag.text = player.name;
+      nameTag.style.fill = isMe ? '#ffffff' : 'rgba(255,255,255,0.7)';
+      nameTag.y = -r - 6;
+      nameTag.visible = true;
+
+      // Health bar
+      if (player.health < player.maxHealth || isMe) {
+        const healthPct = player.health / player.maxHealth;
+        const barColor = healthPct > 0.5 ? 0x4caf50 : healthPct > 0.25 ? 0xffa726 : 0xe53935;
+        this._drawHealthBar(healthBg, healthFill, 0, -r - 4, 30, 4, healthPct, barColor);
+      } else {
+        healthBg.clear();
+        healthFill.clear();
+      }
+
+      // Weapon indicator
+      if (!entry.weaponGfx) {
+        entry.weaponGfx = new PIXI.Graphics();
+        container.addChild(entry.weaponGfx);
+      }
+      entry.weaponGfx.clear();
       if (player.weapon) {
-        const wLen = CONSTANTS.PLAYER_RADIUS + 10;
-        const wBaseX = px + Math.cos(player.facing) * (CONSTANTS.PLAYER_RADIUS - 2);
-        const wBaseY = py + Math.sin(player.facing) * (CONSTANTS.PLAYER_RADIUS - 2);
-        const wTipX = px + Math.cos(player.facing) * wLen;
-        const wTipY = py + Math.sin(player.facing) * wLen;
-        ctx.strokeStyle = '#b8975a';
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(wBaseX, wBaseY);
-        ctx.lineTo(wTipX, wTipY);
-        ctx.stroke();
-        // Small crossguard
+        const wLen = r + 10;
+        const wBaseX = Math.cos(player.facing) * (r - 2);
+        const wBaseY = Math.sin(player.facing) * (r - 2);
+        const wTipX = Math.cos(player.facing) * wLen;
+        const wTipY = Math.sin(player.facing) * wLen;
+        entry.weaponGfx.lineStyle(3, 0xb8975a);
+        entry.weaponGfx.moveTo(wBaseX, wBaseY);
+        entry.weaponGfx.lineTo(wTipX, wTipY);
+        // Crossguard
         const midX = (wBaseX + wTipX) / 2;
         const midY = (wBaseY + wTipY) / 2;
         const perpX = -Math.sin(player.facing) * 4;
         const perpY = Math.cos(player.facing) * 4;
-        ctx.strokeStyle = '#8a6a3a';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(midX + perpX, midY + perpY);
-        ctx.lineTo(midX - perpX, midY - perpY);
-        ctx.stroke();
-        ctx.lineCap = 'butt';
-      } else if (!usedSprite) {
-        // Facing direction indicator (small dot) - only when no weapon and no sprite
-        const faceDist = CONSTANTS.PLAYER_RADIUS + 4;
-        const fx = px + Math.cos(player.facing) * faceDist;
-        const fy = py + Math.sin(player.facing) * faceDist;
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(fx, fy, 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Name tag
-      ctx.fillStyle = isMe ? '#fff' : 'rgba(255,255,255,0.7)';
-      ctx.font = '11px Courier New';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(player.name, px, py - CONSTANTS.PLAYER_RADIUS - 6);
-
-      // Health bar (only show if damaged or for self)
-      if (player.health < player.maxHealth || isMe) {
-        const barW = 30;
-        const barH = 4;
-        const barX = px - barW / 2;
-        const barY = py - CONSTANTS.PLAYER_RADIUS - 4;
-        const healthPct = player.health / player.maxHealth;
-
-        ctx.fillStyle = '#333';
-        ctx.fillRect(barX, barY, barW, barH);
-        ctx.fillStyle = healthPct > 0.5 ? '#4caf50' : healthPct > 0.25 ? '#ffa726' : '#e53935';
-        ctx.fillRect(barX, barY, barW * healthPct, barH);
+        entry.weaponGfx.lineStyle(2, 0x8a6a3a);
+        entry.weaponGfx.moveTo(midX + perpX, midY + perpY);
+        entry.weaponGfx.lineTo(midX - perpX, midY - perpY);
       }
 
       // "You" indicator
+      if (!entry.youIndicator) {
+        entry.youIndicator = new PIXI.Graphics();
+        container.addChild(entry.youIndicator);
+      }
+      entry.youIndicator.clear();
       if (isMe) {
-        ctx.strokeStyle = `rgba(255, 255, 255, 0.4)`;
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 3]);
-        ctx.beginPath();
-        ctx.arc(px, py, CONSTANTS.PLAYER_RADIUS + 6, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-    }
-  }
-
-  renderMonsters(ctx, ts) {
-    if (!this.state || !this.state.monsters) return;
-
-    for (const mob of this.state.monsters) {
-      const mx = mob.x - this.camX;
-      const my = mob.y - this.camY;
-      const r = CONSTANTS.MONSTER_COLLISION_RADIUS || 10;
-
-      // Try sprite first (use mob.type to find the sprite)
-      const spritePath = mob.type ? 'sprites/' + mob.type + '.png' : null;
-      const usedSprite = spritePath && this.drawSpriteAt(ctx, spritePath, mx, my, ts);
-
-      if (!usedSprite) {
-        // Fallback: circle
-        ctx.fillStyle = CONSTANTS.COLORS.monster;
-        ctx.beginPath();
-        ctx.arc(mx, my, r, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Facing indicator (only for fallback)
-        const fd = r + 3;
-        ctx.fillStyle = '#faa';
-        ctx.beginPath();
-        ctx.arc(mx + Math.cos(mob.facing) * fd, my + Math.sin(mob.facing) * fd, 2, 0, Math.PI * 2);
-        ctx.fill();
+        entry.youIndicator.lineStyle(1, 0xffffff, 0.4);
+        entry.youIndicator.drawCircle(0, 0, r + 6);
       }
 
-      // Name tag
-      ctx.fillStyle = '#e57373';
-      ctx.font = '10px Courier New';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(mob.name, mx, my - r - 6);
-
-      // Health bar
-      const barW = 26;
-      const barH = 3;
-      const barX = mx - barW / 2;
-      const barY = my - r - 4;
-      const hp = mob.health / mob.maxHealth;
-      ctx.fillStyle = '#333';
-      ctx.fillRect(barX, barY, barW, barH);
-      ctx.fillStyle = hp > 0.5 ? '#e53935' : '#ff6f00';
-      ctx.fillRect(barX, barY, barW * hp, barH);
+      promptText.visible = false;
     }
+
+    this._cleanupPool(this.playerSprites, activeIds);
   }
 
-  // Show [E] Open/Close prompt near doors within interact range
-  renderDoorPrompts(ctx, ts) {
+  // --- Door prompts ---
+
+  renderDoorPrompts() {
+    // Destroy old text objects to avoid memory leaks
+    while (this.doorPromptContainer.children.length > 0) {
+      this.doorPromptContainer.children[0].destroy();
+    }
     if (!this.state || !this.myId || !this.tileset || !this.map) return;
 
     const me = this.state.players.find(p => p.id === this.myId);
     if (!me) return;
 
+    const ts = CONSTANTS.TILE_SIZE;
     const range = CONSTANTS.DOOR_INTERACT_RANGE * ts;
     const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 800);
     const playerTX = Math.floor(me.x / ts);
@@ -598,19 +754,24 @@ class Renderer {
         const dist = Math.sqrt(ddx * ddx + ddy * ddy);
 
         if (dist < range) {
-          const sx = tileCX - this.camX;
-          const sy = tileCY - this.camY;
           const label = tileDef.solid ? '[E] Open' : '[E] Close';
-
-          ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + 0.3 * pulse})`;
-          ctx.font = '10px Courier New';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(label, sx, sy - ts * 0.4);
+          const text = new PIXI.Text(label, {
+            fontFamily: 'Courier New',
+            fontSize: 10,
+            fill: 0xffffff,
+            align: 'center',
+          });
+          text.anchor.set(0.5, 1);
+          text.x = tileCX;
+          text.y = tileCY - ts * 0.4;
+          text.alpha = 0.5 + 0.3 * pulse;
+          this.doorPromptContainer.addChild(text);
         }
       }
     }
   }
+
+  // --- Damage numbers ---
 
   processEvents(events) {
     if (!events) return;
@@ -618,69 +779,77 @@ class Renderer {
       if (ev.type === 'damage') {
         this.damageNumbers.push({
           text: `-${ev.amount}`,
-          x: ev.x,
-          y: ev.y,
-          age: 0,
-          maxAge: 1.0,
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.0,
           color: ev.targetId.startsWith('mob_') ? '#ffa726' : '#e53935',
         });
       } else if (ev.type === 'heal') {
         this.damageNumbers.push({
           text: `+${ev.amount}`,
-          x: ev.x,
-          y: ev.y,
-          age: 0,
-          maxAge: 1.0,
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.0,
           color: '#4caf50',
         });
       } else if (ev.type === 'pickup') {
         this.damageNumbers.push({
           text: `+${ev.itemName}`,
-          x: ev.x,
-          y: ev.y,
-          age: 0,
-          maxAge: 1.2,
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.2,
           color: '#fdd835',
         });
       }
     }
   }
 
-  renderDamageNumbers(ctx) {
-    const dt = 1 / 60; // approximate frame time
+  renderDamageNumbers() {
+    // Destroy old PIXI text objects to avoid memory leaks
+    while (this.dmgContainer.children.length > 0) {
+      this.dmgContainer.children[0].destroy();
+    }
+
+    const dt = 1 / 60;
     this.damageNumbers = this.damageNumbers.filter(dn => {
       dn.age += dt;
       if (dn.age >= dn.maxAge) return false;
 
       const alpha = 1 - (dn.age / dn.maxAge);
-      const offsetY = dn.age * 40; // float upward
+      const offsetY = dn.age * 40;
       const sx = dn.x - this.camX;
       const sy = dn.y - this.camY - offsetY;
 
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = dn.color;
-      ctx.font = 'bold 13px Courier New';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(dn.text, sx, sy);
-      ctx.globalAlpha = 1;
+      const text = new PIXI.Text(dn.text, {
+        fontFamily: 'Courier New',
+        fontSize: 13,
+        fontWeight: 'bold',
+        fill: dn.color,
+        align: 'center',
+      });
+      text.anchor.set(0.5);
+      text.x = sx;
+      text.y = sy;
+      text.alpha = alpha;
+      this.dmgContainer.addChild(text);
       return true;
     });
   }
 
-  renderMinimap(ctx) {
+  // --- Minimap ---
+
+  renderMinimap() {
+    this.minimapGfx.clear();
     if (!this.map) return;
 
     const ts = CONSTANTS.TILE_SIZE;
-    const scale = 3;  // pixels per tile on minimap
+    const scale = 3;
     const mmW = this.map.width * scale;
     const mmH = this.map.height * scale;
     const mmX = this.viewW - mmW - 10;
     const mmY = 10;
 
     // Background
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-    ctx.fillRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
+    this.minimapGfx.beginFill(0x000000, 0.6);
+    this.minimapGfx.drawRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
+    this.minimapGfx.endFill();
 
     // Tiles
     for (let ty = 0; ty < this.map.height; ty++) {
@@ -689,46 +858,50 @@ class Renderer {
         const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
         const solid = tileDef ? tileDef.solid : true;
 
-        ctx.fillStyle = solid ? '#3a3a5a' : '#1a1a2e';
-        ctx.fillRect(mmX + tx * scale, mmY + ty * scale, scale, scale);
+        this.minimapGfx.beginFill(solid ? 0x3a3a5a : 0x1a1a2e);
+        this.minimapGfx.drawRect(mmX + tx * scale, mmY + ty * scale, scale, scale);
+        this.minimapGfx.endFill();
       }
     }
 
-    // Items on minimap
+    // Items
     if (this.state && this.state.items) {
+      this.minimapGfx.beginFill(0xfdd835);
       for (const item of this.state.items) {
         const dotX = mmX + (item.x / ts) * scale;
         const dotY = mmY + (item.y / ts) * scale;
-        ctx.fillStyle = CONSTANTS.COLORS.item;
-        ctx.fillRect(dotX - 1, dotY - 1, 2, 2);
+        this.minimapGfx.drawRect(dotX - 1, dotY - 1, 2, 2);
       }
+      this.minimapGfx.endFill();
     }
 
-    // Players on minimap
+    // Players
     if (this.state) {
       for (const player of this.state.players) {
         const dotX = mmX + (player.x / ts) * scale;
         const dotY = mmY + (player.y / ts) * scale;
-        const color = player.id === this.myId ? '#fff' : CONSTANTS.COLORS.player[player.colorIndex];
-        ctx.fillStyle = color;
-        ctx.fillRect(dotX - 1, dotY - 1, 3, 3);
+        const isMe = player.id === this.myId;
+        const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
+        this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
+        this.minimapGfx.drawRect(dotX - 1, dotY - 1, 3, 3);
+        this.minimapGfx.endFill();
       }
     }
 
-    // Monsters on minimap
+    // Monsters
     if (this.state && this.state.monsters) {
+      this.minimapGfx.beginFill(0xe53935);
       for (const mob of this.state.monsters) {
         const dotX = mmX + (mob.x / ts) * scale;
         const dotY = mmY + (mob.y / ts) * scale;
-        ctx.fillStyle = CONSTANTS.COLORS.monster;
-        ctx.fillRect(dotX - 1, dotY - 1, 2, 2);
+        this.minimapGfx.drawRect(dotX - 1, dotY - 1, 2, 2);
       }
+      this.minimapGfx.endFill();
     }
 
-    // Viewport rectangle
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(
+    // Viewport rect
+    this.minimapGfx.lineStyle(1, 0xffffff, 0.3);
+    this.minimapGfx.drawRect(
       mmX + (this.camX / ts) * scale,
       mmY + (this.camY / ts) * scale,
       this.viewportTX * scale,
