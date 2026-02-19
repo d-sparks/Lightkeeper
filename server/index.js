@@ -190,10 +190,11 @@ wss.on('connection', (ws) => {
           tileset: content.getTileset(room.dungeon.tileset),
         }));
 
-        // Send initial empty inventory
+        // Send initial empty inventory and equipment
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.INVENTORY,
           items: player.inventory,
+          equipment: player.equipment,
         }));
 
         broadcast(ws.playerRoom, {
@@ -235,6 +236,33 @@ wss.on('connection', (ws) => {
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.INVENTORY,
             items: result.inventory,
+            equipment: result.equipment,
+          }));
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.EQUIP: {
+        if (!ws.playerRoom) break;
+        const equipResult = gameLoop.tryEquip(ws.playerRoom, playerId, msg.index);
+        if (equipResult) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.INVENTORY,
+            items: equipResult.inventory,
+            equipment: equipResult.equipment,
+          }));
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.UNEQUIP: {
+        if (!ws.playerRoom) break;
+        const unequipResult = gameLoop.tryUnequip(ws.playerRoom, playerId, msg.slot);
+        if (unequipResult) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.INVENTORY,
+            items: unequipResult.inventory,
+            equipment: unequipResult.equipment,
           }));
         }
         break;

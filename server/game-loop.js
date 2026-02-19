@@ -231,6 +231,7 @@ class GameLoop {
       attackTimer: 0,
       transitionCooldown: 0,
       inventory: [],
+      equipment: { weapon: null, armor: null, accessory: null },
     };
 
     room.players.set(playerId, player);
@@ -383,11 +384,12 @@ class GameLoop {
       }
 
       if (nearestMob) {
-        nearestMob.health -= CONSTANTS.PLAYER_ATTACK_DAMAGE;
+        const dmg = this.getPlayerAttackDamage(player);
+        nearestMob.health -= dmg;
         player.attackTimer = CONSTANTS.PLAYER_ATTACK_COOLDOWN;
         room.events.push({
           type: 'damage', targetId: nearestMob.id,
-          amount: CONSTANTS.PLAYER_ATTACK_DAMAGE, x: nearestMob.x, y: nearestMob.y,
+          amount: dmg, x: nearestMob.x, y: nearestMob.y,
         });
 
         if (nearestMob.health <= 0) {
@@ -473,6 +475,7 @@ class GameLoop {
         itemId: closestItem.id,
         item: { type: closestItem.type, name: closestItem.name, rarity: closestItem.rarity },
         inventory: player.inventory,
+        equipment: player.equipment,
       };
     }
 
@@ -552,20 +555,93 @@ class GameLoop {
     return player.inventory;
   }
 
+  // Equip an item from inventory into an equipment slot
+  tryEquip(roomId, playerId, inventoryIndex) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player) return null;
+
+    if (inventoryIndex < 0 || inventoryIndex >= player.inventory.length) return null;
+    const item = player.inventory[inventoryIndex];
+
+    // Look up item definition to get slot info
+    const itemDef = this.content.getItem(item.type);
+    if (!itemDef || !itemDef.slot) return null;
+
+    const slot = itemDef.slot;
+    if (!CONSTANTS.EQUIPMENT_SLOTS.includes(slot)) return null;
+
+    // If something is already equipped in that slot, swap it back to inventory
+    const currentEquipped = player.equipment[slot];
+    player.inventory.splice(inventoryIndex, 1);
+    if (currentEquipped) {
+      player.inventory.push(currentEquipped);
+    }
+
+    player.equipment[slot] = {
+      type: item.type,
+      name: item.name,
+      rarity: item.rarity,
+      slot: slot,
+      stats: itemDef.stats || {},
+    };
+
+    return { inventory: player.inventory, equipment: player.equipment };
+  }
+
+  // Unequip an item from an equipment slot back to inventory
+  tryUnequip(roomId, playerId, slot) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player) return null;
+
+    if (!CONSTANTS.EQUIPMENT_SLOTS.includes(slot)) return null;
+    const equipped = player.equipment[slot];
+    if (!equipped) return null;
+
+    player.equipment[slot] = null;
+    player.inventory.push({
+      type: equipped.type,
+      name: equipped.name,
+      rarity: equipped.rarity,
+    });
+
+    return { inventory: player.inventory, equipment: player.equipment };
+  }
+
+  // Get total attack damage for a player (base + equipment bonuses)
+  getPlayerAttackDamage(player) {
+    let damage = CONSTANTS.PLAYER_ATTACK_DAMAGE;
+    for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
+      const item = player.equipment[slot];
+      if (item && item.stats && item.stats.attackDamage) {
+        damage += item.stats.attackDamage;
+      }
+    }
+    return damage;
+  }
+
   getRoomState(roomId) {
     const room = this.rooms.get(roomId);
     if (!room) return null;
 
     const players = [];
     for (const [pid, p] of room.players) {
-      players.push({
+      const pData = {
         id: p.id, name: p.name,
         x: Math.round(p.x * 10) / 10,
         y: Math.round(p.y * 10) / 10,
         facing: Math.round(p.facing * 100) / 100,
         health: p.health, maxHealth: p.maxHealth,
         colorIndex: p.colorIndex,
-      });
+      };
+      // Include weapon name if equipped (for rendering)
+      if (p.equipment && p.equipment.weapon) {
+        pData.weapon = p.equipment.weapon.name;
+      }
+      players.push(pData);
     }
 
     const npcs = [];

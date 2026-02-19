@@ -41,6 +41,7 @@ class InputHandler {
     this.joystickZone = null;
     this.joystickThumb = null;
     this.interactBtn = null;
+    this.inventoryBtn = null;
   }
 
   start() {
@@ -100,6 +101,7 @@ class InputHandler {
     this.joystickZone = document.getElementById('joystick-zone');
     this.joystickThumb = document.getElementById('joystick-thumb');
     this.interactBtn = document.getElementById('interact-btn');
+    this.inventoryBtn = document.getElementById('inventory-btn');
 
     if (!this.joystickZone) return;
 
@@ -150,6 +152,19 @@ class InputHandler {
       this.interactBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (this.onInteract) this.onInteract();
+      });
+    }
+
+    // Inventory button (mobile)
+    if (this.inventoryBtn) {
+      this.inventoryBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (this.onInventoryToggle) this.onInventoryToggle();
+      }, { passive: false });
+
+      this.inventoryBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (this.onInventoryToggle) this.onInventoryToggle();
       });
     }
 
