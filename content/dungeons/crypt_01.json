@@ -489,5 +489,40 @@
       "x": 18,
       "y": 12
     }
+  ],
+  "triggers": [
+    {
+      "id": "iron_key_pickup_message",
+      "event": "item_picked_up",
+      "filter": { "itemType": "iron_key" },
+      "actions": [
+        { "type": "setFlag", "flag": "picked_up_iron_key", "scope": "player" },
+        { "type": "showMessage", "text": "You found an iron key. It feels cold to the touch." }
+      ],
+      "once": true
+    },
+    {
+      "id": "all_skeletons_killed",
+      "event": "monster_killed",
+      "filter": { "monsterType": "skeleton" },
+      "conditions": [{ "not": { "hasFlag": "skeletons_cleared" } }],
+      "actions": [
+        { "type": "incrementFlag", "flag": "skeletons_killed", "scope": "player" }
+      ]
+    },
+    {
+      "id": "skeleton_clear_reward",
+      "event": "monster_killed",
+      "filter": { "monsterType": "skeleton" },
+      "conditions": [
+        { "hasFlag": "skeletons_killed", "value": 3 },
+        { "not": { "hasFlag": "skeletons_cleared" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "skeletons_cleared", "scope": "player" },
+        { "type": "showMessage", "text": "The last skeleton crumbles. The crypt grows quiet." },
+        { "type": "spawnItem", "itemType": "health_potion", "x": 10, "y": 7 }
+      ]
+    }
   ]
 }

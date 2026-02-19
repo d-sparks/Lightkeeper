@@ -155,6 +155,15 @@ const httpServer = http.createServer((req, res) => {
 const wss = new WebSocketServer({ server: httpServer });
 let nextPlayerId = 1;
 
+// Wire up scripting action callbacks so actions can send messages to players
+gameLoop.actions.sendToPlayer = function (playerId, message) {
+  const client = findClientByPlayerId(playerId);
+  if (client) client.send(JSON.stringify(message));
+};
+gameLoop.actions.broadcastToRoom = function (roomId, message) {
+  broadcast(roomId, message);
+};
+
 wss.on('connection', (ws) => {
   const playerId = `p${nextPlayerId++}`;
   ws.playerId = playerId;
@@ -222,6 +231,12 @@ wss.on('connection', (ws) => {
             type: CONSTANTS.MSG.DIALOGUE,
             npcId: result.npcId,
             dialogue: result.dialogue,
+          }));
+        } else if (result.interactType === 'message') {
+          // Condition failed message (e.g. locked door)
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.DIALOGUE,
+            dialogue: [{ speaker: '', text: result.text }],
           }));
         } else if (result.interactType === 'door') {
           // Broadcast door toggle to all players in the room

@@ -1,5 +1,10 @@
 const CONSTANTS = require('../shared/constants');
 const Physics = require('./physics');
+const FlagStore = require('./scripting/flag-store');
+const EventBus = require('./scripting/event-bus');
+const ConditionEvaluator = require('./scripting/conditions');
+const ActionExecutor = require('./scripting/actions');
+const TriggerRegistry = require('./scripting/trigger-registry');
 
 class GameLoop {
   constructor(content) {
@@ -8,6 +13,26 @@ class GameLoop {
     this.rooms = new Map();  // roomId -> Room
     this.interval = null;
     this.pendingTransitions = [];
+
+    // Scripting subsystem
+    this.flagStore = new FlagStore();
+    this.eventBus = new EventBus();
+    this.conditions = new ConditionEvaluator(this.flagStore);
+    this.actions = new ActionExecutor(this.flagStore, this.eventBus, content);
+    this.triggers = new TriggerRegistry(this.eventBus, this.conditions, this.actions, this.flagStore);
+  }
+
+  // Build a scripting context object for triggers/conditions/actions
+  _scriptContext(playerId, roomId) {
+    const room = this.rooms.get(roomId);
+    const player = room ? room.players.get(playerId) : null;
+    return { playerId, roomId, room, player };
+  }
+
+  // Emit a scripting event and process all triggers for it
+  _emitGameEvent(eventType, eventPayload, context) {
+    this.eventBus.emit(eventType, eventPayload);
+    this.triggers.processEvent(eventType, eventPayload, context);
   }
 
   start() {
@@ -52,6 +77,9 @@ class GameLoop {
           x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
           y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
           dialogue: npcDef.dialogue,
+          dialogues: npcDef.dialogues || null,
+          dialogueRules: npcDef.dialogueRules || null,
+          activeDialogueId: null,
         });
       }
     }
@@ -93,6 +121,9 @@ class GameLoop {
 
     // Spawn monsters
     this.spawnMonsters(room);
+
+    // Load scripting triggers for this room
+    this.triggers.loadRoomTriggers(roomId, dungeon);
 
     this.rooms.set(roomId, room);
     console.log(`[GameLoop] Room "${roomId}" created with dungeon "${dungeon.name}" (${npcs.size} NPCs, ${room.monsters.size} monsters, ${items.size} items)`);
@@ -155,6 +186,9 @@ class GameLoop {
           x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
           y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
           dialogue: npcDef.dialogue,
+          dialogues: npcDef.dialogues || null,
+          dialogueRules: npcDef.dialogueRules || null,
+          activeDialogueId: null,
         });
       }
     }
@@ -191,6 +225,9 @@ class GameLoop {
       player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
       player.health = player.maxHealth;
     }
+
+    // Reload scripting triggers
+    this.triggers.loadRoomTriggers(roomId, room.dungeon);
 
     console.log(`[GameLoop] Room "${roomId}" reloaded with updated dungeon data`);
     return room;
@@ -235,6 +272,14 @@ class GameLoop {
     };
 
     room.players.set(playerId, player);
+    this.flagStore.ensurePlayer(playerId);
+
+    // Emit room_entered event
+    const ctx = this._scriptContext(playerId, roomId);
+    this._emitGameEvent(EventBus.Events.ROOM_ENTERED, {
+      playerId, roomId, dungeonId: room.dungeonId,
+    }, ctx);
+
     console.log(`[GameLoop] Player "${player.name}" (${playerId}) joined room "${roomId}" at (${spawn.x}, ${spawn.y})`);
     return player;
   }
@@ -250,6 +295,13 @@ class GameLoop {
     player.attackTimer = 0;
 
     room.players.set(player.id, player);
+
+    // Emit room_entered event
+    const ctx = this._scriptContext(player.id, roomId);
+    this._emitGameEvent(EventBus.Events.ROOM_ENTERED, {
+      playerId: player.id, roomId, dungeonId: room.dungeonId,
+    }, ctx);
+
     console.log(`[GameLoop] Player "${player.name}" (${player.id}) transitioned to room "${roomId}" at (${spawnX}, ${spawnY})`);
     return player;
   }
@@ -263,6 +315,8 @@ class GameLoop {
 
     // Clean up empty rooms (but keep the starting room)
     if (room.players.size === 0 && roomId !== 'crypt_01') {
+      this.triggers.unloadRoom(roomId);
+      this.flagStore.clearRoom(roomId);
       this.rooms.delete(roomId);
       console.log(`[GameLoop] Room "${roomId}" removed (empty)`);
     }
@@ -357,6 +411,12 @@ class GameLoop {
               type: 'death', targetId: nearest.id,
               x: nearest.x, y: nearest.y,
             });
+
+            // Emit player_death scripting event
+            const deathCtx = this._scriptContext(nearest.id, room.id);
+            this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
+              playerId: nearest.id, roomId: room.id,
+            }, deathCtx);
           }
         }
       }
@@ -398,6 +458,13 @@ class GameLoop {
             x: nearestMob.x, y: nearestMob.y,
           });
           room.monsters.delete(nearestMob.id);
+
+          // Emit monster_killed scripting event
+          const ctx = this._scriptContext(pid, room.id);
+          this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
+            playerId: pid, roomId: room.id,
+            monsterType: nearestMob.type, monsterId: nearestMob.id,
+          }, ctx);
         }
       }
     }
@@ -470,6 +537,13 @@ class GameLoop {
         x: closestItem.x,
         y: closestItem.y,
       });
+
+      // Emit item_picked_up scripting event
+      const ctx = this._scriptContext(playerId, roomId);
+      this._emitGameEvent(EventBus.Events.ITEM_PICKED_UP, {
+        playerId, roomId, itemType: closestItem.type, itemName: closestItem.name,
+      }, ctx);
+
       return {
         interactType: 'pickup',
         itemId: closestItem.id,
@@ -514,9 +588,31 @@ class GameLoop {
       }
 
       if (closestDoor && closestDoor.tileDef.togglesTo != null) {
+        const ctx = this._scriptContext(playerId, roomId);
+
+        // Check conditions on the tile (e.g. locked doors requiring a key)
+        if (closestDoor.tileDef.conditions) {
+          if (!this.conditions.evaluate(closestDoor.tileDef.conditions, ctx)) {
+            // Conditions not met — return fail message if defined
+            const failMsg = closestDoor.tileDef.failMessage || 'You can\'t do that yet.';
+            return { interactType: 'message', text: failMsg };
+          }
+        }
+
+        // Execute any onInteract actions (e.g. consume key)
+        if (closestDoor.tileDef.onInteract) {
+          this.actions.executeAll(closestDoor.tileDef.onInteract, ctx);
+        }
+
         const newTileId = closestDoor.tileDef.togglesTo;
         const idx = closestDoor.ty * room.dungeon.width + closestDoor.tx;
         room.dungeon.data[idx] = newTileId;
+
+        // Emit door_interacted scripting event
+        this._emitGameEvent(EventBus.Events.DOOR_INTERACTED, {
+          playerId, roomId, tileX: closestDoor.tx, tileY: closestDoor.ty,
+        }, ctx);
+
         return {
           interactType: 'door',
           x: closestDoor.tx,
@@ -540,7 +636,15 @@ class GameLoop {
       }
     }
     if (closestNPC) {
-      return { interactType: 'dialogue', npcId: closestNPC.id, dialogue: closestNPC.dialogue };
+      const ctx = this._scriptContext(playerId, roomId);
+      const dialogue = this._resolveDialogue(closestNPC, ctx);
+
+      // Emit npc_interacted scripting event
+      this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
+        playerId, roomId, npcType: closestNPC.type, npcId: closestNPC.id,
+      }, ctx);
+
+      return { interactType: 'dialogue', npcId: closestNPC.id, dialogue };
     }
 
     return null;
@@ -621,6 +725,31 @@ class GameLoop {
       }
     }
     return damage;
+  }
+
+  // Resolve which dialogue to show for an NPC based on rules and flags.
+  // Priority: 1) activeDialogueId set by a trigger action, 2) dialogueRules, 3) default dialogue
+  _resolveDialogue(npc, context) {
+    // If a trigger already set activeDialogueId, use that
+    if (npc.activeDialogueId && npc.dialogues && npc.dialogues[npc.activeDialogueId]) {
+      return npc.dialogues[npc.activeDialogueId];
+    }
+
+    // Check dialogueRules (first matching rule wins)
+    if (npc.dialogueRules && npc.dialogues) {
+      for (const rule of npc.dialogueRules) {
+        if (this.conditions.evaluate(rule.conditions, context)) {
+          const lines = npc.dialogues[rule.use];
+          if (lines) return lines;
+        }
+      }
+    }
+
+    // Fall back to default dialogue set or the flat dialogue array
+    if (npc.dialogues && npc.dialogues.default) {
+      return npc.dialogues.default;
+    }
+    return npc.dialogue || [];
   }
 
   getRoomState(roomId) {
