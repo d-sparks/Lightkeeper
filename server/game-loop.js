@@ -314,7 +314,8 @@ class GameLoop {
     console.log(`[GameLoop] Player ${playerId} left room "${roomId}"`);
 
     // Clean up empty rooms (but keep the starting room)
-    if (room.players.size === 0 && roomId !== 'crypt_01') {
+    const spawnRoom = this.content.getSpawnRoom() || 'crypt_01';
+    if (room.players.size === 0 && roomId !== spawnRoom) {
       this.triggers.unloadRoom(roomId);
       this.flagStore.clearRoom(roomId);
       this.rooms.delete(roomId);

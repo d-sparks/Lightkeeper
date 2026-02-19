@@ -9,9 +9,11 @@ class ContentLoader {
     this.monsters = {};
     this.npcs = {};
     this.items = {};
+    this.settings = {};
   }
 
   loadAll() {
+    this.loadSettings();
     this.loadDungeons();
     this.loadTilesets();
     this.loadMonsters();
@@ -27,6 +29,24 @@ class ContentLoader {
   loadJSON(filePath) {
     const raw = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(raw);
+  }
+
+  loadSettings() {
+    const filePath = path.join(this.contentDir, 'settings.json');
+    if (!fs.existsSync(filePath)) {
+      this.settings = {};
+      return;
+    }
+    this.settings = this.loadJSON(filePath);
+    console.log(`[Content]   Settings: spawnRoom=${this.settings.spawnRoom || '(not set)'}`);
+  }
+
+  getSettings() {
+    return this.settings;
+  }
+
+  getSpawnRoom() {
+    return this.settings.spawnRoom || null;
   }
 
   loadDungeons() {

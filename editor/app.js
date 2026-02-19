@@ -50,6 +50,8 @@ const api = {
     const res = await checkedFetch('/api/editor/branches/refresh', { method: 'POST' });
     return { ok: res.ok, ...(await res.json()) };
   },
+  async getSettings() { return (await checkedFetch('/api/editor/settings')).json(); },
+  async saveSettings(data) { return (await checkedFetch('/api/editor/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json(); },
 };
 
 // ─── Tile colors (match game rendering) ─────────────────────
@@ -164,9 +166,21 @@ function DungeonList({ onOpen, gitConfigured }) {
   const [showBranch, setShowBranch] = useState(false);
   const [activeBranch, setActiveBranch] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [spawnRoom, setSpawnRoom] = useState('');
 
   const loadDungeons = () => api.listDungeons().then(setDungeons);
-  useEffect(() => { loadDungeons(); }, []);
+  useEffect(() => {
+    loadDungeons();
+    api.getSettings().then(s => setSpawnRoom(s.spawnRoom || ''));
+  }, []);
+
+  const changeSpawnRoom = async (newRoom) => {
+    setSpawnRoom(newRoom);
+    try {
+      await api.saveSettings({ spawnRoom: newRoom });
+      showToast('Spawn room updated', 'success');
+    } catch { showToast('Failed to save setting', 'error'); }
+  };
 
   const doPublish = async (message) => {
     setPublishing(true);
@@ -253,11 +267,19 @@ function DungeonList({ onOpen, gitConfigured }) {
           Content loaded from branch: <strong>${activeBranch}</strong>
         </div>
       `}
+      ${dungeons.length > 0 && html`
+        <div class="spawn-room-bar">
+          <label>Spawn Room</label>
+          <select value=${spawnRoom} onChange=${e => changeSpawnRoom(e.target.value)}>
+            ${dungeons.map(d => html`<option key=${d.id} value=${d.id}>${d.name} (${d.id})</option>`)}
+          </select>
+        </div>
+      `}
       <div class="dungeon-cards">
         ${dungeons.map(d => html`
           <div class="dungeon-card" key=${d.id} onClick=${() => onOpen(d.id)}>
             <div class="dungeon-card-info">
-              <h3>${d.name}</h3>
+              <h3>${d.name}${d.id === spawnRoom ? html` <span class="spawn-badge">Spawn</span>` : ''}</h3>
               <p>${d.id} · ${d.width}x${d.height} · depth ${d.depth}</p>
             </div>
             <div class="dungeon-card-arrow">›</div>
