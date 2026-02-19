@@ -5,21 +5,39 @@ import htm from 'https://esm.sh/htm@3.1.1';
 const html = htm.bind(h);
 
 // ─── API helpers ────────────────────────────────────────────
+async function checkedFetch(url, opts) {
+  const res = await fetch(url, opts);
+  if (res.status === 401) {
+    window.dispatchEvent(new Event('editor-unauthorized'));
+    throw new Error('Unauthorized');
+  }
+  return res;
+}
+
 const api = {
-  async listDungeons() { return (await fetch('/api/editor/dungeons')).json(); },
-  async getDungeon(id) { return (await fetch(`/api/editor/dungeons/${id}`)).json(); },
-  async saveDungeon(id, data) {
-    const exists = await fetch(`/api/editor/dungeons/${id}`);
-    if (exists.status === 200) {
-      return (await fetch(`/api/editor/dungeons/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json();
-    }
-    return (await fetch('/api/editor/dungeons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json();
+  async checkAuth() { return (await fetch('/api/editor/auth')).json(); },
+  async login(password) {
+    const res = await fetch('/api/editor/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+    return { ok: res.ok, ...(await res.json()) };
   },
-  async deleteDungeon(id) { return (await fetch(`/api/editor/dungeons/${id}`, { method: 'DELETE' })).json(); },
-  async getTilesets() { return (await fetch('/api/editor/tilesets')).json(); },
-  async getMonsters() { return (await fetch('/api/editor/monsters')).json(); },
-  async getNPCs() { return (await fetch('/api/editor/npcs')).json(); },
-  async reload() { return (await fetch('/api/editor/reload', { method: 'POST' })).json(); },
+  async listDungeons() { return (await checkedFetch('/api/editor/dungeons')).json(); },
+  async getDungeon(id) { return (await checkedFetch(`/api/editor/dungeons/${id}`)).json(); },
+  async saveDungeon(id, data) {
+    const exists = await checkedFetch(`/api/editor/dungeons/${id}`);
+    if (exists.status === 200) {
+      return (await checkedFetch(`/api/editor/dungeons/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json();
+    }
+    return (await checkedFetch('/api/editor/dungeons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json();
+  },
+  async deleteDungeon(id) { return (await checkedFetch(`/api/editor/dungeons/${id}`, { method: 'DELETE' })).json(); },
+  async getTilesets() { return (await checkedFetch('/api/editor/tilesets')).json(); },
+  async getMonsters() { return (await checkedFetch('/api/editor/monsters')).json(); },
+  async getNPCs() { return (await checkedFetch('/api/editor/npcs')).json(); },
+  async reload() { return (await checkedFetch('/api/editor/reload', { method: 'POST' })).json(); },
+  async publish(message) {
+    const res = await checkedFetch('/api/editor/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message }) });
+    return { ok: res.ok, ...(await res.json()) };
+  },
 };
 
 // ─── Tile colors (match game rendering) ─────────────────────
@@ -54,29 +72,99 @@ function showToast(msg, type = '') {
   toastTimeout = setTimeout(() => el.style.display = 'none', 2000);
 }
 
+// ─── Login Screen ───────────────────────────────────────────
+function LoginScreen({ onSuccess }) {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    const result = await api.login(password);
+    setLoading(false);
+    if (result.ok) { onSuccess(); }
+    else { setError(result.error || 'Login failed'); }
+  };
+
+  return html`
+    <div class="login-page">
+      <div class="login-card">
+        <h1>Lightkeeper Editor</h1>
+        <form onSubmit=${submit}>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" value=${password} onInput=${e => setPassword(e.target.value)}
+              placeholder="Enter editor password" autofocus />
+          </div>
+          ${error && html`<p class="login-error">${error}</p>`}
+          <button class="primary login-btn" type="submit" disabled=${loading}>
+            ${loading ? 'Signing in...' : 'Sign in'}
+          </button>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
 // ─── App ────────────────────────────────────────────────────
 function App() {
-  const [view, setView] = useState('list');        // 'list' | 'edit'
+  const [authState, setAuthState] = useState('loading'); // 'loading' | 'login' | 'ready'
+  const [gitConfigured, setGitConfigured] = useState(false);
+  const [view, setView] = useState('list');
   const [dungeonId, setDungeonId] = useState(null);
+
+  useEffect(() => {
+    api.checkAuth().then(info => {
+      setGitConfigured(info.gitConfigured);
+      if (!info.needsAuth || info.authenticated) setAuthState('ready');
+      else setAuthState('login');
+    });
+
+    const onUnauth = () => setAuthState('login');
+    window.addEventListener('editor-unauthorized', onUnauth);
+    return () => window.removeEventListener('editor-unauthorized', onUnauth);
+  }, []);
 
   const openEditor = (id) => { setDungeonId(id); setView('edit'); };
   const backToList = () => { setView('list'); setDungeonId(null); };
 
+  if (authState === 'loading') return html`<div style="padding:60px;text-align:center;color:var(--text-dim)">Loading...</div>`;
+  if (authState === 'login') return html`<${LoginScreen} onSuccess=${() => setAuthState('ready')} />`;
+
   return html`
     <div id="toast" class="toast" style="display:none"></div>
     ${view === 'list'
-      ? html`<${DungeonList} onOpen=${openEditor} />`
+      ? html`<${DungeonList} onOpen=${openEditor} gitConfigured=${gitConfigured} />`
       : html`<${Editor} dungeonId=${dungeonId} onBack=${backToList} />`
     }
   `;
 }
 
 // ─── Dungeon List ───────────────────────────────────────────
-function DungeonList({ onOpen }) {
+function DungeonList({ onOpen, gitConfigured }) {
   const [dungeons, setDungeons] = useState([]);
   const [showNew, setShowNew] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [showPublish, setShowPublish] = useState(false);
 
   useEffect(() => { api.listDungeons().then(setDungeons); }, []);
+
+  const doPublish = async (message) => {
+    setPublishing(true);
+    setShowPublish(false);
+    try {
+      const result = await api.publish(message);
+      if (result.ok === false) {
+        showToast(result.error || 'Publish failed', 'error');
+      } else {
+        showToast('Published! PR created.', 'success');
+        if (result.prUrl) window.open(result.prUrl, '_blank');
+      }
+    } catch (e) { showToast(e.message || 'Publish failed', 'error'); }
+    setPublishing(false);
+  };
 
   const createDungeon = async (id, name, width, height) => {
     const data = Array(width * height).fill(3);
@@ -107,7 +195,14 @@ function DungeonList({ onOpen }) {
     <div class="dungeon-list-page">
       <div class="dungeon-list-header">
         <h1>Level Editor</h1>
-        <button class="topbar-btn primary" onClick=${() => setShowNew(true)}>+ New</button>
+        <div style="display:flex;gap:8px">
+          ${gitConfigured && html`
+            <button class="topbar-btn" onClick=${() => setShowPublish(true)} disabled=${publishing}>
+              ${publishing ? 'Publishing...' : 'Publish'}
+            </button>
+          `}
+          <button class="topbar-btn primary" onClick=${() => setShowNew(true)}>+ New</button>
+        </div>
       </div>
       <div class="dungeon-cards">
         ${dungeons.map(d => html`
@@ -122,6 +217,7 @@ function DungeonList({ onOpen }) {
         ${dungeons.length === 0 && html`<p style="color: var(--text-dim); text-align: center; padding: 40px 0;">No dungeons yet. Create one!</p>`}
       </div>
       ${showNew && html`<${NewDungeonModal} onCreate=${createDungeon} onClose=${() => setShowNew(false)} />`}
+      ${showPublish && html`<${PublishModal} onPublish=${doPublish} onClose=${() => setShowPublish(false)} />`}
     </div>
   `;
 }
@@ -164,6 +260,35 @@ function NewDungeonModal({ onCreate, onClose }) {
         <div class="modal-actions">
           <button onClick=${onClose}>Cancel</button>
           <button class="primary" onClick=${submit}>Create</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Publish Modal ──────────────────────────────────────────
+function PublishModal({ onPublish, onClose }) {
+  const [message, setMessage] = useState('Content update from editor');
+
+  const submit = () => {
+    if (!message.trim()) return;
+    onPublish(message.trim());
+  };
+
+  return html`
+    <div class="modal-overlay" onClick=${(e) => e.target === e.currentTarget && onClose()}>
+      <div class="modal">
+        <h2>Publish to GitHub</h2>
+        <p style="color:var(--text-dim);font-size:13px;margin-bottom:12px">
+          This will commit all content changes and open a pull request.
+        </p>
+        <div class="field">
+          <label>Commit message</label>
+          <input value=${message} onInput=${e => setMessage(e.target.value)} placeholder="Describe your changes" />
+        </div>
+        <div class="modal-actions">
+          <button onClick=${onClose}>Cancel</button>
+          <button class="primary" onClick=${submit}>Publish</button>
         </div>
       </div>
     </div>

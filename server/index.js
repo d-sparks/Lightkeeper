@@ -6,6 +6,8 @@ const CONSTANTS = require('../shared/constants');
 const ContentLoader = require('./content-loader');
 const GameLoop = require('./game-loop');
 const { handleEditorAPI } = require('./editor-api');
+const { isAuthenticated, handleLogin, sendUnauthorized } = require('./editor-auth');
+const contentGit = require('./content-git');
 
 // --- Configuration ---
 const PORT = process.env.PORT || 3000;
@@ -55,14 +57,53 @@ function serveFile(res, filePath) {
 const httpServer = http.createServer((req, res) => {
   let urlPath = req.url.split('?')[0];
 
-  // Editor API
+  // --- Editor login (no auth required) ---
+  if (urlPath === '/api/editor/login' && req.method === 'POST') {
+    handleLogin(req, res);
+    return;
+  }
+
+  // --- Editor auth check endpoint ---
+  if (urlPath === '/api/editor/auth' && req.method === 'GET') {
+    const authed = isAuthenticated(req);
+    const needsAuth = !!process.env.EDITOR_PASSWORD;
+    const gitConfigured = contentGit.isConfigured();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ authenticated: authed, needsAuth, gitConfigured }));
+    return;
+  }
+
+  // --- All other editor API routes require auth ---
   if (urlPath.startsWith('/api/editor/')) {
+    if (!isAuthenticated(req)) { sendUnauthorized(res); return; }
+
+    // Publish to git
+    if (urlPath === '/api/editor/publish' && req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', async () => {
+        try {
+          let message;
+          try { message = JSON.parse(body).message; } catch {}
+          const result = await contentGit.publishChanges(message);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(result));
+        } catch (e) {
+          const status = e.message.includes('No content changes') ? 400 : 500;
+          res.writeHead(status, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: e.message }));
+        }
+      });
+      return;
+    }
+
     const handled = handleEditorAPI(req, res);
     if (handled !== false) return;
   }
 
-  // Editor reload endpoint
+  // Editor reload endpoint (auth-protected)
   if (urlPath === '/api/editor/reload' && req.method === 'POST') {
+    if (!isAuthenticated(req)) { sendUnauthorized(res); return; }
     content.loadAll();
 
     // Reload all active rooms and notify connected players
@@ -90,7 +131,7 @@ const httpServer = http.createServer((req, res) => {
     return;
   }
 
-  // Editor static files
+  // Editor static files (HTML/CSS/JS served without auth — the app handles login UI)
   if (urlPath === '/editor' || urlPath === '/editor/') {
     return serveFile(res, path.join(EDITOR_DIR, 'index.html'));
   }
