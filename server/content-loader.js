@@ -8,6 +8,7 @@ class ContentLoader {
     this.tilesets = {};
     this.monsters = {};
     this.npcs = {};
+    this.items = {};
   }
 
   loadAll() {
@@ -15,10 +16,12 @@ class ContentLoader {
     this.loadTilesets();
     this.loadMonsters();
     this.loadNPCs();
+    this.loadItems();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
                 `${Object.keys(this.monsters).length} monster type(s), ` +
-                `${Object.keys(this.npcs).length} NPC type(s)`);
+                `${Object.keys(this.npcs).length} NPC type(s), ` +
+                `${Object.keys(this.items).length} item type(s)`);
   }
 
   loadJSON(filePath) {
@@ -68,6 +71,16 @@ class ContentLoader {
     console.log(`[Content]   NPCs: ${Object.keys(this.npcs).length} types`);
   }
 
+  loadItems() {
+    const filePath = path.join(this.contentDir, 'entities', 'items.json');
+    if (!fs.existsSync(filePath)) {
+      this.items = {};
+      return;
+    }
+    this.items = this.loadJSON(filePath);
+    console.log(`[Content]   Items: ${Object.keys(this.items).length} types`);
+  }
+
   getMonster(id) {
     return this.monsters[id] || null;
   }
@@ -78,6 +91,10 @@ class ContentLoader {
 
   getDungeon(id) {
     return this.dungeons[id] || null;
+  }
+
+  getItem(id) {
+    return this.items[id] || null;
   }
 
   getTileset(id) {

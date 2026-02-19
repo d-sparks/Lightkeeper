@@ -35,6 +35,10 @@
     { "type": "skeleton", "x": 11, "y": 9, "count": 1, "patrol": "guard" }
   ],
   "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 7, "y": 7 },
+    { "type": "torch", "x": 12, "y": 9 }
+  ],
   "exits": [
     { "x": 2, "y": 2, "leadsTo": "crypt_01", "type": "stairs_up", "spawnX": 17, "spawnY": 12 }
   ]

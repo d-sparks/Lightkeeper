@@ -26,11 +26,16 @@ class GameLoop {
   }
 
   createRoom(roomId, dungeonId) {
-    const dungeon = this.content.getDungeon(dungeonId);
-    if (!dungeon) {
+    const sourceDungeon = this.content.getDungeon(dungeonId);
+    if (!sourceDungeon) {
       console.error(`[GameLoop] Dungeon not found: ${dungeonId}`);
       return null;
     }
+
+    // Make a per-room copy of dungeon data so tile changes (doors) are independent
+    const dungeon = Object.assign({}, sourceDungeon, {
+      data: sourceDungeon.data.slice(),
+    });
 
     // Create NPC instances from dungeon spawn data
     const npcs = new Map();
@@ -51,6 +56,26 @@ class GameLoop {
       }
     }
 
+    // Create ground item instances from dungeon spawn data
+    const items = new Map();
+    let nextItemId = 0;
+    if (dungeon.itemSpawns) {
+      for (let i = 0; i < dungeon.itemSpawns.length; i++) {
+        const spawn = dungeon.itemSpawns[i];
+        const itemDef = this.content.getItem(spawn.type);
+        if (!itemDef) continue;
+        const itemId = `item_${nextItemId++}`;
+        items.set(itemId, {
+          id: itemId,
+          type: spawn.type,
+          name: itemDef.name,
+          rarity: itemDef.rarity || 'common',
+          x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
+          y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
+        });
+      }
+    }
+
     const room = {
       id: roomId,
       dungeonId,
@@ -58,17 +83,19 @@ class GameLoop {
       players: new Map(),    // playerId -> Player
       npcs,                  // npcId -> NPC
       monsters: new Map(),   // monsterId -> Monster
+      items,                 // itemId -> GroundItem
       events: [],            // combat events for current tick
       tick: 0,
       nextSpawnIndex: 0,
       nextMonsterId: 0,
+      nextItemId,
     };
 
     // Spawn monsters
     this.spawnMonsters(room);
 
     this.rooms.set(roomId, room);
-    console.log(`[GameLoop] Room "${roomId}" created with dungeon "${dungeon.name}" (${npcs.size} NPCs, ${room.monsters.size} monsters)`);
+    console.log(`[GameLoop] Room "${roomId}" created with dungeon "${dungeon.name}" (${npcs.size} NPCs, ${room.monsters.size} monsters, ${items.size} items)`);
     return room;
   }
 
@@ -105,16 +132,19 @@ class GameLoop {
     const room = this.rooms.get(roomId);
     if (!room) return null;
 
-    const dungeon = this.content.getDungeon(room.dungeonId);
-    if (!dungeon) return null;
+    const sourceDungeon = this.content.getDungeon(room.dungeonId);
+    if (!sourceDungeon) return null;
 
-    room.dungeon = dungeon;
+    // Make a fresh per-room copy
+    room.dungeon = Object.assign({}, sourceDungeon, {
+      data: sourceDungeon.data.slice(),
+    });
 
     // Respawn NPCs from updated data
     room.npcs.clear();
-    if (dungeon.npcSpawns) {
-      for (let i = 0; i < dungeon.npcSpawns.length; i++) {
-        const spawn = dungeon.npcSpawns[i];
+    if (room.dungeon.npcSpawns) {
+      for (let i = 0; i < room.dungeon.npcSpawns.length; i++) {
+        const spawn = room.dungeon.npcSpawns[i];
         const npcDef = this.content.getNPC(spawn.type);
         if (!npcDef) continue;
         const npcId = `npc_${spawn.type}_${i}`;
@@ -129,13 +159,33 @@ class GameLoop {
       }
     }
 
+    // Respawn items from updated data
+    room.items.clear();
+    room.nextItemId = 0;
+    if (room.dungeon.itemSpawns) {
+      for (let i = 0; i < room.dungeon.itemSpawns.length; i++) {
+        const spawn = room.dungeon.itemSpawns[i];
+        const itemDef = this.content.getItem(spawn.type);
+        if (!itemDef) continue;
+        const itemId = `item_${room.nextItemId++}`;
+        room.items.set(itemId, {
+          id: itemId,
+          type: spawn.type,
+          name: itemDef.name,
+          rarity: itemDef.rarity || 'common',
+          x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
+          y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
+        });
+      }
+    }
+
     // Respawn monsters from updated data
     room.monsters.clear();
     room.nextMonsterId = 0;
     this.spawnMonsters(room);
 
     // Move players to spawn point (they may be standing in a wall now)
-    const spawn = dungeon.spawns && dungeon.spawns[0] || { x: 2, y: 2 };
+    const spawn = room.dungeon.spawns && room.dungeon.spawns[0] || { x: 2, y: 2 };
     for (const [pid, player] of room.players) {
       player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
       player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
@@ -180,6 +230,7 @@ class GameLoop {
       input: { up: false, down: false, left: false, right: false },
       attackTimer: 0,
       transitionCooldown: 0,
+      inventory: [],
     };
 
     room.players.set(playerId, player);
@@ -380,28 +431,125 @@ class GameLoop {
     return transitions;
   }
 
+  // Generalized interact: tries items, doors, then NPCs (closest wins within each category)
   tryInteract(roomId, playerId) {
     const room = this.rooms.get(roomId);
     if (!room) return null;
     const player = room.players.get(playerId);
     if (!player) return null;
 
-    const range = CONSTANTS.NPC_INTERACT_RANGE * CONSTANTS.TILE_SIZE;
-    let closest = null;
-    let closestDist = Infinity;
+    const ts = CONSTANTS.TILE_SIZE;
 
+    // 1. Check for nearby ground items (pickup)
+    const itemRange = CONSTANTS.ITEM_PICKUP_RANGE * ts;
+    let closestItem = null;
+    let closestItemDist = Infinity;
+    for (const [itemId, item] of room.items) {
+      const dx = item.x - player.x;
+      const dy = item.y - player.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < itemRange && dist < closestItemDist) {
+        closestItem = item;
+        closestItemDist = dist;
+      }
+    }
+    if (closestItem) {
+      // Pick up the item: remove from ground, add to inventory
+      room.items.delete(closestItem.id);
+      player.inventory.push({
+        type: closestItem.type,
+        name: closestItem.name,
+        rarity: closestItem.rarity,
+      });
+      room.events.push({
+        type: 'pickup',
+        targetId: player.id,
+        itemName: closestItem.name,
+        x: closestItem.x,
+        y: closestItem.y,
+      });
+      return {
+        interactType: 'pickup',
+        itemId: closestItem.id,
+        item: { type: closestItem.type, name: closestItem.name, rarity: closestItem.rarity },
+        inventory: player.inventory,
+      };
+    }
+
+    // 2. Check for nearby interactable tiles (doors)
+    const doorRange = CONSTANTS.DOOR_INTERACT_RANGE * ts;
+    const tileset = this.content.getTileset(room.dungeon.tileset);
+    if (tileset) {
+      let closestDoor = null;
+      let closestDoorDist = Infinity;
+
+      // Check tiles around the player
+      const playerTX = Math.floor(player.x / ts);
+      const playerTY = Math.floor(player.y / ts);
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          const tx = playerTX + dx;
+          const ty = playerTY + dy;
+          if (tx < 0 || ty < 0 || tx >= room.dungeon.width || ty >= room.dungeon.height) continue;
+
+          const tileId = room.dungeon.data[ty * room.dungeon.width + tx];
+          const tileDef = tileset.tiles[String(tileId)];
+          if (!tileDef || !tileDef.interactable) continue;
+
+          // Distance from player to tile center
+          const tileCX = (tx + 0.5) * ts;
+          const tileCY = (ty + 0.5) * ts;
+          const ddx = tileCX - player.x;
+          const ddy = tileCY - player.y;
+          const dist = Math.sqrt(ddx * ddx + ddy * ddy);
+
+          if (dist < doorRange && dist < closestDoorDist) {
+            closestDoor = { tx, ty, tileId, tileDef, dist };
+            closestDoorDist = dist;
+          }
+        }
+      }
+
+      if (closestDoor && closestDoor.tileDef.togglesTo != null) {
+        const newTileId = closestDoor.tileDef.togglesTo;
+        const idx = closestDoor.ty * room.dungeon.width + closestDoor.tx;
+        room.dungeon.data[idx] = newTileId;
+        return {
+          interactType: 'door',
+          x: closestDoor.tx,
+          y: closestDoor.ty,
+          tileId: newTileId,
+        };
+      }
+    }
+
+    // 3. Check for nearby NPCs (dialogue)
+    const npcRange = CONSTANTS.NPC_INTERACT_RANGE * ts;
+    let closestNPC = null;
+    let closestNPCDist = Infinity;
     for (const [npcId, npc] of room.npcs) {
       const dx = npc.x - player.x;
       const dy = npc.y - player.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < range && dist < closestDist) {
-        closest = npc;
-        closestDist = dist;
+      if (dist < npcRange && dist < closestNPCDist) {
+        closestNPC = npc;
+        closestNPCDist = dist;
       }
     }
+    if (closestNPC) {
+      return { interactType: 'dialogue', npcId: closestNPC.id, dialogue: closestNPC.dialogue };
+    }
 
-    if (!closest) return null;
-    return { npcId: closest.id, dialogue: closest.dialogue };
+    return null;
+  }
+
+  // Get a player's current inventory
+  getPlayerInventory(roomId, playerId) {
+    const room = this.rooms.get(roomId);
+    if (!room) return [];
+    const player = room.players.get(playerId);
+    if (!player) return [];
+    return player.inventory;
   }
 
   getRoomState(roomId) {
@@ -436,13 +584,22 @@ class GameLoop {
       });
     }
 
+    const items = [];
+    for (const [iid, item] of room.items) {
+      items.push({
+        id: item.id, type: item.type, name: item.name,
+        rarity: item.rarity,
+        x: item.x, y: item.y,
+      });
+    }
+
     const events = room.events || [];
     room.events = [];
 
     return {
       type: CONSTANTS.MSG.STATE,
       tick: room.tick,
-      players, npcs, monsters, events,
+      players, npcs, monsters, items, events,
     };
   }
 }

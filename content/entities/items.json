@@ -1,0 +1,27 @@
+{
+  "health_potion": {
+    "name": "Health Potion",
+    "description": "Restores 25 health",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": { "heal": 25 }
+  },
+  "rusty_sword": {
+    "name": "Rusty Sword",
+    "description": "A worn blade, still sharp enough",
+    "type": "weapon",
+    "rarity": "common"
+  },
+  "torch": {
+    "name": "Torch",
+    "description": "Casts a warm glow",
+    "type": "misc",
+    "rarity": "common"
+  },
+  "iron_key": {
+    "name": "Iron Key",
+    "description": "Opens something somewhere",
+    "type": "key",
+    "rarity": "uncommon"
+  }
+}

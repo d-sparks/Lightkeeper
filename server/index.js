@@ -190,6 +190,12 @@ wss.on('connection', (ws) => {
           tileset: content.getTileset(room.dungeon.tileset),
         }));
 
+        // Send initial empty inventory
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.INVENTORY,
+          items: player.inventory,
+        }));
+
         broadcast(ws.playerRoom, {
           type: CONSTANTS.MSG.PLAYER_JOIN,
           playerId,
@@ -208,11 +214,27 @@ wss.on('connection', (ws) => {
       case CONSTANTS.MSG.INTERACT: {
         if (!ws.playerRoom) break;
         const result = gameLoop.tryInteract(ws.playerRoom, playerId);
-        if (result) {
+        if (!result) break;
+
+        if (result.interactType === 'dialogue') {
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.DIALOGUE,
             npcId: result.npcId,
             dialogue: result.dialogue,
+          }));
+        } else if (result.interactType === 'door') {
+          // Broadcast door toggle to all players in the room
+          broadcast(ws.playerRoom, {
+            type: CONSTANTS.MSG.DOOR_TOGGLE,
+            x: result.x,
+            y: result.y,
+            tileId: result.tileId,
+          });
+        } else if (result.interactType === 'pickup') {
+          // Send updated inventory to the picking player
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.INVENTORY,
+            items: result.inventory,
           }));
         }
         break;

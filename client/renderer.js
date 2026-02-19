@@ -122,6 +122,9 @@ class Renderer {
     // Draw exit points
     this.renderExits(ctx, ts);
 
+    // Draw ground items
+    this.renderItems(ctx, ts);
+
     // Draw NPCs
     this.renderNPCs(ctx, ts);
 
@@ -130,6 +133,9 @@ class Renderer {
 
     // Draw players
     this.renderPlayers(ctx, ts);
+
+    // Draw door interact prompts
+    this.renderDoorPrompts(ctx, ts);
 
     // Draw floating damage numbers
     this.renderDamageNumbers(ctx);
@@ -152,10 +158,6 @@ class Renderer {
     const mapH = this.map.height * CONSTANTS.TILE_SIZE;
     this.camX = Math.max(0, Math.min(targetX, mapW - this.viewW));
     this.camY = Math.max(0, Math.min(targetY, mapH - this.viewH));
-
-    // Smooth camera (lerp)
-    // this.camX += (targetX - this.camX) * 0.15;
-    // this.camY += (targetY - this.camY) * 0.15;
   }
 
   renderMap(ctx, ts) {
@@ -177,6 +179,36 @@ class Renderer {
 
         ctx.fillStyle = color;
         ctx.fillRect(screenX, screenY, ts, ts);
+
+        // Door visual indicator (draw a horizontal bar across doors)
+        const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
+        if (tileDef && tileDef.interactable === 'door') {
+          if (tileDef.solid) {
+            // Closed door: draw an X pattern
+            ctx.strokeStyle = '#b8975a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(screenX + 4, screenY + ts / 2);
+            ctx.lineTo(screenX + ts - 4, screenY + ts / 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(screenX + ts / 2, screenY + 4);
+            ctx.lineTo(screenX + ts / 2, screenY + ts - 4);
+            ctx.stroke();
+          } else {
+            // Open door: draw subtle side marks
+            ctx.strokeStyle = 'rgba(122, 106, 74, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(screenX + 2, screenY + 4);
+            ctx.lineTo(screenX + 2, screenY + ts - 4);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(screenX + ts - 2, screenY + 4);
+            ctx.lineTo(screenX + ts - 2, screenY + ts - 4);
+            ctx.stroke();
+          }
+        }
 
         // Subtle grid lines
         ctx.strokeStyle = 'rgba(255,255,255,0.03)';
@@ -219,7 +251,66 @@ class Renderer {
       ctx.font = `${ts * 0.5}px Courier New`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(isUp ? '▲' : '▼', ex, ey);
+      ctx.fillText(isUp ? '\u25B2' : '\u25BC', ex, ey);
+    }
+  }
+
+  renderItems(ctx, ts) {
+    if (!this.state || !this.state.items) return;
+
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 600);
+    const bob = Math.sin(Date.now() / 400) * 2;  // Subtle floating bob
+
+    for (const item of this.state.items) {
+      const ix = item.x - this.camX;
+      const iy = item.y - this.camY + bob;
+      const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
+
+      // Glow effect
+      ctx.fillStyle = rarityColor.replace('#', 'rgba(') ?
+        `rgba(${parseInt(rarityColor.slice(1,3),16)}, ${parseInt(rarityColor.slice(3,5),16)}, ${parseInt(rarityColor.slice(5,7),16)}, ${0.15 + 0.1 * pulse})` :
+        'rgba(255,255,255,0.15)';
+      ctx.beginPath();
+      ctx.arc(ix, iy, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Item body (small diamond)
+      ctx.fillStyle = rarityColor;
+      ctx.beginPath();
+      const r = 5;
+      ctx.moveTo(ix, iy - r);
+      ctx.lineTo(ix + r, iy);
+      ctx.lineTo(ix, iy + r);
+      ctx.lineTo(ix - r, iy);
+      ctx.closePath();
+      ctx.fill();
+
+      // Outline
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Interact prompt if local player is nearby
+      if (this.myId && this.state) {
+        const me = this.state.players.find(p => p.id === this.myId);
+        if (me) {
+          const dx = item.x - me.x;
+          const dy = item.y - me.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const range = CONSTANTS.ITEM_PICKUP_RANGE * CONSTANTS.TILE_SIZE;
+          if (dist < range) {
+            ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + 0.3 * pulse})`;
+            ctx.font = '10px Courier New';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText('[E] Pick up', ix, iy + r + 6);
+            // Item name below
+            ctx.fillStyle = rarityColor;
+            ctx.font = '9px Courier New';
+            ctx.fillText(item.name, ix, iy + r + 18);
+          }
+        }
+      }
     }
   }
 
@@ -383,6 +474,49 @@ class Renderer {
     }
   }
 
+  // Show [E] Open/Close prompt near doors within interact range
+  renderDoorPrompts(ctx, ts) {
+    if (!this.state || !this.myId || !this.tileset || !this.map) return;
+
+    const me = this.state.players.find(p => p.id === this.myId);
+    if (!me) return;
+
+    const range = CONSTANTS.DOOR_INTERACT_RANGE * ts;
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 800);
+    const playerTX = Math.floor(me.x / ts);
+    const playerTY = Math.floor(me.y / ts);
+
+    for (let dy = -2; dy <= 2; dy++) {
+      for (let dx = -2; dx <= 2; dx++) {
+        const tx = playerTX + dx;
+        const ty = playerTY + dy;
+        if (tx < 0 || ty < 0 || tx >= this.map.width || ty >= this.map.height) continue;
+
+        const tileId = this.map.data[ty * this.map.width + tx];
+        const tileDef = this.tileset.tiles[String(tileId)];
+        if (!tileDef || tileDef.interactable !== 'door') continue;
+
+        const tileCX = (tx + 0.5) * ts;
+        const tileCY = (ty + 0.5) * ts;
+        const ddx = tileCX - me.x;
+        const ddy = tileCY - me.y;
+        const dist = Math.sqrt(ddx * ddx + ddy * ddy);
+
+        if (dist < range) {
+          const sx = tileCX - this.camX;
+          const sy = tileCY - this.camY;
+          const label = tileDef.solid ? '[E] Open' : '[E] Close';
+
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + 0.3 * pulse})`;
+          ctx.font = '10px Courier New';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(label, sx, sy - ts * 0.4);
+        }
+      }
+    }
+  }
+
   processEvents(events) {
     if (!events) return;
     for (const ev of events) {
@@ -394,6 +528,15 @@ class Renderer {
           age: 0,
           maxAge: 1.0,
           color: ev.targetId.startsWith('mob_') ? '#ffa726' : '#e53935',
+        });
+      } else if (ev.type === 'pickup') {
+        this.damageNumbers.push({
+          text: `+${ev.itemName}`,
+          x: ev.x,
+          y: ev.y,
+          age: 0,
+          maxAge: 1.2,
+          color: '#fdd835',
         });
       }
     }
@@ -446,6 +589,16 @@ class Renderer {
 
         ctx.fillStyle = solid ? '#3a3a5a' : '#1a1a2e';
         ctx.fillRect(mmX + tx * scale, mmY + ty * scale, scale, scale);
+      }
+    }
+
+    // Items on minimap
+    if (this.state && this.state.items) {
+      for (const item of this.state.items) {
+        const dotX = mmX + (item.x / ts) * scale;
+        const dotY = mmY + (item.y / ts) * scale;
+        ctx.fillStyle = CONSTANTS.COLORS.item;
+        ctx.fillRect(dotX - 1, dotY - 1, 2, 2);
       }
     }
 

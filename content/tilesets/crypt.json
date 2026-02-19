@@ -7,8 +7,8 @@
     "1": { "name": "stone_floor",  "solid": false },
     "2": { "name": "cracked_floor","solid": false },
     "3": { "name": "stone_wall",   "solid": true  },
-    "4": { "name": "door_closed",  "solid": true,  "interactable": "door" },
-    "5": { "name": "door_open",    "solid": false, "interactable": "door" },
+    "4": { "name": "door_closed",  "solid": true,  "interactable": "door", "togglesTo": 5 },
+    "5": { "name": "door_open",    "solid": false, "interactable": "door", "togglesTo": 4 },
     "6": { "name": "stairs_down",  "solid": false, "exit": true },
     "7": { "name": "water",        "solid": true  },
     "8": { "name": "stairs_up",   "solid": false, "exit": true }
