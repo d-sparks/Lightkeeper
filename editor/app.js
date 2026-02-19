@@ -41,6 +41,15 @@ const api = {
     const res = await checkedFetch('/api/editor/publish', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message }) });
     return { ok: res.ok, ...(await res.json()) };
   },
+  async listBranches() { return (await checkedFetch('/api/editor/branches')).json(); },
+  async loadBranch(branch) {
+    const res = await checkedFetch('/api/editor/branches/load', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ branch }) });
+    return { ok: res.ok, ...(await res.json()) };
+  },
+  async refreshBranch() {
+    const res = await checkedFetch('/api/editor/branches/refresh', { method: 'POST' });
+    return { ok: res.ok, ...(await res.json()) };
+  },
 };
 
 // ─── Tile colors (match game rendering) ─────────────────────
@@ -152,8 +161,12 @@ function DungeonList({ onOpen, gitConfigured }) {
   const [showNew, setShowNew] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
+  const [showBranch, setShowBranch] = useState(false);
+  const [activeBranch, setActiveBranch] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => { api.listDungeons().then(setDungeons); }, []);
+  const loadDungeons = () => api.listDungeons().then(setDungeons);
+  useEffect(() => { loadDungeons(); }, []);
 
   const doPublish = async (message) => {
     setPublishing(true);
@@ -168,6 +181,26 @@ function DungeonList({ onOpen, gitConfigured }) {
       }
     } catch (e) { showToast(e.message || 'Publish failed', 'error'); }
     setPublishing(false);
+  };
+
+  const onBranchLoaded = (branch) => {
+    setActiveBranch(branch);
+    setShowBranch(false);
+    loadDungeons();
+  };
+
+  const doRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const result = await api.refreshBranch();
+      if (result.ok === false) {
+        showToast(result.error || 'Refresh failed', 'error');
+      } else {
+        showToast(`Refreshed from ${result.branch}`, 'success');
+        loadDungeons();
+      }
+    } catch (e) { showToast(e.message || 'Refresh failed', 'error'); }
+    setRefreshing(false);
   };
 
   const createDungeon = async (id, name, width, height) => {
@@ -199,8 +232,15 @@ function DungeonList({ onOpen, gitConfigured }) {
     <div class="dungeon-list-page">
       <div class="dungeon-list-header">
         <h1>Level Editor</h1>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center">
           ${gitConfigured && html`
+            ${activeBranch && html`
+              <button class="topbar-btn" onClick=${doRefresh} disabled=${refreshing}
+                title="Refresh content from ${activeBranch}">
+                ${refreshing ? 'Refreshing...' : 'Refresh'}
+              </button>
+            `}
+            <button class="topbar-btn" onClick=${() => setShowBranch(true)}>Branches</button>
             <button class="topbar-btn" onClick=${() => setShowPublish(true)} disabled=${publishing}>
               ${publishing ? 'Publishing...' : 'Publish'}
             </button>
@@ -208,6 +248,11 @@ function DungeonList({ onOpen, gitConfigured }) {
           <button class="topbar-btn primary" onClick=${() => setShowNew(true)}>+ New</button>
         </div>
       </div>
+      ${activeBranch && html`
+        <div class="branch-banner">
+          Content loaded from branch: <strong>${activeBranch}</strong>
+        </div>
+      `}
       <div class="dungeon-cards">
         ${dungeons.map(d => html`
           <div class="dungeon-card" key=${d.id} onClick=${() => onOpen(d.id)}>
@@ -222,6 +267,7 @@ function DungeonList({ onOpen, gitConfigured }) {
       </div>
       ${showNew && html`<${NewDungeonModal} onCreate=${createDungeon} onClose=${() => setShowNew(false)} />`}
       ${showPublish && html`<${PublishModal} onPublish=${doPublish} onClose=${() => setShowPublish(false)} />`}
+      ${showBranch && html`<${BranchModal} onLoad=${onBranchLoaded} onClose=${() => setShowBranch(false)} />`}
     </div>
   `;
 }
@@ -293,6 +339,80 @@ function PublishModal({ onPublish, onClose }) {
         <div class="modal-actions">
           <button onClick=${onClose}>Cancel</button>
           <button class="primary" onClick=${submit}>Publish</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Branch Modal ────────────────────────────────────────────
+function BranchModal({ onLoad, onClose }) {
+  const [branches, setBranches] = useState([]);
+  const [activeBranch, setActiveBranch] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingBranch, setLoadingBranch] = useState(null);
+  const [filter, setFilter] = useState('');
+
+  useEffect(() => {
+    api.listBranches().then(data => {
+      setBranches(data.branches || []);
+      setActiveBranch(data.activeBranch || null);
+      setLoading(false);
+    }).catch(() => {
+      showToast('Failed to fetch branches', 'error');
+      setLoading(false);
+    });
+  }, []);
+
+  const doLoad = async (branch) => {
+    setLoadingBranch(branch);
+    try {
+      const result = await api.loadBranch(branch);
+      if (result.ok === false) {
+        showToast(result.error || 'Failed to load branch', 'error');
+      } else {
+        showToast(`Loaded content from ${branch}`, 'success');
+        onLoad(branch);
+      }
+    } catch (e) { showToast(e.message || 'Failed to load branch', 'error'); }
+    setLoadingBranch(null);
+  };
+
+  const filtered = filter
+    ? branches.filter(b => b.toLowerCase().includes(filter.toLowerCase()))
+    : branches;
+
+  return html`
+    <div class="modal-overlay" onClick=${(e) => e.target === e.currentTarget && onClose()}>
+      <div class="modal branch-modal">
+        <h2>Load Content from Branch</h2>
+        ${activeBranch && html`
+          <div class="branch-active-badge">
+            Active: <strong>${activeBranch}</strong>
+          </div>
+        `}
+        <div class="field" style="margin-bottom:12px">
+          <input value=${filter} onInput=${e => setFilter(e.target.value)}
+            placeholder="Filter branches..." />
+        </div>
+        ${loading && html`<p style="color:var(--text-dim);text-align:center;padding:20px 0">Fetching branches...</p>`}
+        ${!loading && filtered.length === 0 && html`<p style="color:var(--text-dim);text-align:center;padding:20px 0">No branches found</p>`}
+        ${!loading && html`
+          <div class="branch-list">
+            ${filtered.map(b => html`
+              <div class="branch-item ${b === activeBranch ? 'active' : ''}" key=${b}>
+                <span class="branch-name">${b}</span>
+                <button class="branch-load-btn"
+                  onClick=${() => doLoad(b)}
+                  disabled=${loadingBranch !== null}>
+                  ${loadingBranch === b ? 'Loading...' : b === activeBranch ? 'Reload' : 'Load'}
+                </button>
+              </div>
+            `)}
+          </div>
+        `}
+        <div class="modal-actions">
+          <button onClick=${onClose}>Close</button>
         </div>
       </div>
     </div>

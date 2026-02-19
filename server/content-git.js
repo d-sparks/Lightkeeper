@@ -143,8 +143,61 @@ function createPR(branch, baseBranch, title) {
   });
 }
 
+/**
+ * List remote branches.
+ * Returns an array of branch name strings (e.g. ['main', 'content/editor-20250101']).
+ */
+function listBranches() {
+  initGit();
+  git(['fetch', 'origin', '--prune']);
+  const raw = git(['branch', '-r', '--format=%(refname:short)']);
+  return raw.split('\n')
+    .map(b => b.trim())
+    .filter(b => b && !b.includes('HEAD'))
+    .map(b => b.replace(/^origin\//, ''));
+}
+
+// Track the currently loaded branch (null = local working tree / default)
+let activeBranch = null;
+
+/**
+ * Load content from a specific remote branch.
+ * Fetches the branch and checks out the content/ directory from it,
+ * replacing local content files on disk.
+ */
+function loadBranchContent(branch) {
+  initGit();
+  const safeBranch = branch.replace(/[^a-zA-Z0-9_./-]/g, '');
+  if (!safeBranch) throw new Error('Invalid branch name');
+
+  git(['fetch', 'origin', safeBranch]);
+  // Overlay content/ from the remote branch onto the working tree
+  git(['checkout', `origin/${safeBranch}`, '--', 'content/']);
+  activeBranch = safeBranch;
+  return { branch: safeBranch };
+}
+
+/**
+ * Refresh content from the currently active branch.
+ * Re-fetches and re-checks out content/ to pick up new commits.
+ */
+function refreshBranchContent() {
+  if (!activeBranch) throw new Error('No branch is currently loaded');
+  initGit();
+  git(['fetch', 'origin', activeBranch]);
+  git(['checkout', `origin/${activeBranch}`, '--', 'content/']);
+  return { branch: activeBranch };
+}
+
+/**
+ * Get the currently loaded branch name, or null if none.
+ */
+function getActiveBranch() {
+  return activeBranch;
+}
+
 function isConfigured() {
   return !!(process.env.GITHUB_TOKEN && process.env.GITHUB_REPO);
 }
 
-module.exports = { publishChanges, isConfigured };
+module.exports = { publishChanges, isConfigured, listBranches, loadBranchContent, refreshBranchContent, getActiveBranch };
