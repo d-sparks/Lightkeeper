@@ -27,11 +27,17 @@ class Renderer {
     this.state = null;
     this.myId = null;
 
-    // Tile color cache (Phase 1 placeholder rendering)
+    // Tile color cache (fallback when sprites haven't loaded)
     this.tileColors = {};
 
     // Floating damage numbers
     this.damageNumbers = [];
+
+    // Sprite image cache: path -> { img, loaded, failed }
+    this.spriteCache = {};
+
+    // Tileset sprite sheet (loaded when setMap is called)
+    this.tilesetImage = null;
 
     // Disable smoothing for crisp pixels
     this.ctx.imageSmoothingEnabled = false;
@@ -66,15 +72,39 @@ class Renderer {
     this.ctx.imageSmoothingEnabled = false;
   }
 
+  // Load a sprite image (returns cached entry, starts async load if needed)
+  loadSprite(spritePath) {
+    if (this.spriteCache[spritePath]) return this.spriteCache[spritePath];
+
+    const entry = { img: new Image(), loaded: false, failed: false };
+    entry.img.onload = () => { entry.loaded = true; };
+    entry.img.onerror = () => { entry.failed = true; };
+    entry.img.src = '/content/' + spritePath;
+    this.spriteCache[spritePath] = entry;
+    return entry;
+  }
+
+  // Get a loaded sprite, or null if not ready
+  getSprite(spritePath) {
+    if (!spritePath) return null;
+    const entry = this.loadSprite(spritePath);
+    return entry.loaded ? entry.img : null;
+  }
+
   setMap(map, tileset) {
     this.map = map;
     this.tileset = tileset;
     this.buildTileColors();
+
+    // Load the tileset sprite sheet
+    if (tileset && tileset.image) {
+      this.loadSprite(tileset.image);
+    }
   }
 
   buildTileColors() {
     if (!this.tileset) return;
-    // Generate distinct colors for each tile type
+    // Fallback colors for each tile type (used when sprite sheet isn't loaded)
     const colorMap = {
       'stone_floor':   '#2a2a3d',
       'cracked_floor': '#332a3d',
@@ -167,46 +197,54 @@ class Renderer {
     const endTX = Math.ceil((this.camX + this.viewW) / ts);
     const endTY = Math.ceil((this.camY + this.viewH) / ts);
 
+    // Try to use the tileset sprite sheet
+    const tilesetImg = this.tileset ? this.getSprite(this.tileset.image) : null;
+    const spriteSz = CONSTANTS.SPRITE_SIZE;  // 16px native sprite size
+
     for (let ty = startTY; ty <= endTY; ty++) {
       for (let tx = startTX; tx <= endTX; tx++) {
         if (tx < 0 || ty < 0 || tx >= this.map.width || ty >= this.map.height) continue;
 
         const tileId = this.map.data[ty * this.map.width + tx];
-        const color = this.tileColors[String(tileId)] || '#ff00ff';
-
         const screenX = tx * ts - this.camX;
         const screenY = ty * ts - this.camY;
 
-        ctx.fillStyle = color;
-        ctx.fillRect(screenX, screenY, ts, ts);
+        if (tilesetImg) {
+          // Draw from sprite sheet: tiles are arranged horizontally, each 16x16
+          const srcX = tileId * spriteSz;
+          ctx.drawImage(tilesetImg, srcX, 0, spriteSz, spriteSz, screenX, screenY, ts, ts);
+        } else {
+          // Fallback: solid color fill
+          const color = this.tileColors[String(tileId)] || '#ff00ff';
+          ctx.fillStyle = color;
+          ctx.fillRect(screenX, screenY, ts, ts);
 
-        // Door visual indicator (draw a horizontal bar across doors)
-        const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
-        if (tileDef && tileDef.interactable === 'door') {
-          if (tileDef.solid) {
-            // Closed door: draw an X pattern
-            ctx.strokeStyle = '#b8975a';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(screenX + 4, screenY + ts / 2);
-            ctx.lineTo(screenX + ts - 4, screenY + ts / 2);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(screenX + ts / 2, screenY + 4);
-            ctx.lineTo(screenX + ts / 2, screenY + ts - 4);
-            ctx.stroke();
-          } else {
-            // Open door: draw subtle side marks
-            ctx.strokeStyle = 'rgba(122, 106, 74, 0.5)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(screenX + 2, screenY + 4);
-            ctx.lineTo(screenX + 2, screenY + ts - 4);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(screenX + ts - 2, screenY + 4);
-            ctx.lineTo(screenX + ts - 2, screenY + ts - 4);
-            ctx.stroke();
+          // Door visual indicator
+          const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
+          if (tileDef && tileDef.interactable === 'door') {
+            if (tileDef.solid) {
+              ctx.strokeStyle = '#b8975a';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(screenX + 4, screenY + ts / 2);
+              ctx.lineTo(screenX + ts - 4, screenY + ts / 2);
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.moveTo(screenX + ts / 2, screenY + 4);
+              ctx.lineTo(screenX + ts / 2, screenY + ts - 4);
+              ctx.stroke();
+            } else {
+              ctx.strokeStyle = 'rgba(122, 106, 74, 0.5)';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(screenX + 2, screenY + 4);
+              ctx.lineTo(screenX + 2, screenY + ts - 4);
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.moveTo(screenX + ts - 2, screenY + 4);
+              ctx.lineTo(screenX + ts - 2, screenY + ts - 4);
+              ctx.stroke();
+            }
           }
         }
 
@@ -255,6 +293,17 @@ class Renderer {
     }
   }
 
+  // Draw a sprite centered at (cx, cy), scaled from 16x16 to drawSize x drawSize
+  drawSpriteAt(ctx, spritePath, cx, cy, drawSize) {
+    const img = this.getSprite(spritePath);
+    if (img) {
+      const half = drawSize / 2;
+      ctx.drawImage(img, 0, 0, img.width, img.height, cx - half, cy - half, drawSize, drawSize);
+      return true;
+    }
+    return false;
+  }
+
   renderItems(ctx, ts) {
     if (!this.state || !this.state.items) return;
 
@@ -267,28 +316,29 @@ class Renderer {
       const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
 
       // Glow effect
-      ctx.fillStyle = rarityColor.replace('#', 'rgba(') ?
-        `rgba(${parseInt(rarityColor.slice(1,3),16)}, ${parseInt(rarityColor.slice(3,5),16)}, ${parseInt(rarityColor.slice(5,7),16)}, ${0.15 + 0.1 * pulse})` :
-        'rgba(255,255,255,0.15)';
+      ctx.fillStyle = `rgba(${parseInt(rarityColor.slice(1,3),16)}, ${parseInt(rarityColor.slice(3,5),16)}, ${parseInt(rarityColor.slice(5,7),16)}, ${0.15 + 0.1 * pulse})`;
       ctx.beginPath();
       ctx.arc(ix, iy, 10, 0, Math.PI * 2);
       ctx.fill();
 
-      // Item body (small diamond)
-      ctx.fillStyle = rarityColor;
-      ctx.beginPath();
-      const r = 5;
-      ctx.moveTo(ix, iy - r);
-      ctx.lineTo(ix + r, iy);
-      ctx.lineTo(ix, iy + r);
-      ctx.lineTo(ix - r, iy);
-      ctx.closePath();
-      ctx.fill();
+      // Try sprite first, fall back to diamond shape
+      const spritePath = 'sprites/' + item.type + '.png';
+      if (!this.drawSpriteAt(ctx, spritePath, ix, iy, 20)) {
+        // Fallback: small diamond
+        ctx.fillStyle = rarityColor;
+        ctx.beginPath();
+        const r = 5;
+        ctx.moveTo(ix, iy - r);
+        ctx.lineTo(ix + r, iy);
+        ctx.lineTo(ix, iy + r);
+        ctx.lineTo(ix - r, iy);
+        ctx.closePath();
+        ctx.fill();
 
-      // Outline
-      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
 
       // Interact prompt if local player is nearby
       if (this.myId && this.state) {
@@ -303,11 +353,11 @@ class Renderer {
             ctx.font = '10px Courier New';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
-            ctx.fillText('[E] Pick up', ix, iy + r + 6);
+            ctx.fillText('[E] Pick up', ix, iy + 12);
             // Item name below
             ctx.fillStyle = rarityColor;
             ctx.font = '9px Courier New';
-            ctx.fillText(item.name, ix, iy + r + 18);
+            ctx.fillText(item.name, ix, iy + 24);
           }
         }
       }
@@ -322,22 +372,25 @@ class Renderer {
     for (const npc of this.state.npcs) {
       const nx = npc.x - this.camX;
       const ny = npc.y - this.camY;
-
-      // NPC body (diamond shape)
-      ctx.fillStyle = CONSTANTS.COLORS.npc;
-      ctx.beginPath();
       const r = CONSTANTS.PLAYER_RADIUS;
-      ctx.moveTo(nx, ny - r);       // top
-      ctx.lineTo(nx + r, ny);       // right
-      ctx.lineTo(nx, ny + r);       // bottom
-      ctx.lineTo(nx - r, ny);       // left
-      ctx.closePath();
-      ctx.fill();
 
-      // Outline
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      // Try sprite first
+      const spritePath = 'sprites/npc_default.png';
+      if (!this.drawSpriteAt(ctx, spritePath, nx, ny, ts)) {
+        // Fallback: diamond shape
+        ctx.fillStyle = CONSTANTS.COLORS.npc;
+        ctx.beginPath();
+        ctx.moveTo(nx, ny - r);
+        ctx.lineTo(nx + r, ny);
+        ctx.lineTo(nx, ny + r);
+        ctx.lineTo(nx - r, ny);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
 
       // Name tag
       ctx.fillStyle = '#64b5f6';
@@ -369,22 +422,30 @@ class Renderer {
   renderPlayers(ctx, ts) {
     if (!this.state) return;
 
+    const playerSpriteNames = ['player_blue', 'player_red', 'player_green', 'player_orange'];
+
     for (const player of this.state.players) {
       const px = player.x - this.camX;
       const py = player.y - this.camY;
       const color = CONSTANTS.COLORS.player[player.colorIndex] || '#ffffff';
       const isMe = player.id === this.myId;
 
-      // Player body (circle)
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(px, py, CONSTANTS.PLAYER_RADIUS, 0, Math.PI * 2);
-      ctx.fill();
+      // Try sprite first
+      const spriteName = playerSpriteNames[player.colorIndex] || 'player_blue';
+      const spritePath = 'sprites/' + spriteName + '.png';
+      const usedSprite = this.drawSpriteAt(ctx, spritePath, px, py, ts);
 
-      // Darker outline
-      ctx.strokeStyle = 'rgba(0,0,0,0.4)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      if (!usedSprite) {
+        // Fallback: circle
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(px, py, CONSTANTS.PLAYER_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
 
       // Weapon indicator (if equipped, draw a small line in the facing direction)
       if (player.weapon) {
@@ -412,8 +473,8 @@ class Renderer {
         ctx.lineTo(midX - perpX, midY - perpY);
         ctx.stroke();
         ctx.lineCap = 'butt';
-      } else {
-        // Facing direction indicator (small dot) - only when no weapon
+      } else if (!usedSprite) {
+        // Facing direction indicator (small dot) - only when no weapon and no sprite
         const faceDist = CONSTANTS.PLAYER_RADIUS + 4;
         const fx = px + Math.cos(player.facing) * faceDist;
         const fy = py + Math.sin(player.facing) * faceDist;
@@ -465,22 +526,28 @@ class Renderer {
       const my = mob.y - this.camY;
       const r = CONSTANTS.MONSTER_COLLISION_RADIUS || 10;
 
-      // Monster body (circle, red)
-      ctx.fillStyle = CONSTANTS.COLORS.monster;
-      ctx.beginPath();
-      ctx.arc(mx, my, r, 0, Math.PI * 2);
-      ctx.fill();
+      // Try sprite first (use mob.type to find the sprite)
+      const spritePath = mob.type ? 'sprites/' + mob.type + '.png' : null;
+      const usedSprite = spritePath && this.drawSpriteAt(ctx, spritePath, mx, my, ts);
 
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      if (!usedSprite) {
+        // Fallback: circle
+        ctx.fillStyle = CONSTANTS.COLORS.monster;
+        ctx.beginPath();
+        ctx.arc(mx, my, r, 0, Math.PI * 2);
+        ctx.fill();
 
-      // Facing indicator
-      const fd = r + 3;
-      ctx.fillStyle = '#faa';
-      ctx.beginPath();
-      ctx.arc(mx + Math.cos(mob.facing) * fd, my + Math.sin(mob.facing) * fd, 2, 0, Math.PI * 2);
-      ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Facing indicator (only for fallback)
+        const fd = r + 3;
+        ctx.fillStyle = '#faa';
+        ctx.beginPath();
+        ctx.arc(mx + Math.cos(mob.facing) * fd, my + Math.sin(mob.facing) * fd, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       // Name tag
       ctx.fillStyle = '#e57373';
@@ -590,8 +657,6 @@ class Renderer {
       const sx = dn.x - this.camX;
       const sy = dn.y - this.camY - offsetY;
 
-      ctx.fillStyle = dn.color.replace(')', `,${alpha})`).replace('rgb', 'rgba');
-      // Simpler approach: set globalAlpha
       ctx.globalAlpha = alpha;
       ctx.fillStyle = dn.color;
       ctx.font = 'bold 13px Courier New';
