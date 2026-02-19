@@ -158,6 +158,21 @@ function handleEditorAPI(req, res) {
     }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
   }
 
+  // --- Settings ---
+  if (url === '/api/editor/settings' && method === 'GET') {
+    const filePath = path.join(CONTENT_DIR, 'settings.json');
+    if (!fs.existsSync(filePath)) return json(res, 200, {});
+    return json(res, 200, JSON.parse(fs.readFileSync(filePath, 'utf8')));
+  }
+
+  if (url === '/api/editor/settings' && method === 'PUT') {
+    return parseBody(req).then(data => {
+      const filePath = path.join(CONTENT_DIR, 'settings.json');
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      return json(res, 200, data);
+    }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
+  }
+
   // --- Scripting: Reference data ---
   // GET /api/editor/scripting/events - list available event types
   if (url === '/api/editor/scripting/events' && method === 'GET') {
