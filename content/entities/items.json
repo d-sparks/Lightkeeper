@@ -8,7 +8,7 @@
   },
   "bandage": {
     "name": "Bandage",
-    "description": "Restores 15 health",
+    "description": "A basic field dressing. Restores 15 health.",
     "type": "consumable",
     "rarity": "common",
     "effect": { "heal": 15 }
@@ -32,5 +32,19 @@
     "description": "Opens something somewhere",
     "type": "key",
     "rarity": "uncommon"
+  },
+  "titanium_cylinders": {
+    "name": "Titanium Cylinders",
+    "description": "Precision-machined power cylinders for a Sol Unit.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "sol_unit": {
+    "name": "Sol Unit",
+    "description": "Standard-issue solar energy weapon. Can be upgraded.",
+    "type": "weapon",
+    "rarity": "rare",
+    "slot": "weapon",
+    "stats": { "attackDamage": 12 }
   }
 }
