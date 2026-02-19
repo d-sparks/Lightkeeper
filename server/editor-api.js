@@ -98,6 +98,29 @@ function handleEditorAPI(req, res) {
     return json(res, 200, JSON.parse(fs.readFileSync(filePath, 'utf8')));
   }
 
+  if (url === '/api/editor/npcs' && method === 'PUT') {
+    return parseBody(req).then(data => {
+      const filePath = path.join(CONTENT_DIR, 'entities', 'npcs.json');
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      return json(res, 200, data);
+    }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
+  }
+
+  // --- Items ---
+  if (url === '/api/editor/items' && method === 'GET') {
+    const filePath = path.join(CONTENT_DIR, 'entities', 'items.json');
+    if (!fs.existsSync(filePath)) return json(res, 200, {});
+    return json(res, 200, JSON.parse(fs.readFileSync(filePath, 'utf8')));
+  }
+
+  if (url === '/api/editor/items' && method === 'PUT') {
+    return parseBody(req).then(data => {
+      const filePath = path.join(CONTENT_DIR, 'entities', 'items.json');
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      return json(res, 200, data);
+    }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
+  }
+
   return false; // Not handled
 }
 

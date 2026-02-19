@@ -15,6 +15,7 @@
   const inventoryPanel = document.getElementById('inventory-panel');
   const inventoryList = document.getElementById('inventory-list');
   const equipmentSlots = document.getElementById('equipment-slots');
+  const interactBtn = document.getElementById('interact-btn');
 
   // --- Instances ---
   const net = new NetClient();
@@ -145,6 +146,56 @@
     }
   }
 
+  // --- Dynamic interact button label ---
+  function updateInteractLabel() {
+    if (!interactBtn || !renderer.state || !renderer.myId) return;
+    const me = renderer.state.players.find(p => p.id === renderer.myId);
+    if (!me) return;
+
+    const ts = CONSTANTS.TILE_SIZE;
+    let label = 'Interact';
+
+    // Priority 1: items
+    if (renderer.state.items) {
+      const itemRange = CONSTANTS.ITEM_PICKUP_RANGE * ts;
+      for (const item of renderer.state.items) {
+        const dx = item.x - me.x, dy = item.y - me.y;
+        if (Math.sqrt(dx * dx + dy * dy) < itemRange) { label = 'Pick up'; break; }
+      }
+    }
+
+    // Priority 2: doors (only if no item found)
+    if (label === 'Interact' && renderer.map && renderer.tileset) {
+      const doorRange = CONSTANTS.DOOR_INTERACT_RANGE * ts;
+      const playerTX = Math.floor(me.x / ts), playerTY = Math.floor(me.y / ts);
+      for (let dy = -2; dy <= 2 && label === 'Interact'; dy++) {
+        for (let dx = -2; dx <= 2 && label === 'Interact'; dx++) {
+          const tx = playerTX + dx, ty = playerTY + dy;
+          if (tx < 0 || ty < 0 || tx >= renderer.map.width || ty >= renderer.map.height) continue;
+          const tileId = renderer.map.data[ty * renderer.map.width + tx];
+          const tileDef = renderer.tileset.tiles[String(tileId)];
+          if (!tileDef || tileDef.interactable !== 'door') continue;
+          const tileCX = (tx + 0.5) * ts, tileCY = (ty + 0.5) * ts;
+          const ddx = tileCX - me.x, ddy = tileCY - me.y;
+          if (Math.sqrt(ddx * ddx + ddy * ddy) < doorRange) {
+            label = tileDef.solid ? 'Open' : 'Close';
+          }
+        }
+      }
+    }
+
+    // Priority 3: NPCs
+    if (label === 'Interact' && renderer.state.npcs) {
+      const npcRange = CONSTANTS.NPC_INTERACT_RANGE * ts;
+      for (const npc of renderer.state.npcs) {
+        const dx = npc.x - me.x, dy = npc.y - me.y;
+        if (Math.sqrt(dx * dx + dy * dy) < npcRange) { label = 'Talk'; break; }
+      }
+    }
+
+    interactBtn.textContent = label;
+  }
+
   // --- Interact handler ---
   input.onInteract = function () {
     if (dialogueActive) {
@@ -214,6 +265,9 @@
         hudName.textContent = me.name;
       }
     }
+
+    // Update interact button label based on proximity
+    updateInteractLabel();
   });
 
   net.on(CONSTANTS.MSG.FLOOR_CHANGE, (msg) => {
