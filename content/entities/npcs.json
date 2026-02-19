@@ -23,5 +23,14 @@
         "text": "Now go. The stairs await, and the dark won't keep itself at bay."
       }
     ]
+  },
+  "sol_engineer_1": {
+    "name": "Apprentice Sol Engineer",
+    "dialogue": [
+      {
+        "speaker": "sol_engineer_1",
+        "text": "You must be here to pickup the old Sol Unit. The repairs are almost complete."
+      }
+    ]
   }
 }
