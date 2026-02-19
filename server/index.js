@@ -472,5 +472,5 @@ setInterval(() => {
 
 // --- Start ---
 httpServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n🏰 Dungeon Crawler server running at http://0.0.0.0:${PORT}\n`);
+  console.log(`\n🏰 Lightkeeper server running at http://0.0.0.0:${PORT}\n`);
 });
