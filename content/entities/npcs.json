@@ -2,69 +2,23 @@
   "old_keeper": {
     "name": "Old Keeper",
     "dialogue": [
-      {
-        "speaker": "Old Keeper",
-        "text": "Halt, traveler. You have the look of someone seeking the deep dark."
-      },
-      {
-        "speaker": "Old Keeper",
-        "text": "I was a Lightkeeper once... before the relays failed and the shadows crept in."
-      },
-      {
-        "speaker": "Old Keeper",
-        "text": "The creatures down there feed on broken light. They'll take everything from you if you let them."
-      },
-      {
-        "speaker": "Old Keeper",
-        "text": "A word of advice: never carry more than you can afford to lose. Death has a price in these crypts."
-      },
-      {
-        "speaker": "Old Keeper",
-        "text": "Now go. The stairs await, and the dark won't keep itself at bay."
-      }
+      { "speaker": "Old Keeper", "text": "Halt, traveler. You have the look of someone seeking the deep dark." }
     ],
     "dialogues": {
       "default": [
-        {
-          "speaker": "Old Keeper",
-          "text": "Halt, traveler. You have the look of someone seeking the deep dark."
-        },
-        {
-          "speaker": "Old Keeper",
-          "text": "I was a Lightkeeper once... before the relays failed and the shadows crept in."
-        },
-        {
-          "speaker": "Old Keeper",
-          "text": "The creatures down there feed on broken light. They'll take everything from you if you let them."
-        },
-        {
-          "speaker": "Old Keeper",
-          "text": "A word of advice: never carry more than you can afford to lose. Death has a price in these crypts."
-        },
-        {
-          "speaker": "Old Keeper",
-          "text": "Now go. The stairs await, and the dark won't keep itself at bay."
-        }
+        { "speaker": "Old Keeper", "text": "Halt, traveler. You have the look of someone seeking the deep dark." },
+        { "speaker": "Old Keeper", "text": "I was a Lightkeeper once... before the relays failed and the shadows crept in." },
+        { "speaker": "Old Keeper", "text": "The creatures down there feed on broken light. They'll take everything from you if you let them." },
+        { "speaker": "Old Keeper", "text": "A word of advice: never carry more than you can afford to lose. Death has a price in these crypts." },
+        { "speaker": "Old Keeper", "text": "Now go. The stairs await, and the dark won't keep itself at bay." }
       ],
       "has_key": [
-        {
-          "speaker": "Old Keeper",
-          "text": "You found the iron key? Good. The locked door to the east should yield to it."
-        },
-        {
-          "speaker": "Old Keeper",
-          "text": "Be careful what lies beyond. Not all doors are meant to be opened."
-        }
+        { "speaker": "Old Keeper", "text": "You found the iron key? Good. The locked door to the east should yield to it." },
+        { "speaker": "Old Keeper", "text": "Be careful what lies beyond. Not all doors are meant to be opened." }
       ],
       "explored_crypt_02": [
-        {
-          "speaker": "Old Keeper",
-          "text": "You've seen the Bone Chamber and returned alive. That's more than most can say."
-        },
-        {
-          "speaker": "Old Keeper",
-          "text": "The deeper you go, the darker it gets. But you already knew that."
-        }
+        { "speaker": "Old Keeper", "text": "You've seen the Bone Chamber and returned alive. That's more than most can say." },
+        { "speaker": "Old Keeper", "text": "The deeper you go, the darker it gets. But you already knew that." }
       ]
     },
     "dialogueRules": [
@@ -78,12 +32,134 @@
       }
     ]
   },
+  "outpost_warden": {
+    "name": "Warden Holt",
+    "dialogue": [
+      { "speaker": "Warden Holt", "text": "Welcome to Outpost Balor. We've been expecting you." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Warden Holt", "text": "Welcome to Outpost Balor. We've been expecting you." },
+        { "speaker": "Warden Holt", "text": "Your Sol Unit is with our engineer. He's been repairing and upgrading it for your assignment." },
+        { "speaker": "Warden Holt", "text": "Should be ready by now. Head through to the workshop — it's just down the corridor." },
+        { "speaker": "Warden Holt", "text": "There are some supplies along the way. Help yourself. You'll need them." }
+      ],
+      "quest_active": [
+        { "speaker": "Warden Holt", "text": "The engineer sent you into the occupied wing? Those luddites took it over weeks ago. We haven't had the manpower to clear them out." },
+        { "speaker": "Warden Holt", "text": "They're fanatics — hate anything tech. Watch yourself." }
+      ],
+      "has_cylinders": [
+        { "speaker": "Warden Holt", "text": "Good. You made it back. Listen — I should tell you why you're really here." },
+        { "speaker": "Warden Holt", "text": "This planet is tidally locked. One side always faces the star, the other is in permanent darkness." },
+        { "speaker": "Warden Holt", "text": "We live on the border — the terminator zone. The only habitable strip on the whole world." },
+        { "speaker": "Warden Holt", "text": "The dark side isn't empty. The luddites operate out there. They reject the technology that keeps us alive and want to tear it all down." },
+        { "speaker": "Warden Holt", "text": "The lighthouses keep the border safe. A network of high-energy beacons that hold the line against raids from the dark side." },
+        { "speaker": "Warden Holt", "text": "We've lost contact with Lighthouse Mara. It went dark three days ago. The luddites are already pushing through the gap." },
+        { "speaker": "Warden Holt", "text": "You're being sent to repair it. That Sol Unit the engineer is finishing — you'll need it." },
+        { "speaker": "Warden Holt", "text": "Go talk to the engineer. Get your equipment. Then we move." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Warden Holt", "text": "You've got the Sol Unit. Good." },
+        { "speaker": "Warden Holt", "text": "Lighthouse Mara is waiting. Don't let us down." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasItem": "titanium_cylinders" }],
+        "use": "has_cylinders"
+      },
+      {
+        "conditions": [{ "hasFlag": "quest_cylinders_active" }],
+        "use": "quest_active"
+      }
+    ]
+  },
+  "outpost_warden_workshop": {
+    "name": "Warden Holt",
+    "dialogue": [
+      { "speaker": "Warden Holt", "text": "I'll be checking on the perimeter. Talk to the engineer." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Warden Holt", "text": "I'll be checking on the perimeter. Talk to the engineer." }
+      ],
+      "quest_active": [
+        { "speaker": "Warden Holt", "text": "Still here? The occupied wing is through the east corridor. Get moving." }
+      ],
+      "has_cylinders": [
+        { "speaker": "Warden Holt", "text": "Good. You made it back. Listen — I should tell you why you're really here." },
+        { "speaker": "Warden Holt", "text": "This planet is tidally locked. One side always faces the star, the other is in permanent darkness." },
+        { "speaker": "Warden Holt", "text": "We live on the border — the terminator zone. The only habitable strip on the whole world." },
+        { "speaker": "Warden Holt", "text": "The dark side isn't empty. The luddites operate out there. They reject the technology that keeps us alive and want to tear it all down." },
+        { "speaker": "Warden Holt", "text": "The lighthouses keep the border safe. A network of high-energy beacons that hold the line against raids from the dark side." },
+        { "speaker": "Warden Holt", "text": "We've lost contact with Lighthouse Mara. It went dark three days ago. The luddites are already pushing through the gap." },
+        { "speaker": "Warden Holt", "text": "You're being sent to repair it. That Sol Unit the engineer is finishing — you'll need it." },
+        { "speaker": "Warden Holt", "text": "Go talk to the engineer. Get your equipment. Then we move." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Warden Holt", "text": "You've got the Sol Unit. Good." },
+        { "speaker": "Warden Holt", "text": "Lighthouse Mara is waiting. Don't let us down." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasItem": "titanium_cylinders" }],
+        "use": "has_cylinders"
+      },
+      {
+        "conditions": [{ "hasFlag": "quest_cylinders_active" }],
+        "use": "quest_active"
+      }
+    ]
+  },
   "sol_engineer_1": {
     "name": "Apprentice Sol Engineer",
     "dialogue": [
+      { "speaker": "Apprentice Sol Engineer", "text": "You must be here for the Sol Unit. I've got bad news." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Apprentice Sol Engineer", "text": "You must be here for the Sol Unit. I've got bad news." },
+        { "speaker": "Apprentice Sol Engineer", "text": "The repairs are almost done, but I'm missing critical parts. Titanium power cylinders — I can't finish without them." },
+        { "speaker": "Apprentice Sol Engineer", "text": "There's a supply cache in the east wing. Problem is, luddites seized that section. They've been camped there for weeks." },
+        { "speaker": "Apprentice Sol Engineer", "text": "The cylinders should still be in the cache, unless those wreckers have smashed them already." },
+        { "speaker": "Apprentice Sol Engineer", "text": "I know it's a lot to ask, but I can't leave the shop. The Unit's in a delicate state. Can you get them for me?" }
+      ],
+      "quest_active": [
+        { "speaker": "Apprentice Sol Engineer", "text": "The occupied wing is through the east corridor. The cylinders should be in the supply cache at the far end." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Be careful. Those luddites don't take kindly to anyone carrying tech." }
+      ],
+      "has_cylinders": [
+        { "speaker": "Apprentice Sol Engineer", "text": "You found them! Let me see... yes, these are perfect. Undamaged." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Give me just a moment..." },
+        { "speaker": "Apprentice Sol Engineer", "text": "There. Your Sol Unit is ready. She's not pretty, but she'll keep you alive out there." },
+        { "speaker": "Apprentice Sol Engineer", "text": "It channels concentrated solar energy. Effective against pretty much anything on this rock." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Apprentice Sol Engineer", "text": "That Sol Unit is solid work, if I say so myself. Take care of it and it'll take care of you." },
+        { "speaker": "Apprentice Sol Engineer", "text": "When you get back, I might be able to upgrade it. If you bring me the right materials." }
+      ]
+    },
+    "dialogueRules": [
       {
-        "speaker": "Apprentice Sol Engineer",
-        "text": "You must be here to pickup the old Sol Unit. The repairs are almost complete."
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasItem": "titanium_cylinders" }],
+        "use": "has_cylinders"
+      },
+      {
+        "conditions": [{ "hasFlag": "quest_cylinders_active" }],
+        "use": "quest_active"
       }
     ]
   }

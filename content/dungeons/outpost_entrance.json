@@ -1,0 +1,63 @@
+{
+  "id": "outpost_entrance",
+  "name": "Outpost Balor - Entrance",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "width": 25,
+  "height": 16,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,4,1,1,2,1,1,1,1,2,1,1,6,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 2, "y": 5, "type": "player_start" },
+    { "x": 3, "y": 5, "type": "player_start" },
+    { "x": 2, "y": 6, "type": "player_start" },
+    { "x": 3, "y": 6, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [
+    { "type": "outpost_warden", "x": 3, "y": 2 }
+  ],
+  "itemSpawns": [
+    { "type": "bandage", "x": 9, "y": 4 },
+    { "type": "bandage", "x": 14, "y": 4 }
+  ],
+  "exits": [
+    { "x": 17, "y": 4, "leadsTo": "outpost_workshop", "type": "stairs_down", "spawnX": 2, "spawnY": 4 }
+  ],
+  "triggers": [
+    {
+      "id": "welcome_to_outpost",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "text": "You arrive at Outpost Balor, a fortified station on the edge of the habitable zone." }
+      ],
+      "once": true
+    },
+    {
+      "id": "talked_to_warden_entrance",
+      "event": "npc_interacted",
+      "filter": { "npcType": "outpost_warden" },
+      "actions": [
+        { "type": "setFlag", "flag": "talked_to_warden" }
+      ],
+      "once": true
+    }
+  ]
+}

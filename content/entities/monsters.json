@@ -25,5 +25,41 @@
     "ai": "ranged_kite",
     "lootTable": "skeleton_common",
     "xp": 15
+  },
+  "luddite_brawler": {
+    "name": "Luddite Brawler",
+    "sprite": "sprites/luddite_brawler.png",
+    "size": [16, 16],
+    "health": 20,
+    "speed": 2.0,
+    "damage": 6,
+    "attackRange": 1,
+    "attackSpeed": 1.2,
+    "ai": "melee_chase",
+    "xp": 8
+  },
+  "luddite_scrapper": {
+    "name": "Luddite Scrapper",
+    "sprite": "sprites/luddite_scrapper.png",
+    "size": [16, 16],
+    "health": 15,
+    "speed": 1.0,
+    "damage": 10,
+    "attackRange": 6,
+    "attackSpeed": 0.8,
+    "ai": "ranged_kite",
+    "xp": 12
+  },
+  "luddite_warlord": {
+    "name": "Luddite Warlord",
+    "sprite": "sprites/luddite_warlord.png",
+    "size": [16, 16],
+    "health": 150,
+    "speed": 1.0,
+    "damage": 15,
+    "attackRange": 1.5,
+    "attackSpeed": 0.8,
+    "ai": "melee_chase",
+    "xp": 50
   }
 }

@@ -26,7 +26,7 @@ gameLoop.start();
 
 // Default room + dungeon (read from content/settings.json)
 function getDefaultRoom() {
-  return content.getSpawnRoom() || 'crypt_01';
+  return content.getSpawnRoom() || 'outpost_entrance';
 }
 const DEFAULT_ROOM = getDefaultRoom();
 gameLoop.createRoom(DEFAULT_ROOM, DEFAULT_ROOM);
