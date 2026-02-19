@@ -88,7 +88,7 @@
     1,
     1,
     1,
-    1,
+    4,
     1,
     1,
     3,
@@ -247,7 +247,7 @@
     1,
     1,
     1,
-    3,
+    1,
     1,
     3,
     3,
@@ -461,6 +461,23 @@
       "type": "stairs_down",
       "spawnX": 3,
       "spawnY": 3
+    }
+  ],
+  "itemSpawns": [
+    {
+      "type": "health_potion",
+      "x": 3,
+      "y": 1
+    },
+    {
+      "type": "rusty_sword",
+      "x": 10,
+      "y": 8
+    },
+    {
+      "type": "iron_key",
+      "x": 18,
+      "y": 12
     }
   ]
 }

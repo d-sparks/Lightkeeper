@@ -12,6 +12,8 @@
   const dialogueOverlay = document.getElementById('dialogue-overlay');
   const dialogueSpeaker = document.getElementById('dialogue-speaker');
   const dialogueText = document.getElementById('dialogue-text');
+  const inventoryPanel = document.getElementById('inventory-panel');
+  const inventoryList = document.getElementById('inventory-list');
 
   // --- Instances ---
   const net = new NetClient();
@@ -72,14 +74,52 @@
     if (dialogueActive) advanceDialogue();
   });
 
+  // --- Inventory state ---
+  let inventoryOpen = false;
+  let inventoryItems = [];
+
+  function toggleInventory() {
+    inventoryOpen = !inventoryOpen;
+    inventoryPanel.style.display = inventoryOpen ? 'block' : 'none';
+    if (inventoryOpen) {
+      renderInventoryList();
+    }
+  }
+
+  function renderInventoryList() {
+    if (inventoryItems.length === 0) {
+      inventoryList.innerHTML = '<div class="inv-empty">Empty</div>';
+      return;
+    }
+    inventoryList.innerHTML = '';
+    for (const item of inventoryItems) {
+      const div = document.createElement('div');
+      div.className = 'inv-item';
+      const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
+      div.innerHTML = '<span class="inv-dot" style="background:' + rarityColor + '"></span>' +
+        '<span style="color:' + rarityColor + '">' + item.name + '</span>';
+      inventoryList.appendChild(div);
+    }
+  }
+
   // --- Interact handler ---
   input.onInteract = function () {
     if (dialogueActive) {
       advanceDialogue();
       return;
     }
+    if (inventoryOpen) {
+      toggleInventory();
+      return;
+    }
     // Send interact request to server
     net.send({ type: CONSTANTS.MSG.INTERACT });
+  };
+
+  // --- Inventory toggle handler ---
+  input.onInventoryToggle = function () {
+    if (dialogueActive) return;
+    toggleInventory();
   };
 
   // --- Join flow ---
@@ -143,6 +183,21 @@
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {
     if (msg.dialogue && msg.dialogue.length > 0) {
       showDialogue(msg.dialogue);
+    }
+  });
+
+  net.on(CONSTANTS.MSG.DOOR_TOGGLE, (msg) => {
+    // Update local map tile data to reflect the door state change
+    if (renderer.map && msg.x != null && msg.y != null) {
+      const idx = msg.y * renderer.map.width + msg.x;
+      renderer.map.data[idx] = msg.tileId;
+    }
+  });
+
+  net.on(CONSTANTS.MSG.INVENTORY, (msg) => {
+    inventoryItems = msg.items || [];
+    if (inventoryOpen) {
+      renderInventoryList();
     }
   });
 

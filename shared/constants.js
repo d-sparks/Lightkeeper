@@ -42,8 +42,10 @@ const CONSTANTS = {
     legendary: '#ff9800',
   },
 
-  // NPC interaction
+  // Interaction ranges (in tiles)
   NPC_INTERACT_RANGE: 2.5,   // Tiles distance to interact with NPC
+  DOOR_INTERACT_RANGE: 1.8,  // Tiles distance to interact with doors
+  ITEM_PICKUP_RANGE: 1.8,    // Tiles distance to pick up items
 
   // Combat
   MONSTER_AGGRO_RANGE: 8,    // Tiles distance to aggro
@@ -69,6 +71,8 @@ const CONSTANTS = {
     DIALOGUE:      'dialogue',
     DIALOGUE_END:  'dialogue_end',
     FLOOR_CHANGE:  'floor_change',
+    DOOR_TOGGLE:   'door_toggle',
+    INVENTORY:     'inventory',
   },
 };
 

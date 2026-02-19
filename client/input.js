@@ -12,8 +12,9 @@ class InputHandler {
     this.lastSent = '';  // Avoid sending duplicate input states
     this.active = false;
 
-    // Callback for interact key
+    // Callbacks
     this.onInteract = null;
+    this.onInventoryToggle = null;
 
     // Key mappings: keyboard key -> game action
     this.keyMap = {
@@ -62,6 +63,13 @@ class InputHandler {
     if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') {
       e.preventDefault();
       if (this.onInteract) this.onInteract();
+      return;
+    }
+
+    // Inventory toggle (I)
+    if (e.key === 'i' || e.key === 'I') {
+      e.preventDefault();
+      if (this.onInventoryToggle) this.onInventoryToggle();
       return;
     }
 

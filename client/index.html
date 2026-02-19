@@ -167,6 +167,62 @@
       text-align: right;
     }
 
+    /* Inventory panel */
+    #inventory-panel {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(10, 10, 26, 0.94);
+      border: 2px solid #ffa726;
+      padding: 16px 20px;
+      min-width: 220px;
+      max-width: 320px;
+      max-height: 70vh;
+      overflow-y: auto;
+      z-index: 90;
+      pointer-events: auto;
+    }
+
+    #inventory-panel .inv-title {
+      font-size: 14px;
+      color: #ffa726;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    #inventory-panel .inv-empty {
+      font-size: 12px;
+      color: #555;
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    #inventory-panel .inv-item {
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #inventory-panel .inv-item .inv-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    #inventory-panel .inv-hint {
+      font-size: 10px;
+      color: #555;
+      margin-top: 10px;
+      text-align: center;
+    }
+
     /* Virtual touch controls */
     #controls {
       width: 100%;
@@ -270,7 +326,7 @@
     </div>
   </div>
 
-  <div class="info-text desktop-only">WASD / Arrows = Move &nbsp;|&nbsp; E = Interact</div>
+  <div class="info-text desktop-only">WASD / Arrows = Move &nbsp;|&nbsp; E = Interact &nbsp;|&nbsp; I = Inventory</div>
 
   <div id="controls">
     <div id="joystick-zone">
@@ -278,6 +334,12 @@
       <div id="joystick-thumb"></div>
     </div>
     <div id="interact-btn" role="button">Talk</div>
+  </div>
+
+  <div id="inventory-panel">
+    <div class="inv-title">INVENTORY</div>
+    <div id="inventory-list"></div>
+    <div class="inv-hint">[I] Close</div>
   </div>
 
   <div id="dialogue-overlay">
