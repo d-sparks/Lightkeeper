@@ -388,15 +388,89 @@
       padding: 4px 0;
     }
 
+    /* Rotate-to-landscape warning overlay */
+    #rotate-warning {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #0d0d1a;
+      z-index: 1000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ccc;
+      font-size: 15px;
+      text-align: center;
+      gap: 18px;
+      pointer-events: none;
+    }
+
+    #rotate-warning .rotate-icon {
+      font-size: 52px;
+      color: #ffa726;
+      display: block;
+      animation: spin-hint 2s ease-in-out infinite;
+    }
+
+    @keyframes spin-hint {
+      0%, 100% { transform: rotate(0deg); }
+      40%       { transform: rotate(-90deg); }
+      60%       { transform: rotate(-90deg); }
+    }
+
     /* Desktop: hide touch controls, show keyboard hint */
     @media (hover: hover) and (pointer: fine) {
       #controls { display: none !important; }
       .mobile-only { display: none !important; }
     }
-    /* Touch devices: show controls */
-    @media (hover: none) and (pointer: coarse) {
-      #controls { display: block !important; }
+
+    /* Touch in portrait: show rotate warning, hide controls */
+    @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+      #rotate-warning { display: flex !important; }
       .desktop-only { display: none !important; }
+    }
+
+    /* Touch in landscape: sidebar controls layout */
+    @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+      body {
+        flex-direction: row;
+        align-items: stretch;
+      }
+
+      #game-container {
+        align-self: stretch;
+        height: 100%;
+      }
+
+      #controls {
+        display: block !important;
+        width: 160px;
+        height: 100% !important;
+        flex-shrink: 0;
+        border-left: 1px solid #1e1e30;
+      }
+
+      .desktop-only { display: none !important; }
+
+      /* Joystick: bottom-left of sidebar */
+      #joystick-zone {
+        left: 10px;
+        bottom: 20px;
+        top: auto;
+      }
+
+      /* Action buttons: bottom-right of sidebar, stacked */
+      #interact-btn {
+        right: 10px;
+        bottom: 30px;
+        top: auto;
+      }
+
+      #inventory-btn {
+        right: 14px;
+        bottom: 110px;
+        top: auto;
+      }
     }
   </style>
 </head>
@@ -444,6 +518,12 @@
     <div class="dialogue-speaker" id="dialogue-speaker"></div>
     <div class="dialogue-text" id="dialogue-text"></div>
     <div class="dialogue-prompt">[E] Continue</div>
+  </div>
+
+  <!-- Portrait orientation warning (touch only) -->
+  <div id="rotate-warning">
+    <span class="rotate-icon">&#8635;</span>
+    <span>Rotate your device to play</span>
   </div>
 
   <div id="connection-status">Disconnected</div>
