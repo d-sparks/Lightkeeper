@@ -72,6 +72,10 @@ class Renderer {
     // Door prompt graphics
     this.doorPromptContainer = null;
 
+    // Click target indicator
+    this.clickTargetGfx = null;
+    this.clickTarget = null;  // { x, y } world coords, set by input handler
+
     this._initPixi();
   }
 
@@ -109,6 +113,10 @@ class Renderer {
     this.entityContainer = new PIXI.Container();
     this.entityContainer.sortableChildren = true;
     this.worldContainer.addChild(this.entityContainer);
+
+    // Click target indicator
+    this.clickTargetGfx = new PIXI.Graphics();
+    this.worldContainer.addChild(this.clickTargetGfx);
 
     // Door prompt layer
     this.doorPromptContainer = new PIXI.Container();
@@ -258,6 +266,7 @@ class Renderer {
     this.renderMap();
     this.renderSpawns();
     this.renderExits();
+    this.renderClickTarget();
     this.renderItems();
     this.renderNPCs();
     this.renderMonsters();
@@ -285,6 +294,34 @@ class Renderer {
     const mapH = this.map.height * CONSTANTS.TILE_SIZE;
     this.camX = Math.max(0, Math.min(targetX, mapW - this.viewW));
     this.camY = Math.max(0, Math.min(targetY, mapH - this.viewH));
+  }
+
+  // --- Screen-to-world coordinate conversion ---
+
+  screenToWorld(screenX, screenY) {
+    // Account for CSS scaling of the canvas
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.viewW / rect.width;
+    const scaleY = this.viewH / rect.height;
+    const canvasX = (screenX - rect.left) * scaleX;
+    const canvasY = (screenY - rect.top) * scaleY;
+    return {
+      x: canvasX + this.camX,
+      y: canvasY + this.camY,
+    };
+  }
+
+  // --- Click target indicator ---
+
+  renderClickTarget() {
+    this.clickTargetGfx.clear();
+    if (!this.clickTarget) return;
+
+    const pulse = 0.3 + 0.4 * Math.sin(Date.now() / 200);
+    const radius = 6 + 2 * Math.sin(Date.now() / 300);
+
+    this.clickTargetGfx.lineStyle(1.5, 0xffffff, pulse);
+    this.clickTargetGfx.drawCircle(this.clickTarget.x, this.clickTarget.y, radius);
   }
 
   // --- Tile rendering ---

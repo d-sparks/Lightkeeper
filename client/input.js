@@ -16,6 +16,13 @@ class InputHandler {
     this.onInteract = null;
     this.onInventoryToggle = null;
 
+    // Click-to-move state
+    this.renderer = null;        // Set by main.js
+    this.moveTarget = null;      // { x, y, interactType?, interactRange? }
+    this.clickMoving = false;    // True when click-to-move is driving input
+    this.dialogueActive = false; // Set by main.js to block click-to-move
+    this.inventoryOpen = false;  // Set by main.js to block click-to-move
+
     // Key mappings: keyboard key -> game action
     this.keyMap = {
       'ArrowUp':    'up',
@@ -49,6 +56,7 @@ class InputHandler {
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
     this.setupTouch();
+    this.setupMouse();
   }
 
   stop() {
@@ -77,6 +85,8 @@ class InputHandler {
     const action = this.keyMap[e.key];
     if (action) {
       e.preventDefault();
+      // Keyboard movement cancels click-to-move
+      this.clearMoveTarget();
       if (!this.keys[action]) {
         this.keys[action] = true;
         this.sendInput();
@@ -221,6 +231,143 @@ class InputHandler {
     }
 
     this.sendJoystickInput();
+  }
+
+  // --- Click-to-move (mouse) ---
+
+  setupMouse() {
+    if (!this.renderer || !this.renderer.canvas) return;
+    const canvas = this.renderer.canvas;
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return; // Left click only
+      if (!this.active) return;
+      if (this.dialogueActive || this.inventoryOpen) return;
+
+      e.preventDefault();
+      const world = this.renderer.screenToWorld(e.clientX, e.clientY);
+      this.handleClickAt(world.x, world.y);
+    });
+
+    // Prevent context menu on right-click over canvas
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+
+  handleClickAt(worldX, worldY) {
+    const state = this.renderer.state;
+    if (!state || !this.renderer.myId) return;
+
+    const ts = CONSTANTS.TILE_SIZE;
+    const clickRadius = ts * 1.0; // How close a click needs to be to an entity
+
+    // Check items
+    if (state.items) {
+      for (const item of state.items) {
+        const dx = worldX - item.x, dy = worldY - item.y;
+        if (Math.sqrt(dx * dx + dy * dy) < clickRadius) {
+          this.setMoveTarget(item.x, item.y, 'item', CONSTANTS.ITEM_PICKUP_RANGE * ts);
+          return;
+        }
+      }
+    }
+
+    // Check NPCs
+    if (state.npcs) {
+      for (const npc of state.npcs) {
+        const dx = worldX - npc.x, dy = worldY - npc.y;
+        if (Math.sqrt(dx * dx + dy * dy) < clickRadius) {
+          this.setMoveTarget(npc.x, npc.y, 'npc', CONSTANTS.NPC_INTERACT_RANGE * ts);
+          return;
+        }
+      }
+    }
+
+    // Check monsters (move toward them; auto-attack handles the rest)
+    if (state.monsters) {
+      for (const mob of state.monsters) {
+        const dx = worldX - mob.x, dy = worldY - mob.y;
+        if (Math.sqrt(dx * dx + dy * dy) < clickRadius) {
+          this.setMoveTarget(mob.x, mob.y, 'monster', CONSTANTS.PLAYER_ATTACK_RANGE * ts);
+          return;
+        }
+      }
+    }
+
+    // Check doors (tile at click position)
+    if (this.renderer.map && this.renderer.tileset) {
+      const tx = Math.floor(worldX / ts);
+      const ty = Math.floor(worldY / ts);
+      const map = this.renderer.map;
+      if (tx >= 0 && ty >= 0 && tx < map.width && ty < map.height) {
+        const tileId = map.data[ty * map.width + tx];
+        const tileDef = this.renderer.tileset.tiles[String(tileId)];
+        if (tileDef && tileDef.interactable === 'door') {
+          const doorX = (tx + 0.5) * ts;
+          const doorY = (ty + 0.5) * ts;
+          this.setMoveTarget(doorX, doorY, 'door', CONSTANTS.DOOR_INTERACT_RANGE * ts);
+          return;
+        }
+      }
+    }
+
+    // Plain ground click — move to position
+    this.setMoveTarget(worldX, worldY, null, 0);
+  }
+
+  setMoveTarget(x, y, interactType, interactRange) {
+    this.moveTarget = { x, y, interactType, interactRange: interactRange || 0 };
+    this.clickMoving = true;
+    if (this.renderer) this.renderer.clickTarget = { x, y };
+  }
+
+  clearMoveTarget() {
+    if (!this.moveTarget) return;
+    this.moveTarget = null;
+    this.clickMoving = false;
+    if (this.renderer) this.renderer.clickTarget = null;
+  }
+
+  // Called from main.js on each state update with the player's current position
+  updateClickToMove(playerX, playerY) {
+    if (!this.moveTarget) return;
+
+    const dx = this.moveTarget.x - playerX;
+    const dy = this.moveTarget.y - playerY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // Check if we should interact
+    if (this.moveTarget.interactType && dist < this.moveTarget.interactRange) {
+      this.clearMoveTarget();
+      // Stop movement
+      this.keys = { up: false, down: false, left: false, right: false };
+      this.sendInput();
+      // Fire interact
+      if (this.onInteract) this.onInteract();
+      return;
+    }
+
+    // Check if we've arrived (ground click)
+    const arrivalThreshold = this.moveTarget.interactType ? this.moveTarget.interactRange : 6;
+    if (dist < arrivalThreshold) {
+      this.clearMoveTarget();
+      this.keys = { up: false, down: false, left: false, right: false };
+      this.sendInput();
+      return;
+    }
+
+    // Compute directional input toward target
+    const threshold = 0.3;
+    const len = dist; // already computed
+    const nx = dx / len;
+    const ny = dy / len;
+
+    this.keys = {
+      up:    ny < -threshold,
+      down:  ny > threshold,
+      left:  nx < -threshold,
+      right: nx > threshold,
+    };
+    this.sendInput();
   }
 
   sendJoystickInput() {

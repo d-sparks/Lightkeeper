@@ -19,8 +19,9 @@
 
   // --- Instances ---
   const net = new NetClient();
-  const input = new InputHandler(net);
   const renderer = new Renderer(canvas);
+  const input = new InputHandler(net);
+  input.renderer = renderer;  // For click-to-move coordinate conversion
 
   // --- Responsive canvas sizing ---
   function resizeCanvas() {
@@ -44,6 +45,7 @@
     dialogueLines = lines;
     dialogueIndex = 0;
     dialogueActive = true;
+    input.dialogueActive = true;
     updateDialogueDisplay();
     dialogueOverlay.style.display = 'block';
   }
@@ -59,6 +61,7 @@
 
   function closeDialogue() {
     dialogueActive = false;
+    input.dialogueActive = false;
     dialogueLines = [];
     dialogueIndex = 0;
     dialogueOverlay.style.display = 'none';
@@ -83,6 +86,7 @@
 
   function toggleInventory() {
     inventoryOpen = !inventoryOpen;
+    input.inventoryOpen = inventoryOpen;
     inventoryPanel.style.display = inventoryOpen ? 'block' : 'none';
     if (inventoryOpen) {
       renderEquipmentSlots();
@@ -266,6 +270,12 @@
     // Process combat events for damage numbers
     if (msg.events) {
       renderer.processEvents(msg.events);
+      // Clear click-to-move on player death
+      for (const ev of msg.events) {
+        if (ev.type === 'death' && ev.targetId === renderer.myId) {
+          input.clearMoveTarget();
+        }
+      }
     }
 
     // Update HUD
@@ -278,6 +288,14 @@
       }
     }
 
+    // Update click-to-move direction based on current position
+    if (renderer.myId) {
+      const me = msg.players.find(p => p.id === renderer.myId);
+      if (me) {
+        input.updateClickToMove(me.x, me.y);
+      }
+    }
+
     // Update interact button label based on proximity
     updateInteractLabel();
   });
@@ -285,6 +303,7 @@
   net.on(CONSTANTS.MSG.FLOOR_CHANGE, (msg) => {
     console.log('[Game] Floor change!', msg.map.name);
     renderer.setMap(msg.map, msg.tileset);
+    input.clearMoveTarget();
     // Close any open dialogue
     closeDialogue();
   });
