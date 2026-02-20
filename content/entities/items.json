@@ -33,6 +33,12 @@
     "type": "key",
     "rarity": "uncommon"
   },
+  "supply_crate_key": {
+    "name": "Supply Crate Key",
+    "description": "Unmarked key from the warlord's post. Opens a supply crate in the outer corridor.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
   "titanium_cylinders": {
     "name": "Titanium Cylinders",
     "description": "Precision-machined power cylinders for a Sol Unit.",

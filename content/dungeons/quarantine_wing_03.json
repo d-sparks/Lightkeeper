@@ -60,18 +60,18 @@
       "filter": { "monsterType": "luddite_warlord" },
       "actions": [
         { "type": "setFlag", "flag": "warlord_defeated" },
-        { "type": "showMessage", "text": "The Warlord falls. Behind his post, a supply chest sits untouched — they hadn't gotten to it yet." },
-        { "type": "spawnItem", "itemType": "titanium_cylinders", "x": 12, "y": 7 }
+        { "type": "showMessage", "text": "The Warlord falls. A key tumbles from his belt — unmarked, but deliberate." },
+        { "type": "spawnItem", "itemType": "supply_crate_key", "x": 12, "y": 7 }
       ],
       "once": true
     },
     {
-      "id": "pickup_cylinders",
+      "id": "pickup_supply_key",
       "event": "item_picked_up",
-      "filter": { "itemType": "titanium_cylinders" },
+      "filter": { "itemType": "supply_crate_key" },
       "actions": [
-        { "type": "setFlag", "flag": "has_titanium_cylinders" },
-        { "type": "showMessage", "text": "Titanium power cylinders — exactly what the engineer needs. Time to head back to the workshop." }
+        { "type": "setFlag", "flag": "has_supply_crate_key" },
+        { "type": "showMessage", "text": "This key... there was a locked supply crate near the entrance. The warlord must have taken this when they moved in." }
       ],
       "once": true
     }
