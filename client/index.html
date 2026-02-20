@@ -430,46 +430,31 @@
       .desktop-only { display: none !important; }
     }
 
-    /* Touch in landscape: sidebar controls layout */
+    /* Touch in landscape: fullscreen overlay controls */
     @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
-      body {
-        flex-direction: row;
-        align-items: stretch;
-      }
-
+      /* Game fills the whole screen */
       #game-container {
-        align-self: stretch;
+        width: 100%;
         height: 100%;
       }
 
+      /* Controls float as a transparent overlay over the game */
       #controls {
         display: block !important;
-        width: 160px;
-        height: 100% !important;
-        flex-shrink: 0;
-        border-left: 1px solid #1e1e30;
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
       }
 
       .desktop-only { display: none !important; }
 
-      /* Joystick: bottom-left of sidebar */
-      #joystick-zone {
-        left: 10px;
-        bottom: 20px;
-        top: auto;
-      }
-
-      /* Action buttons: bottom-right of sidebar, stacked */
-      #interact-btn {
-        right: 10px;
-        bottom: 30px;
-        top: auto;
-      }
-
+      /* Each control is independently tappable */
+      #joystick-zone,
+      #interact-btn,
       #inventory-btn {
-        right: 14px;
-        bottom: 110px;
-        top: auto;
+        pointer-events: auto;
       }
     }
   </style>
