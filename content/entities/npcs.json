@@ -120,6 +120,210 @@
       }
     ]
   },
+  "outpost_guard_entrance": {
+    "name": "Guard Patel",
+    "dialogue": [
+      { "speaker": "Guard Patel", "text": "At ease. Warden's been expecting someone." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Guard Patel", "text": "At ease. Warden's been expecting someone. Check in with him before you do anything else." },
+        { "speaker": "Guard Patel", "text": "This outpost runs on schedule. You're either on duty, in the racks, or at the mess." },
+        { "speaker": "Guard Patel", "text": "Dark side's been quiet the last two cycles. That's usually when you should start worrying." }
+      ],
+      "quest_active": [
+        { "speaker": "Guard Patel", "text": "The occupied wing is no place to be wandering. Watch yourself in there." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Guard Patel", "text": "Heard you cleared the occupied wing. That was either brave or stupid." },
+        { "speaker": "Guard Patel", "text": "Either way — good work." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasFlag": "quest_cylinders_active" }],
+        "use": "quest_active"
+      }
+    ]
+  },
+  "outpost_soldier_reyes": {
+    "name": "Cpl. Reyes",
+    "dialogue": [
+      { "speaker": "Cpl. Reyes", "text": "Six months on Balor rotation. Two to go — if relief ever shows." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Cpl. Reyes", "text": "Six months on Balor rotation. Two to go — if relief ever shows." },
+        { "speaker": "Cpl. Reyes", "text": "We pushed a luddite scouting party back to grid seven last week. Three of them, none of us. Good day." },
+        { "speaker": "Cpl. Reyes", "text": "They're fanatics, but they're not stupid. When your tech is on your hip, they know it." }
+      ],
+      "quest_active": [
+        { "speaker": "Cpl. Reyes", "text": "They've been camped in the east wing for weeks. We didn't have the numbers to clear them." },
+        { "speaker": "Cpl. Reyes", "text": "Stay low, move fast. They'll try to smash your gear before they try to smash you." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Cpl. Reyes", "text": "Nice kit. Engineer does good work when he's got the parts." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasFlag": "quest_cylinders_active" }],
+        "use": "quest_active"
+      }
+    ]
+  },
+  "outpost_pvt_dunnmore": {
+    "name": "Pvt. Dunnmore",
+    "dialogue": [
+      { "speaker": "Pvt. Dunnmore", "text": "..." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Pvt. Dunnmore", "text": "Trouble sleeping. The dark side makes noise on the sensors — not enough to trigger alert, just enough to keep you up." },
+        { "speaker": "Pvt. Dunnmore", "text": "I signed up because I believed in the lighthouse network. Didn't think I'd spend six months staring at walls." },
+        { "speaker": "Pvt. Dunnmore", "text": "My family lives in Sector Nine. Right on the border line. If the beacons fail out there..." },
+        { "speaker": "Pvt. Dunnmore", "text": "Just — don't let the beacons fail." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Pvt. Dunnmore", "text": "You're heading to Lighthouse Mara?" },
+        { "speaker": "Pvt. Dunnmore", "text": "Get it back online. Please." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      }
+    ]
+  },
+  "outpost_sgt_ellers": {
+    "name": "Sgt. Ellers",
+    "dialogue": [
+      { "speaker": "Sgt. Ellers", "text": "I've been on the terminator line for thirty years. I know what a failing grid looks like." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Sgt. Ellers", "text": "I've been on the terminator line since before Lighthouse Mara was commissioned. Thirty years on this rock." },
+        { "speaker": "Sgt. Ellers", "text": "The lighthouses don't just push back raids. They keep the whole border stable — settlements, crops, water reclamation, all of it runs on that grid." },
+        { "speaker": "Sgt. Ellers", "text": "Mara going dark isn't just a tactical problem. It's a crack in everything. And cracks spread." }
+      ],
+      "quest_active": [
+        { "speaker": "Sgt. Ellers", "text": "Engineer sent you into the occupied wing? Good. We've let that fester long enough." },
+        { "speaker": "Sgt. Ellers", "text": "Watch for the warlord at the back. He's not like the others — he plans." }
+      ],
+      "has_cylinders": [
+        { "speaker": "Sgt. Ellers", "text": "You found the cylinders. Take them to the engineer and get your Sol Unit sorted." },
+        { "speaker": "Sgt. Ellers", "text": "Every hour that lighthouse is dark is another hour the luddites push through the gap." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Sgt. Ellers", "text": "Sol Unit's ready. Good. Get to Lighthouse Mara before the luddites fortify the approach." },
+        { "speaker": "Sgt. Ellers", "text": "And come back in one piece. We're short on people as it is." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasItem": "titanium_cylinders" }],
+        "use": "has_cylinders"
+      },
+      {
+        "conditions": [{ "hasFlag": "quest_cylinders_active" }],
+        "use": "quest_active"
+      }
+    ]
+  },
+  "charging_tech_maren": {
+    "name": "Tech Maren",
+    "dialogue": [
+      { "speaker": "Tech Maren", "text": "The capacitor banks are up. Don't touch the terminals without clearance." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Tech Maren", "text": "This is the main capacitor bank. Solar collectors on the outer hull run continuous collection along the terminator — the light out here never stops." },
+        { "speaker": "Tech Maren", "text": "Devices that run on Sol energy — Sol Units, light rifles, beacon relay cores — can all be charged at the interface terminals. Third slot from the left." },
+        { "speaker": "Tech Maren", "text": "We're still calibrating the output profiles. The system isn't fully certified yet, but it's stable enough." },
+        { "speaker": "Tech Maren", "text": "When you get a Sol Unit, bring it in. Once we're fully online, a charge cycle takes minutes." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Tech Maren", "text": "You've got a Sol Unit? Good. Third slot from the left — connect the interface and I'll run the charge sequence." },
+        { "speaker": "Tech Maren", "text": "We're not fully certified yet, so the output's capped. But it'll top you off before a deployment." },
+        { "speaker": "Tech Maren", "text": "Come back when you've run it down. That's what we're here for." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      }
+    ]
+  },
+  "charging_guard_pell": {
+    "name": "Guard Pell",
+    "dialogue": [
+      { "speaker": "Guard Pell", "text": "Power room's access-restricted." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Guard Pell", "text": "Power room's access-restricted. Tech Maren's the only one authorized to touch those consoles." },
+        { "speaker": "Guard Pell", "text": "You need a charge, you talk to her." }
+      ]
+    },
+    "dialogueRules": []
+  },
+  "munitions_quartermaster": {
+    "name": "Quartermaster Voss",
+    "dialogue": [
+      { "speaker": "Quartermaster Voss", "text": "Everything in this depot is catalogued. You requisition, you sign, you return." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Quartermaster Voss", "text": "Everything in this depot is catalogued and accounted for. You requisition, you sign, you return." },
+        { "speaker": "Quartermaster Voss", "text": "The luddites hit the east supply run two weeks back. We lost three crates of class-four cells and a case of light rifle packs. Command hasn't sent replacements." },
+        { "speaker": "Quartermaster Voss", "text": "The bandages on the north shelf are field surplus. The health kit's from a prior operator — still effective. Take what you need and log it." }
+      ],
+      "quest_active": [
+        { "speaker": "Quartermaster Voss", "text": "Heading into the occupied wing? Take the bandages. Don't be a hero about resupply." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Quartermaster Voss", "text": "Sol Unit's charged and ready? Good. Watch the east corridor on the way to Mara — that route's been compromised." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasFlag": "quest_cylinders_active" }],
+        "use": "quest_active"
+      }
+    ]
+  },
+  "munitions_pvt_korrin": {
+    "name": "Pvt. Korrin",
+    "dialogue": [
+      { "speaker": "Pvt. Korrin", "text": "These light rifles haven't been serviced in eight weeks." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Pvt. Korrin", "text": "Six light rifles in here haven't been serviced in eight weeks. Quartermaster says no time. I say that's how you get a misfire." },
+        { "speaker": "Pvt. Korrin", "text": "Everything on this rock runs on Sol energy. The lighthouses, the weapons, the outpost grid." },
+        { "speaker": "Pvt. Korrin", "text": "The beacons go down, we lose power too — eventually. Not right away, but it cascades." }
+      ]
+    },
+    "dialogueRules": []
+  },
   "sol_engineer_1": {
     "name": "Apprentice Sol Engineer",
     "dialogue": [
