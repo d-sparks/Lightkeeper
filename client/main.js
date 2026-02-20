@@ -330,6 +330,11 @@
     requestAnimationFrame(gameLoop);
   }
 
+  // --- Try to lock to landscape on mobile ---
+  if ('ontouchstart' in window && screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('landscape').catch(() => { /* not supported or not fullscreen */ });
+  }
+
   // --- Start ---
   net.connect();
   requestAnimationFrame(gameLoop);
