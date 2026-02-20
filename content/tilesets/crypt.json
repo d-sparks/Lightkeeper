@@ -20,18 +20,6 @@
       "conditions": [{ "hasItem": "iron_key" }],
       "failMessage": "The door is locked. You need a key.",
       "onInteract": [{ "type": "removeItem", "itemType": "iron_key" }]
-    },
-    "10": {
-      "name": "supply_crate",
-      "solid": true,
-      "interactable": "door",
-      "togglesTo": 1,
-      "conditions": [{ "hasItem": "supply_crate_key" }],
-      "failMessage": "The supply crate is locked. A heavy-duty lock keeps it sealed.",
-      "onInteract": [
-        { "type": "removeItem", "itemType": "supply_crate_key" },
-        { "type": "spawnItem", "itemType": "titanium_cylinders", "offsetX": 0, "offsetY": 0 }
-      ]
     }
   }
 }
