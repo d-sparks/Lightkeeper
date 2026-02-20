@@ -188,27 +188,20 @@ function generateCryptTileset() {
     setPixel(png, ox2 + cx, cy, C.darkGray);
   }
 
-  // --- Tile 3: Stone Wall (brick pattern with depth) ---
+  // --- Tile 3: Stone Wall (plain stone, no brick pattern — sci-fi aesthetic) ---
   const ox3 = 48;
+  // Solid base
   fillRect(png, ox3, 0, 16, 16, C.wallMid);
-  // Top face highlight (top 3 rows lighter)
-  fillRect(png, ox3, 0, 16, 3, C.wallTop);
-  // Brick mortar lines
-  for (let i = 0; i < 16; i++) {
-    setPixel(png, ox3 + i, 3, C.wallDark);
-    setPixel(png, ox3 + i, 7, C.wallDark);
-    setPixel(png, ox3 + i, 11, C.wallDark);
-    setPixel(png, ox3 + i, 15, C.wallDark);
-  }
-  // Vertical mortar (staggered bricks)
-  for (let row = 0; row < 4; row++) {
-    const yStart = row * 4;
-    const xOff = (row % 2 === 0) ? 7 : 3;
-    for (let dy = 0; dy < 4; dy++) {
-      setPixel(png, ox3 + xOff, yStart + dy, C.wallDark);
-      setPixel(png, ox3 + xOff + 8, yStart + dy, C.wallDark);
-    }
-  }
+  // Top edge highlight
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, C.wallTop);
+  // Bottom and right edge shadow for depth
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 15, C.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + 15, i, C.wallDark);
+  // Subtle stone grain: scattered light/dark pixels (organic, not grid-aligned)
+  const stoneLight = [[2,2],[3,4],[7,2],[10,3],[13,5],[5,7],[9,6],[1,9],[6,11],[11,8],[3,13],[8,13]];
+  const stoneDark  = [[5,3],[1,5],[8,4],[11,6],[4,8],[7,10],[2,11],[10,9],[13,12],[6,14],[9,12],[12,2]];
+  for (const [sx, sy] of stoneLight) setPixel(png, ox3 + sx, sy, C.wallLight);
+  for (const [sx, sy] of stoneDark)  setPixel(png, ox3 + sx, sy, C.wallDark);
 
   // --- Tile 4: Door Closed (wooden planks with iron bands) ---
   const ox4 = 64;
