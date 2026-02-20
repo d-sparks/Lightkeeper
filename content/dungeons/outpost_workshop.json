@@ -1,6 +1,6 @@
 {
   "id": "outpost_workshop",
-  "name": "Outpost Balor - Workshop",
+  "name": "Outpost Balor - Apprentice Shop",
   "depth": 0,
   "tileset": "crypt",
   "tileSize": 32,
@@ -37,7 +37,7 @@
   ],
   "itemSpawns": [],
   "exits": [
-    { "x": 0, "y": 4, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 15, "spawnY": 4 },
+    { "x": 0, "y": 4, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 37, "spawnY": 11 },
     { "x": 20, "y": 7, "leadsTo": "quarantine_wing_01", "type": "stairs_down", "spawnX": 8, "spawnY": 2 }
   ],
   "triggers": [
