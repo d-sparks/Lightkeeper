@@ -4368,7 +4368,7 @@
       "leadsTo": "quarantine_wing_02",
       "type": "stairs_up",
       "spawnX": 72,
-      "spawnY": 22
+      "spawnY": 23
     }
   ],
   "triggers": [
