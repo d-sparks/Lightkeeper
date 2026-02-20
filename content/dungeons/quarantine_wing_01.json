@@ -4033,7 +4033,7 @@
   "monsterSpawns": [
     {
       "type": "luddite_brawler",
-      "x": 12,
+      "x": 20,
       "y": 6,
       "count": 2,
       "patrol": "wander"
@@ -4086,12 +4086,12 @@
     {
       "type": "supply_crate_item",
       "x": 20,
-      "y": 4
+      "y": 3
     },
     {
       "type": "bandage",
-      "x": 7,
-      "y": 6
+      "x": 22,
+      "y": 2
     },
     {
       "type": "health_potion",
