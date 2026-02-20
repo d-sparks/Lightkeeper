@@ -4,51 +4,72 @@ const path = require('path');
 
 const APP_DIR = path.join(__dirname, '..');
 let gitReady = false;
+let useLocalGit = false; // True when using existing repo + SSH instead of GITHUB_TOKEN
 
-function git(args) {
+function git(args, opts) {
   return execFileSync('git', args, {
     cwd: APP_DIR,
     encoding: 'utf8',
     timeout: 30000,
+    ...opts,
   }).trim();
 }
 
 /**
  * Idempotent git initialization.
- * Sets up a repo with the GitHub remote so we can push content branches.
+ *
+ * Two modes:
+ * 1. GITHUB_TOKEN + GITHUB_REPO set: Uses HTTPS with token auth (deployed environments).
+ * 2. Neither set: Falls back to the existing repo's origin remote, using the user's
+ *    SSH agent / git credential helper (local development).
  */
 function initGit() {
   if (gitReady) return;
 
   const token = process.env.GITHUB_TOKEN;
   const repo = process.env.GITHUB_REPO; // "owner/repo"
-  if (!token || !repo) {
-    throw new Error('GITHUB_TOKEN and GITHUB_REPO must be set');
+
+  if (token && repo) {
+    // Deployed mode: HTTPS with token
+    const remoteUrl = `https://x-access-token:${token}@github.com/${repo}.git`;
+
+    try {
+      git(['rev-parse', '--git-dir']);
+    } catch {
+      git(['init']);
+    }
+
+    git(['config', 'user.email', 'editor@lightkeeper.game']);
+    git(['config', 'user.name', 'Lightkeeper Editor']);
+
+    try {
+      git(['remote', 'set-url', 'origin', remoteUrl]);
+    } catch {
+      git(['remote', 'add', 'origin', remoteUrl]);
+    }
+
+    const baseBranch = process.env.GITHUB_BASE_BRANCH || 'main';
+    git(['fetch', 'origin', baseBranch, '--depth=1']);
+    git(['reset', `origin/${baseBranch}`]);
+  } else {
+    // Local mode: use existing repo and user's SSH/credential config
+    try {
+      git(['rev-parse', '--git-dir']);
+    } catch {
+      throw new Error('Not a git repository and GITHUB_TOKEN/GITHUB_REPO not set');
+    }
+
+    // Verify an origin remote exists
+    try {
+      git(['remote', 'get-url', 'origin']);
+    } catch {
+      throw new Error('No "origin" remote configured and GITHUB_TOKEN/GITHUB_REPO not set');
+    }
+
+    useLocalGit = true;
+    const baseBranch = process.env.GITHUB_BASE_BRANCH || 'main';
+    git(['fetch', 'origin', baseBranch]);
   }
-
-  const remoteUrl = `https://x-access-token:${token}@github.com/${repo}.git`;
-
-  try {
-    git(['rev-parse', '--git-dir']);
-  } catch {
-    git(['init']);
-  }
-
-  git(['config', 'user.email', 'editor@lightkeeper.game']);
-  git(['config', 'user.name', 'Lightkeeper Editor']);
-
-  // Set or update remote
-  try {
-    git(['remote', 'set-url', 'origin', remoteUrl]);
-  } catch {
-    git(['remote', 'add', 'origin', remoteUrl]);
-  }
-
-  const baseBranch = process.env.GITHUB_BASE_BRANCH || 'main';
-  git(['fetch', 'origin', baseBranch, '--depth=1']);
-
-  // Point HEAD at origin/main without touching working tree
-  git(['reset', `origin/${baseBranch}`]);
 
   gitReady = true;
 }
@@ -63,7 +84,7 @@ async function publishChanges(message) {
   initGit();
 
   // Re-fetch in case main has advanced since init
-  git(['fetch', 'origin', baseBranch, '--depth=1']);
+  git(['fetch', 'origin', baseBranch, ...(useLocalGit ? [] : ['--depth=1'])]);
 
   // Create a new branch from origin/main without touching working tree
   const ts = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
@@ -97,6 +118,23 @@ async function publishChanges(message) {
 }
 
 function createPR(branch, baseBranch, title) {
+  // In local mode, try gh CLI for PR creation; fall back to just returning the branch
+  if (useLocalGit) {
+    try {
+      const prUrl = execFileSync('gh', [
+        'pr', 'create',
+        '--title', title,
+        '--body', `Content update pushed from the Lightkeeper level editor.\n\nBranch: \`${branch}\``,
+        '--base', baseBranch,
+        '--head', branch,
+      ], { cwd: APP_DIR, encoding: 'utf8', timeout: 30000 }).trim();
+      return Promise.resolve(prUrl);
+    } catch {
+      // gh CLI not available or failed — return null (branch was still pushed)
+      return Promise.resolve(null);
+    }
+  }
+
   const repo = process.env.GITHUB_REPO;
   const token = process.env.GITHUB_TOKEN;
   const [owner, repoName] = repo.split('/');
@@ -197,7 +235,14 @@ function getActiveBranch() {
 }
 
 function isConfigured() {
-  return !!(process.env.GITHUB_TOKEN && process.env.GITHUB_REPO);
+  if (process.env.GITHUB_TOKEN && process.env.GITHUB_REPO) return true;
+  // Check if we're in a git repo with an origin remote (local/SSH mode)
+  try {
+    git(['remote', 'get-url', 'origin']);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 module.exports = { publishChanges, isConfigured, listBranches, loadBranchContent, refreshBranchContent, getActiveBranch };

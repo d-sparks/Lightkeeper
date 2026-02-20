@@ -101,6 +101,11 @@ If a behavior can be expressed as a trigger/condition/action in JSON, prefer tha
 |----------|---------|---------|
 | `PORT` | Server port | 3000 (local), 8080 (Docker) |
 | `EDITOR_PASSWORD` | Password for `/editor` access | (none — open access) |
+| `GITHUB_TOKEN` | GitHub token for editor git (deployed) | (none — uses local SSH) |
+| `GITHUB_REPO` | GitHub `owner/repo` for editor git | (none — uses local origin remote) |
+| `GITHUB_BASE_BRANCH` | Base branch for editor PRs | `main` |
+
+Editor git has two modes: when `GITHUB_TOKEN`+`GITHUB_REPO` are set, it uses HTTPS token auth (for deployed environments). When neither is set, it falls back to the repo's existing origin remote using SSH/credential helper (local development). PR creation uses `gh` CLI in local mode.
 
 ## Testing
 
