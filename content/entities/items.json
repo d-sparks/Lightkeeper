@@ -39,12 +39,6 @@
     "type": "key",
     "rarity": "uncommon"
   },
-  "supply_crate_item": {
-    "name": "Locked Supply Crate",
-    "description": "A reinforced supply crate. Requires a key to open.",
-    "type": "misc",
-    "rarity": "uncommon"
-  },
   "titanium_cylinders": {
     "name": "Titanium Cylinders",
     "description": "Precision-machined power cylinders for a Sol Unit.",

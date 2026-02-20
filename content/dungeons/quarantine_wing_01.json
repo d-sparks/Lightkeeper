@@ -268,7 +268,7 @@
     3,
     3,
     1,
-    1,
+    4,
     1,
     1,
     1,
@@ -4084,11 +4084,6 @@
   "npcSpawns": [],
   "itemSpawns": [
     {
-      "type": "supply_crate_item",
-      "x": 20,
-      "y": 3
-    },
-    {
       "type": "bandage",
       "x": 22,
       "y": 2
@@ -4134,10 +4129,11 @@
   ],
   "triggers": [
     {
-      "id": "open_supply_crate",
-      "event": "item_picked_up",
+      "id": "supply_crate_interaction",
+      "event": "door_interacted",
       "filter": {
-        "itemType": "supply_crate_item"
+        "tileX": 21,
+        "tileY": 3
       },
       "conditions": [
         {
@@ -4152,26 +4148,36 @@
         {
           "type": "spawnItem",
           "itemType": "titanium_cylinders",
-          "x": 20,
-          "y": 4
+          "x": 21,
+          "y": 3
         },
         {
           "type": "showMessage",
           "text": "You unlock the supply crate with the key. Inside: titanium power cylinders."
+        },
+        {
+          "type": "setFlag",
+          "flag": "supply_crate_opened"
         }
       ],
       "once": true
     },
     {
       "id": "supply_crate_locked",
-      "event": "item_picked_up",
+      "event": "door_interacted",
       "filter": {
-        "itemType": "supply_crate_item"
+        "tileX": 21,
+        "tileY": 3
       },
       "conditions": [
         {
           "not": {
             "hasItem": "supply_crate_key"
+          }
+        },
+        {
+          "not": {
+            "hasFlag": "supply_crate_opened"
           }
         }
       ],
