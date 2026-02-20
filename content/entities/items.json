@@ -21,6 +21,14 @@
     "slot": "weapon",
     "stats": { "attackDamage": 5 }
   },
+  "blaster": {
+    "name": "Standard Blaster",
+    "description": "Basic energy weapon. Low power but reliable.",
+    "type": "weapon",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": { "attackDamage": 3, "projectile": true }
+  },
   "torch": {
     "name": "Torch",
     "description": "Casts a warm glow",

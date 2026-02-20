@@ -265,6 +265,10 @@ class GameLoop {
     const spawn = spawnPoints[room.nextSpawnIndex % Math.max(1, spawnPoints.length)] || { x: 2, y: 2 };
     room.nextSpawnIndex++;
 
+    // Load blaster item definition
+    const blasterDef = this.content.items['blaster'];
+    const blasterItem = blasterDef ? { ...blasterDef, id: 'blaster' } : null;
+
     const player = {
       id: playerId,
       name: name || `Player ${room.players.size + 1}`,
@@ -278,7 +282,7 @@ class GameLoop {
       attackTimer: 0,
       transitionCooldown: 0,
       inventory: [],
-      equipment: { weapon: null, armor: null, accessory: null },
+      equipment: { weapon: blasterItem, armor: null, accessory: null },
     };
 
     room.players.set(playerId, player);

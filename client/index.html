@@ -386,6 +386,30 @@
       border-color: rgba(255,167,38,0.6);
     }
 
+    #attack-btn {
+      position: absolute;
+      right: 30px;
+      bottom: 125px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(239,83,80,0.1);
+      border: 2px solid rgba(239,83,80,0.25);
+      color: #ef5350;
+      font-family: 'Courier New', monospace;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    #attack-btn:active {
+      background: rgba(239,83,80,0.3);
+      border-color: rgba(239,83,80,0.6);
+    }
+
     .info-text {
       font-size: 10px;
       color: #444;
@@ -458,7 +482,8 @@
       /* Each control is independently tappable */
       #joystick-zone,
       #interact-btn,
-      #inventory-btn {
+      #inventory-btn,
+      #attack-btn {
         pointer-events: auto;
       }
     }
@@ -483,7 +508,7 @@
     </div>
   </div>
 
-  <div class="info-text desktop-only">WASD / Arrows = Move &nbsp;|&nbsp; E = Interact &nbsp;|&nbsp; I = Inventory</div>
+  <div class="info-text desktop-only">WASD / Arrows = Move &nbsp;|&nbsp; Space = Attack &nbsp;|&nbsp; E = Interact &nbsp;|&nbsp; I = Inventory</div>
 
   <div id="controls">
     <div id="joystick-zone">
@@ -492,6 +517,7 @@
     </div>
     <div id="inventory-btn" role="button">Bag</div>
     <div id="interact-btn" role="button">Interact</div>
+    <div id="attack-btn" role="button">⚡</div>
   </div>
 
   <div id="inventory-panel">
