@@ -40,17 +40,44 @@
   let dialogueActive = false;
   let dialogueLines = [];    // Array of { speaker, text }
   let dialogueIndex = 0;
+  let dialogueMode = null;   // 'bubble' or 'system'
 
-  function showDialogue(lines) {
+  function showDialogue(lines, npcId) {
+    closeDialogue();
+
+    // If we have an npcId and can find the NPC, use speech bubble
+    let usesBubble = false;
+    if (npcId && renderer.state && renderer.state.npcs) {
+      const npc = renderer.state.npcs.find(n => n.id === npcId);
+      if (npc) {
+        usesBubble = true;
+      }
+    }
+
     dialogueLines = lines;
     dialogueIndex = 0;
     dialogueActive = true;
     input.dialogueActive = true;
-    updateDialogueDisplay();
-    dialogueOverlay.style.display = 'block';
+
+    if (usesBubble) {
+      dialogueMode = 'bubble';
+      renderer.showSpeechBubble(npcId, lines);
+    } else {
+      dialogueMode = 'system';
+      updateDialogueDisplay();
+      dialogueOverlay.style.display = 'block';
+    }
   }
 
   function advanceDialogue() {
+    if (dialogueMode === 'bubble') {
+      const still = renderer.advanceSpeechBubble();
+      if (!still) {
+        closeDialogue();
+      }
+      return;
+    }
+    // System overlay mode
     dialogueIndex++;
     if (dialogueIndex >= dialogueLines.length) {
       closeDialogue();
@@ -60,10 +87,14 @@
   }
 
   function closeDialogue() {
+    if (dialogueMode === 'bubble') {
+      renderer.closeSpeechBubble();
+    }
     dialogueActive = false;
     input.dialogueActive = false;
     dialogueLines = [];
     dialogueIndex = 0;
+    dialogueMode = null;
     dialogueOverlay.style.display = 'none';
   }
 
@@ -310,7 +341,7 @@
 
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {
     if (msg.dialogue && msg.dialogue.length > 0) {
-      showDialogue(msg.dialogue);
+      showDialogue(msg.dialogue, msg.npcId);
     }
   });
 

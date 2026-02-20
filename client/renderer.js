@@ -72,6 +72,10 @@ class Renderer {
     // Door prompt graphics
     this.doorPromptContainer = null;
 
+    // Speech bubble state
+    this.speechBubble = null;       // { npcId, lines, index, container }
+    this.speechBubbleContainer = null;
+
     // Click target indicator
     this.clickTargetGfx = null;
     this.clickTarget = null;  // { x, y } world coords, set by input handler
@@ -131,6 +135,10 @@ class Renderer {
 
     this.dmgContainer = new PIXI.Container();
     this.overlayContainer.addChild(this.dmgContainer);
+
+    this.speechBubbleContainer = new PIXI.Container();
+    this.speechBubbleContainer.visible = false;
+    this.overlayContainer.addChild(this.speechBubbleContainer);
 
     this.ready = true;
   }
@@ -274,6 +282,7 @@ class Renderer {
     this.renderDoorPrompts();
     this.renderDamageNumbers();
     this.renderMinimap();
+    this.renderSpeechBubble();
 
     // Y-sort the entity container
     this.entityContainer.sortChildren();
@@ -944,5 +953,164 @@ class Renderer {
       this.viewportTX * scale,
       this.viewportTY * scale
     );
+  }
+
+  // --- Speech bubbles ---
+
+  showSpeechBubble(npcId, lines) {
+    this.closeSpeechBubble();
+    this.speechBubble = { npcId, lines, index: 0 };
+    this._buildSpeechBubble();
+  }
+
+  advanceSpeechBubble() {
+    if (!this.speechBubble) return false;
+    this.speechBubble.index++;
+    if (this.speechBubble.index >= this.speechBubble.lines.length) {
+      this.closeSpeechBubble();
+      return false;
+    }
+    this._buildSpeechBubble();
+    return true;
+  }
+
+  closeSpeechBubble() {
+    if (!this.speechBubble) return;
+    this.speechBubble = null;
+    if (this.speechBubbleContainer) {
+      this.speechBubbleContainer.removeChildren();
+      this.speechBubbleContainer.visible = false;
+    }
+  }
+
+  _buildSpeechBubble() {
+    if (!this.speechBubble || !this.speechBubbleContainer) return;
+    this.speechBubbleContainer.removeChildren();
+
+    const line = this.speechBubble.lines[this.speechBubble.index];
+    if (!line) return;
+
+    const maxW = 220;
+    const pad = 10;
+    const isMobile = ('ontouchstart' in window);
+
+    // Speaker name
+    const speakerText = new PIXI.Text(line.speaker || '', {
+      fontFamily: 'Courier New',
+      fontSize: 11,
+      fill: '#64b5f6',
+      fontWeight: 'bold',
+    });
+
+    // Message text with word wrap
+    const msgText = new PIXI.Text(line.text || '', {
+      fontFamily: 'Courier New',
+      fontSize: 12,
+      fill: '#dddddd',
+      wordWrap: true,
+      wordWrapWidth: maxW - pad * 2,
+      lineHeight: 16,
+    });
+
+    // Prompt hint
+    const hintLabel = isMobile ? 'Tap to continue' : '[E] Continue';
+    const hintText = new PIXI.Text(hintLabel, {
+      fontFamily: 'Courier New',
+      fontSize: 9,
+      fill: '#777777',
+    });
+
+    // Layout
+    const speakerH = line.speaker ? speakerText.height + 4 : 0;
+    const contentH = speakerH + msgText.height + 6 + hintText.height;
+    const bubbleW = Math.min(maxW, Math.max(speakerText.width, msgText.width, hintText.width) + pad * 2);
+    const bubbleH = contentH + pad * 2;
+
+    // Background
+    const bg = new PIXI.Graphics();
+    bg.beginFill(0x0a0a1a, 0.92);
+    bg.lineStyle(2, 0x64b5f6, 0.8);
+    bg.drawRoundedRect(0, 0, bubbleW, bubbleH, 6);
+    bg.endFill();
+
+    // Tail triangle
+    bg.beginFill(0x0a0a1a, 0.92);
+    bg.lineStyle(0);
+    const tailX = bubbleW / 2;
+    bg.moveTo(tailX - 6, bubbleH);
+    bg.lineTo(tailX, bubbleH + 8);
+    bg.lineTo(tailX + 6, bubbleH);
+    bg.closePath();
+    bg.endFill();
+    // Tail border lines
+    bg.lineStyle(2, 0x64b5f6, 0.8);
+    bg.moveTo(tailX - 6, bubbleH);
+    bg.lineTo(tailX, bubbleH + 8);
+    bg.lineTo(tailX + 6, bubbleH);
+
+    this.speechBubbleContainer.addChild(bg);
+
+    let yOff = pad;
+    if (line.speaker) {
+      speakerText.x = pad;
+      speakerText.y = yOff;
+      this.speechBubbleContainer.addChild(speakerText);
+      yOff += speakerText.height + 4;
+    }
+
+    msgText.x = pad;
+    msgText.y = yOff;
+    this.speechBubbleContainer.addChild(msgText);
+    yOff += msgText.height + 6;
+
+    hintText.x = bubbleW - pad - hintText.width;
+    hintText.y = yOff;
+    this.speechBubbleContainer.addChild(hintText);
+
+    this.speechBubbleContainer.visible = true;
+
+    // Store dimensions for positioning
+    this.speechBubble._bubbleW = bubbleW;
+    this.speechBubble._bubbleH = bubbleH + 8; // include tail
+  }
+
+  renderSpeechBubble() {
+    if (!this.speechBubble || !this.speechBubbleContainer || !this.speechBubbleContainer.visible) return;
+
+    const npcId = this.speechBubble.npcId;
+
+    // Find the NPC in current state
+    let npc = null;
+    if (this.state && this.state.npcs) {
+      npc = this.state.npcs.find(n => n.id === npcId);
+    }
+
+    // NPC gone — close bubble
+    if (!npc) {
+      this.closeSpeechBubble();
+      return;
+    }
+
+    const bubbleW = this.speechBubble._bubbleW || 200;
+    const bubbleH = this.speechBubble._bubbleH || 60;
+
+    // Convert NPC world position to screen coords
+    const npcScreenX = npc.x - this.camX;
+    const npcScreenY = npc.y - this.camY;
+
+    // Place above NPC
+    let bx = npcScreenX - bubbleW / 2;
+    let by = npcScreenY - CONSTANTS.PLAYER_RADIUS - 10 - bubbleH;
+
+    // If off top, place below instead
+    if (by < 4) {
+      by = npcScreenY + CONSTANTS.PLAYER_RADIUS + 10;
+    }
+
+    // Clamp X to viewport
+    bx = Math.max(4, Math.min(bx, this.viewW - bubbleW - 4));
+
+    this.speechBubbleContainer.x = Math.round(bx);
+    this.speechBubbleContainer.y = Math.round(by);
   }
 }

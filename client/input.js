@@ -242,7 +242,12 @@ class InputHandler {
     canvas.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return; // Left click only
       if (!this.active) return;
-      if (this.dialogueActive || this.inventoryOpen) return;
+      if (this.dialogueActive) {
+        e.preventDefault();
+        if (this.onInteract) this.onInteract();
+        return;
+      }
+      if (this.inventoryOpen) return;
 
       e.preventDefault();
       const world = this.renderer.screenToWorld(e.clientX, e.clientY);

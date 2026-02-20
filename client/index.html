@@ -132,39 +132,44 @@
       color: #555;
     }
 
-    /* Dialogue overlay */
+    /* System message overlay (centered upper-third) */
     #dialogue-overlay {
       display: none;
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      top: 15%;
+      left: 50%;
+      transform: translateX(-50%);
       background: rgba(10, 10, 26, 0.92);
-      border-top: 2px solid #64b5f6;
-      padding: 14px 18px 12px;
+      border: 1px solid rgba(100, 181, 246, 0.4);
+      border-radius: 8px;
+      padding: 16px 24px 14px;
       pointer-events: auto;
       z-index: 100;
+      max-width: 340px;
+      min-width: 200px;
+      text-align: center;
+      animation: dialogue-fade-in 0.2s ease-out;
+    }
+
+    @keyframes dialogue-fade-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 
     #dialogue-overlay .dialogue-speaker {
-      font-size: 12px;
-      color: #64b5f6;
-      margin-bottom: 4px;
-      letter-spacing: 1px;
+      display: none;
     }
 
     #dialogue-overlay .dialogue-text {
       font-size: 14px;
       color: #ddd;
       line-height: 1.4;
-      min-height: 38px;
     }
 
     #dialogue-overlay .dialogue-prompt {
       font-size: 10px;
       color: #777;
-      margin-top: 8px;
-      text-align: right;
+      margin-top: 10px;
     }
 
     /* Inventory panel */
