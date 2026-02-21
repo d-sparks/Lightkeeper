@@ -457,6 +457,7 @@ function Editor({ dungeonId, onBack }) {
   const [showNPCEditor, setShowNPCEditor] = useState(false);
   const [showItemEditor, setShowItemEditor] = useState(false);
   const [selectedSpawn, setSelectedSpawn] = useState(null); // { kind, index } for move tool
+  const [showIso, setShowIso] = useState(false);
 
   // Undo/redo
   const undoStackRef = useRef([]);
@@ -598,6 +599,7 @@ function Editor({ dungeonId, onBack }) {
       <div class="topbar-spacer" />
       <button class="topbar-btn" onClick=${undo} disabled=${undoStackRef.current.length === 0} title="Undo (Ctrl+Z)">Undo</button>
       <button class="topbar-btn" onClick=${redo} disabled=${redoStackRef.current.length === 0} title="Redo (Ctrl+Y)">Redo</button>
+      <button class="topbar-btn" onClick=${() => setShowIso(v => !v)}>${showIso ? 'Iso \u2713' : 'Iso'}</button>
       <button class="topbar-btn" onClick=${() => setShowProps(true)}>Props</button>
       <button class="topbar-btn primary" onClick=${save}>${dirty ? 'Save*' : 'Save'}</button>
       <button class="topbar-btn danger" onClick=${saveAndReload}>Reload</button>
@@ -612,6 +614,7 @@ function Editor({ dungeonId, onBack }) {
         selectedSpawn=${selectedSpawn} onSelectSpawn=${setSelectedSpawn}
         monsters=${monsters} npcs=${npcs} items=${items}
       />
+      ${showIso && html`<${IsoPreview} dungeon=${dungeon} tiles=${tiles} />`}
       <div class="side-panel">${panelContent}</div>
     </div>
     <div class="bottom-sheet" id="bottom-sheet">
@@ -1301,6 +1304,160 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
         onWheel=${onWheel}
         style="touch-action:none"
       />
+    </div>
+  `;
+}
+
+// ─── Isometric Preview ──────────────────────────────────────
+function IsoPreview({ dungeon, tiles }) {
+  const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
+  const imgsRef = useRef(null);
+
+  // Iso constants
+  const DW = 192, DH = 96;
+  const SCALE = 0.5;
+
+  const isoAssets = {
+    floor:  { file: '/content/sprites_isometric/LunarLandscape_Exports_001-32-GroundTile-1.png', fw: 409, fh: 225 },
+    floor2: { file: '/content/sprites_isometric/LunarLandscape_Exports_001-4-GroundTile-7.png', fw: 409, fh: 225 },
+    wall:   { file: '/content/sprites_isometric/LunarLandscape_Exports_001-6-Rock-9.png', fw: 81, fh: 121 },
+    door:   { file: '/content/sprites_isometric/LunarLandscape_Exports_001-0-BuildingBlock-2.png', fw: 297, fh: 277 },
+  };
+
+  const tileToIsoKey = {
+    'stone_floor':   'floor',
+    'cracked_floor': 'floor2',
+    'door_open':     'floor',
+    'stairs_down':   'floor',
+    'stairs_up':     'floor',
+    'stone_wall':    'wall',
+    'void':          'wall',
+    'door_closed':   'door',
+    'locked_door':   'door',
+    'water':         'floor',
+  };
+
+  // Load images once
+  useEffect(() => {
+    const imgs = {};
+    let loaded = 0;
+    const total = Object.keys(isoAssets).length;
+    for (const [key, asset] of Object.entries(isoAssets)) {
+      const img = new Image();
+      img.src = asset.file;
+      img.onload = () => { loaded++; if (loaded === total) { imgsRef.current = imgs; draw(); } };
+      imgs[key] = { img, fw: asset.fw, fh: asset.fh };
+    }
+  }, []);
+
+  const tileToIso = (tx, ty) => ({
+    x: (tx - ty) * DW / 2,
+    y: (tx + ty) * DH / 2,
+  });
+
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current;
+    const imgs = imgsRef.current;
+    if (!canvas || !dungeon || !imgs) return;
+    const ctx = canvas.getContext('2d');
+    const cw = canvas.width, ch = canvas.height;
+    ctx.clearRect(0, 0, cw, ch);
+
+    const W = dungeon.width, H = dungeon.height;
+
+    // Compute bounding box of all iso positions
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (let ty = 0; ty < H; ty++) {
+      for (let tx = 0; tx < W; tx++) {
+        const p = tileToIso(tx, ty);
+        // Account for sprite size (use floor tile as reference)
+        const sw = isoAssets.floor.fw * SCALE;
+        const sh = isoAssets.floor.fh * SCALE;
+        const dx = p.x - sw / 2;
+        const dy = p.y - sh / 2;
+        if (dx < minX) minX = dx;
+        if (dy < minY) minY = dy;
+        if (dx + sw > maxX) maxX = dx + sw;
+        if (dy + sh > maxY) maxY = dy + sh;
+      }
+    }
+
+    // Auto-scale to fit
+    const mapW = maxX - minX;
+    const mapH = maxY - minY;
+    const fitScale = Math.min(cw / mapW, ch / mapH) * 0.9;
+    const offX = (cw - mapW * fitScale) / 2 - minX * fitScale;
+    const offY = (ch - mapH * fitScale) / 2 - minY * fitScale;
+
+    ctx.save();
+    ctx.translate(offX, offY);
+    ctx.scale(fitScale, fitScale);
+
+    // Diagonal-order iteration (back to front)
+    for (let sum = 0; sum < W + H - 1; sum++) {
+      for (let tx = Math.max(0, sum - H + 1); tx <= Math.min(sum, W - 1); tx++) {
+        const ty = sum - tx;
+        const tileId = dungeon.data[ty * W + tx];
+        const tileDef = tiles[tileId];
+        const tileName = tileDef ? tileDef.name : 'void';
+        const isoKey = tileToIsoKey[tileName] || 'wall';
+        const asset = imgs[isoKey];
+        if (!asset) continue;
+
+        const p = tileToIso(tx, ty);
+        const sw = asset.fw * SCALE;
+        const sh = asset.fh * SCALE;
+        const dx = p.x - sw / 2;
+        const dy = p.y - sh / 2;
+
+        // Extract frame 0 from spritesheet
+        ctx.drawImage(asset.img, 0, 0, asset.fw, asset.fh, dx, dy, sw, sh);
+      }
+    }
+
+    // Draw spawn markers
+    const drawIsoMarker = (tx, ty, color) => {
+      const p = tileToIso(tx, ty);
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.8;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y + DH * 0.15, DW * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    };
+
+    for (const s of dungeon.spawns) drawIsoMarker(s.x, s.y, SPAWN_COLORS.player_start);
+    for (const s of dungeon.monsterSpawns) drawIsoMarker(s.x, s.y, SPAWN_COLORS.monster);
+    for (const s of dungeon.npcSpawns) drawIsoMarker(s.x, s.y, SPAWN_COLORS.npc);
+    if (dungeon.itemSpawns) {
+      for (const s of dungeon.itemSpawns) drawIsoMarker(s.x, s.y, SPAWN_COLORS.item);
+    }
+    for (const s of dungeon.exits) drawIsoMarker(s.x, s.y, SPAWN_COLORS.exit);
+
+    ctx.restore();
+  }, [dungeon, tiles]);
+
+  // Resize canvas
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const canvas = canvasRef.current;
+    if (!wrap || !canvas) return;
+    const ro = new ResizeObserver(() => {
+      canvas.width = wrap.clientWidth;
+      canvas.height = wrap.clientHeight;
+      draw();
+    });
+    ro.observe(wrap);
+    return () => ro.disconnect();
+  }, [draw]);
+
+  useEffect(() => { draw(); }, [draw, dungeon]);
+
+  return html`
+    <div class="iso-preview-wrap" ref=${wrapRef}>
+      <div class="iso-preview-label">Isometric Preview</div>
+      <canvas ref=${canvasRef} />
     </div>
   `;
 }

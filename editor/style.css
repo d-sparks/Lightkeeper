@@ -97,6 +97,20 @@ html, body {
   left: 0;
 }
 
+.iso-preview-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #1a1a2e;
+  border-left: 1px solid var(--border);
+}
+.iso-preview-wrap canvas { display: block; position: absolute; top: 0; left: 0; }
+.iso-preview-label {
+  position: absolute; top: 8px; left: 8px;
+  color: var(--text-dim); font-size: 11px;
+  pointer-events: none; z-index: 1;
+}
+
 /* --- Side panel (desktop) --- */
 .side-panel {
   width: 260px;
