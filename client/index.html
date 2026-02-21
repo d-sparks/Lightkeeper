@@ -340,74 +340,176 @@
       transition: background 0.1s;
     }
 
-    #interact-btn {
-      position: absolute;
-      right: 30px;
-      bottom: 45px;
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: rgba(100,181,246,0.1);
-      border: 2px solid rgba(100,181,246,0.25);
-      color: #64b5f6;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
+    /* Desktop action bar */
+    #action-bar {
+      display: none;
+      width: 100%;
+      background: rgba(10,10,26,0.85);
+      border-top: 1px solid #333;
+      padding: 6px 0;
+      justify-content: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .action-slot {
+      width: 72px;
+      height: 56px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
     }
 
-    #interact-btn:active {
-      background: rgba(100,181,246,0.3);
-      border-color: rgba(100,181,246,0.6);
+    .action-slot.empty {
+      opacity: 0.3;
+      cursor: default;
     }
 
-    #inventory-btn {
+    .action-slot:not(.empty):hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .action-slot:not(.empty):active {
+      background: rgba(255,255,255,0.14);
+    }
+
+    .action-slot[data-slot="1"] { border-color: rgba(239,83,80,0.35); }
+    .action-slot[data-slot="4"] { border-color: rgba(100,181,246,0.35); }
+
+    .action-slot .slot-key {
       position: absolute;
-      right: 110px;
-      bottom: 55px;
-      width: 48px;
-      height: 48px;
+      top: 3px;
+      left: 5px;
+      font-size: 9px;
+      color: #666;
+    }
+
+    .action-slot .slot-label {
+      font-size: 11px;
+      color: #ccc;
+      font-family: 'Courier New', monospace;
+    }
+
+    .action-slot.empty .slot-label {
+      color: #555;
+    }
+
+    .action-slot .slot-shift {
+      position: absolute;
+      bottom: 3px;
+      right: 5px;
+      font-size: 8px;
+      color: #555;
+      display: none;
+    }
+
+    .action-slot.modifier-active .slot-shift {
+      display: block;
+      color: #b39ddb;
+    }
+
+    .action-slot.modifier-active {
+      border-color: rgba(179,157,219,0.4);
+    }
+
+    .action-slot.modifier-active.empty {
+      opacity: 1;
+      cursor: pointer;
+    }
+
+    /* Mobile action buttons */
+    #action-buttons {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .action-btn {
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
-      background: rgba(255,167,38,0.1);
-      border: 2px solid rgba(255,167,38,0.25);
-      color: #ffa726;
       font-family: 'Courier New', monospace;
       font-size: 11px;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
+      pointer-events: auto;
     }
 
-    #inventory-btn:active {
-      background: rgba(255,167,38,0.3);
-      border-color: rgba(255,167,38,0.6);
-    }
-
-    #attack-btn {
-      position: absolute;
-      right: 30px;
-      bottom: 125px;
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
+    .action-btn[data-slot="1"] {
       background: rgba(239,83,80,0.1);
       border: 2px solid rgba(239,83,80,0.25);
       color: #ef5350;
-      font-family: 'Courier New', monospace;
       font-size: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
       font-weight: bold;
     }
-
-    #attack-btn:active {
+    .action-btn[data-slot="1"]:active {
       background: rgba(239,83,80,0.3);
       border-color: rgba(239,83,80,0.6);
+    }
+
+    .action-btn[data-slot="4"] {
+      background: rgba(100,181,246,0.1);
+      border: 2px solid rgba(100,181,246,0.25);
+      color: #64b5f6;
+      font-size: 12px;
+    }
+    .action-btn[data-slot="4"]:active {
+      background: rgba(100,181,246,0.3);
+      border-color: rgba(100,181,246,0.6);
+    }
+
+    .action-btn.empty {
+      background: rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.08);
+      color: #444;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    #aim-joystick-zone {
+      position: absolute;
+      left: 20px;
+      bottom: 170px;
+      width: 100px;
+      height: 100px;
+      pointer-events: auto;
+    }
+
+    #aim-joystick-base {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(179,157,219,0.06);
+      border: 2px solid rgba(179,157,219,0.15);
+    }
+
+    #aim-joystick-thumb {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(179,157,219,0.35);
+      border: 2px solid rgba(179,157,219,0.5);
+      transition: background 0.1s;
     }
 
     .info-text {
@@ -447,10 +549,11 @@
       60%       { transform: rotate(-90deg); }
     }
 
-    /* Desktop: hide touch controls, show keyboard hint */
+    /* Desktop: hide touch controls, show action bar */
     @media (hover: hover) and (pointer: fine) {
       #controls { display: none !important; }
       .mobile-only { display: none !important; }
+      #action-bar { display: flex !important; }
     }
 
     /* Touch in portrait: show rotate warning, hide controls */
@@ -481,9 +584,8 @@
 
       /* Each control is independently tappable */
       #joystick-zone,
-      #interact-btn,
-      #inventory-btn,
-      #attack-btn {
+      #action-buttons,
+      #aim-joystick-zone {
         pointer-events: auto;
       }
     }
@@ -508,16 +610,46 @@
     </div>
   </div>
 
-  <div class="info-text desktop-only">WASD / Arrows = Move &nbsp;|&nbsp; Space = Attack &nbsp;|&nbsp; E = Interact &nbsp;|&nbsp; I = Inventory</div>
+  <!-- Desktop action bar -->
+  <div id="action-bar">
+    <div class="action-slot empty" data-slot="1">
+      <span class="slot-key">1</span>
+      <span class="slot-label">&mdash;</span>
+      <span class="slot-shift">Blaster</span>
+    </div>
+    <div class="action-slot empty" data-slot="2">
+      <span class="slot-key">2</span>
+      <span class="slot-label">—</span>
+      <span class="slot-shift"></span>
+    </div>
+    <div class="action-slot empty" data-slot="3">
+      <span class="slot-key">3</span>
+      <span class="slot-label">—</span>
+      <span class="slot-shift"></span>
+    </div>
+    <div class="action-slot" data-slot="4">
+      <span class="slot-key">4</span>
+      <span class="slot-label">Interact</span>
+      <span class="slot-shift">Inventory</span>
+    </div>
+  </div>
 
+  <!-- Mobile touch controls -->
   <div id="controls">
     <div id="joystick-zone">
       <div id="joystick-base"></div>
       <div id="joystick-thumb"></div>
     </div>
-    <div id="inventory-btn" role="button">Bag</div>
-    <div id="interact-btn" role="button">Interact</div>
-    <div id="attack-btn" role="button">⚡</div>
+    <div id="aim-joystick-zone">
+      <div id="aim-joystick-base"></div>
+      <div id="aim-joystick-thumb"></div>
+    </div>
+    <div id="action-buttons">
+      <div class="action-btn" data-slot="1" role="button">⚡</div>
+      <div class="action-btn empty" data-slot="2" role="button">—</div>
+      <div class="action-btn empty" data-slot="3" role="button">—</div>
+      <div class="action-btn" data-slot="4" role="button">Interact</div>
+    </div>
   </div>
 
   <div id="inventory-panel">

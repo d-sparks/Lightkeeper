@@ -396,7 +396,8 @@ wss.on('connection', (ws) => {
 
       case CONSTANTS.MSG.ATTACK: {
         if (!ws.playerRoom) break;
-        gameLoop.tryAttack(ws.playerRoom, playerId);
+        const aimAngle = (msg.aimAngle !== undefined) ? msg.aimAngle : null;
+        gameLoop.tryAttack(ws.playerRoom, playerId, aimAngle);
         break;
       }
     }
