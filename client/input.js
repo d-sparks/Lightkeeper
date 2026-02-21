@@ -15,6 +15,7 @@ class InputHandler {
     // Callbacks
     this.onInteract = null;
     this.onInventoryToggle = null;
+    this.onAttack = null;
 
     // Click-to-move state
     this.renderer = null;        // Set by main.js
@@ -49,6 +50,7 @@ class InputHandler {
     this.joystickThumb = null;
     this.interactBtn = null;
     this.inventoryBtn = null;
+    this.attackBtn = null;
   }
 
   start() {
@@ -82,6 +84,13 @@ class InputHandler {
       return;
     }
 
+    // Attack key (Space)
+    if (e.key === ' ' || e.key === 'Spacebar') {
+      e.preventDefault();
+      if (this.onAttack) this.onAttack();
+      return;
+    }
+
     const action = this.keyMap[e.key];
     if (action) {
       e.preventDefault();
@@ -112,6 +121,7 @@ class InputHandler {
     this.joystickThumb = document.getElementById('joystick-thumb');
     this.interactBtn = document.getElementById('interact-btn');
     this.inventoryBtn = document.getElementById('inventory-btn');
+    this.attackBtn = document.getElementById('attack-btn');
 
     if (!this.joystickZone) return;
 
@@ -175,6 +185,19 @@ class InputHandler {
       this.inventoryBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (this.onInventoryToggle) this.onInventoryToggle();
+      });
+    }
+
+    // Attack button (mobile)
+    if (this.attackBtn) {
+      this.attackBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (this.onAttack) this.onAttack();
+      }, { passive: false });
+
+      this.attackBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (this.onAttack) this.onAttack();
       });
     }
 

@@ -393,6 +393,12 @@ wss.on('connection', (ws) => {
         }
         break;
       }
+
+      case CONSTANTS.MSG.ATTACK: {
+        if (!ws.playerRoom) break;
+        gameLoop.tryAttack(ws.playerRoom, playerId);
+        break;
+      }
     }
   });
 

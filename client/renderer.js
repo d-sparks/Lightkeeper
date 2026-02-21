@@ -55,6 +55,7 @@ class Renderer {
     this.monsterSprites = new Map();
     this.npcSprites = new Map();
     this.itemSprites = new Map();
+    this.projectileSprites = new Map();
 
     // Sprite texture cache: path -> PIXI.Texture
     this.textureCache = {};
@@ -278,6 +279,7 @@ class Renderer {
     this.renderItems();
     this.renderNPCs();
     this.renderMonsters();
+    this.renderProjectiles();
     this.renderPlayers();
     this.renderDoorPrompts();
     this.renderDamageNumbers();
@@ -677,6 +679,41 @@ class Renderer {
     }
 
     this._cleanupPool(this.monsterSprites, activeIds);
+  }
+
+  // --- Projectiles ---
+
+  renderProjectiles() {
+    if (!this.state || !this.state.projectiles) return;
+
+    const activeIds = new Set();
+    const r = CONSTANTS.PROJECTILE_RADIUS || 4;
+
+    for (const proj of this.state.projectiles) {
+      activeIds.add(proj.id);
+
+      // Get or create a simple sprite container for this projectile
+      let entry = this.projectileSprites.get(proj.id);
+      if (!entry) {
+        const container = new PIXI.Container();
+        const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+        sprite.anchor.set(0.5, 0.5);
+        sprite.width = r * 2;
+        sprite.height = r * 2;
+        sprite.tint = 0x4fc3f7; // Light blue projectile color
+        container.addChild(sprite);
+        this.entityContainer.addChild(container);
+        entry = { container, sprite };
+        this.projectileSprites.set(proj.id, entry);
+      }
+
+      const { container } = entry;
+      container.x = proj.x;
+      container.y = proj.y;
+      container.zIndex = proj.y; // Y-sort with other entities
+    }
+
+    this._cleanupPool(this.projectileSprites, activeIds);
   }
 
   // --- Players ---

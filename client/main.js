@@ -263,6 +263,14 @@
     toggleInventory();
   };
 
+  // --- Attack handler ---
+  input.onAttack = function () {
+    if (dialogueActive) return;
+    if (inventoryOpen) return;
+    // Send attack request to server
+    net.send({ type: CONSTANTS.MSG.ATTACK });
+  };
+
   // --- Join flow ---
   function doJoin() {
     const name = nameInput.value.trim() || 'Adventurer';
