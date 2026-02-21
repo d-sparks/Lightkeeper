@@ -5,6 +5,9 @@ class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
 
+    // Isometric mode
+    this.isoMode = true;
+
     // Viewport tiles
     this.viewportTX = CONSTANTS.VIEWPORT_TILES_X;
     this.viewportTY = CONSTANTS.VIEWPORT_TILES_Y;
@@ -13,7 +16,7 @@ class Renderer {
     this.viewW = this.viewportTX * CONSTANTS.TILE_SIZE;
     this.viewH = this.viewportTY * CONSTANTS.TILE_SIZE;
 
-    // Camera position (top-left corner in world pixels)
+    // Camera position (top-left corner in iso screen space for iso mode, world pixels for flat)
     this.camX = 0;
     this.camY = 0;
 
@@ -49,6 +52,11 @@ class Renderer {
     // Tileset texture references
     this.tileTextures = {};       // tileId -> PIXI.Texture (region of sprite sheet)
     this.tilesetLoaded = false;
+
+    // Iso tile textures
+    this.isoTileTextures = {};    // 'floor'|'wall'|'door'|'water' -> PIXI.Texture
+    this.isoTileLoaded = false;
+    this.tileToIsoKey = {};       // tile name -> iso key
 
     // Entity sprite pools: id -> { container, sprite, nameTag, healthBar, ... }
     this.playerSprites = new Map();
@@ -168,9 +176,107 @@ class Renderer {
     this.tilesetLoaded = true;
   }
 
+  // --- Isometric coordinate transforms ---
+
+  worldToIso(wx, wy) {
+    const ts = CONSTANTS.TILE_SIZE;
+    const dw = CONSTANTS.ISO_DIAMOND_W;
+    const dh = CONSTANTS.ISO_DIAMOND_H;
+    const tx = wx / ts;
+    const ty = wy / ts;
+    return {
+      x: (tx - ty) * dw / 2,
+      y: (tx + ty) * dh / 2,
+    };
+  }
+
+  isoToWorld(sx, sy) {
+    const ts = CONSTANTS.TILE_SIZE;
+    const dw = CONSTANTS.ISO_DIAMOND_W;
+    const dh = CONSTANTS.ISO_DIAMOND_H;
+    const tx = (sx / (dw / 2) + sy / (dh / 2)) / 2;
+    const ty = (sy / (dh / 2) - sx / (dw / 2)) / 2;
+    return {
+      x: tx * ts,
+      y: ty * ts,
+    };
+  }
+
+  _positionEntity(container, wx, wy) {
+    if (this.isoMode) {
+      const iso = this.worldToIso(wx, wy);
+      container.x = iso.x;
+      container.y = iso.y;
+      container.zIndex = iso.y;
+    } else {
+      container.x = wx;
+      container.y = wy;
+      container.zIndex = wy;
+    }
+  }
+
+  _worldToScreen(wx, wy) {
+    if (this.isoMode) {
+      const iso = this.worldToIso(wx, wy);
+      return { x: iso.x - this.camX, y: iso.y - this.camY };
+    }
+    return { x: wx - this.camX, y: wy - this.camY };
+  }
+
+  // --- Iso tile textures ---
+
+  _buildIsoTileTextures() {
+    const isoAssets = {
+      floor:  { file: 'sprites_isometric/LunarLandscape_Exports_001-32-GroundTile-1.png', fw: 409, fh: 225 },
+      floor2: { file: 'sprites_isometric/LunarLandscape_Exports_001-4-GroundTile-7.png', fw: 409, fh: 225 },
+      wall:   { file: 'sprites_isometric/LunarLandscape_Exports_001-6-Rock-9.png', fw: 81, fh: 121 },
+      door:   { file: 'sprites_isometric/LunarLandscape_Exports_001-0-BuildingBlock-2.png', fw: 297, fh: 277 },
+    };
+
+    for (const [key, asset] of Object.entries(isoAssets)) {
+      const baseTex = PIXI.BaseTexture.from('/content/' + asset.file, {
+        scaleMode: PIXI.SCALE_MODES.NEAREST,
+      });
+      const rect = new PIXI.Rectangle(0, 0, asset.fw, asset.fh);
+      this.isoTileTextures[key] = new PIXI.Texture(baseTex, rect);
+    }
+
+    // Map tile names to iso keys
+    this.tileToIsoKey = {
+      'stone_floor':   'floor',
+      'cracked_floor': 'floor2',
+      'door_open':     'floor',
+      'stairs_down':   'floor',
+      'stairs_up':     'floor',
+      'stone_wall':    'wall',
+      'void':          'wall',
+      'door_closed':   'door',
+      'locked_door':   'door',
+      'water':         'floor',
+    };
+
+    this.isoTileLoaded = true;
+  }
+
   // --- Public API (same as before) ---
 
   resizeToFit(availW, availH) {
+    if (this.isoMode) {
+      // In iso mode, use available screen space directly
+      this.viewW = Math.max(640, Math.min(Math.floor(availW), 1920));
+      this.viewH = Math.max(480, Math.min(Math.floor(availH), 1080));
+
+      if (this.app) {
+        this.app.renderer.resize(this.viewW, this.viewH);
+      }
+
+      this.canvas.style.width = `${this.viewW}px`;
+      this.canvas.style.height = `${this.viewH}px`;
+
+      this._rebuildTilePool();
+      return;
+    }
+
     const isMobile = ('ontouchstart' in window);
     const targetTilePx = isMobile ? 28 : 32;
 
@@ -208,6 +314,9 @@ class Renderer {
     this.tilesetLoaded = false;
     this.tileTextures = {};
     this._buildTileTextures();
+    if (this.isoMode && !this.isoTileLoaded) {
+      this._buildIsoTileTextures();
+    }
     this._rebuildTilePool();
   }
 
@@ -245,6 +354,18 @@ class Renderer {
     // Remove old tile sprites
     this.tileContainer.removeChildren();
     this.tileSprites = [];
+
+    if (this.isoMode) {
+      // In iso mode, allocate enough sprites for entire map (maps are small, ~960 tiles max)
+      const count = this.map ? this.map.width * this.map.height : 600;
+      for (let i = 0; i < count; i++) {
+        const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+        sprite.visible = false;
+        this.tileContainer.addChild(sprite);
+        this.tileSprites.push(sprite);
+      }
+      return;
+    }
 
     // Create a grid of tile sprites covering the viewport + 1 tile margin
     const ts = CONSTANTS.TILE_SIZE;
@@ -298,6 +419,35 @@ class Renderer {
     const me = this.state.players.find(p => p.id === this.myId);
     if (!me) return;
 
+    if (this.isoMode) {
+      const iso = this.worldToIso(me.x, me.y);
+      const targetX = iso.x - this.viewW / 2;
+      const targetY = iso.y - this.viewH / 2;
+
+      // Compute iso bounding box from map corners
+      const ts = CONSTANTS.TILE_SIZE;
+      const mw = this.map.width * ts;
+      const mh = this.map.height * ts;
+      const corners = [
+        this.worldToIso(0, 0),
+        this.worldToIso(mw, 0),
+        this.worldToIso(0, mh),
+        this.worldToIso(mw, mh),
+      ];
+      const minX = Math.min(...corners.map(c => c.x));
+      const maxX = Math.max(...corners.map(c => c.x));
+      const minY = Math.min(...corners.map(c => c.y));
+      const maxY = Math.max(...corners.map(c => c.y));
+
+      // Add padding for tile sprite overhang
+      const padX = CONSTANTS.ISO_TILE_W / 2;
+      const padY = CONSTANTS.ISO_TILE_H;
+
+      this.camX = Math.max(minX - padX, Math.min(targetX, maxX + padX - this.viewW));
+      this.camY = Math.max(minY - padY, Math.min(targetY, maxY + padY - this.viewH));
+      return;
+    }
+
     const targetX = me.x - this.viewW / 2;
     const targetY = me.y - this.viewH / 2;
 
@@ -316,6 +466,14 @@ class Renderer {
     const scaleY = this.viewH / rect.height;
     const canvasX = (screenX - rect.left) * scaleX;
     const canvasY = (screenY - rect.top) * scaleY;
+
+    if (this.isoMode) {
+      // Canvas coords -> iso screen coords -> world coords
+      const isoX = canvasX + this.camX;
+      const isoY = canvasY + this.camY;
+      return this.isoToWorld(isoX, isoY);
+    }
+
     return {
       x: canvasX + this.camX,
       y: canvasY + this.camY,
@@ -331,13 +489,29 @@ class Renderer {
     const pulse = 0.3 + 0.4 * Math.sin(Date.now() / 200);
     const radius = 6 + 2 * Math.sin(Date.now() / 300);
 
+    let cx = this.clickTarget.x;
+    let cy = this.clickTarget.y;
+    if (this.isoMode) {
+      const iso = this.worldToIso(cx, cy);
+      cx = iso.x;
+      cy = iso.y;
+    }
+
     this.clickTargetGfx.lineStyle(1.5, 0xffffff, pulse);
-    this.clickTargetGfx.drawCircle(this.clickTarget.x, this.clickTarget.y, radius);
+    this.clickTargetGfx.drawCircle(cx, cy, radius);
   }
 
   // --- Tile rendering ---
 
   renderMap() {
+    if (this.isoMode) {
+      this._renderMapIso();
+    } else {
+      this._renderMapFlat();
+    }
+  }
+
+  _renderMapFlat() {
     const ts = CONSTANTS.TILE_SIZE;
     const startTX = Math.floor(this.camX / ts);
     const startTY = Math.floor(this.camY / ts);
@@ -367,14 +541,100 @@ class Renderer {
           sprite.texture = this.tileTextures[tileId];
           sprite.tint = 0xffffff;
         } else {
-          // Fallback: white texture tinted to tile color
           sprite.texture = PIXI.Texture.WHITE;
           sprite.tint = this.tileColors[tileId] !== undefined ? this.tileColors[tileId] : 0xff00ff;
         }
       }
     }
 
-    // Hide any remaining sprites in pool
+    while (idx < this.tileSprites.length) {
+      this.tileSprites[idx++].visible = false;
+    }
+  }
+
+  _renderMapIso() {
+    const ts = CONSTANTS.TILE_SIZE;
+    const dw = CONSTANTS.ISO_DIAMOND_W;
+    const dh = CONSTANTS.ISO_DIAMOND_H;
+    const tileW = CONSTANTS.ISO_TILE_W;
+    const tileH = CONSTANTS.ISO_TILE_H;
+    const wallW = CONSTANTS.ISO_WALL_W;
+    const wallH = CONSTANTS.ISO_WALL_H;
+
+    // Viewport culling bounds in iso screen space (with padding)
+    const cullL = this.camX - tileW;
+    const cullR = this.camX + this.viewW + tileW;
+    const cullT = this.camY - tileH;
+    const cullB = this.camY + this.viewH + tileH;
+
+    // Iso scale factor: scale tiles down so they fit better
+    const isoScale = 0.5;
+
+    let idx = 0;
+    const w = this.map.width;
+    const h = this.map.height;
+
+    // Iterate in diagonal order for back-to-front depth
+    for (let diag = 0; diag < w + h - 1; diag++) {
+      for (let tx = Math.max(0, diag - h + 1); tx <= Math.min(diag, w - 1); tx++) {
+        const ty = diag - tx;
+
+        // Get iso position for tile center
+        const wcx = (tx + 0.5) * ts;
+        const wcy = (ty + 0.5) * ts;
+        const iso = this.worldToIso(wcx, wcy);
+
+        // Cull outside viewport
+        if (iso.x < cullL || iso.x > cullR || iso.y < cullT || iso.y > cullB) {
+          continue;
+        }
+
+        if (idx >= this.tileSprites.length) break;
+        const sprite = this.tileSprites[idx++];
+
+        const tileId = String(this.map.data[ty * w + tx]);
+        const tileDef = this.tileset ? this.tileset.tiles[tileId] : null;
+        const tileName = tileDef ? tileDef.name : 'void';
+        const isoKey = this.tileToIsoKey[tileName] || 'wall';
+        const isWall = (isoKey === 'wall');
+        const isDoor = (isoKey === 'door');
+
+        sprite.visible = true;
+
+        if (this.isoTileLoaded && this.isoTileTextures[isoKey]) {
+          sprite.texture = this.isoTileTextures[isoKey];
+          sprite.tint = (tileName === 'water') ? 0x4488cc : 0xffffff;
+        } else {
+          sprite.texture = PIXI.Texture.WHITE;
+          sprite.tint = this.tileColors[tileId] !== undefined ? this.tileColors[tileId] : 0xff00ff;
+        }
+
+        if (isWall) {
+          sprite.anchor.set(0.5, 1.0);
+          sprite.width = wallW * isoScale;
+          sprite.height = wallH * isoScale;
+          sprite.x = iso.x;
+          sprite.y = iso.y + dh * isoScale / 2;
+        } else if (isDoor) {
+          const doorW = 297;
+          const doorH = 277;
+          sprite.anchor.set(0.5, 1.0);
+          sprite.width = doorW * isoScale;
+          sprite.height = doorH * isoScale;
+          sprite.x = iso.x;
+          sprite.y = iso.y + dh * isoScale / 2;
+        } else {
+          // Ground tile
+          sprite.anchor.set(0.5, 0.75);
+          sprite.width = tileW * isoScale;
+          sprite.height = tileH * isoScale;
+          sprite.x = iso.x;
+          sprite.y = iso.y;
+        }
+      }
+    }
+
+    // Hide remaining sprites
     while (idx < this.tileSprites.length) {
       this.tileSprites[idx++].visible = false;
     }
@@ -389,9 +649,14 @@ class Renderer {
 
     this.spawnGfx.lineStyle(1, 0x26a69a, 0.3);
     for (const spawn of this.map.spawns) {
-      const sx = (spawn.x + 0.5) * ts;
-      const sy = (spawn.y + 0.5) * ts;
-      this.spawnGfx.drawCircle(sx, sy, ts * 0.3);
+      const wx = (spawn.x + 0.5) * ts;
+      const wy = (spawn.y + 0.5) * ts;
+      if (this.isoMode) {
+        const iso = this.worldToIso(wx, wy);
+        this.spawnGfx.drawCircle(iso.x, iso.y, 8);
+      } else {
+        this.spawnGfx.drawCircle(wx, wy, ts * 0.3);
+      }
     }
   }
 
@@ -404,14 +669,21 @@ class Renderer {
     const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 500);
 
     for (const exit of this.map.exits) {
-      const ex = (exit.x + 0.5) * ts;
-      const ey = (exit.y + 0.5) * ts;
+      const wx = (exit.x + 0.5) * ts;
+      const wy = (exit.y + 0.5) * ts;
       const isUp = exit.type === 'stairs_up';
       const color = isUp ? 0x26a69a : 0xab47bc;
 
-      this.exitGfx.beginFill(color, 0.3 + 0.3 * pulse);
-      this.exitGfx.drawCircle(ex, ey, ts * 0.35);
-      this.exitGfx.endFill();
+      if (this.isoMode) {
+        const iso = this.worldToIso(wx, wy);
+        this.exitGfx.beginFill(color, 0.3 + 0.3 * pulse);
+        this.exitGfx.drawCircle(iso.x, iso.y, 10);
+        this.exitGfx.endFill();
+      } else {
+        this.exitGfx.beginFill(color, 0.3 + 0.3 * pulse);
+        this.exitGfx.drawCircle(wx, wy, ts * 0.35);
+        this.exitGfx.endFill();
+      }
     }
   }
 
@@ -525,9 +797,8 @@ class Renderer {
       const entry = this._getOrCreateEntityContainer(this.itemSprites, item.id);
       const { container, sprite, nameTag, healthBg, healthFill, promptText, extraText } = entry;
 
-      container.x = item.x;
-      container.y = item.y + bob;
-      container.zIndex = item.y;
+      this._positionEntity(container, item.x, item.y);
+      container.y += bob;
 
       // Hide health bar for items
       healthBg.clear();
@@ -594,9 +865,7 @@ class Renderer {
       const entry = this._getOrCreateEntityContainer(this.npcSprites, npc.id);
       const { container, sprite, nameTag, healthBg, healthFill, promptText } = entry;
 
-      container.x = npc.x;
-      container.y = npc.y;
-      container.zIndex = npc.y;
+      this._positionEntity(container, npc.x, npc.y);
 
       // Sprite
       const spritePath = 'sprites/npc_default.png';
@@ -648,9 +917,7 @@ class Renderer {
       const entry = this._getOrCreateEntityContainer(this.monsterSprites, mob.id);
       const { container, sprite, nameTag, healthBg, healthFill, promptText } = entry;
 
-      container.x = mob.x;
-      container.y = mob.y;
-      container.zIndex = mob.y;
+      this._positionEntity(container, mob.x, mob.y);
 
       // Sprite
       const spritePath = mob.type ? 'sprites/' + mob.type + '.png' : null;
@@ -708,9 +975,7 @@ class Renderer {
       }
 
       const { container } = entry;
-      container.x = proj.x;
-      container.y = proj.y;
-      container.zIndex = proj.y; // Y-sort with other entities
+      this._positionEntity(container, proj.x, proj.y);
     }
 
     this._cleanupPool(this.projectileSprites, activeIds);
@@ -731,9 +996,7 @@ class Renderer {
       const { container, sprite, nameTag, healthBg, healthFill, promptText } = entry;
       const isMe = player.id === this.myId;
 
-      container.x = player.x;
-      container.y = player.y;
-      container.zIndex = player.y;
+      this._positionEntity(container, player.x, player.y);
 
       // Sprite
       const spriteName = playerSpriteNames[player.colorIndex] || 'player_blue';
@@ -845,8 +1108,14 @@ class Renderer {
             align: 'center',
           });
           text.anchor.set(0.5, 1);
-          text.x = tileCX;
-          text.y = tileCY - ts * 0.4;
+          if (this.isoMode) {
+            const iso = this.worldToIso(tileCX, tileCY);
+            text.x = iso.x;
+            text.y = iso.y - 10;
+          } else {
+            text.x = tileCX;
+            text.y = tileCY - ts * 0.4;
+          }
           text.alpha = 0.5 + 0.3 * pulse;
           this.doorPromptContainer.addChild(text);
         }
@@ -897,8 +1166,9 @@ class Renderer {
 
       const alpha = 1 - (dn.age / dn.maxAge);
       const offsetY = dn.age * 40;
-      const sx = dn.x - this.camX;
-      const sy = dn.y - this.camY - offsetY;
+      const screen = this._worldToScreen(dn.x, dn.y);
+      const sx = screen.x;
+      const sy = screen.y - offsetY;
 
       const text = new PIXI.Text(dn.text, {
         fontFamily: 'Courier New',
@@ -984,12 +1254,22 @@ class Renderer {
 
     // Viewport rect
     this.minimapGfx.lineStyle(1, 0xffffff, 0.3);
-    this.minimapGfx.drawRect(
-      mmX + (this.camX / ts) * scale,
-      mmY + (this.camY / ts) * scale,
-      this.viewportTX * scale,
-      this.viewportTY * scale
-    );
+    if (this.isoMode) {
+      // In iso mode, show a dot at player position instead of viewport rect
+      const me = this.state ? this.state.players.find(p => p.id === this.myId) : null;
+      if (me) {
+        const px = mmX + (me.x / ts) * scale;
+        const py = mmY + (me.y / ts) * scale;
+        this.minimapGfx.drawCircle(px, py, 4);
+      }
+    } else {
+      this.minimapGfx.drawRect(
+        mmX + (this.camX / ts) * scale,
+        mmY + (this.camY / ts) * scale,
+        this.viewportTX * scale,
+        this.viewportTY * scale
+      );
+    }
   }
 
   // --- Speech bubbles ---
@@ -1132,8 +1412,9 @@ class Renderer {
     const bubbleH = this.speechBubble._bubbleH || 60;
 
     // Convert NPC world position to screen coords
-    const npcScreenX = npc.x - this.camX;
-    const npcScreenY = npc.y - this.camY;
+    const screen = this._worldToScreen(npc.x, npc.y);
+    const npcScreenX = screen.x;
+    const npcScreenY = screen.y;
 
     // Place above NPC
     let bx = npcScreenX - bubbleW / 2;
