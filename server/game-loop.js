@@ -18,6 +18,10 @@ class GameLoop {
     // Map<dungeonId, Set<spawnKey>>  where spawnKey = "spawnIdx:subIdx"
     this.killedMonsters = new Map();
 
+    // Track picked-up items per dungeon so they stay picked up across room destruction/recreation
+    // Map<dungeonId, Set<spawnIndex>>
+    this.pickedUpItems = new Map();
+
     // Scripting subsystem
     this.flagStore = new FlagStore();
     this.eventBus = new EventBus();
@@ -91,8 +95,10 @@ class GameLoop {
     // Create ground item instances from dungeon spawn data
     const items = new Map();
     let nextItemId = 0;
+    const pickedItems = this.pickedUpItems.get(dungeonId);
     if (dungeon.itemSpawns) {
       for (let i = 0; i < dungeon.itemSpawns.length; i++) {
+        if (pickedItems && pickedItems.has(i)) continue;  // Already picked up
         const spawn = dungeon.itemSpawns[i];
         const itemDef = this.content.getItem(spawn.type);
         if (!itemDef) continue;
@@ -104,6 +110,7 @@ class GameLoop {
           rarity: itemDef.rarity || 'common',
           x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
           y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
+          spawnIndex: i,
         });
       }
     }
@@ -116,11 +123,13 @@ class GameLoop {
       npcs,                  // npcId -> NPC
       monsters: new Map(),   // monsterId -> Monster
       items,                 // itemId -> GroundItem
+      projectiles: [],       // Projectile objects
       events: [],            // combat events for current tick
       tick: 0,
       nextSpawnIndex: 0,
       nextMonsterId: 0,
       nextItemId,
+      nextProjectileId: 0,
     };
 
     // Spawn monsters
@@ -226,6 +235,7 @@ class GameLoop {
     room.monsters.clear();
     room.nextMonsterId = 0;
     this.killedMonsters.delete(room.dungeonId);
+    this.pickedUpItems.delete(room.dungeonId);
     this.spawnMonsters(room);
 
     // Move players to spawn point (they may be standing in a wall now)
@@ -361,6 +371,9 @@ class GameLoop {
       // Player auto-attack
       this.updatePlayerAttacks(room, dt);
 
+      // Update projectiles (movement, collision, lifetime)
+      this.updateProjectiles(room, dt);
+
       // Check for floor transitions
       this.checkExits(room);
     }
@@ -489,6 +502,159 @@ class GameLoop {
     }
   }
 
+  // Spawn a projectile from player attack
+  tryAttack(roomId, playerId, aimAngle = null) {
+    const room = this.rooms.get(roomId);
+    if (!room) return false;
+    const player = room.players.get(playerId);
+    if (!player) return false;
+
+    // Check if player has a projectile weapon equipped
+    const weapon = player.equipment && player.equipment.weapon;
+    if (!weapon || !weapon.stats || !weapon.stats.projectile) return false;
+
+    // Check attack cooldown
+    if (player.attackTimer > 0) return false;
+
+    let dirX, dirY;
+    if (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle)) {
+      // Client-provided aim direction
+      dirX = Math.cos(aimAngle);
+      dirY = Math.sin(aimAngle);
+    } else {
+      // Auto-aim: find nearest monster (within reasonable distance)
+      const targetRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
+      let nearestMob = null;
+      let nearestDist = Infinity;
+      for (const [mid, mob] of room.monsters) {
+        const dx = mob.x - player.x;
+        const dy = mob.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < targetRange && dist < nearestDist) {
+          nearestMob = mob;
+          nearestDist = dist;
+        }
+      }
+
+      if (nearestMob) {
+        const dx = nearestMob.x - player.x;
+        const dy = nearestMob.y - player.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        dirX = dx / len;
+        dirY = dy / len;
+      } else {
+        // Default to facing right if no specific facing is set
+        dirX = Math.cos(player.facing || 0);
+        dirY = Math.sin(player.facing || 0);
+      }
+    }
+
+    // Spawn projectile
+    const projectileId = `proj_${room.nextProjectileId++}`;
+    const damage = this.getPlayerAttackDamage(player);
+    room.projectiles.push({
+      id: projectileId,
+      ownerId: playerId,
+      x: player.x,
+      y: player.y,
+      vx: dirX * CONSTANTS.PROJECTILE_SPEED,
+      vy: dirY * CONSTANTS.PROJECTILE_SPEED,
+      damage: damage,
+      lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+    });
+
+    // Set attack cooldown
+    player.attackTimer = CONSTANTS.PLAYER_ATTACK_COOLDOWN;
+    return true;
+  }
+
+  // Update all projectiles in a room
+  updateProjectiles(room, dt) {
+    const toRemove = [];
+
+    for (let i = 0; i < room.projectiles.length; i++) {
+      const proj = room.projectiles[i];
+
+      // Update position
+      proj.x += proj.vx * dt;
+      proj.y += proj.vy * dt;
+
+      // Update lifetime
+      proj.lifetime -= dt;
+      if (proj.lifetime <= 0) {
+        toRemove.push(i);
+        continue;
+      }
+
+      // Check wall collision
+      const radius = CONSTANTS.PROJECTILE_RADIUS;
+      if (this.physics.collidesAt(proj.x, proj.y, room.dungeon, radius)) {
+        toRemove.push(i);
+        continue;
+      }
+
+      // Check monster collision
+      let hitMonster = false;
+      for (const [mid, mob] of room.monsters) {
+        const dx = mob.x - proj.x;
+        const dy = mob.y - proj.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius;
+
+        if (dist < hitRadius) {
+          // Hit monster
+          mob.health -= proj.damage;
+          room.events.push({
+            type: 'damage',
+            targetId: mid,
+            amount: proj.damage,
+            x: mob.x,
+            y: mob.y,
+          });
+
+          // Check if monster died
+          if (mob.health <= 0) {
+            room.events.push({
+              type: 'death',
+              targetId: mid,
+              x: mob.x,
+              y: mob.y,
+            });
+            room.monsters.delete(mid);
+
+            // Record the kill
+            if (mob.spawnKey) {
+              if (!this.killedMonsters.has(room.dungeonId)) {
+                this.killedMonsters.set(room.dungeonId, new Set());
+              }
+              this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
+            }
+
+            // Emit monster_killed scripting event
+            const ctx = this._scriptContext(proj.ownerId, room.id);
+            this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
+              playerId: proj.ownerId,
+              roomId: room.id,
+              monsterType: mob.type,
+              monsterId: mid,
+            }, ctx);
+          }
+
+          hitMonster = true;
+          toRemove.push(i);
+          break;
+        }
+      }
+
+      if (hitMonster) continue;
+    }
+
+    // Remove projectiles that hit something or expired (in reverse order to preserve indices)
+    for (let i = toRemove.length - 1; i >= 0; i--) {
+      room.projectiles.splice(toRemove[i], 1);
+    }
+  }
+
   checkExits(room) {
     if (!room.dungeon.exits) return;
 
@@ -544,6 +710,14 @@ class GameLoop {
     if (closestItem) {
       // Pick up the item: remove from ground, add to inventory
       room.items.delete(closestItem.id);
+
+      // Record pickup so item stays gone when room is revisited
+      if (closestItem.spawnIndex !== undefined) {
+        if (!this.pickedUpItems.has(room.dungeonId)) {
+          this.pickedUpItems.set(room.dungeonId, new Set());
+        }
+        this.pickedUpItems.get(room.dungeonId).add(closestItem.spawnIndex);
+      }
       const closestItemDef = this.content.getItem(closestItem.type);
       player.inventory.push({
         type: closestItem.type,
@@ -857,13 +1031,24 @@ class GameLoop {
       });
     }
 
+    const projectiles = [];
+    for (const proj of room.projectiles) {
+      projectiles.push({
+        id: proj.id,
+        x: Math.round(proj.x * 10) / 10,
+        y: Math.round(proj.y * 10) / 10,
+        vx: proj.vx,
+        vy: proj.vy,
+      });
+    }
+
     const events = room.events || [];
     room.events = [];
 
     return {
       type: CONSTANTS.MSG.STATE,
       tick: room.tick,
-      players, npcs, monsters, items, events,
+      players, npcs, monsters, items, projectiles, events,
     };
   }
 }

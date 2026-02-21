@@ -15,7 +15,8 @@
   const inventoryPanel = document.getElementById('inventory-panel');
   const inventoryList = document.getElementById('inventory-list');
   const equipmentSlots = document.getElementById('equipment-slots');
-  const interactBtn = document.getElementById('interact-btn');
+  const mobileSlot4 = document.querySelector('.action-btn[data-slot="4"]');
+  const desktopSlot4 = document.querySelector('.action-slot[data-slot="4"] .slot-label');
 
   // --- Instances ---
   const net = new NetClient();
@@ -195,7 +196,7 @@
 
   // --- Dynamic interact button label ---
   function updateInteractLabel() {
-    if (!interactBtn || !renderer.state || !renderer.myId) return;
+    if (!renderer.state || !renderer.myId) return;
     const me = renderer.state.players.find(p => p.id === renderer.myId);
     if (!me) return;
 
@@ -240,27 +241,53 @@
       }
     }
 
-    interactBtn.textContent = label;
+    // Update desktop action bar slot 4
+    if (desktopSlot4) desktopSlot4.textContent = label;
+    // Update mobile action button slot 4
+    if (mobileSlot4) mobileSlot4.textContent = label;
   }
 
-  // --- Interact handler ---
-  input.onInteract = function () {
-    if (dialogueActive) {
-      advanceDialogue();
+  // --- Unified action dispatch ---
+  input.onAction = function (slot, modified) {
+    if (modified) {
+      if (slot === 1) {
+        // Aimed blaster attack
+        if (dialogueActive || inventoryOpen) return;
+        const me = renderer.state && renderer.state.players
+          ? renderer.state.players.find(p => p.id === renderer.myId)
+          : null;
+        if (!me) return;
+        const aimAngle = input.getAimAngle(me.x, me.y);
+        if (aimAngle === null) return;
+        net.send({ type: CONSTANTS.MSG.ATTACK, aimAngle });
+        return;
+      }
+      if (slot === 4) { toggleInventory(); return; }
+      // Slots 2-3 modified: future skills
       return;
     }
-    if (inventoryOpen) {
-      toggleInventory();
-      return;
+    switch (slot) {
+      case 1: // Empty (future melee) — do nothing
+        break;
+      case 4: // Interact
+        if (dialogueActive) { advanceDialogue(); return; }
+        if (inventoryOpen) { toggleInventory(); return; }
+        net.send({ type: CONSTANTS.MSG.INTERACT });
+        break;
+      // Slots 2-3: future skills
     }
-    // Send interact request to server
-    net.send({ type: CONSTANTS.MSG.INTERACT });
   };
 
-  // --- Inventory toggle handler ---
-  input.onInventoryToggle = function () {
-    if (dialogueActive) return;
-    toggleInventory();
+  // --- Modifier visual feedback ---
+  input.onModifierChanged = function (active) {
+    const slots = document.querySelectorAll('.action-slot');
+    for (const slot of slots) {
+      if (active) {
+        slot.classList.add('modifier-active');
+      } else {
+        slot.classList.remove('modifier-active');
+      }
+    }
   };
 
   // --- Join flow ---

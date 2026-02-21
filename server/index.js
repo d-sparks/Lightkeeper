@@ -393,6 +393,13 @@ wss.on('connection', (ws) => {
         }
         break;
       }
+
+      case CONSTANTS.MSG.ATTACK: {
+        if (!ws.playerRoom) break;
+        const aimAngle = (msg.aimAngle !== undefined) ? msg.aimAngle : null;
+        gameLoop.tryAttack(ws.playerRoom, playerId, aimAngle);
+        break;
+      }
     }
   });
 

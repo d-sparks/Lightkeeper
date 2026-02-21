@@ -38,9 +38,21 @@
   "itemSpawns": [],
   "exits": [
     { "x": 0, "y": 4, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 37, "spawnY": 11 },
-    { "x": 20, "y": 7, "leadsTo": "quarantine_wing_01", "type": "stairs_down", "spawnX": 8, "spawnY": 2 }
+    { "x": 20, "y": 7, "leadsTo": "quarantine_wing_01", "type": "stairs_down", "spawnX": 23, "spawnY": 2 }
   ],
   "triggers": [
+    {
+      "id": "engineer_gives_blaster",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sol_engineer_1" },
+      "conditions": [{ "not": { "hasFlag": "received_blaster" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "received_blaster" },
+        { "type": "giveItem", "itemType": "blaster" },
+        { "type": "equipItem", "itemType": "blaster" }
+      ],
+      "once": true
+    },
     {
       "id": "engineer_quest_start",
       "event": "npc_interacted",
@@ -65,6 +77,7 @@
       "actions": [
         { "type": "removeItem", "itemType": "titanium_cylinders" },
         { "type": "giveItem", "itemType": "sol_unit" },
+        { "type": "equipItem", "itemType": "sol_unit" },
         { "type": "setFlag", "flag": "received_sol_unit" }
       ],
       "once": true

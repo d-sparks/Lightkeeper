@@ -57,6 +57,11 @@ const CONSTANTS = {
   PLAYER_ATTACK_DAMAGE: 15,
   PLAYER_ATTACK_COOLDOWN: 0.5, // Seconds between player attacks
 
+  // Projectiles
+  PROJECTILE_SPEED: 300,     // Pixels per second
+  PROJECTILE_LIFETIME: 2.0,  // Seconds before despawning
+  PROJECTILE_RADIUS: 4,      // Collision radius in pixels
+
   // Network message types
   MSG: {
     // Client -> Server
@@ -66,6 +71,7 @@ const CONSTANTS = {
     EQUIP:         'equip',
     UNEQUIP:       'unequip',
     USE_ITEM:      'use_item',
+    ATTACK:        'attack',
 
     // Server -> Client
     WELCOME:       'welcome',

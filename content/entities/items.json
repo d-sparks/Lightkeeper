@@ -21,6 +21,14 @@
     "slot": "weapon",
     "stats": { "attackDamage": 5 }
   },
+  "blaster": {
+    "name": "Standard Blaster",
+    "description": "Basic energy weapon. Low power but reliable.",
+    "type": "weapon",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": { "attackDamage": 3, "projectile": true }
+  },
   "torch": {
     "name": "Torch",
     "description": "Casts a warm glow",
@@ -30,6 +38,12 @@
   "iron_key": {
     "name": "Iron Key",
     "description": "Opens something somewhere",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "supply_crate_key": {
+    "name": "Supply Crate Key",
+    "description": "Unmarked key from the warlord's post. Opens a supply crate in the outer corridor.",
     "type": "key",
     "rarity": "uncommon"
   },
