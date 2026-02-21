@@ -65,6 +65,7 @@
       "actions": [
         { "type": "removeItem", "itemType": "titanium_cylinders" },
         { "type": "giveItem", "itemType": "sol_unit" },
+        { "type": "equipItem", "itemType": "sol_unit" },
         { "type": "setFlag", "flag": "received_sol_unit" }
       ],
       "once": true

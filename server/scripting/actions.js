@@ -12,6 +12,7 @@
 //   { type: "spawnItem",    itemType: "health_potion", x: 5, y: 3 }
 //   { type: "giveItem",     itemType: "health_potion" }
 //   { type: "removeItem",   itemType: "iron_key" }
+//   { type: "equipItem",    itemType: "sol_unit" }
 //   { type: "showMessage",  text: "The door unlocks with a click." }
 //   { type: "toggleTile",   x: 5, y: 3 }
 
@@ -64,6 +65,9 @@ class ActionExecutor {
         break;
       case 'removeItem':
         this.doRemoveItem(action, context);
+        break;
+      case 'equipItem':
+        this.doEquipItem(action, context);
         break;
       case 'showMessage':
         this.doShowMessage(action, context);
@@ -204,6 +208,48 @@ class ActionExecutor {
     if (idx !== -1) {
       player.inventory.splice(idx, 1);
     }
+
+    // Notify client of inventory change
+    if (this.sendToPlayer) {
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.INVENTORY,
+        items: player.inventory,
+        equipment: player.equipment,
+      });
+    }
+  }
+
+  doEquipItem(action, context) {
+    const player = context.player;
+    if (!player) return;
+
+    // Find the item in inventory
+    const idx = player.inventory.findIndex(item => item.type === action.itemType);
+    if (idx === -1) return;
+
+    const item = player.inventory[idx];
+    const itemDef = this.content.getItem(action.itemType);
+    if (!itemDef) return;
+
+    const slot = itemDef.slot;
+    if (!CONSTANTS.EQUIPMENT_SLOTS.includes(slot)) return;
+
+    // If something is already equipped in that slot, move it back to inventory
+    const currentEquipped = player.equipment[slot];
+    player.inventory.splice(idx, 1);
+    if (currentEquipped) {
+      player.inventory.push(currentEquipped);
+    }
+
+    // Equip the new item
+    player.equipment[slot] = {
+      type: item.type,
+      name: item.name,
+      rarity: item.rarity,
+      category: item.category || itemDef.type || 'misc',
+      slot: slot,
+      stats: itemDef.stats || {},
+    };
 
     // Notify client of inventory change
     if (this.sendToPlayer) {
