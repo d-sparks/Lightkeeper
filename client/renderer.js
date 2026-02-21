@@ -1193,76 +1193,149 @@ class Renderer {
     if (!this.map) return;
 
     const ts = CONSTANTS.TILE_SIZE;
-    const scale = 3;
-    const mmW = this.map.width * scale;
-    const mmH = this.map.height * scale;
-    const mmX = this.viewW - mmW - 10;
-    const mmY = 10;
+    const W = this.map.width;
+    const H = this.map.height;
 
-    // Background
-    this.minimapGfx.beginFill(0x000000, 0.6);
-    this.minimapGfx.drawRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
-    this.minimapGfx.endFill();
-
-    // Tiles
-    for (let ty = 0; ty < this.map.height; ty++) {
-      for (let tx = 0; tx < this.map.width; tx++) {
-        const tileId = this.map.data[ty * this.map.width + tx];
-        const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
-        const solid = tileDef ? tileDef.solid : true;
-
-        this.minimapGfx.beginFill(solid ? 0x3a3a5a : 0x1a1a2e);
-        this.minimapGfx.drawRect(mmX + tx * scale, mmY + ty * scale, scale, scale);
-        this.minimapGfx.endFill();
-      }
-    }
-
-    // Items
-    if (this.state && this.state.items) {
-      this.minimapGfx.beginFill(0xfdd835);
-      for (const item of this.state.items) {
-        const dotX = mmX + (item.x / ts) * scale;
-        const dotY = mmY + (item.y / ts) * scale;
-        this.minimapGfx.drawRect(dotX - 1, dotY - 1, 2, 2);
-      }
-      this.minimapGfx.endFill();
-    }
-
-    // Players
-    if (this.state) {
-      for (const player of this.state.players) {
-        const dotX = mmX + (player.x / ts) * scale;
-        const dotY = mmY + (player.y / ts) * scale;
-        const isMe = player.id === this.myId;
-        const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
-        this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
-        this.minimapGfx.drawRect(dotX - 1, dotY - 1, 3, 3);
-        this.minimapGfx.endFill();
-      }
-    }
-
-    // Monsters
-    if (this.state && this.state.monsters) {
-      this.minimapGfx.beginFill(0xe53935);
-      for (const mob of this.state.monsters) {
-        const dotX = mmX + (mob.x / ts) * scale;
-        const dotY = mmY + (mob.y / ts) * scale;
-        this.minimapGfx.drawRect(dotX - 1, dotY - 1, 2, 2);
-      }
-      this.minimapGfx.endFill();
-    }
-
-    // Viewport rect
-    this.minimapGfx.lineStyle(1, 0xffffff, 0.3);
     if (this.isoMode) {
-      // In iso mode, show a dot at player position instead of viewport rect
+      // Iso minimap: project tile coords through iso transform
+      const projW = W - 1 + H - 1;          // horizontal range of (tx - ty)
+      const projH = (W - 1 + H - 1) / 2;    // vertical range of (tx + ty)/2
+      const pad = 4;
+      const fit = Math.min(150 / (projW || 1), 150 / (projH || 1));
+      const mmW = projW * fit;
+      const mmH = projH * fit;
+      const mmX = this.viewW - mmW - 10 - pad;
+      const mmY = 10 + pad;
+
+      // project tile coords to minimap pixel coords
+      const isoX = (tx, ty) => mmX + (tx - ty + (H - 1)) * fit;
+      const isoY = (tx, ty) => mmY + (tx + ty) * 0.5 * fit;
+      // project world-pixel coords
+      const isoPx = (wx, wy) => {
+        const ftx = wx / ts, fty = wy / ts;
+        return { x: mmX + (ftx - fty + (H - 1)) * fit, y: mmY + (ftx + fty) * 0.5 * fit };
+      };
+
+      // Background
+      this.minimapGfx.beginFill(0x000000, 0.6);
+      this.minimapGfx.drawRect(mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2);
+      this.minimapGfx.endFill();
+
+      // Tiles
+      const s = Math.max(fit * 0.9, 1);
+      for (let ty = 0; ty < H; ty++) {
+        for (let tx = 0; tx < W; tx++) {
+          const tileId = this.map.data[ty * W + tx];
+          const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
+          const solid = tileDef ? tileDef.solid : true;
+          this.minimapGfx.beginFill(solid ? 0x3a3a5a : 0x1a1a2e);
+          this.minimapGfx.drawRect(isoX(tx, ty) - s / 2, isoY(tx, ty) - s / 2, s, s);
+          this.minimapGfx.endFill();
+        }
+      }
+
+      // Items
+      if (this.state && this.state.items) {
+        this.minimapGfx.beginFill(0xfdd835);
+        for (const item of this.state.items) {
+          const p = isoPx(item.x, item.y);
+          this.minimapGfx.drawRect(p.x - 1, p.y - 1, 2, 2);
+        }
+        this.minimapGfx.endFill();
+      }
+
+      // Players
+      if (this.state) {
+        for (const player of this.state.players) {
+          const p = isoPx(player.x, player.y);
+          const isMe = player.id === this.myId;
+          const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
+          this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
+          this.minimapGfx.drawRect(p.x - 1, p.y - 1, 3, 3);
+          this.minimapGfx.endFill();
+        }
+      }
+
+      // Monsters
+      if (this.state && this.state.monsters) {
+        this.minimapGfx.beginFill(0xe53935);
+        for (const mob of this.state.monsters) {
+          const p = isoPx(mob.x, mob.y);
+          this.minimapGfx.drawRect(p.x - 1, p.y - 1, 2, 2);
+        }
+        this.minimapGfx.endFill();
+      }
+
+      // Viewport circle at player position
+      this.minimapGfx.lineStyle(1, 0xffffff, 0.3);
       const me = this.state ? this.state.players.find(p => p.id === this.myId) : null;
       if (me) {
-        const px = mmX + (me.x / ts) * scale;
-        const py = mmY + (me.y / ts) * scale;
-        this.minimapGfx.drawCircle(px, py, 4);
+        const p = isoPx(me.x, me.y);
+        this.minimapGfx.drawCircle(p.x, p.y, 4);
       }
     } else {
+      // Standard top-down minimap
+      const scale = 3;
+      const mmW = W * scale;
+      const mmH = H * scale;
+      const mmX = this.viewW - mmW - 10;
+      const mmY = 10;
+
+      // Background
+      this.minimapGfx.beginFill(0x000000, 0.6);
+      this.minimapGfx.drawRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
+      this.minimapGfx.endFill();
+
+      // Tiles
+      for (let ty = 0; ty < H; ty++) {
+        for (let tx = 0; tx < W; tx++) {
+          const tileId = this.map.data[ty * W + tx];
+          const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
+          const solid = tileDef ? tileDef.solid : true;
+
+          this.minimapGfx.beginFill(solid ? 0x3a3a5a : 0x1a1a2e);
+          this.minimapGfx.drawRect(mmX + tx * scale, mmY + ty * scale, scale, scale);
+          this.minimapGfx.endFill();
+        }
+      }
+
+      // Items
+      if (this.state && this.state.items) {
+        this.minimapGfx.beginFill(0xfdd835);
+        for (const item of this.state.items) {
+          const dotX = mmX + (item.x / ts) * scale;
+          const dotY = mmY + (item.y / ts) * scale;
+          this.minimapGfx.drawRect(dotX - 1, dotY - 1, 2, 2);
+        }
+        this.minimapGfx.endFill();
+      }
+
+      // Players
+      if (this.state) {
+        for (const player of this.state.players) {
+          const dotX = mmX + (player.x / ts) * scale;
+          const dotY = mmY + (player.y / ts) * scale;
+          const isMe = player.id === this.myId;
+          const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
+          this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
+          this.minimapGfx.drawRect(dotX - 1, dotY - 1, 3, 3);
+          this.minimapGfx.endFill();
+        }
+      }
+
+      // Monsters
+      if (this.state && this.state.monsters) {
+        this.minimapGfx.beginFill(0xe53935);
+        for (const mob of this.state.monsters) {
+          const dotX = mmX + (mob.x / ts) * scale;
+          const dotY = mmY + (mob.y / ts) * scale;
+          this.minimapGfx.drawRect(dotX - 1, dotY - 1, 2, 2);
+        }
+        this.minimapGfx.endFill();
+      }
+
+      // Viewport rect
+      this.minimapGfx.lineStyle(1, 0xffffff, 0.3);
       this.minimapGfx.drawRect(
         mmX + (this.camX / ts) * scale,
         mmY + (this.camY / ts) * scale,
