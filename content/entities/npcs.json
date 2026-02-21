@@ -330,6 +330,14 @@
       { "speaker": "Apprentice Sol Engineer", "text": "You must be here for the Sol Unit. I've got bad news." }
     ],
     "dialogues": {
+      "first_meeting": [
+        { "speaker": "Apprentice Sol Engineer", "text": "You must be here for the Sol Unit. I've got bad news." },
+        { "speaker": "Apprentice Sol Engineer", "text": "The repairs are almost done, but I'm missing critical parts. Titanium power cylinders — I can't finish without them." },
+        { "speaker": "Apprentice Sol Engineer", "text": "There's a supply cache in the east wing. Problem is, luddites seized that section. They've been camped there for weeks." },
+        { "speaker": "Apprentice Sol Engineer", "text": "The cylinders should still be in the cache, unless those wreckers have smashed them already." },
+        { "speaker": "Apprentice Sol Engineer", "text": "I know it's a lot to ask, but I can't leave the shop. The Unit's in a delicate state. Can you get them for me?" },
+        { "speaker": "Apprentice Sol Engineer", "text": "Here, take this blaster. You might need it." }
+      ],
       "default": [
         { "speaker": "Apprentice Sol Engineer", "text": "You must be here for the Sol Unit. I've got bad news." },
         { "speaker": "Apprentice Sol Engineer", "text": "The repairs are almost done, but I'm missing critical parts. Titanium power cylinders — I can't finish without them." },
@@ -353,6 +361,10 @@
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "not": { "hasFlag": "received_blaster" } }],
+        "use": "first_meeting"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"

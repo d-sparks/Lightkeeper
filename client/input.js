@@ -13,9 +13,9 @@ class InputHandler {
     this.active = false;
 
     // Callbacks
-    this.onInteract = null;
-    this.onInventoryToggle = null;
-    this.onAttack = null;
+    this.onAction = null;          // (slotNumber, modified) => void
+    this.onModifierChanged = null; // (active) => void
+    this.modifierActive = false;
 
     // Click-to-move state
     this.renderer = null;        // Set by main.js
@@ -23,6 +23,14 @@ class InputHandler {
     this.clickMoving = false;    // True when click-to-move is driving input
     this.dialogueActive = false; // Set by main.js to block click-to-move
     this.inventoryOpen = false;  // Set by main.js to block click-to-move
+
+    // Aim state
+    this.mouseWorldX = 0;
+    this.mouseWorldY = 0;
+    this.aimDX = 0;
+    this.aimDY = 0;
+    this.aimJoystickActive = false;
+    this.aimJoystickTouchId = null;
 
     // Key mappings: keyboard key -> game action
     this.keyMap = {
@@ -48,15 +56,21 @@ class InputHandler {
     // DOM elements (set in setupTouch)
     this.joystickZone = null;
     this.joystickThumb = null;
-    this.interactBtn = null;
-    this.inventoryBtn = null;
-    this.attackBtn = null;
+    this.aimJoystickZone = null;
+    this.aimJoystickThumb = null;
   }
 
   start() {
     this.active = true;
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
+    this._onBlur = () => {
+      if (this.modifierActive) {
+        this.modifierActive = false;
+        if (this.onModifierChanged) this.onModifierChanged(false);
+      }
+    };
+    window.addEventListener('blur', this._onBlur);
     this.setupTouch();
     this.setupMouse();
   }
@@ -65,31 +79,56 @@ class InputHandler {
     this.active = false;
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
+    if (this._onBlur) window.removeEventListener('blur', this._onBlur);
   }
 
   // --- Keyboard ---
 
   onKeyDown(e) {
-    // Interact key (E or Enter)
-    if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') {
-      e.preventDefault();
-      if (this.onInteract) this.onInteract();
+    // Track modifier (Shift)
+    if (e.key === 'Shift') {
+      if (!this.modifierActive) {
+        this.modifierActive = true;
+        // Immobilize: clear all movement keys and send stop
+        this.keys = { up: false, down: false, left: false, right: false };
+        this.clearMoveTarget();
+        this.sendInput();
+        if (this.onModifierChanged) this.onModifierChanged(true);
+      }
       return;
     }
 
-    // Inventory toggle (I)
-    if (e.key === 'i' || e.key === 'I') {
+    // Number keys 1-4 → action slots (use e.code to handle Shift+number correctly)
+    if (e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3' || e.code === 'Digit4') {
       e.preventDefault();
-      if (this.onInventoryToggle) this.onInventoryToggle();
+      const slotNum = parseInt(e.code.charAt(5));
+      if (this.onAction) this.onAction(slotNum, this.modifierActive);
       return;
     }
 
-    // Attack key (Space)
+    // Legacy: Space → slot 1
     if (e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault();
-      if (this.onAttack) this.onAttack();
+      if (this.onAction) this.onAction(1, false);
       return;
     }
+
+    // Legacy: E/Enter → slot 4 (interact)
+    if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') {
+      e.preventDefault();
+      if (this.onAction) this.onAction(4, false);
+      return;
+    }
+
+    // Legacy: I → modifier+slot 4 (inventory)
+    if (e.key === 'i' || e.key === 'I') {
+      e.preventDefault();
+      if (this.onAction) this.onAction(4, true);
+      return;
+    }
+
+    // Block movement while modifier (Shift) is active
+    if (this.modifierActive) return;
 
     const action = this.keyMap[e.key];
     if (action) {
@@ -104,6 +143,15 @@ class InputHandler {
   }
 
   onKeyUp(e) {
+    // Track modifier release
+    if (e.key === 'Shift') {
+      if (this.modifierActive) {
+        this.modifierActive = false;
+        if (this.onModifierChanged) this.onModifierChanged(false);
+      }
+      return;
+    }
+
     const action = this.keyMap[e.key];
     if (action) {
       e.preventDefault();
@@ -114,14 +162,31 @@ class InputHandler {
     }
   }
 
+  // --- Aim angle ---
+
+  getAimAngle(playerX, playerY) {
+    // Mobile aim joystick takes priority
+    if (this.aimJoystickActive) {
+      const len = Math.sqrt(this.aimDX * this.aimDX + this.aimDY * this.aimDY);
+      if (len > 0.01) {
+        return Math.atan2(this.aimDY, this.aimDX);
+      }
+      return null;
+    }
+
+    // Desktop: use mouse position
+    const dx = this.mouseWorldX - playerX;
+    const dy = this.mouseWorldY - playerY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 5) return null; // Too close, no valid aim
+    return Math.atan2(dy, dx);
+  }
+
   // --- Virtual joystick (touch) ---
 
   setupTouch() {
     this.joystickZone = document.getElementById('joystick-zone');
     this.joystickThumb = document.getElementById('joystick-thumb');
-    this.interactBtn = document.getElementById('interact-btn');
-    this.inventoryBtn = document.getElementById('inventory-btn');
-    this.attackBtn = document.getElementById('attack-btn');
 
     if (!this.joystickZone) return;
 
@@ -134,12 +199,14 @@ class InputHandler {
     }, { passive: false });
 
     window.addEventListener('touchmove', (e) => {
-      if (!this.joystickActive) return;
       for (const t of e.changedTouches) {
-        if (t.identifier === this.joystickTouchId) {
+        if (this.joystickActive && t.identifier === this.joystickTouchId) {
           e.preventDefault();
           this.handleJoystickMove(t.clientX, t.clientY);
-          break;
+        }
+        if (this.aimJoystickActive && t.identifier === this.aimJoystickTouchId) {
+          e.preventDefault();
+          this.handleAimJoystickMove(t.clientX, t.clientY);
         }
       }
     }, { passive: false });
@@ -148,7 +215,9 @@ class InputHandler {
       for (const t of e.changedTouches) {
         if (t.identifier === this.joystickTouchId) {
           this.resetJoystick();
-          break;
+        }
+        if (t.identifier === this.aimJoystickTouchId) {
+          this.resetAimJoystick();
         }
       }
     });
@@ -157,47 +226,51 @@ class InputHandler {
       for (const t of e.changedTouches) {
         if (t.identifier === this.joystickTouchId) {
           this.resetJoystick();
-          break;
+        }
+        if (t.identifier === this.aimJoystickTouchId) {
+          this.resetAimJoystick();
         }
       }
     });
 
-    // Interact button
-    if (this.interactBtn) {
-      this.interactBtn.addEventListener('touchstart', (e) => {
+    // Aim joystick
+    this.aimJoystickZone = document.getElementById('aim-joystick-zone');
+    this.aimJoystickThumb = document.getElementById('aim-joystick-thumb');
+    if (this.aimJoystickZone) {
+      this.aimJoystickZone.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        if (this.onInteract) this.onInteract();
+        const t = e.changedTouches[0];
+        this.aimJoystickActive = true;
+        this.aimJoystickTouchId = t.identifier;
+        this.modifierActive = true;
+        if (this.onModifierChanged) this.onModifierChanged(true);
+        this.handleAimJoystickMove(t.clientX, t.clientY);
       }, { passive: false });
+    }
 
-      this.interactBtn.addEventListener('click', (e) => {
+    // Mobile action buttons (slot-based)
+    const actionBtns = document.querySelectorAll('.action-btn[data-slot]');
+    for (const btn of actionBtns) {
+      if (btn.classList.contains('empty')) continue;
+      const slot = parseInt(btn.getAttribute('data-slot'));
+      btn.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        if (this.onInteract) this.onInteract();
+        if (this.onAction) this.onAction(slot, this.modifierActive);
+      }, { passive: false });
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (this.onAction) this.onAction(slot, this.modifierActive);
       });
     }
 
-    // Inventory button (mobile)
-    if (this.inventoryBtn) {
-      this.inventoryBtn.addEventListener('touchstart', (e) => {
+    // Desktop action bar click support
+    const desktopSlots = document.querySelectorAll('.action-slot[data-slot]');
+    for (const slot of desktopSlots) {
+      if (slot.classList.contains('empty')) continue;
+      const slotNum = parseInt(slot.getAttribute('data-slot'));
+      slot.addEventListener('click', (e) => {
         e.preventDefault();
-        if (this.onInventoryToggle) this.onInventoryToggle();
-      }, { passive: false });
-
-      this.inventoryBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (this.onInventoryToggle) this.onInventoryToggle();
-      });
-    }
-
-    // Attack button (mobile)
-    if (this.attackBtn) {
-      this.attackBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (this.onAttack) this.onAttack();
-      }, { passive: false });
-
-      this.attackBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (this.onAttack) this.onAttack();
+        if (this.onAction) this.onAction(slotNum, this.modifierActive);
       });
     }
 
@@ -256,6 +329,57 @@ class InputHandler {
     this.sendJoystickInput();
   }
 
+  // --- Aim joystick ---
+
+  getAimJoystickCenter() {
+    const rect = this.aimJoystickZone.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  }
+
+  handleAimJoystickMove(clientX, clientY) {
+    const center = this.getAimJoystickCenter();
+    const maxDist = 35;
+    let dx = clientX - center.x;
+    let dy = clientY - center.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist > maxDist) {
+      dx = (dx / dist) * maxDist;
+      dy = (dy / dist) * maxDist;
+    }
+
+    // Visual feedback
+    if (this.aimJoystickThumb) {
+      this.aimJoystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+      this.aimJoystickThumb.style.background = 'rgba(179,157,219,0.55)';
+    }
+
+    // Dead zone
+    const deadZone = 8;
+    if (dist < deadZone) {
+      this.aimDX = 0;
+      this.aimDY = 0;
+    } else {
+      this.aimDX = dx / maxDist;
+      this.aimDY = dy / maxDist;
+    }
+  }
+
+  resetAimJoystick() {
+    this.aimJoystickActive = false;
+    this.aimJoystickTouchId = null;
+    this.aimDX = 0;
+    this.aimDY = 0;
+    this.modifierActive = false;
+
+    if (this.aimJoystickThumb) {
+      this.aimJoystickThumb.style.transform = 'translate(-50%, -50%)';
+      this.aimJoystickThumb.style.background = 'rgba(179,157,219,0.35)';
+    }
+
+    if (this.onModifierChanged) this.onModifierChanged(false);
+  }
+
   // --- Click-to-move (mouse) ---
 
   setupMouse() {
@@ -265,9 +389,20 @@ class InputHandler {
     canvas.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return; // Left click only
       if (!this.active) return;
+
+      // Shift+click fires blaster toward click position
+      if (this.modifierActive) {
+        e.preventDefault();
+        const world = this.renderer.screenToWorld(e.clientX, e.clientY);
+        this.mouseWorldX = world.x;
+        this.mouseWorldY = world.y;
+        if (this.onAction) this.onAction(1, true);
+        return;
+      }
+
       if (this.dialogueActive) {
         e.preventDefault();
-        if (this.onInteract) this.onInteract();
+        if (this.onAction) this.onAction(4, false);
         return;
       }
       if (this.inventoryOpen) return;
@@ -275,6 +410,14 @@ class InputHandler {
       e.preventDefault();
       const world = this.renderer.screenToWorld(e.clientX, e.clientY);
       this.handleClickAt(world.x, world.y);
+    });
+
+    // Continuous mouse tracking for aim direction
+    canvas.addEventListener('mousemove', (e) => {
+      if (!this.renderer) return;
+      const world = this.renderer.screenToWorld(e.clientX, e.clientY);
+      this.mouseWorldX = world.x;
+      this.mouseWorldY = world.y;
     });
 
     // Prevent context menu on right-click over canvas
@@ -370,7 +513,7 @@ class InputHandler {
       this.keys = { up: false, down: false, left: false, right: false };
       this.sendInput();
       // Fire interact
-      if (this.onInteract) this.onInteract();
+      if (this.onAction) this.onAction(4, false);
       return;
     }
 

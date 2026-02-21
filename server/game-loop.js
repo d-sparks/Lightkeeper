@@ -18,6 +18,10 @@ class GameLoop {
     // Map<dungeonId, Set<spawnKey>>  where spawnKey = "spawnIdx:subIdx"
     this.killedMonsters = new Map();
 
+    // Track picked-up items per dungeon so they stay picked up across room destruction/recreation
+    // Map<dungeonId, Set<spawnIndex>>
+    this.pickedUpItems = new Map();
+
     // Scripting subsystem
     this.flagStore = new FlagStore();
     this.eventBus = new EventBus();
@@ -91,8 +95,10 @@ class GameLoop {
     // Create ground item instances from dungeon spawn data
     const items = new Map();
     let nextItemId = 0;
+    const pickedItems = this.pickedUpItems.get(dungeonId);
     if (dungeon.itemSpawns) {
       for (let i = 0; i < dungeon.itemSpawns.length; i++) {
+        if (pickedItems && pickedItems.has(i)) continue;  // Already picked up
         const spawn = dungeon.itemSpawns[i];
         const itemDef = this.content.getItem(spawn.type);
         if (!itemDef) continue;
@@ -104,6 +110,7 @@ class GameLoop {
           rarity: itemDef.rarity || 'common',
           x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
           y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
+          spawnIndex: i,
         });
       }
     }
@@ -228,6 +235,7 @@ class GameLoop {
     room.monsters.clear();
     room.nextMonsterId = 0;
     this.killedMonsters.delete(room.dungeonId);
+    this.pickedUpItems.delete(room.dungeonId);
     this.spawnMonsters(room);
 
     // Move players to spawn point (they may be standing in a wall now)
@@ -267,10 +275,6 @@ class GameLoop {
     const spawn = spawnPoints[room.nextSpawnIndex % Math.max(1, spawnPoints.length)] || { x: 2, y: 2 };
     room.nextSpawnIndex++;
 
-    // Load blaster item definition
-    const blasterDef = this.content.items['blaster'];
-    const blasterItem = blasterDef ? { ...blasterDef, id: 'blaster' } : null;
-
     const player = {
       id: playerId,
       name: name || `Player ${room.players.size + 1}`,
@@ -284,7 +288,7 @@ class GameLoop {
       attackTimer: 0,
       transitionCooldown: 0,
       inventory: [],
-      equipment: { weapon: blasterItem, armor: null, accessory: null },
+      equipment: { weapon: null, armor: null, accessory: null },
     };
 
     room.players.set(playerId, player);
@@ -499,7 +503,7 @@ class GameLoop {
   }
 
   // Spawn a projectile from player attack
-  tryAttack(roomId, playerId) {
+  tryAttack(roomId, playerId, aimAngle = null) {
     const room = this.rooms.get(roomId);
     if (!room) return false;
     const player = room.players.get(playerId);
@@ -512,32 +516,37 @@ class GameLoop {
     // Check attack cooldown
     if (player.attackTimer > 0) return false;
 
-    // Find nearest monster to aim at (within reasonable distance)
-    const targetRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
-    let nearestMob = null;
-    let nearestDist = Infinity;
-    for (const [mid, mob] of room.monsters) {
-      const dx = mob.x - player.x;
-      const dy = mob.y - player.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < targetRange && dist < nearestDist) {
-        nearestMob = mob;
-        nearestDist = dist;
-      }
-    }
-
-    // If no monster in range, shoot in the direction the player is facing
     let dirX, dirY;
-    if (nearestMob) {
-      const dx = nearestMob.x - player.x;
-      const dy = nearestMob.y - player.y;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      dirX = dx / len;
-      dirY = dy / len;
+    if (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle)) {
+      // Client-provided aim direction
+      dirX = Math.cos(aimAngle);
+      dirY = Math.sin(aimAngle);
     } else {
-      // Default to facing right if no specific facing is set
-      dirX = Math.cos(player.facing || 0);
-      dirY = Math.sin(player.facing || 0);
+      // Auto-aim: find nearest monster (within reasonable distance)
+      const targetRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
+      let nearestMob = null;
+      let nearestDist = Infinity;
+      for (const [mid, mob] of room.monsters) {
+        const dx = mob.x - player.x;
+        const dy = mob.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < targetRange && dist < nearestDist) {
+          nearestMob = mob;
+          nearestDist = dist;
+        }
+      }
+
+      if (nearestMob) {
+        const dx = nearestMob.x - player.x;
+        const dy = nearestMob.y - player.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        dirX = dx / len;
+        dirY = dy / len;
+      } else {
+        // Default to facing right if no specific facing is set
+        dirX = Math.cos(player.facing || 0);
+        dirY = Math.sin(player.facing || 0);
+      }
     }
 
     // Spawn projectile
@@ -701,6 +710,14 @@ class GameLoop {
     if (closestItem) {
       // Pick up the item: remove from ground, add to inventory
       room.items.delete(closestItem.id);
+
+      // Record pickup so item stays gone when room is revisited
+      if (closestItem.spawnIndex !== undefined) {
+        if (!this.pickedUpItems.has(room.dungeonId)) {
+          this.pickedUpItems.set(room.dungeonId, new Set());
+        }
+        this.pickedUpItems.get(room.dungeonId).add(closestItem.spawnIndex);
+      }
       const closestItemDef = this.content.getItem(closestItem.type);
       player.inventory.push({
         type: closestItem.type,
