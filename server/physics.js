@@ -44,7 +44,7 @@ class Physics {
     const r = CONSTANTS.PLAYER_RADIUS;
     const ts = CONSTANTS.TILE_SIZE;
 
-    for (let iter = 0; iter < 3; iter++) {
+    for (let iter = 0; iter < 4; iter++) {
       let pushed = false;
       const minTX = Math.floor((player.x - r) / ts);
       const maxTX = Math.floor((player.x + r) / ts);
@@ -62,13 +62,28 @@ class Physics {
           const distY = player.y - nearestY;
           const distSq = distX * distX + distY * distY;
 
-          if (distSq > 0 && distSq < r * r) {
+          if (distSq >= r * r) continue; // no overlap
+
+          if (distSq > 0) {
+            // Normal case: circle overlaps tile edge/corner — push out
             const dist = Math.sqrt(distSq);
             const overlap = r - dist;
             player.x += (distX / dist) * overlap;
             player.y += (distY / dist) * overlap;
-            pushed = true;
+          } else {
+            // Center is inside the tile AABB — push out along shortest axis
+            const dLeft   = player.x - tx * ts;
+            const dRight  = (tx + 1) * ts - player.x;
+            const dTop    = player.y - ty * ts;
+            const dBottom = (ty + 1) * ts - player.y;
+            const min = Math.min(dLeft, dRight, dTop, dBottom);
+
+            if (min === dLeft)        player.x = tx * ts - r;
+            else if (min === dRight)  player.x = (tx + 1) * ts + r;
+            else if (min === dTop)    player.y = ty * ts - r;
+            else                      player.y = (ty + 1) * ts + r;
           }
+          pushed = true;
         }
       }
 
