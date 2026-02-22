@@ -5,8 +5,9 @@ class Physics {
     this.content = content;
   }
 
-  // Move a player based on their input, with collision detection
-  // Uses circle-vs-tile collision for smooth sliding along walls
+  // Move a player based on their input, with collision detection.
+  // Uses collision resolution (move then push-out) for smooth wall sliding,
+  // corner rounding, and tight hallway navigation.
   movePlayer(player, dungeon, dt) {
     if (!player.input) return;
 
@@ -28,64 +29,50 @@ class Physics {
 
     if (dx === 0 && dy === 0) return;
 
-    // Try X movement first, then Y (allows wall sliding)
-    const newX = player.x + dx * speed;
-    const newY = player.y + dy * speed;
-
-    let movedX = false;
-    let movedY = false;
-
-    // Try X
-    if (!this.collidesAt(newX, player.y, dungeon)) {
-      player.x = newX;
-      movedX = true;
-    }
-
-    // Try Y
-    if (!this.collidesAt(player.x, newY, dungeon)) {
-      player.y = newY;
-      movedY = true;
-    }
-
-    // Corner assist: when blocked on one axis while moving along it,
-    // nudge on the perpendicular axis to slide into nearby openings.
-    // Nudge toward the nearest tile center for natural-feeling alignment.
-    const ts = CONSTANTS.TILE_SIZE;
-
-    if (!movedX && dx !== 0 && dy === 0) {
-      const tileY = Math.floor(player.y / ts);
-      const centerY = (tileY + 0.5) * ts;
-      // Try nudging toward nearest tile center first, then away
-      const dirs = player.y > centerY ? [1, -1] : [-1, 1];
-      for (const dir of dirs) {
-        const nudgedY = player.y + dir * speed;
-        if (!this.collidesAt(player.x, nudgedY, dungeon) &&
-            !this.collidesAt(newX, nudgedY, dungeon)) {
-          player.y = nudgedY;
-          player.x = newX;
-          break;
-        }
-      }
-    }
-
-    if (!movedY && dy !== 0 && dx === 0) {
-      const tileX = Math.floor(player.x / ts);
-      const centerX = (tileX + 0.5) * ts;
-      const dirs = player.x > centerX ? [1, -1] : [-1, 1];
-      for (const dir of dirs) {
-        const nudgedX = player.x + dir * speed;
-        if (!this.collidesAt(nudgedX, player.y, dungeon) &&
-            !this.collidesAt(nudgedX, newY, dungeon)) {
-          player.x = nudgedX;
-          player.y = newY;
-          break;
-        }
-      }
-    }
+    // Move to desired position, then resolve overlaps with solid tiles
+    player.x += dx * speed;
+    player.y += dy * speed;
+    this.resolveCollisions(player, dungeon);
 
     // Update facing direction
-    if (dx !== 0 || dy !== 0) {
-      player.facing = Math.atan2(dy, dx);
+    player.facing = Math.atan2(dy, dx);
+  }
+
+  // Push a player out of any solid tiles they overlap.
+  // Iterates multiple times to handle being wedged between walls.
+  resolveCollisions(player, dungeon) {
+    const r = CONSTANTS.PLAYER_RADIUS;
+    const ts = CONSTANTS.TILE_SIZE;
+
+    for (let iter = 0; iter < 3; iter++) {
+      let pushed = false;
+      const minTX = Math.floor((player.x - r) / ts);
+      const maxTX = Math.floor((player.x + r) / ts);
+      const minTY = Math.floor((player.y - r) / ts);
+      const maxTY = Math.floor((player.y + r) / ts);
+
+      for (let ty = minTY; ty <= maxTY; ty++) {
+        for (let tx = minTX; tx <= maxTX; tx++) {
+          if (!this.content.isSolid(dungeon, tx, ty)) continue;
+
+          // Nearest point on tile AABB to circle center
+          const nearestX = Math.max(tx * ts, Math.min(player.x, (tx + 1) * ts));
+          const nearestY = Math.max(ty * ts, Math.min(player.y, (ty + 1) * ts));
+          const distX = player.x - nearestX;
+          const distY = player.y - nearestY;
+          const distSq = distX * distX + distY * distY;
+
+          if (distSq > 0 && distSq < r * r) {
+            const dist = Math.sqrt(distSq);
+            const overlap = r - dist;
+            player.x += (distX / dist) * overlap;
+            player.y += (distY / dist) * overlap;
+            pushed = true;
+          }
+        }
+      }
+
+      if (!pushed) break;
     }
   }
 
