@@ -235,10 +235,10 @@ class Renderer {
 
   _buildIsoTileTextures() {
     const isoAssets = {
-      floor:  { file: 'sprites_isometric/LunarLandscape_Exports_001-32-GroundTile-1.png', fw: 409, fh: 225 },
-      floor2: { file: 'sprites_isometric/LunarLandscape_Exports_001-4-GroundTile-7.png', fw: 409, fh: 225 },
-      wall:   { file: 'sprites_isometric/LunarLandscape_Exports_001-6-Rock-9.png', fw: 81, fh: 121 },
-      door:   { file: 'sprites_isometric/LunarLandscape_Exports_001-0-BuildingBlock-2.png', fw: 297, fh: 277 },
+      floor:  { file: 'sprites_isometric/iso_floor.png', fw: 409, fh: 225 },
+      floor2: { file: 'sprites_isometric/iso_floor2.png', fw: 409, fh: 225 },
+      wall:   { file: 'sprites_isometric/iso_wall.png', fw: 81, fh: 121 },
+      door:   { file: 'sprites_isometric/iso_door.png', fw: 297, fh: 277 },
     };
 
     for (const [key, asset] of Object.entries(isoAssets)) {
