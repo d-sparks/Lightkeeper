@@ -15,8 +15,8 @@
   const inventoryPanel = document.getElementById('inventory-panel');
   const inventoryList = document.getElementById('inventory-list');
   const equipmentSlots = document.getElementById('equipment-slots');
-  const mobileSlot4 = document.querySelector('.action-btn[data-slot="4"]');
-  const desktopSlot4 = document.querySelector('.action-slot[data-slot="4"] .slot-label');
+  const interactBtn = document.getElementById('interact-btn');
+  const desktopInteractLabel = document.getElementById('desktop-interact-label');
 
   // --- Instances ---
   const net = new NetClient();
@@ -201,7 +201,7 @@
     if (!me) return;
 
     const ts = CONSTANTS.TILE_SIZE;
-    let label = 'Interact';
+    let label = null; // null means nothing nearby to interact with
 
     // Priority 1: items
     if (renderer.state.items) {
@@ -213,11 +213,11 @@
     }
 
     // Priority 2: doors (only if no item found)
-    if (label === 'Interact' && renderer.map && renderer.tileset) {
+    if (!label && renderer.map && renderer.tileset) {
       const doorRange = CONSTANTS.DOOR_INTERACT_RANGE * ts;
       const playerTX = Math.floor(me.x / ts), playerTY = Math.floor(me.y / ts);
-      for (let dy = -2; dy <= 2 && label === 'Interact'; dy++) {
-        for (let dx = -2; dx <= 2 && label === 'Interact'; dx++) {
+      for (let dy = -2; dy <= 2 && !label; dy++) {
+        for (let dx = -2; dx <= 2 && !label; dx++) {
           const tx = playerTX + dx, ty = playerTY + dy;
           if (tx < 0 || ty < 0 || tx >= renderer.map.width || ty >= renderer.map.height) continue;
           const tileId = renderer.map.data[ty * renderer.map.width + tx];
@@ -233,7 +233,7 @@
     }
 
     // Priority 3: NPCs
-    if (label === 'Interact' && renderer.state.npcs) {
+    if (!label && renderer.state.npcs) {
       const npcRange = CONSTANTS.NPC_INTERACT_RANGE * ts;
       for (const npc of renderer.state.npcs) {
         const dx = npc.x - me.x, dy = npc.y - me.y;
@@ -241,53 +241,50 @@
       }
     }
 
-    // Update desktop action bar slot 4
-    if (desktopSlot4) desktopSlot4.textContent = label;
-    // Update mobile action button slot 4
-    if (mobileSlot4) mobileSlot4.textContent = label;
+    // Update desktop action bar label
+    if (desktopInteractLabel) desktopInteractLabel.textContent = label || 'Interact';
+    // Show/hide contextual mobile interact button
+    if (interactBtn) {
+      if (label) {
+        interactBtn.textContent = label;
+        interactBtn.style.display = '';
+      } else {
+        interactBtn.style.display = 'none';
+      }
+    }
   }
 
-  // --- Unified action dispatch ---
-  input.onAction = function (slot, modified) {
-    if (modified) {
-      if (slot === 1) {
-        // Aimed blaster attack
-        if (dialogueActive || inventoryOpen) return;
+  // --- Ability dispatch ---
+  input.onAbility = function (slot, aimAngle) {
+    if (dialogueActive || inventoryOpen) return;
+    if (slot === 1) {
+      // Primary attack — send with aim angle
+      if (aimAngle === null) {
+        // No aim: use mouse aim as fallback (keyboard/desktop)
         const me = renderer.state && renderer.state.players
           ? renderer.state.players.find(p => p.id === renderer.myId)
           : null;
-        if (!me) return;
-        const aimAngle = input.getAimAngle(me.x, me.y);
-        if (aimAngle === null) return;
-        net.send({ type: CONSTANTS.MSG.ATTACK, aimAngle });
-        return;
+        if (me) {
+          aimAngle = input.getAimAngle(me.x, me.y);
+        }
       }
-      if (slot === 4) { toggleInventory(); return; }
-      // Slots 2-3 modified: future skills
+      if (aimAngle === null) return;
+      net.send({ type: CONSTANTS.MSG.ATTACK, aimAngle });
       return;
     }
-    switch (slot) {
-      case 1: // Empty (future melee) — do nothing
-        break;
-      case 4: // Interact
-        if (dialogueActive) { advanceDialogue(); return; }
-        if (inventoryOpen) { toggleInventory(); return; }
-        net.send({ type: CONSTANTS.MSG.INTERACT });
-        break;
-      // Slots 2-3: future skills
-    }
+    // Slots 2-6: future abilities
   };
 
-  // --- Modifier visual feedback ---
-  input.onModifierChanged = function (active) {
-    const slots = document.querySelectorAll('.action-slot');
-    for (const slot of slots) {
-      if (active) {
-        slot.classList.add('modifier-active');
-      } else {
-        slot.classList.remove('modifier-active');
-      }
-    }
+  // --- Interact dispatch ---
+  input.onInteract = function () {
+    if (dialogueActive) { advanceDialogue(); return; }
+    if (inventoryOpen) { toggleInventory(); return; }
+    net.send({ type: CONSTANTS.MSG.INTERACT });
+  };
+
+  // --- Inventory dispatch ---
+  input.onInventory = function () {
+    toggleInventory();
   };
 
   // --- Join flow ---

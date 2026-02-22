@@ -1,139 +1,116 @@
-// Input handler - tracks keyboard state and virtual joystick
+// Input handler — keyboard, touch, mouse, gamepad
+// Abilities: 6 slots, each fires with an aim angle.
+//   Keyboard/mouse: aim angle comes from mouse cursor position.
+//   Mobile: tap = auto-aim (null), press-drag-release = manual aim.
+//   Gamepad: aim angle comes from right stick.
+// Interact + Inventory are separate actions (not ability slots).
 
 class InputHandler {
   constructor(net) {
     this.net = net;
-    this.keys = {
-      up: false,
-      down: false,
-      left: false,
-      right: false,
-    };
-    this.lastSent = '';  // Avoid sending duplicate input states
+    this.keys = { up: false, down: false, left: false, right: false };
+    this.lastSent = '';
     this.active = false;
 
-    // Callbacks
-    this.onAction = null;          // (slotNumber, modified) => void
-    this.onModifierChanged = null; // (active) => void
-    this.modifierActive = false;
+    // Callbacks — set by main.js
+    this.onAbility = null;     // (slot, aimAngle) => void
+    this.onInteract = null;    // () => void
+    this.onInventory = null;   // () => void
 
-    // Click-to-move state
-    this.renderer = null;        // Set by main.js
-    this.moveTarget = null;      // { x, y, interactType?, interactRange? }
-    this.clickMoving = false;    // True when click-to-move is driving input
-    this.dialogueActive = false; // Set by main.js to block click-to-move
-    this.inventoryOpen = false;  // Set by main.js to block click-to-move
+    // Click-to-move
+    this.renderer = null;
+    this.moveTarget = null;
+    this.clickMoving = false;
+    this.dialogueActive = false;
+    this.inventoryOpen = false;
 
-    // Aim state
+    // Mouse aim
     this.mouseWorldX = 0;
     this.mouseWorldY = 0;
-    this.aimDX = 0;
-    this.aimDY = 0;
-    this.aimJoystickActive = false;
-    this.aimJoystickTouchId = null;
 
-    // Key mappings: keyboard key -> game action
-    this.keyMap = {
-      'ArrowUp':    'up',
-      'ArrowDown':  'down',
-      'ArrowLeft':  'left',
-      'ArrowRight': 'right',
-      'w': 'up',    'W': 'up',
-      's': 'down',  'S': 'down',
-      'a': 'left',  'A': 'left',
-      'd': 'right', 'D': 'right',
-    };
+    // Mobile ability drag-to-aim
+    this.abilityDrag = null;  // { slot, startX, startY, touchId, moved }
 
-    this.onKeyDown = this.onKeyDown.bind(this);
-    this.onKeyUp = this.onKeyUp.bind(this);
-
-    // Virtual joystick state
+    // Movement joystick
     this.joystickActive = false;
     this.joystickTouchId = null;
     this.joyDX = 0;
     this.joyDY = 0;
-
-    // DOM elements (set in setupTouch)
     this.joystickZone = null;
     this.joystickThumb = null;
-    this.aimJoystickZone = null;
-    this.aimJoystickThumb = null;
+
+    // Gamepad
+    this.gamepadIndex = null;
+    this.gamepadPrevButtons = [];
+    this.gamepadKeys = { up: false, down: false, left: false, right: false };
+
+    // Key mappings
+    this.keyMap = {
+      'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right',
+      'w': 'up', 'W': 'up', 's': 'down', 'S': 'down',
+      'a': 'left', 'A': 'left', 'd': 'right', 'D': 'right',
+    };
+
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.onKeyUp = this.onKeyUp.bind(this);
   }
 
   start() {
     this.active = true;
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
-    this._onBlur = () => {
-      if (this.modifierActive) {
-        this.modifierActive = false;
-        if (this.onModifierChanged) this.onModifierChanged(false);
-      }
-    };
-    window.addEventListener('blur', this._onBlur);
     this.setupTouch();
     this.setupMouse();
+    this.startGamepadPolling();
   }
 
   stop() {
     this.active = false;
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
-    if (this._onBlur) window.removeEventListener('blur', this._onBlur);
   }
 
-  // --- Keyboard ---
+  // ===================== Keyboard =====================
 
   onKeyDown(e) {
-    // Track modifier (Shift)
-    if (e.key === 'Shift') {
-      if (!this.modifierActive) {
-        this.modifierActive = true;
-        // Immobilize: clear all movement keys and send stop
-        this.keys = { up: false, down: false, left: false, right: false };
-        this.clearMoveTarget();
-        this.sendInput();
-        if (this.onModifierChanged) this.onModifierChanged(true);
-      }
-      return;
-    }
+    if (!this.active) return;
 
-    // Number keys 1-4 → action slots (use e.code to handle Shift+number correctly)
-    if (e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3' || e.code === 'Digit4') {
+    // Ability keys 1-6
+    const digitMatch = e.code.match(/^Digit([1-6])$/);
+    if (digitMatch) {
       e.preventDefault();
-      const slotNum = parseInt(e.code.charAt(5));
-      if (this.onAction) this.onAction(slotNum, this.modifierActive);
+      const slot = parseInt(digitMatch[1]);
+      const aimAngle = this.getMouseAimAngle();
+      if (this.onAbility) this.onAbility(slot, aimAngle);
       return;
     }
 
-    // Legacy: Space → slot 1
+    // Space → ability 1
     if (e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault();
-      if (this.onAction) this.onAction(1, false);
+      const aimAngle = this.getMouseAimAngle();
+      if (this.onAbility) this.onAbility(1, aimAngle);
       return;
     }
 
-    // Legacy: E/Enter → slot 4 (interact)
+    // E / Enter → interact
     if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') {
       e.preventDefault();
-      if (this.onAction) this.onAction(4, false);
+      if (this.onInteract) this.onInteract();
       return;
     }
 
-    // Legacy: I → modifier+slot 4 (inventory)
+    // I → inventory
     if (e.key === 'i' || e.key === 'I') {
       e.preventDefault();
-      if (this.onAction) this.onAction(4, true);
+      if (this.onInventory) this.onInventory();
       return;
     }
 
-    // Block movement while modifier (Shift) is active
-    if (this.modifierActive) return;
-
+    // Movement
     const action = this.keyMap[e.key];
     if (action) {
       e.preventDefault();
-      // Keyboard movement cancels click-to-move
       this.clearMoveTarget();
       if (!this.keys[action]) {
         this.keys[action] = true;
@@ -143,15 +120,6 @@ class InputHandler {
   }
 
   onKeyUp(e) {
-    // Track modifier release
-    if (e.key === 'Shift') {
-      if (this.modifierActive) {
-        this.modifierActive = false;
-        if (this.onModifierChanged) this.onModifierChanged(false);
-      }
-      return;
-    }
-
     const action = this.keyMap[e.key];
     if (action) {
       e.preventDefault();
@@ -162,32 +130,33 @@ class InputHandler {
     }
   }
 
-  // --- Aim angle ---
+  // ===================== Aim =====================
 
-  getAimAngle(playerX, playerY) {
-    // Mobile aim joystick takes priority
-    if (this.aimJoystickActive) {
-      const len = Math.sqrt(this.aimDX * this.aimDX + this.aimDY * this.aimDY);
-      if (len > 0.01) {
-        return Math.atan2(this.aimDY, this.aimDX);
-      }
-      return null;
-    }
-
-    // Desktop: use mouse position
-    const dx = this.mouseWorldX - playerX;
-    const dy = this.mouseWorldY - playerY;
+  getMouseAimAngle() {
+    if (!this.renderer || !this.renderer.state || !this.renderer.myId) return null;
+    const me = this.renderer.state.players.find(p => p.id === this.renderer.myId);
+    if (!me) return null;
+    const dx = this.mouseWorldX - me.x;
+    const dy = this.mouseWorldY - me.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < 5) return null; // Too close, no valid aim
+    if (dist < 5) return null;
     return Math.atan2(dy, dx);
   }
 
-  // --- Virtual joystick (touch) ---
+  // Backward-compatible helper used by main.js
+  getAimAngle(playerX, playerY) {
+    const dx = this.mouseWorldX - playerX;
+    const dy = this.mouseWorldY - playerY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 5) return null;
+    return Math.atan2(dy, dx);
+  }
+
+  // ===================== Touch: Movement joystick =====================
 
   setupTouch() {
     this.joystickZone = document.getElementById('joystick-zone');
     this.joystickThumb = document.getElementById('joystick-thumb');
-
     if (!this.joystickZone) return;
 
     this.joystickZone.addEventListener('touchstart', (e) => {
@@ -204,9 +173,9 @@ class InputHandler {
           e.preventDefault();
           this.handleJoystickMove(t.clientX, t.clientY);
         }
-        if (this.aimJoystickActive && t.identifier === this.aimJoystickTouchId) {
+        if (this.abilityDrag && t.identifier === this.abilityDrag.touchId) {
           e.preventDefault();
-          this.handleAimJoystickMove(t.clientX, t.clientY);
+          this.handleAbilityDragMove(t.clientX, t.clientY);
         }
       }
     }, { passive: false });
@@ -216,8 +185,8 @@ class InputHandler {
         if (t.identifier === this.joystickTouchId) {
           this.resetJoystick();
         }
-        if (t.identifier === this.aimJoystickTouchId) {
-          this.resetAimJoystick();
+        if (this.abilityDrag && t.identifier === this.abilityDrag.touchId) {
+          this.releaseAbility(t.clientX, t.clientY);
         }
       }
     });
@@ -227,57 +196,123 @@ class InputHandler {
         if (t.identifier === this.joystickTouchId) {
           this.resetJoystick();
         }
-        if (t.identifier === this.aimJoystickTouchId) {
-          this.resetAimJoystick();
+        if (this.abilityDrag && t.identifier === this.abilityDrag.touchId) {
+          this.abilityDrag = null;
         }
       }
     });
 
-    // Aim joystick
-    this.aimJoystickZone = document.getElementById('aim-joystick-zone');
-    this.aimJoystickThumb = document.getElementById('aim-joystick-thumb');
-    if (this.aimJoystickZone) {
-      this.aimJoystickZone.addEventListener('touchstart', (e) => {
+    // Ability buttons (drag-to-aim)
+    this.setupAbilityButtons();
+
+    // Contextual interact button
+    const interactBtn = document.getElementById('interact-btn');
+    if (interactBtn) {
+      interactBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        const t = e.changedTouches[0];
-        this.aimJoystickActive = true;
-        this.aimJoystickTouchId = t.identifier;
-        this.modifierActive = true;
-        if (this.onModifierChanged) this.onModifierChanged(true);
-        this.handleAimJoystickMove(t.clientX, t.clientY);
+        if (this.onInteract) this.onInteract();
       }, { passive: false });
     }
 
-    // Mobile action buttons (slot-based)
-    const actionBtns = document.querySelectorAll('.action-btn[data-slot]');
-    for (const btn of actionBtns) {
-      if (btn.classList.contains('empty')) continue;
-      const slot = parseInt(btn.getAttribute('data-slot'));
-      btn.addEventListener('touchstart', (e) => {
+    // Inventory HUD button
+    const inventoryBtn = document.getElementById('inventory-btn');
+    if (inventoryBtn) {
+      inventoryBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        if (this.onAction) this.onAction(slot, this.modifierActive);
+        if (this.onInventory) this.onInventory();
       }, { passive: false });
-      btn.addEventListener('click', (e) => {
+      inventoryBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        if (this.onAction) this.onAction(slot, this.modifierActive);
+        if (this.onInventory) this.onInventory();
       });
     }
 
-    // Desktop action bar click support
+    // Desktop action bar — ability slots
     const desktopSlots = document.querySelectorAll('.action-slot[data-slot]');
     for (const slot of desktopSlots) {
-      if (slot.classList.contains('empty')) continue;
       const slotNum = parseInt(slot.getAttribute('data-slot'));
       slot.addEventListener('click', (e) => {
         e.preventDefault();
-        if (this.onAction) this.onAction(slotNum, this.modifierActive);
+        const aimAngle = this.getMouseAimAngle();
+        if (this.onAbility) this.onAbility(slotNum, aimAngle);
       });
     }
 
-    // Prevent accidental zooming / scrolling
+    // Desktop action bar — utility buttons
+    const interactSlot = document.querySelector('.action-slot[data-action="interact"]');
+    if (interactSlot) {
+      interactSlot.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (this.onInteract) this.onInteract();
+      });
+    }
+    const inventorySlot = document.querySelector('.action-slot[data-action="inventory"]');
+    if (inventorySlot) {
+      inventorySlot.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (this.onInventory) this.onInventory();
+      });
+    }
+
+    // Prevent accidental zooming
     document.addEventListener('gesturestart', (e) => e.preventDefault());
     document.addEventListener('gesturechange', (e) => e.preventDefault());
   }
+
+  // ===================== Touch: Ability drag-to-aim =====================
+
+  setupAbilityButtons() {
+    const abilityBtns = document.querySelectorAll('.ability-btn[data-slot]');
+    for (const btn of abilityBtns) {
+      if (btn.classList.contains('empty')) continue;
+      const slot = parseInt(btn.getAttribute('data-slot'));
+
+      btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const t = e.changedTouches[0];
+        this.abilityDrag = {
+          slot,
+          startX: t.clientX,
+          startY: t.clientY,
+          touchId: t.identifier,
+          moved: false,
+        };
+        btn.classList.add('active');
+      }, { passive: false });
+    }
+  }
+
+  handleAbilityDragMove(clientX, clientY) {
+    if (!this.abilityDrag) return;
+    const dx = clientX - this.abilityDrag.startX;
+    const dy = clientY - this.abilityDrag.startY;
+    if (Math.sqrt(dx * dx + dy * dy) > 15) {
+      this.abilityDrag.moved = true;
+    }
+  }
+
+  releaseAbility(clientX, clientY) {
+    if (!this.abilityDrag) return;
+    const drag = this.abilityDrag;
+    this.abilityDrag = null;
+
+    // Remove active visual state
+    const btn = document.querySelector('.ability-btn[data-slot="' + drag.slot + '"]');
+    if (btn) btn.classList.remove('active');
+
+    let aimAngle = null;
+    if (drag.moved) {
+      const dx = clientX - drag.startX;
+      const dy = clientY - drag.startY;
+      if (Math.sqrt(dx * dx + dy * dy) > 15) {
+        aimAngle = Math.atan2(dy, dx);
+      }
+    }
+
+    if (this.onAbility) this.onAbility(drag.slot, aimAngle);
+  }
+
+  // ===================== Joystick internals =====================
 
   getJoystickCenter() {
     const rect = this.joystickZone.getBoundingClientRect();
@@ -296,13 +331,11 @@ class InputHandler {
       dy = (dy / dist) * maxDist;
     }
 
-    // Visual feedback
     if (this.joystickThumb) {
       this.joystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
       this.joystickThumb.style.background = 'rgba(255,167,38,0.55)';
     }
 
-    // Dead zone
     const deadZone = 12;
     if (dist < deadZone) {
       this.joyDX = 0;
@@ -329,80 +362,98 @@ class InputHandler {
     this.sendJoystickInput();
   }
 
-  // --- Aim joystick ---
+  // ===================== Gamepad =====================
 
-  getAimJoystickCenter() {
-    const rect = this.aimJoystickZone.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  startGamepadPolling() {
+    window.addEventListener('gamepadconnected', (e) => {
+      console.log('[Input] Gamepad connected:', e.gamepad.id);
+      this.gamepadIndex = e.gamepad.index;
+    });
+    window.addEventListener('gamepaddisconnected', () => {
+      console.log('[Input] Gamepad disconnected');
+      this.gamepadIndex = null;
+      this.gamepadPrevButtons = [];
+      this.gamepadKeys = { up: false, down: false, left: false, right: false };
+      this.sendInput();
+    });
+
+    const poll = () => {
+      if (this.active) this.pollGamepad();
+      requestAnimationFrame(poll);
+    };
+    requestAnimationFrame(poll);
   }
 
-  handleAimJoystickMove(clientX, clientY) {
-    const center = this.getAimJoystickCenter();
-    const maxDist = 35;
-    let dx = clientX - center.x;
-    let dy = clientY - center.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
+  pollGamepad() {
+    if (this.gamepadIndex === null) return;
+    const gamepads = navigator.getGamepads();
+    if (!gamepads) return;
+    const gp = gamepads[this.gamepadIndex];
+    if (!gp) return;
 
-    if (dist > maxDist) {
-      dx = (dx / dist) * maxDist;
-      dy = (dy / dist) * maxDist;
+    // Left stick → movement
+    const deadZone = 0.2;
+    const threshold = 0.3;
+    const lx = Math.abs(gp.axes[0]) > deadZone ? gp.axes[0] : 0;
+    const ly = Math.abs(gp.axes[1]) > deadZone ? gp.axes[1] : 0;
+
+    const newKeys = {
+      up:    ly < -threshold,
+      down:  ly > threshold,
+      left:  lx < -threshold,
+      right: lx > threshold,
+    };
+
+    // Only send if changed
+    const keysChanged = newKeys.up !== this.gamepadKeys.up ||
+                        newKeys.down !== this.gamepadKeys.down ||
+                        newKeys.left !== this.gamepadKeys.left ||
+                        newKeys.right !== this.gamepadKeys.right;
+    this.gamepadKeys = newKeys;
+    if (keysChanged) this.sendInput();
+
+    // Right stick → aim direction
+    const rx = gp.axes[2] || 0;
+    const ry = gp.axes[3] || 0;
+    const rLen = Math.sqrt(rx * rx + ry * ry);
+    let gamepadAimAngle = null;
+    if (rLen > 0.3) {
+      gamepadAimAngle = Math.atan2(ry, rx);
     }
 
-    // Visual feedback
-    if (this.aimJoystickThumb) {
-      this.aimJoystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-      this.aimJoystickThumb.style.background = 'rgba(179,157,219,0.55)';
+    // Buttons — detect rising edge
+    const prev = this.gamepadPrevButtons;
+    const pressed = (i) => gp.buttons[i] && gp.buttons[i].pressed &&
+                           !(prev[i] && prev[i].pressed);
+
+    // A(0)→slot1, B(1)→slot2, X(2)→slot3, Y(3)→slot4, LB(4)→slot5, RB(5)→slot6
+    for (let i = 0; i < 6; i++) {
+      if (pressed(i)) {
+        if (this.onAbility) this.onAbility(i + 1, gamepadAimAngle);
+      }
     }
 
-    // Dead zone
-    const deadZone = 8;
-    if (dist < deadZone) {
-      this.aimDX = 0;
-      this.aimDY = 0;
-    } else {
-      this.aimDX = dx / maxDist;
-      this.aimDY = dy / maxDist;
-    }
+    // LT(6) → interact, RT(7) → inventory
+    if (pressed(6) && this.onInteract) this.onInteract();
+    if (pressed(7) && this.onInventory) this.onInventory();
+
+    // Save for edge detection
+    this.gamepadPrevButtons = gp.buttons.map(b => ({ pressed: b.pressed }));
   }
 
-  resetAimJoystick() {
-    this.aimJoystickActive = false;
-    this.aimJoystickTouchId = null;
-    this.aimDX = 0;
-    this.aimDY = 0;
-    this.modifierActive = false;
-
-    if (this.aimJoystickThumb) {
-      this.aimJoystickThumb.style.transform = 'translate(-50%, -50%)';
-      this.aimJoystickThumb.style.background = 'rgba(179,157,219,0.35)';
-    }
-
-    if (this.onModifierChanged) this.onModifierChanged(false);
-  }
-
-  // --- Click-to-move (mouse) ---
+  // ===================== Click-to-move (mouse) =====================
 
   setupMouse() {
     if (!this.renderer || !this.renderer.canvas) return;
     const canvas = this.renderer.canvas;
 
     canvas.addEventListener('mousedown', (e) => {
-      if (e.button !== 0) return; // Left click only
+      if (e.button !== 0) return;
       if (!this.active) return;
-
-      // Shift+click fires blaster toward click position
-      if (this.modifierActive) {
-        e.preventDefault();
-        const world = this.renderer.screenToWorld(e.clientX, e.clientY);
-        this.mouseWorldX = world.x;
-        this.mouseWorldY = world.y;
-        if (this.onAction) this.onAction(1, true);
-        return;
-      }
 
       if (this.dialogueActive) {
         e.preventDefault();
-        if (this.onAction) this.onAction(4, false);
+        if (this.onInteract) this.onInteract();
         return;
       }
       if (this.inventoryOpen) return;
@@ -412,7 +463,6 @@ class InputHandler {
       this.handleClickAt(world.x, world.y);
     });
 
-    // Continuous mouse tracking for aim direction
     canvas.addEventListener('mousemove', (e) => {
       if (!this.renderer) return;
       const world = this.renderer.screenToWorld(e.clientX, e.clientY);
@@ -420,7 +470,6 @@ class InputHandler {
       this.mouseWorldY = world.y;
     });
 
-    // Prevent context menu on right-click over canvas
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
@@ -429,7 +478,7 @@ class InputHandler {
     if (!state || !this.renderer.myId) return;
 
     const ts = CONSTANTS.TILE_SIZE;
-    const clickRadius = ts * 1.0; // How close a click needs to be to an entity
+    const clickRadius = ts * 1.0;
 
     // Check items
     if (state.items) {
@@ -453,7 +502,7 @@ class InputHandler {
       }
     }
 
-    // Check monsters (move toward them; auto-attack handles the rest)
+    // Check monsters
     if (state.monsters) {
       for (const mob of state.monsters) {
         const dx = worldX - mob.x, dy = worldY - mob.y;
@@ -464,7 +513,7 @@ class InputHandler {
       }
     }
 
-    // Check doors (tile at click position)
+    // Check doors
     if (this.renderer.map && this.renderer.tileset) {
       const tx = Math.floor(worldX / ts);
       const ty = Math.floor(worldY / ts);
@@ -481,7 +530,7 @@ class InputHandler {
       }
     }
 
-    // Plain ground click — move to position
+    // Plain ground click
     this.setMoveTarget(worldX, worldY, null, 0);
   }
 
@@ -498,7 +547,6 @@ class InputHandler {
     if (this.renderer) this.renderer.clickTarget = null;
   }
 
-  // Called from main.js on each state update with the player's current position
   updateClickToMove(playerX, playerY) {
     if (!this.moveTarget) return;
 
@@ -506,18 +554,16 @@ class InputHandler {
     const dy = this.moveTarget.y - playerY;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    // Check if we should interact
+    // Interact when close enough
     if (this.moveTarget.interactType && dist < this.moveTarget.interactRange) {
       this.clearMoveTarget();
-      // Stop movement
       this.keys = { up: false, down: false, left: false, right: false };
       this.sendInput();
-      // Fire interact
-      if (this.onAction) this.onAction(4, false);
+      if (this.onInteract) this.onInteract();
       return;
     }
 
-    // Check if we've arrived (ground click)
+    // Arrived at ground target
     const arrivalThreshold = this.moveTarget.interactType ? this.moveTarget.interactRange : 6;
     if (dist < arrivalThreshold) {
       this.clearMoveTarget();
@@ -526,12 +572,10 @@ class InputHandler {
       return;
     }
 
-    // Compute directional input toward target
+    // Move toward target
     const threshold = 0.3;
-    const len = dist; // already computed
-    const nx = dx / len;
-    const ny = dy / len;
-
+    const nx = dx / dist;
+    const ny = dy / dist;
     this.keys = {
       up:    ny < -threshold,
       down:  ny > threshold,
@@ -541,22 +585,27 @@ class InputHandler {
     this.sendInput();
   }
 
+  // ===================== Send =====================
+
   sendJoystickInput() {
-    // Convert analog joystick to cardinal directions with threshold
+    this.sendInput();
+  }
+
+  sendInput() {
     const threshold = 0.3;
-    const newKeys = {
+    const joyKeys = {
       up:    this.joyDY < -threshold,
       down:  this.joyDY > threshold,
       left:  this.joyDX < -threshold,
       right: this.joyDX > threshold,
     };
 
-    // Merge with keyboard: either source can activate a direction
+    // Merge all sources: keyboard/click-to-move + touch joystick + gamepad
     const merged = {
-      up:    this.keys.up    || newKeys.up,
-      down:  this.keys.down  || newKeys.down,
-      left:  this.keys.left  || newKeys.left,
-      right: this.keys.right || newKeys.right,
+      up:    this.keys.up    || joyKeys.up    || this.gamepadKeys.up,
+      down:  this.keys.down  || joyKeys.down  || this.gamepadKeys.down,
+      left:  this.keys.left  || joyKeys.left  || this.gamepadKeys.left,
+      right: this.keys.right || joyKeys.right || this.gamepadKeys.right,
     };
 
     const json = JSON.stringify(merged);
@@ -567,10 +616,5 @@ class InputHandler {
       type: CONSTANTS.MSG.INPUT,
       keys: merged,
     });
-  }
-
-  sendInput() {
-    // Re-use joystick-aware send so both sources are merged
-    this.sendJoystickInput();
   }
 }
