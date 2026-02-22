@@ -439,9 +439,9 @@ class Renderer {
       const minY = Math.min(...corners.map(c => c.y));
       const maxY = Math.max(...corners.map(c => c.y));
 
-      // Add padding for tile sprite overhang
-      const padX = CONSTANTS.ISO_TILE_W / 2;
-      const padY = CONSTANTS.ISO_TILE_H;
+      // Add padding for tile sprite overhang (scaled to match isoScale 0.25)
+      const padX = CONSTANTS.ISO_TILE_W / 4;
+      const padY = CONSTANTS.ISO_TILE_H / 2;
 
       this.camX = Math.max(minX - padX, Math.min(targetX, maxX + padX - this.viewW));
       this.camY = Math.max(minY - padY, Math.min(targetY, maxY + padY - this.viewH));
@@ -568,7 +568,7 @@ class Renderer {
     const cullB = this.camY + this.viewH + tileH;
 
     // Iso scale factor: scale tiles down so they fit better
-    const isoScale = 0.5;
+    const isoScale = 0.25;
 
     let idx = 0;
     const w = this.map.width;
@@ -653,7 +653,7 @@ class Renderer {
       const wy = (spawn.y + 0.5) * ts;
       if (this.isoMode) {
         const iso = this.worldToIso(wx, wy);
-        this.spawnGfx.drawCircle(iso.x, iso.y, 8);
+        this.spawnGfx.drawCircle(iso.x, iso.y, 4);
       } else {
         this.spawnGfx.drawCircle(wx, wy, ts * 0.3);
       }
@@ -677,7 +677,7 @@ class Renderer {
       if (this.isoMode) {
         const iso = this.worldToIso(wx, wy);
         this.exitGfx.beginFill(color, 0.3 + 0.3 * pulse);
-        this.exitGfx.drawCircle(iso.x, iso.y, 10);
+        this.exitGfx.drawCircle(iso.x, iso.y, 5);
         this.exitGfx.endFill();
       } else {
         this.exitGfx.beginFill(color, 0.3 + 0.3 * pulse);
