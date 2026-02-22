@@ -311,6 +311,7 @@
     // Switch from join screen to game
     joinScreen.style.display = 'none';
     gameContainer.style.display = 'flex';
+    document.body.classList.add('in-game');
     canvas.focus();
 
     // Size canvas now that container is visible

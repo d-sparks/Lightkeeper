@@ -32,14 +32,55 @@ class Physics {
     const newX = player.x + dx * speed;
     const newY = player.y + dy * speed;
 
+    let movedX = false;
+    let movedY = false;
+
     // Try X
     if (!this.collidesAt(newX, player.y, dungeon)) {
       player.x = newX;
+      movedX = true;
     }
 
     // Try Y
     if (!this.collidesAt(player.x, newY, dungeon)) {
       player.y = newY;
+      movedY = true;
+    }
+
+    // Corner assist: when blocked on one axis while moving along it,
+    // nudge on the perpendicular axis to slide into nearby openings.
+    // Nudge toward the nearest tile center for natural-feeling alignment.
+    const ts = CONSTANTS.TILE_SIZE;
+
+    if (!movedX && dx !== 0 && dy === 0) {
+      const tileY = Math.floor(player.y / ts);
+      const centerY = (tileY + 0.5) * ts;
+      // Try nudging toward nearest tile center first, then away
+      const dirs = player.y > centerY ? [1, -1] : [-1, 1];
+      for (const dir of dirs) {
+        const nudgedY = player.y + dir * speed;
+        if (!this.collidesAt(player.x, nudgedY, dungeon) &&
+            !this.collidesAt(newX, nudgedY, dungeon)) {
+          player.y = nudgedY;
+          player.x = newX;
+          break;
+        }
+      }
+    }
+
+    if (!movedY && dy !== 0 && dx === 0) {
+      const tileX = Math.floor(player.x / ts);
+      const centerX = (tileX + 0.5) * ts;
+      const dirs = player.x > centerX ? [1, -1] : [-1, 1];
+      for (const dir of dirs) {
+        const nudgedX = player.x + dir * speed;
+        if (!this.collidesAt(nudgedX, player.y, dungeon) &&
+            !this.collidesAt(nudgedX, newY, dungeon)) {
+          player.x = nudgedX;
+          player.y = newY;
+          break;
+        }
+      }
     }
 
     // Update facing direction
