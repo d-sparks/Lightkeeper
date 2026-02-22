@@ -6,6 +6,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d0d1a">
+  <link rel="manifest" href="manifest.json">
   <title>Lightkeeper</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -556,9 +558,9 @@
       #action-bar { display: flex !important; }
     }
 
-    /* Touch in portrait: show rotate warning, hide controls */
+    /* Touch in portrait: show rotate warning only when in-game, hide controls */
     @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
-      #rotate-warning { display: flex !important; }
+      body.in-game #rotate-warning { display: flex !important; }
       .desktop-only { display: none !important; }
     }
 
