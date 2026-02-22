@@ -89,6 +89,10 @@ class Renderer {
     this.clickTargetGfx = null;
     this.clickTarget = null;  // { x, y } world coords, set by input handler
 
+    // Aim indicator (set by input handler)
+    this.aimIndicator = null;  // reference to input.aimIndicator { active, angle }
+    this.aimLineGfx = null;
+
     this._initPixi();
   }
 
@@ -130,6 +134,10 @@ class Renderer {
     // Click target indicator
     this.clickTargetGfx = new PIXI.Graphics();
     this.worldContainer.addChild(this.clickTargetGfx);
+
+    // Aim indicator line
+    this.aimLineGfx = new PIXI.Graphics();
+    this.worldContainer.addChild(this.aimLineGfx);
 
     // Door prompt layer
     this.doorPromptContainer = new PIXI.Container();
@@ -397,6 +405,7 @@ class Renderer {
     this.renderSpawns();
     this.renderExits();
     this.renderClickTarget();
+    this.renderAimLine();
     this.renderItems();
     this.renderNPCs();
     this.renderMonsters();
@@ -499,6 +508,73 @@ class Renderer {
 
     this.clickTargetGfx.lineStyle(1.5, 0xffffff, pulse);
     this.clickTargetGfx.drawCircle(cx, cy, radius);
+  }
+
+  // --- Aim indicator line ---
+
+  renderAimLine() {
+    this.aimLineGfx.clear();
+    if (!this.aimIndicator || !this.aimIndicator.active) return;
+    if (!this.state || !this.myId) return;
+
+    const me = this.state.players.find(p => p.id === this.myId);
+    if (!me) return;
+
+    const angle = this.aimIndicator.angle;
+    const lineLen = CONSTANTS.TILE_SIZE * 5;
+    const endX = me.x + Math.cos(angle) * lineLen;
+    const endY = me.y + Math.sin(angle) * lineLen;
+
+    let sx, sy, ex, ey;
+    if (this.isoMode) {
+      const isoS = this.worldToIso(me.x, me.y);
+      const isoE = this.worldToIso(endX, endY);
+      sx = isoS.x;
+      sy = isoS.y;
+      ex = isoE.x;
+      ey = isoE.y;
+    } else {
+      sx = me.x;
+      sy = me.y;
+      ex = endX;
+      ey = endY;
+    }
+
+    // Dashed aim line with arrowhead
+    const dx = ex - sx;
+    const dy = ey - sy;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const nx = dx / len;
+    const ny = dy / len;
+
+    // Draw dashed line segments
+    const dashLen = 8;
+    const gapLen = 6;
+    let dist = 0;
+    this.aimLineGfx.lineStyle(2, 0xef5350, 0.6);
+    while (dist < len) {
+      const segStart = dist;
+      const segEnd = Math.min(dist + dashLen, len);
+      this.aimLineGfx.moveTo(sx + nx * segStart, sy + ny * segStart);
+      this.aimLineGfx.lineTo(sx + nx * segEnd, sy + ny * segEnd);
+      dist += dashLen + gapLen;
+    }
+
+    // Arrowhead at end
+    const arrowSize = 8;
+    const perpX = -ny * arrowSize * 0.6;
+    const perpY = nx * arrowSize * 0.6;
+    this.aimLineGfx.lineStyle(0);
+    this.aimLineGfx.beginFill(0xef5350, 0.7);
+    this.aimLineGfx.moveTo(ex, ey);
+    this.aimLineGfx.lineTo(ex - nx * arrowSize + perpX, ey - ny * arrowSize + perpY);
+    this.aimLineGfx.lineTo(ex - nx * arrowSize - perpX, ey - ny * arrowSize - perpY);
+    this.aimLineGfx.closePath();
+    this.aimLineGfx.endFill();
+
+    // Small circle at origin
+    this.aimLineGfx.lineStyle(1, 0xef5350, 0.4);
+    this.aimLineGfx.drawCircle(sx, sy, 6);
   }
 
   // --- Tile rendering ---

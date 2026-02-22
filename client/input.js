@@ -31,6 +31,9 @@ class InputHandler {
     // Mobile ability drag-to-aim
     this.abilityDrag = null;  // { slot, startX, startY, touchId, moved }
 
+    // Aim indicator (read by renderer to draw aim line)
+    this.aimIndicator = { active: false, angle: 0 };
+
     // Movement joystick
     this.joystickActive = false;
     this.joystickTouchId = null;
@@ -198,6 +201,7 @@ class InputHandler {
         }
         if (this.abilityDrag && t.identifier === this.abilityDrag.touchId) {
           this.abilityDrag = null;
+          this.aimIndicator.active = false;
         }
       }
     });
@@ -286,8 +290,11 @@ class InputHandler {
     if (!this.abilityDrag) return;
     const dx = clientX - this.abilityDrag.startX;
     const dy = clientY - this.abilityDrag.startY;
-    if (Math.sqrt(dx * dx + dy * dy) > 15) {
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > 15) {
       this.abilityDrag.moved = true;
+      this.aimIndicator.active = true;
+      this.aimIndicator.angle = Math.atan2(dy, dx);
     }
   }
 
@@ -295,6 +302,7 @@ class InputHandler {
     if (!this.abilityDrag) return;
     const drag = this.abilityDrag;
     this.abilityDrag = null;
+    this.aimIndicator.active = false;
 
     // Remove active visual state
     const btn = document.querySelector('.ability-btn[data-slot="' + drag.slot + '"]');
@@ -412,13 +420,18 @@ class InputHandler {
     this.gamepadKeys = newKeys;
     if (keysChanged) this.sendInput();
 
-    // Right stick → aim direction
+    // Right stick → aim direction + aim indicator
     const rx = gp.axes[2] || 0;
     const ry = gp.axes[3] || 0;
     const rLen = Math.sqrt(rx * rx + ry * ry);
     let gamepadAimAngle = null;
     if (rLen > 0.3) {
       gamepadAimAngle = Math.atan2(ry, rx);
+      this.aimIndicator.active = true;
+      this.aimIndicator.angle = gamepadAimAngle;
+    } else if (!this.abilityDrag) {
+      // Only clear if not also touch-dragging
+      this.aimIndicator.active = false;
     }
 
     // Buttons — detect rising edge

@@ -23,6 +23,7 @@
   const renderer = new Renderer(canvas);
   const input = new InputHandler(net);
   input.renderer = renderer;  // For click-to-move coordinate conversion
+  renderer.aimIndicator = input.aimIndicator;  // For aim line drawing
 
   // --- Responsive canvas sizing ---
   function resizeCanvas() {
@@ -254,21 +255,51 @@
     }
   }
 
+  // --- Auto-aim: find nearest monster and return angle to it ---
+  function autoAimAngle(me) {
+    if (!renderer.state || !renderer.state.monsters) return null;
+    let nearest = null;
+    let bestDist = Infinity;
+    for (const mob of renderer.state.monsters) {
+      const dx = mob.x - me.x;
+      const dy = mob.y - me.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < bestDist) {
+        bestDist = dist;
+        nearest = mob;
+      }
+    }
+    // Auto-aim range: 10 tiles (generous, projectile will travel)
+    const maxRange = CONSTANTS.TILE_SIZE * 10;
+    if (!nearest || bestDist > maxRange) return null;
+    return Math.atan2(nearest.y - me.y, nearest.x - me.x);
+  }
+
+  // --- Player facing direction (fallback when no target) ---
+  let lastFacing = 0;
+
   // --- Ability dispatch ---
   input.onAbility = function (slot, aimAngle) {
     if (dialogueActive || inventoryOpen) return;
     if (slot === 1) {
-      // Primary attack — send with aim angle
+      const me = renderer.state && renderer.state.players
+        ? renderer.state.players.find(p => p.id === renderer.myId)
+        : null;
+      if (!me) return;
+
       if (aimAngle === null) {
-        // No aim: use mouse aim as fallback (keyboard/desktop)
-        const me = renderer.state && renderer.state.players
-          ? renderer.state.players.find(p => p.id === renderer.myId)
-          : null;
-        if (me) {
-          aimAngle = input.getAimAngle(me.x, me.y);
-        }
+        // Desktop: use mouse aim
+        aimAngle = input.getAimAngle(me.x, me.y);
       }
-      if (aimAngle === null) return;
+      if (aimAngle === null) {
+        // Auto-aim at nearest monster
+        aimAngle = autoAimAngle(me);
+      }
+      if (aimAngle === null) {
+        // No target: fire in facing direction
+        aimAngle = lastFacing;
+      }
+
       net.send({ type: CONSTANTS.MSG.ATTACK, aimAngle });
       return;
     }
@@ -341,6 +372,7 @@
         const pct = (me.health / me.maxHealth) * 100;
         healthFill.style.width = `${pct}%`;
         hudName.textContent = me.name;
+        if (me.facing !== undefined) lastFacing = me.facing;
       }
     }
 
