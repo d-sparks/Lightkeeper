@@ -261,6 +261,7 @@
     let nearest = null;
     let bestDist = Infinity;
     for (const mob of renderer.state.monsters) {
+      if (mob.health <= 0) continue;
       const dx = mob.x - me.x;
       const dy = mob.y - me.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -269,8 +270,8 @@
         nearest = mob;
       }
     }
-    // Auto-aim range: 10 tiles (generous, projectile will travel)
-    const maxRange = CONSTANTS.TILE_SIZE * 10;
+    // Auto-aim range: 12 tiles (generous, projectile will travel further)
+    const maxRange = CONSTANTS.TILE_SIZE * 12;
     if (!nearest || bestDist > maxRange) return null;
     return Math.atan2(nearest.y - me.y, nearest.x - me.x);
   }
@@ -288,12 +289,12 @@
       if (!me) return;
 
       if (aimAngle === null) {
-        // Desktop: use mouse aim
-        aimAngle = input.getAimAngle(me.x, me.y);
+        // Auto-aim at nearest monster (highest priority)
+        aimAngle = autoAimAngle(me);
       }
       if (aimAngle === null) {
-        // Auto-aim at nearest monster
-        aimAngle = autoAimAngle(me);
+        // Desktop: use mouse aim direction as fallback
+        aimAngle = input.getAimAngle(me.x, me.y);
       }
       if (aimAngle === null) {
         // No target: fire in facing direction

@@ -383,23 +383,39 @@ class GameLoop {
     for (const [mid, mob] of room.monsters) {
       mob.attackTimer = Math.max(0, mob.attackTimer - dt);
 
-      // Find nearest player
+      // If monster has a forced aggro target (e.g. was shot), prioritize that player
       let nearest = null;
       let nearestDist = Infinity;
-      for (const [pid, player] of room.players) {
-        const dx = player.x - mob.x;
-        const dy = player.y - mob.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < nearestDist) {
-          nearest = player;
-          nearestDist = dist;
+
+      if (mob.aggroTarget) {
+        const target = room.players.get(mob.aggroTarget);
+        if (target) {
+          const dx = target.x - mob.x;
+          const dy = target.y - mob.y;
+          nearest = target;
+          nearestDist = Math.sqrt(dx * dx + dy * dy);
+        } else {
+          mob.aggroTarget = null;
+        }
+      }
+
+      // Fall back to nearest player within aggro range
+      if (!nearest) {
+        for (const [pid, player] of room.players) {
+          const dx = player.x - mob.x;
+          const dy = player.y - mob.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < nearestDist) {
+            nearest = player;
+            nearestDist = dist;
+          }
         }
       }
 
       if (!nearest) continue;
 
       const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
-      if (nearestDist > aggroRange) continue;
+      if (!mob.aggroTarget && nearestDist > aggroRange) continue;
 
       if (mob.ai === 'melee_chase') {
         if (nearestDist > mob.attackRange) {
@@ -522,8 +538,8 @@ class GameLoop {
       dirX = Math.cos(aimAngle);
       dirY = Math.sin(aimAngle);
     } else {
-      // Auto-aim: find nearest monster (within reasonable distance)
-      const targetRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
+      // Auto-aim: find nearest monster (generous range, projectile will travel)
+      const targetRange = 12 * CONSTANTS.TILE_SIZE;
       let nearestMob = null;
       let nearestDist = Infinity;
       for (const [mid, mob] of room.monsters) {
@@ -602,8 +618,9 @@ class GameLoop {
         const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius;
 
         if (dist < hitRadius) {
-          // Hit monster
+          // Hit monster — force aggro on the attacker
           mob.health -= proj.damage;
+          mob.aggroTarget = proj.ownerId;
           room.events.push({
             type: 'damage',
             targetId: mid,
