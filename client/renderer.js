@@ -530,6 +530,88 @@ class Renderer {
       ctx.stroke();
     });
 
+    // --- Chest closed (3D crate with lock) ---
+    this.isoTileTextures['chest_closed'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
+      // Top face (metallic lid)
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(0, hh);
+      ctx.closePath();
+      ctx.fillStyle = '#5a6a5a';
+      ctx.fill();
+
+      // Left face (dark metal)
+      ctx.beginPath();
+      ctx.moveTo(0, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = '#4a5a4a';
+      ctx.fill();
+
+      // Right face (darker metal)
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = '#3a4a3a';
+      ctx.fill();
+
+      // Metal band across front left face
+      ctx.fillStyle = 'rgba(120,140,120,0.4)';
+      ctx.fillRect(hw * 0.15, hh + wallRise * 0.2, hw * 0.7, 3);
+
+      // Lock indicator (golden)
+      ctx.fillStyle = 'rgba(220,180,60,0.7)';
+      ctx.fillRect(hw - 5, dh + wallRise * 0.35, 10, 10);
+      ctx.strokeStyle = 'rgba(255,220,100,0.5)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(hw - 5, dh + wallRise * 0.35, 10, 10);
+
+      // Lock keyhole
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.beginPath();
+      ctx.arc(hw, dh + wallRise * 0.35 + 5, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Edge lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.stroke();
+    });
+
+    // --- Chest opened (low open crate, floor-height) ---
+    this.isoTileTextures['chest_opened'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
+      this._drawDiamond(ctx, hw, hh, hw, hh);
+      ctx.fillStyle = '#3a4a3a';
+      ctx.fill();
+      // Open lid edges
+      ctx.strokeStyle = 'rgba(120,140,120,0.5)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(hw - 16, hh);
+      ctx.lineTo(hw, hh - 8);
+      ctx.lineTo(hw + 16, hh);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(hw - 16, hh);
+      ctx.lineTo(hw, hh + 8);
+      ctx.lineTo(hw + 16, hh);
+      ctx.stroke();
+      // Inner shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      this._drawDiamond(ctx, hw, hh, hw * 0.6, hh * 0.6);
+      ctx.fill();
+    });
+
     // Map tile names to iso keys (each type gets its own)
     this.tileToIsoKey = {
       'stone_floor':   'floor',
@@ -542,6 +624,8 @@ class Renderer {
       'door_closed':   'door_closed',
       'locked_door':   'locked_door',
       'water':         'water',
+      'chest_closed':  'chest_closed',
+      'chest_opened':  'chest_opened',
     };
 
     this.isoTileLoaded = true;
@@ -621,6 +705,8 @@ class Renderer {
       'stairs_up':     0x3a8a6a,
       'water':         0x2a4a6a,
       'void':          0x0d0d1a,
+      'chest_closed':  0x5a6a5a,
+      'chest_opened':  0x3a4a3a,
     };
     for (const [id, tile] of Object.entries(this.tileset.tiles)) {
       this.tileColors[id] = colorMap[tile.name] !== undefined ? colorMap[tile.name] : 0xff00ff;
@@ -916,7 +1002,7 @@ class Renderer {
     const wallRise = CONSTANTS.ISO_WALL_RISE;
 
     // Wall-type iso keys
-    const wallKeys = new Set(['wall', 'door_closed', 'locked_door']);
+    const wallKeys = new Set(['wall', 'door_closed', 'locked_door', 'chest_closed']);
 
     // Viewport culling bounds in iso screen space (with padding)
     const cullL = this.camX - dw;

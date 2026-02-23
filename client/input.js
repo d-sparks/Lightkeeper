@@ -27,6 +27,7 @@ class InputHandler {
     // Mouse aim
     this.mouseWorldX = 0;
     this.mouseWorldY = 0;
+    this.mouseActive = false;  // true once mouse has been moved on canvas
 
     // Mobile ability drag-to-aim
     this.abilityDrag = null;  // { slot, startX, startY, touchId, moved }
@@ -148,6 +149,7 @@ class InputHandler {
 
   // Backward-compatible helper used by main.js
   getAimAngle(playerX, playerY) {
+    if (!this.mouseActive) return null;
     const dx = this.mouseWorldX - playerX;
     const dy = this.mouseWorldY - playerY;
     const dist = Math.sqrt(dx * dx + dy * dy);
@@ -481,6 +483,7 @@ class InputHandler {
       const world = this.renderer.screenToWorld(e.clientX, e.clientY);
       this.mouseWorldX = world.x;
       this.mouseWorldY = world.y;
+      this.mouseActive = true;
     });
 
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());

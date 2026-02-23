@@ -268,7 +268,7 @@
     3,
     3,
     1,
-    4,
+    10,
     1,
     1,
     1,
@@ -4135,16 +4135,7 @@
         "tileX": 21,
         "tileY": 3
       },
-      "conditions": [
-        {
-          "hasItem": "supply_crate_key"
-        }
-      ],
       "actions": [
-        {
-          "type": "removeItem",
-          "itemType": "supply_crate_key"
-        },
         {
           "type": "spawnItem",
           "itemType": "titanium_cylinders",
@@ -4161,32 +4152,6 @@
         }
       ],
       "once": true
-    },
-    {
-      "id": "supply_crate_locked",
-      "event": "door_interacted",
-      "filter": {
-        "tileX": 21,
-        "tileY": 3
-      },
-      "conditions": [
-        {
-          "not": {
-            "hasItem": "supply_crate_key"
-          }
-        },
-        {
-          "not": {
-            "hasFlag": "supply_crate_opened"
-          }
-        }
-      ],
-      "actions": [
-        {
-          "type": "showMessage",
-          "text": "The supply crate is locked. A heavy-duty lock keeps it sealed."
-        }
-      ]
     },
     {
       "id": "enter_quarantine",
@@ -4247,7 +4212,7 @@
         },
         {
           "type": "showMessage",
-          "text": "Titanium power cylinders \u2014 exactly what the engineer needs. Time to head back to the workshop."
+          "text": "Titanium power cylinders — exactly what the engineer needs. Time to head back to the workshop."
         }
       ],
       "once": true

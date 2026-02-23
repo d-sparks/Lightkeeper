@@ -20,6 +20,19 @@
       "conditions": [{ "hasItem": "iron_key" }],
       "failMessage": "The door is locked. You need a key.",
       "onInteract": [{ "type": "removeItem", "itemType": "iron_key" }]
+    },
+    "10": {
+      "name": "chest_closed",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 11,
+      "conditions": [{ "hasItem": "supply_crate_key" }],
+      "failMessage": "The supply crate is locked. You need a key.",
+      "onInteract": [{ "type": "removeItem", "itemType": "supply_crate_key" }]
+    },
+    "11": {
+      "name": "chest_opened",
+      "solid": false
     }
   }
 }
