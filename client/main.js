@@ -282,29 +282,25 @@
   // --- Ability dispatch ---
   input.onAbility = function (slot, aimAngle) {
     if (dialogueActive || inventoryOpen) return;
-    if (slot === 1) {
-      const me = renderer.state && renderer.state.players
-        ? renderer.state.players.find(p => p.id === renderer.myId)
-        : null;
-      if (!me) return;
+    const me = renderer.state && renderer.state.players
+      ? renderer.state.players.find(p => p.id === renderer.myId)
+      : null;
+    if (!me) return;
 
-      if (aimAngle === null) {
-        // Auto-aim at nearest monster (highest priority)
-        aimAngle = autoAimAngle(me);
-      }
-      if (aimAngle === null) {
-        // Desktop: use mouse aim direction as fallback
-        aimAngle = input.getAimAngle(me.x, me.y);
-      }
-      if (aimAngle === null) {
-        // No target: fire in facing direction
-        aimAngle = lastFacing;
-      }
-
-      net.send({ type: CONSTANTS.MSG.ATTACK, aimAngle });
-      return;
+    if (aimAngle === null) {
+      // Auto-aim at nearest monster (highest priority)
+      aimAngle = autoAimAngle(me);
     }
-    // Slots 2-6: future abilities
+    if (aimAngle === null) {
+      // Desktop: use mouse aim direction as fallback
+      aimAngle = input.getAimAngle(me.x, me.y);
+    }
+    if (aimAngle === null) {
+      // No target: fire in facing direction
+      aimAngle = lastFacing;
+    }
+
+    net.send({ type: CONSTANTS.MSG.ATTACK, aimAngle, slot });
   };
 
   // --- Interact dispatch ---

@@ -24,6 +24,11 @@ class InputHandler {
     this.dialogueActive = false;
     this.inventoryOpen = false;
 
+    // Diablo-style ability selection
+    this.selectedAbility = 2;  // right-click defaults to slot 2
+    this.shiftHeld = false;
+    this.combatTarget = null;  // { monsterId } for click-to-attack
+
     // Mouse aim
     this.mouseWorldX = 0;
     this.mouseWorldY = 0;
@@ -66,6 +71,7 @@ class InputHandler {
     this.setupTouch();
     this.setupMouse();
     this.startGamepadPolling();
+    this.selectAbility(this.selectedAbility);
   }
 
   stop() {
@@ -79,17 +85,48 @@ class InputHandler {
   onKeyDown(e) {
     if (!this.active) return;
 
-    // Ability keys 1-6
+    // Shift tracking
+    if (e.key === 'Shift') {
+      this.shiftHeld = true;
+      return;
+    }
+
+    // Ability keys 1-6: select (no shift) or instant-cast (with shift)
     const digitMatch = e.code.match(/^Digit([1-6])$/);
     if (digitMatch) {
       e.preventDefault();
       const slot = parseInt(digitMatch[1]);
-      const aimAngle = this.getMouseAimAngle();
-      if (this.onAbility) this.onAbility(slot, aimAngle);
+      if (this.shiftHeld) {
+        // Shift+number: instant-cast with autoaim
+        if (this.onAbility) this.onAbility(slot, null);
+      } else {
+        // Number only: select for right-click
+        this.selectAbility(slot);
+      }
       return;
     }
 
-    // Space → ability 1
+    // R → slot 5, G → slot 6 (select or shift-cast)
+    if (e.key === 'r' || e.key === 'R') {
+      e.preventDefault();
+      if (this.shiftHeld) {
+        if (this.onAbility) this.onAbility(5, null);
+      } else {
+        this.selectAbility(5);
+      }
+      return;
+    }
+    if (e.key === 'g' || e.key === 'G') {
+      e.preventDefault();
+      if (this.shiftHeld) {
+        if (this.onAbility) this.onAbility(6, null);
+      } else {
+        this.selectAbility(6);
+      }
+      return;
+    }
+
+    // Space → ability 1 at cursor
     if (e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault();
       const aimAngle = this.getMouseAimAngle();
@@ -111,10 +148,11 @@ class InputHandler {
       return;
     }
 
-    // Movement
+    // Movement — also clears combat target
     const action = this.keyMap[e.key];
     if (action) {
       e.preventDefault();
+      this.combatTarget = null;
       this.clearMoveTarget();
       if (!this.keys[action]) {
         this.keys[action] = true;
@@ -124,6 +162,11 @@ class InputHandler {
   }
 
   onKeyUp(e) {
+    if (e.key === 'Shift') {
+      this.shiftHeld = false;
+      return;
+    }
+
     const action = this.keyMap[e.key];
     if (action) {
       e.preventDefault();
@@ -155,6 +198,19 @@ class InputHandler {
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < 5) return null;
     return Math.atan2(dy, dx);
+  }
+
+  // ===================== Ability Selection =====================
+
+  selectAbility(slot) {
+    this.selectedAbility = slot;
+    // Update action bar UI: remove .selected from all, add to selected
+    const allSlots = document.querySelectorAll('.action-slot[data-slot]');
+    for (const el of allSlots) {
+      el.classList.remove('selected');
+    }
+    const selected = document.querySelector('.action-slot[data-slot="' + slot + '"]');
+    if (selected) selected.classList.add('selected');
   }
 
   // ===================== Touch: Movement joystick =====================
@@ -233,14 +289,13 @@ class InputHandler {
       });
     }
 
-    // Desktop action bar — ability slots
+    // Desktop action bar — ability slots (click to select for right-click)
     const desktopSlots = document.querySelectorAll('.action-slot[data-slot]');
     for (const slot of desktopSlots) {
       const slotNum = parseInt(slot.getAttribute('data-slot'));
       slot.addEventListener('click', (e) => {
         e.preventDefault();
-        const aimAngle = this.getMouseAimAngle();
-        if (this.onAbility) this.onAbility(slotNum, aimAngle);
+        this.selectAbility(slotNum);
       });
     }
 
@@ -463,8 +518,18 @@ class InputHandler {
     const canvas = this.renderer.canvas;
 
     canvas.addEventListener('mousedown', (e) => {
-      if (e.button !== 0) return;
       if (!this.active) return;
+
+      // Right-click: cast selected ability at cursor
+      if (e.button === 2) {
+        e.preventDefault();
+        if (this.dialogueActive || this.inventoryOpen) return;
+        const aimAngle = this.getMouseAimAngle();
+        if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle);
+        return;
+      }
+
+      if (e.button !== 0) return;
 
       if (this.dialogueActive) {
         e.preventDefault();
@@ -474,6 +539,14 @@ class InputHandler {
       if (this.inventoryOpen) return;
 
       e.preventDefault();
+
+      // Shift+left-click: force-cast ability 1 at cursor (stand still)
+      if (this.shiftHeld) {
+        const aimAngle = this.getMouseAimAngle();
+        if (this.onAbility) this.onAbility(1, aimAngle);
+        return;
+      }
+
       const world = this.renderer.screenToWorld(e.clientX, e.clientY);
       this.handleClickAt(world.x, world.y);
     });
@@ -501,6 +574,7 @@ class InputHandler {
       for (const item of state.items) {
         const dx = worldX - item.x, dy = worldY - item.y;
         if (Math.sqrt(dx * dx + dy * dy) < clickRadius) {
+          this.combatTarget = null;
           this.setMoveTarget(item.x, item.y, 'item', CONSTANTS.ITEM_PICKUP_RANGE * ts);
           return;
         }
@@ -512,17 +586,19 @@ class InputHandler {
       for (const npc of state.npcs) {
         const dx = worldX - npc.x, dy = worldY - npc.y;
         if (Math.sqrt(dx * dx + dy * dy) < clickRadius) {
+          this.combatTarget = null;
           this.setMoveTarget(npc.x, npc.y, 'npc', CONSTANTS.NPC_INTERACT_RANGE * ts);
           return;
         }
       }
     }
 
-    // Check monsters
+    // Check monsters — click-to-attack
     if (state.monsters) {
       for (const mob of state.monsters) {
         const dx = worldX - mob.x, dy = worldY - mob.y;
         if (Math.sqrt(dx * dx + dy * dy) < clickRadius) {
+          this.combatTarget = { monsterId: mob.id };
           this.setMoveTarget(mob.x, mob.y, 'monster', CONSTANTS.PLAYER_ATTACK_RANGE * ts);
           return;
         }
@@ -538,6 +614,7 @@ class InputHandler {
         const tileId = map.data[ty * map.width + tx];
         const tileDef = this.renderer.tileset.tiles[String(tileId)];
         if (tileDef && tileDef.interactable === 'door') {
+          this.combatTarget = null;
           const doorX = (tx + 0.5) * ts;
           const doorY = (ty + 0.5) * ts;
           this.setMoveTarget(doorX, doorY, 'door', CONSTANTS.DOOR_INTERACT_RANGE * ts);
@@ -546,7 +623,8 @@ class InputHandler {
       }
     }
 
-    // Plain ground click
+    // Plain ground click — clears combat target
+    this.combatTarget = null;
     this.setMoveTarget(worldX, worldY, null, 0);
   }
 
@@ -566,12 +644,52 @@ class InputHandler {
   updateClickToMove(playerX, playerY) {
     if (!this.moveTarget) return;
 
+    // Combat target: track monster's live position
+    if (this.combatTarget) {
+      const state = this.renderer && this.renderer.state;
+      if (state && state.monsters) {
+        const mob = state.monsters.find(m => m.id === this.combatTarget.monsterId);
+        if (!mob || mob.health <= 0) {
+          // Monster dead or gone — stop pursuing
+          this.combatTarget = null;
+          this.clearMoveTarget();
+          this.keys = { up: false, down: false, left: false, right: false };
+          this.sendInput();
+          return;
+        }
+        // Update move target to monster's current position
+        this.moveTarget.x = mob.x;
+        this.moveTarget.y = mob.y;
+        if (this.renderer) this.renderer.clickTarget = { x: mob.x, y: mob.y };
+
+        // Check if in attack range
+        const dx = mob.x - playerX;
+        const dy = mob.y - playerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < this.moveTarget.interactRange) {
+          // In range — stop moving, attack the monster
+          this.keys = { up: false, down: false, left: false, right: false };
+          this.sendInput();
+          const aimAngle = Math.atan2(dy, dx);
+          if (this.onAbility) this.onAbility(1, aimAngle);
+          return;
+        }
+      } else {
+        // No state — clear target
+        this.combatTarget = null;
+        this.clearMoveTarget();
+        this.keys = { up: false, down: false, left: false, right: false };
+        this.sendInput();
+        return;
+      }
+    }
+
     const dx = this.moveTarget.x - playerX;
     const dy = this.moveTarget.y - playerY;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    // Interact when close enough
-    if (this.moveTarget.interactType && dist < this.moveTarget.interactRange) {
+    // Interact when close enough (non-monster interactions)
+    if (this.moveTarget.interactType && !this.combatTarget && dist < this.moveTarget.interactRange) {
       this.clearMoveTarget();
       this.keys = { up: false, down: false, left: false, right: false };
       this.sendInput();
@@ -581,7 +699,7 @@ class InputHandler {
 
     // Arrived at ground target
     const arrivalThreshold = this.moveTarget.interactType ? this.moveTarget.interactRange : 6;
-    if (dist < arrivalThreshold) {
+    if (!this.combatTarget && dist < arrivalThreshold) {
       this.clearMoveTarget();
       this.keys = { up: false, down: false, left: false, right: false };
       this.sendInput();

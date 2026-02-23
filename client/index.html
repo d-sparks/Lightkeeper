@@ -537,6 +537,13 @@
 
     .action-slot[data-slot="1"] { border-color: rgba(239,83,80,0.35); }
 
+    .action-slot.selected {
+      border-color: rgba(255,167,38,0.7);
+      background: rgba(255,167,38,0.1);
+      box-shadow: 0 0 8px rgba(255,167,38,0.2);
+    }
+    .action-slot.selected .slot-key { color: #ffa726; }
+
     .action-slot .slot-key {
       position: absolute;
       top: 3px;
@@ -673,11 +680,11 @@
       <span class="slot-label">&mdash;</span>
     </div>
     <div class="action-slot empty" data-slot="5">
-      <span class="slot-key">5</span>
+      <span class="slot-key">R</span>
       <span class="slot-label">&mdash;</span>
     </div>
     <div class="action-slot empty" data-slot="6">
-      <span class="slot-key">6</span>
+      <span class="slot-key">G</span>
       <span class="slot-label">&mdash;</span>
     </div>
     <div class="action-bar-sep"></div>
