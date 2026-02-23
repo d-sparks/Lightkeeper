@@ -202,7 +202,7 @@ The player is now making interesting decisions every time they return from a run
 ## Open Questions
 
 1. **Sol unit variants** — Define the 5-6 specific units: grid dimensions, innate perks, where they're found, and how they feel different to play.
-2. **Adjacency rules** — 4-directional (up/down/left/right) or 8-directional (including diagonals)? Do modifiers boost other modifiers? Do power generators benefit from adjacent modifiers?
+2. **Adjacency details** — Base adjacency is **4-directional** (up/down/left/right). Some rare/powerful modifiers have extended reach: "radius 2", "entire row", "entire column", etc. These break the normal adjacency constraint and are valuable because of it. Still open: do modifiers boost other modifiers? Do power generators benefit from adjacent modifiers?
 3. **Grid component limits** — Can you stack multiple copies of the same modifier? Is there a max number of abilities vs modifiers per grid?
 4. **Modifier stat ranges** — What are the actual numbers? How much does a common +Damage mod give vs a legendary one?
 5. **Battery math** — Capacity per tier, energy costs per ability, how many casts does a full charge sustain at each game phase?
