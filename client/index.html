@@ -383,12 +383,12 @@
       transition: background 0.1s, border-color 0.1s, box-shadow 0.1s;
     }
 
-    /* Slot 1 — primary attack, bottom-right, biggest */
+    /* Slot 1 — primary attack, bottom-right */
     .ability-btn[data-slot="1"] {
-      right: calc(6px + env(safe-area-inset-right, 0px));
+      right: calc(2px + env(safe-area-inset-right, 0px));
       bottom: 8px;
       width: 150px;
-      height: 76px;
+      height: 72px;
       font-size: 16px;
       background: rgba(239, 83, 80, 0.1);
       border-color: rgba(239, 83, 80, 0.3);
@@ -398,38 +398,42 @@
 
     /* Slot 2 — above slot 1 */
     .ability-btn[data-slot="2"] {
-      right: calc(6px + env(safe-area-inset-right, 0px));
-      bottom: 90px; /* 8 + 76 + 6 */
+      right: calc(2px + env(safe-area-inset-right, 0px));
+      bottom: 92px; /* 8 + 72 + 12 */
       width: 150px;
       height: 64px;
     }
 
-    /* Slot 3 — above slot 2 */
+    /* Slot 3 — above slot 2, just below minimap */
     .ability-btn[data-slot="3"] {
-      right: calc(6px + env(safe-area-inset-right, 0px));
-      bottom: 160px; /* 90 + 64 + 6 */
+      right: calc(2px + env(safe-area-inset-right, 0px));
+      bottom: 168px; /* 92 + 64 + 12 */
       width: 150px;
       height: 64px;
     }
 
     /* Slot 4 — bottom row, right (next to slot 1) */
     .ability-btn[data-slot="4"] {
-      right: calc(162px + env(safe-area-inset-right, 0px));
+      right: calc(158px + env(safe-area-inset-right, 0px));
       bottom: 8px;
-      height: 64px;
+      width: 150px;
+      height: 72px;
     }
 
     /* Slot 5 — bottom row, left (next to joystick) */
     .ability-btn[data-slot="5"] {
       left: calc(186px + env(safe-area-inset-left, 0px));
       bottom: 8px;
-      height: 64px;
+      width: 150px;
+      height: 72px;
     }
 
     /* Slot 6 — above joystick, defensive/ultimate, cyan tint */
     .ability-btn[data-slot="6"] {
       left: calc(46px + env(safe-area-inset-left, 0px));
-      bottom: 160px;
+      bottom: 190px;
+      width: 150px;
+      height: 64px;
       background: rgba(80, 200, 220, 0.08);
       border-color: rgba(80, 200, 220, 0.22);
       color: rgba(120, 210, 225, 0.7);
