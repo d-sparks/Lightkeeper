@@ -1312,78 +1312,250 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
 function IsoPreview({ dungeon, tiles }) {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
-  const imgsRef = useRef(null);
 
-  // Iso constants
-  const DW = 192, DH = 96;
-  const SCALE = 0.5;
-
-  const isoAssets = {
-    floor:  { file: '/content/sprites_isometric/LunarLandscape_Exports_001-32-GroundTile-1.png', fw: 409, fh: 225 },
-    floor2: { file: '/content/sprites_isometric/LunarLandscape_Exports_001-4-GroundTile-7.png', fw: 409, fh: 225 },
-    wall:   { file: '/content/sprites_isometric/LunarLandscape_Exports_001-6-Rock-9.png', fw: 81, fh: 121 },
-    door:   { file: '/content/sprites_isometric/LunarLandscape_Exports_001-0-BuildingBlock-2.png', fw: 297, fh: 277 },
-  };
+  // Iso constants (match game renderer exactly)
+  const DW = 96, DH = 48, WALL_RISE = 30;
+  const HW = DW / 2, HH = DH / 2;
 
   const tileToIsoKey = {
     'stone_floor':   'floor',
     'cracked_floor': 'floor2',
-    'door_open':     'floor',
-    'stairs_down':   'floor',
-    'stairs_up':     'floor',
+    'door_open':     'door_open',
+    'stairs_down':   'stairs_down',
+    'stairs_up':     'stairs_up',
     'stone_wall':    'wall',
     'void':          'wall',
-    'door_closed':   'door',
-    'locked_door':   'door',
-    'water':         'floor',
+    'door_closed':   'door_closed',
+    'locked_door':   'locked_door',
+    'water':         'water',
   };
 
-  // Load images once
-  useEffect(() => {
-    const imgs = {};
-    let loaded = 0;
-    const total = Object.keys(isoAssets).length;
-    for (const [key, asset] of Object.entries(isoAssets)) {
-      const img = new Image();
-      img.src = asset.file;
-      img.onload = () => { loaded++; if (loaded === total) { imgsRef.current = imgs; draw(); } };
-      imgs[key] = { img, fw: asset.fw, fh: asset.fh };
-    }
-  }, []);
+  const wallKeys = new Set(['wall', 'door_closed', 'locked_door']);
 
   const tileToIso = (tx, ty) => ({
-    x: (tx - ty) * DW / 2,
-    y: (tx + ty) * DH / 2,
+    x: (tx - ty) * HW,
+    y: (tx + ty) * HH,
   });
+
+  // --- Procedural tile drawing functions ---
+  const drawDiamond = (ctx, cx, cy) => {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - HH);
+    ctx.lineTo(cx + HW, cy);
+    ctx.lineTo(cx, cy + HH);
+    ctx.lineTo(cx - HW, cy);
+    ctx.closePath();
+  };
+
+  const drawFloor = (ctx, cx, cy) => {
+    drawDiamond(ctx, cx, cy);
+    ctx.fillStyle = '#2a2a3d';
+    ctx.fill();
+    drawDiamond(ctx, cx, cy);
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  };
+
+  const drawFloor2 = (ctx, cx, cy) => {
+    drawDiamond(ctx, cx, cy);
+    ctx.fillStyle = '#2a2a3d';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, cy - 3);
+    ctx.lineTo(cx + 5, cy + 5);
+    ctx.moveTo(cx + 8, cy - 6);
+    ctx.lineTo(cx - 4, cy + 4);
+    ctx.stroke();
+  };
+
+  const drawWater = (ctx, cx, cy) => {
+    drawDiamond(ctx, cx, cy);
+    ctx.fillStyle = '#1a3a6a';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(100,180,255,0.3)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    for (let i = -2; i <= 2; i++) {
+      const wy = cy + i * 6;
+      ctx.moveTo(cx - 20 + i * 4, wy);
+      ctx.quadraticCurveTo(cx - 5, wy - 3, cx + 10 + i * 2, wy);
+    }
+    ctx.stroke();
+  };
+
+  const drawStairsDown = (ctx, cx, cy) => {
+    drawDiamond(ctx, cx, cy);
+    ctx.fillStyle = '#4a2a6a';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 0.5;
+    for (let i = -2; i <= 2; i++) {
+      const y = cy + i * 5;
+      const xSpan = HW * (1 - Math.abs(i) * 0.25);
+      ctx.beginPath();
+      ctx.moveTo(cx - xSpan * 0.6, y);
+      ctx.lineTo(cx + xSpan * 0.6, y);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx - 8, cy - 4);
+    ctx.lineTo(cx, cy + 4);
+    ctx.lineTo(cx + 8, cy - 4);
+    ctx.stroke();
+  };
+
+  const drawStairsUp = (ctx, cx, cy) => {
+    drawDiamond(ctx, cx, cy);
+    ctx.fillStyle = '#2a6a4a';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 0.5;
+    for (let i = -2; i <= 2; i++) {
+      const y = cy + i * 5;
+      const xSpan = HW * (1 - Math.abs(i) * 0.25);
+      ctx.beginPath();
+      ctx.moveTo(cx - xSpan * 0.6, y);
+      ctx.lineTo(cx + xSpan * 0.6, y);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx - 8, cy + 4);
+    ctx.lineTo(cx, cy - 4);
+    ctx.lineTo(cx + 8, cy + 4);
+    ctx.stroke();
+  };
+
+  const drawDoorOpen = (ctx, cx, cy) => {
+    drawDiamond(ctx, cx, cy);
+    ctx.fillStyle = '#4a3a2a';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(180,140,80,0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx - 16, cy);
+    ctx.lineTo(cx, cy - 8);
+    ctx.lineTo(cx + 16, cy);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx - 16, cy);
+    ctx.lineTo(cx, cy + 8);
+    ctx.lineTo(cx + 16, cy);
+    ctx.stroke();
+  };
+
+  const drawWallBlock = (ctx, cx, cy, topColor, leftColor, rightColor) => {
+    // Top diamond
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - HH);
+    ctx.lineTo(cx + HW, cy);
+    ctx.lineTo(cx, cy + HH);
+    ctx.lineTo(cx - HW, cy);
+    ctx.closePath();
+    ctx.fillStyle = topColor;
+    ctx.fill();
+    // Left face
+    ctx.beginPath();
+    ctx.moveTo(cx - HW, cy);
+    ctx.lineTo(cx, cy + HH);
+    ctx.lineTo(cx, cy + HH + WALL_RISE);
+    ctx.lineTo(cx - HW, cy + WALL_RISE);
+    ctx.closePath();
+    ctx.fillStyle = leftColor;
+    ctx.fill();
+    // Right face
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + HH);
+    ctx.lineTo(cx + HW, cy);
+    ctx.lineTo(cx + HW, cy + WALL_RISE);
+    ctx.lineTo(cx, cy + HH + WALL_RISE);
+    ctx.closePath();
+    ctx.fillStyle = rightColor;
+    ctx.fill();
+    // Edge lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - HH);
+    ctx.lineTo(cx + HW, cy);
+    ctx.lineTo(cx + HW, cy + WALL_RISE);
+    ctx.moveTo(cx - HW, cy);
+    ctx.lineTo(cx - HW, cy + WALL_RISE);
+    ctx.lineTo(cx, cy + HH + WALL_RISE);
+    ctx.lineTo(cx + HW, cy + WALL_RISE);
+    ctx.stroke();
+  };
+
+  const drawWall = (ctx, cx, cy) => {
+    drawWallBlock(ctx, cx, cy, '#5a5a7a', '#4a4a6a', '#3a3a5a');
+  };
+
+  const drawDoorClosed = (ctx, cx, cy) => {
+    drawWallBlock(ctx, cx, cy, '#8b7a50', '#7a6a40', '#6a5a30');
+    // Arch detail
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cx, cy + HH + WALL_RISE * 0.3, WALL_RISE * 0.35, Math.PI, 0);
+    ctx.stroke();
+  };
+
+  const drawLockedDoor = (ctx, cx, cy) => {
+    drawWallBlock(ctx, cx, cy, '#6a5a3a', '#5a4a2a', '#4a3a1a');
+    // Arch
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cx, cy + HH + WALL_RISE * 0.3, WALL_RISE * 0.35, Math.PI, 0);
+    ctx.stroke();
+    // Lock rectangle
+    ctx.fillStyle = 'rgba(200,160,60,0.6)';
+    ctx.fillRect(cx - 4, cy + HH + WALL_RISE * 0.4, 8, 8);
+  };
+
+  const tileDraw = {
+    floor: drawFloor,
+    floor2: drawFloor2,
+    water: drawWater,
+    stairs_down: drawStairsDown,
+    stairs_up: drawStairsUp,
+    door_open: drawDoorOpen,
+    wall: drawWall,
+    door_closed: drawDoorClosed,
+    locked_door: drawLockedDoor,
+  };
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
-    const imgs = imgsRef.current;
-    if (!canvas || !dungeon || !imgs) return;
+    if (!canvas || !dungeon) return;
     const ctx = canvas.getContext('2d');
     const cw = canvas.width, ch = canvas.height;
     ctx.clearRect(0, 0, cw, ch);
 
     const W = dungeon.width, H = dungeon.height;
 
-    // Compute bounding box of all iso positions
+    // Compute bounding box
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (let ty = 0; ty < H; ty++) {
       for (let tx = 0; tx < W; tx++) {
         const p = tileToIso(tx, ty);
-        // Account for sprite size (use floor tile as reference)
-        const sw = isoAssets.floor.fw * SCALE;
-        const sh = isoAssets.floor.fh * SCALE;
-        const dx = p.x - sw / 2;
-        const dy = p.y - sh / 2;
-        if (dx < minX) minX = dx;
-        if (dy < minY) minY = dy;
-        if (dx + sw > maxX) maxX = dx + sw;
-        if (dy + sh > maxY) maxY = dy + sh;
+        const left = p.x - HW;
+        const top = p.y - HH;
+        const right = p.x + HW;
+        const bottom = p.y + HH + WALL_RISE;
+        if (left < minX) minX = left;
+        if (top < minY) minY = top;
+        if (right > maxX) maxX = right;
+        if (bottom > maxY) maxY = bottom;
       }
     }
 
-    // Auto-scale to fit
     const mapW = maxX - minX;
     const mapH = maxY - minY;
     const fitScale = Math.min(cw / mapW, ch / mapH) * 0.9;
@@ -1402,17 +1574,10 @@ function IsoPreview({ dungeon, tiles }) {
         const tileDef = tiles[tileId];
         const tileName = tileDef ? tileDef.name : 'void';
         const isoKey = tileToIsoKey[tileName] || 'wall';
-        const asset = imgs[isoKey];
-        if (!asset) continue;
 
         const p = tileToIso(tx, ty);
-        const sw = asset.fw * SCALE;
-        const sh = asset.fh * SCALE;
-        const dx = p.x - sw / 2;
-        const dy = p.y - sh / 2;
-
-        // Extract frame 0 from spritesheet
-        ctx.drawImage(asset.img, 0, 0, asset.fw, asset.fh, dx, dy, sw, sh);
+        const fn = tileDraw[isoKey] || drawWall;
+        fn(ctx, p.x, p.y);
       }
     }
 
@@ -1422,7 +1587,7 @@ function IsoPreview({ dungeon, tiles }) {
       ctx.fillStyle = color;
       ctx.globalAlpha = 0.8;
       ctx.beginPath();
-      ctx.arc(p.x, p.y + DH * 0.15, DW * 0.12, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, DW * 0.1, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalAlpha = 1;
     };

@@ -12,12 +12,9 @@ const CONSTANTS = {
   SPRITE_SIZE: 16,            // Native sprite size (scaled up 2x to TILE_SIZE)
 
   // Isometric rendering
-  ISO_TILE_W: 409,            // Sprite frame width (one orientation)
-  ISO_TILE_H: 225,            // Sprite frame height
-  ISO_DIAMOND_W: 96,          // Diamond footprint width (matches 0.25 render scale)
-  ISO_DIAMOND_H: 48,          // Diamond footprint height (matches 0.25 render scale)
-  ISO_WALL_W: 81,             // Wall sprite frame width
-  ISO_WALL_H: 121,            // Wall sprite frame height
+  ISO_DIAMOND_W: 96,          // Diamond footprint width in pixels
+  ISO_DIAMOND_H: 48,          // Diamond footprint height in pixels
+  ISO_WALL_RISE: 30,          // Wall face height above diamond in pixels
 
   // Player
   PLAYER_SPEED: 4,            // Tiles per second

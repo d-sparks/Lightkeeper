@@ -231,36 +231,317 @@ class Renderer {
     return { x: wx - this.camX, y: wy - this.camY };
   }
 
-  // --- Iso tile textures ---
+  // --- Iso tile textures (procedurally generated) ---
+
+  _createIsoTexture(w, h, drawFn) {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    drawFn(ctx, w, h);
+    return PIXI.Texture.from(canvas);
+  }
+
+  _drawDiamond(ctx, cx, cy, hw, hh) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - hh);
+    ctx.lineTo(cx + hw, cy);
+    ctx.lineTo(cx, cy + hh);
+    ctx.lineTo(cx - hw, cy);
+    ctx.closePath();
+  }
 
   _buildIsoTileTextures() {
-    const isoAssets = {
-      floor:  { file: 'sprites_isometric/iso_floor.png', fw: 409, fh: 225 },
-      floor2: { file: 'sprites_isometric/iso_floor2.png', fw: 409, fh: 225 },
-      wall:   { file: 'sprites_isometric/iso_wall.png', fw: 81, fh: 121 },
-      door:   { file: 'sprites_isometric/iso_door.png', fw: 297, fh: 277 },
-    };
+    const dw = CONSTANTS.ISO_DIAMOND_W;
+    const dh = CONSTANTS.ISO_DIAMOND_H;
+    const wallRise = CONSTANTS.ISO_WALL_RISE;
+    const hw = dw / 2;
+    const hh = dh / 2;
 
-    for (const [key, asset] of Object.entries(isoAssets)) {
-      const baseTex = PIXI.BaseTexture.from('/content/' + asset.file, {
-        scaleMode: PIXI.SCALE_MODES.NEAREST,
-      });
-      const rect = new PIXI.Rectangle(0, 0, asset.fw, asset.fh);
-      this.isoTileTextures[key] = new PIXI.Texture(baseTex, rect);
-    }
+    // --- Floor tile ---
+    this.isoTileTextures['floor'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
+      this._drawDiamond(ctx, hw, hh, hw, hh);
+      ctx.fillStyle = '#2a2a3d';
+      ctx.fill();
+      // Subtle edge highlight
+      this._drawDiamond(ctx, hw, hh, hw - 1, hh - 1);
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
 
-    // Map tile names to iso keys
+    // --- Floor2 (cracked) ---
+    this.isoTileTextures['floor2'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
+      this._drawDiamond(ctx, hw, hh, hw, hh);
+      ctx.fillStyle = '#2a2a3d';
+      ctx.fill();
+      // Crack lines
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw - 10, hh - 3);
+      ctx.lineTo(hw + 5, hh + 5);
+      ctx.moveTo(hw + 8, hh - 6);
+      ctx.lineTo(hw - 4, hh + 4);
+      ctx.stroke();
+      // Edge highlight
+      this._drawDiamond(ctx, hw, hh, hw - 1, hh - 1);
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.stroke();
+    });
+
+    // --- Water ---
+    this.isoTileTextures['water'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
+      this._drawDiamond(ctx, hw, hh, hw, hh);
+      ctx.fillStyle = '#1a3a6a';
+      ctx.fill();
+      // Wave lines
+      ctx.strokeStyle = 'rgba(100,180,255,0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let i = -2; i <= 2; i++) {
+        const cy = hh + i * 6;
+        ctx.moveTo(hw - 20 + i * 4, cy);
+        ctx.quadraticCurveTo(hw - 5, cy - 3, hw + 10 + i * 2, cy);
+        ctx.quadraticCurveTo(hw + 20, cy + 3, hw + 28 - Math.abs(i) * 4, cy);
+      }
+      ctx.stroke();
+    });
+
+    // --- Stairs down (purple) ---
+    this.isoTileTextures['stairs_down'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
+      this._drawDiamond(ctx, hw, hh, hw, hh);
+      ctx.fillStyle = '#4a2a6a';
+      ctx.fill();
+      // Step lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 1;
+      for (let i = -2; i <= 2; i++) {
+        const y = hh + i * 5;
+        const xSpan = hw * (1 - Math.abs(i) * 0.25);
+        ctx.beginPath();
+        ctx.moveTo(hw - xSpan * 0.6, y);
+        ctx.lineTo(hw + xSpan * 0.6, y);
+        ctx.stroke();
+      }
+      // Down chevron
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(hw - 8, hh - 4);
+      ctx.lineTo(hw, hh + 4);
+      ctx.lineTo(hw + 8, hh - 4);
+      ctx.stroke();
+    });
+
+    // --- Stairs up (teal) ---
+    this.isoTileTextures['stairs_up'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
+      this._drawDiamond(ctx, hw, hh, hw, hh);
+      ctx.fillStyle = '#2a6a4a';
+      ctx.fill();
+      // Step lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 1;
+      for (let i = -2; i <= 2; i++) {
+        const y = hh + i * 5;
+        const xSpan = hw * (1 - Math.abs(i) * 0.25);
+        ctx.beginPath();
+        ctx.moveTo(hw - xSpan * 0.6, y);
+        ctx.lineTo(hw + xSpan * 0.6, y);
+        ctx.stroke();
+      }
+      // Up chevron
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(hw - 8, hh + 4);
+      ctx.lineTo(hw, hh - 4);
+      ctx.lineTo(hw + 8, hh + 4);
+      ctx.stroke();
+    });
+
+    // --- Door open ---
+    this.isoTileTextures['door_open'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
+      this._drawDiamond(ctx, hw, hh, hw, hh);
+      ctx.fillStyle = '#4a3a2a';
+      ctx.fill();
+      // Frame edges
+      ctx.strokeStyle = 'rgba(180,140,80,0.4)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(hw - 16, hh);
+      ctx.lineTo(hw, hh - 8);
+      ctx.lineTo(hw + 16, hh);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(hw - 16, hh);
+      ctx.lineTo(hw, hh + 8);
+      ctx.lineTo(hw + 16, hh);
+      ctx.stroke();
+    });
+
+    // --- Wall (3D block: 96 x (48 + wallRise)) ---
+    const wallH = dh + wallRise;
+    this.isoTileTextures['wall'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
+      // Top diamond face
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(0, hh);
+      ctx.closePath();
+      ctx.fillStyle = '#5a5a7a';
+      ctx.fill();
+
+      // Left face
+      ctx.beginPath();
+      ctx.moveTo(0, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = '#4a4a6a';
+      ctx.fill();
+
+      // Right face
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = '#3a3a5a';
+      ctx.fill();
+
+      // Edge lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.moveTo(0, hh);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.stroke();
+    });
+
+    // --- Door closed (3D block, wood colors) ---
+    this.isoTileTextures['door_closed'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
+      // Top face
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(0, hh);
+      ctx.closePath();
+      ctx.fillStyle = '#8b7a50';
+      ctx.fill();
+
+      // Left face
+      ctx.beginPath();
+      ctx.moveTo(0, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = '#7a6a40';
+      ctx.fill();
+
+      // Right face
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = '#6a5a30';
+      ctx.fill();
+
+      // Arch detail on front face
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(hw, dh + wallRise * 0.3, wallRise * 0.35, Math.PI, 0);
+      ctx.stroke();
+
+      // Edge lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.stroke();
+    });
+
+    // --- Locked door (darker door + lock indicator) ---
+    this.isoTileTextures['locked_door'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
+      // Top face
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(0, hh);
+      ctx.closePath();
+      ctx.fillStyle = '#6a5a3a';
+      ctx.fill();
+
+      // Left face
+      ctx.beginPath();
+      ctx.moveTo(0, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = '#5a4a2a';
+      ctx.fill();
+
+      // Right face
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = '#4a3a1a';
+      ctx.fill();
+
+      // Arch detail
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(hw, dh + wallRise * 0.3, wallRise * 0.35, Math.PI, 0);
+      ctx.stroke();
+
+      // Lock rectangle
+      ctx.fillStyle = 'rgba(200,160,60,0.6)';
+      ctx.fillRect(hw - 4, dh + wallRise * 0.4, 8, 8);
+      ctx.strokeStyle = 'rgba(255,220,100,0.4)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(hw - 4, dh + wallRise * 0.4, 8, 8);
+
+      // Edge lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.stroke();
+    });
+
+    // Map tile names to iso keys (each type gets its own)
     this.tileToIsoKey = {
       'stone_floor':   'floor',
       'cracked_floor': 'floor2',
-      'door_open':     'floor',
-      'stairs_down':   'floor',
-      'stairs_up':     'floor',
+      'door_open':     'door_open',
+      'stairs_down':   'stairs_down',
+      'stairs_up':     'stairs_up',
       'stone_wall':    'wall',
       'void':          'wall',
-      'door_closed':   'door',
-      'locked_door':   'door',
-      'water':         'floor',
+      'door_closed':   'door_closed',
+      'locked_door':   'locked_door',
+      'water':         'water',
     };
 
     this.isoTileLoaded = true;
@@ -448,9 +729,9 @@ class Renderer {
       const minY = Math.min(...corners.map(c => c.y));
       const maxY = Math.max(...corners.map(c => c.y));
 
-      // Add padding for tile sprite overhang (scaled to match isoScale 0.25)
-      const padX = CONSTANTS.ISO_TILE_W / 4;
-      const padY = CONSTANTS.ISO_TILE_H / 2;
+      // Add padding for tile sprite overhang
+      const padX = CONSTANTS.ISO_DIAMOND_W;
+      const padY = CONSTANTS.ISO_DIAMOND_H + CONSTANTS.ISO_WALL_RISE;
 
       this.camX = Math.max(minX - padX, Math.min(targetX, maxX + padX - this.viewW));
       this.camY = Math.max(minY - padY, Math.min(targetY, maxY + padY - this.viewH));
@@ -632,19 +913,16 @@ class Renderer {
     const ts = CONSTANTS.TILE_SIZE;
     const dw = CONSTANTS.ISO_DIAMOND_W;
     const dh = CONSTANTS.ISO_DIAMOND_H;
-    const tileW = CONSTANTS.ISO_TILE_W;
-    const tileH = CONSTANTS.ISO_TILE_H;
-    const wallW = CONSTANTS.ISO_WALL_W;
-    const wallH = CONSTANTS.ISO_WALL_H;
+    const wallRise = CONSTANTS.ISO_WALL_RISE;
+
+    // Wall-type iso keys
+    const wallKeys = new Set(['wall', 'door_closed', 'locked_door']);
 
     // Viewport culling bounds in iso screen space (with padding)
-    const cullL = this.camX - tileW;
-    const cullR = this.camX + this.viewW + tileW;
-    const cullT = this.camY - tileH;
-    const cullB = this.camY + this.viewH + tileH;
-
-    // Iso scale factor: scale tiles down so they fit better
-    const isoScale = 0.25;
+    const cullL = this.camX - dw;
+    const cullR = this.camX + this.viewW + dw;
+    const cullT = this.camY - dh - wallRise;
+    const cullB = this.camY + this.viewH + dh + wallRise;
 
     let idx = 0;
     const w = this.map.width;
@@ -672,38 +950,30 @@ class Renderer {
         const tileDef = this.tileset ? this.tileset.tiles[tileId] : null;
         const tileName = tileDef ? tileDef.name : 'void';
         const isoKey = this.tileToIsoKey[tileName] || 'wall';
-        const isWall = (isoKey === 'wall');
-        const isDoor = (isoKey === 'door');
+        const isWall = wallKeys.has(isoKey);
 
         sprite.visible = true;
+        sprite.tint = 0xffffff;
 
         if (this.isoTileLoaded && this.isoTileTextures[isoKey]) {
           sprite.texture = this.isoTileTextures[isoKey];
-          sprite.tint = (tileName === 'water') ? 0x4488cc : 0xffffff;
         } else {
           sprite.texture = PIXI.Texture.WHITE;
           sprite.tint = this.tileColors[tileId] !== undefined ? this.tileColors[tileId] : 0xff00ff;
         }
 
         if (isWall) {
+          // Wall-type: anchor at bottom-center, size = dw x (dh + wallRise)
           sprite.anchor.set(0.5, 1.0);
-          sprite.width = wallW * isoScale;
-          sprite.height = wallH * isoScale;
+          sprite.width = dw;
+          sprite.height = dh + wallRise;
           sprite.x = iso.x;
-          sprite.y = iso.y + dh * isoScale / 2;
-        } else if (isDoor) {
-          const doorW = 297;
-          const doorH = 277;
-          sprite.anchor.set(0.5, 1.0);
-          sprite.width = doorW * isoScale;
-          sprite.height = doorH * isoScale;
-          sprite.x = iso.x;
-          sprite.y = iso.y + dh * isoScale / 2;
+          sprite.y = iso.y + dh / 2;
         } else {
-          // Ground tile
-          sprite.anchor.set(0.5, 0.75);
-          sprite.width = tileW * isoScale;
-          sprite.height = tileH * isoScale;
+          // Floor-type: anchor at center, size = dw x dh
+          sprite.anchor.set(0.5, 0.5);
+          sprite.width = dw;
+          sprite.height = dh;
           sprite.x = iso.x;
           sprite.y = iso.y;
         }
@@ -771,6 +1041,14 @@ class Renderer {
     const container = new PIXI.Container();
     container.sortableChildren = false;
 
+    // Ground shadow (only visible in iso mode)
+    const shadow = new PIXI.Graphics();
+    shadow.beginFill(0x000000, 0.25);
+    shadow.drawEllipse(0, 0, 14, 7);
+    shadow.endFill();
+    shadow.visible = this.isoMode;
+    container.addChild(shadow);
+
     const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
     sprite.anchor.set(0.5);
     container.addChild(sprite);
@@ -831,12 +1109,12 @@ class Renderer {
 
   _setSpriteTexture(sprite, spritePath, fallbackSize) {
     const tex = this.loadTexture(spritePath);
+    const sz = this.isoMode ? 36 : CONSTANTS.TILE_SIZE;
     if (tex.valid) {
       sprite.texture = tex;
       sprite.tint = 0xffffff;
-      const ts = CONSTANTS.TILE_SIZE;
-      sprite.width = ts;
-      sprite.height = ts;
+      sprite.width = sz;
+      sprite.height = sz;
       return true;
     }
     // Texture is loading — use fallback (white square tinted)
