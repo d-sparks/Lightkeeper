@@ -360,91 +360,90 @@
       transition: background 0.1s;
     }
 
-    /* Ability cluster (bottom-right arc) */
-    #ability-cluster {
+    /* ===== Halo-style ability buttons ===== */
+
+    /* Right cluster: 4 combat buttons */
+    #ability-right {
       position: absolute;
-      right: 12px;
-      bottom: 12px;
-      width: 200px;
-      height: 190px;
+      right: calc(14px + env(safe-area-inset-right, 0px));
+      bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       pointer-events: none;
     }
 
-    .ability-btn {
+    /* Left cluster: 2 defensive/ultimate buttons above joystick */
+    #ability-left {
       position: absolute;
-      border-radius: 50%;
+      left: calc(170px + env(safe-area-inset-left, 0px));
+      bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    /* Base ability button — elongated, translucent, Halo-inspired */
+    .ability-btn {
+      width: 110px;
+      height: 42px;
+      border-radius: 6px;
       font-family: 'Courier New', monospace;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1px;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
       pointer-events: auto;
-      transition: background 0.1s;
+      background: rgba(140, 180, 210, 0.08);
+      border: 1.5px solid rgba(140, 180, 210, 0.22);
+      color: rgba(180, 210, 230, 0.7);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 8px rgba(100, 160, 210, 0.06);
+      transition: background 0.1s, border-color 0.1s, box-shadow 0.1s;
     }
 
-    /* Primary attack — large, bottom-right */
+    /* Primary attack — slightly taller, red accent */
     .ability-btn[data-slot="1"] {
-      right: 0; bottom: 0;
-      width: 64px; height: 64px;
-      background: rgba(239,83,80,0.12);
-      border: 2px solid rgba(239,83,80,0.35);
-      color: #ef5350;
-      font-size: 20px;
-      font-weight: bold;
+      height: 50px;
+      font-size: 15px;
+      background: rgba(239, 83, 80, 0.1);
+      border-color: rgba(239, 83, 80, 0.3);
+      color: rgba(239, 120, 110, 0.85);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 0 12px rgba(239, 83, 80, 0.08);
     }
 
-    /* Ability slots 2-6 — smaller, arranged in arc */
-    .ability-btn[data-slot="2"] {
-      right: 2px; bottom: 74px;
-      width: 50px; height: 50px;
-      background: rgba(255,255,255,0.06);
-      border: 2px solid rgba(255,255,255,0.15);
-      color: #aaa;
-      font-size: 12px;
-    }
-    .ability-btn[data-slot="3"] {
-      right: 58px; bottom: 74px;
-      width: 50px; height: 50px;
-      background: rgba(255,255,255,0.06);
-      border: 2px solid rgba(255,255,255,0.15);
-      color: #aaa;
-      font-size: 12px;
-    }
-    .ability-btn[data-slot="4"] {
-      right: 20px; bottom: 132px;
-      width: 50px; height: 50px;
-      background: rgba(255,255,255,0.06);
-      border: 2px solid rgba(255,255,255,0.15);
-      color: #aaa;
-      font-size: 12px;
-    }
-    .ability-btn[data-slot="5"] {
-      right: 78px; bottom: 132px;
-      width: 50px; height: 50px;
-      background: rgba(255,255,255,0.06);
-      border: 2px solid rgba(255,255,255,0.15);
-      color: #aaa;
-      font-size: 12px;
-    }
-    .ability-btn[data-slot="6"] {
-      right: 116px; bottom: 74px;
-      width: 50px; height: 50px;
-      background: rgba(255,255,255,0.06);
-      border: 2px solid rgba(255,255,255,0.15);
-      color: #aaa;
-      font-size: 12px;
+    /* Left-side buttons — cyan/teal defensive tint */
+    #ability-left .ability-btn {
+      background: rgba(80, 200, 220, 0.08);
+      border-color: rgba(80, 200, 220, 0.22);
+      color: rgba(120, 210, 225, 0.7);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 8px rgba(80, 200, 220, 0.06);
     }
 
+    /* Active/pressed states */
     .ability-btn:active, .ability-btn.active {
-      background: rgba(255,255,255,0.18);
+      background: rgba(140, 180, 210, 0.22);
+      border-color: rgba(140, 180, 210, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 14px rgba(100, 160, 210, 0.15);
     }
+
     .ability-btn[data-slot="1"]:active, .ability-btn[data-slot="1"].active {
-      background: rgba(239,83,80,0.35);
-      border-color: rgba(239,83,80,0.7);
+      background: rgba(239, 83, 80, 0.28);
+      border-color: rgba(239, 83, 80, 0.6);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 16px rgba(239, 83, 80, 0.2);
+    }
+
+    #ability-left .ability-btn:active, #ability-left .ability-btn.active {
+      background: rgba(80, 200, 220, 0.22);
+      border-color: rgba(80, 200, 220, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 14px rgba(80, 200, 220, 0.15);
     }
 
     .ability-btn.empty {
-      opacity: 0.25;
+      opacity: 0.2;
       pointer-events: none;
     }
 
@@ -611,7 +610,8 @@
       .desktop-only { display: none !important; }
 
       #joystick-zone,
-      #ability-cluster {
+      #ability-right,
+      #ability-left {
         pointer-events: auto;
       }
     }
@@ -680,13 +680,17 @@
       <div id="joystick-base"></div>
       <div id="joystick-thumb"></div>
     </div>
-    <div id="ability-cluster">
+    <!-- Left ability buttons (above joystick) - defensive/ultimate -->
+    <div id="ability-left">
+      <div class="ability-btn empty" data-slot="5">5</div>
+      <div class="ability-btn empty" data-slot="6">6</div>
+    </div>
+    <!-- Right ability buttons - primary combat -->
+    <div id="ability-right">
       <div class="ability-btn" data-slot="1">1</div>
       <div class="ability-btn empty" data-slot="2">2</div>
       <div class="ability-btn empty" data-slot="3">3</div>
       <div class="ability-btn empty" data-slot="4">4</div>
-      <div class="ability-btn empty" data-slot="5">5</div>
-      <div class="ability-btn empty" data-slot="6">6</div>
     </div>
   </div>
 

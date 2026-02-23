@@ -512,6 +512,7 @@ class GameLoop {
           this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
             playerId: pid, roomId: room.id,
             monsterType: nearestMob.type, monsterId: nearestMob.id,
+            monsterX: nearestMob.x, monsterY: nearestMob.y,
           }, ctx);
         }
       }
@@ -654,6 +655,7 @@ class GameLoop {
               roomId: room.id,
               monsterType: mob.type,
               monsterId: mid,
+              monsterX: mob.x, monsterY: mob.y,
             }, ctx);
           }
 

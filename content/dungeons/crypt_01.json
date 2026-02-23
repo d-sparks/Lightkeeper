@@ -521,7 +521,7 @@
       "actions": [
         { "type": "setFlag", "flag": "skeletons_cleared", "scope": "player" },
         { "type": "showMessage", "text": "The last skeleton crumbles. The crypt grows quiet." },
-        { "type": "spawnItem", "itemType": "health_potion", "x": 10, "y": 7 }
+        { "type": "spawnItem", "itemType": "health_potion" }
       ]
     }
   ]

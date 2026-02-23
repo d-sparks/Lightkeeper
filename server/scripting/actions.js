@@ -9,7 +9,7 @@
 //   { type: "incrementFlag", flag: "name", amount: 1, scope: "player" }
 //   { type: "setDialogue",  npc: "npc_type", dialogueId: "post_crystal" }
 //   { type: "removeEntity", entityType: "npc"|"monster"|"item", entityId: "npc_old_keeper_0" }
-//   { type: "spawnItem",    itemType: "health_potion", x: 5, y: 3 }
+//   { type: "spawnItem",    itemType: "health_potion", x: 5, y: 3 }  // x/y optional; omit to drop at monster death pos
 //   { type: "giveItem",     itemType: "health_potion" }
 //   { type: "removeItem",   itemType: "iron_key" }
 //   { type: "equipItem",    itemType: "sol_unit" }
@@ -166,14 +166,30 @@ class ActionExecutor {
     const itemDef = this.content.getItem(action.itemType);
     if (!itemDef) return;
 
+    // Determine spawn position: explicit tile coords > monster death position > player position
+    let x, y;
+    if (action.x !== undefined && action.y !== undefined) {
+      x = (action.x + 0.5) * CONSTANTS.TILE_SIZE;
+      y = (action.y + 0.5) * CONSTANTS.TILE_SIZE;
+    } else if (context.eventPayload && context.eventPayload.monsterX !== undefined) {
+      x = context.eventPayload.monsterX;
+      y = context.eventPayload.monsterY;
+    } else if (context.player) {
+      x = context.player.x;
+      y = context.player.y;
+    } else {
+      x = CONSTANTS.TILE_SIZE;
+      y = CONSTANTS.TILE_SIZE;
+    }
+
     const itemId = `item_${room.nextItemId++}`;
     room.items.set(itemId, {
       id: itemId,
       type: action.itemType,
       name: itemDef.name,
       rarity: itemDef.rarity || 'common',
-      x: (action.x + 0.5) * CONSTANTS.TILE_SIZE,
-      y: (action.y + 0.5) * CONSTANTS.TILE_SIZE,
+      x,
+      y,
     });
   }
 

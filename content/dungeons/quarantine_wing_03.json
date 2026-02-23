@@ -4400,9 +4400,7 @@
         },
         {
           "type": "spawnItem",
-          "itemType": "supply_crate_key",
-          "x": 43,
-          "y": 24
+          "itemType": "supply_crate_key"
         }
       ],
       "once": true
