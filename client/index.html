@@ -387,7 +387,8 @@
     .ability-btn[data-slot="1"] {
       right: calc(6px + env(safe-area-inset-right, 0px));
       bottom: 8px;
-      height: 64px;
+      width: 150px;
+      height: 76px;
       font-size: 16px;
       background: rgba(239, 83, 80, 0.1);
       border-color: rgba(239, 83, 80, 0.3);
@@ -398,29 +399,31 @@
     /* Slot 2 — above slot 1 */
     .ability-btn[data-slot="2"] {
       right: calc(6px + env(safe-area-inset-right, 0px));
-      bottom: 80px; /* 8 + 64 + 8 */
+      bottom: 90px; /* 8 + 76 + 6 */
+      width: 150px;
+      height: 64px;
     }
 
     /* Slot 3 — above slot 2 */
     .ability-btn[data-slot="3"] {
       right: calc(6px + env(safe-area-inset-right, 0px));
-      bottom: 144px; /* 80 + 56 + 8 */
+      bottom: 160px; /* 90 + 64 + 6 */
+      width: 150px;
+      height: 64px;
     }
 
-    /* Slot 4 — bottom row, right (next to slot 1), fills gap */
+    /* Slot 4 — bottom row, right (next to slot 1) */
     .ability-btn[data-slot="4"] {
-      right: calc(144px + env(safe-area-inset-right, 0px));
+      right: calc(162px + env(safe-area-inset-right, 0px));
       bottom: 8px;
       height: 64px;
-      width: calc((100% - 338px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)) / 2);
     }
 
-    /* Slot 5 — bottom row, left (next to joystick), fills gap */
+    /* Slot 5 — bottom row, left (next to joystick) */
     .ability-btn[data-slot="5"] {
       left: calc(186px + env(safe-area-inset-left, 0px));
       bottom: 8px;
       height: 64px;
-      width: calc((100% - 338px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)) / 2);
     }
 
     /* Slot 6 — above joystick, defensive/ultimate, cyan tint */
