@@ -329,7 +329,7 @@
     /* Movement joystick */
     #joystick-zone {
       position: absolute;
-      left: 20px;
+      left: 36px;
       bottom: 10px;
       width: 140px;
       height: 140px;
@@ -360,34 +360,12 @@
       transition: background 0.1s;
     }
 
-    /* ===== Halo-style ability buttons ===== */
+    /* ===== Halo-style ability buttons (absolutely positioned) ===== */
 
-    /* Right cluster: 4 combat buttons */
-    #ability-right {
-      position: absolute;
-      right: calc(14px + env(safe-area-inset-right, 0px));
-      bottom: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      pointer-events: none;
-    }
-
-    /* Left cluster: 2 defensive/ultimate buttons above joystick */
-    #ability-left {
-      position: absolute;
-      left: calc(170px + env(safe-area-inset-left, 0px));
-      bottom: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      pointer-events: none;
-    }
-
-    /* Base ability button — elongated, translucent, Halo-inspired */
     .ability-btn {
-      width: 110px;
-      height: 42px;
+      position: absolute;
+      width: 120px;
+      height: 48px;
       border-radius: 6px;
       font-family: 'Courier New', monospace;
       font-size: 13px;
@@ -405,9 +383,11 @@
       transition: background 0.1s, border-color 0.1s, box-shadow 0.1s;
     }
 
-    /* Primary attack — slightly taller, red accent */
+    /* Slot 1 — primary attack, bottom-right, biggest */
     .ability-btn[data-slot="1"] {
-      height: 50px;
+      right: calc(14px + env(safe-area-inset-right, 0px));
+      bottom: 14px;
+      height: 54px;
       font-size: 15px;
       background: rgba(239, 83, 80, 0.1);
       border-color: rgba(239, 83, 80, 0.3);
@@ -415,8 +395,34 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 0 12px rgba(239, 83, 80, 0.08);
     }
 
-    /* Left-side buttons — cyan/teal defensive tint */
-    #ability-left .ability-btn {
+    /* Slot 2 — above slot 1 */
+    .ability-btn[data-slot="2"] {
+      right: calc(14px + env(safe-area-inset-right, 0px));
+      bottom: 76px; /* 14 + 54 + 8 */
+    }
+
+    /* Slot 3 — above slot 2 */
+    .ability-btn[data-slot="3"] {
+      right: calc(14px + env(safe-area-inset-right, 0px));
+      bottom: 132px; /* 76 + 48 + 8 */
+    }
+
+    /* Slot 4 — bottom row, left of slot 1 */
+    .ability-btn[data-slot="4"] {
+      right: calc(144px + env(safe-area-inset-right, 0px));
+      bottom: 14px;
+    }
+
+    /* Slot 5 — bottom row, left of slot 4 */
+    .ability-btn[data-slot="5"] {
+      right: calc(274px + env(safe-area-inset-right, 0px));
+      bottom: 14px;
+    }
+
+    /* Slot 6 — above joystick, defensive/ultimate, cyan tint */
+    .ability-btn[data-slot="6"] {
+      left: calc(46px + env(safe-area-inset-left, 0px));
+      bottom: 160px;
       background: rgba(80, 200, 220, 0.08);
       border-color: rgba(80, 200, 220, 0.22);
       color: rgba(120, 210, 225, 0.7);
@@ -436,7 +442,7 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 16px rgba(239, 83, 80, 0.2);
     }
 
-    #ability-left .ability-btn:active, #ability-left .ability-btn.active {
+    .ability-btn[data-slot="6"]:active, .ability-btn[data-slot="6"].active {
       background: rgba(80, 200, 220, 0.22);
       border-color: rgba(80, 200, 220, 0.45);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 14px rgba(80, 200, 220, 0.15);
@@ -610,8 +616,7 @@
       .desktop-only { display: none !important; }
 
       #joystick-zone,
-      #ability-right,
-      #ability-left {
+      .ability-btn {
         pointer-events: auto;
       }
     }
@@ -680,18 +685,13 @@
       <div id="joystick-base"></div>
       <div id="joystick-thumb"></div>
     </div>
-    <!-- Left ability buttons (above joystick) - defensive/ultimate -->
-    <div id="ability-left">
-      <div class="ability-btn empty" data-slot="5">5</div>
-      <div class="ability-btn empty" data-slot="6">6</div>
-    </div>
-    <!-- Right ability buttons - primary combat -->
-    <div id="ability-right">
-      <div class="ability-btn" data-slot="1">1</div>
-      <div class="ability-btn empty" data-slot="2">2</div>
-      <div class="ability-btn empty" data-slot="3">3</div>
-      <div class="ability-btn empty" data-slot="4">4</div>
-    </div>
+    <!-- Ability buttons: 1,2,3 right column; 4,5 bottom middle; 6 above joystick -->
+    <div class="ability-btn" data-slot="1">1</div>
+    <div class="ability-btn empty" data-slot="2">2</div>
+    <div class="ability-btn empty" data-slot="3">3</div>
+    <div class="ability-btn empty" data-slot="4">4</div>
+    <div class="ability-btn empty" data-slot="5">5</div>
+    <div class="ability-btn empty" data-slot="6">6</div>
   </div>
 
   <!-- Contextual interact button (mobile, shown when near interactable) -->
