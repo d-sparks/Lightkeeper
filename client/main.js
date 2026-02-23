@@ -323,6 +323,13 @@
   function doJoin() {
     const name = nameInput.value.trim() || 'Adventurer';
     net.send({ type: CONSTANTS.MSG.JOIN, name });
+
+    // Request fullscreen on mobile to hide browser chrome (URL bar)
+    if ('ontouchstart' in window) {
+      const el = document.documentElement;
+      const rfs = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if (rfs) rfs.call(el).catch(() => {});
+    }
   }
 
   joinBtn.addEventListener('click', doJoin);
@@ -442,6 +449,14 @@
   if ('ontouchstart' in window && screen.orientation && screen.orientation.lock) {
     screen.orientation.lock('landscape').catch(() => { /* not supported or not fullscreen */ });
   }
+
+  // Resize canvas when fullscreen changes
+  document.addEventListener('fullscreenchange', () => {
+    setTimeout(resizeCanvas, 100);
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    setTimeout(resizeCanvas, 100);
+  });
 
   // --- Start ---
   net.connect();

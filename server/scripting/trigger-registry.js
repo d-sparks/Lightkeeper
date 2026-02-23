@@ -80,8 +80,8 @@ class TriggerRegistry {
         this.flagStore.setPlayerFlag(context.playerId, `__trigger_${trigger.id}_fired`, true);
       }
 
-      // Execute actions
-      this.actions.executeAll(trigger.actions, context);
+      // Execute actions (pass event payload so actions can use event data, e.g. monster position)
+      this.actions.executeAll(trigger.actions, { ...context, eventPayload });
     }
   }
 }
