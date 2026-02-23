@@ -27,7 +27,8 @@
     "type": "weapon",
     "rarity": "common",
     "slot": "weapon",
-    "stats": { "attackDamage": 3, "projectile": true }
+    "stats": { "attackDamage": 3, "projectile": true },
+    "ability": { "id": "blaster_shot" }
   },
   "torch": {
     "name": "Torch",
@@ -59,6 +60,17 @@
     "type": "weapon",
     "rarity": "rare",
     "slot": "weapon",
-    "stats": { "attackDamage": 12 }
+    "stats": { "attackDamage": 12 },
+    "hasSolGrid": true,
+    "solUnitId": "sol_unit_mk1",
+    "ability": { "id": "sol_beam" }
+  },
+  "medipac": {
+    "name": "Medipac",
+    "description": "Standard-issue medical kit. Heals on a cooldown.",
+    "type": "equipment",
+    "rarity": "common",
+    "slot": "medipac",
+    "ability": { "id": "medipac_heal" }
   }
 }

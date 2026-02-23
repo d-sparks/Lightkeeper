@@ -1,0 +1,17 @@
+{
+  "sol_beam_emitter": {
+    "type": "ability",
+    "abilityId": "sol_beam",
+    "name": "Sol Beam Emitter"
+  },
+  "damage_booster": {
+    "type": "modifier",
+    "name": "Damage Booster",
+    "bonus": { "damageMultiplier": 0.25 }
+  },
+  "cooldown_reducer": {
+    "type": "modifier",
+    "name": "Cooldown Reducer",
+    "bonus": { "cooldownReduction": 0.15 }
+  }
+}

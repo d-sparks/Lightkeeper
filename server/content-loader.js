@@ -9,6 +9,9 @@ class ContentLoader {
     this.monsters = {};
     this.npcs = {};
     this.items = {};
+    this.abilities = {};
+    this.solUnits = {};
+    this.solComponents = {};
     this.settings = {};
   }
 
@@ -19,11 +22,15 @@ class ContentLoader {
     this.loadMonsters();
     this.loadNPCs();
     this.loadItems();
+    this.loadAbilities();
+    this.loadSolUnits();
+    this.loadSolComponents();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
                 `${Object.keys(this.monsters).length} monster type(s), ` +
                 `${Object.keys(this.npcs).length} NPC type(s), ` +
-                `${Object.keys(this.items).length} item type(s)`);
+                `${Object.keys(this.items).length} item type(s), ` +
+                `${Object.keys(this.abilities).length} ability(s)`);
   }
 
   loadJSON(filePath) {
@@ -115,6 +122,48 @@ class ContentLoader {
 
   getItem(id) {
     return this.items[id] || null;
+  }
+
+  loadAbilities() {
+    const filePath = path.join(this.contentDir, 'entities', 'abilities.json');
+    if (!fs.existsSync(filePath)) {
+      this.abilities = {};
+      return;
+    }
+    this.abilities = this.loadJSON(filePath);
+    console.log(`[Content]   Abilities: ${Object.keys(this.abilities).length} types`);
+  }
+
+  getAbility(id) {
+    return this.abilities[id] || null;
+  }
+
+  loadSolUnits() {
+    const filePath = path.join(this.contentDir, 'entities', 'sol_units.json');
+    if (!fs.existsSync(filePath)) {
+      this.solUnits = {};
+      return;
+    }
+    this.solUnits = this.loadJSON(filePath);
+    console.log(`[Content]   Sol Units: ${Object.keys(this.solUnits).length} types`);
+  }
+
+  getSolUnit(id) {
+    return this.solUnits[id] || null;
+  }
+
+  loadSolComponents() {
+    const filePath = path.join(this.contentDir, 'entities', 'sol_components.json');
+    if (!fs.existsSync(filePath)) {
+      this.solComponents = {};
+      return;
+    }
+    this.solComponents = this.loadJSON(filePath);
+    console.log(`[Content]   Sol Components: ${Object.keys(this.solComponents).length} types`);
+  }
+
+  getSolComponent(id) {
+    return this.solComponents[id] || null;
   }
 
   getTileset(id) {

@@ -260,6 +260,18 @@ gameLoop.actions.broadcastToRoom = function (roomId, message) {
   broadcast(roomId, message);
 };
 
+// Wire up equip callback so actions can rebuild abilities
+gameLoop.actions._onEquipChanged = function (player, itemDef) {
+  // If equipping a sol unit, init the grid
+  if (itemDef.hasSolGrid && itemDef.solUnitId) {
+    const solUnitDef = content.getSolUnit(itemDef.solUnitId);
+    if (solUnitDef) {
+      gameLoop._initSolGrid(player, solUnitDef);
+    }
+  }
+  gameLoop._rebuildAbilities(player);
+};
+
 wss.on('connection', (ws) => {
   const playerId = `p${nextPlayerId++}`;
   ws.playerId = playerId;
@@ -302,6 +314,13 @@ wss.on('connection', (ws) => {
           type: CONSTANTS.MSG.INVENTORY,
           items: player.inventory,
           equipment: player.equipment,
+        }));
+
+        // Send initial ability state
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.ABILITY_STATE,
+          abilities: player.abilities,
+          cooldowns: player.cooldowns,
         }));
 
         broadcast(ws.playerRoom, {
@@ -364,6 +383,20 @@ wss.on('connection', (ws) => {
             items: equipResult.inventory,
             equipment: equipResult.equipment,
           }));
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.ABILITY_STATE,
+            abilities: equipResult.abilities,
+            cooldowns: equipResult.cooldowns,
+          }));
+          // Send sol grid state if applicable
+          const room = gameLoop.getRoom(ws.playerRoom);
+          const p = room && room.players.get(playerId);
+          if (p && p.solGrid) {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.SOL_GRID,
+              grid: p.solGrid,
+            }));
+          }
         }
         break;
       }
@@ -376,6 +409,11 @@ wss.on('connection', (ws) => {
             type: CONSTANTS.MSG.INVENTORY,
             items: unequipResult.inventory,
             equipment: unequipResult.equipment,
+          }));
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.ABILITY_STATE,
+            abilities: unequipResult.abilities,
+            cooldowns: unequipResult.cooldowns,
           }));
         }
         break;
@@ -397,8 +435,34 @@ wss.on('connection', (ws) => {
       case CONSTANTS.MSG.ATTACK: {
         if (!ws.playerRoom) break;
         const aimAngle = (msg.aimAngle !== undefined) ? msg.aimAngle : null;
-        const slot = msg.slot || 1;
-        gameLoop.tryAttack(ws.playerRoom, playerId, aimAngle);
+        const attackSlot = msg.slot || 1;
+        gameLoop.tryUseAbility(ws.playerRoom, playerId, attackSlot, aimAngle);
+        break;
+      }
+
+      case CONSTANTS.MSG.SOL_GRID_MOVE: {
+        if (!ws.playerRoom) break;
+        const room = gameLoop.getRoom(ws.playerRoom);
+        if (!room) break;
+        const p = room.players.get(playerId);
+        if (!p || !p.solGrid) break;
+        const { fromIdx, toIdx } = msg;
+        const gridLen = p.solGrid.size * p.solGrid.size;
+        if (fromIdx < 0 || fromIdx >= gridLen || toIdx < 0 || toIdx >= gridLen) break;
+        // Swap the two cells
+        const temp = p.solGrid.cells[fromIdx];
+        p.solGrid.cells[fromIdx] = p.solGrid.cells[toIdx];
+        p.solGrid.cells[toIdx] = temp;
+        gameLoop._rebuildAbilities(p);
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.SOL_GRID,
+          grid: p.solGrid,
+        }));
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.ABILITY_STATE,
+          abilities: p.abilities,
+          cooldowns: p.cooldowns,
+        }));
         break;
       }
     }
@@ -469,10 +533,14 @@ setInterval(() => {
   for (const [roomId, room] of gameLoop.rooms) {
     const state = gameLoop.getRoomState(roomId);
     if (!state) continue;
-    const json = JSON.stringify(state);
+    // Send per-player state with their own cooldowns
     wss.clients.forEach((client) => {
       if (client.readyState === 1 && client.playerRoom === roomId) {
-        client.send(json);
+        const player = room.players.get(client.playerId);
+        if (player) {
+          state.myCooldowns = player.cooldowns;
+        }
+        client.send(JSON.stringify(state));
       }
     });
   }

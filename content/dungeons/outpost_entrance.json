@@ -65,6 +65,18 @@
       "once": true
     },
     {
+      "id": "receive_medipac",
+      "event": "room_entered",
+      "conditions": { "type": "not", "condition": { "type": "hasFlag", "flag": "received_medipac" } },
+      "actions": [
+        { "type": "giveItem", "itemType": "medipac" },
+        { "type": "equipItem", "itemType": "medipac" },
+        { "type": "setFlag", "flag": "received_medipac" },
+        { "type": "showMessage", "text": "You check your belt. Standard-issue Medipac — still charged." }
+      ],
+      "once": true
+    },
+    {
       "id": "talked_to_warden_entrance",
       "event": "npc_interacted",
       "filter": { "npcType": "outpost_warden" },
