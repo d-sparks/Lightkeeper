@@ -470,7 +470,19 @@ class InputHandler {
   }
 
   pollGamepad() {
-    if (this.gamepadIndex === null) return;
+    // Auto-detect if gamepadconnected event was missed (e.g. controller already plugged in)
+    if (this.gamepadIndex === null) {
+      const gamepads = navigator.getGamepads();
+      if (!gamepads) return;
+      for (let i = 0; i < gamepads.length; i++) {
+        if (gamepads[i]) {
+          console.log('[Input] Gamepad detected via polling:', gamepads[i].id);
+          this.gamepadIndex = i;
+          break;
+        }
+      }
+      if (this.gamepadIndex === null) return;
+    }
     const gamepads = navigator.getGamepads();
     if (!gamepads) return;
     const gp = gamepads[this.gamepadIndex];
@@ -482,11 +494,17 @@ class InputHandler {
     const lx = Math.abs(gp.axes[0]) > deadZone ? gp.axes[0] : 0;
     const ly = Math.abs(gp.axes[1]) > deadZone ? gp.axes[1] : 0;
 
+    // D-pad (buttons 12-15) as alternative to left stick
+    const dUp    = gp.buttons[12] && gp.buttons[12].pressed;
+    const dDown  = gp.buttons[13] && gp.buttons[13].pressed;
+    const dLeft  = gp.buttons[14] && gp.buttons[14].pressed;
+    const dRight = gp.buttons[15] && gp.buttons[15].pressed;
+
     const newKeys = {
-      up:    ly < -threshold,
-      down:  ly > threshold,
-      left:  lx < -threshold,
-      right: lx > threshold,
+      up:    ly < -threshold || dUp,
+      down:  ly > threshold  || dDown,
+      left:  lx < -threshold || dLeft,
+      right: lx > threshold  || dRight,
     };
 
     // Only send if changed
@@ -517,15 +535,24 @@ class InputHandler {
                            !(prev[i] && prev[i].pressed);
 
     // A(0)→slot1, B(1)→slot2, X(2)→slot3, Y(3)→slot4, LB(4)→slot5, RB(5)→slot6
-    for (let i = 0; i < 6; i++) {
-      if (pressed(i)) {
-        if (this.onAbility) this.onAbility(i + 1, gamepadAimAngle);
+    if (!this.dialogueActive) {
+      for (let i = 0; i < 6; i++) {
+        if (pressed(i)) {
+          if (this.onAbility) this.onAbility(i + 1, gamepadAimAngle);
+        }
       }
     }
 
     // LT(6) → interact, RT(7) → inventory
     if (pressed(6) && this.onInteract) this.onInteract();
     if (pressed(7) && this.onInventory) this.onInventory();
+
+    // A(0) also advances dialogue when active
+    if (this.dialogueActive && pressed(0) && this.onInteract) this.onInteract();
+
+    // Start(9) / Back(8) → quest log
+    if (pressed(9) && this.onQuestPanel) this.onQuestPanel();
+    if (pressed(8) && this.onQuestPanel) this.onQuestPanel();
 
     // Save for edge detection
     this.gamepadPrevButtons = gp.buttons.map(b => ({ pressed: b.pressed }));
