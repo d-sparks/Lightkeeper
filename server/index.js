@@ -6,6 +6,7 @@ const CONSTANTS = require('../shared/constants');
 const ContentLoader = require('./content-loader');
 const GameLoop = require('./game-loop');
 const { handleEditorAPI } = require('./editor-api');
+const { handleCheckpointAPI } = require('./checkpoint-api');
 const { isAuthenticated, handleLogin, sendUnauthorized } = require('./editor-auth');
 const contentGit = require('./content-git');
 
@@ -15,6 +16,7 @@ const CONTENT_DIR = path.join(__dirname, '..', 'content');
 const CLIENT_DIR = path.join(__dirname, '..', 'client');
 const SHARED_DIR = path.join(__dirname, '..', 'shared');
 const EDITOR_DIR = path.join(__dirname, '..', 'editor');
+const CHECKPOINT_DIR = path.join(__dirname, '..', 'checkpoint');
 
 // --- Load game content ---
 const content = new ContentLoader(CONTENT_DIR);
@@ -197,6 +199,28 @@ const httpServer = http.createServer((req, res) => {
     if (handled !== false) return;
   }
 
+  // --- Checkpoint login (no auth required) ---
+  if (urlPath === '/api/checkpoint/login' && req.method === 'POST') {
+    handleLogin(req, res);
+    return;
+  }
+
+  // --- Checkpoint auth check endpoint ---
+  if (urlPath === '/api/checkpoint/auth' && req.method === 'GET') {
+    const authed = isAuthenticated(req);
+    const needsAuth = !!process.env.EDITOR_PASSWORD;
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ authenticated: authed, needsAuth }));
+    return;
+  }
+
+  // --- All other checkpoint API routes require auth ---
+  if (urlPath.startsWith('/api/checkpoint/')) {
+    if (!isAuthenticated(req)) { sendUnauthorized(res); return; }
+    const handled = handleCheckpointAPI(req, res, gameLoop, wss, content);
+    if (handled !== false) return;
+  }
+
   // Editor reload endpoint (auth-protected)
   if (urlPath === '/api/editor/reload' && req.method === 'POST') {
     if (!isAuthenticated(req)) { sendUnauthorized(res); return; }
@@ -233,6 +257,14 @@ const httpServer = http.createServer((req, res) => {
   }
   if (urlPath.startsWith('/editor/')) {
     return serveFile(res, path.join(EDITOR_DIR, urlPath.slice(8)));
+  }
+
+  // Checkpoint static files
+  if (urlPath === '/checkpoint' || urlPath === '/checkpoint/') {
+    return serveFile(res, path.join(CHECKPOINT_DIR, 'index.html'));
+  }
+  if (urlPath.startsWith('/checkpoint/')) {
+    return serveFile(res, path.join(CHECKPOINT_DIR, urlPath.slice(12)));
   }
 
   if (urlPath === '/') {
