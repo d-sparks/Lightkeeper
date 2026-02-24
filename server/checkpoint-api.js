@@ -227,17 +227,68 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
     return json(res, 200, { ok: true, deleted: safeFile });
   }
 
-  // --- Commit checkpoints to git ---
+  // --- Commit checkpoints to git (branch + push + PR) ---
   if (url === '/api/checkpoint/commit' && method === 'POST') {
-    return parseBody(req).then(body => {
+    return parseBody(req).then(async body => {
       const message = body.message || 'Save checkpoints';
+      const APP_DIR = path.join(__dirname, '..');
+      const git = (args) => execFileSync('git', args, { cwd: APP_DIR, encoding: 'utf8', timeout: 30000 }).trim();
+      const baseBranch = process.env.GITHUB_BASE_BRANCH || 'main';
+
       try {
-        execFileSync('git', ['add', 'checkpoints/'], { cwd: path.join(__dirname, '..') });
-        execFileSync('git', ['commit', '-m', message, '--', 'checkpoints/'], { cwd: path.join(__dirname, '..') });
-        return json(res, 200, { ok: true, message });
+        git(['fetch', 'origin', baseBranch]);
+
+        // Save current HEAD so we can restore it after
+        const origRef = git(['symbolic-ref', 'HEAD']);
+
+        // Create a new branch from origin/main without touching working tree
+        const ts = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+        const branch = `checkpoint/${ts}`;
+
+        try {
+          git(['branch', branch, `origin/${baseBranch}`]);
+          git(['symbolic-ref', 'HEAD', `refs/heads/${branch}`]);
+          git(['reset', `origin/${baseBranch}`]); // index = main, working tree untouched
+
+          // Stage only checkpoints/
+          git(['add', 'checkpoints/']);
+
+          // Check if there are actual changes
+          try {
+            git(['diff', '--cached', '--quiet']);
+            // No changes — clean up
+            git(['branch', '-D', branch]);
+            return json(res, 400, { error: 'Nothing to commit' });
+          } catch {
+            // diff --quiet exits non-zero when there ARE changes — good
+          }
+
+          git(['commit', '-m', message]);
+          git(['push', '-u', 'origin', branch]);
+
+          // Try to create PR via gh CLI
+          let prUrl = null;
+          try {
+            prUrl = execFileSync('gh', [
+              'pr', 'create',
+              '--title', message,
+              '--body', `Checkpoint save from the Lightkeeper checkpoint tool.\n\nBranch: \`${branch}\``,
+              '--base', baseBranch,
+              '--head', branch,
+            ], { cwd: APP_DIR, encoding: 'utf8', timeout: 30000 }).trim();
+          } catch {
+            // gh CLI not available or failed — branch was still pushed
+          }
+
+          return json(res, 200, { ok: true, message, branch, prUrl });
+        } finally {
+          // Restore original HEAD and index
+          git(['symbolic-ref', 'HEAD', origRef]);
+          git(['reset']); // re-sync index with restored HEAD, working tree untouched
+        }
       } catch (e) {
         const stderr = e.stderr ? e.stderr.toString() : e.message;
-        if (stderr.includes('nothing to commit')) {
+        if (stderr.includes('Nothing to commit')) {
           return json(res, 400, { error: 'Nothing to commit' });
         }
         return json(res, 500, { error: stderr });

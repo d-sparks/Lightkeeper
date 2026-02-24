@@ -7,6 +7,7 @@ class Renderer {
 
     // Isometric mode
     this.isoMode = true;
+    this.cssZoom = 1; // CSS upscale factor (set during resize)
 
     // Viewport tiles
     this.viewportTX = CONSTANTS.VIEWPORT_TILES_X;
@@ -640,16 +641,21 @@ class Renderer {
 
   resizeToFit(availW, availH) {
     if (this.isoMode) {
-      // In iso mode, use available screen space directly
-      this.viewW = Math.max(640, Math.min(Math.floor(availW), 1920));
-      this.viewH = Math.max(480, Math.min(Math.floor(availH), 1080));
+      // Render at half the native resolution for ~2x zoom, then CSS-scale to fill
+      this.viewW = Math.max(640, Math.floor(availW / 2));
+      this.viewH = Math.max(480, Math.floor(availH / 2));
+      this.cssZoom = availW / this.viewW;
 
       if (this.app) {
+        // Set renderer resolution to cssZoom so the backing buffer is at native pixel density.
+        // This keeps the coordinate system at viewW x viewH (zoomed) while rendering
+        // at full native resolution — text is crisp, pixel art stays clean with NEAREST.
+        this.app.renderer.resolution = this.cssZoom;
         this.app.renderer.resize(this.viewW, this.viewH);
       }
 
-      this.canvas.style.width = `${this.viewW}px`;
-      this.canvas.style.height = `${this.viewH}px`;
+      this.canvas.style.width = `${Math.floor(availW)}px`;
+      this.canvas.style.height = `${Math.floor(availH)}px`;
 
       this._rebuildTilePool();
       return;
@@ -1010,11 +1016,12 @@ class Renderer {
     // Wall-type iso keys
     const wallKeys = new Set(['wall', 'door_closed', 'locked_door', 'chest_closed']);
 
-    // Viewport culling bounds in iso screen space (with padding)
-    const cullL = this.camX - dw;
-    const cullR = this.camX + this.viewW + dw;
-    const cullT = this.camY - dh - wallRise;
-    const cullB = this.camY + this.viewH + dh + wallRise;
+    // Viewport culling bounds in iso screen space (generous padding for large screens)
+    const pad = dw * 2;
+    const cullL = this.camX - pad;
+    const cullR = this.camX + this.viewW + pad;
+    const cullT = this.camY - pad - wallRise;
+    const cullB = this.camY + this.viewH + pad + wallRise;
 
     let idx = 0;
     const w = this.map.width;

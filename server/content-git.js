@@ -86,35 +86,43 @@ async function publishChanges(message) {
   // Re-fetch in case main has advanced since init
   git(['fetch', 'origin', baseBranch, ...(useLocalGit ? [] : ['--depth=1'])]);
 
+  // Save current HEAD so we can restore it after
+  const origRef = git(['symbolic-ref', 'HEAD']);
+
   // Create a new branch from origin/main without touching working tree
   const ts = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
   const branch = `content/editor-${ts}`;
 
-  git(['branch', branch, `origin/${baseBranch}`]);
-  git(['symbolic-ref', 'HEAD', `refs/heads/${branch}`]);
-  git(['reset', `origin/${baseBranch}`]); // index = main, working tree untouched
-
-  // Stage all content
-  git(['add', 'content/']);
-
-  // Check if there are actual changes
   try {
-    git(['diff', '--cached', '--quiet']);
-    throw new Error('No content changes to publish');
-  } catch (e) {
-    // If the error is our own "No content changes" message, re-throw
-    if (e.message === 'No content changes to publish') throw e;
-    // Otherwise, diff --quiet exited non-zero = there ARE changes. Good.
+    git(['branch', branch, `origin/${baseBranch}`]);
+    git(['symbolic-ref', 'HEAD', `refs/heads/${branch}`]);
+    git(['reset', `origin/${baseBranch}`]); // index = main, working tree untouched
+
+    // Stage only content/
+    git(['add', 'content/']);
+
+    // Check if there are actual changes
+    try {
+      git(['diff', '--cached', '--quiet']);
+      throw new Error('No content changes to publish');
+    } catch (e) {
+      if (e.message === 'No content changes to publish') throw e;
+      // diff --quiet exited non-zero = there ARE changes. Good.
+    }
+
+    const commitMsg = message || 'Content update from Lightkeeper editor';
+    git(['commit', '-m', commitMsg]);
+    git(['push', '-u', 'origin', branch]);
+
+    // Create PR via GitHub API
+    const prUrl = await createPR(branch, baseBranch, commitMsg);
+
+    return { branch, prUrl };
+  } finally {
+    // Restore original HEAD and index
+    git(['symbolic-ref', 'HEAD', origRef]);
+    git(['reset']); // re-sync index with restored HEAD, working tree untouched
   }
-
-  const commitMsg = message || 'Content update from Lightkeeper editor';
-  git(['commit', '-m', commitMsg]);
-  git(['push', '-u', 'origin', branch]);
-
-  // Create PR via GitHub API
-  const prUrl = await createPR(branch, baseBranch, commitMsg);
-
-  return { branch, prUrl };
 }
 
 function createPR(branch, baseBranch, title) {
