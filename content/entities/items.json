@@ -72,5 +72,12 @@
     "rarity": "common",
     "slot": "medipac",
     "ability": { "id": "medipac_heal" }
+  },
+  "damage_booster_chip": {
+    "name": "Damage Booster Chip",
+    "description": "A salvaged modifier chip. Place it in a Sol Grid to boost adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "damage_booster"
   }
 }

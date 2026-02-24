@@ -4396,11 +4396,22 @@
         },
         {
           "type": "showMessage",
-          "text": "The Warlord falls. A key tumbles from his belt \u2014 unmarked, but deliberate."
+          "text": "The Warlord falls. A key and a glowing chip tumble from his belt."
         },
         {
           "type": "spawnItem",
           "itemType": "supply_crate_key"
+        },
+        {
+          "type": "spawnItem",
+          "itemType": "damage_booster_chip"
+        },
+        {
+          "type": "setQuestObjective",
+          "label": "Open the Supply Crate",
+          "roomId": "quarantine_wing_01",
+          "tileX": 21,
+          "tileY": 3
         }
       ],
       "once": true
@@ -4419,6 +4430,24 @@
         {
           "type": "showMessage",
           "text": "This key... there was a locked supply crate near the entrance. The warlord must have taken this when they moved in."
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "pickup_damage_booster",
+      "event": "item_picked_up",
+      "filter": {
+        "itemType": "damage_booster_chip"
+      },
+      "actions": [
+        {
+          "type": "setFlag",
+          "flag": "has_modifier_chip"
+        },
+        {
+          "type": "showMessage",
+          "text": "A Damage Booster Chip. This can be placed in a Sol Grid to increase weapon damage."
         }
       ],
       "once": true

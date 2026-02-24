@@ -294,6 +294,7 @@ class GameLoop {
       solGrid: null,
       energy: 0,
       maxEnergy: 0,
+      questObjective: null,
     };
 
     room.players.set(playerId, player);
@@ -363,10 +364,87 @@ class GameLoop {
     return CONSTANTS.SLOT_ALIASES[rawSlot] || rawSlot;
   }
 
+  // BFS to find which exit in currentRoomId leads toward targetRoomId.
+  // Returns { tileX, tileY } of the exit in the current room, or null.
+  _resolveExitToward(currentRoomId, targetRoomId) {
+    if (currentRoomId === targetRoomId) return null;
+
+    // BFS through dungeon exits to find path from current to target
+    const visited = new Set();
+    const queue = []; // { roomId, firstExitTileX, firstExitTileY }
+
+    const currentDungeon = this.content.getDungeon(currentRoomId);
+    if (!currentDungeon || !currentDungeon.exits) return null;
+
+    for (const exit of currentDungeon.exits) {
+      const nextRoom = exit.leadsTo;
+      if (visited.has(nextRoom)) continue;
+      visited.add(nextRoom);
+      if (nextRoom === targetRoomId) {
+        return { tileX: exit.x, tileY: exit.y };
+      }
+      queue.push({ roomId: nextRoom, firstExitX: exit.x, firstExitY: exit.y });
+    }
+    visited.add(currentRoomId);
+
+    while (queue.length > 0) {
+      const { roomId, firstExitX, firstExitY } = queue.shift();
+      const dungeon = this.content.getDungeon(roomId);
+      if (!dungeon || !dungeon.exits) continue;
+
+      for (const exit of dungeon.exits) {
+        const nextRoom = exit.leadsTo;
+        if (visited.has(nextRoom)) continue;
+        visited.add(nextRoom);
+        if (nextRoom === targetRoomId) {
+          return { tileX: firstExitX, tileY: firstExitY };
+        }
+        queue.push({ roomId: nextRoom, firstExitX, firstExitY });
+      }
+    }
+    return null;
+  }
+
+  // Send quest objective to a player, resolving exit coordinates if needed
+  _sendQuestObjective(playerId, currentRoomId) {
+    const room = this.rooms.get(currentRoomId);
+    if (!room) return;
+    const player = room.players.get(playerId);
+    if (!player || !player.questObjective) return;
+
+    const obj = player.questObjective;
+    let tileX = obj.tileX;
+    let tileY = obj.tileY;
+    let sameRoom = (currentRoomId === obj.roomId);
+
+    if (!sameRoom) {
+      // Find exit toward target room
+      const exit = this._resolveExitToward(currentRoomId, obj.roomId);
+      if (exit) {
+        tileX = exit.tileX;
+        tileY = exit.tileY;
+      }
+    }
+
+    if (this.actions.sendToPlayer) {
+      this.actions.sendToPlayer(playerId, {
+        type: CONSTANTS.MSG.QUEST_OBJECTIVE,
+        objective: {
+          label: obj.label,
+          tileX,
+          tileY,
+          sameRoom,
+        },
+      });
+    }
+  }
+
   // Get modifier components adjacent to a grid position (4-directional, Manhattan distance 1 by default)
+  // Deduplicates by placementId so multi-cell shapes only count once
   _getAdjacentModifiers(solGrid, x, y) {
     const size = solGrid.size;
     const modifiers = [];
+    const seenPlacements = new Set();
     const dirs = [[-1,0],[1,0],[0,-1],[0,1]]; // 4-directional
     for (const [dx, dy] of dirs) {
       const nx = x + dx;
@@ -374,6 +452,8 @@ class GameLoop {
       if (nx < 0 || ny < 0 || nx >= size || ny >= size) continue;
       const cell = solGrid.cells[ny * size + nx];
       if (cell && cell.modifierId) {
+        if (cell.placementId && seenPlacements.has(cell.placementId)) continue;
+        if (cell.placementId) seenPlacements.add(cell.placementId);
         const compDef = this.content.getSolComponent(cell.modifierId);
         if (compDef && compDef.type === 'modifier' && compDef.bonus) {
           modifiers.push(compDef);
@@ -454,12 +534,12 @@ class GameLoop {
       for (let y = 0; y < player.solGrid.size; y++) {
         for (let x = 0; x < player.solGrid.size; x++) {
           const cell = player.solGrid.cells[y * player.solGrid.size + x];
-          if (cell && cell.abilityId) {
+          if (cell && cell.abilityId && !cell.isExtension) {
             const abilityDef = this.content.getAbility(cell.abilityId);
             if (abilityDef) {
               const slotIdx = (abilityDef.defaultSlot || 1) - 1;
-              // Only place if slot is empty (first ability found wins)
-              if (!player.abilities[slotIdx]) {
+              // Place ability if slot is empty, or match existing (equipment may have set it)
+              if (!player.abilities[slotIdx] || player.abilities[slotIdx] === cell.abilityId) {
                 player.abilities[slotIdx] = cell.abilityId;
                 // Compute adjacency bonuses
                 const overrides = this._computeModifiedAbility(player.solGrid, x, y, abilityDef);
@@ -478,15 +558,164 @@ class GameLoop {
   _initSolGrid(player, solUnitDef) {
     const size = solUnitDef.gridSize || 5;
     const cells = new Array(size * size).fill(null);
+    let nextPlacementId = 1;
 
     if (solUnitDef.initialComponents) {
       for (const comp of solUnitDef.initialComponents) {
-        const idx = comp.gridY * size + comp.gridX;
-        cells[idx] = { abilityId: comp.abilityId };
+        const compDef = comp.abilityId
+          ? this._findSolComponentByAbility(comp.abilityId)
+          : null;
+        const shape = (compDef && compDef.shape) || [[1]];
+        const pid = nextPlacementId++;
+        for (let sy = 0; sy < shape.length; sy++) {
+          for (let sx = 0; sx < shape[sy].length; sx++) {
+            if (!shape[sy][sx]) continue;
+            const gx = comp.gridX + sx;
+            const gy = comp.gridY + sy;
+            if (gx >= size || gy >= size) continue;
+            const idx = gy * size + gx;
+            const cell = {
+              placementId: pid,
+              originX: comp.gridX,
+              originY: comp.gridY,
+            };
+            if (comp.abilityId) cell.abilityId = comp.abilityId;
+            if (comp.modifierId) cell.modifierId = comp.modifierId;
+            if (sx !== 0 || sy !== 0) cell.isExtension = true;
+            cells[idx] = cell;
+          }
+        }
       }
     }
 
-    player.solGrid = { size, cells };
+    player.solGrid = { size, cells, nextPlacementId };
+  }
+
+  // Find sol component definition by abilityId
+  _findSolComponentByAbility(abilityId) {
+    const components = this.content.solComponents || {};
+    for (const [id, comp] of Object.entries(components)) {
+      if (comp.abilityId === abilityId) return comp;
+    }
+    return null;
+  }
+
+  // Find which item type corresponds to a sol component ID
+  _findItemTypeForSolComponent(solComponentId) {
+    const items = this.content.items || {};
+    for (const [itemType, itemDef] of Object.entries(items)) {
+      if (itemDef.solComponentId === solComponentId) return itemType;
+    }
+    return null;
+  }
+
+  // Place a sol_component from inventory onto the grid
+  trySolGridPlace(roomId, playerId, inventoryIndex, gridX, gridY) {
+    const room = this.rooms.get(roomId);
+    if (!room) return false;
+    const player = room.players.get(playerId);
+    if (!player || !player.solGrid) return false;
+
+    const item = player.inventory[inventoryIndex];
+    if (!item || item.category !== 'sol_component') return false;
+
+    const itemDef = this.content.getItem(item.type);
+    if (!itemDef || !itemDef.solComponentId) return false;
+
+    const compDef = this.content.getSolComponent(itemDef.solComponentId);
+    if (!compDef) return false;
+
+    const shape = compDef.shape || [[1]];
+    const size = player.solGrid.size;
+
+    // Validate all shape cells fit and are empty
+    for (let sy = 0; sy < shape.length; sy++) {
+      for (let sx = 0; sx < shape[sy].length; sx++) {
+        if (!shape[sy][sx]) continue;
+        const cx = gridX + sx;
+        const cy = gridY + sy;
+        if (cx < 0 || cy < 0 || cx >= size || cy >= size) return false;
+        if (player.solGrid.cells[cy * size + cx] !== null) return false;
+      }
+    }
+
+    // Place the component
+    const pid = player.solGrid.nextPlacementId++;
+    for (let sy = 0; sy < shape.length; sy++) {
+      for (let sx = 0; sx < shape[sy].length; sx++) {
+        if (!shape[sy][sx]) continue;
+        const cx = gridX + sx;
+        const cy = gridY + sy;
+        const cell = {
+          placementId: pid,
+          originX: gridX,
+          originY: gridY,
+        };
+        if (compDef.type === 'ability' && compDef.abilityId) cell.abilityId = compDef.abilityId;
+        if (compDef.type === 'modifier') cell.modifierId = itemDef.solComponentId;
+        if (sx !== 0 || sy !== 0) cell.isExtension = true;
+        player.solGrid.cells[cy * size + cx] = cell;
+      }
+    }
+
+    // Remove from inventory
+    player.inventory.splice(inventoryIndex, 1);
+    this._rebuildAbilities(player);
+    return true;
+  }
+
+  // Remove a placed sol_component from the grid, return it to inventory
+  trySolGridRemove(roomId, playerId, gridX, gridY) {
+    const room = this.rooms.get(roomId);
+    if (!room) return false;
+    const player = room.players.get(playerId);
+    if (!player || !player.solGrid) return false;
+
+    const size = player.solGrid.size;
+    const clickedCell = player.solGrid.cells[gridY * size + gridX];
+    if (!clickedCell) return false;
+
+    const pid = clickedCell.placementId;
+    // Find what component this is
+    let solComponentId = null;
+    if (clickedCell.modifierId) {
+      solComponentId = clickedCell.modifierId;
+    } else if (clickedCell.abilityId) {
+      // Find sol component by abilityId
+      const comp = this._findSolComponentByAbility(clickedCell.abilityId);
+      if (comp) {
+        // Find the component id key
+        const components = this.content.solComponents || {};
+        for (const [id, c] of Object.entries(components)) {
+          if (c === comp) { solComponentId = id; break; }
+        }
+      }
+    }
+    if (!solComponentId) return false;
+
+    // Find the item type for this component
+    const itemType = this._findItemTypeForSolComponent(solComponentId);
+    if (!itemType) return false;
+
+    // Clear all cells with this placementId
+    for (let i = 0; i < size * size; i++) {
+      const c = player.solGrid.cells[i];
+      if (c && c.placementId === pid) {
+        player.solGrid.cells[i] = null;
+      }
+    }
+
+    // Add item back to inventory
+    const itemDef = this.content.getItem(itemType);
+    player.inventory.push({
+      type: itemType,
+      name: itemDef.name,
+      rarity: itemDef.rarity || 'common',
+      category: itemDef.type || 'misc',
+    });
+
+    this._rebuildAbilities(player);
+    return true;
   }
 
   // Use an ability from a given slot

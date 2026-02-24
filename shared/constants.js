@@ -95,8 +95,12 @@ const CONSTANTS = {
     ABILITY_STATE: 'ability_state',
     SOL_GRID:      'sol_grid',
 
+    QUEST_OBJECTIVE: 'quest_objective',
+
     // Bidirectional
     SOL_GRID_MOVE: 'sol_grid_move',
+    SOL_GRID_PLACE: 'sol_grid_place',
+    SOL_GRID_REMOVE: 'sol_grid_remove',
   },
 };
 

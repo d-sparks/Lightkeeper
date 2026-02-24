@@ -157,6 +157,11 @@ class Renderer {
     this.speechBubbleContainer.visible = false;
     this.overlayContainer.addChild(this.speechBubbleContainer);
 
+    // Quest objective arrow overlay
+    this.questArrowGfx = new PIXI.Graphics();
+    this.overlayContainer.addChild(this.questArrowGfx);
+    this.questObjective = null; // { label, tileX, tileY, sameRoom }
+
     this.ready = true;
   }
 
@@ -781,6 +786,7 @@ class Renderer {
     this.renderDoorPrompts();
     this.renderDamageNumbers();
     this.renderMinimap();
+    this.renderQuestArrow();
     this.renderSpeechBubble();
 
     // Y-sort the entity container
@@ -1706,6 +1712,18 @@ class Renderer {
         this.minimapGfx.endFill();
       }
 
+      // Quest objective pulsing dot
+      if (this.questObjective) {
+        const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+        const qp = isoPx(
+          (this.questObjective.tileX + 0.5) * ts,
+          (this.questObjective.tileY + 0.5) * ts
+        );
+        this.minimapGfx.beginFill(0xffa726, pulse);
+        this.minimapGfx.drawCircle(qp.x, qp.y, 3);
+        this.minimapGfx.endFill();
+      }
+
       // Viewport circle at player position
       this.minimapGfx.lineStyle(1, 0xffffff, 0.3);
       const me = this.state ? this.state.players.find(p => p.id === this.myId) : null;
@@ -1774,6 +1792,16 @@ class Renderer {
         this.minimapGfx.endFill();
       }
 
+      // Quest objective pulsing dot
+      if (this.questObjective) {
+        const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+        const qx = mmX + this.questObjective.tileX * scale;
+        const qy = mmY + this.questObjective.tileY * scale;
+        this.minimapGfx.beginFill(0xffa726, pulse);
+        this.minimapGfx.drawCircle(qx, qy, 3);
+        this.minimapGfx.endFill();
+      }
+
       // Viewport rect
       this.minimapGfx.lineStyle(1, 0xffffff, 0.3);
       this.minimapGfx.drawRect(
@@ -1783,6 +1811,70 @@ class Renderer {
         this.viewportTY * scale
       );
     }
+  }
+
+  // --- Quest arrow (off-screen indicator) ---
+
+  renderQuestArrow() {
+    this.questArrowGfx.clear();
+    if (!this.questObjective || !this.state) return;
+
+    const ts = CONSTANTS.TILE_SIZE;
+    const me = this.state.players.find(p => p.id === this.myId);
+    if (!me) return;
+
+    // Target position in world pixels
+    const targetWX = (this.questObjective.tileX + 0.5) * ts;
+    const targetWY = (this.questObjective.tileY + 0.5) * ts;
+
+    // Target position in screen pixels
+    let screenX, screenY;
+    if (this.isoMode) {
+      const iso = this.worldToIso(targetWX, targetWY);
+      screenX = iso.x - this.camX;
+      screenY = iso.y - this.camY;
+    } else {
+      screenX = targetWX - this.camX;
+      screenY = targetWY - this.camY;
+    }
+
+    const margin = 40;
+    const onScreen = screenX >= margin && screenX <= this.viewW - margin &&
+                     screenY >= margin && screenY <= this.viewH - margin;
+
+    if (onScreen) return; // No arrow needed if objective is visible
+
+    // Clamp to screen edge
+    const cx = this.viewW / 2;
+    const cy = this.viewH / 2;
+    const dx = screenX - cx;
+    const dy = screenY - cy;
+    const angle = Math.atan2(dy, dx);
+
+    // Find edge intersection
+    const edgeMargin = 30;
+    const halfW = this.viewW / 2 - edgeMargin;
+    const halfH = this.viewH / 2 - edgeMargin;
+    const scale = Math.min(
+      Math.abs(halfW / (dx || 0.001)),
+      Math.abs(halfH / (dy || 0.001))
+    );
+    const arrowX = cx + dx * scale;
+    const arrowY = cy + dy * scale;
+
+    // Pulsing alpha
+    const pulse = 0.6 + 0.4 * Math.sin(Date.now() / 300);
+
+    // Draw triangle pointing toward objective
+    this.questArrowGfx.beginFill(0xffa726, pulse);
+    const size = 10;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    this.questArrowGfx.moveTo(arrowX + cos * size, arrowY + sin * size);
+    this.questArrowGfx.lineTo(arrowX + (-sin * size * 0.6 - cos * size * 0.5), arrowY + (cos * size * 0.6 - sin * size * 0.5));
+    this.questArrowGfx.lineTo(arrowX + (sin * size * 0.6 - cos * size * 0.5), arrowY + (-cos * size * 0.6 - sin * size * 0.5));
+    this.questArrowGfx.closePath();
+    this.questArrowGfx.endFill();
   }
 
   // --- Speech bubbles ---

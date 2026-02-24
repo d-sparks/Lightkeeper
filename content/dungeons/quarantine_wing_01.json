@@ -4213,6 +4213,13 @@
         {
           "type": "showMessage",
           "text": "Titanium power cylinders — exactly what the engineer needs. Time to head back to the workshop."
+        },
+        {
+          "type": "setQuestObjective",
+          "label": "Return to the Engineer",
+          "roomId": "outpost_workshop",
+          "tileX": 20,
+          "tileY": 5
         }
       ],
       "once": true
