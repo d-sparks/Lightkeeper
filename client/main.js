@@ -472,7 +472,7 @@
     // --- Top section: placement grid ---
     const grid = document.createElement('div');
     grid.className = 'sol-grid';
-    grid.style.gridTemplateColumns = `repeat(${size}, 48px)`;
+    grid.style.gridTemplateColumns = `repeat(${size}, 80px)`;
 
     for (let i = 0; i < size * size; i++) {
       const cell = document.createElement('div');
@@ -486,7 +486,19 @@
           cell.classList.add('has-ability');
           if (!comp.isExtension) {
             const label = comp.abilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-            cell.textContent = label;
+            let html = '<div class="sol-cell-name">' + label + '</div>';
+            // Show modifier bonuses if present
+            if (comp.modifiers && comp.modifiers.length > 0) {
+              for (const mod of comp.modifiers) {
+                if (mod.bonus.damageMultiplier) {
+                  html += '<div class="sol-mod-tag">+' + Math.round(mod.bonus.damageMultiplier * 100) + '% dmg</div>';
+                }
+                if (mod.bonus.cooldownReduction) {
+                  html += '<div class="sol-mod-tag">-' + Math.round(mod.bonus.cooldownReduction * 100) + '% cd</div>';
+                }
+              }
+            }
+            cell.innerHTML = html;
           }
         } else if (comp.modifierId) {
           cell.classList.add('has-modifier');
@@ -581,8 +593,8 @@
       for (const { item, idx } of solComponents) {
         const compCell = document.createElement('div');
         compCell.className = 'sol-cell has-modifier';
-        compCell.style.width = '48px';
-        compCell.style.height = '48px';
+        compCell.style.width = '80px';
+        compCell.style.height = '80px';
         compCell.textContent = item.name.replace(' Chip', '');
         if (solGridSelectedComponent === idx) {
           compCell.classList.add('selected');

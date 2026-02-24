@@ -330,6 +330,10 @@ gameLoop.questTracker.onStepCompleted = function (playerId, questId, stepId, ste
 };
 
 // Wire up equip callback so actions can rebuild abilities
+gameLoop.actions._getSolGridForClient = function (player) {
+  return gameLoop.getSolGridForClient(player);
+};
+
 gameLoop.actions._onEquipChanged = function (player, itemDef) {
   // If equipping a sol unit, init the grid
   if (itemDef.hasSolGrid && itemDef.solUnitId) {
@@ -476,7 +480,7 @@ wss.on('connection', (ws) => {
           if (p && p.solGrid) {
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.SOL_GRID,
-              grid: p.solGrid,
+              grid: gameLoop.getSolGridForClient(p),
             }));
           }
         }
@@ -496,6 +500,13 @@ wss.on('connection', (ws) => {
             type: CONSTANTS.MSG.ABILITY_STATE,
             abilities: unequipResult.abilities,
             cooldowns: unequipResult.cooldowns,
+          }));
+          // Send sol grid state (null clears client-side grid)
+          const unequipRoom = gameLoop.getRoom(ws.playerRoom);
+          const unequipPlayer = unequipRoom && unequipRoom.players.get(playerId);
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.SOL_GRID,
+            grid: gameLoop.getSolGridForClient(unequipPlayer),
           }));
         }
         break;
@@ -538,7 +549,7 @@ wss.on('connection', (ws) => {
         gameLoop._rebuildAbilities(p);
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.SOL_GRID,
-          grid: p.solGrid,
+          grid: gameLoop.getSolGridForClient(p),
         }));
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.ABILITY_STATE,
@@ -559,7 +570,7 @@ wss.on('connection', (ws) => {
           if (p2) {
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.SOL_GRID,
-              grid: p2.solGrid,
+              grid: gameLoop.getSolGridForClient(p2),
             }));
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.INVENTORY,
@@ -587,7 +598,7 @@ wss.on('connection', (ws) => {
           if (p3) {
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.SOL_GRID,
-              grid: p3.solGrid,
+              grid: gameLoop.getSolGridForClient(p3),
             }));
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.INVENTORY,

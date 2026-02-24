@@ -278,7 +278,7 @@ class ActionExecutor {
       this._onEquipChanged(player, itemDef);
     }
 
-    // Notify client of inventory + ability change
+    // Notify client of inventory + ability + sol grid change
     if (this.sendToPlayer) {
       this.sendToPlayer(context.playerId, {
         type: CONSTANTS.MSG.INVENTORY,
@@ -290,6 +290,12 @@ class ActionExecutor {
         abilities: player.abilities,
         cooldowns: player.cooldowns,
       });
+      if (player.solGrid && this._getSolGridForClient) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.SOL_GRID,
+          grid: this._getSolGridForClient(player),
+        });
+      }
     }
   }
 
