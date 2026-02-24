@@ -719,6 +719,11 @@
       renderEquipmentSlots();
       renderInventoryGrid();
     }
+    // Re-render sol grid when inventory changes so the component list stays in sync
+    if (solGridOpen && solGridState) {
+      solGridSelectedComponent = null;
+      renderSolGrid();
+    }
   });
 
   net.on(CONSTANTS.MSG.PLAYER_JOIN, (msg) => {
