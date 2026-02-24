@@ -325,7 +325,6 @@ class InputHandler {
   setupAbilityButtons() {
     const abilityBtns = document.querySelectorAll('.ability-btn[data-slot]');
     for (const btn of abilityBtns) {
-      if (btn.classList.contains('empty')) continue;
       const slot = parseInt(btn.getAttribute('data-slot'));
 
       btn.addEventListener('touchstart', (e) => {
