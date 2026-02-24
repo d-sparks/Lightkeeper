@@ -297,6 +297,19 @@ class InputHandler {
       });
     }
 
+    // Quest log HUD button
+    const questBtn = document.getElementById('quest-btn');
+    if (questBtn) {
+      questBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (this.onQuestPanel) this.onQuestPanel();
+      }, { passive: false });
+      questBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (this.onQuestPanel) this.onQuestPanel();
+      });
+    }
+
     // Desktop action bar — ability slots (click to select for right-click)
     const desktopSlots = document.querySelectorAll('.action-slot[data-slot]');
     for (const slot of desktopSlots) {

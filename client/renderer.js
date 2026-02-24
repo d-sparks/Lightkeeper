@@ -641,9 +641,12 @@ class Renderer {
 
   resizeToFit(availW, availH) {
     if (this.isoMode) {
-      // Render at half the native resolution for ~2x zoom, then CSS-scale to fill
-      this.viewW = Math.max(640, Math.floor(availW / 2));
-      this.viewH = Math.max(480, Math.floor(availH / 2));
+      // Scale zoom based on screen width, capped at 2x.
+      // Small screens get a gentler zoom (more tiles visible) instead of
+      // the old fixed /2 which felt too zoomed in on laptops.
+      const zoom = Math.min(2, Math.max(1, availW / 1200));
+      this.viewW = Math.max(640, Math.floor(availW / zoom));
+      this.viewH = Math.max(480, Math.floor(availH / zoom));
       this.cssZoom = availW / this.viewW;
 
       if (this.app) {

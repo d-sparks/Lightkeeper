@@ -19,6 +19,7 @@
   const equipmentSlots = document.getElementById('equipment-slots');
   const interactBtn = document.getElementById('interact-btn');
   const desktopInteractLabel = document.getElementById('desktop-interact-label');
+  const questBtn = document.getElementById('quest-btn');
   const questLabel = document.getElementById('quest-label');
   const questToast = document.getElementById('quest-toast');
   const questPanel = document.getElementById('quest-panel');

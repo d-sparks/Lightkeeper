@@ -114,6 +114,30 @@
       background: rgba(255,167,38,0.25);
     }
 
+    #quest-btn {
+      position: absolute;
+      top: 8px;
+      right: 50px;
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: rgba(255,167,38,0.1);
+      border: 1px solid rgba(255,167,38,0.3);
+      color: #ffa726;
+      font-family: 'Courier New', monospace;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 50;
+    }
+
+    #quest-btn:active {
+      background: rgba(255,167,38,0.25);
+    }
+
     #join-screen {
       text-align: center;
     }
@@ -957,6 +981,7 @@
       <div class="player-name" id="hud-name"></div>
       <div id="quest-label"></div>
     </div>
+    <div id="quest-btn">LOG</div>
     <div id="inventory-btn">INV</div>
   </div>
 
