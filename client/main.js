@@ -8,6 +8,8 @@
   const gameContainer = document.getElementById('game-container');
   const canvas = document.getElementById('game-canvas');
   const healthFill = document.getElementById('health-fill');
+  const energyBar = document.getElementById('energy-bar');
+  const energyFill = document.getElementById('energy-fill');
   const hudName = document.getElementById('hud-name');
   const dialogueOverlay = document.getElementById('dialogue-overlay');
   const dialogueSpeaker = document.getElementById('dialogue-speaker');
@@ -574,6 +576,13 @@
       if (me) {
         const pct = (me.health / me.maxHealth) * 100;
         healthFill.style.width = `${pct}%`;
+        if (me.maxEnergy > 0) {
+          energyBar.style.display = '';
+          const ePct = (me.energy / me.maxEnergy) * 100;
+          energyFill.style.width = `${ePct}%`;
+        } else {
+          energyBar.style.display = 'none';
+        }
         hudName.textContent = me.name;
         if (me.facing !== undefined) lastFacing = me.facing;
       }

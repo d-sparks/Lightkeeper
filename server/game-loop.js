@@ -292,6 +292,8 @@ class GameLoop {
       abilities: [null, null, null, null, null, null],
       cooldowns: [0, 0, 0, 0, 0, 0],
       solGrid: null,
+      energy: 0,
+      maxEnergy: 0,
     };
 
     room.players.set(playerId, player);
@@ -407,6 +409,12 @@ class GameLoop {
     player.abilities = [null, null, null, null, null, null];
     player.abilityOverrides = {}; // slotIdx -> { damageMultiplier, cooldown } overrides from adjacency
 
+    // Reset energy if no sol grid
+    if (!player.solGrid) {
+      player.energy = 0;
+      player.maxEnergy = 0;
+    }
+
     // Arms slot: provides attack ability
     const arms = player.equipment.arms;
     if (arms) {
@@ -438,6 +446,11 @@ class GameLoop {
 
     // Sol grid abilities (if sol unit is equipped, scan grid for ability components)
     if (player.solGrid) {
+      // Initialize energy pool on first sol grid equip
+      if (player.maxEnergy === 0) {
+        player.maxEnergy = 100;
+        player.energy = player.maxEnergy;
+      }
       for (let y = 0; y < player.solGrid.size; y++) {
         for (let x = 0; x < player.solGrid.size; x++) {
           const cell = player.solGrid.cells[y * player.solGrid.size + x];
@@ -512,6 +525,12 @@ class GameLoop {
   }
 
   _fireProjectile(room, player, abilityDef, aimAngle, slotIdx) {
+    // Check energy cost
+    if (abilityDef.energyCost) {
+      if (player.energy < abilityDef.energyCost) return false;
+      player.energy -= abilityDef.energyCost;
+    }
+
     let dirX, dirY;
     if (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle)) {
       dirX = Math.cos(aimAngle);
@@ -596,6 +615,10 @@ class GameLoop {
           if (player.cooldowns[i] > 0) {
             player.cooldowns[i] = Math.max(0, player.cooldowns[i] - dt);
           }
+        }
+        // Regenerate energy (~5 per second)
+        if (player.maxEnergy > 0 && player.energy < player.maxEnergy) {
+          player.energy = Math.min(player.maxEnergy, player.energy + 5 * dt);
         }
       }
 
@@ -1276,6 +1299,7 @@ class GameLoop {
         y: Math.round(p.y * 10) / 10,
         facing: Math.round(p.facing * 100) / 100,
         health: p.health, maxHealth: p.maxHealth,
+        energy: Math.round(p.energy), maxEnergy: p.maxEnergy,
         colorIndex: p.colorIndex,
       };
       // Include weapon name if equipped (for rendering)

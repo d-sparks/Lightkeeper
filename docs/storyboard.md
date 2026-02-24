@@ -232,6 +232,107 @@ The Unbounded stumbled onto this generations ago. That's why they left. The orig
 
 **Path C — Break the cycle.** Attempt to negotiate a three-way equilibrium. The Ring offers the Array biological catalysts and Underlumen-derived compounds as a replacement for raw umbrasite harvesting. The Unbounded share their knowledge of coexisting with the Underlumen. The Array contributes energy infrastructure that doesn't require suppression. Asha Denn brokers the biological terms. Sable speaks for the Unbounded. MERIDIAN-7 calculates whether the math works. This is the hardest path — it requires the most gameplay investment (maxing out relationships with all factions, completing Asha's Cultivar Corps side quests, earning Sable's full trust) and its success is not guaranteed. It's the most hopeful outcome, but it demands the player actually understand all three perspectives and have built the institutional relationships to make them cooperate.
 
+---
+
+## Concrete Event Sequence — Outpost Balor to Lighthouse Mara
+
+This section maps the specific, implementable gameplay beats from the end of the sol unit quest through the player's first Lighthouse expedition. These are the scenes that need dungeon floors, triggers, NPCs, and items.
+
+### Event 1: Charge the Sol Unit
+
+**Trigger:** Player receives sol unit from the Engineer in the workshop.
+
+The Engineer tells the player to take the sol unit to the **Outpost Charging Station** to power it up. The sol unit is equipped but has zero energy — abilities won't fire until it's charged.
+
+- Player walks to `outpost_charging_station`
+- Interacts with the charging terminal
+- Brief charging sequence (scripted trigger — sets flag `sol_unit_charged`, fills energy to max)
+- Tech Maren (NPC at the station) explains how energy works: "The generator keeps this charger running. Your sol unit will regenerate slowly on its own, but you'll want a real power source for the field."
+
+**Player state after:** Sol unit equipped and charged. One ability (Sol Beam). Energy bar visible and full.
+
+### Event 2: Outpost Under Attack
+
+**Trigger:** Immediately after charging completes (or on exiting the charging station).
+
+Alarms. The outpost is under Luddite attack. This is the player's first real combat with the sol unit equipped.
+
+- Scripted event: `outpost_attack_started` flag set
+- NPCs in the outpost react (dialogue changes to urgent/combat lines)
+- Luddite raiders spawn in `outpost_entrance` and connecting rooms
+- The player must fight through the outpost back toward the workshop/entrance area
+- Combat is tuned to teach sol beam usage — raiders are tougher than quarantine wing enemies but manageable with the new weapon
+- **Modifier drop:** One of the Luddite raiders drops a **damage booster modifier** (common tier). This is the player's first modifier — they learn about grid placement and adjacency.
+
+**New dungeon floor(s):** May reuse existing outpost rooms with attack-state triggers that swap spawns, or a dedicated `outpost_attack` overlay.
+
+### Event 3: Repel the Attack, Find Umbrasite
+
+**Trigger:** Player defeats the raider squad / reaches a specific point during the attack.
+
+- A Luddite raider captain (mini-boss, tougher than regular raiders) is at the outpost entrance
+- Defeating the captain drops the player's **first piece of umbrasite**
+- Room event / NPC dialogue explains what umbrasite is: rare crystalline mineral from the Nightside, extremely valuable
+- Warden Holt (or another NPC) tells the player to hold onto it — "That's Nightside mineral. The Array will want that. More importantly, *you* need it."
+
+**Player state after:** First umbrasite in inventory. One modifier found.
+
+### Event 4: Grab the Generator
+
+**Trigger:** After the attack is repelled, before leaving the outpost.
+
+The charging station took damage in the attack. Tech Maren tells the player to take the **portable generator** — the outpost's backup power unit that was running the charger.
+
+- Player returns to `outpost_charging_station` (or Maren brings it to them)
+- Maren: "The charger's wrecked anyway. Take the generator — you'll need it more than we do out there. It'll keep your sol unit topped off in the field."
+- Player receives **Portable Generator** — this is their first **power generator** component for the sol grid
+- Tutorial prompt: the generator can be placed in the sol grid. It provides passive energy regeneration.
+- Player opens sol grid and places the generator (or is prompted to)
+
+**Player state after:** Sol grid now has Sol Beam (ability) + Damage Booster (modifier) + Portable Generator (power generator). The core grid system is taught.
+
+### Event 5: Craft the Battery, Head to the Dayside Border
+
+**Trigger:** Player talks to the Engineer after the attack.
+
+The Engineer can process umbrasite. Crafting yields:
+- **One battery** (first battery — increases max energy capacity)
+- **Silicon** (enough to trade with MERIDIAN-7 for one ability + build a solar panel)
+
+The Engineer (or Warden Holt) directs the player toward the **Dayside border** — a new area near the light side where they'll meet MERIDIAN-7 and set up their first solar panel.
+
+- New dungeon floor: `dayside_border` or `solar_terminal` — a transitional area at the edge of the Terminator Zone. Bright, hot, exposed. Different aesthetic from the outpost.
+- MERIDIAN-7 introduces itself at a solar terminal
+- MERIDIAN-7 trades silicon for the player's **second ability** (e.g., a defensive or movement skill — distinct from Sol Beam)
+- Solar panel construction tutorial: player deploys their first solar panel, establishing a **free recharge point**
+
+**Player state after:** Two abilities, one modifier, one battery (increased max energy), one power generator (passive regen), and a solar panel recharge point. The economy loop is introduced.
+
+### Event 6: A Second Modifier
+
+Somewhere between the outpost attack and the dayside border (or as a side room off the border area), the player finds or earns a **second modifier** — perhaps a cooldown reducer. This could be:
+- Loot from a straggler raider encounter on the road to the border
+- A reward from MERIDIAN-7 for first trade
+- Found in a small side dungeon near the border
+
+This ensures the player has enough grid components to make placement decisions feel meaningful before Lighthouse Mara.
+
+### Event 7: Proceed to Lighthouse Mara
+
+**Trigger:** Solar panel deployed, second ability acquired.
+
+MERIDIAN-7 or Wren directs the player to **Lighthouse Mara** — the nearest fallen Lighthouse. This is the first real dungeon expedition with a fully equipped sol unit.
+
+**Player loadout entering Lighthouse Mara:**
+- Sol unit with 5×5 grid containing: 2 abilities, 2 modifiers, 1 power generator
+- One battery (elevated max energy)
+- Solar panel recharge point established (can return to top up)
+- Full understanding of energy, grid placement, and the economy loop
+
+**Lighthouse Mara is the first test of everything the player has learned.** It should be a meaningful dungeon — multiple rooms, dark-side fauna, light puzzles, and a climax where the player relights the Lighthouse. This is the transition from tutorial into Act 1 proper.
+
+---
+
 ### Epilogue
 
 The ending varies by path, but the player's role doesn't change. You're still a Lightkeeper. The frontier still needs maintaining. The dark is still dangerous. The only difference is what you now know about why.
