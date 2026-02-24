@@ -1,0 +1,103 @@
+{
+  "label": "DAniel - 2/23/2026, 7:44:43 PM",
+  "playerName": "DAniel",
+  "room": "outpost_workshop",
+  "timestamp": "2026-02-24T00:44:43.360Z",
+  "x": 707.8488566283208,
+  "y": 161.9519622850655,
+  "health": 67,
+  "maxHealth": 100,
+  "energy": 100,
+  "maxEnergy": 100,
+  "inventory": [
+    {
+      "type": "blaster",
+      "name": "Standard Blaster",
+      "rarity": "common",
+      "category": "weapon",
+      "slot": "arms",
+      "stats": {
+        "attackDamage": 3,
+        "projectile": true
+      }
+    }
+  ],
+  "equipment": {
+    "arms": {
+      "type": "sol_unit",
+      "name": "Sol Unit",
+      "rarity": "rare",
+      "category": "weapon",
+      "slot": "arms",
+      "stats": {
+        "attackDamage": 12
+      }
+    },
+    "medipac": {
+      "type": "medipac",
+      "name": "Medipac",
+      "rarity": "common",
+      "category": "equipment",
+      "slot": "medipac",
+      "stats": {}
+    },
+    "accessory": null
+  },
+  "solGrid": {
+    "size": 5,
+    "cells": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "abilityId": "sol_beam"
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "flags": {
+    "__trigger_welcome_to_outpost_fired": true,
+    "__trigger_receive_medipac_fired": true,
+    "received_medipac": true,
+    "__trigger_engineer_gives_blaster_fired": true,
+    "received_blaster": true,
+    "__trigger_engineer_quest_start_fired": true,
+    "quest_cylinders_active": true,
+    "__trigger_enter_quarantine_fired": true,
+    "__trigger_notice_supply_crate_fired": true,
+    "noticed_supply_crate": true,
+    "luddites_killed_wing1": 12,
+    "__trigger_enter_deep_storage_fired": true,
+    "__trigger_enter_warlord_hold_fired": true,
+    "__trigger_luddite_warlord_killed_fired": true,
+    "warlord_defeated": true,
+    "__trigger_pickup_supply_key_fired": true,
+    "has_supply_crate_key": true,
+    "__trigger_supply_crate_interaction_fired": true,
+    "supply_crate_opened": true,
+    "__trigger_pickup_cylinders_from_crate_fired": true,
+    "has_titanium_cylinders": true,
+    "__trigger_receive_sol_unit_fired": true,
+    "received_sol_unit": true
+  }
+}
