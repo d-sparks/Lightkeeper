@@ -1,0 +1,103 @@
+{
+  "id": "outpost_entrance_attacked",
+  "name": "Outpost Balor - Under Attack",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "width": 40,
+  "height": 24,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,6,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 20, "y": 1, "type": "player_start" },
+    { "x": 21, "y": 1, "type": "player_start" },
+    { "x": 19, "y": 1, "type": "player_start" },
+    { "x": 20, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "luddite_brawler", "x": 10, "y": 5, "count": 2, "patrol": "wander" },
+    { "type": "luddite_brawler", "x": 30, "y": 4, "count": 2, "patrol": "wander" },
+    { "type": "luddite_scrapper", "x": 25, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 5, "y": 12, "count": 2, "patrol": "wander" },
+    { "type": "luddite_brawler", "x": 20, "y": 12, "count": 2, "patrol": "wander" },
+    { "type": "luddite_scrapper", "x": 35, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 15, "y": 18, "count": 2, "patrol": "wander" },
+    { "type": "luddite_brawler", "x": 30, "y": 19, "count": 2, "patrol": "wander" },
+    { "type": "luddite_scrapper", "x": 10, "y": 20, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 5, "y": 3 },
+    { "type": "bandage", "x": 18, "y": 10 },
+    { "type": "health_potion", "x": 35, "y": 15 },
+    { "type": "bandage", "x": 25, "y": 20 }
+  ],
+  "exits": [
+    { "x": 20, "y": 0, "leadsTo": "outpost_charging_station", "type": "stairs_up", "spawnX": 12, "spawnY": 14 },
+    { "x": 20, "y": 23, "leadsTo": "outpost_breach", "type": "stairs_down", "spawnX": 15, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_attacked_outpost",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Smoke fills the main hall. The luddites have broken through — the outpost is overrun.",
+          "You can hear fighting deeper in. Push through to the south perimeter breach."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "attack_brawler_kill_counter",
+      "event": "monster_killed",
+      "filter": { "monsterType": "luddite_brawler" },
+      "actions": [
+        { "type": "incrementFlag", "flag": "attack_luddites_killed" }
+      ]
+    },
+    {
+      "id": "attack_scrapper_kill_counter",
+      "event": "monster_killed",
+      "filter": { "monsterType": "luddite_scrapper" },
+      "actions": [
+        { "type": "incrementFlag", "flag": "attack_luddites_killed" }
+      ]
+    },
+    {
+      "id": "attack_halfway_message",
+      "event": "monster_killed",
+      "conditions": [
+        { "flagGreaterThan": "attack_luddites_killed", "value": 6 }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The fighting thins out. The breach must be close — keep pushing south." }
+      ],
+      "once": true
+    }
+  ]
+}

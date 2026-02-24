@@ -61,5 +61,17 @@
     "attackSpeed": 0.8,
     "ai": "melee_chase",
     "xp": 50
+  },
+  "luddite_vanguard": {
+    "name": "Luddite Vanguard",
+    "sprite": "sprites/luddite_warlord.png",
+    "size": [16, 16],
+    "health": 200,
+    "speed": 1.5,
+    "damage": 18,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "xp": 75
   }
 }

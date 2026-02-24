@@ -59,11 +59,20 @@
         { "speaker": "Warden Holt", "text": "Go talk to the engineer. Get your equipment. Then we move." }
       ],
       "has_sol_unit": [
-        { "speaker": "Warden Holt", "text": "You've got the Sol Unit. Good." },
-        { "speaker": "Warden Holt", "text": "Lighthouse Mara is waiting. Don't let us down." }
+        { "speaker": "Warden Holt", "text": "You've got the Sol Unit. Good. Get it charged at the Power Station before anything else." },
+        { "speaker": "Warden Holt", "text": "South exit from the main hall. Tech Maren will sort you out." }
+      ],
+      "attack_over": [
+        { "speaker": "Warden Holt", "text": "You stopped the breach. That vanguard was no ordinary raider — he was scouting for something." },
+        { "speaker": "Warden Holt", "text": "The umbracite you found... that's dark-side material. Rare. If the luddites are carrying it, they've pushed deeper into the Nightside than we thought." },
+        { "speaker": "Warden Holt", "text": "Lighthouse Mara can't wait any longer. Get moving." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "vanguard_defeated" }],
+        "use": "attack_over"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -101,11 +110,19 @@
         { "speaker": "Warden Holt", "text": "Go talk to the engineer. Get your equipment. Then we move." }
       ],
       "has_sol_unit": [
-        { "speaker": "Warden Holt", "text": "You've got the Sol Unit. Good." },
+        { "speaker": "Warden Holt", "text": "You've got the Sol Unit. Good. Get it charged at the Power Station." },
         { "speaker": "Warden Holt", "text": "Lighthouse Mara is waiting. Don't let us down." }
+      ],
+      "attack_over": [
+        { "speaker": "Warden Holt", "text": "The breach is sealed. Good work out there." },
+        { "speaker": "Warden Holt", "text": "That umbracite the vanguard was carrying... bring it to the engineer. He'll know what to do with it." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "vanguard_defeated" }],
+        "use": "attack_over"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -259,9 +276,17 @@
         { "speaker": "Tech Maren", "text": "You've got a Sol Unit? Good. Third slot from the left — connect the interface and I'll run the charge sequence." },
         { "speaker": "Tech Maren", "text": "We're not fully certified yet, so the output's capped. But it'll top you off before a deployment." },
         { "speaker": "Tech Maren", "text": "Come back when you've run it down. That's what we're here for." }
+      ],
+      "sol_charged": [
+        { "speaker": "Tech Maren", "text": "Your Sol Unit is at full charge. Go — they need you out there." },
+        { "speaker": "Tech Maren", "text": "I'll keep the capacitor banks running. If we lose power, nothing else matters." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "sol_unit_charged" }],
+        "use": "sol_charged"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -357,13 +382,23 @@
       ],
       "has_sol_unit": [
         { "speaker": "Apprentice Sol Engineer", "text": "That Sol Unit is solid work, if I say so myself. Take care of it and it'll take care of you." },
-        { "speaker": "Apprentice Sol Engineer", "text": "When you get back, I might be able to upgrade it. If you bring me the right materials." }
+        { "speaker": "Apprentice Sol Engineer", "text": "Get it charged at the Power Station before you head out. Tech Maren's expecting you." }
+      ],
+      "has_umbracite": [
+        { "speaker": "Apprentice Sol Engineer", "text": "Is that... umbracite? I've only read about this in the old technical manuals." },
+        { "speaker": "Apprentice Sol Engineer", "text": "It absorbs Sol energy and stores it at incredible density. The Array used to trade for this stuff — said it was essential for their deep-space systems." },
+        { "speaker": "Apprentice Sol Engineer", "text": "With this, I could build you a proper energy battery for the Sol Grid. Your unit would hold far more charge." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Bring me more if you find it. This changes what's possible." }
       ]
     },
     "dialogueRules": [
       {
         "conditions": [{ "not": { "hasFlag": "received_blaster" } }],
         "use": "first_meeting"
+      },
+      {
+        "conditions": [{ "hasFlag": "has_umbracite" }],
+        "use": "has_umbracite"
       },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],

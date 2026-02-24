@@ -22,7 +22,7 @@
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+    3,3,3,3,3,3,3,3,3,3,3,3,4,3,3,3,3,3,3,3,3,3,3,3,3
   ],
   "spawns": [
     { "x": 12, "y": 13, "type": "player_start" },
@@ -37,7 +37,8 @@
   ],
   "itemSpawns": [],
   "exits": [
-    { "x": 12, "y": 0, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 19, "spawnY": 21 }
+    { "x": 12, "y": 0, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 19, "spawnY": 21 },
+    { "x": 12, "y": 15, "leadsTo": "outpost_entrance_attacked", "type": "stairs_down", "spawnX": 20, "spawnY": 1 }
   ],
   "triggers": [
     {
@@ -45,6 +46,29 @@
       "event": "room_entered",
       "actions": [
         { "type": "showMessage", "text": "The hum of the solar capacitor banks fills the room. Indicator lights pulse along the charging terminals." }
+      ],
+      "once": true
+    },
+    {
+      "id": "charge_sol_unit",
+      "event": "npc_interacted",
+      "filter": { "npcType": "charging_tech_maren" },
+      "conditions": [
+        { "hasFlag": "received_sol_unit" },
+        { "not": { "hasFlag": "sol_unit_charged" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "sol_unit_charged" },
+        { "type": "showMessage", "lines": [
+          "Tech Maren connects your Sol Unit to the charging terminal. The capacitor banks hum louder as energy flows in.",
+          "Tech Maren: 'Full charge. You're good to—'",
+          "The outpost shakes. Alarms blare across the station.",
+          "Warden Holt bursts through the south door.",
+          "Warden Holt: 'Outpost Balor is under attack! Come quick!'",
+          "Warden Holt: 'Luddite vanguard — they've breached the south perimeter. Every able body, NOW!'"
+        ]},
+        { "type": "toggleTile", "x": 12, "y": 15 },
+        { "type": "setQuestObjective", "label": "Defend the Outpost", "roomId": "outpost_entrance_attacked", "tileX": 20, "tileY": 12 }
       ],
       "once": true
     }

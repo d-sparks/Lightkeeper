@@ -80,11 +80,12 @@
         { "type": "giveItem", "itemType": "sol_unit" },
         { "type": "equipItem", "itemType": "sol_unit" },
         { "type": "setFlag", "flag": "received_sol_unit" },
-        { "type": "clearQuestObjective" },
         { "type": "showMessage", "lines": [
           "The Sol Unit hums to life. Press [I] to open Inventory, then click OPEN on your weapon slot to access the Sol Grid.",
-          "Your Damage Booster Chip can be placed adjacent to the Sol Beam for a power boost. Try it now!"
-        ]}
+          "Your Damage Booster Chip can be placed adjacent to the Sol Beam for a power boost.",
+          "The Engineer says: 'You'll need to charge it before it's fully operational. Head to the Power Station — south exit from the main hall.'"
+        ]},
+        { "type": "setQuestObjective", "label": "Charge your Sol Unit", "roomId": "outpost_charging_station", "tileX": 12, "tileY": 6 }
       ],
       "once": true
     }

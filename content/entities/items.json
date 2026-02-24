@@ -79,5 +79,11 @@
     "type": "sol_component",
     "rarity": "uncommon",
     "solComponentId": "damage_booster"
+  },
+  "umbracite": {
+    "name": "Umbracite",
+    "description": "A shard of dark crystalline material that absorbs and stores Sol energy. Rare and valuable.",
+    "type": "key",
+    "rarity": "rare"
   }
 }
