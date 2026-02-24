@@ -22,7 +22,7 @@ Lightkeeper is a multiplayer browser dungeon crawler with an authoritative Node.
 ```
 server/              Authoritative game server (Node.js)
   index.js           Entry point — HTTP server, WebSocket setup, message routing
-  game-loop.js       Fixed-tick loop (15 Hz), room management, combat, AI
+  game-loop.js       Fixed-tick loop (15 Hz), room management, combat, AI, sol grid, abilities, energy
   physics.js         Circle-vs-AABB collision, movement with wall sliding
   content-loader.js  Loads all JSON content at startup
 
@@ -37,21 +37,24 @@ shared/
   constants.js       Tick rate, tile size, colors, message types
 
 content/             Pure JSON data — no code
-  dungeons/          Floor layouts (tile grids, spawns, exits)
+  dungeons/          Floor layouts (tile grids, spawns, exits, triggers)
   tilesets/          Tile definitions and properties (solid, interactable)
-  entities/          Monster and NPC definitions (stats, AI type)
-  items/             (Planned) Weapon, armor, consumable definitions
+  entities/
+    monsters.json    Monster stats + AI type
+    npcs.json        NPC definitions + conditional dialogue
+    items.json       Weapons, consumables, keys, sol components
+    sol_components.json  Ability & modifier definitions (sol grid)
+    sol_units.json   Sol unit grid configurations
   loot/              (Planned) Loot table definitions
 
-editor/              (Future) Visual level editor
-docs/                Standalone demo page
+docs/                Design docs (progression, scripting, storyboard)
 ```
 
 ### Server-Client Split
 
 - **Server** owns all game state. It runs physics, combat, monster AI, and loot at a fixed 15 ticks/sec. Clients cannot cheat.
 - **Client** captures input and renders. It receives full room state each tick and draws it.
-- **Messages** are defined in `shared/constants.js` under `NET`. Client sends `join`, `input`, `interact`. Server sends `welcome`, `state`, `player_join`, `player_leave`, `floor_change`, `dialogue`.
+- **Messages** are defined in `shared/constants.js` under `NET`. Client sends `join`, `input`, `interact`, `SOL_GRID_PLACE`, `SOL_GRID_REMOVE`, etc. Server sends `welcome`, `state`, `player_join`, `player_leave`, `floor_change`, `dialogue`, `SOL_GRID`, `INVENTORY`, `ABILITY_STATE`, `EQUIPMENT`, etc. See the NET object for the full list.
 
 ## Design Philosophy
 
@@ -87,7 +90,9 @@ The project uses plain JavaScript with no transpilation, no frameworks, and a si
 | New monster type | `content/entities/monsters.json` — add an entry with stats and AI type |
 | New dungeon floor | `content/dungeons/` — new JSON file following the existing floor format |
 | New tileset | `content/tilesets/` — new JSON file defining tile properties |
-| New item | `content/items/` — JSON file (weapons.json, armor.json, etc.) |
+| New item | `content/entities/items.json` — add entry with stats and category |
+| New sol component (ability/modifier) | `content/entities/sol_components.json` — ability or modifier definition |
+| New sol unit variant | `content/entities/sol_units.json` — grid size + initial components |
 | New loot table | `content/loot/` — JSON file with weighted item rolls |
 | New server system | `server/` — new module, wire it into `game-loop.js` |
 | New client feature | `client/` — new module, wire it into `main.js` |
@@ -110,7 +115,9 @@ No automated test suite yet. Test manually:
 For any task, start with these to orient yourself:
 
 - `shared/constants.js` — all game constants and message types
-- `server/game-loop.js` — the heart of the server; update loop, combat, AI
+- `server/game-loop.js` — the heart of the server; update loop, combat, AI, sol grid, abilities
 - `server/content-loader.js` — how JSON content becomes runtime data
 - `client/renderer.js` — how the game is drawn
 - `architecture-plan.md` — full technical design and data format reference
+- `docs/progression-system.md` — sol grid, abilities, energy, and component design
+- `content/entities/sol_components.json` — ability & modifier definitions for the sol grid

@@ -30,7 +30,7 @@ There are two conceptually independent layers: **engine** and **content**. They 
 ```
 server/
   index.js              HTTP + WebSocket server, message routing
-  game-loop.js          Fixed 15 Hz tick: physics, combat, AI, room state
+  game-loop.js          Fixed 15 Hz tick: physics, combat, AI, sol grid, abilities, energy
   physics.js            Circle-vs-AABB collision, wall sliding
   content-loader.js     Loads all JSON content at startup
   content-git.js        Git branch integration for content management
@@ -51,7 +51,7 @@ client/
   net.js                WebSocket client
 
 shared/
-  constants.js          Tick rate, tile size, message types, colors
+  constants.js          Tick rate, tile size, colors, message types (NET object — includes SOL_GRID_*, INVENTORY, ABILITY_STATE, EQUIPMENT, etc.)
 ```
 
 ### Content (pure JSON data — no code)
@@ -64,7 +64,9 @@ content/
   entities/
     monsters.json       Monster stats + AI type
     npcs.json           NPC definitions + conditional dialogue
-    items.json          Weapons, consumables, keys
+    items.json          Weapons, consumables, keys, sol components
+    sol_components.json Ability & modifier definitions (sol grid)
+    sol_units.json      Sol unit grid configurations
   sprites/              16x16 placeholder PNGs
   loot/                 (Planned) Loot tables
 ```
@@ -81,6 +83,8 @@ When working on this codebase, always consider which layer a change belongs to:
 | New dungeon floor | Content | `content/dungeons/` new JSON file |
 | New tileset | Content | `content/tilesets/` new JSON file |
 | New game behavior (scripted) | Content | Triggers in dungeon JSON (see `docs/game-scripting.md`) |
+| New sol component (ability/modifier) | Content | `content/entities/sol_components.json` |
+| New sol unit variant | Content | `content/entities/sol_units.json` |
 | New AI behavior keyword | Engine | `server/game-loop.js` |
 | New server system | Engine | New file in `server/`, wire into `game-loop.js` |
 | New client feature | Engine | New file in `client/`, wire into `main.js` |
@@ -118,6 +122,7 @@ No automated tests. Test manually:
 
 - `architecture-plan.md` — Full technical design spec and data format reference
 - `docs/game-scripting.md` — Trigger/Condition/Action scripting system
+- `docs/progression-system.md` — Sol grid, abilities, energy, and component design
 - `docs/storyboard.md` — World lore, factions, narrative
 - `AGENTS.md` — AI agent workflow (branch conventions, where to put new features)
 - `PLACEHOLDER_ASSETS.md` — Notes on generated sprites needing replacement
