@@ -6,6 +6,7 @@ const CONSTANTS = require('../shared/constants');
 const ContentLoader = require('./content-loader');
 const GameLoop = require('./game-loop');
 const { handleEditorAPI } = require('./editor-api');
+const { handleCheckpointAPI } = require('./checkpoint-api');
 const { isAuthenticated, handleLogin, sendUnauthorized } = require('./editor-auth');
 const contentGit = require('./content-git');
 
@@ -15,6 +16,7 @@ const CONTENT_DIR = path.join(__dirname, '..', 'content');
 const CLIENT_DIR = path.join(__dirname, '..', 'client');
 const SHARED_DIR = path.join(__dirname, '..', 'shared');
 const EDITOR_DIR = path.join(__dirname, '..', 'editor');
+const CHECKPOINT_DIR = path.join(__dirname, '..', 'checkpoint');
 
 // --- Load game content ---
 const content = new ContentLoader(CONTENT_DIR);
@@ -197,6 +199,28 @@ const httpServer = http.createServer((req, res) => {
     if (handled !== false) return;
   }
 
+  // --- Checkpoint login (no auth required) ---
+  if (urlPath === '/api/checkpoint/login' && req.method === 'POST') {
+    handleLogin(req, res);
+    return;
+  }
+
+  // --- Checkpoint auth check endpoint ---
+  if (urlPath === '/api/checkpoint/auth' && req.method === 'GET') {
+    const authed = isAuthenticated(req);
+    const needsAuth = !!process.env.EDITOR_PASSWORD;
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ authenticated: authed, needsAuth }));
+    return;
+  }
+
+  // --- All other checkpoint API routes require auth ---
+  if (urlPath.startsWith('/api/checkpoint/')) {
+    if (!isAuthenticated(req)) { sendUnauthorized(res); return; }
+    const handled = handleCheckpointAPI(req, res, gameLoop, wss, content);
+    if (handled !== false) return;
+  }
+
   // Editor reload endpoint (auth-protected)
   if (urlPath === '/api/editor/reload' && req.method === 'POST') {
     if (!isAuthenticated(req)) { sendUnauthorized(res); return; }
@@ -235,6 +259,14 @@ const httpServer = http.createServer((req, res) => {
     return serveFile(res, path.join(EDITOR_DIR, urlPath.slice(8)));
   }
 
+  // Checkpoint static files
+  if (urlPath === '/checkpoint' || urlPath === '/checkpoint/') {
+    return serveFile(res, path.join(CHECKPOINT_DIR, 'index.html'));
+  }
+  if (urlPath.startsWith('/checkpoint/')) {
+    return serveFile(res, path.join(CHECKPOINT_DIR, urlPath.slice(12)));
+  }
+
   if (urlPath === '/') {
     return serveFile(res, path.join(CLIENT_DIR, 'index.html'));
   }
@@ -258,6 +290,18 @@ gameLoop.actions.sendToPlayer = function (playerId, message) {
 };
 gameLoop.actions.broadcastToRoom = function (roomId, message) {
   broadcast(roomId, message);
+};
+
+// Wire up equip callback so actions can rebuild abilities
+gameLoop.actions._onEquipChanged = function (player, itemDef) {
+  // If equipping a sol unit, init the grid
+  if (itemDef.hasSolGrid && itemDef.solUnitId) {
+    const solUnitDef = content.getSolUnit(itemDef.solUnitId);
+    if (solUnitDef) {
+      gameLoop._initSolGrid(player, solUnitDef);
+    }
+  }
+  gameLoop._rebuildAbilities(player);
 };
 
 wss.on('connection', (ws) => {
@@ -302,6 +346,13 @@ wss.on('connection', (ws) => {
           type: CONSTANTS.MSG.INVENTORY,
           items: player.inventory,
           equipment: player.equipment,
+        }));
+
+        // Send initial ability state
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.ABILITY_STATE,
+          abilities: player.abilities,
+          cooldowns: player.cooldowns,
         }));
 
         broadcast(ws.playerRoom, {
@@ -364,6 +415,20 @@ wss.on('connection', (ws) => {
             items: equipResult.inventory,
             equipment: equipResult.equipment,
           }));
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.ABILITY_STATE,
+            abilities: equipResult.abilities,
+            cooldowns: equipResult.cooldowns,
+          }));
+          // Send sol grid state if applicable
+          const room = gameLoop.getRoom(ws.playerRoom);
+          const p = room && room.players.get(playerId);
+          if (p && p.solGrid) {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.SOL_GRID,
+              grid: p.solGrid,
+            }));
+          }
         }
         break;
       }
@@ -376,6 +441,11 @@ wss.on('connection', (ws) => {
             type: CONSTANTS.MSG.INVENTORY,
             items: unequipResult.inventory,
             equipment: unequipResult.equipment,
+          }));
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.ABILITY_STATE,
+            abilities: unequipResult.abilities,
+            cooldowns: unequipResult.cooldowns,
           }));
         }
         break;
@@ -397,8 +467,34 @@ wss.on('connection', (ws) => {
       case CONSTANTS.MSG.ATTACK: {
         if (!ws.playerRoom) break;
         const aimAngle = (msg.aimAngle !== undefined) ? msg.aimAngle : null;
-        const slot = msg.slot || 1;
-        gameLoop.tryAttack(ws.playerRoom, playerId, aimAngle);
+        const attackSlot = msg.slot || 1;
+        gameLoop.tryUseAbility(ws.playerRoom, playerId, attackSlot, aimAngle);
+        break;
+      }
+
+      case CONSTANTS.MSG.SOL_GRID_MOVE: {
+        if (!ws.playerRoom) break;
+        const room = gameLoop.getRoom(ws.playerRoom);
+        if (!room) break;
+        const p = room.players.get(playerId);
+        if (!p || !p.solGrid) break;
+        const { fromIdx, toIdx } = msg;
+        const gridLen = p.solGrid.size * p.solGrid.size;
+        if (fromIdx < 0 || fromIdx >= gridLen || toIdx < 0 || toIdx >= gridLen) break;
+        // Swap the two cells
+        const temp = p.solGrid.cells[fromIdx];
+        p.solGrid.cells[fromIdx] = p.solGrid.cells[toIdx];
+        p.solGrid.cells[toIdx] = temp;
+        gameLoop._rebuildAbilities(p);
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.SOL_GRID,
+          grid: p.solGrid,
+        }));
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.ABILITY_STATE,
+          abilities: p.abilities,
+          cooldowns: p.cooldowns,
+        }));
         break;
       }
     }
@@ -469,10 +565,14 @@ setInterval(() => {
   for (const [roomId, room] of gameLoop.rooms) {
     const state = gameLoop.getRoomState(roomId);
     if (!state) continue;
-    const json = JSON.stringify(state);
+    // Send per-player state with their own cooldowns
     wss.clients.forEach((client) => {
       if (client.readyState === 1 && client.playerRoom === roomId) {
-        client.send(json);
+        const player = room.players.get(client.playerId);
+        if (player) {
+          state.myCooldowns = player.cooldowns;
+        }
+        client.send(JSON.stringify(state));
       }
     });
   }

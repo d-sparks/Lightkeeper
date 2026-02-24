@@ -8,6 +8,8 @@
   const gameContainer = document.getElementById('game-container');
   const canvas = document.getElementById('game-canvas');
   const healthFill = document.getElementById('health-fill');
+  const energyBar = document.getElementById('energy-bar');
+  const energyFill = document.getElementById('energy-fill');
   const hudName = document.getElementById('hud-name');
   const dialogueOverlay = document.getElementById('dialogue-overlay');
   const dialogueSpeaker = document.getElementById('dialogue-speaker');
@@ -115,15 +117,102 @@
   // --- Inventory & equipment state ---
   let inventoryOpen = false;
   let inventoryItems = [];
-  let equipmentState = { weapon: null, armor: null, accessory: null };
+  let equipmentState = { arms: null, medipac: null, accessory: null };
+  let abilityState = [null, null, null, null, null, null];
+  let cooldownState = [0, 0, 0, 0, 0, 0];
+  const SLOT_DISPLAY_NAMES = { arms: 'Arms', medipac: 'Medipac', accessory: 'Accessory' };
+
+  // Sol grid state
+  let solGridState = null;
+  let solGridOpen = false;
+  let solGridSelected = -1;  // index of selected cell for swapping
+  const solGridPanel = document.getElementById('sol-grid-panel');
+  const solGridContainer = document.getElementById('sol-grid-container');
+  const solGridInfo = document.getElementById('sol-grid-info');
 
   function toggleInventory() {
+    // If sol grid is open, close it first
+    if (solGridOpen) {
+      closeSolGrid();
+      return;
+    }
     inventoryOpen = !inventoryOpen;
     input.inventoryOpen = inventoryOpen;
     inventoryPanel.style.display = inventoryOpen ? 'block' : 'none';
     if (inventoryOpen) {
       renderEquipmentSlots();
-      renderInventoryList();
+      renderInventoryGrid();
+    }
+  }
+
+  // Tab switching
+  document.querySelectorAll('.inv-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.inv-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const tabName = tab.dataset.tab;
+      document.getElementById('inv-tab-equipment').style.display = tabName === 'equipment' ? '' : 'none';
+      document.getElementById('inv-tab-inventory').style.display = tabName === 'inventory' ? '' : 'none';
+      if (tabName === 'equipment') renderEquipmentSlots();
+      if (tabName === 'inventory') renderInventoryGrid();
+    });
+  });
+
+  function updateActionBar() {
+    for (let i = 0; i < 6; i++) {
+      const slotNum = i + 1;
+      // Desktop action bar
+      const desktopSlot = document.querySelector(`.action-slot[data-slot="${slotNum}"]`);
+      // Mobile ability buttons
+      const mobileSlot = document.querySelector(`.ability-btn[data-slot="${slotNum}"]`);
+      const abilityId = abilityState[i];
+
+      if (abilityId) {
+        // Show ability name (stripped of underscores, capitalized)
+        const label = abilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        if (desktopSlot) {
+          desktopSlot.classList.remove('empty');
+          const labelEl = desktopSlot.querySelector('.slot-label');
+          if (labelEl) labelEl.textContent = label;
+        }
+        if (mobileSlot) {
+          mobileSlot.classList.remove('empty');
+          mobileSlot.textContent = slotNum;
+        }
+      } else {
+        if (desktopSlot) {
+          desktopSlot.classList.add('empty');
+          const labelEl = desktopSlot.querySelector('.slot-label');
+          if (labelEl) labelEl.innerHTML = '&mdash;';
+        }
+        if (mobileSlot) {
+          mobileSlot.classList.add('empty');
+          mobileSlot.textContent = slotNum;
+        }
+      }
+    }
+  }
+
+  function updateCooldownOverlays() {
+    for (let i = 0; i < 6; i++) {
+      const slotNum = i + 1;
+      const desktopSlot = document.querySelector(`.action-slot[data-slot="${slotNum}"]`);
+      if (!desktopSlot) continue;
+
+      let overlay = desktopSlot.querySelector('.cooldown-overlay');
+      const cd = cooldownState[i] || 0;
+
+      if (cd > 0) {
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.className = 'cooldown-overlay';
+          desktopSlot.appendChild(overlay);
+        }
+        overlay.textContent = cd.toFixed(1);
+        overlay.style.display = 'flex';
+      } else if (overlay) {
+        overlay.style.display = 'none';
+      }
     }
   }
 
@@ -135,64 +224,176 @@
 
     for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
       const div = document.createElement('div');
-      div.className = 'equip-slot';
+      div.className = 'equip-slot-box';
       const equipped = equipmentState[slot];
+      const displayName = SLOT_DISPLAY_NAMES[slot] || slot;
+
       if (equipped) {
         const rarityColor = CONSTANTS.RARITY_COLORS[equipped.rarity] || CONSTANTS.RARITY_COLORS.common;
-        div.innerHTML = '<span class="slot-name">' + slot + '</span>' +
+        let html = '<span class="slot-label-name">' + displayName + '</span>' +
           '<span class="inv-dot" style="background:' + rarityColor + '"></span>' +
-          '<span class="slot-item" style="color:' + rarityColor + '">' + equipped.name + '</span>';
+          '<span class="slot-item-name" style="color:' + rarityColor + '">' + equipped.name + '</span>';
+
+        // Check if this is a sol unit (show OPEN tag on arms slot)
+        const itemDef = equipped._hasSolGrid;
+        if (slot === 'arms' && solGridState) {
+          html += '<span class="sol-open-tag">OPEN</span>';
+        }
+
+        div.innerHTML = html;
         div.addEventListener('click', () => {
+          // If arms slot has sol unit with grid, open the grid
+          if (slot === 'arms' && solGridState) {
+            openSolGrid();
+            return;
+          }
           net.send({ type: CONSTANTS.MSG.UNEQUIP, slot: slot });
         });
       } else {
-        div.innerHTML = '<span class="slot-name">' + slot + '</span>' +
-          '<span class="slot-empty">- empty -</span>';
+        div.innerHTML = '<span class="slot-label-name">' + displayName + '</span>' +
+          '<span class="slot-empty-label">- empty -</span>';
       }
       equipmentSlots.appendChild(div);
     }
   }
 
-  function renderInventoryList() {
+  function renderInventoryGrid() {
     if (inventoryItems.length === 0) {
       inventoryList.innerHTML = '<div class="inv-empty">Empty</div>';
       return;
     }
     inventoryList.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'inv-grid';
+
     for (let i = 0; i < inventoryItems.length; i++) {
       const item = inventoryItems[i];
-      const div = document.createElement('div');
-      div.className = 'inv-item';
+      const cell = document.createElement('div');
+      cell.className = 'inv-grid-cell';
       const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
-      let html = '<span class="inv-dot" style="background:' + rarityColor + '"></span>' +
-        '<span style="color:' + rarityColor + '">' + item.name + '</span>';
 
-      // Check if item is equippable (weapon type has a slot)
-      if (item.category === 'weapon' || item.slot) {
+      let html = '<span class="cell-dot" style="background:' + rarityColor + '"></span>' +
+        '<span class="cell-name" style="color:' + rarityColor + '">' + item.name + '</span>';
+
+      if (item.category === 'weapon' || item.category === 'equipment' || item.slot) {
         html += '<span class="inv-slot-tag">equip</span>';
       }
-
-      // Check if item is consumable (usable)
       if (item.category === 'consumable') {
         html += '<span class="inv-use-tag">use</span>';
       }
-      div.innerHTML = html;
+      cell.innerHTML = html;
 
       const idx = i;
       if (item.category === 'consumable') {
-        // Tap to use consumable
-        div.addEventListener('click', () => {
+        cell.addEventListener('click', () => {
           net.send({ type: CONSTANTS.MSG.USE_ITEM, index: idx });
         });
       } else {
-        // Click to equip
-        div.addEventListener('click', () => {
+        cell.addEventListener('click', () => {
           net.send({ type: CONSTANTS.MSG.EQUIP, index: idx });
         });
       }
 
-      inventoryList.appendChild(div);
+      grid.appendChild(cell);
     }
+
+    inventoryList.appendChild(grid);
+  }
+
+  // --- Sol grid panel ---
+  function openSolGrid() {
+    if (!solGridState) return;
+    solGridOpen = true;
+    solGridSelected = -1;
+    inventoryPanel.style.display = 'none';
+    solGridPanel.style.display = 'block';
+    input.inventoryOpen = true;
+    renderSolGrid();
+  }
+
+  function closeSolGrid() {
+    solGridOpen = false;
+    solGridSelected = -1;
+    solGridPanel.style.display = 'none';
+    input.inventoryOpen = false;
+  }
+
+  function renderSolGrid() {
+    if (!solGridState) return;
+    solGridContainer.innerHTML = '';
+    const size = solGridState.size || 5;
+    const grid = document.createElement('div');
+    grid.className = 'sol-grid';
+    grid.style.gridTemplateColumns = `repeat(${size}, 48px)`;
+
+    for (let i = 0; i < size * size; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'sol-cell';
+      const comp = solGridState.cells[i];
+
+      if (comp) {
+        if (comp.abilityId) {
+          cell.classList.add('has-ability');
+          const label = comp.abilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+          cell.textContent = label;
+        } else if (comp.modifierId) {
+          cell.classList.add('has-modifier');
+          cell.textContent = comp.modifierId.replace(/_/g, ' ');
+        }
+      }
+
+      if (i === solGridSelected) {
+        cell.classList.add('selected');
+      }
+
+      const idx = i;
+      cell.addEventListener('click', () => {
+        if (solGridSelected === -1) {
+          // Select this cell
+          solGridSelected = idx;
+          renderSolGrid();
+        } else if (solGridSelected === idx) {
+          // Deselect
+          solGridSelected = -1;
+          renderSolGrid();
+        } else {
+          // Swap with selected cell
+          net.send({
+            type: CONSTANTS.MSG.SOL_GRID_MOVE,
+            fromIdx: solGridSelected,
+            toIdx: idx,
+          });
+          solGridSelected = -1;
+        }
+      });
+
+      grid.appendChild(cell);
+    }
+
+    solGridContainer.appendChild(grid);
+
+    // Highlight adjacency connections: add glow to modifiers adjacent to abilities
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+    for (let cy = 0; cy < size; cy++) {
+      for (let cx = 0; cx < size; cx++) {
+        const ci = cy * size + cx;
+        const comp = solGridState.cells[ci];
+        if (!comp || !comp.abilityId) continue;
+        // This is an ability cell, highlight adjacent modifiers
+        for (const [dx, dy] of dirs) {
+          const nx = cx + dx, ny = cy + dy;
+          if (nx < 0 || ny < 0 || nx >= size || ny >= size) continue;
+          const ni = ny * size + nx;
+          const neighbor = solGridState.cells[ni];
+          if (neighbor && neighbor.modifierId) {
+            const neighborCell = grid.children[ni];
+            if (neighborCell) neighborCell.style.boxShadow = '0 0 6px rgba(76,175,80,0.4)';
+          }
+        }
+      }
+    }
+
+    solGridInfo.textContent = solGridSelected >= 0 ? 'Click another cell to swap' : 'Click a component to move it';
   }
 
   // --- Dynamic interact button label ---
@@ -375,6 +576,13 @@
       if (me) {
         const pct = (me.health / me.maxHealth) * 100;
         healthFill.style.width = `${pct}%`;
+        if (me.maxEnergy > 0) {
+          energyBar.style.display = '';
+          const ePct = (me.energy / me.maxEnergy) * 100;
+          energyFill.style.width = `${ePct}%`;
+        } else {
+          energyBar.style.display = 'none';
+        }
         hudName.textContent = me.name;
         if (me.facing !== undefined) lastFacing = me.facing;
       }
@@ -386,6 +594,12 @@
       if (me) {
         input.updateClickToMove(me.x, me.y);
       }
+    }
+
+    // Update cooldowns from state
+    if (msg.myCooldowns) {
+      cooldownState = msg.myCooldowns;
+      updateCooldownOverlays();
     }
 
     // Update interact button label based on proximity
@@ -414,6 +628,21 @@
     }
   });
 
+  net.on(CONSTANTS.MSG.SOL_GRID, (msg) => {
+    solGridState = msg.grid || null;
+    if (solGridOpen && solGridState) {
+      renderSolGrid();
+    }
+    // Re-render equipment slots to show/hide OPEN tag
+    if (inventoryOpen) renderEquipmentSlots();
+  });
+
+  net.on(CONSTANTS.MSG.ABILITY_STATE, (msg) => {
+    abilityState = msg.abilities || [null, null, null, null, null, null];
+    cooldownState = msg.cooldowns || [0, 0, 0, 0, 0, 0];
+    updateActionBar();
+  });
+
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {
     inventoryItems = msg.items || [];
     if (msg.equipment) {
@@ -421,7 +650,7 @@
     }
     if (inventoryOpen) {
       renderEquipmentSlots();
-      renderInventoryList();
+      renderInventoryGrid();
     }
   });
 

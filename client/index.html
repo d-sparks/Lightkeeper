@@ -68,6 +68,21 @@
       transition: width 0.2s;
     }
 
+    #hud .energy-bar {
+      width: 150px;
+      height: 10px;
+      background: #333;
+      border: 1px solid #555;
+      margin-bottom: 4px;
+      display: none;
+    }
+
+    #hud .energy-bar-fill {
+      height: 100%;
+      background: #ffa726;
+      transition: width 0.2s;
+    }
+
     #hud .player-name {
       font-size: 11px;
       color: #aaa;
@@ -215,6 +230,34 @@
       pointer-events: auto;
     }
 
+    .inv-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255,167,38,0.2);
+    }
+
+    .inv-tab {
+      flex: 1;
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      letter-spacing: 1px;
+      padding: 6px 0;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .inv-tab.active {
+      color: #ffa726;
+      border-bottom-color: #ffa726;
+    }
+
+    .inv-tab:hover:not(.active) { color: #999; }
+
+    .inv-tab-content { }
+
     #inventory-panel .inv-title {
       font-size: 14px;
       color: #ffa726;
@@ -310,7 +353,148 @@
     .equip-slot .slot-item { color: #ccc; }
     .equip-slot .slot-empty { color: #444; font-style: italic; }
 
-    #inventory-panel .inv-hint {
+    .inv-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 48px);
+      gap: 3px;
+      justify-content: center;
+    }
+
+    .inv-grid-cell {
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 9px;
+      color: #aaa;
+      text-align: center;
+      overflow: hidden;
+      gap: 2px;
+      position: relative;
+    }
+
+    .inv-grid-cell:hover { background: rgba(255,255,255,0.06); }
+
+    .inv-grid-cell .cell-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .inv-grid-cell .cell-name {
+      font-size: 8px;
+      line-height: 1.1;
+      max-width: 44px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .inv-grid-cell .inv-slot-tag,
+    .inv-grid-cell .inv-use-tag {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      font-size: 7px;
+    }
+
+    /* Equipment slot redesign */
+    .equip-slot-box {
+      font-size: 12px;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      cursor: pointer;
+      min-height: 48px;
+    }
+
+    .equip-slot-box:active,
+    .equip-slot-box:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .equip-slot-box .slot-label-name {
+      font-size: 10px;
+      color: #666;
+      width: 60px;
+      flex-shrink: 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .equip-slot-box .slot-item-name { color: #ccc; }
+    .equip-slot-box .slot-empty-label { color: #444; font-style: italic; }
+
+    .equip-slot-box .sol-open-tag {
+      font-size: 8px;
+      color: #ffa726;
+      border: 1px solid rgba(255,167,38,0.3);
+      border-radius: 3px;
+      padding: 1px 4px;
+      margin-left: auto;
+    }
+
+    /* Sol grid panel */
+    #sol-grid-panel {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(10, 10, 26, 0.96);
+      border: 2px solid #ffa726;
+      padding: 16px 20px;
+      min-width: 280px;
+      z-index: 95;
+      pointer-events: auto;
+    }
+
+    .sol-grid {
+      display: grid;
+      gap: 3px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .sol-cell {
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 8px;
+      color: #aaa;
+      text-align: center;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .sol-cell:hover { background: rgba(255,255,255,0.06); }
+    .sol-cell.selected { border-color: #ffa726; background: rgba(255,167,38,0.1); }
+    .sol-cell.has-ability { border-color: rgba(239,83,80,0.4); background: rgba(239,83,80,0.08); }
+    .sol-cell.has-modifier { border-color: rgba(76,175,80,0.4); background: rgba(76,175,80,0.08); }
+
+    #sol-grid-info {
+      font-size: 11px;
+      color: #888;
+      text-align: center;
+      min-height: 16px;
+    }
+
+    #inventory-panel .inv-hint,
+    #sol-grid-panel .inv-hint {
       font-size: 10px;
       color: #555;
       margin-top: 10px;
@@ -560,6 +744,20 @@
 
     .action-slot.empty .slot-label { color: #555; }
 
+    .cooldown-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #aaa;
+      font-family: 'Courier New', monospace;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
     .action-bar-sep {
       width: 1px;
       height: 36px;
@@ -656,6 +854,7 @@
     <canvas id="game-canvas"></canvas>
     <div id="hud">
       <div class="health-bar"><div class="health-bar-fill" id="health-fill"></div></div>
+      <div class="energy-bar" id="energy-bar"><div class="energy-bar-fill" id="energy-fill"></div></div>
       <div class="player-name" id="hud-name"></div>
     </div>
     <div id="inventory-btn">INV</div>
@@ -717,12 +916,26 @@
   <div id="interact-btn" class="mobile-only">Interact</div>
 
   <div id="inventory-panel">
-    <div class="inv-title">EQUIPMENT</div>
-    <div id="equipment-slots" class="equip-section">
-      <div class="equip-label">SLOTS</div>
+    <div class="inv-tabs">
+      <div class="inv-tab active" data-tab="equipment">EQUIPMENT</div>
+      <div class="inv-tab" data-tab="inventory">INVENTORY</div>
     </div>
-    <div class="inv-title">INVENTORY</div>
-    <div id="inventory-list"></div>
+    <div id="inv-tab-equipment" class="inv-tab-content">
+      <div id="equipment-slots" class="equip-section">
+        <div class="equip-label">SLOTS</div>
+      </div>
+    </div>
+    <div id="inv-tab-inventory" class="inv-tab-content" style="display:none">
+      <div id="inventory-list"></div>
+    </div>
+    <div class="inv-hint">[I] Close</div>
+  </div>
+
+  <!-- Sol grid overlay -->
+  <div id="sol-grid-panel" style="display:none">
+    <div class="inv-title">SOL UNIT GRID</div>
+    <div id="sol-grid-container"></div>
+    <div id="sol-grid-info"></div>
     <div class="inv-hint">[I] Close</div>
   </div>
 

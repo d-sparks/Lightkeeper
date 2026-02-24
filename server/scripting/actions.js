@@ -247,7 +247,7 @@ class ActionExecutor {
     const itemDef = this.content.getItem(action.itemType);
     if (!itemDef) return;
 
-    const slot = itemDef.slot;
+    const slot = CONSTANTS.SLOT_ALIASES[itemDef.slot] || itemDef.slot;
     if (!CONSTANTS.EQUIPMENT_SLOTS.includes(slot)) return;
 
     // If something is already equipped in that slot, move it back to inventory
@@ -267,12 +267,22 @@ class ActionExecutor {
       stats: itemDef.stats || {},
     };
 
-    // Notify client of inventory change
+    // Rebuild abilities if the gameLoop reference is available via callback
+    if (this._onEquipChanged) {
+      this._onEquipChanged(player, itemDef);
+    }
+
+    // Notify client of inventory + ability change
     if (this.sendToPlayer) {
       this.sendToPlayer(context.playerId, {
         type: CONSTANTS.MSG.INVENTORY,
         items: player.inventory,
         equipment: player.equipment,
+      });
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.ABILITY_STATE,
+        abilities: player.abilities,
+        cooldowns: player.cooldowns,
       });
     }
   }

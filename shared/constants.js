@@ -48,7 +48,8 @@ const CONSTANTS = {
   },
 
   // Equipment slots
-  EQUIPMENT_SLOTS: ['weapon', 'armor', 'accessory'],
+  EQUIPMENT_SLOTS: ['arms', 'medipac', 'accessory'],
+  SLOT_ALIASES: { weapon: 'arms', armor: 'medipac' },
 
   // Interaction ranges (in tiles)
   NPC_INTERACT_RANGE: 2.5,   // Tiles distance to interact with NPC
@@ -77,6 +78,7 @@ const CONSTANTS = {
     UNEQUIP:       'unequip',
     USE_ITEM:      'use_item',
     ATTACK:        'attack',
+    USE_ABILITY:   'use_ability',
 
     // Server -> Client
     WELCOME:       'welcome',
@@ -90,6 +92,11 @@ const CONSTANTS = {
     FLOOR_CHANGE:  'floor_change',
     DOOR_TOGGLE:   'door_toggle',
     INVENTORY:     'inventory',
+    ABILITY_STATE: 'ability_state',
+    SOL_GRID:      'sol_grid',
+
+    // Bidirectional
+    SOL_GRID_MOVE: 'sol_grid_move',
   },
 };
 

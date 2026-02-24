@@ -1,0 +1,28 @@
+{
+  "blaster_shot": {
+    "name": "Blaster Shot",
+    "type": "projectile",
+    "damageMultiplier": 1.0,
+    "projectileRadius": 4,
+    "projectileSpeed": 300,
+    "cooldown": 0.5,
+    "defaultSlot": 1
+  },
+  "medipac_heal": {
+    "name": "Medipac Heal",
+    "type": "heal",
+    "heal": 30,
+    "cooldown": 8.0,
+    "defaultSlot": 6
+  },
+  "sol_beam": {
+    "name": "Sol Beam",
+    "type": "projectile",
+    "damageMultiplier": 2.0,
+    "projectileRadius": 8,
+    "projectileSpeed": 300,
+    "cooldown": 0.8,
+    "energyCost": 5,
+    "defaultSlot": 1
+  }
+}

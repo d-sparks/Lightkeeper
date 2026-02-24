@@ -288,11 +288,17 @@ class GameLoop {
       attackTimer: 0,
       transitionCooldown: 0,
       inventory: [],
-      equipment: { weapon: null, armor: null, accessory: null },
+      equipment: { arms: null, medipac: null, accessory: null },
+      abilities: [null, null, null, null, null, null],
+      cooldowns: [0, 0, 0, 0, 0, 0],
+      solGrid: null,
+      energy: 0,
+      maxEnergy: 0,
     };
 
     room.players.set(playerId, player);
     this.flagStore.ensurePlayer(playerId);
+    this._rebuildAbilities(player);
 
     // Emit room_entered event
     const ctx = this._scriptContext(playerId, roomId);
@@ -352,16 +358,267 @@ class GameLoop {
     player.input = input;
   }
 
+  // Resolve a slot name through aliases (e.g. 'weapon' -> 'arms')
+  _resolveSlot(rawSlot) {
+    return CONSTANTS.SLOT_ALIASES[rawSlot] || rawSlot;
+  }
+
+  // Get modifier components adjacent to a grid position (4-directional, Manhattan distance 1 by default)
+  _getAdjacentModifiers(solGrid, x, y) {
+    const size = solGrid.size;
+    const modifiers = [];
+    const dirs = [[-1,0],[1,0],[0,-1],[0,1]]; // 4-directional
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= size || ny >= size) continue;
+      const cell = solGrid.cells[ny * size + nx];
+      if (cell && cell.modifierId) {
+        const compDef = this.content.getSolComponent(cell.modifierId);
+        if (compDef && compDef.type === 'modifier' && compDef.bonus) {
+          modifiers.push(compDef);
+        }
+      }
+    }
+    return modifiers;
+  }
+
+  // Compute modified ability stats based on adjacent modifiers
+  _computeModifiedAbility(solGrid, x, y, baseAbilityDef) {
+    const mods = this._getAdjacentModifiers(solGrid, x, y);
+    if (mods.length === 0) return null; // no modifications
+
+    const modified = {};
+    let dmgMult = 0;
+    let cdReduce = 0;
+    for (const mod of mods) {
+      if (mod.bonus.damageMultiplier) dmgMult += mod.bonus.damageMultiplier;
+      if (mod.bonus.cooldownReduction) cdReduce += mod.bonus.cooldownReduction;
+    }
+    if (dmgMult > 0) {
+      modified.damageMultiplier = (baseAbilityDef.damageMultiplier || 1.0) + dmgMult;
+    }
+    if (cdReduce > 0) {
+      modified.cooldown = Math.max(0.1, (baseAbilityDef.cooldown || 0.5) * (1 - cdReduce));
+    }
+    return modified;
+  }
+
+  // Rebuild the abilities array from equipped items
+  _rebuildAbilities(player) {
+    player.abilities = [null, null, null, null, null, null];
+    player.abilityOverrides = {}; // slotIdx -> { damageMultiplier, cooldown } overrides from adjacency
+
+    // Reset energy if no sol grid
+    if (!player.solGrid) {
+      player.energy = 0;
+      player.maxEnergy = 0;
+    }
+
+    // Arms slot: provides attack ability
+    const arms = player.equipment.arms;
+    if (arms) {
+      const itemDef = this.content.getItem(arms.type);
+      if (itemDef && itemDef.ability) {
+        const abilityDef = this.content.getAbility(itemDef.ability.id);
+        if (abilityDef) {
+          const slotIdx = (abilityDef.defaultSlot || 1) - 1;
+          player.abilities[slotIdx] = itemDef.ability.id;
+        }
+      } else if (itemDef && itemDef.stats && itemDef.stats.projectile) {
+        // Legacy projectile weapons without explicit ability → use blaster_shot
+        player.abilities[0] = 'blaster_shot';
+      }
+    }
+
+    // Medipac slot: provides heal ability
+    const medipac = player.equipment.medipac;
+    if (medipac) {
+      const itemDef = this.content.getItem(medipac.type);
+      if (itemDef && itemDef.ability) {
+        const abilityDef = this.content.getAbility(itemDef.ability.id);
+        if (abilityDef) {
+          const slotIdx = (abilityDef.defaultSlot || 6) - 1;
+          player.abilities[slotIdx] = itemDef.ability.id;
+        }
+      }
+    }
+
+    // Sol grid abilities (if sol unit is equipped, scan grid for ability components)
+    if (player.solGrid) {
+      // Initialize energy pool on first sol grid equip
+      if (player.maxEnergy === 0) {
+        player.maxEnergy = 100;
+        player.energy = player.maxEnergy;
+      }
+      for (let y = 0; y < player.solGrid.size; y++) {
+        for (let x = 0; x < player.solGrid.size; x++) {
+          const cell = player.solGrid.cells[y * player.solGrid.size + x];
+          if (cell && cell.abilityId) {
+            const abilityDef = this.content.getAbility(cell.abilityId);
+            if (abilityDef) {
+              const slotIdx = (abilityDef.defaultSlot || 1) - 1;
+              // Only place if slot is empty (first ability found wins)
+              if (!player.abilities[slotIdx]) {
+                player.abilities[slotIdx] = cell.abilityId;
+                // Compute adjacency bonuses
+                const overrides = this._computeModifiedAbility(player.solGrid, x, y, abilityDef);
+                if (overrides) {
+                  player.abilityOverrides[slotIdx] = overrides;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Initialize a sol grid for a player when they equip a sol unit
+  _initSolGrid(player, solUnitDef) {
+    const size = solUnitDef.gridSize || 5;
+    const cells = new Array(size * size).fill(null);
+
+    if (solUnitDef.initialComponents) {
+      for (const comp of solUnitDef.initialComponents) {
+        const idx = comp.gridY * size + comp.gridX;
+        cells[idx] = { abilityId: comp.abilityId };
+      }
+    }
+
+    player.solGrid = { size, cells };
+  }
+
+  // Use an ability from a given slot
+  tryUseAbility(roomId, playerId, slot, aimAngle) {
+    const room = this.rooms.get(roomId);
+    if (!room) return false;
+    const player = room.players.get(playerId);
+    if (!player) return false;
+
+    const slotIdx = slot - 1;
+    if (slotIdx < 0 || slotIdx >= 6) return false;
+
+    const abilityId = player.abilities[slotIdx];
+    if (!abilityId) return false;
+
+    let abilityDef = this.content.getAbility(abilityId);
+    if (!abilityDef) return false;
+
+    // Apply adjacency overrides if present
+    const overrides = player.abilityOverrides && player.abilityOverrides[slotIdx];
+    if (overrides) {
+      abilityDef = Object.assign({}, abilityDef, overrides);
+    }
+
+    // Check cooldown
+    if (player.cooldowns[slotIdx] > 0) return false;
+
+    switch (abilityDef.type) {
+      case 'projectile':
+        return this._fireProjectile(room, player, abilityDef, aimAngle, slotIdx);
+      case 'heal':
+        return this._useHeal(room, player, abilityDef, slotIdx);
+      default:
+        return false;
+    }
+  }
+
+  _fireProjectile(room, player, abilityDef, aimAngle, slotIdx) {
+    // Check energy cost
+    if (abilityDef.energyCost) {
+      if (player.energy < abilityDef.energyCost) return false;
+      player.energy -= abilityDef.energyCost;
+    }
+
+    let dirX, dirY;
+    if (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle)) {
+      dirX = Math.cos(aimAngle);
+      dirY = Math.sin(aimAngle);
+    } else {
+      // Auto-aim: find nearest monster
+      const targetRange = 12 * CONSTANTS.TILE_SIZE;
+      let nearestMob = null;
+      let nearestDist = Infinity;
+      for (const [mid, mob] of room.monsters) {
+        const dx = mob.x - player.x;
+        const dy = mob.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < targetRange && dist < nearestDist) {
+          nearestMob = mob;
+          nearestDist = dist;
+        }
+      }
+      if (nearestMob) {
+        const dx = nearestMob.x - player.x;
+        const dy = nearestMob.y - player.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        dirX = dx / len;
+        dirY = dy / len;
+      } else {
+        dirX = Math.cos(player.facing || 0);
+        dirY = Math.sin(player.facing || 0);
+      }
+    }
+
+    const speed = abilityDef.projectileSpeed || CONSTANTS.PROJECTILE_SPEED;
+    const radius = abilityDef.projectileRadius || CONSTANTS.PROJECTILE_RADIUS;
+    const damage = this.getPlayerAttackDamage(player) * (abilityDef.damageMultiplier || 1.0);
+
+    const projectileId = `proj_${room.nextProjectileId++}`;
+    room.projectiles.push({
+      id: projectileId,
+      ownerId: player.id,
+      x: player.x,
+      y: player.y,
+      vx: dirX * speed,
+      vy: dirY * speed,
+      damage: damage,
+      radius: radius,
+      lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+    });
+
+    player.cooldowns[slotIdx] = abilityDef.cooldown || CONSTANTS.PLAYER_ATTACK_COOLDOWN;
+    return true;
+  }
+
+  _useHeal(room, player, abilityDef, slotIdx) {
+    if (player.health >= player.maxHealth) return false;
+
+    const healAmount = Math.min(abilityDef.heal || 0, player.maxHealth - player.health);
+    if (healAmount <= 0) return false;
+
+    player.health += healAmount;
+    player.cooldowns[slotIdx] = abilityDef.cooldown || 8.0;
+
+    room.events.push({
+      type: 'heal', targetId: player.id,
+      amount: healAmount, x: player.x, y: player.y,
+    });
+
+    return true;
+  }
+
   update(dt) {
     for (const [roomId, room] of this.rooms) {
       room.tick++;
       room.events = [];
 
-      // Update each player's movement
+      // Update each player's movement and cooldowns
       for (const [pid, player] of room.players) {
         this.physics.movePlayer(player, room.dungeon, dt);
         if (player.transitionCooldown > 0) {
           player.transitionCooldown -= dt;
+        }
+        // Tick down ability cooldowns
+        for (let i = 0; i < player.cooldowns.length; i++) {
+          if (player.cooldowns[i] > 0) {
+            player.cooldowns[i] = Math.max(0, player.cooldowns[i] - dt);
+          }
+        }
+        // Regenerate energy (~5 per second)
+        if (player.maxEnergy > 0 && player.energy < player.maxEnergy) {
+          player.energy = Math.min(player.maxEnergy, player.energy + 5 * dt);
         }
       }
 
@@ -604,7 +861,7 @@ class GameLoop {
       }
 
       // Check wall collision
-      const radius = CONSTANTS.PROJECTILE_RADIUS;
+      const radius = proj.radius || CONSTANTS.PROJECTILE_RADIUS;
       if (this.physics.collidesAt(proj.x, proj.y, room.dungeon, radius)) {
         toRemove.push(i);
         continue;
@@ -887,11 +1144,20 @@ class GameLoop {
     const itemDef = this.content.getItem(item.type);
     if (!itemDef || !itemDef.slot) return null;
 
-    const slot = itemDef.slot;
+    const slot = this._resolveSlot(itemDef.slot);
     if (!CONSTANTS.EQUIPMENT_SLOTS.includes(slot)) return null;
 
     // If something is already equipped in that slot, swap it back to inventory
     const currentEquipped = player.equipment[slot];
+
+    // If unequipping a sol unit, clear the grid
+    if (currentEquipped) {
+      const oldDef = this.content.getItem(currentEquipped.type);
+      if (oldDef && oldDef.hasSolGrid) {
+        player.solGrid = null;
+      }
+    }
+
     player.inventory.splice(inventoryIndex, 1);
     if (currentEquipped) {
       player.inventory.push(currentEquipped);
@@ -906,7 +1172,16 @@ class GameLoop {
       stats: itemDef.stats || {},
     };
 
-    return { inventory: player.inventory, equipment: player.equipment };
+    // If equipping a sol unit, init the grid
+    if (itemDef.hasSolGrid && itemDef.solUnitId) {
+      const solUnitDef = this.content.getSolUnit(itemDef.solUnitId);
+      if (solUnitDef) {
+        this._initSolGrid(player, solUnitDef);
+      }
+    }
+
+    this._rebuildAbilities(player);
+    return { inventory: player.inventory, equipment: player.equipment, abilities: player.abilities, cooldowns: player.cooldowns };
   }
 
   // Unequip an item from an equipment slot back to inventory
@@ -916,9 +1191,16 @@ class GameLoop {
     const player = room.players.get(playerId);
     if (!player) return null;
 
+    slot = this._resolveSlot(slot);
     if (!CONSTANTS.EQUIPMENT_SLOTS.includes(slot)) return null;
     const equipped = player.equipment[slot];
     if (!equipped) return null;
+
+    // If unequipping a sol unit, clear the grid
+    const itemDef = this.content.getItem(equipped.type);
+    if (itemDef && itemDef.hasSolGrid) {
+      player.solGrid = null;
+    }
 
     player.equipment[slot] = null;
     player.inventory.push({
@@ -928,7 +1210,8 @@ class GameLoop {
       category: equipped.category || 'misc',
     });
 
-    return { inventory: player.inventory, equipment: player.equipment };
+    this._rebuildAbilities(player);
+    return { inventory: player.inventory, equipment: player.equipment, abilities: player.abilities, cooldowns: player.cooldowns };
   }
 
   // Use a consumable item from inventory
@@ -1016,11 +1299,12 @@ class GameLoop {
         y: Math.round(p.y * 10) / 10,
         facing: Math.round(p.facing * 100) / 100,
         health: p.health, maxHealth: p.maxHealth,
+        energy: Math.round(p.energy), maxEnergy: p.maxEnergy,
         colorIndex: p.colorIndex,
       };
       // Include weapon name if equipped (for rendering)
-      if (p.equipment && p.equipment.weapon) {
-        pData.weapon = p.equipment.weapon.name;
+      if (p.equipment && p.equipment.arms) {
+        pData.weapon = p.equipment.arms.name;
       }
       players.push(pData);
     }
@@ -1052,13 +1336,17 @@ class GameLoop {
 
     const projectiles = [];
     for (const proj of room.projectiles) {
-      projectiles.push({
+      const pData = {
         id: proj.id,
         x: Math.round(proj.x * 10) / 10,
         y: Math.round(proj.y * 10) / 10,
         vx: proj.vx,
         vy: proj.vy,
-      });
+      };
+      if (proj.radius && proj.radius !== CONSTANTS.PROJECTILE_RADIUS) {
+        pData.radius = proj.radius;
+      }
+      projectiles.push(pData);
     }
 
     const events = room.events || [];
