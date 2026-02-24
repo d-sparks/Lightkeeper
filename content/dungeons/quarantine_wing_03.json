@@ -2600,7 +2600,7 @@
     1,
     1,
     1,
-    1,
+    6,
     1,
     1,
     1,
@@ -4369,6 +4369,12 @@
       "type": "stairs_up",
       "spawnX": 72,
       "spawnY": 23
+    },
+    {
+      "x": 43,
+      "y": 30,
+      "leadsTo": "proc_quarantine_deep",
+      "type": "stairs_down"
     }
   ],
   "triggers": [

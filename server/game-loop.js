@@ -1,5 +1,6 @@
 const CONSTANTS = require('../shared/constants');
 const Physics = require('./physics');
+const DungeonGenerator = require('./dungeon-generator');
 const FlagStore = require('./scripting/flag-store');
 const EventBus = require('./scripting/event-bus');
 const ConditionEvaluator = require('./scripting/conditions');
@@ -22,6 +23,11 @@ class GameLoop {
     // Track picked-up items per dungeon so they stay picked up across room destruction/recreation
     // Map<dungeonId, Set<spawnIndex>>
     this.pickedUpItems = new Map();
+
+    // Procedural dungeon generation
+    this.generator = new DungeonGenerator(content);
+    this.generatedDungeons = new Map(); // instanceId -> dungeon JSON
+    this.serverEpoch = Date.now();
 
     // Scripting subsystem
     this.flagStore = new FlagStore();
@@ -68,8 +74,8 @@ class GameLoop {
     if (this.interval) clearInterval(this.interval);
   }
 
-  createRoom(roomId, dungeonId) {
-    const sourceDungeon = this.content.getDungeon(dungeonId);
+  createRoom(roomId, dungeonId, prebuiltDungeon) {
+    const sourceDungeon = prebuiltDungeon || this.content.getDungeon(dungeonId);
     if (!sourceDungeon) {
       console.error(`[GameLoop] Dungeon not found: ${dungeonId}`);
       return null;
@@ -268,11 +274,40 @@ class GameLoop {
   }
 
   // Get or create a room for a dungeon
-  getOrCreateRoom(dungeonId) {
+  // context (optional): { fromDungeon, exitX, exitY, depth } for procedural generation
+  getOrCreateRoom(dungeonId, context) {
+    // 1. Room already exists
     let room = this.rooms.get(dungeonId);
-    if (!room) {
-      room = this.createRoom(dungeonId, dungeonId);
+    if (room) return room;
+
+    // 2. Check if it's a cached procedural instance
+    if (this.generatedDungeons.has(dungeonId)) {
+      room = this.createRoom(dungeonId, dungeonId, this.generatedDungeons.get(dungeonId));
+      return room;
     }
+
+    // 3. Check if dungeonId is a template ID -> generate a new instance
+    const template = this.content.getTemplate(dungeonId);
+    if (template && context) {
+      const genContext = {
+        fromDungeon: context.fromDungeon,
+        exitX: context.exitX || 0,
+        exitY: context.exitY || 0,
+        depth: context.depth || (template.depth && template.depth.min) || 0,
+        serverEpoch: this.serverEpoch,
+      };
+      const result = this.generator.generate(template, genContext);
+      if (result) {
+        this.generatedDungeons.set(result.instanceId, result.dungeon);
+        room = this.createRoom(result.instanceId, result.instanceId, result.dungeon);
+        return room;
+      }
+      console.error(`[GameLoop] Procedural generation failed for template: ${dungeonId}`);
+      return null;
+    }
+
+    // 4. Normal dungeon from content
+    room = this.createRoom(dungeonId, dungeonId);
     return room;
   }
 
@@ -378,6 +413,10 @@ class GameLoop {
 
   // BFS to find which exit in currentRoomId leads toward targetRoomId.
   // Returns { tileX, tileY } of the exit in the current room, or null.
+  _getDungeonData(id) {
+    return this.content.getDungeon(id) || this.generatedDungeons.get(id) || null;
+  }
+
   _resolveExitToward(currentRoomId, targetRoomId) {
     if (currentRoomId === targetRoomId) return null;
 
@@ -385,7 +424,7 @@ class GameLoop {
     const visited = new Set();
     const queue = []; // { roomId, firstExitTileX, firstExitTileY }
 
-    const currentDungeon = this.content.getDungeon(currentRoomId);
+    const currentDungeon = this._getDungeonData(currentRoomId);
     if (!currentDungeon || !currentDungeon.exits) return null;
 
     for (const exit of currentDungeon.exits) {
@@ -401,7 +440,7 @@ class GameLoop {
 
     while (queue.length > 0) {
       const { roomId, firstExitX, firstExitY } = queue.shift();
-      const dungeon = this.content.getDungeon(roomId);
+      const dungeon = this._getDungeonData(roomId);
       if (!dungeon || !dungeon.exits) continue;
 
       for (const exit of dungeon.exits) {
@@ -1222,8 +1261,11 @@ class GameLoop {
             playerId: pid,
             fromRoom: room.id,
             toDungeon: exit.leadsTo,
-            spawnX: exit.spawnX != null ? exit.spawnX : 2,
-            spawnY: exit.spawnY != null ? exit.spawnY : 2,
+            spawnX: exit.spawnX != null ? exit.spawnX : null,
+            spawnY: exit.spawnY != null ? exit.spawnY : null,
+            exitX: exit.x,
+            exitY: exit.y,
+            depth: exit.depth,
           });
           break;
         }
