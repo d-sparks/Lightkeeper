@@ -19,6 +19,10 @@
   const equipmentSlots = document.getElementById('equipment-slots');
   const interactBtn = document.getElementById('interact-btn');
   const desktopInteractLabel = document.getElementById('desktop-interact-label');
+  const questLabel = document.getElementById('quest-label');
+  const questToast = document.getElementById('quest-toast');
+  const questPanel = document.getElementById('quest-panel');
+  const questPanelContent = document.getElementById('quest-panel-content');
 
   // --- Instances ---
   const net = new NetClient();
@@ -131,7 +135,73 @@
   const solGridContainer = document.getElementById('sol-grid-container');
   const solGridInfo = document.getElementById('sol-grid-info');
 
+  // Quest state
+  let questState = [];
+  let questPanelOpen = false;
+  let questToastTimeout = null;
+
+  function toggleQuestPanel() {
+    // Close other panels first
+    if (inventoryOpen) toggleInventory();
+    if (solGridOpen) closeSolGrid();
+
+    questPanelOpen = !questPanelOpen;
+    questPanel.style.display = questPanelOpen ? 'block' : 'none';
+    if (questPanelOpen) {
+      renderQuestPanel();
+    }
+  }
+
+  function renderQuestPanel() {
+    questPanelContent.innerHTML = '';
+    if (questState.length === 0) {
+      questPanelContent.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:12px 0;">No active quests</div>';
+      return;
+    }
+
+    for (const quest of questState) {
+      const titleDiv = document.createElement('div');
+      titleDiv.className = 'quest-title';
+      titleDiv.textContent = quest.name;
+      questPanelContent.appendChild(titleDiv);
+
+      const descDiv = document.createElement('div');
+      descDiv.className = 'quest-desc';
+      descDiv.textContent = quest.description;
+      questPanelContent.appendChild(descDiv);
+
+      for (const step of quest.steps) {
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'quest-step ' + step.status;
+        stepDiv.textContent = step.label;
+
+        if (step.description && step.status !== 'locked') {
+          const descSpan = document.createElement('div');
+          descSpan.className = 'step-desc';
+          descSpan.textContent = step.description;
+          stepDiv.appendChild(descSpan);
+        }
+
+        questPanelContent.appendChild(stepDiv);
+      }
+    }
+  }
+
+  function showQuestToast(text) {
+    questToast.textContent = text;
+    questToast.style.display = 'block';
+    if (questToastTimeout) clearTimeout(questToastTimeout);
+    questToastTimeout = setTimeout(() => {
+      questToast.style.display = 'none';
+    }, 3000);
+  }
+
   function toggleInventory() {
+    // Close quest panel if open
+    if (questPanelOpen) {
+      questPanelOpen = false;
+      questPanel.style.display = 'none';
+    }
     // If sol grid is open, close it first
     if (solGridOpen) {
       closeSolGrid();
@@ -579,6 +649,11 @@
     toggleInventory();
   };
 
+  // --- Quest panel dispatch ---
+  input.onQuestPanel = function () {
+    toggleQuestPanel();
+  };
+
   // --- Join flow ---
   function doJoin() {
     const name = nameInput.value.trim() || 'Adventurer';
@@ -708,6 +783,22 @@
 
   net.on(CONSTANTS.MSG.QUEST_OBJECTIVE, (msg) => {
     renderer.questObjective = msg.objective || null;
+    // Update HUD quest label
+    if (msg.objective && msg.objective.label) {
+      questLabel.textContent = '\u25B8 ' + msg.objective.label;
+      questLabel.style.display = '';
+    } else {
+      questLabel.style.display = 'none';
+    }
+  });
+
+  net.on(CONSTANTS.MSG.QUEST_STATE, (msg) => {
+    questState = msg.quests || [];
+    if (questPanelOpen) renderQuestPanel();
+  });
+
+  net.on(CONSTANTS.MSG.QUEST_STEP_COMPLETE, (msg) => {
+    showQuestToast('\u2714 ' + msg.label);
   });
 
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {

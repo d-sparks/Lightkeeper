@@ -105,6 +105,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
         equipment: JSON.parse(JSON.stringify(player.equipment)),
         solGrid: player.solGrid ? JSON.parse(JSON.stringify(player.solGrid)) : null,
         flags: JSON.parse(JSON.stringify(gameLoop.flagStore.getPlayerFlags(playerId))),
+        questState: gameLoop.questTracker.serializePlayerState(playerId),
       };
 
       // Safe filename: alphanumeric player name + timestamp
@@ -163,6 +164,11 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
         gameLoop.flagStore.playerFlags.set(playerId, JSON.parse(JSON.stringify(checkpoint.flags)));
       }
 
+      // Restore quest state
+      if (checkpoint.questState) {
+        gameLoop.questTracker.restorePlayerState(playerId, checkpoint.questState);
+      }
+
       // Rebuild abilities from restored equipment/solGrid
       gameLoop._rebuildAbilities(player);
 
@@ -211,6 +217,19 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
           type: 'sol_grid',
           grid: player.solGrid,
         }));
+      }
+
+      // Send restored quest state
+      ws.send(JSON.stringify({
+        type: 'quest_state',
+        quests: gameLoop.questTracker.getQuestStateForClient(playerId),
+      }));
+
+      // Update quest objective from tracker
+      const objective = gameLoop.questTracker.getActiveObjective(playerId);
+      if (objective) {
+        player.questObjective = objective;
+        gameLoop._sendQuestObjective(playerId, ws.playerRoom);
       }
 
       return json(res, 200, { ok: true, label: checkpoint.label });

@@ -1,0 +1,50 @@
+{
+  "id": "main_quest",
+  "name": "The Sol Reclamation",
+  "description": "Repair the station's defense grid by recovering a Sol Unit.",
+  "steps": {
+    "talk_to_warden": {
+      "label": "Talk to Warden Holt",
+      "description": "Find Warden Holt in the outpost entrance.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "outpost_entrance", "tileX": 4, "tileY": 10 },
+      "completionConditions": [{ "hasFlag": "talked_to_warden" }]
+    },
+    "talk_to_engineer": {
+      "label": "Talk to the Engineer",
+      "description": "Visit the workshop and speak with the Sol Engineer.",
+      "prerequisiteSteps": ["talk_to_warden"],
+      "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 5 },
+      "completionConditions": [{ "hasFlag": "quest_cylinders_active" }]
+    },
+    "find_warlord_key": {
+      "label": "Find the Warlord's Key",
+      "description": "Explore the quarantine wing and defeat the Warlord.",
+      "prerequisiteSteps": ["talk_to_engineer"],
+      "objective": { "roomId": "quarantine_wing_03", "tileX": 43, "tileY": 24 },
+      "completionConditions": [{ "hasItem": "supply_crate_key" }]
+    },
+    "open_supply_crate": {
+      "label": "Open the Supply Crate",
+      "description": "Use the key to open the supply crate in the outer corridor.",
+      "prerequisiteSteps": ["find_warlord_key"],
+      "objective": { "roomId": "quarantine_wing_01", "tileX": 21, "tileY": 3 },
+      "completionConditions": [{ "hasItem": "titanium_cylinders" }]
+    },
+    "return_to_engineer": {
+      "label": "Return to the Engineer",
+      "description": "Bring the titanium cylinders back to the workshop.",
+      "prerequisiteSteps": ["open_supply_crate"],
+      "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 5 },
+      "completionConditions": [{ "hasFlag": "received_sol_unit" }]
+    },
+    "charge_sol_unit": {
+      "label": "Charge your Sol Unit",
+      "description": "Head to the Power Station to charge the Sol Unit.",
+      "prerequisiteSteps": ["return_to_engineer"],
+      "objective": { "roomId": "outpost_charging_station", "tileX": 12, "tileY": 6 },
+      "completionConditions": [{ "hasFlag": "sol_unit_charged" }]
+    }
+  },
+  "startStep": "talk_to_warden"
+}

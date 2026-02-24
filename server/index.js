@@ -292,9 +292,41 @@ gameLoop.actions.broadcastToRoom = function (roomId, message) {
   broadcast(roomId, message);
 };
 
-// Wire up quest objective callback
+// Wire up quest objective callback (for manual setQuestObjective actions)
 gameLoop.actions._onQuestObjectiveChanged = function (playerId, roomId) {
   gameLoop._sendQuestObjective(playerId, roomId);
+};
+
+// Wire up quest tracker callbacks
+gameLoop.questTracker.onObjectiveChanged = function (playerId, roomId) {
+  // Update player.questObjective from the quest tracker's active step
+  const room = gameLoop.getRoom(roomId);
+  if (!room) return;
+  const player = room.players.get(playerId);
+  if (!player) return;
+
+  const objective = gameLoop.questTracker.getActiveObjective(playerId);
+  player.questObjective = objective;
+  gameLoop._sendQuestObjective(playerId, roomId);
+};
+
+gameLoop.questTracker.onStepCompleted = function (playerId, questId, stepId, stepDef) {
+  const client = findClientByPlayerId(playerId);
+  if (!client) return;
+
+  // Send step completion toast
+  client.send(JSON.stringify({
+    type: CONSTANTS.MSG.QUEST_STEP_COMPLETE,
+    questId,
+    stepId,
+    label: stepDef.label,
+  }));
+
+  // Send updated quest state
+  client.send(JSON.stringify({
+    type: CONSTANTS.MSG.QUEST_STATE,
+    quests: gameLoop.questTracker.getQuestStateForClient(playerId),
+  }));
 };
 
 // Wire up equip callback so actions can rebuild abilities
@@ -359,6 +391,19 @@ wss.on('connection', (ws) => {
           abilities: player.abilities,
           cooldowns: player.cooldowns,
         }));
+
+        // Send initial quest state
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.QUEST_STATE,
+          quests: gameLoop.questTracker.getQuestStateForClient(playerId),
+        }));
+
+        // Set initial objective from quest tracker and send it
+        const objective = gameLoop.questTracker.getActiveObjective(playerId);
+        if (objective) {
+          player.questObjective = objective;
+          gameLoop._sendQuestObjective(playerId, ws.playerRoom);
+        }
 
         broadcast(ws.playerRoom, {
           type: CONSTANTS.MSG.PLAYER_JOIN,

@@ -16,6 +16,7 @@ class InputHandler {
     this.onAbility = null;     // (slot, aimAngle) => void
     this.onInteract = null;    // () => void
     this.onInventory = null;   // () => void
+    this.onQuestPanel = null;  // () => void
 
     // Click-to-move
     this.renderer = null;
@@ -145,6 +146,13 @@ class InputHandler {
     if (e.key === 'i' || e.key === 'I') {
       e.preventDefault();
       if (this.onInventory) this.onInventory();
+      return;
+    }
+
+    // M → quest panel
+    if (e.key === 'm' || e.key === 'M') {
+      e.preventDefault();
+      if (this.onQuestPanel) this.onQuestPanel();
       return;
     }
 
