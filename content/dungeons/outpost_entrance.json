@@ -77,20 +77,11 @@
       "once": true
     },
     {
-      "id": "initial_quest_objective",
-      "event": "room_entered",
-      "conditions": { "type": "not", "condition": { "type": "hasFlag", "flag": "talked_to_warden" } },
-      "actions": [
-        { "type": "setQuestObjective", "label": "Talk to Warden Holt", "roomId": "outpost_entrance", "tileX": 4, "tileY": 10 }
-      ]
-    },
-    {
       "id": "talked_to_warden_entrance",
       "event": "npc_interacted",
       "filter": { "npcType": "outpost_warden" },
       "actions": [
-        { "type": "setFlag", "flag": "talked_to_warden" },
-        { "type": "setQuestObjective", "label": "Talk to the Engineer", "roomId": "outpost_workshop", "tileX": 20, "tileY": 5 }
+        { "type": "setFlag", "flag": "talked_to_warden" }
       ],
       "once": true
     }

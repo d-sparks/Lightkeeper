@@ -52,6 +52,16 @@ const api = {
   },
   async getSettings() { return (await checkedFetch('/api/editor/settings')).json(); },
   async saveSettings(data) { return (await checkedFetch('/api/editor/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json(); },
+  async listQuests() { return (await checkedFetch('/api/editor/quests')).json(); },
+  async getQuest(id) { return (await checkedFetch(`/api/editor/quests/${id}`)).json(); },
+  async saveQuest(id, data) {
+    const exists = await checkedFetch(`/api/editor/quests/${id}`);
+    if (exists.status === 200) {
+      return (await checkedFetch(`/api/editor/quests/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json();
+    }
+    return (await checkedFetch('/api/editor/quests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json();
+  },
+  async deleteQuest(id) { return (await checkedFetch(`/api/editor/quests/${id}`, { method: 'DELETE' })).json(); },
 };
 
 // ─── Tile colors (match game rendering) ─────────────────────
@@ -127,8 +137,9 @@ function LoginScreen({ onSuccess }) {
 function App() {
   const [authState, setAuthState] = useState('loading'); // 'loading' | 'login' | 'ready'
   const [gitConfigured, setGitConfigured] = useState(false);
-  const [view, setView] = useState('list');
+  const [view, setView] = useState('list'); // 'list' | 'edit' | 'quests' | 'quest_edit'
   const [dungeonId, setDungeonId] = useState(null);
+  const [questId, setQuestId] = useState(null);
 
   useEffect(() => {
     api.checkAuth().then(info => {
@@ -144,6 +155,8 @@ function App() {
 
   const openEditor = (id) => { setDungeonId(id); setView('edit'); };
   const backToList = () => { setView('list'); setDungeonId(null); };
+  const openQuestEditor = (id) => { setQuestId(id); setView('quest_edit'); };
+  const backToQuests = () => { setView('quests'); setQuestId(null); };
 
   if (authState === 'loading') return html`<div style="padding:60px;text-align:center;color:var(--text-dim)">Loading...</div>`;
   if (authState === 'login') return html`<${LoginScreen} onSuccess=${() => setAuthState('ready')} />`;
@@ -151,14 +164,20 @@ function App() {
   return html`
     <div id="toast" class="toast" style="display:none"></div>
     ${view === 'list'
-      ? html`<${DungeonList} onOpen=${openEditor} gitConfigured=${gitConfigured} />`
-      : html`<${Editor} dungeonId=${dungeonId} onBack=${backToList} />`
+      ? html`<${DungeonList} onOpen=${openEditor} gitConfigured=${gitConfigured} onShowQuests=${() => setView('quests')} />`
+      : view === 'edit'
+      ? html`<${Editor} dungeonId=${dungeonId} onBack=${backToList} />`
+      : view === 'quests'
+      ? html`<${QuestList} onOpen=${openQuestEditor} onBack=${backToList} />`
+      : view === 'quest_edit'
+      ? html`<${QuestEditor} questId=${questId} onBack=${backToQuests} />`
+      : null
     }
   `;
 }
 
 // ─── Dungeon List ───────────────────────────────────────────
-function DungeonList({ onOpen, gitConfigured }) {
+function DungeonList({ onOpen, gitConfigured, onShowQuests }) {
   const [dungeons, setDungeons] = useState([]);
   const [showNew, setShowNew] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -259,6 +278,7 @@ function DungeonList({ onOpen, gitConfigured }) {
               ${publishing ? 'Publishing...' : 'Publish'}
             </button>
           `}
+          <button class="topbar-btn" onClick=${onShowQuests}>Quests</button>
           <button class="topbar-btn primary" onClick=${() => setShowNew(true)}>+ New</button>
         </div>
       </div>
@@ -1900,6 +1920,346 @@ function ItemEditorModal({ items, setItems, onClose }) {
         <div class="modal-actions">
           <button onClick=${onClose}>Cancel</button>
           <button class="primary" onClick=${save} disabled=${saving}>${saving ? 'Saving...' : 'Save'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Quest List ─────────────────────────────────────────────
+function QuestList({ onOpen, onBack }) {
+  const [quests, setQuests] = useState([]);
+  const [showNew, setShowNew] = useState(false);
+
+  useEffect(() => { api.listQuests().then(setQuests); }, []);
+
+  const createQuest = async (id, name) => {
+    const quest = {
+      id, name, description: '',
+      steps: {
+        start: {
+          label: 'First step',
+          description: '',
+          prerequisiteSteps: [],
+          objective: { roomId: '', tileX: 0, tileY: 0 },
+          completionConditions: []
+        }
+      },
+      startStep: 'start'
+    };
+    try {
+      await api.saveQuest(id, quest);
+      showToast('Quest created', 'success');
+      setShowNew(false);
+      api.listQuests().then(setQuests);
+    } catch { showToast('Failed to create quest', 'error'); }
+  };
+
+  const deleteQuest = async (id, e) => {
+    e.stopPropagation();
+    if (!confirm('Delete quest ' + id + '?')) return;
+    try {
+      await api.deleteQuest(id);
+      showToast('Quest deleted', 'success');
+      api.listQuests().then(setQuests);
+    } catch { showToast('Failed to delete', 'error'); }
+  };
+
+  return html`
+    <div class="dungeon-list-page">
+      <div class="dungeon-list-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="topbar-btn" onClick=${onBack}>Back</button>
+          <h1>Quests</h1>
+        </div>
+        <button class="topbar-btn primary" onClick=${() => setShowNew(true)}>+ New Quest</button>
+      </div>
+      <div class="dungeon-cards">
+        ${quests.map(q => html`
+          <div class="dungeon-card" key=${q.id} onClick=${() => onOpen(q.id)}>
+            <div class="dungeon-card-info">
+              <h3>${q.name}</h3>
+              <p>${q.id} · ${q.stepCount} steps</p>
+            </div>
+            <button class="topbar-btn" style="margin-left:auto;margin-right:8px;font-size:11px;color:#e57373"
+              onClick=${(e) => deleteQuest(q.id, e)}>Delete</button>
+            <div class="dungeon-card-arrow">›</div>
+          </div>
+        `)}
+        ${quests.length === 0 && html`<p style="color:var(--text-dim);text-align:center;padding:40px 0;">No quests yet.</p>`}
+      </div>
+      ${showNew && html`<${NewQuestModal} onCreate=${createQuest} onClose=${() => setShowNew(false)} />`}
+    </div>
+  `;
+}
+
+function NewQuestModal({ onCreate, onClose }) {
+  const [id, setId] = useState('');
+  const [name, setName] = useState('');
+
+  const submit = () => {
+    const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!safeId || !name) return;
+    onCreate(safeId, name);
+  };
+
+  return html`
+    <div class="modal-overlay" onClick=${(e) => e.target === e.currentTarget && onClose()}>
+      <div class="modal">
+        <h2>New Quest</h2>
+        <div class="field"><label>ID</label><input value=${id} onInput=${e => setId(e.target.value)} placeholder="my_quest" /></div>
+        <div class="field"><label>Name</label><input value=${name} onInput=${e => setName(e.target.value)} placeholder="Quest Name" /></div>
+        <div class="modal-actions">
+          <button onClick=${onClose}>Cancel</button>
+          <button class="primary" onClick=${submit}>Create</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Quest Editor ───────────────────────────────────────────
+function QuestEditor({ questId, onBack }) {
+  const [quest, setQuest] = useState(null);
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [editingStep, setEditingStep] = useState(null);
+
+  useEffect(() => {
+    api.getQuest(questId).then(setQuest);
+  }, [questId]);
+
+  const updateQuest = (fn) => {
+    setQuest(prev => {
+      const copy = JSON.parse(JSON.stringify(prev));
+      fn(copy);
+      return copy;
+    });
+    setDirty(true);
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await api.saveQuest(quest.id, quest);
+      showToast('Quest saved', 'success');
+      setDirty(false);
+    } catch { showToast('Failed to save', 'error'); }
+    setSaving(false);
+  };
+
+  const addStep = () => {
+    const stepNum = Object.keys(quest.steps).length + 1;
+    const stepId = 'step_' + stepNum;
+    updateQuest(q => {
+      q.steps[stepId] = {
+        label: 'New Step',
+        description: '',
+        prerequisiteSteps: [],
+        objective: { roomId: '', tileX: 0, tileY: 0 },
+        completionConditions: []
+      };
+    });
+  };
+
+  const deleteStep = (stepId) => {
+    updateQuest(q => {
+      delete q.steps[stepId];
+      // Remove from prerequisites of other steps
+      for (const s of Object.values(q.steps)) {
+        s.prerequisiteSteps = (s.prerequisiteSteps || []).filter(p => p !== stepId);
+      }
+      if (q.startStep === stepId) q.startStep = Object.keys(q.steps)[0] || '';
+    });
+  };
+
+  if (!quest) return html`<div style="padding:60px;text-align:center;color:var(--text-dim)">Loading...</div>`;
+
+  // Topological sort for display order
+  const stepIds = Object.keys(quest.steps);
+  const sorted = [];
+  const visited = new Set();
+  const visit = (id) => {
+    if (visited.has(id)) return;
+    visited.add(id);
+    const step = quest.steps[id];
+    if (step) {
+      for (const prereq of (step.prerequisiteSteps || [])) visit(prereq);
+    }
+    sorted.push(id);
+  };
+  for (const id of stepIds) visit(id);
+
+  return html`
+    <div class="dungeon-list-page">
+      <div class="dungeon-list-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="topbar-btn" onClick=${onBack}>Back</button>
+          <h1>${quest.name}</h1>
+          ${dirty && html`<span style="color:#ffa726;font-size:12px">Unsaved</span>`}
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="topbar-btn" onClick=${addStep}>+ Step</button>
+          <button class="topbar-btn primary" onClick=${save} disabled=${saving}>${saving ? 'Saving...' : 'Save'}</button>
+        </div>
+      </div>
+
+      <div style="padding:16px 20px">
+        <div class="field">
+          <label>Quest Name</label>
+          <input value=${quest.name} onInput=${e => updateQuest(q => q.name = e.target.value)} />
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <input value=${quest.description} onInput=${e => updateQuest(q => q.description = e.target.value)} />
+        </div>
+        <div class="field">
+          <label>Start Step</label>
+          <select value=${quest.startStep} onChange=${e => updateQuest(q => q.startStep = e.target.value)}>
+            ${stepIds.map(s => html`<option key=${s} value=${s}>${s}</option>`)}
+          </select>
+        </div>
+      </div>
+
+      <!-- DAG visualization -->
+      <div style="padding:0 20px 16px">
+        <h3 style="margin-bottom:8px;color:var(--text-dim)">Steps</h3>
+        <${QuestDAG} quest=${quest} sorted=${sorted} onEdit=${setEditingStep} onDelete=${deleteStep} />
+      </div>
+
+      ${editingStep && html`<${StepEditorModal}
+        quest=${quest}
+        stepId=${editingStep}
+        onSave=${(stepId, stepData) => { updateQuest(q => q.steps[stepId] = stepData); setEditingStep(null); }}
+        onClose=${() => setEditingStep(null)}
+      />`}
+    </div>
+  `;
+}
+
+function QuestDAG({ quest, sorted, onEdit, onDelete }) {
+  // Render steps as a vertical list with prerequisite arrows
+  return html`
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${sorted.map(stepId => {
+        const step = quest.steps[stepId];
+        if (!step) return null;
+        const isStart = quest.startStep === stepId;
+        return html`
+          <div key=${stepId} style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;cursor:pointer"
+            onClick=${() => onEdit(stepId)}>
+            <div style="flex:1">
+              <div style="font-size:13px;color:var(--text)">
+                ${isStart ? '▸ ' : ''}${step.label}
+                <span style="color:var(--text-dim);font-size:11px;margin-left:6px">(${stepId})</span>
+              </div>
+              ${step.prerequisiteSteps && step.prerequisiteSteps.length > 0 && html`
+                <div style="font-size:10px;color:var(--text-dim);margin-top:2px">
+                  After: ${step.prerequisiteSteps.join(', ')}
+                </div>
+              `}
+              ${step.objective && step.objective.roomId && html`
+                <div style="font-size:10px;color:var(--accent);margin-top:2px">
+                  → ${step.objective.roomId} (${step.objective.tileX}, ${step.objective.tileY})
+                </div>
+              `}
+            </div>
+            <button class="topbar-btn" style="font-size:10px;color:#e57373" onClick=${(e) => { e.stopPropagation(); onDelete(stepId); }}>×</button>
+          </div>
+        `;
+      })}
+    </div>
+  `;
+}
+
+function StepEditorModal({ quest, stepId, onSave, onClose }) {
+  const original = quest.steps[stepId];
+  const [step, setStep] = useState(JSON.parse(JSON.stringify(original)));
+  const [conditionsText, setConditionsText] = useState(JSON.stringify(original.completionConditions || [], null, 2));
+  const allStepIds = Object.keys(quest.steps).filter(s => s !== stepId);
+
+  const update = (fn) => {
+    setStep(prev => {
+      const copy = JSON.parse(JSON.stringify(prev));
+      fn(copy);
+      return copy;
+    });
+  };
+
+  const save = () => {
+    try {
+      step.completionConditions = JSON.parse(conditionsText);
+    } catch {
+      showToast('Invalid conditions JSON', 'error');
+      return;
+    }
+    onSave(stepId, step);
+  };
+
+  return html`
+    <div class="modal-overlay" onClick=${(e) => e.target === e.currentTarget && onClose()}>
+      <div class="modal" style="min-width:400px;max-width:500px">
+        <h2>Step: ${stepId}</h2>
+        <div class="field">
+          <label>Label</label>
+          <input value=${step.label} onInput=${e => update(s => s.label = e.target.value)} />
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <input value=${step.description} onInput=${e => update(s => s.description = e.target.value)} />
+        </div>
+        <div class="field">
+          <label>Prerequisites</label>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            ${allStepIds.map(sid => {
+              const checked = (step.prerequisiteSteps || []).includes(sid);
+              return html`
+                <label key=${sid} style="font-size:11px;display:flex;align-items:center;gap:3px;cursor:pointer">
+                  <input type="checkbox" checked=${checked} onChange=${() => {
+                    update(s => {
+                      if (!s.prerequisiteSteps) s.prerequisiteSteps = [];
+                      if (checked) s.prerequisiteSteps = s.prerequisiteSteps.filter(p => p !== sid);
+                      else s.prerequisiteSteps.push(sid);
+                    });
+                  }} />
+                  ${sid}
+                </label>
+              `;
+            })}
+          </div>
+        </div>
+        <div class="field">
+          <label>Objective Room ID</label>
+          <input value=${step.objective ? step.objective.roomId : ''} onInput=${e => update(s => {
+            if (!s.objective) s.objective = { roomId: '', tileX: 0, tileY: 0 };
+            s.objective.roomId = e.target.value;
+          })} />
+        </div>
+        <div style="display:flex;gap:8px">
+          <div class="field" style="flex:1">
+            <label>Tile X</label>
+            <input type="number" value=${step.objective ? step.objective.tileX : 0} onInput=${e => update(s => {
+              if (!s.objective) s.objective = { roomId: '', tileX: 0, tileY: 0 };
+              s.objective.tileX = Number(e.target.value);
+            })} />
+          </div>
+          <div class="field" style="flex:1">
+            <label>Tile Y</label>
+            <input type="number" value=${step.objective ? step.objective.tileY : 0} onInput=${e => update(s => {
+              if (!s.objective) s.objective = { roomId: '', tileX: 0, tileY: 0 };
+              s.objective.tileY = Number(e.target.value);
+            })} />
+          </div>
+        </div>
+        <div class="field">
+          <label>Completion Conditions (JSON)</label>
+          <textarea rows="5" style="width:100%;font-family:monospace;font-size:11px;background:var(--bg-card);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px;resize:vertical"
+            value=${conditionsText}
+            onInput=${e => setConditionsText(e.target.value)}></textarea>
+        </div>
+        <div class="modal-actions">
+          <button onClick=${onClose}>Cancel</button>
+          <button class="primary" onClick=${save}>Apply</button>
         </div>
       </div>
     </div>

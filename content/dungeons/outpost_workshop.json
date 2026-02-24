@@ -62,8 +62,7 @@
         { "not": { "hasFlag": "received_sol_unit" } }
       ],
       "actions": [
-        { "type": "setFlag", "flag": "quest_cylinders_active" },
-        { "type": "setQuestObjective", "label": "Find the Warlord's Key", "roomId": "quarantine_wing_03", "tileX": 43, "tileY": 24 }
+        { "type": "setFlag", "flag": "quest_cylinders_active" }
       ],
       "once": true
     },
@@ -80,7 +79,6 @@
         { "type": "giveItem", "itemType": "sol_unit" },
         { "type": "equipItem", "itemType": "sol_unit" },
         { "type": "setFlag", "flag": "received_sol_unit" },
-        { "type": "clearQuestObjective" },
         { "type": "showMessage", "lines": [
           "The Sol Unit hums to life. Press [I] to open Inventory, then click OPEN on your weapon slot to access the Sol Grid.",
           "Your Damage Booster Chip can be placed adjacent to the Sol Beam for a power boost. Try it now!"

@@ -4405,13 +4405,6 @@
         {
           "type": "spawnItem",
           "itemType": "damage_booster_chip"
-        },
-        {
-          "type": "setQuestObjective",
-          "label": "Open the Supply Crate",
-          "roomId": "quarantine_wing_01",
-          "tileX": 21,
-          "tileY": 3
         }
       ],
       "once": true

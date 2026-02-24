@@ -168,7 +168,8 @@ function MainView() {
     try {
       const result = await api.commit(message);
       if (result.ok) {
-        showToast('Committed to git');
+        const detail = result.prUrl ? ` — PR: ${result.prUrl}` : ` — branch: ${result.branch}`;
+        showToast('Committed to git' + detail);
       } else {
         showToast(result.error || 'Commit failed', 'err');
       }

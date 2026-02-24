@@ -210,6 +210,55 @@ function handleEditorAPI(req, res) {
     });
   }
 
+  // --- Quests ---
+  if (url === '/api/editor/quests' && method === 'GET') {
+    const quests = listJSONFiles(path.join(CONTENT_DIR, 'quests'));
+    const summaries = quests.map(q => ({
+      id: q.id, name: q.name, stepCount: Object.keys(q.steps || {}).length
+    }));
+    return json(res, 200, summaries);
+  }
+
+  const questMatch = url.match(/^\/api\/editor\/quests\/([a-zA-Z0-9_-]+)$/);
+  if (questMatch) {
+    const id = questMatch[1];
+    const filePath = path.join(CONTENT_DIR, 'quests', `${id}.json`);
+
+    if (method === 'GET') {
+      if (!fs.existsSync(filePath)) return json(res, 404, { error: 'Not found' });
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      return json(res, 200, data);
+    }
+
+    if (method === 'PUT') {
+      return parseBody(req).then(data => {
+        data.id = id;
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+        return json(res, 200, data);
+      }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
+    }
+
+    if (method === 'DELETE') {
+      if (!fs.existsSync(filePath)) return json(res, 404, { error: 'Not found' });
+      fs.unlinkSync(filePath);
+      return json(res, 200, { deleted: id });
+    }
+  }
+
+  if (url === '/api/editor/quests' && method === 'POST') {
+    return parseBody(req).then(data => {
+      if (!data.id) return json(res, 400, { error: 'Missing id' });
+      const safeId = data.id.replace(/[^a-zA-Z0-9_-]/g, '');
+      if (safeId !== data.id) return json(res, 400, { error: 'Invalid id characters' });
+      const dir = path.join(CONTENT_DIR, 'quests');
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      const filePath = path.join(dir, `${safeId}.json`);
+      if (fs.existsSync(filePath)) return json(res, 409, { error: 'Already exists' });
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      return json(res, 201, data);
+    }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
+  }
+
   return false; // Not handled
 }
 

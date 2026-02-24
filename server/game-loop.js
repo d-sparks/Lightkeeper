@@ -5,6 +5,7 @@ const EventBus = require('./scripting/event-bus');
 const ConditionEvaluator = require('./scripting/conditions');
 const ActionExecutor = require('./scripting/actions');
 const TriggerRegistry = require('./scripting/trigger-registry');
+const QuestTracker = require('./scripting/quest-tracker');
 
 class GameLoop {
   constructor(content) {
@@ -28,6 +29,14 @@ class GameLoop {
     this.conditions = new ConditionEvaluator(this.flagStore);
     this.actions = new ActionExecutor(this.flagStore, this.eventBus, content);
     this.triggers = new TriggerRegistry(this.eventBus, this.conditions, this.actions, this.flagStore);
+    this.questTracker = new QuestTracker(content, this.conditions, this.actions);
+
+    // Subscribe quest tracker to flag_changed events on the eventBus directly,
+    // since flag_changed is emitted via eventBus.emit() in actions.js but does
+    // NOT go through _emitGameEvent().
+    this.eventBus.on('flag_changed', (payload) => {
+      this.questTracker.processEvent('flag_changed', this._scriptContext(payload.playerId, payload.roomId));
+    });
   }
 
   // Build a scripting context object for triggers/conditions/actions
@@ -41,6 +50,7 @@ class GameLoop {
   _emitGameEvent(eventType, eventPayload, context) {
     this.eventBus.emit(eventType, eventPayload);
     this.triggers.processEvent(eventType, eventPayload, context);
+    this.questTracker.processEvent(eventType, context);
   }
 
   start() {
@@ -299,6 +309,7 @@ class GameLoop {
 
     room.players.set(playerId, player);
     this.flagStore.ensurePlayer(playerId);
+    this.questTracker.initPlayer(playerId);
     this._rebuildAbilities(player);
 
     // Emit room_entered event
@@ -338,6 +349,7 @@ class GameLoop {
     if (!room) return null;
     const player = room.players.get(playerId);
     room.players.delete(playerId);
+    this.questTracker.removePlayer(playerId);
     console.log(`[GameLoop] Player ${playerId} left room "${roomId}"`);
 
     // Clean up empty rooms (but keep the starting room)
