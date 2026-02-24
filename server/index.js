@@ -665,11 +665,27 @@ setInterval(() => {
     const player = gameLoop.removePlayer(t.fromRoom, t.playerId);
     if (!player) continue;
 
-    const targetRoom = gameLoop.getOrCreateRoom(t.toDungeon);
+    const targetRoom = gameLoop.getOrCreateRoom(t.toDungeon, {
+      fromDungeon: t.fromRoom,
+      exitX: t.exitX,
+      exitY: t.exitY,
+      depth: t.depth,
+    });
     if (!targetRoom) continue;
 
-    gameLoop.addPlayerAt(t.toDungeon, player, t.spawnX, t.spawnY);
-    ws.playerRoom = t.toDungeon;
+    // Use the room's actual ID (may differ from t.toDungeon for procedural instances)
+    const targetRoomId = targetRoom.id;
+
+    // If exit didn't specify spawnX/Y, use target dungeon's spawn points
+    let spawnX = t.spawnX;
+    let spawnY = t.spawnY;
+    if (spawnX == null || spawnY == null) {
+      const sp = (targetRoom.dungeon.spawns && targetRoom.dungeon.spawns[0]) || { x: 2, y: 2 };
+      spawnX = sp.x;
+      spawnY = sp.y;
+    }
+    gameLoop.addPlayerAt(targetRoomId, player, spawnX, spawnY);
+    ws.playerRoom = targetRoomId;
 
     ws.send(JSON.stringify({
       type: CONSTANTS.MSG.FLOOR_CHANGE,
@@ -679,7 +695,7 @@ setInterval(() => {
 
     // Re-send quest objective with updated exit resolution for new room
     if (player.questObjective) {
-      gameLoop._sendQuestObjective(t.playerId, t.toDungeon);
+      gameLoop._sendQuestObjective(t.playerId, targetRoomId);
     }
   }
 

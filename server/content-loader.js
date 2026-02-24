@@ -13,6 +13,7 @@ class ContentLoader {
     this.solUnits = {};
     this.solComponents = {};
     this.quests = {};
+    this.templates = {};
     this.settings = {};
   }
 
@@ -27,13 +28,15 @@ class ContentLoader {
     this.loadSolUnits();
     this.loadSolComponents();
     this.loadQuests();
+    this.loadTemplates();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
                 `${Object.keys(this.monsters).length} monster type(s), ` +
                 `${Object.keys(this.npcs).length} NPC type(s), ` +
                 `${Object.keys(this.items).length} item type(s), ` +
                 `${Object.keys(this.abilities).length} ability(s), ` +
-                `${Object.keys(this.quests).length} quest(s)`);
+                `${Object.keys(this.quests).length} quest(s), ` +
+                `${Object.keys(this.templates).length} template(s)`);
   }
 
   loadJSON(filePath) {
@@ -186,6 +189,21 @@ class ContentLoader {
 
   getAllQuests() {
     return this.quests;
+  }
+
+  loadTemplates() {
+    const dir = path.join(this.contentDir, 'dungeons', 'templates');
+    if (!fs.existsSync(dir)) return;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.json')) continue;
+      const data = this.loadJSON(path.join(dir, file));
+      this.templates[data.id] = data;
+      console.log(`[Content]   Template: ${data.id}`);
+    }
+  }
+
+  getTemplate(id) {
+    return this.templates[id] || null;
   }
 
   getTileset(id) {
