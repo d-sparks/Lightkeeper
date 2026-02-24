@@ -125,7 +125,8 @@
   // Sol grid state
   let solGridState = null;
   let solGridOpen = false;
-  let solGridSelected = -1;  // index of selected cell for swapping
+  let solGridSelected = -1;  // index of selected cell for swapping (legacy)
+  let solGridSelectedComponent = null; // inventory index of selected component for placement
   const solGridPanel = document.getElementById('sol-grid-panel');
   const solGridContainer = document.getElementById('sol-grid-container');
   const solGridInfo = document.getElementById('sol-grid-info');
@@ -322,6 +323,8 @@
     if (!solGridState) return;
     solGridContainer.innerHTML = '';
     const size = solGridState.size || 5;
+
+    // --- Top section: placement grid ---
     const grid = document.createElement('div');
     grid.className = 'sol-grid';
     grid.style.gridTemplateColumns = `repeat(${size}, 48px)`;
@@ -330,56 +333,79 @@
       const cell = document.createElement('div');
       cell.className = 'sol-cell';
       const comp = solGridState.cells[i];
+      const gx = i % size;
+      const gy = Math.floor(i / size);
 
       if (comp) {
         if (comp.abilityId) {
           cell.classList.add('has-ability');
-          const label = comp.abilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-          cell.textContent = label;
+          if (!comp.isExtension) {
+            const label = comp.abilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            cell.textContent = label;
+          }
         } else if (comp.modifierId) {
           cell.classList.add('has-modifier');
-          cell.textContent = comp.modifierId.replace(/_/g, ' ');
+          if (!comp.isExtension) {
+            cell.textContent = comp.modifierId.replace(/_/g, ' ');
+          }
         }
-      }
+        if (comp.isExtension) {
+          cell.style.opacity = '0.6';
+        }
 
-      if (i === solGridSelected) {
-        cell.classList.add('selected');
-      }
+        // Merge borders for multi-cell shapes
+        if (comp.placementId) {
+          const checkNeighbor = (dx, dy) => {
+            const nx = gx + dx, ny = gy + dy;
+            if (nx < 0 || ny < 0 || nx >= size || ny >= size) return false;
+            const nc = solGridState.cells[ny * size + nx];
+            return nc && nc.placementId === comp.placementId;
+          };
+          if (checkNeighbor(0, -1)) cell.classList.add('shape-top');
+          if (checkNeighbor(0, 1)) cell.classList.add('shape-bottom');
+          if (checkNeighbor(-1, 0)) cell.classList.add('shape-left');
+          if (checkNeighbor(1, 0)) cell.classList.add('shape-right');
+        }
 
-      const idx = i;
-      cell.addEventListener('click', () => {
-        if (solGridSelected === -1) {
-          // Select this cell
-          solGridSelected = idx;
-          renderSolGrid();
-        } else if (solGridSelected === idx) {
-          // Deselect
-          solGridSelected = -1;
-          renderSolGrid();
-        } else {
-          // Swap with selected cell
+        // Click placed component → remove it
+        cell.addEventListener('click', () => {
           net.send({
-            type: CONSTANTS.MSG.SOL_GRID_MOVE,
-            fromIdx: solGridSelected,
-            toIdx: idx,
+            type: CONSTANTS.MSG.SOL_GRID_REMOVE,
+            gridX: gx,
+            gridY: gy,
           });
-          solGridSelected = -1;
+          solGridSelectedComponent = null;
+        });
+      } else {
+        // Empty cell — click to place selected component
+        cell.addEventListener('click', () => {
+          if (solGridSelectedComponent !== null) {
+            net.send({
+              type: CONSTANTS.MSG.SOL_GRID_PLACE,
+              inventoryIndex: solGridSelectedComponent,
+              gridX: gx,
+              gridY: gy,
+            });
+            solGridSelectedComponent = null;
+          }
+        });
+        if (solGridSelectedComponent !== null) {
+          cell.style.cursor = 'crosshair';
         }
-      });
+      }
 
       grid.appendChild(cell);
     }
 
     solGridContainer.appendChild(grid);
 
-    // Highlight adjacency connections: add glow to modifiers adjacent to abilities
+    // Highlight adjacency connections
     const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
     for (let cy = 0; cy < size; cy++) {
       for (let cx = 0; cx < size; cx++) {
         const ci = cy * size + cx;
         const comp = solGridState.cells[ci];
         if (!comp || !comp.abilityId) continue;
-        // This is an ability cell, highlight adjacent modifiers
         for (const [dx, dy] of dirs) {
           const nx = cx + dx, ny = cy + dy;
           if (nx < 0 || ny < 0 || nx >= size || ny >= size) continue;
@@ -393,7 +419,44 @@
       }
     }
 
-    solGridInfo.textContent = solGridSelected >= 0 ? 'Click another cell to swap' : 'Click a component to move it';
+    // --- Bottom section: component inventory ---
+    const solComponents = inventoryItems
+      .map((item, idx) => ({ item, idx }))
+      .filter(({ item }) => item.category === 'sol_component');
+
+    if (solComponents.length > 0) {
+      const divider = document.createElement('div');
+      divider.style.cssText = 'color:#666;font-size:10px;text-align:center;margin:8px 0 4px;text-transform:uppercase;letter-spacing:1px;';
+      divider.textContent = 'Components';
+      solGridContainer.appendChild(divider);
+
+      const compGrid = document.createElement('div');
+      compGrid.style.cssText = 'display:flex;gap:4px;justify-content:center;flex-wrap:wrap;';
+
+      for (const { item, idx } of solComponents) {
+        const compCell = document.createElement('div');
+        compCell.className = 'sol-cell has-modifier';
+        compCell.style.width = '48px';
+        compCell.style.height = '48px';
+        compCell.textContent = item.name.replace(' Chip', '');
+        if (solGridSelectedComponent === idx) {
+          compCell.classList.add('selected');
+        }
+        compCell.addEventListener('click', () => {
+          solGridSelectedComponent = (solGridSelectedComponent === idx) ? null : idx;
+          renderSolGrid();
+        });
+        compGrid.appendChild(compCell);
+      }
+      solGridContainer.appendChild(compGrid);
+    }
+
+    // Info text
+    if (solGridSelectedComponent !== null) {
+      solGridInfo.textContent = 'Click an empty grid cell to place';
+    } else {
+      solGridInfo.textContent = 'Click a component below to select, or click placed to remove';
+    }
   }
 
   // --- Dynamic interact button label ---
@@ -641,6 +704,10 @@
     abilityState = msg.abilities || [null, null, null, null, null, null];
     cooldownState = msg.cooldowns || [0, 0, 0, 0, 0, 0];
     updateActionBar();
+  });
+
+  net.on(CONSTANTS.MSG.QUEST_OBJECTIVE, (msg) => {
+    renderer.questObjective = msg.objective || null;
   });
 
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {

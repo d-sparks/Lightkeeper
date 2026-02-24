@@ -75,6 +75,12 @@ class ActionExecutor {
       case 'toggleTile':
         this.doToggleTile(action, context);
         break;
+      case 'setQuestObjective':
+        this.doSetQuestObjective(action, context);
+        break;
+      case 'clearQuestObjective':
+        this.doClearQuestObjective(action, context);
+        break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
     }
@@ -289,9 +295,41 @@ class ActionExecutor {
 
   doShowMessage(action, context) {
     if (this.sendToPlayer) {
+      let dialogue;
+      if (action.lines && Array.isArray(action.lines)) {
+        dialogue = action.lines.map(line => ({ speaker: '', text: line }));
+      } else {
+        dialogue = [{ speaker: '', text: action.text }];
+      }
       this.sendToPlayer(context.playerId, {
         type: CONSTANTS.MSG.DIALOGUE,
-        dialogue: [{ speaker: '', text: action.text }],
+        dialogue,
+      });
+    }
+  }
+
+  doSetQuestObjective(action, context) {
+    const player = context.player;
+    if (!player) return;
+    player.questObjective = {
+      label: action.label || '',
+      roomId: action.roomId,
+      tileX: action.tileX,
+      tileY: action.tileY,
+    };
+    if (this._onQuestObjectiveChanged) {
+      this._onQuestObjectiveChanged(context.playerId, context.roomId);
+    }
+  }
+
+  doClearQuestObjective(action, context) {
+    const player = context.player;
+    if (!player) return;
+    player.questObjective = null;
+    if (this.sendToPlayer) {
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.QUEST_OBJECTIVE,
+        objective: null,
       });
     }
   }

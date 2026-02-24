@@ -292,6 +292,11 @@ gameLoop.actions.broadcastToRoom = function (roomId, message) {
   broadcast(roomId, message);
 };
 
+// Wire up quest objective callback
+gameLoop.actions._onQuestObjectiveChanged = function (playerId, roomId) {
+  gameLoop._sendQuestObjective(playerId, roomId);
+};
+
 // Wire up equip callback so actions can rebuild abilities
 gameLoop.actions._onEquipChanged = function (player, itemDef) {
   // If equipping a sol unit, init the grid
@@ -497,6 +502,62 @@ wss.on('connection', (ws) => {
         }));
         break;
       }
+
+      case CONSTANTS.MSG.SOL_GRID_PLACE: {
+        if (!ws.playerRoom) break;
+        const ok = gameLoop.trySolGridPlace(
+          ws.playerRoom, playerId, msg.inventoryIndex, msg.gridX, msg.gridY
+        );
+        if (ok) {
+          const room2 = gameLoop.getRoom(ws.playerRoom);
+          const p2 = room2 && room2.players.get(playerId);
+          if (p2) {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.SOL_GRID,
+              grid: p2.solGrid,
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.INVENTORY,
+              items: p2.inventory,
+              equipment: p2.equipment,
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.ABILITY_STATE,
+              abilities: p2.abilities,
+              cooldowns: p2.cooldowns,
+            }));
+          }
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.SOL_GRID_REMOVE: {
+        if (!ws.playerRoom) break;
+        const ok2 = gameLoop.trySolGridRemove(
+          ws.playerRoom, playerId, msg.gridX, msg.gridY
+        );
+        if (ok2) {
+          const room3 = gameLoop.getRoom(ws.playerRoom);
+          const p3 = room3 && room3.players.get(playerId);
+          if (p3) {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.SOL_GRID,
+              grid: p3.solGrid,
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.INVENTORY,
+              items: p3.inventory,
+              equipment: p3.equipment,
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.ABILITY_STATE,
+              abilities: p3.abilities,
+              cooldowns: p3.cooldowns,
+            }));
+          }
+        }
+        break;
+      }
     }
   });
 
@@ -559,6 +620,11 @@ setInterval(() => {
       map: targetRoom.dungeon,
       tileset: content.getTileset(targetRoom.dungeon.tileset),
     }));
+
+    // Re-send quest objective with updated exit resolution for new room
+    if (player.questObjective) {
+      gameLoop._sendQuestObjective(t.playerId, t.toDungeon);
+    }
   }
 
   // Send state to each room's players
