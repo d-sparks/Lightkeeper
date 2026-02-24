@@ -496,6 +496,41 @@ class GameLoop {
     return modified;
   }
 
+  // Build the client-facing sol grid with modifier stats included
+  getSolGridForClient(player) {
+    if (!player || !player.solGrid) return null;
+    const grid = player.solGrid;
+    const size = grid.size;
+    const clientCells = [];
+    for (let i = 0; i < size * size; i++) {
+      const cell = grid.cells[i];
+      if (!cell) { clientCells.push(null); continue; }
+      const clientCell = Object.assign({}, cell);
+      // For ability cells (non-extension), compute and attach modifier info
+      if (cell.abilityId && !cell.isExtension) {
+        const x = i % size;
+        const y = Math.floor(i / size);
+        const mods = this._getAdjacentModifiers(grid, x, y);
+        if (mods.length > 0) {
+          clientCell.modifiers = mods.map(m => ({
+            name: m.name,
+            bonus: m.bonus,
+          }));
+        }
+        // Also include base ability stats for display
+        const abilityDef = this.content.getAbility(cell.abilityId);
+        if (abilityDef) {
+          clientCell.baseStats = {
+            damageMultiplier: abilityDef.damageMultiplier || 1.0,
+            cooldown: abilityDef.cooldown || 0.5,
+          };
+        }
+      }
+      clientCells.push(clientCell);
+    }
+    return { size: grid.size, cells: clientCells, nextPlacementId: grid.nextPlacementId };
+  }
+
   // Rebuild the abilities array from equipped items
   _rebuildAbilities(player) {
     player.abilities = [null, null, null, null, null, null];

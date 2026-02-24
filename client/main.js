@@ -14,15 +14,17 @@
   const dialogueOverlay = document.getElementById('dialogue-overlay');
   const dialogueSpeaker = document.getElementById('dialogue-speaker');
   const dialogueText = document.getElementById('dialogue-text');
-  const inventoryPanel = document.getElementById('inventory-panel');
+  const characterMenu = document.getElementById('character-menu');
   const inventoryList = document.getElementById('inventory-list');
   const equipmentSlots = document.getElementById('equipment-slots');
   const interactBtn = document.getElementById('interact-btn');
   const desktopInteractLabel = document.getElementById('desktop-interact-label');
+  const questBtn = document.getElementById('quest-btn');
   const questLabel = document.getElementById('quest-label');
   const questToast = document.getElementById('quest-toast');
-  const questPanel = document.getElementById('quest-panel');
   const questPanelContent = document.getElementById('quest-panel-content');
+  const solGridContainer = document.getElementById('sol-grid-container');
+  const solGridInfo = document.getElementById('sol-grid-info');
 
   // --- Instances ---
   const net = new NetClient();
@@ -119,7 +121,6 @@
   });
 
   // --- Inventory & equipment state ---
-  let inventoryOpen = false;
   let inventoryItems = [];
   let equipmentState = { arms: null, medipac: null, accessory: null };
   let abilityState = [null, null, null, null, null, null];
@@ -128,30 +129,145 @@
 
   // Sol grid state
   let solGridState = null;
-  let solGridOpen = false;
-  let solGridSelected = -1;  // index of selected cell for swapping (legacy)
   let solGridSelectedComponent = null; // inventory index of selected component for placement
-  const solGridPanel = document.getElementById('sol-grid-panel');
-  const solGridContainer = document.getElementById('sol-grid-container');
-  const solGridInfo = document.getElementById('sol-grid-info');
 
   // Quest state
   let questState = [];
-  let questPanelOpen = false;
   let questToastTimeout = null;
 
-  function toggleQuestPanel() {
-    // Close other panels first
-    if (inventoryOpen) toggleInventory();
-    if (solGridOpen) closeSolGrid();
+  // --- Unified character menu state ---
+  let menuOpen = false;
+  let menuTab = 'equipment';
+  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'quests'];
+  let cursorIndex = 0;
 
-    questPanelOpen = !questPanelOpen;
-    questPanel.style.display = questPanelOpen ? 'block' : 'none';
-    if (questPanelOpen) {
-      renderQuestPanel();
+  function openMenu(tab) {
+    menuOpen = true;
+    input.menuOpen = true;
+    characterMenu.style.display = 'block';
+    switchTab(tab || 'equipment');
+  }
+
+  function closeMenu() {
+    menuOpen = false;
+    input.menuOpen = false;
+    characterMenu.style.display = 'none';
+    solGridSelectedComponent = null;
+  }
+
+  function toggleMenu(tab) {
+    if (menuOpen && menuTab === tab) {
+      closeMenu();
+    } else if (menuOpen) {
+      switchTab(tab);
+    } else {
+      openMenu(tab);
     }
   }
 
+  function switchTab(tab) {
+    // Skip disabled solgrid tab
+    if (tab === 'solgrid' && !solGridState) return;
+
+    menuTab = tab;
+    // Update tab UI
+    document.querySelectorAll('#character-menu .inv-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === tab);
+    });
+    // Show/hide content divs
+    for (const t of MENU_TABS) {
+      const el = document.getElementById('inv-tab-' + t);
+      if (el) el.style.display = t === tab ? '' : 'none';
+    }
+    // Update sol grid tab disabled state
+    const solTab = document.querySelector('#character-menu .inv-tab[data-tab="solgrid"]');
+    if (solTab) solTab.classList.toggle('disabled', !solGridState);
+
+    // Render the active tab content
+    if (tab === 'equipment') renderEquipmentSlots();
+    if (tab === 'inventory') renderInventoryGrid();
+    if (tab === 'solgrid') renderSolGrid();
+    if (tab === 'quests') renderQuestPanel();
+
+    resetCursor();
+  }
+
+  function cycleTab(direction) {
+    let idx = MENU_TABS.indexOf(menuTab);
+    for (let i = 0; i < MENU_TABS.length; i++) {
+      idx = (idx + direction + MENU_TABS.length) % MENU_TABS.length;
+      const candidate = MENU_TABS[idx];
+      // Skip disabled solgrid tab
+      if (candidate === 'solgrid' && !solGridState) continue;
+      switchTab(candidate);
+      return;
+    }
+  }
+
+  // --- Cursor navigation ---
+  function resetCursor() {
+    cursorIndex = 0;
+    updateCursorHighlight();
+  }
+
+  function getCursorItems() {
+    if (menuTab === 'equipment') return characterMenu.querySelectorAll('.equip-slot-box');
+    if (menuTab === 'inventory') return characterMenu.querySelectorAll('.inv-grid-cell');
+    if (menuTab === 'solgrid') return characterMenu.querySelectorAll('.sol-cell');
+    if (menuTab === 'quests') return characterMenu.querySelectorAll('.quest-step');
+    return [];
+  }
+
+  function getColumnsForTab() {
+    if (menuTab === 'equipment') return 1;
+    if (menuTab === 'inventory') return 5;
+    if (menuTab === 'solgrid') return solGridState ? solGridState.size || 5 : 5;
+    if (menuTab === 'quests') return 1;
+    return 1;
+  }
+
+  function moveCursor(direction) {
+    const items = getCursorItems();
+    if (items.length === 0) return;
+    const cols = getColumnsForTab();
+    let idx = cursorIndex;
+
+    if (direction === 'up') idx -= cols;
+    else if (direction === 'down') idx += cols;
+    else if (direction === 'left') idx -= 1;
+    else if (direction === 'right') idx += 1;
+
+    // Clamp
+    if (idx < 0) idx = 0;
+    if (idx >= items.length) idx = items.length - 1;
+
+    cursorIndex = idx;
+    updateCursorHighlight();
+  }
+
+  function updateCursorHighlight() {
+    // Remove all highlights
+    characterMenu.querySelectorAll('.cursor-selected').forEach(el => el.classList.remove('cursor-selected'));
+    const items = getCursorItems();
+    if (items.length === 0) return;
+    if (cursorIndex >= items.length) cursorIndex = items.length - 1;
+    if (cursorIndex < 0) cursorIndex = 0;
+    const el = items[cursorIndex];
+    if (el) {
+      el.classList.add('cursor-selected');
+      el.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function confirmCursor() {
+    const items = getCursorItems();
+    if (items.length === 0) return;
+    if (cursorIndex >= 0 && cursorIndex < items.length) {
+      items[cursorIndex].click();
+    }
+  }
+
+  // --- Quest panel ---
   function renderQuestPanel() {
     questPanelContent.innerHTML = '';
     if (questState.length === 0) {
@@ -185,6 +301,7 @@
         questPanelContent.appendChild(stepDiv);
       }
     }
+    updateCursorHighlight();
   }
 
   function showQuestToast(text) {
@@ -196,36 +313,10 @@
     }, 3000);
   }
 
-  function toggleInventory() {
-    // Close quest panel if open
-    if (questPanelOpen) {
-      questPanelOpen = false;
-      questPanel.style.display = 'none';
-    }
-    // If sol grid is open, close it first
-    if (solGridOpen) {
-      closeSolGrid();
-      return;
-    }
-    inventoryOpen = !inventoryOpen;
-    input.inventoryOpen = inventoryOpen;
-    inventoryPanel.style.display = inventoryOpen ? 'block' : 'none';
-    if (inventoryOpen) {
-      renderEquipmentSlots();
-      renderInventoryGrid();
-    }
-  }
-
-  // Tab switching
-  document.querySelectorAll('.inv-tab').forEach(tab => {
+  // --- Tab click handlers ---
+  document.querySelectorAll('#character-menu .inv-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.inv-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const tabName = tab.dataset.tab;
-      document.getElementById('inv-tab-equipment').style.display = tabName === 'equipment' ? '' : 'none';
-      document.getElementById('inv-tab-inventory').style.display = tabName === 'inventory' ? '' : 'none';
-      if (tabName === 'equipment') renderEquipmentSlots();
-      if (tabName === 'inventory') renderInventoryGrid();
+      switchTab(tab.dataset.tab);
     });
   });
 
@@ -313,9 +404,9 @@
 
         div.innerHTML = html;
         div.addEventListener('click', () => {
-          // If arms slot has sol unit with grid, open the grid
+          // If arms slot has sol unit with grid, switch to sol grid tab
           if (slot === 'arms' && solGridState) {
-            openSolGrid();
+            switchTab('solgrid');
             return;
           }
           net.send({ type: CONSTANTS.MSG.UNEQUIP, slot: slot });
@@ -326,6 +417,7 @@
       }
       equipmentSlots.appendChild(div);
     }
+    updateCursorHighlight();
   }
 
   function renderInventoryGrid() {
@@ -369,24 +461,7 @@
     }
 
     inventoryList.appendChild(grid);
-  }
-
-  // --- Sol grid panel ---
-  function openSolGrid() {
-    if (!solGridState) return;
-    solGridOpen = true;
-    solGridSelected = -1;
-    inventoryPanel.style.display = 'none';
-    solGridPanel.style.display = 'block';
-    input.inventoryOpen = true;
-    renderSolGrid();
-  }
-
-  function closeSolGrid() {
-    solGridOpen = false;
-    solGridSelected = -1;
-    solGridPanel.style.display = 'none';
-    input.inventoryOpen = false;
+    updateCursorHighlight();
   }
 
   function renderSolGrid() {
@@ -397,7 +472,7 @@
     // --- Top section: placement grid ---
     const grid = document.createElement('div');
     grid.className = 'sol-grid';
-    grid.style.gridTemplateColumns = `repeat(${size}, 48px)`;
+    grid.style.gridTemplateColumns = `repeat(${size}, 80px)`;
 
     for (let i = 0; i < size * size; i++) {
       const cell = document.createElement('div');
@@ -411,7 +486,19 @@
           cell.classList.add('has-ability');
           if (!comp.isExtension) {
             const label = comp.abilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-            cell.textContent = label;
+            let html = '<div class="sol-cell-name">' + label + '</div>';
+            // Show modifier bonuses if present
+            if (comp.modifiers && comp.modifiers.length > 0) {
+              for (const mod of comp.modifiers) {
+                if (mod.bonus.damageMultiplier) {
+                  html += '<div class="sol-mod-tag">+' + Math.round(mod.bonus.damageMultiplier * 100) + '% dmg</div>';
+                }
+                if (mod.bonus.cooldownReduction) {
+                  html += '<div class="sol-mod-tag">-' + Math.round(mod.bonus.cooldownReduction * 100) + '% cd</div>';
+                }
+              }
+            }
+            cell.innerHTML = html;
           }
         } else if (comp.modifierId) {
           cell.classList.add('has-modifier');
@@ -506,8 +593,8 @@
       for (const { item, idx } of solComponents) {
         const compCell = document.createElement('div');
         compCell.className = 'sol-cell has-modifier';
-        compCell.style.width = '48px';
-        compCell.style.height = '48px';
+        compCell.style.width = '80px';
+        compCell.style.height = '80px';
         compCell.textContent = item.name.replace(' Chip', '');
         if (solGridSelectedComponent === idx) {
           compCell.classList.add('selected');
@@ -527,6 +614,7 @@
     } else {
       solGridInfo.textContent = 'Click a component below to select, or click placed to remove';
     }
+    updateCursorHighlight();
   }
 
   // --- Dynamic interact button label ---
@@ -615,7 +703,7 @@
 
   // --- Ability dispatch ---
   input.onAbility = function (slot, aimAngle) {
-    if (dialogueActive || inventoryOpen) return;
+    if (dialogueActive || menuOpen) return;
     const me = renderer.state && renderer.state.players
       ? renderer.state.players.find(p => p.id === renderer.myId)
       : null;
@@ -640,18 +728,38 @@
   // --- Interact dispatch ---
   input.onInteract = function () {
     if (dialogueActive) { advanceDialogue(); return; }
-    if (inventoryOpen) { toggleInventory(); return; }
+    if (menuOpen) { closeMenu(); return; }
     net.send({ type: CONSTANTS.MSG.INTERACT });
   };
 
-  // --- Inventory dispatch ---
+  // --- Menu dispatches ---
   input.onInventory = function () {
-    toggleInventory();
+    toggleMenu('equipment');
   };
 
-  // --- Quest panel dispatch ---
   input.onQuestPanel = function () {
-    toggleQuestPanel();
+    toggleMenu('quests');
+  };
+
+  input.onMenuOpen = function () {
+    if (menuOpen) closeMenu();
+    else openMenu('equipment');
+  };
+
+  input.onMenuCycle = function (dir) {
+    if (menuOpen) cycleTab(dir);
+  };
+
+  input.onMenuNavigate = function (dir) {
+    if (menuOpen) moveCursor(dir);
+  };
+
+  input.onMenuConfirm = function () {
+    if (menuOpen) confirmCursor();
+  };
+
+  input.onMenuClose = function () {
+    closeMenu();
   };
 
   // --- Join flow ---
@@ -768,11 +876,18 @@
 
   net.on(CONSTANTS.MSG.SOL_GRID, (msg) => {
     solGridState = msg.grid || null;
-    if (solGridOpen && solGridState) {
+    // Update sol tab disabled state
+    const solTab = document.querySelector('#character-menu .inv-tab[data-tab="solgrid"]');
+    if (solTab) solTab.classList.toggle('disabled', !solGridState);
+    // If sol grid tab became unavailable while viewing it, switch away
+    if (menuOpen && menuTab === 'solgrid' && !solGridState) {
+      switchTab('equipment');
+    }
+    if (menuOpen && menuTab === 'solgrid' && solGridState) {
       renderSolGrid();
     }
     // Re-render equipment slots to show/hide OPEN tag
-    if (inventoryOpen) renderEquipmentSlots();
+    if (menuOpen && menuTab === 'equipment') renderEquipmentSlots();
   });
 
   net.on(CONSTANTS.MSG.ABILITY_STATE, (msg) => {
@@ -794,7 +909,7 @@
 
   net.on(CONSTANTS.MSG.QUEST_STATE, (msg) => {
     questState = msg.quests || [];
-    if (questPanelOpen) renderQuestPanel();
+    if (menuOpen && menuTab === 'quests') renderQuestPanel();
   });
 
   net.on(CONSTANTS.MSG.QUEST_STEP_COMPLETE, (msg) => {
@@ -806,12 +921,12 @@
     if (msg.equipment) {
       equipmentState = msg.equipment;
     }
-    if (inventoryOpen) {
-      renderEquipmentSlots();
-      renderInventoryGrid();
+    if (menuOpen && (menuTab === 'equipment' || menuTab === 'inventory')) {
+      if (menuTab === 'equipment') renderEquipmentSlots();
+      if (menuTab === 'inventory') renderInventoryGrid();
     }
     // Re-render sol grid when inventory changes so the component list stays in sync
-    if (solGridOpen && solGridState) {
+    if (menuOpen && menuTab === 'solgrid' && solGridState) {
       solGridSelectedComponent = null;
       renderSolGrid();
     }

@@ -27,7 +27,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: 'Courier New', monospace;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       color: #ccc;
     }
 
@@ -100,7 +100,7 @@
       background: rgba(255,167,38,0.1);
       border: 1px solid rgba(255,167,38,0.3);
       color: #ffa726;
-      font-family: 'Courier New', monospace;
+      font-family: inherit;
       font-size: 9px;
       display: flex;
       align-items: center;
@@ -111,6 +111,30 @@
     }
 
     #inventory-btn:active {
+      background: rgba(255,167,38,0.25);
+    }
+
+    #quest-btn {
+      position: absolute;
+      top: 8px;
+      right: 50px;
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: rgba(255,167,38,0.1);
+      border: 1px solid rgba(255,167,38,0.3);
+      color: #ffa726;
+      font-family: inherit;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 50;
+    }
+
+    #quest-btn:active {
       background: rgba(255,167,38,0.25);
     }
 
@@ -136,7 +160,7 @@
       border: 1px solid #444;
       color: #eee;
       padding: 8px 14px;
-      font-family: 'Courier New', monospace;
+      font-family: inherit;
       font-size: 16px;
       text-align: center;
       outline: none;
@@ -156,7 +180,7 @@
       color: #1a1a2e;
       border: none;
       padding: 10px 28px;
-      font-family: 'Courier New', monospace;
+      font-family: inherit;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
@@ -213,8 +237,8 @@
       margin-top: 10px;
     }
 
-    /* Inventory panel */
-    #inventory-panel {
+    /* Character menu (unified panel) */
+    #character-menu {
       display: none;
       position: absolute;
       top: 50%;
@@ -222,32 +246,34 @@
       transform: translate(-50%, -50%);
       background: rgba(10, 10, 26, 0.94);
       border: 2px solid #ffa726;
-      padding: 16px 20px;
-      min-width: 220px;
-      max-width: 320px;
-      max-height: 70vh;
+      padding: 28px 32px;
+      min-width: 400px;
+      max-width: 720px;
+      max-height: 85vh;
       overflow-y: auto;
       z-index: 90;
       pointer-events: auto;
+      border-radius: 8px;
     }
 
     .inv-tabs {
       display: flex;
       gap: 0;
-      margin-bottom: 10px;
-      border-bottom: 1px solid rgba(255,167,38,0.2);
+      margin-bottom: 16px;
+      border-bottom: 2px solid rgba(255,167,38,0.2);
     }
 
     .inv-tab {
       flex: 1;
       text-align: center;
-      font-size: 11px;
+      font-size: 16px;
       color: #666;
       letter-spacing: 1px;
-      padding: 6px 0;
+      padding: 12px 0;
       cursor: pointer;
-      border-bottom: 2px solid transparent;
+      border-bottom: 3px solid transparent;
       transition: color 0.15s, border-color 0.15s;
+      font-weight: 600;
     }
 
     .inv-tab.active {
@@ -259,82 +285,94 @@
 
     .inv-tab-content { }
 
-    #inventory-panel .inv-title {
-      font-size: 14px;
+    .inv-tab.disabled {
+      color: #333;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    #character-menu .inv-title {
+      font-size: 20px;
       color: #ffa726;
       letter-spacing: 2px;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
       text-align: center;
     }
 
-    #inventory-panel .inv-empty {
-      font-size: 12px;
+    #character-menu .inv-empty {
+      font-size: 16px;
       color: #555;
       text-align: center;
-      padding: 12px 0;
+      padding: 20px 0;
     }
 
-    #inventory-panel .inv-item {
-      font-size: 12px;
-      padding: 4px 0;
+    #character-menu .inv-item {
+      font-size: 16px;
+      padding: 8px 0;
       border-bottom: 1px solid rgba(255,255,255,0.06);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 10px;
       cursor: pointer;
     }
 
-    #inventory-panel .inv-item:active,
-    #inventory-panel .inv-item:hover {
+    #character-menu .inv-item:active,
+    #character-menu .inv-item:hover {
       background: rgba(255,255,255,0.05);
     }
 
-    #inventory-panel .inv-item .inv-dot {
-      width: 8px;
-      height: 8px;
+    #character-menu .inv-item .inv-dot {
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       flex-shrink: 0;
     }
 
-    #inventory-panel .inv-item .inv-slot-tag {
-      font-size: 9px;
+    #character-menu .inv-item .inv-slot-tag {
+      font-size: 13px;
       color: #888;
       margin-left: auto;
       flex-shrink: 0;
     }
 
-    #inventory-panel .inv-item .inv-use-tag {
-      font-size: 9px;
+    #character-menu .inv-item .inv-use-tag {
+      font-size: 13px;
       color: #4caf50;
       margin-left: auto;
       flex-shrink: 0;
       border: 1px solid rgba(76,175,80,0.3);
-      border-radius: 3px;
-      padding: 1px 4px;
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+
+    .cursor-selected {
+      outline: 2px solid #ffa726 !important;
+      background: rgba(255,167,38,0.1) !important;
     }
 
     .equip-section {
-      margin-bottom: 10px;
+      margin-bottom: 14px;
       border-bottom: 1px solid rgba(255,167,38,0.2);
-      padding-bottom: 8px;
+      padding-bottom: 12px;
     }
 
     .equip-section .equip-label {
-      font-size: 10px;
+      font-size: 14px;
       color: #ffa726;
       letter-spacing: 1px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      font-weight: 600;
     }
 
     .equip-slot {
-      font-size: 12px;
-      padding: 5px 6px;
-      margin-bottom: 3px;
+      font-size: 16px;
+      padding: 8px 10px;
+      margin-bottom: 4px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 10px;
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 3px;
+      border-radius: 4px;
       cursor: pointer;
     }
 
@@ -344,9 +382,9 @@
     }
 
     .equip-slot .slot-name {
-      font-size: 10px;
+      font-size: 14px;
       color: #666;
-      width: 58px;
+      width: 80px;
       flex-shrink: 0;
       text-transform: capitalize;
     }
@@ -356,42 +394,42 @@
 
     .inv-grid {
       display: grid;
-      grid-template-columns: repeat(5, 48px);
-      gap: 3px;
+      grid-template-columns: repeat(5, 80px);
+      gap: 6px;
       justify-content: center;
     }
 
     .inv-grid-cell {
-      width: 48px;
-      height: 48px;
+      width: 80px;
+      height: 80px;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 3px;
+      border-radius: 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 9px;
+      font-size: 13px;
       color: #aaa;
       text-align: center;
       overflow: hidden;
-      gap: 2px;
+      gap: 4px;
       position: relative;
     }
 
     .inv-grid-cell:hover { background: rgba(255,255,255,0.06); }
 
     .inv-grid-cell .cell-dot {
-      width: 8px;
-      height: 8px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
     }
 
     .inv-grid-cell .cell-name {
-      font-size: 8px;
-      line-height: 1.1;
-      max-width: 44px;
+      font-size: 12px;
+      line-height: 1.2;
+      max-width: 72px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -400,23 +438,23 @@
     .inv-grid-cell .inv-slot-tag,
     .inv-grid-cell .inv-use-tag {
       position: absolute;
-      bottom: 2px;
-      right: 2px;
-      font-size: 7px;
+      bottom: 3px;
+      right: 3px;
+      font-size: 10px;
     }
 
     /* Equipment slot redesign */
     .equip-slot-box {
-      font-size: 12px;
-      padding: 8px 10px;
-      margin-bottom: 4px;
+      font-size: 16px;
+      padding: 14px 16px;
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 4px;
+      border-radius: 5px;
       cursor: pointer;
-      min-height: 48px;
+      min-height: 60px;
     }
 
     .equip-slot-box:active,
@@ -425,9 +463,9 @@
     }
 
     .equip-slot-box .slot-label-name {
-      font-size: 10px;
+      font-size: 14px;
       color: #666;
-      width: 60px;
+      width: 90px;
       flex-shrink: 0;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -437,52 +475,51 @@
     .equip-slot-box .slot-empty-label { color: #444; font-style: italic; }
 
     .equip-slot-box .sol-open-tag {
-      font-size: 8px;
+      font-size: 12px;
       color: #ffa726;
       border: 1px solid rgba(255,167,38,0.3);
-      border-radius: 3px;
-      padding: 1px 4px;
+      border-radius: 4px;
+      padding: 2px 8px;
       margin-left: auto;
-    }
-
-    /* Sol grid panel */
-    #sol-grid-panel {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(10, 10, 26, 0.96);
-      border: 2px solid #ffa726;
-      padding: 16px 20px;
-      min-width: 280px;
-      z-index: 95;
-      pointer-events: auto;
     }
 
     .sol-grid {
       display: grid;
-      gap: 3px;
+      gap: 4px;
       justify-content: center;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
     }
 
     .sol-cell {
-      width: 48px;
-      height: 48px;
+      width: 80px;
+      height: 80px;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 3px;
+      border-radius: 4px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 8px;
+      font-size: 12px;
       color: #aaa;
       text-align: center;
       transition: border-color 0.15s, background 0.15s;
     }
 
     .sol-cell:hover { background: rgba(255,255,255,0.06); }
+
+    .sol-cell-name {
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .sol-mod-tag {
+      font-size: 10px;
+      color: #66bb6a;
+      line-height: 1.3;
+      font-weight: 600;
+    }
     .sol-cell.selected { border-color: #ffa726; background: rgba(255,167,38,0.1); }
     .sol-cell.has-ability { border-color: rgba(239,83,80,0.4); background: rgba(239,83,80,0.08); }
     .sol-cell.has-modifier { border-color: rgba(76,175,80,0.4); background: rgba(76,175,80,0.08); }
@@ -492,17 +529,17 @@
     .sol-cell.shape-right { border-right-color: transparent; border-top-right-radius: 0; border-bottom-right-radius: 0; }
 
     #sol-grid-info {
-      font-size: 11px;
+      font-size: 14px;
       color: #888;
       text-align: center;
-      min-height: 16px;
+      min-height: 20px;
+      margin-top: 8px;
     }
 
-    #inventory-panel .inv-hint,
-    #sol-grid-panel .inv-hint {
-      font-size: 10px;
+    #character-menu .inv-hint {
+      font-size: 13px;
       color: #555;
-      margin-top: 10px;
+      margin-top: 14px;
       text-align: center;
     }
 
@@ -556,7 +593,7 @@
       width: 130px;
       height: 56px;
       border-radius: 6px;
-      font-family: 'Courier New', monospace;
+      font-family: inherit;
       font-size: 14px;
       font-weight: bold;
       letter-spacing: 1px;
@@ -665,7 +702,7 @@
       background: rgba(100, 181, 246, 0.12);
       border: 2px solid rgba(100, 181, 246, 0.35);
       color: #64b5f6;
-      font-family: 'Courier New', monospace;
+      font-family: inherit;
       font-size: 14px;
       font-weight: bold;
       letter-spacing: 1px;
@@ -744,7 +781,7 @@
     .action-slot .slot-label {
       font-size: 11px;
       color: #ccc;
-      font-family: 'Courier New', monospace;
+      font-family: inherit;
     }
 
     .action-slot.empty .slot-label { color: #555; }
@@ -758,7 +795,7 @@
       justify-content: center;
       font-size: 11px;
       color: #aaa;
-      font-family: 'Courier New', monospace;
+      font-family: inherit;
       border-radius: 4px;
       pointer-events: none;
     }
@@ -795,7 +832,7 @@
       padding: 10px 20px;
       color: #66bb6a;
       font-size: 13px;
-      font-family: 'Courier New', monospace;
+      font-family: inherit;
       z-index: 110;
       pointer-events: none;
       animation: quest-toast-in 0.3s ease-out;
@@ -806,65 +843,47 @@
       to   { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 
-    /* Quest panel overlay */
-    #quest-panel {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(10, 10, 26, 0.96);
-      border: 2px solid #ffa726;
-      padding: 16px 20px;
-      min-width: 300px;
-      max-width: 440px;
-      max-height: 75vh;
-      overflow-y: auto;
-      z-index: 90;
-      pointer-events: auto;
-    }
-
-    #quest-panel .quest-title {
-      font-size: 14px;
+    #character-menu .quest-title {
+      font-size: 20px;
       color: #ffa726;
       letter-spacing: 2px;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       text-align: center;
     }
 
-    #quest-panel .quest-desc {
-      font-size: 11px;
+    #character-menu .quest-desc {
+      font-size: 15px;
       color: #777;
       text-align: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
-    #quest-panel .quest-step {
-      font-size: 12px;
-      padding: 6px 8px;
-      margin-bottom: 3px;
+    #character-menu .quest-step {
+      font-size: 16px;
+      padding: 10px 14px;
+      margin-bottom: 4px;
       border-left: 3px solid #444;
       color: #555;
     }
 
-    #quest-panel .quest-step.active {
+    #character-menu .quest-step.active {
       border-left-color: #ffa726;
       color: #ddd;
     }
 
-    #quest-panel .quest-step.completed {
+    #character-menu .quest-step.completed {
       border-left-color: #66bb6a;
       color: #66bb6a;
       text-decoration: line-through;
     }
 
-    #quest-panel .quest-step .step-desc {
-      font-size: 10px;
+    #character-menu .quest-step .step-desc {
+      font-size: 14px;
       color: #666;
       margin-top: 2px;
     }
 
-    #quest-panel .quest-step.active .step-desc {
+    #character-menu .quest-step.active .step-desc {
       color: #999;
     }
 
@@ -957,6 +976,7 @@
       <div class="player-name" id="hud-name"></div>
       <div id="quest-label"></div>
     </div>
+    <div id="quest-btn">LOG</div>
     <div id="inventory-btn">INV</div>
   </div>
 
@@ -993,7 +1013,7 @@
     </div>
     <div class="action-slot action-slot-util" data-action="inventory">
       <span class="slot-key">I</span>
-      <span class="slot-label">Inventory</span>
+      <span class="slot-label">Menu</span>
     </div>
   </div>
 
@@ -1015,10 +1035,12 @@
   <!-- Contextual interact button (mobile, shown when near interactable) -->
   <div id="interact-btn" class="mobile-only">Interact</div>
 
-  <div id="inventory-panel">
+  <div id="character-menu" style="display:none">
     <div class="inv-tabs">
-      <div class="inv-tab active" data-tab="equipment">EQUIPMENT</div>
-      <div class="inv-tab" data-tab="inventory">INVENTORY</div>
+      <div class="inv-tab active" data-tab="equipment">EQUIP</div>
+      <div class="inv-tab" data-tab="inventory">ITEMS</div>
+      <div class="inv-tab" data-tab="solgrid">SOL</div>
+      <div class="inv-tab" data-tab="quests">QUESTS</div>
     </div>
     <div id="inv-tab-equipment" class="inv-tab-content">
       <div id="equipment-slots" class="equip-section">
@@ -1028,14 +1050,13 @@
     <div id="inv-tab-inventory" class="inv-tab-content" style="display:none">
       <div id="inventory-list"></div>
     </div>
-    <div class="inv-hint">[I] Close</div>
-  </div>
-
-  <!-- Sol grid overlay -->
-  <div id="sol-grid-panel" style="display:none">
-    <div class="inv-title">SOL UNIT GRID</div>
-    <div id="sol-grid-container"></div>
-    <div id="sol-grid-info"></div>
+    <div id="inv-tab-solgrid" class="inv-tab-content" style="display:none">
+      <div id="sol-grid-container"></div>
+      <div id="sol-grid-info"></div>
+    </div>
+    <div id="inv-tab-quests" class="inv-tab-content" style="display:none">
+      <div id="quest-panel-content"></div>
+    </div>
     <div class="inv-hint">[I] Close</div>
   </div>
 
@@ -1047,10 +1068,6 @@
 
   <div id="quest-toast"></div>
 
-  <div id="quest-panel">
-    <div id="quest-panel-content"></div>
-    <div class="inv-hint">[M] Close</div>
-  </div>
 
   <!-- Portrait orientation warning (touch only) -->
   <div id="rotate-warning">
