@@ -237,8 +237,8 @@
       margin-top: 10px;
     }
 
-    /* Inventory panel */
-    #inventory-panel {
+    /* Character menu (unified panel) */
+    #character-menu {
       display: none;
       position: absolute;
       top: 50%;
@@ -248,8 +248,8 @@
       border: 2px solid #ffa726;
       padding: 16px 20px;
       min-width: 220px;
-      max-width: 320px;
-      max-height: 70vh;
+      max-width: 440px;
+      max-height: 75vh;
       overflow-y: auto;
       z-index: 90;
       pointer-events: auto;
@@ -283,7 +283,13 @@
 
     .inv-tab-content { }
 
-    #inventory-panel .inv-title {
+    .inv-tab.disabled {
+      color: #333;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    #character-menu .inv-title {
       font-size: 14px;
       color: #ffa726;
       letter-spacing: 2px;
@@ -291,14 +297,14 @@
       text-align: center;
     }
 
-    #inventory-panel .inv-empty {
+    #character-menu .inv-empty {
       font-size: 12px;
       color: #555;
       text-align: center;
       padding: 12px 0;
     }
 
-    #inventory-panel .inv-item {
+    #character-menu .inv-item {
       font-size: 12px;
       padding: 4px 0;
       border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -308,26 +314,26 @@
       cursor: pointer;
     }
 
-    #inventory-panel .inv-item:active,
-    #inventory-panel .inv-item:hover {
+    #character-menu .inv-item:active,
+    #character-menu .inv-item:hover {
       background: rgba(255,255,255,0.05);
     }
 
-    #inventory-panel .inv-item .inv-dot {
+    #character-menu .inv-item .inv-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
     }
 
-    #inventory-panel .inv-item .inv-slot-tag {
+    #character-menu .inv-item .inv-slot-tag {
       font-size: 9px;
       color: #888;
       margin-left: auto;
       flex-shrink: 0;
     }
 
-    #inventory-panel .inv-item .inv-use-tag {
+    #character-menu .inv-item .inv-use-tag {
       font-size: 9px;
       color: #4caf50;
       margin-left: auto;
@@ -335,6 +341,11 @@
       border: 1px solid rgba(76,175,80,0.3);
       border-radius: 3px;
       padding: 1px 4px;
+    }
+
+    .cursor-selected {
+      outline: 2px solid #ffa726 !important;
+      background: rgba(255,167,38,0.1) !important;
     }
 
     .equip-section {
@@ -469,20 +480,6 @@
       margin-left: auto;
     }
 
-    /* Sol grid panel */
-    #sol-grid-panel {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(10, 10, 26, 0.96);
-      border: 2px solid #ffa726;
-      padding: 16px 20px;
-      min-width: 280px;
-      z-index: 95;
-      pointer-events: auto;
-    }
-
     .sol-grid {
       display: grid;
       gap: 3px;
@@ -522,8 +519,7 @@
       min-height: 16px;
     }
 
-    #inventory-panel .inv-hint,
-    #sol-grid-panel .inv-hint {
+    #character-menu .inv-hint {
       font-size: 10px;
       color: #555;
       margin-top: 10px;
@@ -830,25 +826,7 @@
       to   { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 
-    /* Quest panel overlay */
-    #quest-panel {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(10, 10, 26, 0.96);
-      border: 2px solid #ffa726;
-      padding: 16px 20px;
-      min-width: 300px;
-      max-width: 440px;
-      max-height: 75vh;
-      overflow-y: auto;
-      z-index: 90;
-      pointer-events: auto;
-    }
-
-    #quest-panel .quest-title {
+    #character-menu .quest-title {
       font-size: 14px;
       color: #ffa726;
       letter-spacing: 2px;
@@ -856,14 +834,14 @@
       text-align: center;
     }
 
-    #quest-panel .quest-desc {
+    #character-menu .quest-desc {
       font-size: 11px;
       color: #777;
       text-align: center;
       margin-bottom: 12px;
     }
 
-    #quest-panel .quest-step {
+    #character-menu .quest-step {
       font-size: 12px;
       padding: 6px 8px;
       margin-bottom: 3px;
@@ -871,24 +849,24 @@
       color: #555;
     }
 
-    #quest-panel .quest-step.active {
+    #character-menu .quest-step.active {
       border-left-color: #ffa726;
       color: #ddd;
     }
 
-    #quest-panel .quest-step.completed {
+    #character-menu .quest-step.completed {
       border-left-color: #66bb6a;
       color: #66bb6a;
       text-decoration: line-through;
     }
 
-    #quest-panel .quest-step .step-desc {
+    #character-menu .quest-step .step-desc {
       font-size: 10px;
       color: #666;
       margin-top: 2px;
     }
 
-    #quest-panel .quest-step.active .step-desc {
+    #character-menu .quest-step.active .step-desc {
       color: #999;
     }
 
@@ -1018,7 +996,7 @@
     </div>
     <div class="action-slot action-slot-util" data-action="inventory">
       <span class="slot-key">I</span>
-      <span class="slot-label">Inventory</span>
+      <span class="slot-label">Menu</span>
     </div>
   </div>
 
@@ -1040,10 +1018,12 @@
   <!-- Contextual interact button (mobile, shown when near interactable) -->
   <div id="interact-btn" class="mobile-only">Interact</div>
 
-  <div id="inventory-panel">
+  <div id="character-menu" style="display:none">
     <div class="inv-tabs">
-      <div class="inv-tab active" data-tab="equipment">EQUIPMENT</div>
-      <div class="inv-tab" data-tab="inventory">INVENTORY</div>
+      <div class="inv-tab active" data-tab="equipment">EQUIP</div>
+      <div class="inv-tab" data-tab="inventory">ITEMS</div>
+      <div class="inv-tab" data-tab="solgrid">SOL</div>
+      <div class="inv-tab" data-tab="quests">QUESTS</div>
     </div>
     <div id="inv-tab-equipment" class="inv-tab-content">
       <div id="equipment-slots" class="equip-section">
@@ -1053,14 +1033,13 @@
     <div id="inv-tab-inventory" class="inv-tab-content" style="display:none">
       <div id="inventory-list"></div>
     </div>
-    <div class="inv-hint">[I] Close</div>
-  </div>
-
-  <!-- Sol grid overlay -->
-  <div id="sol-grid-panel" style="display:none">
-    <div class="inv-title">SOL UNIT GRID</div>
-    <div id="sol-grid-container"></div>
-    <div id="sol-grid-info"></div>
+    <div id="inv-tab-solgrid" class="inv-tab-content" style="display:none">
+      <div id="sol-grid-container"></div>
+      <div id="sol-grid-info"></div>
+    </div>
+    <div id="inv-tab-quests" class="inv-tab-content" style="display:none">
+      <div id="quest-panel-content"></div>
+    </div>
     <div class="inv-hint">[I] Close</div>
   </div>
 
@@ -1072,10 +1051,6 @@
 
   <div id="quest-toast"></div>
 
-  <div id="quest-panel">
-    <div id="quest-panel-content"></div>
-    <div class="inv-hint">[M] Close</div>
-  </div>
 
   <!-- Portrait orientation warning (touch only) -->
   <div id="rotate-warning">

@@ -13,17 +13,22 @@ class InputHandler {
     this.active = false;
 
     // Callbacks — set by main.js
-    this.onAbility = null;     // (slot, aimAngle) => void
-    this.onInteract = null;    // () => void
-    this.onInventory = null;   // () => void
-    this.onQuestPanel = null;  // () => void
+    this.onAbility = null;       // (slot, aimAngle) => void
+    this.onInteract = null;      // () => void
+    this.onInventory = null;     // () => void
+    this.onQuestPanel = null;    // () => void
+    this.onMenuOpen = null;      // () => void — Y button toggle menu
+    this.onMenuCycle = null;     // (direction) => void — LT/RT when menu open
+    this.onMenuNavigate = null;  // (direction) => void — D-pad/stick when menu open
+    this.onMenuConfirm = null;   // () => void — A when menu open
+    this.onMenuClose = null;     // () => void — B when menu open
 
     // Click-to-move
     this.renderer = null;
     this.moveTarget = null;
     this.clickMoving = false;
     this.dialogueActive = false;
-    this.inventoryOpen = false;
+    this.menuOpen = false;
 
     // Diablo-style ability selection
     this.selectedAbility = 2;  // right-click defaults to slot 2
@@ -53,6 +58,7 @@ class InputHandler {
     this.gamepadIndex = null;
     this.gamepadPrevButtons = [];
     this.gamepadKeys = { up: false, down: false, left: false, right: false };
+    this.menuNavTimer = 0;  // throttle stick navigation in menus
 
     // Key mappings
     this.keyMap = {
@@ -142,7 +148,7 @@ class InputHandler {
       return;
     }
 
-    // I → inventory
+    // I → inventory/menu
     if (e.key === 'i' || e.key === 'I') {
       e.preventDefault();
       if (this.onInventory) this.onInventory();
@@ -153,6 +159,13 @@ class InputHandler {
     if (e.key === 'm' || e.key === 'M') {
       e.preventDefault();
       if (this.onQuestPanel) this.onQuestPanel();
+      return;
+    }
+
+    // Escape → close menu
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (this.menuOpen && this.onMenuClose) this.onMenuClose();
       return;
     }
 
@@ -488,74 +501,133 @@ class InputHandler {
     const gp = gamepads[this.gamepadIndex];
     if (!gp) return;
 
-    // Left stick → movement
+    // Left stick
     const deadZone = 0.2;
     const threshold = 0.3;
     const lx = Math.abs(gp.axes[0]) > deadZone ? gp.axes[0] : 0;
     const ly = Math.abs(gp.axes[1]) > deadZone ? gp.axes[1] : 0;
 
-    // D-pad (buttons 12-15) as alternative to left stick
+    // D-pad (buttons 12-15)
     const dUp    = gp.buttons[12] && gp.buttons[12].pressed;
     const dDown  = gp.buttons[13] && gp.buttons[13].pressed;
     const dLeft  = gp.buttons[14] && gp.buttons[14].pressed;
     const dRight = gp.buttons[15] && gp.buttons[15].pressed;
-
-    const newKeys = {
-      up:    ly < -threshold || dUp,
-      down:  ly > threshold  || dDown,
-      left:  lx < -threshold || dLeft,
-      right: lx > threshold  || dRight,
-    };
-
-    // Only send if changed
-    const keysChanged = newKeys.up !== this.gamepadKeys.up ||
-                        newKeys.down !== this.gamepadKeys.down ||
-                        newKeys.left !== this.gamepadKeys.left ||
-                        newKeys.right !== this.gamepadKeys.right;
-    this.gamepadKeys = newKeys;
-    if (keysChanged) this.sendInput();
-
-    // Right stick → aim direction + aim indicator
-    const rx = gp.axes[2] || 0;
-    const ry = gp.axes[3] || 0;
-    const rLen = Math.sqrt(rx * rx + ry * ry);
-    let gamepadAimAngle = null;
-    if (rLen > 0.3) {
-      gamepadAimAngle = Math.atan2(ry, rx);
-      this.aimIndicator.active = true;
-      this.aimIndicator.angle = gamepadAimAngle;
-    } else if (!this.abilityDrag) {
-      // Only clear if not also touch-dragging
-      this.aimIndicator.active = false;
-    }
 
     // Buttons — detect rising edge
     const prev = this.gamepadPrevButtons;
     const pressed = (i) => gp.buttons[i] && gp.buttons[i].pressed &&
                            !(prev[i] && prev[i].pressed);
 
-    // A(0)→slot1, B(1)→slot2, X(2)→slot3, Y(3)→slot4, LB(4)→slot5, RB(5)→slot6
-    if (!this.dialogueActive) {
-      for (let i = 0; i < 6; i++) {
-        if (pressed(i)) {
-          if (this.onAbility) this.onAbility(i + 1, gamepadAimAngle);
-        }
+    // Right stick → aim direction + aim indicator (always active)
+    const rx = gp.axes[2] || 0;
+    const ry = gp.axes[3] || 0;
+    const rLen = Math.sqrt(rx * rx + ry * ry);
+    let gamepadAimAngle = null;
+    if (rLen > 0.3) {
+      gamepadAimAngle = Math.atan2(ry, rx);
+      if (!this.menuOpen) {
+        this.aimIndicator.active = true;
+        this.aimIndicator.angle = gamepadAimAngle;
       }
+    } else if (!this.abilityDrag) {
+      this.aimIndicator.active = false;
     }
 
-    // LT(6) → interact, RT(7) → inventory
-    if (pressed(6) && this.onInteract) this.onInteract();
-    if (pressed(7) && this.onInventory) this.onInventory();
+    // Y(3) always toggles menu
+    if (pressed(3) && this.onMenuOpen) this.onMenuOpen();
 
-    // A(0) also advances dialogue when active
-    if (this.dialogueActive && pressed(0) && this.onInteract) this.onInteract();
+    // Start(9) / Back(8) → open menu on quests tab
+    if ((pressed(9) || pressed(8)) && this.onQuestPanel) this.onQuestPanel();
 
-    // Start(9) / Back(8) → quest log
-    if (pressed(9) && this.onQuestPanel) this.onQuestPanel();
-    if (pressed(8) && this.onQuestPanel) this.onQuestPanel();
+    if (this.menuOpen) {
+      // === MENU OPEN MODE ===
+      // A(0) = confirm, B(1) = close
+      if (pressed(0) && this.onMenuConfirm) this.onMenuConfirm();
+      if (pressed(1) && this.onMenuClose) this.onMenuClose();
+
+      // LT(6) = prev tab, RT(7) = next tab
+      if (pressed(6) && this.onMenuCycle) this.onMenuCycle(-1);
+      if (pressed(7) && this.onMenuCycle) this.onMenuCycle(1);
+
+      // D-pad navigation (rising edge)
+      if (pressed(12) && this.onMenuNavigate) this.onMenuNavigate('up');
+      if (pressed(13) && this.onMenuNavigate) this.onMenuNavigate('down');
+      if (pressed(14) && this.onMenuNavigate) this.onMenuNavigate('left');
+      if (pressed(15) && this.onMenuNavigate) this.onMenuNavigate('right');
+
+      // Left stick navigation (throttled)
+      this.handleStickMenuNav(lx, ly);
+
+      // Suppress movement: zero out gamepad keys when menu is open
+      this.gamepadKeys = { up: false, down: false, left: false, right: false };
+
+    } else if (this.dialogueActive) {
+      // === DIALOGUE MODE ===
+      // A(0) or LT(6) = advance dialogue
+      if (pressed(0) && this.onInteract) this.onInteract();
+      if (pressed(6) && this.onInteract) this.onInteract();
+
+      // Still allow movement
+      const newKeys = {
+        up:    ly < -threshold || dUp,
+        down:  ly > threshold  || dDown,
+        left:  lx < -threshold || dLeft,
+        right: lx > threshold  || dRight,
+      };
+      const keysChanged = newKeys.up !== this.gamepadKeys.up ||
+                          newKeys.down !== this.gamepadKeys.down ||
+                          newKeys.left !== this.gamepadKeys.left ||
+                          newKeys.right !== this.gamepadKeys.right;
+      this.gamepadKeys = newKeys;
+      if (keysChanged) this.sendInput();
+
+    } else {
+      // === GAMEPLAY MODE ===
+      // A(0)=slot1, B(1)=slot2, X(2)=slot3, LB(4)=slot4, RB(5)=slot5, RT(7)=slot6
+      const abilityMap = [
+        [0, 1], [1, 2], [2, 3], [4, 4], [5, 5], [7, 6]
+      ];
+      for (const [btn, slot] of abilityMap) {
+        if (pressed(btn)) {
+          if (this.onAbility) this.onAbility(slot, gamepadAimAngle);
+        }
+      }
+
+      // LT(6) → interact
+      if (pressed(6) && this.onInteract) this.onInteract();
+
+      // Movement
+      const newKeys = {
+        up:    ly < -threshold || dUp,
+        down:  ly > threshold  || dDown,
+        left:  lx < -threshold || dLeft,
+        right: lx > threshold  || dRight,
+      };
+      const keysChanged = newKeys.up !== this.gamepadKeys.up ||
+                          newKeys.down !== this.gamepadKeys.down ||
+                          newKeys.left !== this.gamepadKeys.left ||
+                          newKeys.right !== this.gamepadKeys.right;
+      this.gamepadKeys = newKeys;
+      if (keysChanged) this.sendInput();
+    }
 
     // Save for edge detection
     this.gamepadPrevButtons = gp.buttons.map(b => ({ pressed: b.pressed }));
+  }
+
+  handleStickMenuNav(lx, ly) {
+    const now = performance.now();
+    if (now - this.menuNavTimer < 200) return;
+    const threshold = 0.5;
+    let dir = null;
+    if (ly < -threshold) dir = 'up';
+    else if (ly > threshold) dir = 'down';
+    else if (lx < -threshold) dir = 'left';
+    else if (lx > threshold) dir = 'right';
+    if (dir && this.onMenuNavigate) {
+      this.onMenuNavigate(dir);
+      this.menuNavTimer = now;
+    }
   }
 
   // ===================== Click-to-move (mouse) =====================
@@ -570,7 +642,7 @@ class InputHandler {
       // Right-click: cast selected ability at cursor
       if (e.button === 2) {
         e.preventDefault();
-        if (this.dialogueActive || this.inventoryOpen) return;
+        if (this.dialogueActive || this.menuOpen) return;
         const aimAngle = this.getMouseAimAngle();
         if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle);
         return;
@@ -583,7 +655,7 @@ class InputHandler {
         if (this.onInteract) this.onInteract();
         return;
       }
-      if (this.inventoryOpen) return;
+      if (this.menuOpen) return;
 
       e.preventDefault();
 
