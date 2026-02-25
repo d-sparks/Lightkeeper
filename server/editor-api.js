@@ -206,6 +206,9 @@ function handleEditorAPI(req, res) {
         { id: 'removeItem', description: 'Remove an item from player inventory', fields: ['itemType'] },
         { id: 'showMessage', description: 'Show a message to the player', fields: ['text'] },
         { id: 'toggleTile', description: 'Toggle a tile (e.g. open a door)', fields: ['x', 'y'] },
+        { id: 'equipItem', description: 'Equip an item from player inventory', fields: ['itemType'] },
+        { id: 'setQuestObjective', description: 'Show a quest objective marker on the map', fields: ['label', 'roomId?', 'tileX?', 'tileY?'] },
+        { id: 'clearQuestObjective', description: 'Remove the quest objective marker', fields: [] },
       ],
     });
   }

@@ -62,6 +62,9 @@ const api = {
     return (await checkedFetch('/api/editor/quests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json();
   },
   async deleteQuest(id) { return (await checkedFetch(`/api/editor/quests/${id}`, { method: 'DELETE' })).json(); },
+  async getTriggers(dungeonId) { return (await checkedFetch(`/api/editor/dungeons/${dungeonId}/triggers`)).json(); },
+  async saveTriggers(dungeonId, triggers) { return (await checkedFetch(`/api/editor/dungeons/${dungeonId}/triggers`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(triggers) })).json(); },
+  async getScriptingReference() { return (await checkedFetch('/api/editor/scripting/events')).json(); },
 };
 
 // ─── Tile colors (match game rendering) ─────────────────────
@@ -476,6 +479,7 @@ function Editor({ dungeonId, onBack }) {
   const [showProps, setShowProps] = useState(false);
   const [showNPCEditor, setShowNPCEditor] = useState(false);
   const [showItemEditor, setShowItemEditor] = useState(false);
+  const [showTriggerEditor, setShowTriggerEditor] = useState(false);
   const [selectedSpawn, setSelectedSpawn] = useState(null); // { kind, index } for move tool
   const [showIso, setShowIso] = useState(false);
 
@@ -609,6 +613,7 @@ function Editor({ dungeonId, onBack }) {
     <${EntitySection}
       onEditNPCs=${() => setShowNPCEditor(true)}
       onEditItems=${() => setShowItemEditor(true)}
+      onEditTriggers=${() => setShowTriggerEditor(true)}
     />
   `;
 
@@ -647,6 +652,8 @@ function Editor({ dungeonId, onBack }) {
       onClose=${() => setShowNPCEditor(false)} />`}
     ${showItemEditor && html`<${ItemEditorModal} items=${items} setItems=${setItems}
       onClose=${() => setShowItemEditor(false)} />`}
+    ${showTriggerEditor && html`<${TriggerEditorModal} dungeonId=${dungeonId}
+      onClose=${() => setShowTriggerEditor(false)} />`}
   `;
 }
 
@@ -1647,8 +1654,397 @@ function IsoPreview({ dungeon, tiles }) {
   `;
 }
 
+// ─── Trigger Editor Components ─────────────────────────────
+
+function RawJsonActionFields({ action, onChange }) {
+  const [text, setText] = useState(() => {
+    const { type, ...rest } = action;
+    return JSON.stringify(rest, null, 2);
+  });
+  const apply = (val) => {
+    setText(val);
+    try {
+      const parsed = JSON.parse(val);
+      onChange({ ...parsed, type: action.type });
+    } catch { /* invalid JSON, ignore until valid */ }
+  };
+  return html`
+    <textarea class="trigger-conditions-textarea" rows="4" value=${text}
+      onInput=${e => apply(e.target.value)} />
+  `;
+}
+
+function ActionFields({ action, onChange }) {
+  const set = (field, value) => onChange({ ...action, [field]: value });
+
+  switch (action.type) {
+    case 'showMessage': {
+      const isMulti = Array.isArray(action.lines);
+      if (isMulti) {
+        return html`
+          <div>
+            <button class="tool-btn" style="margin-bottom:4px;font-size:11px"
+              onClick=${() => { const { lines, ...rest } = action; onChange({ ...rest, text: lines.join('\n') }); }}>
+              Switch to single text</button>
+            ${action.lines.map((line, i) => html`
+              <div style="display:flex;gap:4px;margin-bottom:4px" key=${i}>
+                <input style="flex:1" value=${line} onInput=${e => {
+                  const copy = [...action.lines];
+                  copy[i] = e.target.value;
+                  onChange({ ...action, lines: copy });
+                }} />
+                <button class="spawn-remove" onClick=${() => {
+                  const copy = action.lines.filter((_, j) => j !== i);
+                  onChange({ ...action, lines: copy });
+                }}>×</button>
+              </div>
+            `)}
+            <button class="tool-btn" style="font-size:11px;border-color:var(--accent)"
+              onClick=${() => onChange({ ...action, lines: [...action.lines, ''] })}>+ Line</button>
+          </div>
+        `;
+      }
+      return html`
+        <div>
+          <button class="tool-btn" style="margin-bottom:4px;font-size:11px"
+            onClick=${() => { const { text, ...rest } = action; onChange({ ...rest, lines: [text || ''] }); }}>
+            Switch to multi-line</button>
+          <textarea class="trigger-conditions-textarea" rows="2" value=${action.text || ''}
+            onInput=${e => set('text', e.target.value)} />
+        </div>
+      `;
+    }
+    case 'setFlag':
+      return html`
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div class="field" style="flex:2"><label>Flag</label>
+            <input value=${action.flag || ''} onInput=${e => set('flag', e.target.value)} /></div>
+          <div class="field" style="flex:1"><label>Value</label>
+            <input value=${action.value != null ? action.value : ''} onInput=${e => set('value', e.target.value)} /></div>
+          <div class="field" style="flex:1"><label>Scope</label>
+            <select value=${action.scope || 'player'} onChange=${e => set('scope', e.target.value)}>
+              <option value="player">player</option><option value="room">room</option><option value="global">global</option>
+            </select></div>
+        </div>
+      `;
+    case 'removeFlag':
+      return html`
+        <div style="display:flex;gap:6px">
+          <div class="field" style="flex:2"><label>Flag</label>
+            <input value=${action.flag || ''} onInput=${e => set('flag', e.target.value)} /></div>
+          <div class="field" style="flex:1"><label>Scope</label>
+            <select value=${action.scope || 'player'} onChange=${e => set('scope', e.target.value)}>
+              <option value="player">player</option><option value="room">room</option><option value="global">global</option>
+            </select></div>
+        </div>
+      `;
+    case 'incrementFlag':
+      return html`
+        <div style="display:flex;gap:6px">
+          <div class="field" style="flex:2"><label>Flag</label>
+            <input value=${action.flag || ''} onInput=${e => set('flag', e.target.value)} /></div>
+          <div class="field" style="flex:1"><label>Amount</label>
+            <input type="number" value=${action.amount != null ? action.amount : 1} onInput=${e => set('amount', Number(e.target.value))} /></div>
+        </div>
+      `;
+    case 'giveItem':
+    case 'removeItem':
+    case 'equipItem':
+      return html`
+        <div class="field"><label>Item Type</label>
+          <input value=${action.itemType || ''} onInput=${e => set('itemType', e.target.value)} /></div>
+      `;
+    case 'spawnItem':
+      return html`
+        <div style="display:flex;gap:6px">
+          <div class="field" style="flex:2"><label>Item Type</label>
+            <input value=${action.itemType || ''} onInput=${e => set('itemType', e.target.value)} /></div>
+          <div class="field" style="flex:1"><label>X</label>
+            <input type="number" value=${action.x || 0} onInput=${e => set('x', Number(e.target.value))} /></div>
+          <div class="field" style="flex:1"><label>Y</label>
+            <input type="number" value=${action.y || 0} onInput=${e => set('y', Number(e.target.value))} /></div>
+        </div>
+      `;
+    case 'toggleTile':
+      return html`
+        <div style="display:flex;gap:6px">
+          <div class="field" style="flex:1"><label>X</label>
+            <input type="number" value=${action.x || 0} onInput=${e => set('x', Number(e.target.value))} /></div>
+          <div class="field" style="flex:1"><label>Y</label>
+            <input type="number" value=${action.y || 0} onInput=${e => set('y', Number(e.target.value))} /></div>
+        </div>
+      `;
+    case 'removeEntity': {
+      const etype = action.entityType || 'npc';
+      return html`
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div class="field" style="flex:1"><label>Entity Type</label>
+            <select value=${etype} onChange=${e => {
+              const newType = e.target.value;
+              const base = { type: 'removeEntity', entityType: newType };
+              if (newType === 'npc') base.npcType = action.npcType || '';
+              else if (newType === 'monster') base.monsterType = action.monsterType || '';
+              else if (newType === 'item') base.itemType = action.itemType || '';
+              onChange(base);
+            }}>
+              <option value="npc">npc</option><option value="monster">monster</option><option value="item">item</option>
+            </select></div>
+          <div class="field" style="flex:2"><label>${etype === 'npc' ? 'NPC Type' : etype === 'monster' ? 'Monster Type' : 'Item Type'}</label>
+            <input value=${action[etype + 'Type'] || action.entityId || ''}
+              onInput=${e => set(etype === 'npc' ? 'npcType' : etype === 'monster' ? 'monsterType' : 'itemType', e.target.value)} /></div>
+        </div>
+      `;
+    }
+    case 'setDialogue':
+      return html`
+        <div style="display:flex;gap:6px">
+          <div class="field" style="flex:1"><label>NPC Type</label>
+            <input value=${action.npc || ''} onInput=${e => set('npc', e.target.value)} /></div>
+          <div class="field" style="flex:1"><label>Dialogue ID</label>
+            <input value=${action.dialogueId || ''} onInput=${e => set('dialogueId', e.target.value)} /></div>
+        </div>
+      `;
+    case 'setQuestObjective':
+      return html`
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div class="field" style="flex:2"><label>Label</label>
+            <input value=${action.label || ''} onInput=${e => set('label', e.target.value)} /></div>
+          <div class="field" style="flex:2"><label>Room ID</label>
+            <input value=${action.roomId || ''} onInput=${e => set('roomId', e.target.value)} /></div>
+          <div class="field" style="flex:1"><label>Tile X</label>
+            <input type="number" value=${action.tileX || 0} onInput=${e => set('tileX', Number(e.target.value))} /></div>
+          <div class="field" style="flex:1"><label>Tile Y</label>
+            <input type="number" value=${action.tileY || 0} onInput=${e => set('tileY', Number(e.target.value))} /></div>
+        </div>
+      `;
+    case 'clearQuestObjective':
+      return html`<div style="font-size:11px;color:var(--text-dim);padding:4px 0">No parameters</div>`;
+    default:
+      return html`<${RawJsonActionFields} action=${action} onChange=${onChange} />`;
+  }
+}
+
+function ActionListEditor({ actions, scriptRef, onChange }) {
+  const actionTypes = (scriptRef && scriptRef.actionTypes) || [];
+  const update = (idx, newAction) => {
+    const copy = [...actions];
+    copy[idx] = newAction;
+    onChange(copy);
+  };
+  const remove = (idx) => onChange(actions.filter((_, i) => i !== idx));
+  const move = (idx, dir) => {
+    const copy = [...actions];
+    const target = idx + dir;
+    if (target < 0 || target >= copy.length) return;
+    [copy[idx], copy[target]] = [copy[target], copy[idx]];
+    onChange(copy);
+  };
+  const add = () => onChange([...actions, { type: 'showMessage', text: '' }]);
+
+  return html`
+    <div>
+      <span class="trigger-section-label">Actions</span>
+      <div class="trigger-action-list">
+        ${actions.map((action, idx) => html`
+          <div class="trigger-action-card" key=${idx}>
+            <div class="trigger-action-header">
+              <select value=${action.type} onChange=${e => {
+                const newType = e.target.value;
+                update(idx, { type: newType });
+              }}>
+                ${actionTypes.map(at => html`<option key=${at.id} value=${at.id}>${at.id}</option>`)}
+                ${!actionTypes.find(at => at.id === action.type) && html`<option value=${action.type}>${action.type}</option>`}
+              </select>
+              <button class="trigger-action-move" onClick=${() => move(idx, -1)} title="Move up">↑</button>
+              <button class="trigger-action-move" onClick=${() => move(idx, 1)} title="Move down">↓</button>
+              <button class="spawn-remove" onClick=${() => remove(idx)}>×</button>
+            </div>
+            <${ActionFields} action=${action} onChange=${(a) => update(idx, a)} />
+          </div>
+        `)}
+      </div>
+      <button class="tool-btn" style="margin-top:6px;border-color:var(--accent)" onClick=${add}>+ Add Action</button>
+    </div>
+  `;
+}
+
+function FilterEditor({ filter, eventType, scriptRef, onChange }) {
+  const events = (scriptRef && scriptRef.events) || [];
+  const ev = events.find(e => e.id === eventType);
+  const fields = ev ? ev.payloadFields : [];
+  if (!fields.length) return html`<div style="font-size:11px;color:var(--text-dim)">No filter fields for this event</div>`;
+
+  return html`
+    <div class="trigger-filter-row">
+      ${fields.map(f => html`
+        <div class="field" style="flex:1;min-width:120px" key=${f}>
+          <label>${f}</label>
+          <input value=${(filter && filter[f]) || ''}
+            onInput=${e => {
+              const copy = { ...(filter || {}) };
+              if (e.target.value) copy[f] = e.target.value;
+              else delete copy[f];
+              onChange(Object.keys(copy).length ? copy : null);
+            }} />
+        </div>
+      `)}
+    </div>
+  `;
+}
+
+function TriggerEditorModal({ dungeonId, onClose }) {
+  const [triggers, setTriggers] = useState(null);
+  const [scriptRef, setScriptRef] = useState(null);
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const [conditionsText, setConditionsText] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    Promise.all([api.getTriggers(dungeonId), api.getScriptingReference()])
+      .then(([t, sr]) => {
+        const trigs = Array.isArray(t) ? t : [];
+        setTriggers(trigs);
+        setScriptRef(sr);
+        if (trigs.length > 0) {
+          setConditionsText(trigs[0].conditions ? JSON.stringify(trigs[0].conditions, null, 2) : '');
+        }
+      })
+      .catch(() => showToast('Failed to load triggers', 'error'));
+  }, [dungeonId]);
+
+  if (!triggers || !scriptRef) return html`
+    <div class="modal-overlay"><div class="modal trigger-editor-modal">
+      <p style="text-align:center;color:var(--text-dim);padding:20px">Loading...</p>
+    </div></div>`;
+
+  const current = triggers[selectedIdx] || null;
+
+  const selectTrigger = (idx) => {
+    setSelectedIdx(idx);
+    const t = triggers[idx];
+    setConditionsText(t && t.conditions ? JSON.stringify(t.conditions, null, 2) : '');
+  };
+
+  const updateTrigger = (updater) => {
+    setTriggers(prev => {
+      const copy = JSON.parse(JSON.stringify(prev));
+      if (copy[selectedIdx]) updater(copy[selectedIdx]);
+      return copy;
+    });
+  };
+
+  const addTrigger = () => {
+    const id = 'new_trigger_' + Date.now();
+    const newTrig = { id, event: 'room_entered', actions: [] };
+    setTriggers(prev => [...prev, newTrig]);
+    setSelectedIdx(triggers.length);
+    setConditionsText('');
+  };
+
+  const removeTrigger = (idx) => {
+    setTriggers(prev => prev.filter((_, i) => i !== idx));
+    if (selectedIdx >= triggers.length - 1) {
+      const newIdx = Math.max(0, triggers.length - 2);
+      setSelectedIdx(newIdx);
+      const t = triggers[newIdx === idx ? (newIdx > 0 ? newIdx - 1 : 0) : newIdx];
+      setConditionsText(t && t.conditions ? JSON.stringify(t.conditions, null, 2) : '');
+    }
+  };
+
+  const save = async () => {
+    // Validate conditions JSON before saving
+    if (conditionsText.trim()) {
+      try { JSON.parse(conditionsText); }
+      catch { showToast('Invalid conditions JSON', 'error'); return; }
+    }
+    // Apply conditions text to current trigger
+    const toSave = JSON.parse(JSON.stringify(triggers));
+    if (toSave[selectedIdx]) {
+      if (conditionsText.trim()) {
+        toSave[selectedIdx].conditions = JSON.parse(conditionsText);
+      } else {
+        delete toSave[selectedIdx].conditions;
+      }
+    }
+    setSaving(true);
+    try {
+      const result = await api.saveTriggers(dungeonId, toSave);
+      setTriggers(Array.isArray(result) ? result : toSave);
+      showToast('Triggers saved!', 'success');
+      onClose();
+    } catch { showToast('Save failed', 'error'); }
+    setSaving(false);
+  };
+
+  return html`
+    <div class="modal-overlay" onClick=${e => e.target === e.currentTarget && onClose()}>
+      <div class="modal trigger-editor-modal">
+        <h2>Edit Triggers</h2>
+
+        <div class="entity-tabs">
+          ${triggers.map((t, idx) => html`
+            <button key=${idx} class="entity-tab ${idx === selectedIdx ? 'selected' : ''}"
+              onClick=${() => selectTrigger(idx)}>
+              ${t.id}
+              <span class="entity-tab-remove" onClick=${(e) => { e.stopPropagation(); removeTrigger(idx); }}>×</span>
+            </button>
+          `)}
+        </div>
+
+        <div class="entity-add-row">
+          <button class="primary" onClick=${addTrigger} style="width:100%">+ Add Trigger</button>
+        </div>
+
+        ${current && html`
+          <div class="field">
+            <label>ID</label>
+            <input value=${current.id} onInput=${e => updateTrigger(t => { t.id = e.target.value.replace(/[^a-zA-Z0-9_-]/g, ''); })} />
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <div class="field" style="flex:2">
+              <label>Event</label>
+              <select value=${current.event} onChange=${e => updateTrigger(t => { t.event = e.target.value; })}>
+                ${scriptRef.events.map(ev => html`<option key=${ev.id} value=${ev.id}>${ev.id}</option>`)}
+              </select>
+            </div>
+            <div class="field" style="flex:0 0 auto;display:flex;align-items:end;gap:4px;padding-bottom:2px">
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer">
+                <input type="checkbox" checked=${!!current.once}
+                  onChange=${e => updateTrigger(t => { if (e.target.checked) t.once = true; else delete t.once; })} />
+                Once
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <span class="trigger-section-label">Filter</span>
+            <${FilterEditor} filter=${current.filter || null} eventType=${current.event}
+              scriptRef=${scriptRef} onChange=${(f) => updateTrigger(t => { if (f) t.filter = f; else delete t.filter; })} />
+          </div>
+
+          <div>
+            <span class="trigger-section-label">Conditions (JSON)</span>
+            <textarea class="trigger-conditions-textarea" rows="4"
+              value=${conditionsText}
+              onInput=${e => setConditionsText(e.target.value)} />
+          </div>
+
+          <${ActionListEditor} actions=${current.actions || []} scriptRef=${scriptRef}
+            onChange=${(a) => updateTrigger(t => { t.actions = a; })} />
+        `}
+
+        <div class="modal-actions">
+          <button onClick=${onClose}>Cancel</button>
+          <button class="primary" onClick=${save} disabled=${saving}>${saving ? 'Saving...' : 'Save'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 // ─── Entity Section (sidebar) ──────────────────────────────
-function EntitySection({ onEditNPCs, onEditItems }) {
+function EntitySection({ onEditNPCs, onEditItems, onEditTriggers }) {
   return html`
     <div class="panel-section">
       <h3>Entities</h3>
@@ -1657,6 +2053,8 @@ function EntitySection({ onEditNPCs, onEditItems }) {
           style="border-color:${SPAWN_COLORS.npc}">Edit NPCs</button>
         <button class="tool-btn" onClick=${onEditItems}
           style="border-color:${SPAWN_COLORS.item}">Edit Items</button>
+        <button class="tool-btn" onClick=${onEditTriggers}
+          style="border-color:var(--warning)">Edit Triggers</button>
       </div>
     </div>
   `;

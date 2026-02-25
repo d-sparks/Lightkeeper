@@ -705,3 +705,61 @@ html, body {
   border-radius: 6px;
   font-size: 12px;
 }
+
+/* --- Trigger Editor --- */
+.trigger-editor-modal { max-width: 560px; }
+.trigger-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.trigger-action-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+}
+.trigger-action-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.trigger-action-header select { flex: 1; }
+.trigger-action-move {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.trigger-action-move:hover { color: var(--text); border-color: var(--accent); }
+.trigger-section-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 8px 0 4px;
+  display: block;
+}
+.trigger-conditions-textarea {
+  width: 100%;
+  font-family: monospace;
+  font-size: 11px;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px;
+  resize: vertical;
+}
+.trigger-filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
