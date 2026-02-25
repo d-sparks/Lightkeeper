@@ -47,6 +47,7 @@
     {
       "tag": "treasure",
       "depth": 2,
+      "placeNear": "entrance",
       "width": { "min": 5, "max": 6 },
       "height": { "min": 5, "max": 6 },
       "centerTile": 10
@@ -152,7 +153,7 @@
     },
     {
       "id": "chest_opened_{instanceId}",
-      "event": "tile_interacted",
+      "event": "door_interacted",
       "depth": 2,
       "requiresRoom": "treasure",
       "filter": { "tileX": "{treasure.cx}", "tileY": "{treasure.cy}" },

@@ -169,7 +169,15 @@ class DungeonGenerator {
     for (const req of required) {
       const w = this._randRange(rng, req.width || roomsCfg.width);
       const h = this._randRange(rng, req.height || roomsCfg.height);
-      const placed = this._tryPlace(rooms, w, h, W, H, padding, maxAttempts, rng);
+
+      // If placeNear is specified, bias placement toward that tagged room
+      let nearTarget = null;
+      if (req.placeNear) {
+        const ref = rooms.find(r => r.tag === req.placeNear);
+        if (ref) nearTarget = { x: ref.cx, y: ref.cy };
+      }
+
+      const placed = this._tryPlace(rooms, w, h, W, H, padding, maxAttempts, rng, nearTarget);
       if (!placed) return null;
       placed.tag = req.tag;
       placed.def = req;
@@ -191,7 +199,10 @@ class DungeonGenerator {
     return rooms;
   }
 
-  _tryPlace(existingRooms, w, h, W, H, padding, maxAttempts, rng) {
+  _tryPlace(existingRooms, w, h, W, H, padding, maxAttempts, rng, nearTarget) {
+    let bestCandidate = null;
+    let bestDist = Infinity;
+
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const x = 1 + Math.floor(rng() * (W - w - 2));
       const y = 1 + Math.floor(rng() * (H - h - 2));
@@ -208,16 +219,29 @@ class DungeonGenerator {
       }
 
       if (!overlaps) {
-        return {
+        const candidate = {
           x, y, w, h,
           cx: Math.floor(x + w / 2),
           cy: Math.floor(y + h / 2),
           tag: null,
           def: null,
         };
+
+        // If no nearTarget, return immediately
+        if (!nearTarget) return candidate;
+
+        // With nearTarget, collect candidates and pick closest
+        const dx = candidate.cx - nearTarget.x;
+        const dy = candidate.cy - nearTarget.y;
+        const dist = dx * dx + dy * dy;
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestCandidate = candidate;
+        }
       }
     }
-    return null;
+
+    return bestCandidate;
   }
 
   _buildMST(rooms, rng, corridorCfg) {
