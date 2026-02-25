@@ -38,9 +38,17 @@
   "itemSpawns": [],
   "exits": [
     { "x": 0, "y": 4, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 37, "spawnY": 11 },
-    { "x": 20, "y": 7, "leadsTo": "quarantine_wing_01", "type": "stairs_down", "spawnX": 23, "spawnY": 2 }
+    { "x": 20, "y": 7, "leadsTo": "proc_quarantine", "type": "stairs_down" }
   ],
   "triggers": [
+    {
+      "id": "remove_warden_before_warlord",
+      "event": "room_entered",
+      "conditions": [{ "not": { "hasFlag": "warlord_defeated" } }],
+      "actions": [
+        { "type": "removeEntity", "entityType": "npc", "npcType": "outpost_warden_workshop" }
+      ]
+    },
     {
       "id": "engineer_gives_blaster",
       "event": "npc_interacted",
@@ -78,11 +86,7 @@
         { "type": "removeItem", "itemType": "titanium_cylinders" },
         { "type": "giveItem", "itemType": "sol_unit" },
         { "type": "equipItem", "itemType": "sol_unit" },
-        { "type": "setFlag", "flag": "received_sol_unit" },
-        { "type": "showMessage", "lines": [
-          "The Sol Unit hums to life. Press [I] to open Inventory, then click OPEN on your weapon slot to access the Sol Grid.",
-          "Your Damage Booster Chip can be placed adjacent to the Sol Beam for a power boost. Try it now!"
-        ]}
+        { "type": "setFlag", "flag": "received_sol_unit" }
       ],
       "once": true
     }

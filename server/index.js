@@ -221,6 +221,45 @@ const httpServer = http.createServer((req, res) => {
     if (handled !== false) return;
   }
 
+  // --- Debug API: inspect player flags and quest state ---
+  if (urlPath.startsWith('/api/debug/player/') && req.method === 'GET') {
+    const playerName = decodeURIComponent(urlPath.slice('/api/debug/player/'.length));
+    let found = null;
+    for (const [roomId, room] of gameLoop.rooms) {
+      for (const [pid, player] of room.players) {
+        if (player.name === playerName || pid === playerName) {
+          found = {
+            playerId: pid,
+            name: player.name,
+            roomId,
+            flags: gameLoop.flagStore.getPlayerFlags(pid),
+            questState: gameLoop.questTracker.getQuestStateForClient(pid),
+            inventory: player.inventory,
+            equipment: player.equipment,
+          };
+          break;
+        }
+      }
+      if (found) break;
+    }
+    res.writeHead(found ? 200 : 404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(found || { error: `Player "${playerName}" not found in any room` }));
+    return;
+  }
+
+  // --- Debug API: list all connected players ---
+  if (urlPath === '/api/debug/players' && req.method === 'GET') {
+    const players = [];
+    for (const [roomId, room] of gameLoop.rooms) {
+      for (const [pid, player] of room.players) {
+        players.push({ playerId: pid, name: player.name, roomId });
+      }
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(players));
+    return;
+  }
+
   // Editor reload endpoint (auth-protected)
   if (urlPath === '/api/editor/reload' && req.method === 'POST') {
     if (!isAuthenticated(req)) { sendUnauthorized(res); return; }
