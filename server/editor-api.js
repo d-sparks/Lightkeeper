@@ -79,6 +79,35 @@ function handleEditorAPI(req, res) {
     }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
   }
 
+  // --- Procedural Templates ---
+  if (url === '/api/editor/templates' && method === 'GET') {
+    const templates = listJSONFiles(path.join(CONTENT_DIR, 'dungeons', 'templates'));
+    const summaries = templates.map(t => ({
+      id: t.id, name: t.namePattern || t.id, type: 'procedural', depth: t.depth
+    }));
+    return json(res, 200, summaries);
+  }
+
+  const templateMatch = url.match(/^\/api\/editor\/templates\/([a-zA-Z0-9_-]+)$/);
+  if (templateMatch) {
+    const id = templateMatch[1];
+    const filePath = path.join(CONTENT_DIR, 'dungeons', 'templates', `${id}.json`);
+
+    if (method === 'GET') {
+      if (!fs.existsSync(filePath)) return json(res, 404, { error: 'Not found' });
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      return json(res, 200, data);
+    }
+
+    if (method === 'PUT') {
+      return parseBody(req).then(data => {
+        data.id = id;
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+        return json(res, 200, data);
+      }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
+    }
+  }
+
   // --- Tilesets ---
   if (url === '/api/editor/tilesets' && method === 'GET') {
     const tilesets = listJSONFiles(path.join(CONTENT_DIR, 'tilesets'));

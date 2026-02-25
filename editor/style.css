@@ -248,6 +248,8 @@ html, body {
 }
 
 .spawn-item span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.spawn-label-link { cursor: pointer; text-decoration: underline; text-decoration-color: var(--text-dim); text-underline-offset: 2px; }
+.spawn-label-link:hover { color: var(--accent); text-decoration-color: var(--accent); }
 
 .spawn-remove {
   width: 24px;
@@ -385,6 +387,19 @@ html, body {
   vertical-align: middle;
   margin-left: 6px;
 }
+.template-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(171, 71, 188, 0.2);
+  color: #ce93d8;
+  vertical-align: middle;
+  margin-left: 6px;
+}
 
 /* --- Modal --- */
 .modal-overlay {
@@ -461,6 +476,16 @@ html, body {
 @media (min-width: 769px) {
   .bottom-sheet { display: none; }
   .side-panel { display: flex; }
+
+  /* Larger fonts on desktop */
+  html, body { font-size: 15px; }
+  input, select, textarea, button { font-size: 14px; }
+  .modal h2 { font-size: 18px; }
+  label { font-size: 13px; }
+  .trigger-conditions-textarea,
+  .raw-json-textarea { font-size: 13px; }
+  .trigger-section-label { font-size: 13px; }
+  .trigger-action-move { font-size: 14px; }
 }
 
 /* --- Login page --- */
@@ -762,4 +787,37 @@ html, body {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+/* --- Raw JSON toggle --- */
+.raw-json-toggle {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.raw-json-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-dim);
+  font-size: 11px;
+  padding: 4px 10px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+.raw-json-toggle-btn:hover { color: var(--text); border-color: var(--accent); }
+.raw-json-textarea {
+  width: 100%;
+  margin-top: 6px;
+  font-family: monospace;
+  font-size: 11px;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px;
+  resize: vertical;
+  tab-size: 2;
 }

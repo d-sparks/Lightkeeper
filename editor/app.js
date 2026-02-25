@@ -65,6 +65,9 @@ const api = {
   async getTriggers(dungeonId) { return (await checkedFetch(`/api/editor/dungeons/${dungeonId}/triggers`)).json(); },
   async saveTriggers(dungeonId, triggers) { return (await checkedFetch(`/api/editor/dungeons/${dungeonId}/triggers`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(triggers) })).json(); },
   async getScriptingReference() { return (await checkedFetch('/api/editor/scripting/events')).json(); },
+  async listTemplates() { return (await checkedFetch('/api/editor/templates')).json(); },
+  async getTemplate(id) { return (await checkedFetch(`/api/editor/templates/${id}`)).json(); },
+  async saveTemplate(id, data) { return (await checkedFetch(`/api/editor/templates/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json(); },
 };
 
 // ─── Tile colors (match game rendering) ─────────────────────
@@ -140,9 +143,10 @@ function LoginScreen({ onSuccess }) {
 function App() {
   const [authState, setAuthState] = useState('loading'); // 'loading' | 'login' | 'ready'
   const [gitConfigured, setGitConfigured] = useState(false);
-  const [view, setView] = useState('list'); // 'list' | 'edit' | 'quests' | 'quest_edit'
+  const [view, setView] = useState('list'); // 'list' | 'edit' | 'quests' | 'quest_edit' | 'template_edit'
   const [dungeonId, setDungeonId] = useState(null);
   const [questId, setQuestId] = useState(null);
+  const [templateId, setTemplateId] = useState(null);
 
   useEffect(() => {
     api.checkAuth().then(info => {
@@ -157,9 +161,10 @@ function App() {
   }, []);
 
   const openEditor = (id) => { setDungeonId(id); setView('edit'); };
-  const backToList = () => { setView('list'); setDungeonId(null); };
+  const backToList = () => { setView('list'); setDungeonId(null); setTemplateId(null); };
   const openQuestEditor = (id) => { setQuestId(id); setView('quest_edit'); };
   const backToQuests = () => { setView('quests'); setQuestId(null); };
+  const openTemplate = (id) => { setTemplateId(id); setView('template_edit'); };
 
   if (authState === 'loading') return html`<div style="padding:60px;text-align:center;color:var(--text-dim)">Loading...</div>`;
   if (authState === 'login') return html`<${LoginScreen} onSuccess=${() => setAuthState('ready')} />`;
@@ -167,21 +172,24 @@ function App() {
   return html`
     <div id="toast" class="toast" style="display:none"></div>
     ${view === 'list'
-      ? html`<${DungeonList} onOpen=${openEditor} gitConfigured=${gitConfigured} onShowQuests=${() => setView('quests')} />`
+      ? html`<${DungeonList} onOpen=${openEditor} onOpenTemplate=${openTemplate} gitConfigured=${gitConfigured} onShowQuests=${() => setView('quests')} />`
       : view === 'edit'
       ? html`<${Editor} dungeonId=${dungeonId} onBack=${backToList} />`
       : view === 'quests'
       ? html`<${QuestList} onOpen=${openQuestEditor} onBack=${backToList} />`
       : view === 'quest_edit'
       ? html`<${QuestEditor} questId=${questId} onBack=${backToQuests} />`
+      : view === 'template_edit'
+      ? html`<${TemplateEditor} templateId=${templateId} onBack=${backToList} />`
       : null
     }
   `;
 }
 
 // ─── Dungeon List ───────────────────────────────────────────
-function DungeonList({ onOpen, gitConfigured, onShowQuests }) {
+function DungeonList({ onOpen, onOpenTemplate, gitConfigured, onShowQuests }) {
   const [dungeons, setDungeons] = useState([]);
+  const [templates, setTemplates] = useState([]);
   const [showNew, setShowNew] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
@@ -190,7 +198,10 @@ function DungeonList({ onOpen, gitConfigured, onShowQuests }) {
   const [refreshing, setRefreshing] = useState(false);
   const [spawnRoom, setSpawnRoom] = useState('');
 
-  const loadDungeons = () => api.listDungeons().then(setDungeons);
+  const loadDungeons = () => {
+    api.listDungeons().then(setDungeons);
+    api.listTemplates().then(setTemplates).catch(() => {});
+  };
   useEffect(() => {
     loadDungeons();
     api.getSettings().then(s => setSpawnRoom(s.spawnRoom || ''));
@@ -310,6 +321,22 @@ function DungeonList({ onOpen, gitConfigured, onShowQuests }) {
         `)}
         ${dungeons.length === 0 && html`<p style="color: var(--text-dim); text-align: center; padding: 40px 0;">No dungeons yet. Create one!</p>`}
       </div>
+      ${templates.length > 0 && html`
+        <div style="padding:0 20px">
+          <h3 style="color:var(--text-dim);margin-bottom:8px">Procedural Templates</h3>
+        </div>
+        <div class="dungeon-cards">
+          ${templates.map(t => html`
+            <div class="dungeon-card" key=${t.id} onClick=${() => onOpenTemplate(t.id)}>
+              <div class="dungeon-card-info">
+                <h3>${t.name} <span class="template-badge">Procedural</span></h3>
+                <p>${t.id} · depth ${t.depth ? t.depth.min + '-' + t.depth.max : '?'}</p>
+              </div>
+              <div class="dungeon-card-arrow">›</div>
+            </div>
+          `)}
+        </div>
+      `}
       ${showNew && html`<${NewDungeonModal} onCreate=${createDungeon} onClose=${() => setShowNew(false)} />`}
       ${showPublish && html`<${PublishModal} onPublish=${doPublish} onClose=${() => setShowPublish(false)} />`}
       ${showBranch && html`<${BranchModal} onLoad=${onBranchLoaded} onClose=${() => setShowBranch(false)} />`}
@@ -477,8 +504,8 @@ function Editor({ dungeonId, onBack }) {
   const [spawnEntityType, setSpawnEntityType] = useState(''); // specific entity type for spawn
   const [dirty, setDirty] = useState(false);
   const [showProps, setShowProps] = useState(false);
-  const [showNPCEditor, setShowNPCEditor] = useState(false);
-  const [showItemEditor, setShowItemEditor] = useState(false);
+  const [showNPCEditor, setShowNPCEditor] = useState(null);  // null or npcType string
+  const [showItemEditor, setShowItemEditor] = useState(null); // null or itemType string
   const [showTriggerEditor, setShowTriggerEditor] = useState(false);
   const [selectedSpawn, setSelectedSpawn] = useState(null); // { kind, index } for move tool
   const [showIso, setShowIso] = useState(false);
@@ -602,19 +629,30 @@ function Editor({ dungeonId, onBack }) {
     <${ToolSelector} tool=${tool} setTool=${setTool} />
     ${tool === 'paint' && html`<${TilePalette} tiles=${tiles} selected=${selectedTile} onSelect=${setSelectedTile} />`}
     ${tool === 'move' && html`<${MovePanel} dungeon=${dungeon} updateDungeon=${updateDungeon}
-      selectedSpawn=${selectedSpawn} setSelectedSpawn=${setSelectedSpawn} />`}
+      selectedSpawn=${selectedSpawn} setSelectedSpawn=${setSelectedSpawn}
+      onEditNPC=${(type) => setShowNPCEditor(type || true)}
+      onEditItem=${(type) => setShowItemEditor(type || true)} />`}
     ${tool === 'spawn' && html`<${SpawnPanel}
       dungeon=${dungeon} updateDungeon=${updateDungeon}
       spawnMode=${spawnMode} setSpawnMode=${setSpawnMode}
       spawnEntityType=${spawnEntityType} setSpawnEntityType=${setSpawnEntityType}
       monsters=${monsters} npcs=${npcs} items=${items}
     />`}
-    <${SpawnList} dungeon=${dungeon} updateDungeon=${updateDungeon} />
+    <${SpawnList} dungeon=${dungeon} updateDungeon=${updateDungeon}
+      onEditNPC=${(type) => setShowNPCEditor(type || true)}
+      onEditItem=${(type) => setShowItemEditor(type || true)} />
     <${EntitySection}
       onEditNPCs=${() => setShowNPCEditor(true)}
       onEditItems=${() => setShowItemEditor(true)}
       onEditTriggers=${() => setShowTriggerEditor(true)}
     />
+    <div class="panel-section">
+      <${RawJsonToggle} data=${dungeon} onApply=${(parsed) => {
+        if (typeof parsed !== 'object' || Array.isArray(parsed)) { showToast('Dungeon must be an object', 'error'); return; }
+        setDungeon(parsed);
+        setDirty(true);
+      }} />
+    </div>
   `;
 
   return html`
@@ -638,6 +676,8 @@ function Editor({ dungeonId, onBack }) {
         onStrokeStart=${beginStroke} onStrokeEnd=${endStroke}
         selectedSpawn=${selectedSpawn} onSelectSpawn=${setSelectedSpawn}
         monsters=${monsters} npcs=${npcs} items=${items}
+        onEditNPC=${(type) => setShowNPCEditor(type || true)}
+        onEditItem=${(type) => setShowItemEditor(type || true)}
       />
       ${showIso && html`<${IsoPreview} dungeon=${dungeon} tiles=${tiles} />`}
       <div class="side-panel">${panelContent}</div>
@@ -649,9 +689,11 @@ function Editor({ dungeonId, onBack }) {
     ${showProps && html`<${PropertiesModal} dungeon=${dungeon} tilesets=${tilesets}
       updateDungeon=${updateDungeon} onClose=${() => setShowProps(false)} />`}
     ${showNPCEditor && html`<${NPCEditorModal} npcs=${npcs} setNPCs=${setNPCs}
-      onClose=${() => setShowNPCEditor(false)} />`}
+      initialSelectedId=${typeof showNPCEditor === 'string' ? showNPCEditor : undefined}
+      onClose=${() => setShowNPCEditor(null)} />`}
     ${showItemEditor && html`<${ItemEditorModal} items=${items} setItems=${setItems}
-      onClose=${() => setShowItemEditor(false)} />`}
+      initialSelectedId=${typeof showItemEditor === 'string' ? showItemEditor : undefined}
+      onClose=${() => setShowItemEditor(null)} />`}
     ${showTriggerEditor && html`<${TriggerEditorModal} dungeonId=${dungeonId}
       onClose=${() => setShowTriggerEditor(false)} />`}
   `;
@@ -751,7 +793,7 @@ function SpawnPanel({ dungeon, updateDungeon, spawnMode, setSpawnMode, spawnEnti
 }
 
 // ─── Spawn List ─────────────────────────────────────────────
-function SpawnList({ dungeon, updateDungeon }) {
+function SpawnList({ dungeon, updateDungeon, onEditNPC, onEditItem }) {
   const allSpawns = [
     ...dungeon.spawns.map((s, i) => ({ ...s, _kind: 'spawn', _i: i, _label: `Player (${s.x},${s.y})` })),
     ...dungeon.monsterSpawns.map((s, i) => ({ ...s, _kind: 'monster', _i: i, _label: `${s.type} (${s.x},${s.y}) x${s.count}` })),
@@ -786,13 +828,20 @@ function SpawnList({ dungeon, updateDungeon }) {
     <div class="panel-section">
       <h3>Spawns (${allSpawns.length})</h3>
       <div class="spawn-list">
-        ${allSpawns.map(s => html`
-          <div class="spawn-item" key="${s._kind}-${s._i}">
-            <div class="spawn-dot" style="background:${colorFor(s._kind)}"></div>
-            <span>${s._label}</span>
-            <button class="spawn-remove" onClick=${() => remove(s._kind, s._i)}>×</button>
-          </div>
-        `)}
+        ${allSpawns.map(s => {
+          const clickable = (s._kind === 'npc' && onEditNPC) || (s._kind === 'item' && onEditItem);
+          const onClick = () => {
+            if (s._kind === 'npc' && onEditNPC) onEditNPC(s.type);
+            else if (s._kind === 'item' && onEditItem) onEditItem(s.type);
+          };
+          return html`
+            <div class="spawn-item" key="${s._kind}-${s._i}">
+              <div class="spawn-dot" style="background:${colorFor(s._kind)}"></div>
+              <span class=${clickable ? 'spawn-label-link' : ''} onClick=${clickable ? onClick : undefined}>${s._label}</span>
+              <button class="spawn-remove" onClick=${() => remove(s._kind, s._i)}>×</button>
+            </div>
+          `;
+        })}
       </div>
     </div>
   `;
@@ -900,7 +949,7 @@ function getSpawnData(dungeon, sel) {
 }
 
 // ─── Move Panel (properties for selected spawn) ─────────────
-function MovePanel({ dungeon, updateDungeon, selectedSpawn, setSelectedSpawn }) {
+function MovePanel({ dungeon, updateDungeon, selectedSpawn, setSelectedSpawn, onEditNPC, onEditItem }) {
   if (!selectedSpawn) {
     return html`
       <div class="panel-section">
@@ -983,14 +1032,24 @@ function MovePanel({ dungeon, updateDungeon, selectedSpawn, setSelectedSpawn }) 
         </div>
       `}
 
-      <button class="tool-btn" style="margin-top:4px;border-color:var(--text-dim)"
-        onClick=${() => setSelectedSpawn(null)}>Deselect</button>
+      <div style="display:flex;gap:6px;margin-top:4px">
+        ${kind === 'npc' && onEditNPC && html`
+          <button class="tool-btn" style="flex:1;border-color:${SPAWN_COLORS.npc}"
+            onClick=${() => onEditNPC(spawn.type)}>Edit NPC</button>
+        `}
+        ${kind === 'item' && onEditItem && html`
+          <button class="tool-btn" style="flex:1;border-color:${SPAWN_COLORS.item}"
+            onClick=${() => onEditItem(spawn.type)}>Edit Item</button>
+        `}
+        <button class="tool-btn" style="flex:1;border-color:var(--text-dim)"
+          onClick=${() => setSelectedSpawn(null)}>Deselect</button>
+      </div>
     </div>
   `;
 }
 
 // ─── Tile Canvas (the core painting surface) ────────────────
-function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, onStrokeStart, onStrokeEnd, selectedSpawn, onSelectSpawn, monsters, npcs, items }) {
+function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, onStrokeStart, onStrokeEnd, selectedSpawn, onSelectSpawn, monsters, npcs, items, onEditNPC, onEditItem }) {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const stateRef = useRef({
@@ -1317,6 +1376,21 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
     draw();
   };
 
+  // --- Double-click to open NPC/item editor ---
+  const onDblClick = (e) => {
+    const cell = screenToCell(e.clientX, e.clientY);
+    if (!cell) return;
+    const hit = findSpawnAt(dungeon, cell.x, cell.y);
+    if (!hit) return;
+    if (hit.kind === 'npc') {
+      const spawn = dungeon.npcSpawns[hit.index];
+      if (spawn && onEditNPC) onEditNPC(spawn.type);
+    } else if (hit.kind === 'item') {
+      const spawn = (dungeon.itemSpawns || [])[hit.index];
+      if (spawn && onEditItem) onEditItem(spawn.type);
+    }
+  };
+
   return html`
     <div class="canvas-wrap" ref=${wrapRef}
       onContextMenu=${e => e.preventDefault()}>
@@ -1325,6 +1399,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
         onPointerMove=${onPointerMove}
         onPointerUp=${onPointerUp}
         onPointerLeave=${onPointerUp}
+        onDblClick=${onDblClick}
         onTouchStart=${onTouchStart}
         onTouchMove=${onTouchMove}
         onTouchEnd=${onTouchEnd}
@@ -1650,6 +1725,38 @@ function IsoPreview({ dungeon, tiles }) {
     <div class="iso-preview-wrap" ref=${wrapRef}>
       <div class="iso-preview-label">Isometric Preview</div>
       <canvas ref=${canvasRef} />
+    </div>
+  `;
+}
+
+// ─── Raw JSON Toggle (shared) ──────────────────────────────
+
+function RawJsonToggle({ data, onApply }) {
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState('');
+
+  const toggle = () => {
+    if (!open) setText(JSON.stringify(data, null, 2));
+    setOpen(v => !v);
+  };
+
+  const apply = () => {
+    try {
+      const parsed = JSON.parse(text);
+      onApply(parsed);
+      showToast('JSON applied', 'success');
+      setOpen(false);
+    } catch { showToast('Invalid JSON', 'error'); }
+  };
+
+  return html`
+    <div class="raw-json-toggle">
+      <button class="raw-json-toggle-btn" onClick=${toggle}>${open ? 'Hide' : 'Show'} Raw JSON</button>
+      ${open && html`
+        <textarea class="raw-json-textarea" rows="12" value=${text}
+          onInput=${e => setText(e.target.value)} />
+        <button class="tool-btn" style="margin-top:4px;border-color:var(--accent);align-self:flex-end" onClick=${apply}>Apply JSON</button>
+      `}
     </div>
   `;
 }
@@ -2034,6 +2141,14 @@ function TriggerEditorModal({ dungeonId, onClose }) {
             onChange=${(a) => updateTrigger(t => { t.actions = a; })} />
         `}
 
+        <${RawJsonToggle} data=${triggers} onApply=${(parsed) => {
+          if (!Array.isArray(parsed)) { showToast('Triggers must be an array', 'error'); return; }
+          setTriggers(parsed);
+          if (parsed[selectedIdx]) {
+            setConditionsText(parsed[selectedIdx].conditions ? JSON.stringify(parsed[selectedIdx].conditions, null, 2) : '');
+          }
+        }} />
+
         <div class="modal-actions">
           <button onClick=${onClose}>Cancel</button>
           <button class="primary" onClick=${save} disabled=${saving}>${saving ? 'Saving...' : 'Save'}</button>
@@ -2061,9 +2176,9 @@ function EntitySection({ onEditNPCs, onEditItems, onEditTriggers }) {
 }
 
 // ─── NPC Editor Modal ──────────────────────────────────────
-function NPCEditorModal({ npcs, setNPCs, onClose }) {
+function NPCEditorModal({ npcs, setNPCs, onClose, initialSelectedId }) {
   const [localNPCs, setLocalNPCs] = useState(JSON.parse(JSON.stringify(npcs)));
-  const [selectedId, setSelectedId] = useState(Object.keys(npcs)[0] || '');
+  const [selectedId, setSelectedId] = useState(initialSelectedId && npcs[initialSelectedId] ? initialSelectedId : Object.keys(npcs)[0] || '');
   const [newId, setNewId] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -2168,6 +2283,12 @@ function NPCEditorModal({ npcs, setNPCs, onClose }) {
           </div>
         `}
 
+        <${RawJsonToggle} data=${localNPCs} onApply=${(parsed) => {
+          if (typeof parsed !== 'object' || Array.isArray(parsed)) { showToast('NPCs must be an object', 'error'); return; }
+          setLocalNPCs(parsed);
+          if (!parsed[selectedId]) setSelectedId(Object.keys(parsed)[0] || '');
+        }} />
+
         <div class="modal-actions">
           <button onClick=${onClose}>Cancel</button>
           <button class="primary" onClick=${save} disabled=${saving}>${saving ? 'Saving...' : 'Save'}</button>
@@ -2178,9 +2299,9 @@ function NPCEditorModal({ npcs, setNPCs, onClose }) {
 }
 
 // ─── Item Editor Modal ─────────────────────────────────────
-function ItemEditorModal({ items, setItems, onClose }) {
+function ItemEditorModal({ items, setItems, onClose, initialSelectedId }) {
   const [localItems, setLocalItems] = useState(JSON.parse(JSON.stringify(items)));
-  const [selectedId, setSelectedId] = useState(Object.keys(items)[0] || '');
+  const [selectedId, setSelectedId] = useState(initialSelectedId && items[initialSelectedId] ? initialSelectedId : Object.keys(items)[0] || '');
   const [newId, setNewId] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -2314,6 +2435,12 @@ function ItemEditorModal({ items, setItems, onClose }) {
             </div>
           `}
         `}
+
+        <${RawJsonToggle} data=${localItems} onApply=${(parsed) => {
+          if (typeof parsed !== 'object' || Array.isArray(parsed)) { showToast('Items must be an object', 'error'); return; }
+          setLocalItems(parsed);
+          if (!parsed[selectedId]) setSelectedId(Object.keys(parsed)[0] || '');
+        }} />
 
         <div class="modal-actions">
           <button onClick=${onClose}>Cancel</button>
@@ -2525,10 +2652,31 @@ function QuestEditor({ questId, onBack }) {
         <${QuestDAG} quest=${quest} sorted=${sorted} onEdit=${setEditingStep} onDelete=${deleteStep} />
       </div>
 
+      <div style="padding:0 20px 16px">
+        <${RawJsonToggle} data=${quest} onApply=${(parsed) => {
+          if (typeof parsed !== 'object' || Array.isArray(parsed)) { showToast('Quest must be an object', 'error'); return; }
+          setQuest(parsed);
+          setDirty(true);
+        }} />
+      </div>
+
       ${editingStep && html`<${StepEditorModal}
         quest=${quest}
         stepId=${editingStep}
-        onSave=${(stepId, stepData) => { updateQuest(q => q.steps[stepId] = stepData); setEditingStep(null); }}
+        onSave=${(oldId, newId, stepData) => {
+          updateQuest(q => {
+            if (oldId !== newId) {
+              delete q.steps[oldId];
+              // Update references
+              for (const s of Object.values(q.steps)) {
+                s.prerequisiteSteps = (s.prerequisiteSteps || []).map(p => p === oldId ? newId : p);
+              }
+              if (q.startStep === oldId) q.startStep = newId;
+            }
+            q.steps[newId] = stepData;
+          });
+          setEditingStep(null);
+        }}
         onClose=${() => setEditingStep(null)}
       />`}
     </div>
@@ -2573,6 +2721,7 @@ function QuestDAG({ quest, sorted, onEdit, onDelete }) {
 function StepEditorModal({ quest, stepId, onSave, onClose }) {
   const original = quest.steps[stepId];
   const [step, setStep] = useState(JSON.parse(JSON.stringify(original)));
+  const [localStepId, setLocalStepId] = useState(stepId);
   const [conditionsText, setConditionsText] = useState(JSON.stringify(original.completionConditions || [], null, 2));
   const allStepIds = Object.keys(quest.steps).filter(s => s !== stepId);
 
@@ -2591,13 +2740,20 @@ function StepEditorModal({ quest, stepId, onSave, onClose }) {
       showToast('Invalid conditions JSON', 'error');
       return;
     }
-    onSave(stepId, step);
+    const cleanId = localStepId.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!cleanId) { showToast('Step ID cannot be empty', 'error'); return; }
+    if (cleanId !== stepId && quest.steps[cleanId]) { showToast('Step ID already exists', 'error'); return; }
+    onSave(stepId, cleanId, step);
   };
 
   return html`
     <div class="modal-overlay" onClick=${(e) => e.target === e.currentTarget && onClose()}>
       <div class="modal" style="min-width:400px;max-width:500px">
         <h2>Step: ${stepId}</h2>
+        <div class="field">
+          <label>Step ID</label>
+          <input value=${localStepId} onInput=${e => setLocalStepId(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ''))} />
+        </div>
         <div class="field">
           <label>Label</label>
           <input value=${step.label} onInput=${e => update(s => s.label = e.target.value)} />
@@ -2659,6 +2815,69 @@ function StepEditorModal({ quest, stepId, onSave, onClose }) {
           <button onClick=${onClose}>Cancel</button>
           <button class="primary" onClick=${save}>Apply</button>
         </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Template Editor ────────────────────────────────────────
+function TemplateEditor({ templateId, onBack }) {
+  const [template, setTemplate] = useState(null);
+  const [text, setText] = useState('');
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api.getTemplate(templateId).then(t => {
+      setTemplate(t);
+      setText(JSON.stringify(t, null, 2));
+    });
+  }, [templateId]);
+
+  const apply = () => {
+    try {
+      const parsed = JSON.parse(text);
+      setTemplate(parsed);
+      setDirty(true);
+      showToast('JSON applied', 'success');
+    } catch { showToast('Invalid JSON', 'error'); }
+  };
+
+  const save = async () => {
+    let data;
+    try { data = JSON.parse(text); }
+    catch { showToast('Invalid JSON — fix before saving', 'error'); return; }
+    setSaving(true);
+    try {
+      const result = await api.saveTemplate(templateId, data);
+      setTemplate(result);
+      setText(JSON.stringify(result, null, 2));
+      setDirty(false);
+      showToast('Template saved', 'success');
+    } catch { showToast('Save failed', 'error'); }
+    setSaving(false);
+  };
+
+  if (!template) return html`<div style="padding:60px;text-align:center;color:var(--text-dim)">Loading...</div>`;
+
+  return html`
+    <div class="dungeon-list-page">
+      <div class="dungeon-list-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="topbar-btn" onClick=${onBack}>Back</button>
+          <h1>${template.namePattern || template.id}</h1>
+          <span class="template-badge">Procedural</span>
+          ${dirty && html`<span style="color:#ffa726;font-size:12px">Unsaved</span>`}
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="topbar-btn" onClick=${apply}>Apply</button>
+          <button class="topbar-btn primary" onClick=${save} disabled=${saving}>${saving ? 'Saving...' : 'Save'}</button>
+        </div>
+      </div>
+      <div style="padding:16px 20px;flex:1;display:flex;flex-direction:column;overflow:hidden">
+        <textarea class="raw-json-textarea" style="flex:1;min-height:300px;font-size:13px"
+          value=${text}
+          onInput=${e => { setText(e.target.value); setDirty(true); }} />
       </div>
     </div>
   `;
