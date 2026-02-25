@@ -86,6 +86,7 @@
         { "type": "removeItem", "itemType": "titanium_cylinders" },
         { "type": "giveItem", "itemType": "sol_unit" },
         { "type": "equipItem", "itemType": "sol_unit" },
+        { "type": "giveItem", "itemType": "damage_booster_chip" },
         { "type": "setFlag", "flag": "received_sol_unit" }
       ],
       "once": true

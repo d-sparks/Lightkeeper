@@ -354,8 +354,13 @@
         { "speaker": "Apprentice Sol Engineer", "text": "Give me just a moment..." },
         { "speaker": "Apprentice Sol Engineer", "text": "There. Your Sol Unit is ready. She's not pretty, but she'll keep you alive out there." },
         { "speaker": "Apprentice Sol Engineer", "text": "It channels concentrated solar energy. Effective against pretty much anything on this rock." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Press [I] to open Inventory, then click OPEN on your weapon slot to access the Sol Grid." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Your Damage Booster Chip can be placed adjacent to the Sol Beam for a power boost. Try it now!" }
+        { "speaker": "Apprentice Sol Engineer", "text": "The Sol Unit has a grid inside it. That's where you slot components — abilities and modifiers." },
+        { "speaker": "Apprentice Sol Engineer", "text": "I've already mounted a Sol Beam emitter in the center. That's your main attack. You'll feel it working automatically." },
+        { "speaker": "Apprentice Sol Engineer", "text": "I'm also giving you a Damage Booster chip I had lying around. It's a modifier — it boosts whatever it's placed next to." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Press [I] to open your Inventory, then click OPEN on your weapon slot to see the Sol Grid." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Drag the Damage Booster from your inventory and place it next to the Sol Beam. Adjacent modifiers power up nearby abilities." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Grid placement matters. As you find more components out there, think about what goes next to what. That's the key to a good build." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Now go try it. Open your inventory and set up your grid before you head out." }
       ],
       "has_sol_unit": [
         { "speaker": "Apprentice Sol Engineer", "text": "That Sol Unit is solid work, if I say so myself. Take care of it and it'll take care of you." },
