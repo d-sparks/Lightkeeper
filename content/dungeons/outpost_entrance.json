@@ -105,6 +105,22 @@
       "actions": [
         { "type": "removeEntity", "entityType": "npc", "npcType": "outpost_warden" }
       ]
+    },
+    {
+      "id": "sol_grid_tutorial_reminder",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "received_sol_unit" },
+        { "not": { "hasFlag": "sol_tutorial_shown" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "sol_tutorial_shown" },
+        { "type": "showMessage", "lines": [
+          "Your Sol Unit is equipped. Press [I] to open Inventory and click OPEN on the weapon slot to access your Sol Grid.",
+          "Place the Damage Booster chip next to the Sol Beam for a power boost. Modifiers enhance whatever they're adjacent to."
+        ]}
+      ],
+      "once": true
     }
   ]
 }
