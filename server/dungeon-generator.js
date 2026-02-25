@@ -56,8 +56,8 @@ class DungeonGenerator {
     // 1. Initialize grid filled with wall tiles
     const data = new Array(W * H).fill(grid.wallTile);
 
-    // 2. Place rooms
-    const rooms = this._placeRooms(template, rng, W, H);
+    // 2. Place rooms (depth-filtered)
+    const rooms = this._placeRooms(template, rng, W, H, depth);
     if (!rooms) return null;
 
     // 3. Carve rooms into grid
@@ -107,12 +107,14 @@ class DungeonGenerator {
       monsterSpawns: this._placeMonsters(template, rooms, rng, depth),
       itemSpawns: this._placeItems(template, rooms, rng, data, W, H, grid),
       npcSpawns: this._placeNPCs(template, rooms, rng),
-      triggers: this._buildTriggers(template, context),
+      triggers: this._buildTriggers(template, context, rooms, depth),
     };
 
-    // Place required room item spawns
+    // Place required room item spawns, monster spawns, and center tiles
     for (const room of rooms) {
-      if (room.def && room.def.itemSpawns) {
+      if (!room.def) continue;
+
+      if (room.def.itemSpawns) {
         for (const spawn of room.def.itemSpawns) {
           let x, y;
           if (spawn.position === 'center') {
@@ -125,17 +127,43 @@ class DungeonGenerator {
           dungeon.itemSpawns.push({ type: spawn.type, x, y });
         }
       }
+
+      if (room.def.monsterSpawns) {
+        for (const spawn of room.def.monsterSpawns) {
+          let x, y;
+          if (spawn.position === 'center') {
+            x = room.cx;
+            y = room.cy;
+          } else {
+            x = room.x + 1 + Math.floor(rng() * (room.w - 2));
+            y = room.y + 1 + Math.floor(rng() * (room.h - 2));
+          }
+          dungeon.monsterSpawns.push({ type: spawn.type, x, y, count: 1 });
+        }
+      }
+
+      if (room.def.centerTile != null) {
+        data[room.cy * W + room.cx] = room.def.centerTile;
+      }
     }
 
     return dungeon;
   }
 
-  _placeRooms(template, rng, W, H) {
+  _placeRooms(template, rng, W, H, depth) {
     const roomsCfg = template.rooms;
-    const required = template.requiredRooms || [];
+    const allRequired = template.requiredRooms || [];
     const padding = roomsCfg.padding || 1;
     const maxAttempts = roomsCfg.maxPlacementAttempts || 200;
     const rooms = [];
+
+    // Filter required rooms by depth
+    const required = allRequired.filter(req => {
+      if (req.depth != null && req.depth !== depth) return false;
+      if (req.minDepth != null && depth < req.minDepth) return false;
+      if (req.maxDepth != null && depth > req.maxDepth) return false;
+      return true;
+    });
 
     // Place required rooms first
     for (const req of required) {
@@ -376,13 +404,16 @@ class DungeonGenerator {
     }
 
     // Descent exit (stairs to next depth or terminal)
-    if (exitsCfg.descent && exitRoom) {
+    // If hideDescentOnLast is set, skip descent stairs on the final level
+    const isLastLevel = depth >= maxDepth;
+    const hideDescent = exitsCfg.descent && exitsCfg.descent.hideDescentOnLast && isLastLevel;
+    if (exitsCfg.descent && exitRoom && !hideDescent) {
       const ex = exitRoom.cx;
       const ey = exitRoom.y + exitRoom.h - 1; // Bottom edge of room
       const tile = exitsCfg.descent.tile || 6;
       data[ey * W + ex] = tile;
 
-      const leadsTo = depth + 1 >= maxDepth ? context.fromDungeon : template.id;
+      const leadsTo = isLastLevel ? context.fromDungeon : template.id;
       exits.push({
         x: ex,
         y: ey,
@@ -510,14 +541,68 @@ class DungeonGenerator {
     return spawns;
   }
 
-  _buildTriggers(template, context) {
+  _buildTriggers(template, context, rooms, depth) {
     if (!template.triggers) return [];
     const instanceId = `${template.id}_${context.depth || 0}`;
-    return template.triggers.map(t => {
-      const trigger = Object.assign({}, t);
-      trigger.id = t.id.replace('{instanceId}', instanceId);
-      return trigger;
-    });
+
+    // Build room coordinate lookup: { tag: { cx, cy, x, y, w, h } }
+    const roomCoords = {};
+    for (const room of rooms) {
+      if (room.tag) {
+        roomCoords[room.tag] = room;
+      }
+    }
+
+    const output = [];
+    for (const t of template.triggers) {
+      // Filter by depth
+      if (t.depth != null && t.depth !== depth) continue;
+      if (t.minDepth != null && depth < t.minDepth) continue;
+      if (t.maxDepth != null && depth > t.maxDepth) continue;
+
+      // Filter by requiresRoom — skip if tagged room doesn't exist on this level
+      if (t.requiresRoom && !roomCoords[t.requiresRoom]) continue;
+
+      // Deep clone and do placeholder replacement
+      let triggerJson = JSON.stringify(t);
+      triggerJson = triggerJson.replace(/\{instanceId\}/g, instanceId);
+
+      // Replace room coordinate placeholders: {tag.cx}, {tag.cy}, {tag.x}, {tag.y}
+      for (const [tag, room] of Object.entries(roomCoords)) {
+        triggerJson = triggerJson.replace(new RegExp(`\\{${tag}\\.cx\\}`, 'g'), String(room.cx));
+        triggerJson = triggerJson.replace(new RegExp(`\\{${tag}\\.cy\\}`, 'g'), String(room.cy));
+        triggerJson = triggerJson.replace(new RegExp(`\\{${tag}\\.x\\}`, 'g'), String(room.x));
+        triggerJson = triggerJson.replace(new RegExp(`\\{${tag}\\.y\\}`, 'g'), String(room.y));
+      }
+
+      const trigger = JSON.parse(triggerJson);
+
+      // Parse numeric values in actions that may have been stringified
+      if (trigger.actions) {
+        for (const action of trigger.actions) {
+          if (action.x != null) action.x = Number(action.x);
+          if (action.y != null) action.y = Number(action.y);
+        }
+      }
+      if (trigger.filter) {
+        for (const key of Object.keys(trigger.filter)) {
+          const val = trigger.filter[key];
+          if (typeof val === 'string' && /^\d+$/.test(val)) {
+            trigger.filter[key] = Number(val);
+          }
+        }
+      }
+
+      // Clean up template-only fields
+      delete trigger.depth;
+      delete trigger.minDepth;
+      delete trigger.maxDepth;
+      delete trigger.requiresRoom;
+
+      output.push(trigger);
+    }
+
+    return output;
   }
 
   _randRange(rng, range) {

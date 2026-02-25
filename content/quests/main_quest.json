@@ -19,16 +19,16 @@
     },
     "find_warlord_key": {
       "label": "Find the Warlord's Key",
-      "description": "Explore the quarantine wing and defeat the Warlord.",
+      "description": "Explore the quarantine wing and defeat the Warlord on the deepest level.",
       "prerequisiteSteps": ["talk_to_engineer"],
-      "objective": { "roomId": "quarantine_wing_03", "tileX": 43, "tileY": 24 },
+      "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 7 },
       "completionConditions": [{ "hasItem": "supply_crate_key" }]
     },
     "open_supply_crate": {
       "label": "Open the Supply Crate",
-      "description": "Use the key to open the supply crate in the outer corridor.",
+      "description": "Use the warlord's key to open the locked supply crate on level 2.",
       "prerequisiteSteps": ["find_warlord_key"],
-      "objective": { "roomId": "quarantine_wing_01", "tileX": 21, "tileY": 3 },
+      "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 7 },
       "completionConditions": [{ "hasItem": "titanium_cylinders" }]
     },
     "return_to_engineer": {

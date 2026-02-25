@@ -33,6 +33,14 @@
     "11": {
       "name": "chest_opened",
       "solid": false
+    },
+    "12": {
+      "name": "sealed_gate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "talked_to_warden" }],
+      "failMessage": "The gate is sealed. Talk to Warden Holt first."
     }
   }
 }
