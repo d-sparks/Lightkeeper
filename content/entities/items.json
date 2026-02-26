@@ -65,9 +65,16 @@
     "solUnitId": "sol_unit_mk1",
     "ability": { "id": "sol_beam" }
   },
+  "medical_supplies": {
+    "name": "Medical Supplies",
+    "description": "Sterile dressings and stim compounds. Required to operate a Medipac.",
+    "type": "consumable",
+    "rarity": "common",
+    "stackable": true
+  },
   "medipac": {
     "name": "Medipac",
-    "description": "Standard-issue medical kit. Heals on a cooldown.",
+    "description": "Standard-issue medical kit. Consumes medical supplies to heal.",
     "type": "equipment",
     "rarity": "common",
     "slot": "medipac",

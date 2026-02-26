@@ -3464,28 +3464,7 @@
     }
   ],
   "npcSpawns": [],
-  "itemSpawns": [
-    {
-      "type": "health_potion",
-      "x": 35,
-      "y": 12
-    },
-    {
-      "type": "bandage",
-      "x": 45,
-      "y": 13
-    },
-    {
-      "type": "health_potion",
-      "x": 55,
-      "y": 19
-    },
-    {
-      "type": "bandage",
-      "x": 68,
-      "y": 22
-    }
-  ],
+  "itemSpawns": [],
   "exits": [
     {
       "x": 12,

@@ -48,7 +48,7 @@
       "width": { "min": 4, "max": 5 },
       "height": { "min": 4, "max": 5 },
       "itemSpawns": [
-        { "type": "health_potion", "position": "center" }
+        { "type": "medical_supplies", "position": "center" }
       ]
     }
   ],
@@ -71,8 +71,7 @@
 
   "items": {
     "pool": [
-      { "type": "health_potion", "weight": 5, "max": 3 },
-      { "type": "bandage", "weight": 3, "max": 2 }
+      { "type": "medical_supplies", "weight": 5, "max": 4 }
     ],
     "countRange": { "min": 1, "max": 4 }
   },

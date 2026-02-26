@@ -36,7 +36,6 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 7, "y": 7 },
     { "type": "torch", "x": 12, "y": 9 }
   ],
   "exits": [

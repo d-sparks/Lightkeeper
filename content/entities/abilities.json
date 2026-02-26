@@ -12,7 +12,8 @@
     "name": "Medipac Heal",
     "type": "heal",
     "heal": 30,
-    "cooldown": 8.0,
+    "cooldown": 45.0,
+    "consumesItem": "medical_supplies",
     "defaultSlot": 6
   },
   "sol_beam": {
