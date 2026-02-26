@@ -17,6 +17,7 @@ class InputHandler {
     this.onInteract = null;      // () => void
     this.onInventory = null;     // () => void
     this.onQuestPanel = null;    // () => void
+    this.onMapToggle = null;     // () => void — Tab toggle full map
     this.onMenuOpen = null;      // () => void — Y button toggle menu
     this.onMenuCycle = null;     // (direction) => void — LT/RT when menu open
     this.onMenuNavigate = null;  // (direction) => void — D-pad/stick when menu open
@@ -152,6 +153,13 @@ class InputHandler {
     if (e.key === 'i' || e.key === 'I') {
       e.preventDefault();
       if (this.onInventory) this.onInventory();
+      return;
+    }
+
+    // Tab → toggle full map
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      if (this.onMapToggle) this.onMapToggle();
       return;
     }
 
@@ -596,6 +604,9 @@ class InputHandler {
       // LT(6) → interact
       if (pressed(6) && this.onInteract) this.onInteract();
 
+      // R3(10) → toggle full map
+      if (pressed(10) && this.onMapToggle) this.onMapToggle();
+
       // Movement
       const newKeys = {
         up:    ly < -threshold || dUp,
@@ -658,6 +669,18 @@ class InputHandler {
       if (this.menuOpen) return;
 
       e.preventDefault();
+
+      // Full map open → click anywhere to close
+      if (this.renderer.fullMap) {
+        if (this.onMapToggle) this.onMapToggle();
+        return;
+      }
+
+      // Click on minimap → toggle full map
+      if (this.renderer.isPointInMinimap(e.clientX, e.clientY)) {
+        if (this.onMapToggle) this.onMapToggle();
+        return;
+      }
 
       // Shift+left-click: force-cast ability 1 at cursor (stand still)
       if (this.shiftHeld) {
