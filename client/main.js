@@ -144,6 +144,7 @@
   function openMenu(tab) {
     menuOpen = true;
     input.menuOpen = true;
+    renderer.fullMap = false;
     characterMenu.style.display = 'block';
     switchTab(tab || 'equipment');
   }
@@ -737,6 +738,10 @@
     toggleMenu('equipment');
   };
 
+  input.onMapToggle = function () {
+    renderer.toggleFullMap();
+  };
+
   input.onQuestPanel = function () {
     toggleMenu('quests');
   };
@@ -855,6 +860,7 @@
   net.on(CONSTANTS.MSG.FLOOR_CHANGE, (msg) => {
     console.log('[Game] Floor change!', msg.map.name);
     renderer.setMap(msg.map, msg.tileset);
+    renderer.fullMap = false;
     input.clearMoveTarget();
     // Close any open dialogue
     closeDialogue();

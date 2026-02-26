@@ -71,6 +71,8 @@ class Renderer {
 
     // Minimap graphics
     this.minimapGfx = null;
+    this.fullMap = false;
+    this.minimapBounds = null; // { x, y, w, h } in canvas coords for click detection
 
     // Damage number containers
     this.dmgContainer = null;
@@ -1644,6 +1646,19 @@ class Renderer {
 
   // --- Minimap ---
 
+  toggleFullMap() {
+    this.fullMap = !this.fullMap;
+  }
+
+  isPointInMinimap(screenX, screenY) {
+    if (!this.minimapBounds) return false;
+    const rect = this.canvas.getBoundingClientRect();
+    const canvasX = (screenX - rect.left) * (this.viewW / rect.width);
+    const canvasY = (screenY - rect.top) * (this.viewH / rect.height);
+    const b = this.minimapBounds;
+    return canvasX >= b.x && canvasX <= b.x + b.w && canvasY >= b.y && canvasY <= b.y + b.h;
+  }
+
   renderMinimap() {
     this.minimapGfx.clear();
     if (!this.map) return;
@@ -1651,17 +1666,36 @@ class Renderer {
     const ts = CONSTANTS.TILE_SIZE;
     const W = this.map.width;
     const H = this.map.height;
+    const full = this.fullMap;
+    // Dot sizes scale up in full map mode
+    const dotSmall = full ? 4 : 2;
+    const dotLarge = full ? 5 : 3;
+    const questDotR = full ? 6 : 3;
+    const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
 
     if (this.isoMode) {
       // Iso minimap: project tile coords through iso transform
       const projW = W - 1 + H - 1;          // horizontal range of (tx - ty)
       const projH = (W - 1 + H - 1) / 2;    // vertical range of (tx + ty)/2
-      const pad = 4;
-      const fit = Math.min(150 / (projW || 1), 150 / (projH || 1));
-      const mmW = projW * fit;
-      const mmH = projH * fit;
-      const mmX = this.viewW - mmW - 10 - pad;
-      const mmY = 10 + pad;
+      const pad = full ? 10 : 4;
+
+      let fit, mmX, mmY, mmW, mmH;
+      if (full) {
+        // Full map: fit to 80% of viewport, centered
+        fit = Math.min((this.viewW * 0.8) / (projW || 1), (this.viewH * 0.8) / (projH || 1));
+        mmW = projW * fit;
+        mmH = projH * fit;
+        mmX = (this.viewW - mmW) / 2;
+        mmY = (this.viewH - mmH) / 2;
+      } else {
+        fit = Math.min(150 / (projW || 1), 150 / (projH || 1));
+        mmW = projW * fit;
+        mmH = projH * fit;
+        mmX = this.viewW - mmW - 10 - pad;
+        mmY = 10 + pad;
+      }
+
+      this.minimapBounds = { x: mmX - pad, y: mmY - pad, w: mmW + pad * 2, h: mmH + pad * 2 };
 
       // project tile coords to minimap pixel coords
       const isoX = (tx, ty) => mmX + (tx - ty + (H - 1)) * fit;
@@ -1672,7 +1706,12 @@ class Renderer {
         return { x: mmX + (ftx - fty + (H - 1)) * fit, y: mmY + (ftx + fty) * 0.5 * fit };
       };
 
-      // Background
+      // Background (full overlay dims the whole screen)
+      if (full) {
+        this.minimapGfx.beginFill(0x000000, 0.7);
+        this.minimapGfx.drawRect(0, 0, this.viewW, this.viewH);
+        this.minimapGfx.endFill();
+      }
       this.minimapGfx.beginFill(0x000000, 0.6);
       this.minimapGfx.drawRect(mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2);
       this.minimapGfx.endFill();
@@ -1695,7 +1734,7 @@ class Renderer {
         this.minimapGfx.beginFill(0xfdd835);
         for (const item of this.state.items) {
           const p = isoPx(item.x, item.y);
-          this.minimapGfx.drawRect(p.x - 1, p.y - 1, 2, 2);
+          this.minimapGfx.drawRect(p.x - dotSmall / 2, p.y - dotSmall / 2, dotSmall, dotSmall);
         }
         this.minimapGfx.endFill();
       }
@@ -1705,9 +1744,8 @@ class Renderer {
         for (const player of this.state.players) {
           const p = isoPx(player.x, player.y);
           const isMe = player.id === this.myId;
-          const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
           this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
-          this.minimapGfx.drawRect(p.x - 1, p.y - 1, 3, 3);
+          this.minimapGfx.drawRect(p.x - dotLarge / 2, p.y - dotLarge / 2, dotLarge, dotLarge);
           this.minimapGfx.endFill();
         }
       }
@@ -1717,7 +1755,7 @@ class Renderer {
         this.minimapGfx.beginFill(0xe53935);
         for (const mob of this.state.monsters) {
           const p = isoPx(mob.x, mob.y);
-          this.minimapGfx.drawRect(p.x - 1, p.y - 1, 2, 2);
+          this.minimapGfx.drawRect(p.x - dotSmall / 2, p.y - dotSmall / 2, dotSmall, dotSmall);
         }
         this.minimapGfx.endFill();
       }
@@ -1730,7 +1768,7 @@ class Renderer {
           (this.questObjective.tileY + 0.5) * ts
         );
         this.minimapGfx.beginFill(0xffa726, pulse);
-        this.minimapGfx.drawCircle(qp.x, qp.y, 3);
+        this.minimapGfx.drawCircle(qp.x, qp.y, questDotR);
         this.minimapGfx.endFill();
       }
 
@@ -1739,17 +1777,34 @@ class Renderer {
       const me = this.state ? this.state.players.find(p => p.id === this.myId) : null;
       if (me) {
         const p = isoPx(me.x, me.y);
-        this.minimapGfx.drawCircle(p.x, p.y, 4);
+        this.minimapGfx.drawCircle(p.x, p.y, full ? 8 : 4);
       }
     } else {
       // Standard top-down minimap
-      const scale = 3;
-      const mmW = W * scale;
-      const mmH = H * scale;
-      const mmX = this.viewW - mmW - 10;
-      const mmY = 10;
+      let scale, mmX, mmY, mmW, mmH;
+      if (full) {
+        // Full map: fit to 80% of viewport, centered
+        scale = Math.min((this.viewW * 0.8) / W, (this.viewH * 0.8) / H);
+        mmW = W * scale;
+        mmH = H * scale;
+        mmX = (this.viewW - mmW) / 2;
+        mmY = (this.viewH - mmH) / 2;
+      } else {
+        scale = 3;
+        mmW = W * scale;
+        mmH = H * scale;
+        mmX = this.viewW - mmW - 10;
+        mmY = 10;
+      }
 
-      // Background
+      this.minimapBounds = { x: mmX - 2, y: mmY - 2, w: mmW + 4, h: mmH + 4 };
+
+      // Background (full overlay dims the whole screen)
+      if (full) {
+        this.minimapGfx.beginFill(0x000000, 0.7);
+        this.minimapGfx.drawRect(0, 0, this.viewW, this.viewH);
+        this.minimapGfx.endFill();
+      }
       this.minimapGfx.beginFill(0x000000, 0.6);
       this.minimapGfx.drawRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
       this.minimapGfx.endFill();
@@ -1773,7 +1828,7 @@ class Renderer {
         for (const item of this.state.items) {
           const dotX = mmX + (item.x / ts) * scale;
           const dotY = mmY + (item.y / ts) * scale;
-          this.minimapGfx.drawRect(dotX - 1, dotY - 1, 2, 2);
+          this.minimapGfx.drawRect(dotX - dotSmall / 2, dotY - dotSmall / 2, dotSmall, dotSmall);
         }
         this.minimapGfx.endFill();
       }
@@ -1784,9 +1839,8 @@ class Renderer {
           const dotX = mmX + (player.x / ts) * scale;
           const dotY = mmY + (player.y / ts) * scale;
           const isMe = player.id === this.myId;
-          const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
           this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
-          this.minimapGfx.drawRect(dotX - 1, dotY - 1, 3, 3);
+          this.minimapGfx.drawRect(dotX - dotLarge / 2, dotY - dotLarge / 2, dotLarge, dotLarge);
           this.minimapGfx.endFill();
         }
       }
@@ -1797,7 +1851,7 @@ class Renderer {
         for (const mob of this.state.monsters) {
           const dotX = mmX + (mob.x / ts) * scale;
           const dotY = mmY + (mob.y / ts) * scale;
-          this.minimapGfx.drawRect(dotX - 1, dotY - 1, 2, 2);
+          this.minimapGfx.drawRect(dotX - dotSmall / 2, dotY - dotSmall / 2, dotSmall, dotSmall);
         }
         this.minimapGfx.endFill();
       }
@@ -1808,7 +1862,7 @@ class Renderer {
         const qx = mmX + this.questObjective.tileX * scale;
         const qy = mmY + this.questObjective.tileY * scale;
         this.minimapGfx.beginFill(0xffa726, pulse);
-        this.minimapGfx.drawCircle(qx, qy, 3);
+        this.minimapGfx.drawCircle(qx, qy, questDotR);
         this.minimapGfx.endFill();
       }
 
