@@ -107,6 +107,26 @@ function handleEditorAPI(req, res) {
         return json(res, 200, data);
       }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
     }
+
+    if (method === 'DELETE') {
+      if (!fs.existsSync(filePath)) return json(res, 404, { error: 'Not found' });
+      fs.unlinkSync(filePath);
+      return json(res, 200, { deleted: id });
+    }
+  }
+
+  if (url === '/api/editor/templates' && method === 'POST') {
+    return parseBody(req).then(data => {
+      if (!data.id) return json(res, 400, { error: 'Missing id' });
+      const safeId = data.id.replace(/[^a-zA-Z0-9_-]/g, '');
+      if (safeId !== data.id) return json(res, 400, { error: 'Invalid id characters' });
+      const dir = path.join(CONTENT_DIR, 'dungeons', 'templates');
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      const filePath = path.join(dir, `${safeId}.json`);
+      if (fs.existsSync(filePath)) return json(res, 409, { error: 'Already exists' });
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      return json(res, 201, data);
+    }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
   }
 
   // POST /api/editor/templates/:id/generate - run procedural generation, save as hand-authored dungeon
