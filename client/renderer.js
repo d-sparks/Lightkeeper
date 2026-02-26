@@ -1716,27 +1716,30 @@ class Renderer {
       if (full) {
         // Full map: fit to 80% of viewport, centered
         fit = Math.min((this.viewW * 0.8) / (projW || 1), (this.viewH * 0.8) / (projH || 1));
-        mmW = projW * fit;
-        mmH = projH * fit;
-        mmX = (this.viewW - mmW) / 2;
-        mmY = (this.viewH - mmH) / 2;
+        mmW = Math.round(projW * fit);
+        mmH = Math.round(projH * fit);
+        mmX = Math.round((this.viewW - mmW) / 2);
+        mmY = Math.round((this.viewH - mmH) / 2);
       } else {
         fit = Math.min(150 / (projW || 1), 150 / (projH || 1));
-        mmW = projW * fit;
-        mmH = projH * fit;
+        mmW = Math.round(projW * fit);
+        mmH = Math.round(projH * fit);
         mmX = this.viewW - mmW - 10 - pad;
         mmY = 10 + pad;
       }
 
       this.minimapBounds = { x: mmX - pad, y: mmY - pad, w: mmW + pad * 2, h: mmH + pad * 2 };
 
-      // project tile coords to minimap pixel coords
-      const isoX = (tx, ty) => mmX + (tx - ty + (H - 1)) * fit;
-      const isoY = (tx, ty) => mmY + (tx + ty) * 0.5 * fit;
+      // project tile coords to minimap pixel coords (rounded for crisp rendering)
+      const isoX = (tx, ty) => Math.round(mmX + (tx - ty + (H - 1)) * fit);
+      const isoY = (tx, ty) => Math.round(mmY + (tx + ty) * 0.5 * fit);
       // project world-pixel coords
       const isoPx = (wx, wy) => {
         const ftx = wx / ts, fty = wy / ts;
-        return { x: mmX + (ftx - fty + (H - 1)) * fit, y: mmY + (ftx + fty) * 0.5 * fit };
+        return {
+          x: Math.round(mmX + (ftx - fty + (H - 1)) * fit),
+          y: Math.round(mmY + (ftx + fty) * 0.5 * fit)
+        };
       };
 
       // Background (full overlay dims the whole screen)
@@ -1746,18 +1749,19 @@ class Renderer {
         this.minimapGfx.endFill();
       }
       this.minimapGfx.beginFill(0x000000, 0.6);
-      this.minimapGfx.drawRect(mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2);
+      this.minimapGfx.drawRect(Math.round(mmX - pad), Math.round(mmY - pad), Math.round(mmW + pad * 2), Math.round(mmH + pad * 2));
       this.minimapGfx.endFill();
 
       // Tiles
-      const s = Math.max(fit * 0.9, 1);
+      const s = Math.max(Math.round(fit * 0.9), 1);
+      const sHalf = Math.floor(s / 2);
       for (let ty = 0; ty < H; ty++) {
         for (let tx = 0; tx < W; tx++) {
           const tileId = this.map.data[ty * W + tx];
           const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
           const solid = tileDef ? tileDef.solid : true;
           this.minimapGfx.beginFill(solid ? 0x3a3a5a : 0x1a1a2e);
-          this.minimapGfx.drawRect(isoX(tx, ty) - s / 2, isoY(tx, ty) - s / 2, s, s);
+          this.minimapGfx.drawRect(isoX(tx, ty) - sHalf, isoY(tx, ty) - sHalf, s, s);
           this.minimapGfx.endFill();
         }
       }
@@ -1859,8 +1863,8 @@ class Renderer {
       if (this.state && this.state.items) {
         this.minimapGfx.beginFill(0xfdd835);
         for (const item of this.state.items) {
-          const dotX = mmX + (item.x / ts) * scale;
-          const dotY = mmY + (item.y / ts) * scale;
+          const dotX = Math.round(mmX + (item.x / ts) * scale);
+          const dotY = Math.round(mmY + (item.y / ts) * scale);
           this.minimapGfx.drawRect(dotX - dotSmall / 2, dotY - dotSmall / 2, dotSmall, dotSmall);
         }
         this.minimapGfx.endFill();
@@ -1869,8 +1873,8 @@ class Renderer {
       // Players
       if (this.state) {
         for (const player of this.state.players) {
-          const dotX = mmX + (player.x / ts) * scale;
-          const dotY = mmY + (player.y / ts) * scale;
+          const dotX = Math.round(mmX + (player.x / ts) * scale);
+          const dotY = Math.round(mmY + (player.y / ts) * scale);
           const isMe = player.id === this.myId;
           this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
           this.minimapGfx.drawRect(dotX - dotLarge / 2, dotY - dotLarge / 2, dotLarge, dotLarge);
@@ -1882,8 +1886,8 @@ class Renderer {
       if (this.state && this.state.monsters) {
         this.minimapGfx.beginFill(0xe53935);
         for (const mob of this.state.monsters) {
-          const dotX = mmX + (mob.x / ts) * scale;
-          const dotY = mmY + (mob.y / ts) * scale;
+          const dotX = Math.round(mmX + (mob.x / ts) * scale);
+          const dotY = Math.round(mmY + (mob.y / ts) * scale);
           this.minimapGfx.drawRect(dotX - dotSmall / 2, dotY - dotSmall / 2, dotSmall, dotSmall);
         }
         this.minimapGfx.endFill();
@@ -1892,8 +1896,8 @@ class Renderer {
       // Quest objective pulsing dot
       if (this.questObjective) {
         const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
-        const qx = mmX + this.questObjective.tileX * scale;
-        const qy = mmY + this.questObjective.tileY * scale;
+        const qx = Math.round(mmX + this.questObjective.tileX * scale);
+        const qy = Math.round(mmY + this.questObjective.tileY * scale);
         this.minimapGfx.beginFill(0xffa726, pulse);
         this.minimapGfx.drawCircle(qx, qy, questDotR);
         this.minimapGfx.endFill();
@@ -1902,8 +1906,8 @@ class Renderer {
       // Viewport rect
       this.minimapGfx.lineStyle(1, 0xffffff, 0.3);
       this.minimapGfx.drawRect(
-        mmX + (this.camX / ts) * scale,
-        mmY + (this.camY / ts) * scale,
+        Math.round(mmX + (this.camX / ts) * scale),
+        Math.round(mmY + (this.camY / ts) * scale),
         this.viewportTX * scale,
         this.viewportTY * scale
       );
