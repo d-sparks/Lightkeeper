@@ -10,6 +10,7 @@
   const healthFill = document.getElementById('health-fill');
   const energyBar = document.getElementById('energy-bar');
   const energyFill = document.getElementById('energy-fill');
+  const energyText = document.getElementById('energy-text');
   const hudName = document.getElementById('hud-name');
   const dialogueOverlay = document.getElementById('dialogue-overlay');
   const dialogueSpeaker = document.getElementById('dialogue-speaker');
@@ -930,9 +931,10 @@
         const pct = (me.health / me.maxHealth) * 100;
         healthFill.style.width = `${pct}%`;
         if (me.maxEnergy > 0) {
-          energyBar.style.display = '';
+          energyBar.style.display = 'block';
           const ePct = (me.energy / me.maxEnergy) * 100;
           energyFill.style.width = `${ePct}%`;
+          energyText.textContent = `SOL ${Math.round(me.energy)}/${me.maxEnergy}`;
         } else {
           energyBar.style.display = 'none';
         }
