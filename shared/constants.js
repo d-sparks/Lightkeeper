@@ -48,7 +48,7 @@ const CONSTANTS = {
   },
 
   // Equipment slots
-  EQUIPMENT_SLOTS: ['arms', 'medipac', 'accessory'],
+  EQUIPMENT_SLOTS: ['arms', 'sol_unit', 'medipac', 'accessory'],
   SLOT_ALIASES: { weapon: 'arms', armor: 'medipac' },
 
   // Interaction ranges (in tiles)

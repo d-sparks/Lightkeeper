@@ -152,7 +152,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
 
       // Mutate player state
       player.inventory = JSON.parse(JSON.stringify(checkpoint.inventory || []));
-      player.equipment = JSON.parse(JSON.stringify(checkpoint.equipment || { arms: null, medipac: null, accessory: null }));
+      player.equipment = JSON.parse(JSON.stringify(checkpoint.equipment || { arms: null, sol_unit: null, medipac: null, accessory: null }));
       player.solGrid = checkpoint.solGrid ? JSON.parse(JSON.stringify(checkpoint.solGrid)) : null;
       player.health = checkpoint.health || player.maxHealth;
       player.maxHealth = checkpoint.maxHealth || player.maxHealth;

@@ -333,7 +333,7 @@ class GameLoop {
       attackTimer: 0,
       transitionCooldown: 0,
       inventory: [],
-      equipment: { arms: null, medipac: null, accessory: null },
+      equipment: { arms: null, sol_unit: null, medipac: null, accessory: null },
       abilities: [null, null, null, null, null, null],
       cooldowns: [0, 0, 0, 0, 0, 0],
       solGrid: null,
@@ -606,6 +606,19 @@ class GameLoop {
       } else if (itemDef && itemDef.stats && itemDef.stats.projectile) {
         // Legacy projectile weapons without explicit ability → use blaster_shot
         player.abilities[0] = 'blaster_shot';
+      }
+    }
+
+    // Sol unit slot: provides sol unit ability
+    const solUnit = player.equipment.sol_unit;
+    if (solUnit) {
+      const itemDef = this.content.getItem(solUnit.type);
+      if (itemDef && itemDef.ability) {
+        const abilityDef = this.content.getAbility(itemDef.ability.id);
+        if (abilityDef) {
+          const slotIdx = (abilityDef.defaultSlot || 1) - 1;
+          player.abilities[slotIdx] = itemDef.ability.id;
+        }
       }
     }
 
@@ -1240,7 +1253,7 @@ class GameLoop {
     if (!player) return false;
 
     // Check if player has a projectile weapon equipped
-    const weapon = player.equipment && player.equipment.weapon;
+    const weapon = player.equipment && player.equipment.arms;
     if (!weapon || !weapon.stats || !weapon.stats.projectile) return false;
 
     // Check attack cooldown

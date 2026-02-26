@@ -57,9 +57,9 @@
   "sol_unit": {
     "name": "Sol Unit",
     "description": "Standard-issue solar energy weapon. Can be upgraded.",
-    "type": "weapon",
+    "type": "equipment",
     "rarity": "rare",
-    "slot": "weapon",
+    "slot": "sol_unit",
     "stats": { "attackDamage": 12 },
     "hasSolGrid": true,
     "solUnitId": "sol_unit_mk1",
