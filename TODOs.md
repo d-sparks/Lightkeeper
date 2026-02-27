@@ -1,23 +1,22 @@
 Fix conflicts
-- ralph/add-a-melee-weapon-which-is-an-alternative-to-the
+- ralph/add-a-melee-weapon-which-is-an-alternative-to-the 
+- ralph/big-feature-run-the-procedural-creation-algorithm 
+- ralph/big-feature-should-have-a-ui-to-create-procedural 
+- ralph/i-dont-want-the-sol-unit-to-replace-your-weapon-bu
+- ralph/implement-side-quests-and-a-first-side-quest      
+- ralph/make-some-new-sprites-the-iso-perspective-is-perfe
+
+Dev
+- On the checkpoint screen, I'd like to add a way to jump to any quest. Can we add a quest dropdown and go to quest which (1) sets any necessary flags to enable that quest and (2) puts the selected player into the room to proceed with the first quest item of that quest?
+- I want to be able to visualize the quest chain in the checkpoints endpoint. It is supposed to be a dag, what's a good way to visualize the progression? This can be at the very bottom of the checkpoint page.
+- We need to have a way to edit flags and view flags in the dev settings. This could be on the checkpoint screen as well. Do we already have that? If not please add it, if so, please make the UI on the checkpoints page.
+
 
 Game
-- Implement side quests, and a first side quest
-- Add a concept of "tracked quests" that show you where to go. The main quest already does this, but we should be able to toggle to side quests. Also, for whichever quest is active, display the name of the next step somewhere on the screen. Finally, for the yellow arrow indicator, once the interaction target is on screen, can we have a yellow arrow pointing down at them from just above the item/NPC?
-- Medipac should use medical supplies and have a much longer cooldown. Remove all the bandages and potions from the ground in the game, but add a resupply point near the quartermaster.
-- Minimap looks fuzzy, can that be fixed to look sharper?
-- When close to an NPC/interactable, and no monsters nearby, skill 1 should be interact
-- Rendering depth/overlay issue
-- Standing near an enemy should not automatically damage them.
-- Did we add a charge level to the sol unit? If so we need to display the UI for that. If not add a charge level. Its abilities should all cost sol and the unit should not passively regenerate.
-- I don't want the sol unit to replace your weapon but to compliment it. So, we can extend the equipemtn screen to have primary weapon, sol unit, medipac, accessory.
-- The first sol unit attack should be a cone attack with knockback and AOE and 8 second cooldown.
+- Rendering depth/overlay issue was fixed for NPCs in the last couple of days. But this should also apply to NPCs, enemies, items.
+- Seeing error "Uncaught Error: Texture Error: frame does not fit inside the base Texture dimensions: X: 160 + 16 = 176 > 160 or Y: 0 + 16 = 16 > 16 at set frame (pixi.min.js:381:17434) at new B (pixi.min.js:381:13882) at Renderer._buildTileTextures (renderer.js:188:31) at Renderer.setMap (renderer.js:703:10) at main.js:860:14 at ws.onmessage (net.js:31:20)"
 
-Content
-- Make some new sprites. The iso perspective is perfect on the sprites in sprites_isometric, can we just have some more flavors, taller walls, different colors, etc? Maybe a floor/wall/door combo for indoor outpost, indoor outpost quarantine, and outdoor/dark city?
-- Add a melee weapon which is an alternative to the blaster. Compared to the blaster it should have higher damage, slight knockback. Instead of getting these from the engineer, the first quest step after Warden Holt should be to go to the quartermaster and pick melee or ranged, then you get the blaster. After that, unlock the room to the sol engineer. We can keep the door to the charger locked until after you get the sol unit.
-- Add main quest 2: learn to use the sol unit. add a training room where you learn to use your sol unit. When you first get it, the sol unit shouldn't have a ton of energy, maybe 5%. The steps in the training room should require using the sol unit ability 2-3 times which drives your energy down to 2%, critically low. Then the next step is to go to the charging station and charge the unit. You learn that the generator that charges your sol unit is the most valuable piece of equipment at Outpost Balor, especially given the lighthouse outage. The only scalable ways to get power on the planet (which needs a name!) are solar and uranium mined off-planet. Solar energy all comes from the dayside, so your only options for power on the nightside are batteries and generators, both of which are expensive.
 
-Editor
-- Big feature: Should have a UI to create procedural dungeons.
-- Big feature: Run the procedural creation algorithm to create a sample room, which can then be further edited in the editor to create curated content. 
+New worlds
+- How can we implement lighting that looks good and conveys the light/dark theme of the game? Let's add a section outside of outpost balor that is very dark, and can only be navigated properly / safely once you get the sol unit.
+- Let's start the automation world/zone on the dayside. Currently no way to get there besides dev checkpoints, but, over there we should meet Meridian-7 and be able to place our first solar panel, and recharge our sol unit. Create a comprehensive plan and implement the automation system with menus, playable on mobile desktop or with controller, with an eye towards extensibility and engaging automation loops a la stardew/factario, with our dayside AI theme in mind.
