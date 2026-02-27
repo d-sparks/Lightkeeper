@@ -174,6 +174,15 @@ class Renderer {
     this.overlayContainer.addChild(this.questArrowGfx);
     this.questObjective = null; // { label, tileX, tileY, sameRoom }
 
+    // Lighting system (darkness overlay with light holes)
+    this.ambientLight = 1.0;
+    this._lightRT = null;
+    this._lightingSprite = null;
+    this._lightContainer = null;
+    this._darkOverlay = null;
+    this._lightSources = [];  // reusable sprites for light sources
+    this._lightGradientTex = null;
+
     this.ready = true;
   }
 
@@ -712,6 +721,7 @@ class Renderer {
   setMap(map, tileset) {
     this.map = map;
     this.tileset = tileset;
+    this.ambientLight = map.ambientLight !== undefined ? map.ambientLight : 1.0;
     this.buildTileColors();
     this.tilesetLoaded = false;
     this.tileTextures = {};
@@ -830,6 +840,9 @@ class Renderer {
 
     // Y-sort the entity container
     this.entityContainer.sortChildren();
+
+    // Render darkness overlay with light holes
+    this.renderLighting();
 
     // Flush PixiJS scene to WebGL/canvas
     this.app.render();
@@ -1669,6 +1682,13 @@ class Renderer {
           age: 0, maxAge: 1.0,
           color: ev.targetId.startsWith('mob_') ? '#ffa726' : '#e53935',
         });
+      } else if (ev.type === 'darkness_damage') {
+        this.damageNumbers.push({
+          text: `-${ev.amount}`,
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.0,
+          color: '#7c4dff',
+        });
       } else if (ev.type === 'heal') {
         this.damageNumbers.push({
           text: `+${ev.amount}`,
@@ -2202,5 +2222,109 @@ class Renderer {
 
     this.speechBubbleContainer.x = Math.round(bx);
     this.speechBubbleContainer.y = Math.round(by);
+  }
+
+  // --- Lighting system ---
+
+  _initLighting() {
+    this._lightRT = PIXI.RenderTexture.create({ width: this.viewW, height: this.viewH });
+    this._lightingSprite = new PIXI.Sprite(this._lightRT);
+    // Insert between worldContainer/coneGfx and overlayContainer
+    const idx = this.app.stage.getChildIndex(this.overlayContainer);
+    this.app.stage.addChildAt(this._lightingSprite, idx);
+    this._lightingSprite.visible = false;
+
+    // Internal container for compositing darkness + lights
+    this._lightContainer = new PIXI.Container();
+    this._darkOverlay = new PIXI.Graphics();
+    this._lightContainer.addChild(this._darkOverlay);
+
+    // Build radial gradient texture for light sources
+    this._buildLightGradient();
+  }
+
+  _buildLightGradient() {
+    const size = 256;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, 'rgba(255,255,255,1.0)');
+    gradient.addColorStop(0.25, 'rgba(255,255,255,0.95)');
+    gradient.addColorStop(0.5, 'rgba(255,255,255,0.6)');
+    gradient.addColorStop(0.75, 'rgba(255,255,255,0.2)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    this._lightGradientTex = PIXI.Texture.from(canvas);
+  }
+
+  _getLightSource(index) {
+    while (this._lightSources.length <= index) {
+      const sprite = new PIXI.Sprite(this._lightGradientTex);
+      sprite.blendMode = PIXI.BLEND_MODES.ERASE;
+      sprite.anchor.set(0.5, 0.5);
+      sprite.visible = false;
+      this._lightContainer.addChild(sprite);
+      this._lightSources.push(sprite);
+    }
+    return this._lightSources[index];
+  }
+
+  renderLighting() {
+    if (this.ambientLight >= 1.0) {
+      if (this._lightingSprite) this._lightingSprite.visible = false;
+      return;
+    }
+
+    if (!this._lightRT) this._initLighting();
+
+    // Resize RT if viewport changed
+    if (this._lightRT.width !== this.viewW || this._lightRT.height !== this.viewH) {
+      this._lightRT.resize(this.viewW, this.viewH);
+    }
+
+    this._lightingSprite.visible = true;
+
+    // Draw darkness overlay
+    const darkness = 1.0 - this.ambientLight;
+    this._darkOverlay.clear();
+    this._darkOverlay.beginFill(0x050510, darkness);
+    this._darkOverlay.drawRect(0, 0, this.viewW, this.viewH);
+    this._darkOverlay.endFill();
+
+    // Add light sources for each player with sol unit
+    let lightIdx = 0;
+    const lightRadius = 6 * (this.isoMode ? CONSTANTS.ISO_DIAMOND_W * 0.55 : CONSTANTS.TILE_SIZE);
+
+    if (this.state && this.state.players) {
+      for (const player of this.state.players) {
+        if (player.maxEnergy <= 0) continue;
+
+        const screen = this._worldToScreen(player.x, player.y);
+        const light = this._getLightSource(lightIdx++);
+        light.visible = true;
+
+        // Subtle pulsing based on energy level
+        const pulse = 1 + 0.03 * Math.sin(Date.now() / 800);
+        const energyFraction = player.energy / player.maxEnergy;
+        // Light dims slightly as energy depletes (min 70% radius)
+        const radiusMult = 0.7 + 0.3 * energyFraction;
+
+        light.x = screen.x;
+        light.y = screen.y;
+        light.width = lightRadius * 2 * pulse * radiusMult;
+        light.height = lightRadius * 2 * pulse * radiusMult;
+      }
+    }
+
+    // Hide unused light sources
+    for (let i = lightIdx; i < this._lightSources.length; i++) {
+      this._lightSources[i].visible = false;
+    }
+
+    // Render to texture
+    this.app.renderer.render(this._lightContainer, { renderTexture: this._lightRT, clear: true });
   }
 }

@@ -1083,8 +1083,52 @@ class GameLoop {
       // Update projectiles (movement, collision, lifetime)
       this.updateProjectiles(room, dt);
 
+      // Apply darkness damage to players without sol unit in dark rooms
+      this.updateDarkness(room, dt);
+
       // Check for floor transitions
       this.checkExits(room);
+    }
+  }
+
+  updateDarkness(room, dt) {
+    const ambientLight = room.dungeon.ambientLight;
+    if (ambientLight === undefined || ambientLight >= 1.0) return;
+
+    for (const [pid, player] of room.players) {
+      // Players with sol unit equipped are safe (maxEnergy > 0)
+      if (player.maxEnergy > 0) continue;
+
+      if (!player.darknessDamageTimer) player.darknessDamageTimer = 0;
+      player.darknessDamageTimer += dt;
+
+      // Deal damage every 2 seconds
+      if (player.darknessDamageTimer >= 2.0) {
+        player.darknessDamageTimer -= 2.0;
+        const damage = 5;
+        player.health -= damage;
+        room.events.push({
+          type: 'darkness_damage', targetId: pid,
+          amount: damage, x: player.x, y: player.y,
+        });
+
+        // Player death -> respawn at floor spawn
+        if (player.health <= 0) {
+          player.health = player.maxHealth;
+          const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
+          player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
+          player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
+          room.events.push({
+            type: 'death', targetId: pid,
+            x: player.x, y: player.y,
+          });
+
+          const deathCtx = this._scriptContext(pid, room.id);
+          this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
+            playerId: pid, roomId: room.id,
+          }, deathCtx);
+        }
+      }
     }
   }
 
