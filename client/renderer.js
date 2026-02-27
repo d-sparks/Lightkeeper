@@ -58,6 +58,8 @@ class Renderer {
     // Iso tile textures
     this.isoTileTextures = {};    // 'floor'|'wall'|'door'|'water' -> PIXI.Texture
     this.isoTileLoaded = false;
+    this.isoThemeId = null;       // track which theme was built
+    this.isoWallRise = CONSTANTS.ISO_WALL_RISE; // per-theme wall rise
     this.tileToIsoKey = {};       // tile name -> iso key
 
     // Entity sprite pools: id -> { container, sprite, nameTag, healthBar, ... }
@@ -281,21 +283,122 @@ class Renderer {
     ctx.closePath();
   }
 
+  // --- Iso theme palettes ---
+  // Each tileset ID maps to a color palette for procedural iso tile generation.
+  static ISO_THEMES = {
+    crypt: {
+      wallRise: 30,
+      floor:      { fill: '#2a2a3d', edge: 'rgba(255,255,255,0.06)' },
+      floor2:     { fill: '#2a2a3d', crack: 'rgba(0,0,0,0.3)', edge: 'rgba(255,255,255,0.06)' },
+      water:      { fill: '#1a3a6a', wave: 'rgba(100,180,255,0.3)' },
+      stairsDown: { fill: '#4a2a6a', step: 'rgba(255,255,255,0.15)', chevron: 'rgba(255,255,255,0.4)' },
+      stairsUp:   { fill: '#2a6a4a', step: 'rgba(255,255,255,0.15)', chevron: 'rgba(255,255,255,0.4)' },
+      doorOpen:   { fill: '#4a3a2a', frame: 'rgba(180,140,80,0.4)' },
+      wall:       { top: '#5a5a7a', left: '#4a4a6a', right: '#3a3a5a', edge: 'rgba(255,255,255,0.08)' },
+      doorClosed: { top: '#8b7a50', left: '#7a6a40', right: '#6a5a30', arch: 'rgba(255,255,255,0.15)', edge: 'rgba(255,255,255,0.1)' },
+      lockedDoor: { top: '#6a5a3a', left: '#5a4a2a', right: '#4a3a1a', arch: 'rgba(255,255,255,0.12)', lock: 'rgba(200,160,60,0.6)', lockEdge: 'rgba(255,220,100,0.4)', edge: 'rgba(255,255,255,0.08)' },
+      chest:      { top: '#5a6a5a', left: '#4a5a4a', right: '#3a4a3a', band: 'rgba(120,140,120,0.4)', lock: 'rgba(220,180,60,0.7)', lockEdge: 'rgba(255,220,100,0.5)', edge: 'rgba(255,255,255,0.1)' },
+      chestOpen:  { fill: '#3a4a3a', edge: 'rgba(120,140,120,0.5)', inner: 'rgba(0,0,0,0.3)' },
+      minimap: {
+        stone_floor: 0x2a2a3d, cracked_floor: 0x332a3d, stone_wall: 0x5a5a7a,
+        door_closed: 0x7a6a4a, door_open: 0x4a3a2a, stairs_down: 0x6a3a8a,
+        stairs_up: 0x3a8a6a, water: 0x2a4a6a, void: 0x0d0d1a,
+        chest_closed: 0x5a6a5a, chest_opened: 0x3a4a3a,
+      },
+    },
+    outpost: {
+      wallRise: 34,
+      floor:      { fill: '#35332e', edge: 'rgba(255,220,180,0.06)' },
+      floor2:     { fill: '#35332e', crack: 'rgba(0,0,0,0.25)', edge: 'rgba(255,220,180,0.06)' },
+      water:      { fill: '#2a3028', wave: 'rgba(120,160,100,0.25)' },
+      stairsDown: { fill: '#4a3a2a', step: 'rgba(255,220,180,0.15)', chevron: 'rgba(255,220,180,0.4)' },
+      stairsUp:   { fill: '#2a4a3a', step: 'rgba(255,220,180,0.15)', chevron: 'rgba(255,220,180,0.4)' },
+      doorOpen:   { fill: '#30353a', frame: 'rgba(140,160,180,0.4)' },
+      wall:       { top: '#706860', left: '#605850', right: '#504840', edge: 'rgba(255,220,180,0.06)' },
+      doorClosed: { top: '#6a7a8a', left: '#5a6a7a', right: '#4a5a6a', arch: 'rgba(180,200,220,0.15)', edge: 'rgba(255,255,255,0.1)' },
+      lockedDoor: { top: '#5a6a7a', left: '#4a5a6a', right: '#3a4a5a', arch: 'rgba(180,200,220,0.12)', lock: 'rgba(200,160,60,0.6)', lockEdge: 'rgba(255,220,100,0.4)', edge: 'rgba(255,255,255,0.08)' },
+      chest:      { top: '#5a6058', left: '#4a504a', right: '#3a403a', band: 'rgba(140,140,120,0.4)', lock: 'rgba(220,180,60,0.7)', lockEdge: 'rgba(255,220,100,0.5)', edge: 'rgba(255,255,255,0.1)' },
+      chestOpen:  { fill: '#3a3a35', edge: 'rgba(140,140,120,0.5)', inner: 'rgba(0,0,0,0.3)' },
+      minimap: {
+        stone_floor: 0x35332e, cracked_floor: 0x38352e, stone_wall: 0x706860,
+        door_closed: 0x6a7a8a, door_open: 0x30353a, stairs_down: 0x4a3a2a,
+        stairs_up: 0x2a4a3a, water: 0x2a3028, void: 0x151412,
+        chest_closed: 0x5a6058, chest_opened: 0x3a3a35,
+      },
+    },
+    quarantine: {
+      wallRise: 30,
+      floor:      { fill: '#252e25', edge: 'rgba(180,255,180,0.05)' },
+      floor2:     { fill: '#252e25', crack: 'rgba(80,160,60,0.3)', edge: 'rgba(180,255,180,0.05)' },
+      water:      { fill: '#1a3a1a', wave: 'rgba(80,200,60,0.3)' },
+      stairsDown: { fill: '#3a2a4a', step: 'rgba(180,255,180,0.12)', chevron: 'rgba(180,255,180,0.35)' },
+      stairsUp:   { fill: '#2a4a2a', step: 'rgba(180,255,180,0.12)', chevron: 'rgba(180,255,180,0.35)' },
+      doorOpen:   { fill: '#2a2e20', frame: 'rgba(160,180,80,0.35)' },
+      wall:       { top: '#4a5a45', left: '#3a4a35', right: '#2a3a28', edge: 'rgba(180,255,180,0.06)' },
+      doorClosed: { top: '#8a7a30', left: '#7a6a25', right: '#6a5a1a', arch: 'rgba(255,240,100,0.15)', edge: 'rgba(255,255,100,0.1)' },
+      lockedDoor: { top: '#6a5a25', left: '#5a4a1a', right: '#4a3a10', arch: 'rgba(255,240,100,0.12)', lock: 'rgba(200,180,40,0.6)', lockEdge: 'rgba(255,240,80,0.4)', edge: 'rgba(180,255,180,0.06)' },
+      chest:      { top: '#4a5a3a', left: '#3a4a2a', right: '#2a3a1a', band: 'rgba(100,140,80,0.4)', lock: 'rgba(200,180,40,0.7)', lockEdge: 'rgba(255,240,80,0.5)', edge: 'rgba(180,255,180,0.08)' },
+      chestOpen:  { fill: '#2a3a22', edge: 'rgba(100,140,80,0.5)', inner: 'rgba(0,0,0,0.35)' },
+      minimap: {
+        stone_floor: 0x252e25, cracked_floor: 0x2a3228, stone_wall: 0x4a5a45,
+        door_closed: 0x8a7a30, door_open: 0x2a2e20, stairs_down: 0x3a2a4a,
+        stairs_up: 0x2a4a2a, water: 0x1a3a1a, void: 0x0d140d,
+        chest_closed: 0x4a5a3a, chest_opened: 0x2a3a22,
+      },
+    },
+    dark_city: {
+      wallRise: 42,
+      floor:      { fill: '#2a2828', edge: 'rgba(255,200,150,0.04)' },
+      floor2:     { fill: '#2a2828', crack: 'rgba(0,0,0,0.35)', edge: 'rgba(255,200,150,0.04)' },
+      water:      { fill: '#1a2028', wave: 'rgba(80,120,160,0.25)' },
+      stairsDown: { fill: '#3a2830', step: 'rgba(255,200,150,0.12)', chevron: 'rgba(255,200,150,0.35)' },
+      stairsUp:   { fill: '#283830', step: 'rgba(255,200,150,0.12)', chevron: 'rgba(255,200,150,0.35)' },
+      doorOpen:   { fill: '#282420', frame: 'rgba(160,130,100,0.35)' },
+      wall:       { top: '#5a4a45', left: '#4a3a35', right: '#3a2a28', edge: 'rgba(255,200,150,0.05)' },
+      doorClosed: { top: '#6a5a48', left: '#5a4a38', right: '#4a3a28', arch: 'rgba(255,200,150,0.12)', edge: 'rgba(255,200,150,0.08)' },
+      lockedDoor: { top: '#5a4a38', left: '#4a3a28', right: '#3a2a1a', arch: 'rgba(255,200,150,0.10)', lock: 'rgba(180,140,60,0.6)', lockEdge: 'rgba(220,180,80,0.4)', edge: 'rgba(255,200,150,0.05)' },
+      chest:      { top: '#4a4a42', left: '#3a3a32', right: '#2a2a22', band: 'rgba(120,110,90,0.4)', lock: 'rgba(180,140,60,0.7)', lockEdge: 'rgba(220,180,80,0.5)', edge: 'rgba(255,200,150,0.08)' },
+      chestOpen:  { fill: '#2a2a25', edge: 'rgba(120,110,90,0.5)', inner: 'rgba(0,0,0,0.4)' },
+      minimap: {
+        stone_floor: 0x2a2828, cracked_floor: 0x2e2a28, stone_wall: 0x5a4a45,
+        door_closed: 0x6a5a48, door_open: 0x282420, stairs_down: 0x3a2830,
+        stairs_up: 0x283830, water: 0x1a2028, void: 0x0a0a0a,
+        chest_closed: 0x4a4a42, chest_opened: 0x2a2a25,
+      },
+    },
+  };
+
+  _getIsoTheme() {
+    const id = this.tileset ? this.tileset.id : 'crypt';
+    return Renderer.ISO_THEMES[id] || Renderer.ISO_THEMES.crypt;
+  }
+
   _buildIsoTileTextures() {
+    const theme = this._getIsoTheme();
     const dw = CONSTANTS.ISO_DIAMOND_W;
     const dh = CONSTANTS.ISO_DIAMOND_H;
-    const wallRise = CONSTANTS.ISO_WALL_RISE;
+    const wallRise = theme.wallRise || CONSTANTS.ISO_WALL_RISE;
+    this.isoWallRise = wallRise;
     const hw = dw / 2;
     const hh = dh / 2;
+
+    // Destroy old textures to avoid leaks
+    for (const key of Object.keys(this.isoTileTextures)) {
+      if (this.isoTileTextures[key] && this.isoTileTextures[key].destroy) {
+        this.isoTileTextures[key].destroy(true);
+      }
+    }
+    this.isoTileTextures = {};
+
+    const p = theme; // palette shorthand
 
     // --- Floor tile ---
     this.isoTileTextures['floor'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
       this._drawDiamond(ctx, hw, hh, hw, hh);
-      ctx.fillStyle = '#2a2a3d';
+      ctx.fillStyle = p.floor.fill;
       ctx.fill();
-      // Subtle edge highlight
       this._drawDiamond(ctx, hw, hh, hw - 1, hh - 1);
-      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.strokeStyle = p.floor.edge;
       ctx.lineWidth = 1;
       ctx.stroke();
     });
@@ -303,10 +406,9 @@ class Renderer {
     // --- Floor2 (cracked) ---
     this.isoTileTextures['floor2'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
       this._drawDiamond(ctx, hw, hh, hw, hh);
-      ctx.fillStyle = '#2a2a3d';
+      ctx.fillStyle = p.floor2.fill;
       ctx.fill();
-      // Crack lines
-      ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+      ctx.strokeStyle = p.floor2.crack;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(hw - 10, hh - 3);
@@ -314,19 +416,17 @@ class Renderer {
       ctx.moveTo(hw + 8, hh - 6);
       ctx.lineTo(hw - 4, hh + 4);
       ctx.stroke();
-      // Edge highlight
       this._drawDiamond(ctx, hw, hh, hw - 1, hh - 1);
-      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.strokeStyle = p.floor2.edge;
       ctx.stroke();
     });
 
     // --- Water ---
     this.isoTileTextures['water'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
       this._drawDiamond(ctx, hw, hh, hw, hh);
-      ctx.fillStyle = '#1a3a6a';
+      ctx.fillStyle = p.water.fill;
       ctx.fill();
-      // Wave lines
-      ctx.strokeStyle = 'rgba(100,180,255,0.3)';
+      ctx.strokeStyle = p.water.wave;
       ctx.lineWidth = 1;
       ctx.beginPath();
       for (let i = -2; i <= 2; i++) {
@@ -338,13 +438,12 @@ class Renderer {
       ctx.stroke();
     });
 
-    // --- Stairs down (purple) ---
+    // --- Stairs down ---
     this.isoTileTextures['stairs_down'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
       this._drawDiamond(ctx, hw, hh, hw, hh);
-      ctx.fillStyle = '#4a2a6a';
+      ctx.fillStyle = p.stairsDown.fill;
       ctx.fill();
-      // Step lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.strokeStyle = p.stairsDown.step;
       ctx.lineWidth = 1;
       for (let i = -2; i <= 2; i++) {
         const y = hh + i * 5;
@@ -354,8 +453,7 @@ class Renderer {
         ctx.lineTo(hw + xSpan * 0.6, y);
         ctx.stroke();
       }
-      // Down chevron
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.strokeStyle = p.stairsDown.chevron;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(hw - 8, hh - 4);
@@ -364,13 +462,12 @@ class Renderer {
       ctx.stroke();
     });
 
-    // --- Stairs up (teal) ---
+    // --- Stairs up ---
     this.isoTileTextures['stairs_up'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
       this._drawDiamond(ctx, hw, hh, hw, hh);
-      ctx.fillStyle = '#2a6a4a';
+      ctx.fillStyle = p.stairsUp.fill;
       ctx.fill();
-      // Step lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.strokeStyle = p.stairsUp.step;
       ctx.lineWidth = 1;
       for (let i = -2; i <= 2; i++) {
         const y = hh + i * 5;
@@ -380,8 +477,7 @@ class Renderer {
         ctx.lineTo(hw + xSpan * 0.6, y);
         ctx.stroke();
       }
-      // Up chevron
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.strokeStyle = p.stairsUp.chevron;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(hw - 8, hh + 4);
@@ -393,10 +489,9 @@ class Renderer {
     // --- Door open ---
     this.isoTileTextures['door_open'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
       this._drawDiamond(ctx, hw, hh, hw, hh);
-      ctx.fillStyle = '#4a3a2a';
+      ctx.fillStyle = p.doorOpen.fill;
       ctx.fill();
-      // Frame edges
-      ctx.strokeStyle = 'rgba(180,140,80,0.4)';
+      ctx.strokeStyle = p.doorOpen.frame;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(hw - 16, hh);
@@ -410,7 +505,7 @@ class Renderer {
       ctx.stroke();
     });
 
-    // --- Wall (3D block: 96 x (48 + wallRise)) ---
+    // --- Wall (3D block) ---
     const wallH = dh + wallRise;
     this.isoTileTextures['wall'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
       // Top diamond face
@@ -420,7 +515,7 @@ class Renderer {
       ctx.lineTo(hw, dh);
       ctx.lineTo(0, hh);
       ctx.closePath();
-      ctx.fillStyle = '#5a5a7a';
+      ctx.fillStyle = p.wall.top;
       ctx.fill();
 
       // Left face
@@ -430,7 +525,7 @@ class Renderer {
       ctx.lineTo(hw, dh + wallRise);
       ctx.lineTo(0, hh + wallRise);
       ctx.closePath();
-      ctx.fillStyle = '#4a4a6a';
+      ctx.fillStyle = p.wall.left;
       ctx.fill();
 
       // Right face
@@ -440,11 +535,11 @@ class Renderer {
       ctx.lineTo(dw, hh + wallRise);
       ctx.lineTo(hw, dh + wallRise);
       ctx.closePath();
-      ctx.fillStyle = '#3a3a5a';
+      ctx.fillStyle = p.wall.right;
       ctx.fill();
 
       // Edge lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.strokeStyle = p.wall.edge;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(hw, 0);
@@ -457,47 +552,42 @@ class Renderer {
       ctx.stroke();
     });
 
-    // --- Door closed (3D block, wood colors) ---
+    // --- Door closed (3D block) ---
     this.isoTileTextures['door_closed'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
-      // Top face
       ctx.beginPath();
       ctx.moveTo(hw, 0);
       ctx.lineTo(dw, hh);
       ctx.lineTo(hw, dh);
       ctx.lineTo(0, hh);
       ctx.closePath();
-      ctx.fillStyle = '#8b7a50';
+      ctx.fillStyle = p.doorClosed.top;
       ctx.fill();
 
-      // Left face
       ctx.beginPath();
       ctx.moveTo(0, hh);
       ctx.lineTo(hw, dh);
       ctx.lineTo(hw, dh + wallRise);
       ctx.lineTo(0, hh + wallRise);
       ctx.closePath();
-      ctx.fillStyle = '#7a6a40';
+      ctx.fillStyle = p.doorClosed.left;
       ctx.fill();
 
-      // Right face
       ctx.beginPath();
       ctx.moveTo(hw, dh);
       ctx.lineTo(dw, hh);
       ctx.lineTo(dw, hh + wallRise);
       ctx.lineTo(hw, dh + wallRise);
       ctx.closePath();
-      ctx.fillStyle = '#6a5a30';
+      ctx.fillStyle = p.doorClosed.right;
       ctx.fill();
 
-      // Arch detail on front face
-      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.strokeStyle = p.doorClosed.arch;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(hw, dh + wallRise * 0.3, wallRise * 0.35, Math.PI, 0);
       ctx.stroke();
 
-      // Edge lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.strokeStyle = p.doorClosed.edge;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(hw, dh);
@@ -507,52 +597,46 @@ class Renderer {
 
     // --- Locked door (darker door + lock indicator) ---
     this.isoTileTextures['locked_door'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
-      // Top face
       ctx.beginPath();
       ctx.moveTo(hw, 0);
       ctx.lineTo(dw, hh);
       ctx.lineTo(hw, dh);
       ctx.lineTo(0, hh);
       ctx.closePath();
-      ctx.fillStyle = '#6a5a3a';
+      ctx.fillStyle = p.lockedDoor.top;
       ctx.fill();
 
-      // Left face
       ctx.beginPath();
       ctx.moveTo(0, hh);
       ctx.lineTo(hw, dh);
       ctx.lineTo(hw, dh + wallRise);
       ctx.lineTo(0, hh + wallRise);
       ctx.closePath();
-      ctx.fillStyle = '#5a4a2a';
+      ctx.fillStyle = p.lockedDoor.left;
       ctx.fill();
 
-      // Right face
       ctx.beginPath();
       ctx.moveTo(hw, dh);
       ctx.lineTo(dw, hh);
       ctx.lineTo(dw, hh + wallRise);
       ctx.lineTo(hw, dh + wallRise);
       ctx.closePath();
-      ctx.fillStyle = '#4a3a1a';
+      ctx.fillStyle = p.lockedDoor.right;
       ctx.fill();
 
-      // Arch detail
-      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.strokeStyle = p.lockedDoor.arch;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(hw, dh + wallRise * 0.3, wallRise * 0.35, Math.PI, 0);
       ctx.stroke();
 
-      // Lock rectangle
-      ctx.fillStyle = 'rgba(200,160,60,0.6)';
+      ctx.fillStyle = p.lockedDoor.lock;
       ctx.fillRect(hw - 4, dh + wallRise * 0.4, 8, 8);
-      ctx.strokeStyle = 'rgba(255,220,100,0.4)';
+      ctx.strokeStyle = p.lockedDoor.lockEdge;
       ctx.lineWidth = 1;
       ctx.strokeRect(hw - 4, dh + wallRise * 0.4, 8, 8);
 
-      // Edge lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.strokeStyle = p.lockedDoor.edge;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(hw, dh);
@@ -562,55 +646,48 @@ class Renderer {
 
     // --- Chest closed (3D crate with lock) ---
     this.isoTileTextures['chest_closed'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
-      // Top face (metallic lid)
       ctx.beginPath();
       ctx.moveTo(hw, 0);
       ctx.lineTo(dw, hh);
       ctx.lineTo(hw, dh);
       ctx.lineTo(0, hh);
       ctx.closePath();
-      ctx.fillStyle = '#5a6a5a';
+      ctx.fillStyle = p.chest.top;
       ctx.fill();
 
-      // Left face (dark metal)
       ctx.beginPath();
       ctx.moveTo(0, hh);
       ctx.lineTo(hw, dh);
       ctx.lineTo(hw, dh + wallRise);
       ctx.lineTo(0, hh + wallRise);
       ctx.closePath();
-      ctx.fillStyle = '#4a5a4a';
+      ctx.fillStyle = p.chest.left;
       ctx.fill();
 
-      // Right face (darker metal)
       ctx.beginPath();
       ctx.moveTo(hw, dh);
       ctx.lineTo(dw, hh);
       ctx.lineTo(dw, hh + wallRise);
       ctx.lineTo(hw, dh + wallRise);
       ctx.closePath();
-      ctx.fillStyle = '#3a4a3a';
+      ctx.fillStyle = p.chest.right;
       ctx.fill();
 
-      // Metal band across front left face
-      ctx.fillStyle = 'rgba(120,140,120,0.4)';
+      ctx.fillStyle = p.chest.band;
       ctx.fillRect(hw * 0.15, hh + wallRise * 0.2, hw * 0.7, 3);
 
-      // Lock indicator (golden)
-      ctx.fillStyle = 'rgba(220,180,60,0.7)';
+      ctx.fillStyle = p.chest.lock;
       ctx.fillRect(hw - 5, dh + wallRise * 0.35, 10, 10);
-      ctx.strokeStyle = 'rgba(255,220,100,0.5)';
+      ctx.strokeStyle = p.chest.lockEdge;
       ctx.lineWidth = 1;
       ctx.strokeRect(hw - 5, dh + wallRise * 0.35, 10, 10);
 
-      // Lock keyhole
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
       ctx.beginPath();
       ctx.arc(hw, dh + wallRise * 0.35 + 5, 2, 0, Math.PI * 2);
       ctx.fill();
 
-      // Edge lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.strokeStyle = p.chest.edge;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(hw, dh);
@@ -621,10 +698,9 @@ class Renderer {
     // --- Chest opened (low open crate, floor-height) ---
     this.isoTileTextures['chest_opened'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
       this._drawDiamond(ctx, hw, hh, hw, hh);
-      ctx.fillStyle = '#3a4a3a';
+      ctx.fillStyle = p.chestOpen.fill;
       ctx.fill();
-      // Open lid edges
-      ctx.strokeStyle = 'rgba(120,140,120,0.5)';
+      ctx.strokeStyle = p.chestOpen.edge;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(hw - 16, hh);
@@ -636,13 +712,12 @@ class Renderer {
       ctx.lineTo(hw, hh + 8);
       ctx.lineTo(hw + 16, hh);
       ctx.stroke();
-      // Inner shadow
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillStyle = p.chestOpen.inner;
       this._drawDiamond(ctx, hw, hh, hw * 0.6, hh * 0.6);
       ctx.fill();
     });
 
-    // Map tile names to iso keys (each type gets its own)
+    // Map tile names to iso keys
     this.tileToIsoKey = {
       'stone_floor':   'floor',
       'cracked_floor': 'floor2',
@@ -656,8 +731,10 @@ class Renderer {
       'water':         'water',
       'chest_closed':  'chest_closed',
       'chest_opened':  'chest_opened',
+      'sealed_gate':   'door_closed',
     };
 
+    this.isoThemeId = this.tileset ? this.tileset.id : 'crypt';
     this.isoTileLoaded = true;
   }
 
@@ -726,27 +803,19 @@ class Renderer {
     this.tilesetLoaded = false;
     this.tileTextures = {};
     this._buildTileTextures();
-    if (this.isoMode && !this.isoTileLoaded) {
-      this._buildIsoTileTextures();
+    if (this.isoMode) {
+      const newThemeId = tileset ? tileset.id : 'crypt';
+      if (!this.isoTileLoaded || this.isoThemeId !== newThemeId) {
+        this._buildIsoTileTextures();
+      }
     }
     this._rebuildTilePool();
   }
 
   buildTileColors() {
     if (!this.tileset) return;
-    const colorMap = {
-      'stone_floor':   0x2a2a3d,
-      'cracked_floor': 0x332a3d,
-      'stone_wall':    0x5a5a7a,
-      'door_closed':   0x7a6a4a,
-      'door_open':     0x4a3a2a,
-      'stairs_down':   0x6a3a8a,
-      'stairs_up':     0x3a8a6a,
-      'water':         0x2a4a6a,
-      'void':          0x0d0d1a,
-      'chest_closed':  0x5a6a5a,
-      'chest_opened':  0x3a4a3a,
-    };
+    const theme = this._getIsoTheme();
+    const colorMap = theme.minimap;
     for (const [id, tile] of Object.entries(this.tileset.tiles)) {
       this.tileColors[id] = colorMap[tile.name] !== undefined ? colorMap[tile.name] : 0xff00ff;
     }
@@ -875,7 +944,7 @@ class Renderer {
 
       // Add padding for tile sprite overhang
       const padX = CONSTANTS.ISO_DIAMOND_W;
-      const padY = CONSTANTS.ISO_DIAMOND_H + CONSTANTS.ISO_WALL_RISE;
+      const padY = CONSTANTS.ISO_DIAMOND_H + this.isoWallRise;
 
       this.camX = Math.max(minX - padX, Math.min(targetX, maxX + padX - this.viewW));
       this.camY = Math.max(minY - padY, Math.min(targetY, maxY + padY - this.viewH));
@@ -1057,7 +1126,7 @@ class Renderer {
     const ts = CONSTANTS.TILE_SIZE;
     const dw = CONSTANTS.ISO_DIAMOND_W;
     const dh = CONSTANTS.ISO_DIAMOND_H;
-    const wallRise = CONSTANTS.ISO_WALL_RISE;
+    const wallRise = this.isoWallRise;
 
     // Wall-type iso keys
     const wallKeys = new Set(['wall', 'door_closed', 'locked_door', 'chest_closed']);

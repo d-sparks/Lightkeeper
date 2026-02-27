@@ -656,11 +656,486 @@ function generateItemSprites() {
 }
 
 // ============================================================================
+// TILESET: Outpost (10 tiles in a horizontal strip: 160x16)
+// Warm industrial/military colors — metal plating, concrete, steel doors
+// ============================================================================
+
+function generateOutpostTileset() {
+  const png = createPNG(160, 16);
+
+  // Outpost palette
+  const O = {
+    floorDark:  rgba(42, 40, 35),
+    floorMid:   rgba(53, 51, 46),
+    floorLight: rgba(65, 62, 55),
+    wallDark:   rgba(80, 75, 68),
+    wallMid:    rgba(100, 95, 85),
+    wallLight:  rgba(115, 110, 100),
+    wallTop:    rgba(125, 118, 108),
+    doorMid:    rgba(106, 122, 138),
+    doorDark:   rgba(80, 95, 110),
+    doorLight:  rgba(130, 145, 160),
+    voidColor:  rgba(15, 14, 12),
+    water1:     rgba(35, 42, 32),
+    water2:     rgba(48, 55, 40),
+    water3:     rgba(58, 68, 48),
+    teal:       rgba(50, 170, 150),
+    purple:     rgba(130, 100, 60),
+  };
+
+  // --- Tile 0: Void (near-black warm) ---
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      const v = 10 + ((x * 7 + y * 13) % 5);
+      setPixel(png, x, y, rgba(v, Math.floor(v * 0.95), Math.floor(v * 0.85)));
+    }
+  }
+
+  // --- Tile 1: Metal Floor (warm gray plating with seam lines) ---
+  const ox1 = 16;
+  fillRect(png, ox1, 0, 16, 16, O.floorMid);
+  for (let i = 0; i < 16; i++) {
+    setPixel(png, ox1 + i, 7, O.floorDark);
+    setPixel(png, ox1 + 7, i, O.floorDark);
+  }
+  for (let i = 0; i < 7; i++) {
+    setPixel(png, ox1 + i, 0, O.floorLight);
+    setPixel(png, ox1, i, O.floorLight);
+    setPixel(png, ox1 + 8 + i, 8, O.floorLight);
+    setPixel(png, ox1 + 8, 8 + i, O.floorLight);
+  }
+  // Rivet details
+  setPixel(png, ox1 + 2, 2, O.floorLight);
+  setPixel(png, ox1 + 13, 2, O.floorLight);
+  setPixel(png, ox1 + 2, 13, O.floorLight);
+  setPixel(png, ox1 + 13, 13, O.floorLight);
+
+  // --- Tile 2: Worn Metal Floor (scuffed) ---
+  const ox2 = 32;
+  fillRect(png, ox2, 0, 16, 16, O.floorMid);
+  for (let i = 0; i < 16; i++) {
+    setPixel(png, ox2 + i, 7, O.floorDark);
+    setPixel(png, ox2 + 7, i, O.floorDark);
+  }
+  for (let i = 0; i < 7; i++) {
+    setPixel(png, ox2 + i, 0, O.floorLight);
+    setPixel(png, ox2, i, O.floorLight);
+  }
+  // Scuff marks
+  const scuffs = [[3,3],[4,4],[5,4],[8,6],[9,7],[10,8],[6,10],[7,11],[11,12],[12,13]];
+  for (const [sx, sy] of scuffs) setPixel(png, ox2 + sx, sy, O.floorDark);
+
+  // --- Tile 3: Concrete Wall ---
+  const ox3 = 48;
+  fillRect(png, ox3, 0, 16, 16, O.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, O.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 15, O.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + 15, i, O.wallDark);
+  const concrLight = [[2,3],[6,2],[10,4],[13,6],[4,8],[8,7],[1,10],[7,12],[11,9],[3,14]];
+  const concrDark  = [[5,2],[1,5],[9,3],[12,7],[3,9],[7,11],[2,12],[10,10],[14,13],[8,14]];
+  for (const [sx, sy] of concrLight) setPixel(png, ox3 + sx, sy, O.wallLight);
+  for (const [sx, sy] of concrDark)  setPixel(png, ox3 + sx, sy, O.wallDark);
+
+  // --- Tile 4: Steel Door Closed ---
+  const ox4 = 64;
+  fillRect(png, ox4, 0, 16, 16, O.doorMid);
+  fillRect(png, ox4, 0, 1, 16, O.doorDark);
+  fillRect(png, ox4 + 15, 0, 1, 16, O.doorDark);
+  fillRect(png, ox4, 2, 16, 2, O.doorLight);
+  fillRect(png, ox4, 12, 16, 2, O.doorLight);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox4 + 8, vy, O.doorDark);
+  setPixel(png, ox4 + 12, 7, O.floorLight);
+  setPixel(png, ox4 + 12, 8, O.floorLight);
+
+  // --- Tile 5: Door Open ---
+  const ox5 = 80;
+  fillRect(png, ox5, 0, 16, 16, O.floorDark);
+  fillRect(png, ox5, 0, 2, 16, O.doorDark);
+  fillRect(png, ox5 + 14, 0, 2, 16, O.doorDark);
+  fillRect(png, ox5 + 4, 2, 8, 12, rgba(30, 28, 25));
+
+  // --- Tile 6: Stairs Down ---
+  const ox6 = 96;
+  fillRect(png, ox6, 0, 16, 16, O.floorMid);
+  fillRect(png, ox6 + 2, 2, 12, 3, O.floorLight);
+  fillRect(png, ox6 + 3, 5, 10, 3, O.floorMid);
+  fillRect(png, ox6 + 4, 8, 8, 3, O.floorDark);
+  fillRect(png, ox6 + 5, 11, 6, 3, rgba(25, 24, 20));
+  setPixel(png, ox6 + 7, 13, O.purple);
+  setPixel(png, ox6 + 8, 13, O.purple);
+  setPixel(png, ox6 + 6, 12, O.purple);
+  setPixel(png, ox6 + 9, 12, O.purple);
+
+  // --- Tile 7: Drainage/Sludge ---
+  const ox7 = 112;
+  fillRect(png, ox7, 0, 16, 16, O.water1);
+  const oWave = [[2,3],[3,3],[4,3],[8,5],[9,5],[10,5],[1,9],[2,9],[3,9],[7,11],[8,11],[9,11],[12,7],[13,7],[4,14],[5,14]];
+  for (const [wx, wy] of oWave) setPixel(png, ox7 + wx, wy, O.water2);
+  const oWaveH = [[3,2],[9,4],[2,8],[8,10],[13,6],[5,13]];
+  for (const [wx, wy] of oWaveH) setPixel(png, ox7 + wx, wy, O.water3);
+
+  // --- Tile 8: Stairs Up ---
+  const ox8 = 128;
+  fillRect(png, ox8, 0, 16, 16, O.floorMid);
+  fillRect(png, ox8 + 5, 2, 6, 3, rgba(25, 24, 20));
+  fillRect(png, ox8 + 4, 5, 8, 3, O.floorDark);
+  fillRect(png, ox8 + 3, 8, 10, 3, O.floorMid);
+  fillRect(png, ox8 + 2, 11, 12, 3, O.floorLight);
+  setPixel(png, ox8 + 7, 1, O.teal);
+  setPixel(png, ox8 + 8, 1, O.teal);
+  setPixel(png, ox8 + 6, 2, O.teal);
+  setPixel(png, ox8 + 9, 2, O.teal);
+
+  // --- Tile 9: Locked Steel Door ---
+  const ox9 = 144;
+  fillRect(png, ox9, 0, 16, 16, O.doorMid);
+  fillRect(png, ox9, 0, 1, 16, O.doorDark);
+  fillRect(png, ox9 + 15, 0, 1, 16, O.doorDark);
+  fillRect(png, ox9, 2, 16, 2, O.doorLight);
+  fillRect(png, ox9, 12, 16, 2, O.doorLight);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox9 + 8, vy, O.doorDark);
+  fillRect(png, ox9 + 6, 6, 4, 4, C.yellow);
+  setPixel(png, ox9 + 7, 7, C.darkGray);
+  setPixel(png, ox9 + 8, 7, C.darkGray);
+  setPixel(png, ox9 + 7, 8, C.darkGray);
+
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'outpost.png'));
+}
+
+// ============================================================================
+// TILESET: Quarantine (10 tiles in a horizontal strip: 160x16)
+// Sickly green/contaminated — biohazard zone
+// ============================================================================
+
+function generateQuarantineTileset() {
+  const png = createPNG(160, 16);
+
+  // Quarantine palette
+  const Q = {
+    floorDark:  rgba(28, 38, 28),
+    floorMid:   rgba(37, 46, 37),
+    floorLight: rgba(48, 58, 45),
+    wallDark:   rgba(55, 70, 50),
+    wallMid:    rgba(74, 90, 69),
+    wallLight:  rgba(88, 105, 80),
+    wallTop:    rgba(95, 112, 88),
+    doorMid:    rgba(138, 122, 48),
+    doorDark:   rgba(100, 88, 30),
+    doorLight:  rgba(165, 148, 60),
+    voidColor:  rgba(10, 16, 10),
+    water1:     rgba(20, 45, 18),
+    water2:     rgba(35, 65, 28),
+    water3:     rgba(50, 85, 38),
+    teal:       rgba(50, 170, 100),
+    purple:     rgba(100, 60, 130),
+    contamGreen: rgba(80, 160, 60),
+  };
+
+  // --- Tile 0: Void (dark green-black) ---
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      const v = 8 + ((x * 7 + y * 13) % 5);
+      setPixel(png, x, y, rgba(Math.floor(v * 0.7), v, Math.floor(v * 0.7)));
+    }
+  }
+
+  // --- Tile 1: Contaminated Floor ---
+  const ox1 = 16;
+  fillRect(png, ox1, 0, 16, 16, Q.floorMid);
+  for (let i = 0; i < 16; i++) {
+    setPixel(png, ox1 + i, 7, Q.floorDark);
+    setPixel(png, ox1 + 7, i, Q.floorDark);
+  }
+  for (let i = 0; i < 7; i++) {
+    setPixel(png, ox1 + i, 0, Q.floorLight);
+    setPixel(png, ox1, i, Q.floorLight);
+    setPixel(png, ox1 + 8 + i, 8, Q.floorLight);
+    setPixel(png, ox1 + 8, 8 + i, Q.floorLight);
+  }
+  // Green contamination spots
+  setPixel(png, ox1 + 4, 3, Q.contamGreen);
+  setPixel(png, ox1 + 11, 10, Q.contamGreen);
+
+  // --- Tile 2: Cracked Contaminated Floor ---
+  const ox2 = 32;
+  fillRect(png, ox2, 0, 16, 16, Q.floorMid);
+  for (let i = 0; i < 16; i++) {
+    setPixel(png, ox2 + i, 7, Q.floorDark);
+    setPixel(png, ox2 + 7, i, Q.floorDark);
+  }
+  for (let i = 0; i < 7; i++) {
+    setPixel(png, ox2 + i, 0, Q.floorLight);
+    setPixel(png, ox2, i, Q.floorLight);
+  }
+  // Green-tinted cracks
+  const qCracks = [[3,2],[4,3],[4,4],[5,5],[6,6],[5,7],[6,8],[7,9],[8,10],[9,11],[10,11],[11,12],[12,13]];
+  for (const [cx, cy] of qCracks) setPixel(png, ox2 + cx, cy, Q.contamGreen);
+
+  // --- Tile 3: Quarantine Wall ---
+  const ox3 = 48;
+  fillRect(png, ox3, 0, 16, 16, Q.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, Q.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 15, Q.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + 15, i, Q.wallDark);
+  const qwLight = [[2,2],[7,3],[10,4],[13,6],[4,8],[8,7],[1,10],[6,12],[11,9],[3,14]];
+  const qwDark  = [[5,3],[1,6],[9,4],[12,7],[3,9],[7,11],[2,12],[10,10],[14,13],[8,14]];
+  for (const [sx, sy] of qwLight) setPixel(png, ox3 + sx, sy, Q.wallLight);
+  for (const [sx, sy] of qwDark)  setPixel(png, ox3 + sx, sy, Q.wallDark);
+
+  // --- Tile 4: Hazard Door Closed ---
+  const ox4 = 64;
+  fillRect(png, ox4, 0, 16, 16, Q.doorMid);
+  fillRect(png, ox4, 0, 1, 16, Q.doorDark);
+  fillRect(png, ox4 + 15, 0, 1, 16, Q.doorDark);
+  // Hazard stripes
+  fillRect(png, ox4, 3, 16, 2, Q.doorLight);
+  fillRect(png, ox4, 11, 16, 2, Q.doorLight);
+  for (let vy = 0; vy < 16; vy++) {
+    setPixel(png, ox4 + 5, vy, Q.doorDark);
+    setPixel(png, ox4 + 10, vy, Q.doorDark);
+  }
+  setPixel(png, ox4 + 12, 7, Q.floorLight);
+  setPixel(png, ox4 + 12, 8, Q.floorLight);
+
+  // --- Tile 5: Door Open ---
+  const ox5 = 80;
+  fillRect(png, ox5, 0, 16, 16, Q.floorDark);
+  fillRect(png, ox5, 0, 2, 16, Q.doorDark);
+  fillRect(png, ox5 + 14, 0, 2, 16, Q.doorDark);
+  fillRect(png, ox5 + 4, 2, 8, 12, rgba(20, 28, 18));
+
+  // --- Tile 6: Stairs Down ---
+  const ox6 = 96;
+  fillRect(png, ox6, 0, 16, 16, Q.floorMid);
+  fillRect(png, ox6 + 2, 2, 12, 3, Q.floorLight);
+  fillRect(png, ox6 + 3, 5, 10, 3, Q.floorMid);
+  fillRect(png, ox6 + 4, 8, 8, 3, Q.floorDark);
+  fillRect(png, ox6 + 5, 11, 6, 3, rgba(18, 25, 16));
+  setPixel(png, ox6 + 7, 13, Q.purple);
+  setPixel(png, ox6 + 8, 13, Q.purple);
+  setPixel(png, ox6 + 6, 12, Q.purple);
+  setPixel(png, ox6 + 9, 12, Q.purple);
+
+  // --- Tile 7: Toxic Waste ---
+  const ox7 = 112;
+  fillRect(png, ox7, 0, 16, 16, Q.water1);
+  const qWave = [[2,3],[3,3],[4,3],[8,5],[9,5],[10,5],[1,9],[2,9],[3,9],[7,11],[8,11],[9,11],[12,7],[13,7],[4,14],[5,14]];
+  for (const [wx, wy] of qWave) setPixel(png, ox7 + wx, wy, Q.water2);
+  const qWaveH = [[3,2],[9,4],[2,8],[8,10],[13,6],[5,13]];
+  for (const [wx, wy] of qWaveH) setPixel(png, ox7 + wx, wy, Q.water3);
+
+  // --- Tile 8: Stairs Up ---
+  const ox8 = 128;
+  fillRect(png, ox8, 0, 16, 16, Q.floorMid);
+  fillRect(png, ox8 + 5, 2, 6, 3, rgba(18, 25, 16));
+  fillRect(png, ox8 + 4, 5, 8, 3, Q.floorDark);
+  fillRect(png, ox8 + 3, 8, 10, 3, Q.floorMid);
+  fillRect(png, ox8 + 2, 11, 12, 3, Q.floorLight);
+  setPixel(png, ox8 + 7, 1, Q.teal);
+  setPixel(png, ox8 + 8, 1, Q.teal);
+  setPixel(png, ox8 + 6, 2, Q.teal);
+  setPixel(png, ox8 + 9, 2, Q.teal);
+
+  // --- Tile 9: Locked Hazard Door ---
+  const ox9 = 144;
+  fillRect(png, ox9, 0, 16, 16, Q.doorMid);
+  fillRect(png, ox9, 0, 1, 16, Q.doorDark);
+  fillRect(png, ox9 + 15, 0, 1, 16, Q.doorDark);
+  fillRect(png, ox9, 3, 16, 2, Q.doorLight);
+  fillRect(png, ox9, 11, 16, 2, Q.doorLight);
+  for (let vy = 0; vy < 16; vy++) {
+    setPixel(png, ox9 + 5, vy, Q.doorDark);
+    setPixel(png, ox9 + 10, vy, Q.doorDark);
+  }
+  fillRect(png, ox9 + 6, 6, 4, 4, C.yellow);
+  setPixel(png, ox9 + 7, 7, C.darkGray);
+  setPixel(png, ox9 + 8, 7, C.darkGray);
+  setPixel(png, ox9 + 7, 8, C.darkGray);
+
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'quarantine.png'));
+}
+
+// ============================================================================
+// TILESET: Dark City (10 tiles in a horizontal strip: 160x16)
+// Outdoor urban ruins — dark asphalt, crumbling brick, rusted metal
+// ============================================================================
+
+function generateDarkCityTileset() {
+  const png = createPNG(160, 16);
+
+  // Dark city palette
+  const DC = {
+    floorDark:  rgba(30, 28, 28),
+    floorMid:   rgba(42, 40, 40),
+    floorLight: rgba(55, 52, 50),
+    wallDark:   rgba(68, 55, 50),
+    wallMid:    rgba(90, 74, 69),
+    wallLight:  rgba(105, 88, 82),
+    wallTop:    rgba(112, 95, 88),
+    doorMid:    rgba(106, 92, 78),
+    doorDark:   rgba(75, 62, 50),
+    doorLight:  rgba(130, 112, 95),
+    voidColor:  rgba(8, 8, 8),
+    water1:     rgba(22, 28, 35),
+    water2:     rgba(32, 40, 50),
+    water3:     rgba(42, 52, 65),
+    teal:       rgba(50, 140, 130),
+    purple:     rgba(100, 60, 80),
+  };
+
+  // --- Tile 0: Void (near-black) ---
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      const v = 6 + ((x * 7 + y * 13) % 5);
+      setPixel(png, x, y, rgba(v, v, v));
+    }
+  }
+
+  // --- Tile 1: Asphalt Floor ---
+  const ox1 = 16;
+  fillRect(png, ox1, 0, 16, 16, DC.floorMid);
+  for (let i = 0; i < 16; i++) {
+    setPixel(png, ox1 + i, 7, DC.floorDark);
+    setPixel(png, ox1 + 7, i, DC.floorDark);
+  }
+  for (let i = 0; i < 7; i++) {
+    setPixel(png, ox1 + i, 0, DC.floorLight);
+    setPixel(png, ox1, i, DC.floorLight);
+    setPixel(png, ox1 + 8 + i, 8, DC.floorLight);
+    setPixel(png, ox1 + 8, 8 + i, DC.floorLight);
+  }
+  // Gravel texture
+  setPixel(png, ox1 + 3, 4, DC.floorLight);
+  setPixel(png, ox1 + 10, 3, DC.floorDark);
+  setPixel(png, ox1 + 12, 11, DC.floorLight);
+  setPixel(png, ox1 + 5, 12, DC.floorDark);
+
+  // --- Tile 2: Cracked Pavement ---
+  const ox2 = 32;
+  fillRect(png, ox2, 0, 16, 16, DC.floorMid);
+  for (let i = 0; i < 16; i++) {
+    setPixel(png, ox2 + i, 7, DC.floorDark);
+    setPixel(png, ox2 + 7, i, DC.floorDark);
+  }
+  for (let i = 0; i < 7; i++) {
+    setPixel(png, ox2 + i, 0, DC.floorLight);
+    setPixel(png, ox2, i, DC.floorLight);
+  }
+  // Deep cracks
+  const dcCracks = [[2,1],[3,2],[4,3],[4,4],[5,5],[6,6],[5,7],[6,8],[7,9],[8,10],[9,11],[10,12],[11,13],[12,14]];
+  for (const [cx, cy] of dcCracks) setPixel(png, ox2 + cx, cy, rgba(15, 15, 15));
+
+  // --- Tile 3: Brick/Building Wall ---
+  const ox3 = 48;
+  fillRect(png, ox3, 0, 16, 16, DC.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, DC.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 15, DC.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + 15, i, DC.wallDark);
+  // Brick mortar lines
+  for (let i = 0; i < 16; i++) {
+    setPixel(png, ox3 + i, 4, DC.wallDark);
+    setPixel(png, ox3 + i, 8, DC.wallDark);
+    setPixel(png, ox3 + i, 12, DC.wallDark);
+  }
+  setPixel(png, ox3 + 4, 1, DC.wallDark);
+  setPixel(png, ox3 + 4, 2, DC.wallDark);
+  setPixel(png, ox3 + 4, 3, DC.wallDark);
+  setPixel(png, ox3 + 12, 1, DC.wallDark);
+  setPixel(png, ox3 + 12, 2, DC.wallDark);
+  setPixel(png, ox3 + 12, 3, DC.wallDark);
+  setPixel(png, ox3 + 8, 5, DC.wallDark);
+  setPixel(png, ox3 + 8, 6, DC.wallDark);
+  setPixel(png, ox3 + 8, 7, DC.wallDark);
+  // Weathering
+  const brkLight = [[2,2],[6,6],[10,10],[14,3]];
+  for (const [sx, sy] of brkLight) setPixel(png, ox3 + sx, sy, DC.wallLight);
+
+  // --- Tile 4: Rusted Door Closed ---
+  const ox4 = 64;
+  fillRect(png, ox4, 0, 16, 16, DC.doorMid);
+  fillRect(png, ox4, 0, 1, 16, DC.doorDark);
+  fillRect(png, ox4 + 15, 0, 1, 16, DC.doorDark);
+  fillRect(png, ox4, 3, 16, 2, DC.doorLight);
+  fillRect(png, ox4, 11, 16, 2, DC.doorLight);
+  for (let vy = 0; vy < 16; vy++) {
+    setPixel(png, ox4 + 5, vy, DC.doorDark);
+    setPixel(png, ox4 + 10, vy, DC.doorDark);
+  }
+  // Rust spots
+  setPixel(png, ox4 + 3, 6, rgba(120, 70, 40));
+  setPixel(png, ox4 + 12, 9, rgba(120, 70, 40));
+  setPixel(png, ox4 + 7, 8, DC.doorLight);
+
+  // --- Tile 5: Door Open ---
+  const ox5 = 80;
+  fillRect(png, ox5, 0, 16, 16, DC.floorDark);
+  fillRect(png, ox5, 0, 2, 16, DC.doorDark);
+  fillRect(png, ox5 + 14, 0, 2, 16, DC.doorDark);
+  fillRect(png, ox5 + 4, 2, 8, 12, rgba(18, 18, 18));
+
+  // --- Tile 6: Stairs Down ---
+  const ox6 = 96;
+  fillRect(png, ox6, 0, 16, 16, DC.floorMid);
+  fillRect(png, ox6 + 2, 2, 12, 3, DC.floorLight);
+  fillRect(png, ox6 + 3, 5, 10, 3, DC.floorMid);
+  fillRect(png, ox6 + 4, 8, 8, 3, DC.floorDark);
+  fillRect(png, ox6 + 5, 11, 6, 3, rgba(15, 15, 15));
+  setPixel(png, ox6 + 7, 13, DC.purple);
+  setPixel(png, ox6 + 8, 13, DC.purple);
+  setPixel(png, ox6 + 6, 12, DC.purple);
+  setPixel(png, ox6 + 9, 12, DC.purple);
+
+  // --- Tile 7: Dark Puddle ---
+  const ox7 = 112;
+  fillRect(png, ox7, 0, 16, 16, DC.water1);
+  const dcWave = [[2,3],[3,3],[4,3],[8,5],[9,5],[10,5],[1,9],[2,9],[3,9],[7,11],[8,11],[9,11],[12,7],[13,7],[4,14],[5,14]];
+  for (const [wx, wy] of dcWave) setPixel(png, ox7 + wx, wy, DC.water2);
+  const dcWaveH = [[3,2],[9,4],[2,8],[8,10],[13,6],[5,13]];
+  for (const [wx, wy] of dcWaveH) setPixel(png, ox7 + wx, wy, DC.water3);
+
+  // --- Tile 8: Stairs Up ---
+  const ox8 = 128;
+  fillRect(png, ox8, 0, 16, 16, DC.floorMid);
+  fillRect(png, ox8 + 5, 2, 6, 3, rgba(15, 15, 15));
+  fillRect(png, ox8 + 4, 5, 8, 3, DC.floorDark);
+  fillRect(png, ox8 + 3, 8, 10, 3, DC.floorMid);
+  fillRect(png, ox8 + 2, 11, 12, 3, DC.floorLight);
+  setPixel(png, ox8 + 7, 1, DC.teal);
+  setPixel(png, ox8 + 8, 1, DC.teal);
+  setPixel(png, ox8 + 6, 2, DC.teal);
+  setPixel(png, ox8 + 9, 2, DC.teal);
+
+  // --- Tile 9: Locked Rusted Door ---
+  const ox9 = 144;
+  fillRect(png, ox9, 0, 16, 16, DC.doorMid);
+  fillRect(png, ox9, 0, 1, 16, DC.doorDark);
+  fillRect(png, ox9 + 15, 0, 1, 16, DC.doorDark);
+  fillRect(png, ox9, 3, 16, 2, DC.doorLight);
+  fillRect(png, ox9, 11, 16, 2, DC.doorLight);
+  for (let vy = 0; vy < 16; vy++) {
+    setPixel(png, ox9 + 5, vy, DC.doorDark);
+    setPixel(png, ox9 + 10, vy, DC.doorDark);
+  }
+  fillRect(png, ox9 + 6, 6, 4, 4, C.yellow);
+  setPixel(png, ox9 + 7, 7, C.darkGray);
+  setPixel(png, ox9 + 8, 7, C.darkGray);
+  setPixel(png, ox9 + 7, 8, C.darkGray);
+  // Rust spots
+  setPixel(png, ox9 + 3, 8, rgba(120, 70, 40));
+  setPixel(png, ox9 + 13, 5, rgba(120, 70, 40));
+
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'dark_city.png'));
+}
+
+// ============================================================================
 // MAIN
 // ============================================================================
 
 console.log('Generating placeholder sprites...');
 generateCryptTileset();
+generateOutpostTileset();
+generateQuarantineTileset();
+generateDarkCityTileset();
 generateMonsterSprites();
 generatePlayerSprites();
 generateNPCSprites();
