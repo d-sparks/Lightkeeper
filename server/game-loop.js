@@ -925,6 +925,8 @@ class GameLoop {
         if (player.transitionCooldown > 0) {
           player.transitionCooldown -= dt;
         }
+        // Tick down attack cooldown (shared by projectile weapon attacks)
+        player.attackTimer = Math.max(0, player.attackTimer - dt);
         // Tick down ability cooldowns
         for (let i = 0; i < player.cooldowns.length; i++) {
           if (player.cooldowns[i] > 0) {
@@ -939,9 +941,6 @@ class GameLoop {
 
       // Update monsters (AI + attacks)
       this.updateMonsters(room, dt);
-
-      // Player auto-attack
-      this.updatePlayerAttacks(room, dt);
 
       // Update projectiles (movement, collision, lifetime)
       this.updateProjectiles(room, dt);
@@ -1030,62 +1029,6 @@ class GameLoop {
               playerId: nearest.id, roomId: room.id,
             }, deathCtx);
           }
-        }
-      }
-    }
-  }
-
-  updatePlayerAttacks(room, dt) {
-    const attackRange = CONSTANTS.PLAYER_ATTACK_RANGE * CONSTANTS.TILE_SIZE;
-
-    for (const [pid, player] of room.players) {
-      player.attackTimer = Math.max(0, player.attackTimer - dt);
-      if (player.attackTimer > 0) continue;
-
-      // Find nearest monster in auto-attack range
-      let nearestMob = null;
-      let nearestDist = Infinity;
-      for (const [mid, mob] of room.monsters) {
-        const dx = mob.x - player.x;
-        const dy = mob.y - player.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < attackRange && dist < nearestDist) {
-          nearestMob = mob;
-          nearestDist = dist;
-        }
-      }
-
-      if (nearestMob) {
-        const dmg = this.getPlayerAttackDamage(player);
-        nearestMob.health -= dmg;
-        player.attackTimer = CONSTANTS.PLAYER_ATTACK_COOLDOWN;
-        room.events.push({
-          type: 'damage', targetId: nearestMob.id,
-          amount: dmg, x: nearestMob.x, y: nearestMob.y,
-        });
-
-        if (nearestMob.health <= 0) {
-          room.events.push({
-            type: 'death', targetId: nearestMob.id,
-            x: nearestMob.x, y: nearestMob.y,
-          });
-          room.monsters.delete(nearestMob.id);
-
-          // Record the kill so monster stays dead when room is revisited
-          if (nearestMob.spawnKey) {
-            if (!this.killedMonsters.has(room.dungeonId)) {
-              this.killedMonsters.set(room.dungeonId, new Set());
-            }
-            this.killedMonsters.get(room.dungeonId).add(nearestMob.spawnKey);
-          }
-
-          // Emit monster_killed scripting event
-          const ctx = this._scriptContext(pid, room.id);
-          this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
-            playerId: pid, roomId: room.id,
-            monsterType: nearestMob.type, monsterId: nearestMob.id,
-            monsterX: nearestMob.x, monsterY: nearestMob.y,
-          }, ctx);
         }
       }
     }
