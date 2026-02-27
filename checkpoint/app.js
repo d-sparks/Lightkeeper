@@ -104,6 +104,142 @@ function LoginScreen({ onLogin }) {
   `;
 }
 
+// ─── Quest DAG Visualization ─────────────────────────────────
+function computeDAGLayout(steps) {
+  if (!steps || steps.length === 0) return { nodes: [], edges: [], width: 0, height: 0 };
+
+  const stepMap = {};
+  steps.forEach(s => { stepMap[s.id] = s; });
+
+  // Compute layers via longest-path from roots
+  const layers = {};
+  const visited = {};
+  function getLayer(id) {
+    if (visited[id]) return layers[id];
+    visited[id] = true;
+    const step = stepMap[id];
+    if (!step || !step.prerequisiteSteps || step.prerequisiteSteps.length === 0) {
+      layers[id] = 0;
+      return 0;
+    }
+    let maxPre = 0;
+    for (const preId of step.prerequisiteSteps) {
+      if (stepMap[preId]) maxPre = Math.max(maxPre, getLayer(preId) + 1);
+    }
+    layers[id] = maxPre;
+    return maxPre;
+  }
+  steps.forEach(s => getLayer(s.id));
+
+  // Group by layer
+  const layerGroups = {};
+  let maxLayer = 0;
+  for (const [id, layer] of Object.entries(layers)) {
+    if (!layerGroups[layer]) layerGroups[layer] = [];
+    layerGroups[layer].push(id);
+    maxLayer = Math.max(maxLayer, layer);
+  }
+
+  // Layout constants
+  const nodeW = 160, nodeH = 52;
+  const layerGap = 80, nodeGap = 24;
+  const padX = 20, padY = 20;
+
+  const nodes = [];
+  const nodePos = {};
+  for (let layer = 0; layer <= maxLayer; layer++) {
+    const group = layerGroups[layer] || [];
+    group.forEach((id, idx) => {
+      const x = padX + layer * (nodeW + layerGap);
+      const y = padY + idx * (nodeH + nodeGap);
+      const step = stepMap[id];
+      nodes.push({ id, x, y, w: nodeW, h: nodeH, label: step.label, roomId: step.roomId });
+      nodePos[id] = { x, y };
+    });
+  }
+
+  // Build edges
+  const edges = [];
+  steps.forEach(s => {
+    if (s.prerequisiteSteps) {
+      s.prerequisiteSteps.forEach(preId => {
+        if (nodePos[preId] && nodePos[s.id]) {
+          edges.push({ from: preId, to: s.id });
+        }
+      });
+    }
+  });
+
+  // Compute SVG dimensions
+  const svgW = padX * 2 + (maxLayer + 1) * nodeW + maxLayer * layerGap;
+  let maxNodesInLayer = 0;
+  for (let l = 0; l <= maxLayer; l++) {
+    maxNodesInLayer = Math.max(maxNodesInLayer, (layerGroups[l] || []).length);
+  }
+  const svgH = padY * 2 + maxNodesInLayer * nodeH + (maxNodesInLayer - 1) * nodeGap;
+
+  return { nodes, edges, nodePos, nodeW, nodeH, width: svgW, height: Math.max(svgH, nodeH + padY * 2) };
+}
+
+function QuestDAG({ quests }) {
+  if (!quests || quests.length === 0) return html`<div class="empty">No quest data</div>`;
+
+  return html`
+    ${quests.map(quest => {
+      const layout = computeDAGLayout(quest.steps);
+      if (layout.nodes.length === 0) return null;
+      const { nodes, edges, nodePos, nodeW, nodeH, width, height } = layout;
+
+      return html`
+        <div class="dag-quest" key=${quest.id}>
+          <h3 class="dag-quest-title">${quest.name}</h3>
+          <div class="dag-scroll">
+            <svg width=${width} height=${height} class="dag-svg">
+              <defs>
+                <marker id="arrow-${quest.id}" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse"
+                  fill="#4fc3f7">
+                  <path d="M 0 0 L 10 5 L 0 10 z" />
+                </marker>
+              </defs>
+              ${edges.map(({ from, to }) => {
+                const fp = nodePos[from];
+                const tp = nodePos[to];
+                const x1 = fp.x + nodeW;
+                const y1 = fp.y + nodeH / 2;
+                const x2 = tp.x;
+                const y2 = tp.y + nodeH / 2;
+                const midX = (x1 + x2) / 2;
+                return html`
+                  <path d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}"
+                    fill="none" stroke="#4fc3f7" stroke-width="2"
+                    marker-end="url(#arrow-${quest.id})" />
+                `;
+              })}
+              ${nodes.map(n => html`
+                <g key=${n.id}>
+                  <rect x=${n.x} y=${n.y} width=${n.w} height=${n.h} rx="6" ry="6"
+                    fill="#2a2a3d" stroke="#4fc3f7" stroke-width="1.5" />
+                  <text x=${n.x + n.w / 2} y=${n.y + 22} text-anchor="middle"
+                    fill="#e0e0e0" font-size="12" font-weight="600" font-family="Segoe UI, system-ui, sans-serif">
+                    ${n.label}
+                  </text>
+                  ${n.roomId ? html`
+                    <text x=${n.x + n.w / 2} y=${n.y + 38} text-anchor="middle"
+                      fill="#777" font-size="10" font-family="Segoe UI, system-ui, sans-serif">
+                      ${n.roomId}
+                    </text>
+                  ` : null}
+                </g>
+              `)}
+            </svg>
+          </div>
+        </div>
+      `;
+    })}
+  `;
+}
+
 // ─── Main View ──────────────────────────────────────────────
 function MainView() {
   const [sessions, setSessions] = useState([]);
@@ -309,6 +445,11 @@ function MainView() {
           </table>
         `
       }
+    </div>
+
+    <div class="panel">
+      <h2>Quest Progression</h2>
+      <${QuestDAG} quests=${quests} />
     </div>
   `;
 }

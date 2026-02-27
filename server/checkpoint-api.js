@@ -327,9 +327,10 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
           label: stepDef.label,
           description: stepDef.description,
           roomId: stepDef.objective ? stepDef.objective.roomId : null,
+          prerequisiteSteps: stepDef.prerequisiteSteps || [],
         });
       }
-      result.push({ id: questId, name: quest.name, steps });
+      result.push({ id: questId, name: quest.name, startStep: quest.startStep || null, steps });
     }
     return json(res, 200, result);
   }
