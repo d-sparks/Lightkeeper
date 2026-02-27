@@ -624,13 +624,6 @@ class GameLoop {
 
     // Sol grid abilities (if sol unit is equipped, scan grid for ability components)
     if (player.solGrid) {
-      // Initialize energy pool on first sol grid equip
-      if (player.maxEnergy === 0) {
-        player.maxEnergy = 100;
-        player.energy = player.solGrid.initialEnergy !== undefined
-          ? player.solGrid.initialEnergy
-          : player.maxEnergy;
-      }
       for (let y = 0; y < player.solGrid.size; y++) {
         for (let x = 0; x < player.solGrid.size; x++) {
           const cell = player.solGrid.cells[y * player.solGrid.size + x];
@@ -689,9 +682,11 @@ class GameLoop {
     }
 
     player.solGrid = { size, cells, nextPlacementId };
-    if (solUnitDef.initialEnergy !== undefined) {
-      player.solGrid.initialEnergy = solUnitDef.initialEnergy;
-    }
+    // Set charge capacity from sol unit definition
+    player.maxEnergy = solUnitDef.maxCharge || 100;
+    player.energy = solUnitDef.initialEnergy !== undefined
+      ? solUnitDef.initialEnergy
+      : player.maxEnergy;
   }
 
   // Find sol component definition by abilityId
@@ -1040,6 +1035,12 @@ class GameLoop {
       player.inventory.splice(idx, 1);
     }
 
+    // Check energy cost
+    if (abilityDef.energyCost) {
+      if (player.energy < abilityDef.energyCost) return false;
+      player.energy -= abilityDef.energyCost;
+    }
+
     const healAmount = Math.min(abilityDef.heal || 0, player.maxHealth - player.health);
     if (healAmount <= 0) return false;
 
@@ -1073,10 +1074,7 @@ class GameLoop {
             player.cooldowns[i] = Math.max(0, player.cooldowns[i] - dt);
           }
         }
-        // Regenerate energy (~5 per second)
-        if (player.maxEnergy > 0 && player.energy < player.maxEnergy) {
-          player.energy = Math.min(player.maxEnergy, player.energy + 5 * dt);
-        }
+        // No passive energy regeneration — sol units must be charged at stations
       }
 
       // Update monsters (AI + attacks)
