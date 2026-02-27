@@ -125,6 +125,7 @@
   let equipmentState = { arms: null, medipac: null, accessory: null };
   let abilityState = [null, null, null, null, null, null];
   let cooldownState = [0, 0, 0, 0, 0, 0];
+  let slot1InteractMode = null; // null or interact label string when slot 1 is overridden
   const SLOT_DISPLAY_NAMES = { arms: 'Arms', medipac: 'Medipac', accessory: 'Accessory' };
 
   // Sol grid state
@@ -324,6 +325,8 @@
   function updateActionBar() {
     for (let i = 0; i < 6; i++) {
       const slotNum = i + 1;
+      // Skip slot 1 if currently showing interact override
+      if (slotNum === 1 && slot1InteractMode) continue;
       // Desktop action bar
       const desktopSlot = document.querySelector(`.action-slot[data-slot="${slotNum}"]`);
       // Mobile ability buttons
@@ -676,6 +679,77 @@
         interactBtn.style.display = 'none';
       }
     }
+
+    // Slot 1 interact override: if there's an interactable nearby and no monsters nearby,
+    // override slot 1 to show the interact action instead of the normal ability
+    const prevMode = slot1InteractMode;
+    slot1InteractMode = null;
+
+    if (label) {
+      // Check if any alive monsters are within aggro range
+      let monstersNearby = false;
+      if (renderer.state.monsters) {
+        const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * ts;
+        for (const mob of renderer.state.monsters) {
+          if (mob.health <= 0) continue;
+          const dx = mob.x - me.x, dy = mob.y - me.y;
+          if (Math.sqrt(dx * dx + dy * dy) < aggroRange) {
+            monstersNearby = true;
+            break;
+          }
+        }
+      }
+      if (!monstersNearby) {
+        slot1InteractMode = label;
+      }
+    }
+
+    // Update slot 1 display if interact mode changed
+    if (slot1InteractMode !== prevMode) {
+      updateSlot1Display();
+    }
+  }
+
+  function updateSlot1Display() {
+    const desktopSlot = document.querySelector('.action-slot[data-slot="1"]');
+    const mobileSlot = document.querySelector('.ability-btn[data-slot="1"]');
+
+    if (slot1InteractMode) {
+      if (desktopSlot) {
+        desktopSlot.classList.remove('empty');
+        const labelEl = desktopSlot.querySelector('.slot-label');
+        if (labelEl) labelEl.textContent = slot1InteractMode;
+      }
+      if (mobileSlot) {
+        mobileSlot.classList.remove('empty');
+        mobileSlot.textContent = slot1InteractMode;
+      }
+    } else {
+      // Restore normal ability display for slot 1
+      const abilityId = abilityState[0];
+      if (abilityId) {
+        const aLabel = abilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        if (desktopSlot) {
+          desktopSlot.classList.remove('empty');
+          const labelEl = desktopSlot.querySelector('.slot-label');
+          if (labelEl) labelEl.textContent = aLabel;
+        }
+        if (mobileSlot) {
+          mobileSlot.classList.remove('empty');
+          mobileSlot.textContent = '1';
+        }
+      } else {
+        if (desktopSlot) {
+          desktopSlot.classList.add('empty');
+          const labelEl = desktopSlot.querySelector('.slot-label');
+          if (labelEl) labelEl.innerHTML = '&mdash;';
+        }
+        if (mobileSlot) {
+          mobileSlot.classList.add('empty');
+          mobileSlot.textContent = '1';
+        }
+      }
+    }
   }
 
   // --- Auto-aim: find nearest monster and return angle to it ---
@@ -704,7 +778,16 @@
 
   // --- Ability dispatch ---
   input.onAbility = function (slot, aimAngle) {
+    // Slot 1 interact override: behave like interact key
+    if (slot === 1 && slot1InteractMode) {
+      if (dialogueActive) { advanceDialogue(); return; }
+      if (menuOpen) return;
+      net.send({ type: CONSTANTS.MSG.INTERACT });
+      return;
+    }
+
     if (dialogueActive || menuOpen) return;
+
     const me = renderer.state && renderer.state.players
       ? renderer.state.players.find(p => p.id === renderer.myId)
       : null;
