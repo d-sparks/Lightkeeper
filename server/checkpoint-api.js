@@ -491,6 +491,57 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
     }).catch((e) => json(res, 400, { error: 'Invalid request' }));
   }
 
+  // --- Get flags for a player ---
+  const flagsGetMatch = url.match(/^\/api\/checkpoint\/flags\/(.+)$/);
+  if (flagsGetMatch && method === 'GET') {
+    const playerId = decodeURIComponent(flagsGetMatch[1]);
+    const playerFlags = gameLoop.flagStore.getPlayerFlags(playerId);
+
+    // Also find the player's current room for room flags
+    let roomId = null;
+    wss.clients.forEach((client) => {
+      if (client.playerId === playerId && client.readyState === 1) roomId = client.playerRoom;
+    });
+    const roomFlags = roomId ? gameLoop.flagStore.getRoomFlags(roomId) : {};
+
+    return json(res, 200, { playerId, roomId, playerFlags, roomFlags });
+  }
+
+  // --- Set or remove a flag for a player ---
+  if (url === '/api/checkpoint/flags' && method === 'POST') {
+    return parseBody(req).then(body => {
+      const { playerId, flag, value, scope, remove } = body;
+      if (!playerId || !flag) return json(res, 400, { error: 'Missing playerId or flag' });
+
+      if (remove) {
+        if (scope === 'room') {
+          // Need to find the player's room
+          let roomId = null;
+          wss.clients.forEach((client) => {
+            if (client.playerId === playerId && client.readyState === 1) roomId = client.playerRoom;
+          });
+          if (!roomId) return json(res, 404, { error: 'Player not in a room' });
+          gameLoop.flagStore.removeRoomFlag(roomId, flag);
+        } else {
+          gameLoop.flagStore.removePlayerFlag(playerId, flag);
+        }
+        return json(res, 200, { ok: true, action: 'removed', flag });
+      }
+
+      if (scope === 'room') {
+        let roomId = null;
+        wss.clients.forEach((client) => {
+          if (client.playerId === playerId && client.readyState === 1) roomId = client.playerRoom;
+        });
+        if (!roomId) return json(res, 404, { error: 'Player not in a room' });
+        gameLoop.flagStore.setRoomFlag(roomId, flag, value !== undefined ? value : true);
+      } else {
+        gameLoop.flagStore.setPlayerFlag(playerId, flag, value !== undefined ? value : true);
+      }
+      return json(res, 200, { ok: true, action: 'set', flag, value });
+    }).catch(() => json(res, 400, { error: 'Invalid request' }));
+  }
+
   return false;
 }
 

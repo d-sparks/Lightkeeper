@@ -60,6 +60,23 @@ const api = {
       body: JSON.stringify({ playerId, questId, stepId }),
     })).json();
   },
+  async getFlags(playerId) {
+    return (await checkedFetch(`/api/checkpoint/flags/${encodeURIComponent(playerId)}`)).json();
+  },
+  async setFlag(playerId, flag, value, scope) {
+    return (await checkedFetch('/api/checkpoint/flags', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, flag, value, scope }),
+    })).json();
+  },
+  async removeFlag(playerId, flag, scope) {
+    return (await checkedFetch('/api/checkpoint/flags', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, flag, scope, remove: true }),
+    })).json();
+  },
 };
 
 // ─── Toast ──────────────────────────────────────────────────
@@ -240,6 +257,143 @@ function QuestDAG({ quests }) {
   `;
 }
 
+// ─── Flag Editor ────────────────────────────────────────────
+function FlagEditor({ sessions }) {
+  const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [playerFlags, setPlayerFlags] = useState({});
+  const [roomFlags, setRoomFlags] = useState({});
+  const [roomId, setRoomId] = useState(null);
+  const [newFlagName, setNewFlagName] = useState('');
+  const [newFlagValue, setNewFlagValue] = useState('');
+  const [newFlagScope, setNewFlagScope] = useState('player');
+  const [editValues, setEditValues] = useState({});
+
+  const refreshFlags = useCallback(async () => {
+    if (!selectedPlayer) return;
+    try {
+      const data = await api.getFlags(selectedPlayer);
+      setPlayerFlags(data.playerFlags || {});
+      setRoomFlags(data.roomFlags || {});
+      setRoomId(data.roomId);
+      setEditValues({});
+    } catch {}
+  }, [selectedPlayer]);
+
+  useEffect(() => {
+    if (selectedPlayer) refreshFlags();
+  }, [selectedPlayer]);
+
+  const handleSetFlag = async (flag, value, scope) => {
+    // Parse value: try JSON parse for numbers/booleans, fall back to string
+    let parsed = value;
+    if (value === 'true') parsed = true;
+    else if (value === 'false') parsed = false;
+    else if (value !== '' && !isNaN(Number(value))) parsed = Number(value);
+
+    try {
+      const result = await api.setFlag(selectedPlayer, flag, parsed, scope);
+      if (result.ok) {
+        showToast(`Flag "${flag}" set`);
+        refreshFlags();
+      } else {
+        showToast(result.error || 'Failed', 'err');
+      }
+    } catch { showToast('Failed to set flag', 'err'); }
+  };
+
+  const handleRemoveFlag = async (flag, scope) => {
+    try {
+      const result = await api.removeFlag(selectedPlayer, flag, scope);
+      if (result.ok) {
+        showToast(`Flag "${flag}" removed`);
+        refreshFlags();
+      } else {
+        showToast(result.error || 'Failed', 'err');
+      }
+    } catch { showToast('Failed to remove flag', 'err'); }
+  };
+
+  const handleAddFlag = async () => {
+    if (!newFlagName.trim()) { showToast('Enter a flag name', 'err'); return; }
+    await handleSetFlag(newFlagName.trim(), newFlagValue || 'true', newFlagScope);
+    setNewFlagName('');
+    setNewFlagValue('');
+  };
+
+  const setEditValue = (key, val) => {
+    setEditValues(prev => ({ ...prev, [key]: val }));
+  };
+
+  const renderFlagTable = (flags, scope) => {
+    const entries = Object.entries(flags);
+    if (entries.length === 0) return html`<div class="empty">No ${scope} flags</div>`;
+    return html`
+      <table>
+        <thead><tr><th>Flag</th><th>Value</th><th></th></tr></thead>
+        <tbody>
+          ${entries.map(([flag, value]) => {
+            const editKey = `${scope}:${flag}`;
+            const editVal = editValues[editKey];
+            const displayVal = JSON.stringify(value);
+            return html`
+              <tr key=${editKey}>
+                <td class="flag-name">${flag}</td>
+                <td>
+                  <input class="flag-input" value=${editVal !== undefined ? editVal : displayVal}
+                    onInput=${e => setEditValue(editKey, e.target.value)}
+                    onKeyDown=${e => { if (e.key === 'Enter') handleSetFlag(flag, editValues[editKey] ?? displayVal, scope); }} />
+                </td>
+                <td class="flag-actions">
+                  <button class="btn btn-save" onClick=${() => handleSetFlag(flag, editValues[editKey] ?? displayVal, scope)}>Set</button>
+                  <button class="btn btn-delete" onClick=${() => handleRemoveFlag(flag, scope)}>Del</button>
+                </td>
+              </tr>
+            `;
+          })}
+        </tbody>
+      </table>
+    `;
+  };
+
+  return html`
+    <div class="flag-editor-header">
+      <select value=${selectedPlayer} onChange=${e => setSelectedPlayer(e.target.value)}>
+        <option value="">-- select player --</option>
+        ${sessions.map(p => html`<option value=${p.playerId}>${p.name} (${p.playerId})</option>`)}
+      </select>
+      ${selectedPlayer && html`<button class="btn btn-save" onClick=${refreshFlags}>Refresh</button>`}
+    </div>
+
+    ${selectedPlayer && html`
+      <div class="flag-section">
+        <h3 class="flag-section-title">Player Flags</h3>
+        ${renderFlagTable(playerFlags, 'player')}
+      </div>
+
+      ${roomId && html`
+        <div class="flag-section">
+          <h3 class="flag-section-title">Room Flags <small>(${roomId})</small></h3>
+          ${renderFlagTable(roomFlags, 'room')}
+        </div>
+      `}
+
+      <div class="flag-add-row">
+        <input class="flag-input" placeholder="flag name" value=${newFlagName}
+          onInput=${e => setNewFlagName(e.target.value)}
+          onKeyDown=${e => { if (e.key === 'Enter') handleAddFlag(); }} />
+        <input class="flag-input" placeholder="value (default: true)" value=${newFlagValue}
+          onInput=${e => setNewFlagValue(e.target.value)}
+          onKeyDown=${e => { if (e.key === 'Enter') handleAddFlag(); }} />
+        <select value=${newFlagScope} onChange=${e => setNewFlagScope(e.target.value)}>
+          <option value="player">player</option>
+          <option value="room">room</option>
+        </select>
+        <button class="btn btn-save" onClick=${handleAddFlag}>Add</button>
+      </div>
+    `}
+  `;
+}
+
 // ─── Main View ──────────────────────────────────────────────
 function MainView() {
   const [sessions, setSessions] = useState([]);
@@ -413,6 +567,11 @@ function MainView() {
           </div>
         `
       }
+    </div>
+
+    <div class="panel">
+      <h2>Player Flags</h2>
+      <${FlagEditor} sessions=${sessions} />
     </div>
 
     <div class="panel">
