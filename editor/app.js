@@ -68,6 +68,11 @@ const api = {
   async listTemplates() { return (await checkedFetch('/api/editor/templates')).json(); },
   async getTemplate(id) { return (await checkedFetch(`/api/editor/templates/${id}`)).json(); },
   async saveTemplate(id, data) { return (await checkedFetch(`/api/editor/templates/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json(); },
+  async generateFromTemplate(templateId, opts) {
+    const res = await checkedFetch(`/api/editor/templates/${templateId}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(opts) });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Generation failed'); }
+    return res.json();
+  },
 };
 
 // ─── Tile colors (match game rendering) ─────────────────────
@@ -180,7 +185,7 @@ function App() {
       : view === 'quest_edit'
       ? html`<${QuestEditor} questId=${questId} onBack=${backToQuests} />`
       : view === 'template_edit'
-      ? html`<${TemplateEditor} templateId=${templateId} onBack=${backToList} />`
+      ? html`<${TemplateEditor} templateId=${templateId} onBack=${backToList} onOpen=${openEditor} />`
       : null
     }
   `;
@@ -2821,11 +2826,12 @@ function StepEditorModal({ quest, stepId, onSave, onClose }) {
 }
 
 // ─── Template Editor ────────────────────────────────────────
-function TemplateEditor({ templateId, onBack }) {
+function TemplateEditor({ templateId, onBack, onOpen }) {
   const [template, setTemplate] = useState(null);
   const [text, setText] = useState('');
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showGenerate, setShowGenerate] = useState(false);
 
   useEffect(() => {
     api.getTemplate(templateId).then(t => {
@@ -2858,6 +2864,12 @@ function TemplateEditor({ templateId, onBack }) {
     setSaving(false);
   };
 
+  const onGenerated = (dungeonId) => {
+    setShowGenerate(false);
+    showToast('Dungeon generated — opening editor', 'success');
+    onOpen(dungeonId);
+  };
+
   if (!template) return html`<div style="padding:60px;text-align:center;color:var(--text-dim)">Loading...</div>`;
 
   return html`
@@ -2870,6 +2882,7 @@ function TemplateEditor({ templateId, onBack }) {
           ${dirty && html`<span style="color:#ffa726;font-size:12px">Unsaved</span>`}
         </div>
         <div style="display:flex;gap:8px">
+          <button class="topbar-btn" onClick=${() => setShowGenerate(true)}>Generate Sample</button>
           <button class="topbar-btn" onClick=${apply}>Apply</button>
           <button class="topbar-btn primary" onClick=${save} disabled=${saving}>${saving ? 'Saving...' : 'Save'}</button>
         </div>
@@ -2878,6 +2891,73 @@ function TemplateEditor({ templateId, onBack }) {
         <textarea class="raw-json-textarea" style="flex:1;min-height:300px;font-size:13px"
           value=${text}
           onInput=${e => { setText(e.target.value); setDirty(true); }} />
+      </div>
+      ${showGenerate && html`<${GenerateModal} templateId=${templateId} template=${template}
+        onGenerated=${onGenerated} onClose=${() => setShowGenerate(false)} />`}
+    </div>
+  `;
+}
+
+// ─── Generate from Template Modal ───────────────────────────
+function GenerateModal({ templateId, template, onGenerated, onClose }) {
+  const depthMin = (template.depth && template.depth.min) || 1;
+  const depthMax = (template.depth && template.depth.max) || 10;
+  const [id, setId] = useState('');
+  const [name, setName] = useState('');
+  const [depth, setDepth] = useState(depthMin);
+  const [seed, setSeed] = useState('');
+  const [generating, setGenerating] = useState(false);
+
+  const submit = async () => {
+    const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!safeId) { showToast('ID is required', 'error'); return; }
+    setGenerating(true);
+    try {
+      await api.generateFromTemplate(templateId, {
+        id: safeId,
+        name: name || undefined,
+        depth: Number(depth),
+        seed: seed || undefined,
+      });
+      onGenerated(safeId);
+    } catch (e) {
+      showToast(e.message || 'Generation failed', 'error');
+    }
+    setGenerating(false);
+  };
+
+  return html`
+    <div class="modal-overlay" onClick=${(e) => e.target === e.currentTarget && onClose()}>
+      <div class="modal">
+        <h2>Generate from Template</h2>
+        <p style="color:var(--text-dim);font-size:13px;margin-bottom:12px">
+          Run the procedural algorithm to create a hand-editable dungeon from this template.
+        </p>
+        <div class="field">
+          <label>Dungeon ID</label>
+          <input value=${id} onInput=${e => setId(e.target.value)} placeholder="e.g. quarantine_sample_01" />
+        </div>
+        <div class="field">
+          <label>Name (optional — defaults to template pattern)</label>
+          <input value=${name} onInput=${e => setName(e.target.value)} placeholder="e.g. Quarantine Wing" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Depth (${depthMin}–${depthMax})</label>
+            <input type="number" value=${depth} onInput=${e => setDepth(e.target.value)}
+              min=${depthMin} max=${depthMax} />
+          </div>
+          <div class="field">
+            <label>Seed (optional — random if empty)</label>
+            <input value=${seed} onInput=${e => setSeed(e.target.value)} placeholder="any text" />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button onClick=${onClose}>Cancel</button>
+          <button class="primary" onClick=${submit} disabled=${generating}>
+            ${generating ? 'Generating...' : 'Generate'}
+          </button>
+        </div>
       </div>
     </div>
   `;
