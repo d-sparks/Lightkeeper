@@ -195,6 +195,10 @@ class Renderer {
     const sz = CONSTANTS.SPRITE_SIZE;
     for (const id of Object.keys(this.tileset.tiles)) {
       const numId = parseInt(id);
+      if (baseTex.width > 0 && numId * sz + sz > baseTex.width) {
+        console.warn(`Tile ${id} (x=${numId * sz}) exceeds tileset image width (${baseTex.width}), skipping`);
+        continue;
+      }
       const rect = new PIXI.Rectangle(numId * sz, 0, sz, sz);
       this.tileTextures[id] = new PIXI.Texture(baseTex, rect);
     }
@@ -1261,12 +1265,16 @@ class Renderer {
       sprite.tint = 0xffffff;
       sprite.width = sz;
       sprite.height = sz;
+      // In iso mode, shift sprite up so bottom is at ground level (feet on ground)
+      sprite.y = this.isoMode ? -sz / 2 : 0;
       return true;
     }
     // Texture is loading — use fallback (white square tinted)
     sprite.texture = PIXI.Texture.WHITE;
-    sprite.width = fallbackSize || 20;
-    sprite.height = fallbackSize || 20;
+    const fsz = fallbackSize || 20;
+    sprite.width = fsz;
+    sprite.height = fsz;
+    sprite.y = this.isoMode ? -fsz / 2 : 0;
     return false;
   }
 
@@ -1328,14 +1336,14 @@ class Renderer {
         const range = CONSTANTS.ITEM_PICKUP_RANGE * CONSTANTS.TILE_SIZE;
         if (dist < range) {
           promptText.text = '[E] Pick up';
-          promptText.y = 12;
+          promptText.y = this.isoMode ? 4 : 12;
           promptText.alpha = 0.5 + 0.3 * pulse;
           promptText.visible = true;
 
           extraText.text = item.name;
           const rarityHex = CONSTANTS.RARITY_COLORS[item.rarity] || '#ffffff';
           extraText.style.fill = rarityHex;
-          extraText.y = 24;
+          extraText.y = this.isoMode ? 16 : 24;
           extraText.visible = true;
         } else {
           promptText.visible = false;
@@ -1372,10 +1380,10 @@ class Renderer {
       const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
       if (!loaded) sprite.tint = 0x64b5f6;
 
-      // Name tag
+      // Name tag (above sprite top)
       nameTag.text = npc.name;
       nameTag.style.fill = '#64b5f6';
-      nameTag.y = -r - 6;
+      nameTag.y = this.isoMode ? -42 : -r - 6;
       nameTag.visible = true;
 
       // No health bar for NPCs
@@ -1390,7 +1398,7 @@ class Renderer {
         const range = CONSTANTS.NPC_INTERACT_RANGE * CONSTANTS.TILE_SIZE;
         if (dist < range) {
           promptText.text = '[E] Talk';
-          promptText.y = r + 4;
+          promptText.y = this.isoMode ? 4 : r + 4;
           promptText.alpha = 0.5 + 0.3 * pulse;
           promptText.visible = true;
         } else {
@@ -1429,18 +1437,19 @@ class Renderer {
         sprite.width = r * 2;
         sprite.height = r * 2;
         sprite.tint = 0xe53935;
+        sprite.y = this.isoMode ? -r : 0;
       }
 
-      // Name tag
+      // Name tag (above sprite top)
       nameTag.text = mob.name;
       nameTag.style.fill = '#e57373';
-      nameTag.y = -r - 6;
+      nameTag.y = this.isoMode ? -42 : -r - 6;
       nameTag.visible = true;
 
-      // Health bar
+      // Health bar (just below name tag)
       const hp = mob.health / mob.maxHealth;
       const barColor = hp > 0.5 ? 0xe53935 : 0xff6f00;
-      this._drawHealthBar(healthBg, healthFill, 0, -r - 4, 26, 3, hp, barColor);
+      this._drawHealthBar(healthBg, healthFill, 0, this.isoMode ? -40 : -r - 4, 26, 3, hp, barColor);
 
       promptText.visible = false;
     }
@@ -1507,23 +1516,24 @@ class Renderer {
         sprite.tint = playerColors[player.colorIndex] || 0xffffff;
       }
 
-      // Name tag
+      // Name tag (above sprite top)
       nameTag.text = player.name;
       nameTag.style.fill = isMe ? '#ffffff' : 'rgba(255,255,255,0.7)';
-      nameTag.y = -r - 6;
+      nameTag.y = this.isoMode ? -42 : -r - 6;
       nameTag.visible = true;
 
-      // Health bar
+      // Health bar (just below name tag)
       if (player.health < player.maxHealth || isMe) {
         const healthPct = player.health / player.maxHealth;
         const barColor = healthPct > 0.5 ? 0x4caf50 : healthPct > 0.25 ? 0xffa726 : 0xe53935;
-        this._drawHealthBar(healthBg, healthFill, 0, -r - 4, 30, 4, healthPct, barColor);
+        this._drawHealthBar(healthBg, healthFill, 0, this.isoMode ? -40 : -r - 4, 30, 4, healthPct, barColor);
       } else {
         healthBg.clear();
         healthFill.clear();
       }
 
-      // Weapon indicator
+      // Weapon indicator (centered on sprite body)
+      const isoOff = this.isoMode ? -18 : 0;
       if (!entry.weaponGfx) {
         entry.weaponGfx = new PIXI.Graphics();
         container.addChild(entry.weaponGfx);
@@ -1532,9 +1542,9 @@ class Renderer {
       if (player.weapon) {
         const wLen = r + 10;
         const wBaseX = Math.cos(player.facing) * (r - 2);
-        const wBaseY = Math.sin(player.facing) * (r - 2);
+        const wBaseY = Math.sin(player.facing) * (r - 2) + isoOff;
         const wTipX = Math.cos(player.facing) * wLen;
-        const wTipY = Math.sin(player.facing) * wLen;
+        const wTipY = Math.sin(player.facing) * wLen + isoOff;
         entry.weaponGfx.lineStyle(3, 0xb8975a);
         entry.weaponGfx.moveTo(wBaseX, wBaseY);
         entry.weaponGfx.lineTo(wTipX, wTipY);
@@ -1548,7 +1558,7 @@ class Renderer {
         entry.weaponGfx.lineTo(midX - perpX, midY - perpY);
       }
 
-      // "You" indicator
+      // "You" indicator (centered on sprite body)
       if (!entry.youIndicator) {
         entry.youIndicator = new PIXI.Graphics();
         container.addChild(entry.youIndicator);
@@ -1556,7 +1566,7 @@ class Renderer {
       entry.youIndicator.clear();
       if (isMe) {
         entry.youIndicator.lineStyle(1, 0xffffff, 0.4);
-        entry.youIndicator.drawCircle(0, 0, r + 6);
+        entry.youIndicator.drawCircle(0, isoOff, r + 6);
       }
 
       promptText.visible = false;
