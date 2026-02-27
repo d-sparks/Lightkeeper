@@ -1852,7 +1852,25 @@ class Renderer {
     const onScreen = screenX >= margin && screenX <= this.viewW - margin &&
                      screenY >= margin && screenY <= this.viewH - margin;
 
-    if (onScreen) return; // No arrow needed if objective is visible
+    // Pulsing alpha
+    const pulse = 0.6 + 0.4 * Math.sin(Date.now() / 300);
+
+    if (onScreen) {
+      // Draw a small yellow arrow pointing down at the target from above
+      const bobOffset = 4 * Math.sin(Date.now() / 250); // gentle bobbing
+      const arrowTipY = screenY - ts * 0.8 + bobOffset;
+      const arrowTipX = screenX;
+      const arrowSize = 8;
+
+      this.questArrowGfx.beginFill(0xffa726, pulse);
+      // Downward-pointing triangle
+      this.questArrowGfx.moveTo(arrowTipX, arrowTipY + arrowSize); // tip (bottom)
+      this.questArrowGfx.lineTo(arrowTipX - arrowSize * 0.7, arrowTipY - arrowSize * 0.3);
+      this.questArrowGfx.lineTo(arrowTipX + arrowSize * 0.7, arrowTipY - arrowSize * 0.3);
+      this.questArrowGfx.closePath();
+      this.questArrowGfx.endFill();
+      return;
+    }
 
     // Clamp to screen edge
     const cx = this.viewW / 2;
@@ -1871,9 +1889,6 @@ class Renderer {
     );
     const arrowX = cx + dx * scale;
     const arrowY = cy + dy * scale;
-
-    // Pulsing alpha
-    const pulse = 0.6 + 0.4 * Math.sin(Date.now() / 300);
 
     // Draw triangle pointing toward objective
     this.questArrowGfx.beginFill(0xffa726, pulse);

@@ -276,10 +276,29 @@
     }
 
     for (const quest of questState) {
+      // Quest header row with title and track button
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'quest-header';
+
       const titleDiv = document.createElement('div');
       titleDiv.className = 'quest-title';
       titleDiv.textContent = quest.name;
-      questPanelContent.appendChild(titleDiv);
+      headerDiv.appendChild(titleDiv);
+
+      // Track button — allows toggling which quest to follow
+      const hasActiveSteps = quest.steps.some(s => s.status === 'active');
+      if (hasActiveSteps) {
+        const trackBtn = document.createElement('div');
+        trackBtn.className = 'quest-track-btn' + (quest.tracked ? ' tracked' : '');
+        trackBtn.textContent = quest.tracked ? 'TRACKING' : 'TRACK';
+        trackBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          net.send({ type: CONSTANTS.MSG.TRACK_QUEST, questId: quest.id });
+        });
+        headerDiv.appendChild(trackBtn);
+      }
+
+      questPanelContent.appendChild(headerDiv);
 
       const descDiv = document.createElement('div');
       descDiv.className = 'quest-desc';
@@ -898,9 +917,10 @@
 
   net.on(CONSTANTS.MSG.QUEST_OBJECTIVE, (msg) => {
     renderer.questObjective = msg.objective || null;
-    // Update HUD quest label
+    // Update HUD quest label with quest name + step label
     if (msg.objective && msg.objective.label) {
-      questLabel.textContent = '\u25B8 ' + msg.objective.label;
+      const prefix = msg.objective.questName ? msg.objective.questName + ': ' : '';
+      questLabel.textContent = '\u25B8 ' + prefix + msg.objective.label;
       questLabel.style.display = '';
     } else {
       questLabel.style.display = 'none';

@@ -79,6 +79,7 @@ const CONSTANTS = {
     USE_ITEM:      'use_item',
     ATTACK:        'attack',
     USE_ABILITY:   'use_ability',
+    TRACK_QUEST:   'track_quest',
 
     // Server -> Client
     WELCOME:       'welcome',
