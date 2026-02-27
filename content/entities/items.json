@@ -30,6 +30,15 @@
     "stats": { "attackDamage": 3, "projectile": true },
     "ability": { "id": "blaster_shot" }
   },
+  "combat_baton": {
+    "name": "Combat Baton",
+    "description": "Standard-issue close-quarters weapon. Hits hard with knockback.",
+    "type": "weapon",
+    "rarity": "common",
+    "slot": "weapon",
+    "stats": { "attackDamage": 5 },
+    "ability": { "id": "melee_strike" }
+  },
   "torch": {
     "name": "Torch",
     "description": "Casts a warm glow",

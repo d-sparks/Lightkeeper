@@ -41,6 +41,22 @@
       "togglesTo": 5,
       "conditions": [{ "hasFlag": "talked_to_warden" }],
       "failMessage": "The gate is sealed. Talk to Warden Holt first."
+    },
+    "13": {
+      "name": "sealed_gate_workshop",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "received_weapon" }],
+      "failMessage": "The gate is sealed. Get a weapon from the Quartermaster first."
+    },
+    "14": {
+      "name": "sealed_gate_charger",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "received_sol_unit" }],
+      "failMessage": "The gate is sealed. Get your Sol Unit from the engineer first."
     }
   }
 }

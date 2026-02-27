@@ -859,6 +859,8 @@ class GameLoop {
         return this._fireProjectile(room, player, abilityDef, aimAngle, slotIdx);
       case 'cone':
         return this._fireCone(room, player, abilityDef, aimAngle, slotIdx);
+      case 'melee_strike':
+        return this._useMeleeStrike(room, player, abilityDef, slotIdx);
       case 'heal':
         return this._useHeal(room, player, abilityDef, slotIdx);
       default:
@@ -1033,6 +1035,86 @@ class GameLoop {
       coneAngle: abilityDef.coneAngle || 60,
       range: coneRange,
     });
+
+    player.cooldowns[slotIdx] = abilityDef.cooldown || CONSTANTS.PLAYER_ATTACK_COOLDOWN;
+    return true;
+  }
+
+  _useMeleeStrike(room, player, abilityDef, slotIdx) {
+    const range = (abilityDef.range || CONSTANTS.PLAYER_ATTACK_RANGE) * CONSTANTS.TILE_SIZE;
+
+    // Find nearest monster in range
+    let nearestMob = null;
+    let nearestDist = Infinity;
+    for (const [mid, mob] of room.monsters) {
+      const dx = mob.x - player.x;
+      const dy = mob.y - player.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < range && dist < nearestDist) {
+        nearestMob = mob;
+        nearestDist = dist;
+      }
+    }
+
+    if (!nearestMob) return false;
+
+    // Deal damage
+    const damage = this.getPlayerAttackDamage(player) * (abilityDef.damageMultiplier || 1.0);
+    nearestMob.health -= damage;
+    nearestMob.aggroTarget = player.id;
+
+    room.events.push({
+      type: 'damage', targetId: nearestMob.id,
+      amount: damage, x: nearestMob.x, y: nearestMob.y,
+    });
+
+    // Apply knockback
+    const knockback = abilityDef.knockback || 0;
+    if (knockback > 0 && nearestDist > 0) {
+      const dx = nearestMob.x - player.x;
+      const dy = nearestMob.y - player.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const kbX = (dx / len) * knockback;
+      const kbY = (dy / len) * knockback;
+
+      const newX = nearestMob.x + kbX;
+      const newY = nearestMob.y + kbY;
+      if (!this.physics.collidesAt(newX, newY, room.dungeon, CONSTANTS.MONSTER_COLLISION_RADIUS)) {
+        nearestMob.x = newX;
+        nearestMob.y = newY;
+      } else {
+        // Try each axis independently
+        if (!this.physics.collidesAt(newX, nearestMob.y, room.dungeon, CONSTANTS.MONSTER_COLLISION_RADIUS)) {
+          nearestMob.x = newX;
+        }
+        if (!this.physics.collidesAt(nearestMob.x, newY, room.dungeon, CONSTANTS.MONSTER_COLLISION_RADIUS)) {
+          nearestMob.y = newY;
+        }
+      }
+    }
+
+    // Check if monster died
+    if (nearestMob.health <= 0) {
+      room.events.push({
+        type: 'death', targetId: nearestMob.id,
+        x: nearestMob.x, y: nearestMob.y,
+      });
+      room.monsters.delete(nearestMob.id);
+
+      if (nearestMob.spawnKey) {
+        if (!this.killedMonsters.has(room.dungeonId)) {
+          this.killedMonsters.set(room.dungeonId, new Set());
+        }
+        this.killedMonsters.get(room.dungeonId).add(nearestMob.spawnKey);
+      }
+
+      const ctx = this._scriptContext(player.id, room.id);
+      this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
+        playerId: player.id, roomId: room.id,
+        monsterType: nearestMob.type, monsterId: nearestMob.id,
+        monsterX: nearestMob.x, monsterY: nearestMob.y,
+      }, ctx);
+    }
 
     player.cooldowns[slotIdx] = abilityDef.cooldown || CONSTANTS.PLAYER_ATTACK_COOLDOWN;
     return true;
