@@ -52,6 +52,14 @@ const api = {
       body: JSON.stringify({ message }),
     })).json();
   },
+  async quests() { return (await checkedFetch('/api/checkpoint/quests')).json(); },
+  async questJump(playerId, questId, stepId) {
+    return (await checkedFetch('/api/checkpoint/quest-jump', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, questId, stepId }),
+    })).json();
+  },
 };
 
 // ─── Toast ──────────────────────────────────────────────────
@@ -101,6 +109,10 @@ function MainView() {
   const [sessions, setSessions] = useState([]);
   const [saves, setSaves] = useState([]);
   const [loadTargets, setLoadTargets] = useState({});
+  const [quests, setQuests] = useState([]);
+  const [jumpQuestId, setJumpQuestId] = useState('');
+  const [jumpStepId, setJumpStepId] = useState('');
+  const [jumpPlayerId, setJumpPlayerId] = useState('');
 
   const refreshSessions = useCallback(async () => {
     try { setSessions(await api.sessions()); } catch {}
@@ -110,10 +122,15 @@ function MainView() {
     try { setSaves(await api.saves()); } catch {}
   }, []);
 
+  const refreshQuests = useCallback(async () => {
+    try { setQuests(await api.quests()); } catch {}
+  }, []);
+
   // Poll sessions every 3s
   useEffect(() => {
     refreshSessions();
     refreshSaves();
+    refreshQuests();
     const interval = setInterval(refreshSessions, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -178,6 +195,23 @@ function MainView() {
     }
   };
 
+  const handleQuestJump = async () => {
+    if (!jumpPlayerId) { showToast('Select a player first', 'err'); return; }
+    if (!jumpQuestId || !jumpStepId) { showToast('Select a quest step first', 'err'); return; }
+    try {
+      const result = await api.questJump(jumpPlayerId, jumpQuestId, jumpStepId);
+      if (result.ok) {
+        showToast(`Jumped to: ${result.quest} — ${result.step}`);
+      } else {
+        showToast(result.error || 'Quest jump failed', 'err');
+      }
+    } catch (e) {
+      showToast('Quest jump failed', 'err');
+    }
+  };
+
+  const selectedQuest = quests.find(q => q.id === jumpQuestId);
+
   const setLoadTarget = (file, playerId) => {
     setLoadTargets(prev => ({ ...prev, [file]: playerId }));
   };
@@ -214,6 +248,33 @@ function MainView() {
               `)}
             </tbody>
           </table>
+        `
+      }
+    </div>
+
+    <div class="panel">
+      <h2>Quest Jump</h2>
+      ${quests.length === 0
+        ? html`<div class="empty">No quests loaded</div>`
+        : html`
+          <div class="quest-jump-row">
+            <select value=${jumpQuestId} onChange=${e => { setJumpQuestId(e.target.value); setJumpStepId(''); }}>
+              <option value="">-- quest --</option>
+              ${quests.map(q => html`<option value=${q.id}>${q.name}</option>`)}
+            </select>
+            <select value=${jumpStepId} onChange=${e => setJumpStepId(e.target.value)} disabled=${!jumpQuestId}>
+              <option value="">-- step --</option>
+              ${selectedQuest ? selectedQuest.steps.map(s => html`
+                <option value=${s.id}>${s.label}${s.roomId ? ` (${s.roomId})` : ''}</option>
+              `) : null}
+            </select>
+            <select value=${jumpPlayerId} onChange=${e => setJumpPlayerId(e.target.value)}>
+              <option value="">-- player --</option>
+              ${sessions.map(p => html`<option value=${p.playerId}>${p.name} (${p.playerId})</option>`)}
+            </select>
+            <button class="btn btn-jump" disabled=${!jumpPlayerId || !jumpStepId}
+              onClick=${handleQuestJump}>Go</button>
+          </div>
         `
       }
     </div>
