@@ -1,3 +1,6 @@
+Fix conflicts
+- ralph/add-a-melee-weapon-which-is-an-alternative-to-the
+
 Game
 - Implement side quests, and a first side quest
 - Add a concept of "tracked quests" that show you where to go. The main quest already does this, but we should be able to toggle to side quests. Also, for whichever quest is active, display the name of the next step somewhere on the screen. Finally, for the yellow arrow indicator, once the interaction target is on screen, can we have a yellow arrow pointing down at them from just above the item/NPC?

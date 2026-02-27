@@ -6,6 +6,11 @@ set -euo pipefail
 # runs Claude Code for each task (committing on the same branch),
 # then opens one PR per section.
 #
+# Special section: "Fix conflicts"
+#   Each item is a branch name. Ralph checks out the branch, rebases
+#   onto main, and has Claude resolve any merge conflicts. The rebased
+#   branch is force-pushed and the worktree is cleaned up.
+#
 # Usage:
 #   ./ralph.sh                  # Run all TODOs (uses permission settings from ~/.claude/settings.json)
 #   ./ralph.sh --dry-run        # Preview tasks without executing
@@ -111,6 +116,121 @@ ${task}
 PROMPT
 }
 
+# ─── Build prompt for fixing merge conflicts ──────────────────
+build_conflict_prompt() {
+  local branch_name="$1"
+  cat <<PROMPT
+You are working on the Lightkeeper codebase. A rebase of branch "${branch_name}" onto ${BASE_BRANCH} has resulted in merge conflicts.
+
+## Task
+Fix all merge conflicts in this repository. The rebase is already in progress.
+
+## Instructions
+- Run \`git status\` to see which files have conflicts.
+- Read each conflicted file and resolve the conflicts intelligently:
+  - Understand the intent of BOTH sides (the base branch changes and this branch's changes).
+  - Merge them so that both sets of changes are preserved where possible.
+  - If changes are truly incompatible, prefer this branch's intent since it represents the new feature/fix.
+- After resolving all conflicts in a file, \`git add\` the file.
+- Once all conflicts are resolved, run \`git rebase --continue\`.
+- If the rebase has multiple conflicting commits, repeat: resolve conflicts, git add, git rebase --continue.
+- Keep going until the rebase is fully complete (no more rebase in progress).
+- Do NOT push to remote. Do NOT create a PR.
+PROMPT
+}
+
+# ─── Handle "Fix conflicts" section ──────────────────────────
+# Each task is a branch name. We check it out, rebase onto main,
+# and have Claude resolve any conflicts.
+handle_fix_conflicts() {
+  local section="$1"
+  shift
+  local indices=("$@")
+
+  for idx in "${indices[@]}"; do
+    num=$((idx + 1))
+    branch_name="${TASKS[$idx]}"
+
+    echo ""
+    echo "  ───────────────────────────────────────────────────"
+    echo "  TODO #${num}: Fix conflicts on branch: ${branch_name}"
+    echo "  ───────────────────────────────────────────────────"
+
+    worktree_path="${WORKTREE_DIR}/ralph-fix-$(slugify "$branch_name")"
+
+    if $DRY_RUN; then
+      echo "  [dry-run] Would checkout ${branch_name} into ${worktree_path}"
+      echo "  [dry-run] Would rebase onto ${BASE_BRANCH} and have Claude fix conflicts"
+      continue
+    fi
+
+    # Ensure clean state
+    if git worktree list --porcelain | grep -q "$worktree_path"; then
+      echo "  Worktree already exists, removing..."
+      git worktree remove "$worktree_path" --force 2>/dev/null || true
+    fi
+
+    # Fetch latest
+    git fetch origin "$branch_name" 2>/dev/null || true
+    git fetch origin "$BASE_BRANCH" 2>/dev/null || true
+
+    # Create worktree from the existing branch
+    mkdir -p "$WORKTREE_DIR"
+    if git show-ref --verify --quiet "refs/heads/$branch_name"; then
+      git worktree add "$worktree_path" "$branch_name"
+    elif git show-ref --verify --quiet "refs/remotes/origin/$branch_name"; then
+      git worktree add "$worktree_path" -b "$branch_name" "origin/$branch_name"
+    else
+      echo "  ERROR: Branch '${branch_name}' not found locally or on origin. Skipping."
+      continue
+    fi
+    echo "  Worktree created: ${worktree_path}"
+
+    # Start the rebase (expect conflicts)
+    echo "  Rebasing ${branch_name} onto ${BASE_BRANCH}..."
+    rebase_failed=false
+    (cd "$worktree_path" && git rebase "origin/${BASE_BRANCH}") || rebase_failed=true
+
+    if $rebase_failed; then
+      echo "  Rebase has conflicts. Running Claude to fix them..."
+
+      prompt="$(build_conflict_prompt "$branch_name")"
+
+      CLAUDE_ARGS=(--max-turns "$MAX_TURNS" --verbose)
+      if $YOLO; then
+        CLAUDE_ARGS+=(--dangerously-skip-permissions)
+      fi
+
+      (
+        cd "$worktree_path"
+        echo "$prompt" | claude "${CLAUDE_ARGS[@]}" \
+          2>&1 | tee "${worktree_path}/.claude-ralph-log-${num}.txt"
+      ) || {
+        echo "  Claude exited with non-zero status for TODO #${num}, continuing..."
+      }
+    else
+      echo "  Rebase completed cleanly — no conflicts to fix."
+    fi
+
+    # Verify rebase completed (no rebase-merge dir remaining)
+    if [[ -d "$worktree_path/.git/rebase-merge" || -d "$worktree_path/.git/rebase-apply" ]]; then
+      echo "  WARNING: Rebase still in progress. Claude may not have fully resolved conflicts."
+      echo "  Aborting rebase to leave branch in a clean state."
+      (cd "$worktree_path" && git rebase --abort) || true
+    else
+      echo "  Rebase complete. Force-pushing rebased branch..."
+      (cd "$worktree_path" && git push --force-with-lease origin "$branch_name") || {
+        echo "  Push failed for ${branch_name}."
+      }
+    fi
+
+    # Clean up worktree
+    cd "$REPO_ROOT"
+    git worktree remove "$worktree_path" --force 2>/dev/null || true
+    echo "  Worktree removed. Done with ${branch_name}."
+  done
+}
+
 # ─── Main loop: iterate over sections ─────────────────────────
 for section in "${SECTIONS[@]}"; do
   # Apply --section filter
@@ -129,6 +249,21 @@ for section in "${SECTIONS[@]}"; do
   # Skip section if no tasks to run
   if [[ ${#section_task_indices[@]} -eq 0 ]]; then continue; fi
 
+  # ─── "Fix conflicts" section: special handling ───────────────
+  if [[ "$section" == "Fix conflicts" ]]; then
+    echo ""
+    echo "╔═══════════════════════════════════════════════════════╗"
+    echo "  Section: ${section} (${#section_task_indices[@]} branch(es))"
+    echo "╚═══════════════════════════════════════════════════════╝"
+
+    handle_fix_conflicts "$section" "${section_task_indices[@]}"
+
+    echo "  Done with section: ${section}."
+    echo ""
+    continue
+  fi
+
+  # ─── Normal section handling ────────────────────────────────
   section_slug="$(slugify "$section")"
   branch="ralph/${section_slug}"
   worktree_path="${WORKTREE_DIR}/ralph-${section_slug}"
