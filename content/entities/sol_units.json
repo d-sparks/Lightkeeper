@@ -2,6 +2,7 @@
   "sol_unit_mk1": {
     "name": "Sol Unit Mk1",
     "gridSize": 5,
+    "initialEnergy": 5,
     "initialComponents": [
       { "abilityId": "sol_beam", "gridX": 2, "gridY": 2 }
     ]

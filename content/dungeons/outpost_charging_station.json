@@ -47,6 +47,32 @@
         { "type": "showMessage", "text": "The hum of the solar capacitor banks fills the room. Indicator lights pulse along the charging terminals." }
       ],
       "once": true
+    },
+    {
+      "id": "charge_sol_unit",
+      "event": "npc_interacted",
+      "filter": { "npcType": "charging_tech_maren" },
+      "conditions": [
+        { "hasFlag": "sol_training_complete" },
+        { "not": { "hasFlag": "sol_charged_first_time" } }
+      ],
+      "actions": [
+        { "type": "setEnergy", "percent": 100 },
+        { "type": "setFlag", "flag": "sol_charged_first_time" }
+      ],
+      "once": true
+    },
+    {
+      "id": "enter_power_station_needs_charge",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "sol_training_complete" },
+        { "not": { "hasFlag": "sol_charged_first_time" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Your Sol Unit's energy indicator is flashing red. Talk to Tech Maren at the charging terminals." }
+      ],
+      "once": true
     }
   ]
 }
