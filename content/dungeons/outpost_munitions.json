@@ -79,6 +79,34 @@
         { "type": "removeEntity", "entityType": "item", "itemType": "blaster" },
         { "type": "showMessage", "text": "You take the Combat Baton. Heavy hits with knockback." }
       ]
+    },
+    {
+      "id": "voss_side_quest_offer",
+      "event": "npc_interacted",
+      "filter": { "npcType": "munitions_quartermaster" },
+      "conditions": [
+        { "hasFlag": "quest_cylinders_active" },
+        { "not": { "hasFlag": "voss_supply_quest_accepted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "voss_supply_quest_accepted" }
+      ],
+      "once": true
+    },
+    {
+      "id": "voss_side_quest_complete",
+      "event": "npc_interacted",
+      "filter": { "npcType": "munitions_quartermaster" },
+      "conditions": [
+        { "hasItem": "supply_manifest" }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "supply_manifest" },
+        { "type": "giveItem", "itemType": "health_potion" },
+        { "type": "giveItem", "itemType": "bandage" },
+        { "type": "setFlag", "flag": "voss_supply_quest_complete" }
+      ],
+      "once": true
     }
   ]
 }

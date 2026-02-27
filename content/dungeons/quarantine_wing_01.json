@@ -4082,7 +4082,38 @@
     }
   ],
   "npcSpawns": [],
-  "itemSpawns": [],
+  "itemSpawns": [
+    {
+      "type": "bandage",
+      "x": 22,
+      "y": 2
+    },
+    {
+      "type": "health_potion",
+      "x": 35,
+      "y": 13
+    },
+    {
+      "type": "bandage",
+      "x": 50,
+      "y": 20
+    },
+    {
+      "type": "health_potion",
+      "x": 65,
+      "y": 28
+    },
+    {
+      "type": "bandage",
+      "x": 40,
+      "y": 22
+    },
+    {
+      "type": "supply_manifest",
+      "x": 42,
+      "y": 20
+    }
+  ],
   "exits": [
     {
       "x": 24,

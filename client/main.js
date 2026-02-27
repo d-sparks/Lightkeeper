@@ -1026,6 +1026,10 @@
     showQuestToast('\u2714 ' + msg.label);
   });
 
+  net.on(CONSTANTS.MSG.QUEST_STARTED, (msg) => {
+    showQuestToast('New Quest: ' + msg.name);
+  });
+
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {
     inventoryItems = msg.items || [];
     if (msg.equipment) {

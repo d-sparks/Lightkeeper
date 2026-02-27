@@ -1,0 +1,26 @@
+{
+  "id": "lost_supplies",
+  "name": "Lost Supplies",
+  "description": "Quartermaster Voss needs a supply manifest recovered from the occupied wing to file for replacements.",
+  "startConditions": [{ "hasFlag": "voss_supply_quest_accepted" }],
+  "steps": {
+    "find_manifest": {
+      "label": "Recover the Supply Manifest",
+      "description": "Search the outer corridor of the occupied wing for the lost supply manifest.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "quarantine_wing_01", "tileX": 42, "tileY": 20 },
+      "completionConditions": [{ "hasItem": "supply_manifest" }]
+    },
+    "return_to_voss": {
+      "label": "Return to Quartermaster Voss",
+      "description": "Bring the recovered manifest back to Quartermaster Voss in the munitions depot.",
+      "prerequisiteSteps": ["find_manifest"],
+      "objective": { "roomId": "outpost_munitions", "tileX": 21, "tileY": 7 },
+      "completionConditions": [{ "hasFlag": "voss_supply_quest_complete" }],
+      "completionActions": [
+        { "type": "showMessage", "text": "Quest complete: Lost Supplies" }
+      ]
+    }
+  },
+  "startStep": "find_manifest"
+}
