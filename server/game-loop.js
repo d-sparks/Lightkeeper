@@ -832,6 +832,8 @@ class GameLoop {
     switch (abilityDef.type) {
       case 'projectile':
         return this._fireProjectile(room, player, abilityDef, aimAngle, slotIdx);
+      case 'cone':
+        return this._fireCone(room, player, abilityDef, aimAngle, slotIdx);
       case 'heal':
         return this._useHeal(room, player, abilityDef, slotIdx);
       default:
@@ -897,6 +899,120 @@ class GameLoop {
     return true;
   }
 
+  _fireCone(room, player, abilityDef, aimAngle, slotIdx) {
+    // Check energy cost
+    if (abilityDef.energyCost) {
+      if (player.energy < abilityDef.energyCost) return false;
+      player.energy -= abilityDef.energyCost;
+    }
+
+    // Determine aim direction
+    let dirAngle;
+    if (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle)) {
+      dirAngle = aimAngle;
+    } else {
+      // Auto-aim: find nearest monster
+      const targetRange = 12 * CONSTANTS.TILE_SIZE;
+      let nearestMob = null;
+      let nearestDist = Infinity;
+      for (const [mid, mob] of room.monsters) {
+        const dx = mob.x - player.x;
+        const dy = mob.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < targetRange && dist < nearestDist) {
+          nearestMob = mob;
+          nearestDist = dist;
+        }
+      }
+      if (nearestMob) {
+        dirAngle = Math.atan2(nearestMob.y - player.y, nearestMob.x - player.x);
+      } else {
+        dirAngle = player.facing || 0;
+      }
+    }
+
+    const coneRange = (abilityDef.coneRange || 3) * CONSTANTS.TILE_SIZE;
+    const halfAngle = ((abilityDef.coneAngle || 60) / 2) * (Math.PI / 180);
+    const damage = this.getPlayerAttackDamage(player) * (abilityDef.damageMultiplier || 1.0);
+    const knockbackDist = abilityDef.knockback || 0;
+
+    // Hit all monsters within cone
+    for (const [mid, mob] of room.monsters) {
+      const dx = mob.x - player.x;
+      const dy = mob.y - player.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist > coneRange + CONSTANTS.MONSTER_COLLISION_RADIUS) continue;
+
+      // Check angle
+      const angleToMob = Math.atan2(dy, dx);
+      let angleDiff = angleToMob - dirAngle;
+      // Normalize to [-PI, PI]
+      while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+      while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+      if (Math.abs(angleDiff) > halfAngle) continue;
+
+      // Hit this monster
+      mob.health -= damage;
+      mob.aggroTarget = player.id;
+      room.events.push({
+        type: 'damage',
+        targetId: mid,
+        amount: damage,
+        x: mob.x,
+        y: mob.y,
+      });
+
+      // Apply knockback
+      if (knockbackDist > 0 && dist > 0) {
+        mob.knockbackVx = (dx / dist) * knockbackDist;
+        mob.knockbackVy = (dy / dist) * knockbackDist;
+        mob.knockbackTime = 0.2;
+      }
+
+      // Check if monster died
+      if (mob.health <= 0) {
+        room.events.push({
+          type: 'death',
+          targetId: mid,
+          x: mob.x,
+          y: mob.y,
+        });
+        room.monsters.delete(mid);
+
+        if (mob.spawnKey) {
+          if (!this.killedMonsters.has(room.dungeonId)) {
+            this.killedMonsters.set(room.dungeonId, new Set());
+          }
+          this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
+        }
+
+        const ctx = this._scriptContext(player.id, room.id);
+        this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
+          playerId: player.id,
+          roomId: room.id,
+          monsterType: mob.type,
+          monsterId: mid,
+          monsterX: mob.x, monsterY: mob.y,
+        }, ctx);
+      }
+    }
+
+    // Send cone effect event for client rendering
+    room.events.push({
+      type: 'cone_effect',
+      x: player.x,
+      y: player.y,
+      angle: dirAngle,
+      coneAngle: abilityDef.coneAngle || 60,
+      range: coneRange,
+    });
+
+    player.cooldowns[slotIdx] = abilityDef.cooldown || CONSTANTS.PLAYER_ATTACK_COOLDOWN;
+    return true;
+  }
+
   _useHeal(room, player, abilityDef, slotIdx) {
     if (player.health >= player.maxHealth) return false;
 
@@ -954,6 +1070,22 @@ class GameLoop {
   updateMonsters(room, dt) {
     for (const [mid, mob] of room.monsters) {
       mob.attackTimer = Math.max(0, mob.attackTimer - dt);
+
+      // Apply knockback movement
+      if (mob.knockbackTime > 0) {
+        const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+        const kbX = mob.x + mob.knockbackVx * dt;
+        const kbY = mob.y + mob.knockbackVy * dt;
+        if (!this.physics.collidesAt(kbX, mob.y, room.dungeon, mr)) mob.x = kbX;
+        if (!this.physics.collidesAt(mob.x, kbY, room.dungeon, mr)) mob.y = kbY;
+        mob.knockbackTime -= dt;
+        if (mob.knockbackTime <= 0) {
+          mob.knockbackVx = 0;
+          mob.knockbackVy = 0;
+          mob.knockbackTime = 0;
+        }
+        continue; // Skip AI while being knocked back
+      }
 
       // If monster has a forced aggro target (e.g. was shot), prioritize that player
       let nearest = null;
