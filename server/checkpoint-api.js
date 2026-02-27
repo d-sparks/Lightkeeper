@@ -315,6 +315,233 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
     }).catch(() => json(res, 400, { error: 'Invalid request' }));
   }
 
+  // --- List quests and steps (for quest jump UI) ---
+  if (url === '/api/checkpoint/quests' && method === 'GET') {
+    const quests = content.getAllQuests();
+    const result = [];
+    for (const [questId, quest] of Object.entries(quests)) {
+      const steps = [];
+      for (const [stepId, stepDef] of Object.entries(quest.steps)) {
+        steps.push({
+          id: stepId,
+          label: stepDef.label,
+          description: stepDef.description,
+          roomId: stepDef.objective ? stepDef.objective.roomId : null,
+          prerequisiteSteps: stepDef.prerequisiteSteps || [],
+        });
+      }
+      result.push({ id: questId, name: quest.name, startStep: quest.startStep || null, steps });
+    }
+    return json(res, 200, result);
+  }
+
+  // --- Jump a player to a quest step ---
+  if (url === '/api/checkpoint/quest-jump' && method === 'POST') {
+    return parseBody(req).then(body => {
+      const { playerId, questId, stepId } = body;
+      if (!playerId || !questId || !stepId) {
+        return json(res, 400, { error: 'Missing playerId, questId, or stepId' });
+      }
+
+      // Validate quest and step
+      const quests = content.getAllQuests();
+      const quest = quests[questId];
+      if (!quest) return json(res, 404, { error: 'Quest not found' });
+      const targetStep = quest.steps[stepId];
+      if (!targetStep) return json(res, 404, { error: 'Quest step not found' });
+      if (!targetStep.objective) return json(res, 400, { error: 'Step has no objective/room' });
+
+      // Find player
+      let ws = null;
+      wss.clients.forEach((client) => {
+        if (client.playerId === playerId && client.readyState === 1) ws = client;
+      });
+      if (!ws || !ws.playerRoom) return json(res, 404, { error: 'Player not found or not in a room' });
+
+      const room = gameLoop.getRoom(ws.playerRoom);
+      if (!room) return json(res, 404, { error: 'Room not found' });
+      const player = room.players.get(playerId);
+      if (!player) return json(res, 404, { error: 'Player not in room' });
+
+      // Compute transitive prerequisites of the target step
+      const completedSteps = new Set();
+      const collectPrereqs = (sid) => {
+        const step = quest.steps[sid];
+        if (!step) return;
+        for (const prereq of (step.prerequisiteSteps || [])) {
+          if (!completedSteps.has(prereq)) {
+            completedSteps.add(prereq);
+            collectPrereqs(prereq); // recurse for transitive prereqs
+          }
+        }
+      };
+      collectPrereqs(stepId);
+
+      // Collect flags from completed steps' completionConditions
+      const flagsToSet = {};
+      const extractFlags = (conditions) => {
+        if (!conditions) return;
+        if (Array.isArray(conditions)) {
+          for (const c of conditions) extractFlags(c);
+          return;
+        }
+        if (conditions.hasFlag) {
+          flagsToSet[conditions.hasFlag] = conditions.value !== undefined ? conditions.value : true;
+        }
+        if (conditions.and) extractFlags(conditions.and);
+        if (conditions.or) extractFlags(conditions.or);
+        if (conditions.not) extractFlags(conditions.not.condition || conditions.not);
+        if (conditions.condition) extractFlags(conditions.condition);
+      };
+
+      for (const csid of completedSteps) {
+        const step = quest.steps[csid];
+        if (step && step.completionConditions) {
+          extractFlags(step.completionConditions);
+        }
+      }
+
+      // Set flags BEFORE room transition so room_entered triggers see them
+      // (removePlayer clears quest state but NOT flags)
+      gameLoop.flagStore.playerFlags.set(playerId, {});
+      for (const [flag, value] of Object.entries(flagsToSet)) {
+        gameLoop.flagStore.setPlayerFlag(playerId, flag, value);
+      }
+
+      // Teleport player to the step's objective room
+      const targetRoomId = targetStep.objective.roomId;
+      const TILE_SIZE = 32;
+      const spawnX = (targetStep.objective.tileX + 0.5) * TILE_SIZE;
+      const spawnY = (targetStep.objective.tileY + 0.5) * TILE_SIZE;
+
+      if (ws.playerRoom !== targetRoomId) {
+        gameLoop.removePlayer(ws.playerRoom, playerId);
+        const targetRoom = gameLoop.getOrCreateRoom(targetRoomId);
+        if (!targetRoom) return json(res, 500, { error: 'Could not create target room' });
+
+        gameLoop.addPlayerAt(targetRoomId, player, targetStep.objective.tileX, targetStep.objective.tileY);
+        player.x = spawnX;
+        player.y = spawnY;
+        ws.playerRoom = targetRoomId;
+
+        ws.send(JSON.stringify({
+          type: 'floor_change',
+          map: targetRoom.dungeon,
+          tileset: content.getTileset(targetRoom.dungeon.tileset),
+        }));
+      } else {
+        player.x = spawnX;
+        player.y = spawnY;
+      }
+
+      // Set quest state AFTER room transition (removePlayer deletes quest state)
+      gameLoop.questTracker.initPlayer(playerId);
+      const questState = {
+        _trackedQuestId: questId,
+      };
+      for (const [qid, q] of Object.entries(quests)) {
+        if (qid === questId) {
+          questState[qid] = {
+            activeSteps: [stepId],
+            completedSteps: [...completedSteps],
+          };
+        } else {
+          questState[qid] = {
+            activeSteps: q.startStep ? [q.startStep] : [],
+            completedSteps: [],
+          };
+        }
+      }
+      gameLoop.questTracker.restorePlayerState(playerId, questState);
+
+      // Resync client
+      ws.send(JSON.stringify({
+        type: 'inventory',
+        items: player.inventory,
+        equipment: player.equipment,
+      }));
+      ws.send(JSON.stringify({
+        type: 'ability_state',
+        abilities: player.abilities,
+        cooldowns: player.cooldowns,
+      }));
+      if (player.solGrid) {
+        ws.send(JSON.stringify({
+          type: 'sol_grid',
+          grid: player.solGrid,
+        }));
+      }
+      ws.send(JSON.stringify({
+        type: 'quest_state',
+        quests: gameLoop.questTracker.getQuestStateForClient(playerId),
+      }));
+
+      const objective = gameLoop.questTracker.getActiveObjective(playerId);
+      if (objective) {
+        player.questObjective = objective;
+        gameLoop._sendQuestObjective(playerId, ws.playerRoom);
+      }
+
+      return json(res, 200, {
+        ok: true,
+        quest: quest.name,
+        step: targetStep.label,
+        room: targetRoomId,
+      });
+    }).catch((e) => json(res, 400, { error: 'Invalid request' }));
+  }
+
+  // --- Get flags for a player ---
+  const flagsGetMatch = url.match(/^\/api\/checkpoint\/flags\/(.+)$/);
+  if (flagsGetMatch && method === 'GET') {
+    const playerId = decodeURIComponent(flagsGetMatch[1]);
+    const playerFlags = gameLoop.flagStore.getPlayerFlags(playerId);
+
+    // Also find the player's current room for room flags
+    let roomId = null;
+    wss.clients.forEach((client) => {
+      if (client.playerId === playerId && client.readyState === 1) roomId = client.playerRoom;
+    });
+    const roomFlags = roomId ? gameLoop.flagStore.getRoomFlags(roomId) : {};
+
+    return json(res, 200, { playerId, roomId, playerFlags, roomFlags });
+  }
+
+  // --- Set or remove a flag for a player ---
+  if (url === '/api/checkpoint/flags' && method === 'POST') {
+    return parseBody(req).then(body => {
+      const { playerId, flag, value, scope, remove } = body;
+      if (!playerId || !flag) return json(res, 400, { error: 'Missing playerId or flag' });
+
+      if (remove) {
+        if (scope === 'room') {
+          // Need to find the player's room
+          let roomId = null;
+          wss.clients.forEach((client) => {
+            if (client.playerId === playerId && client.readyState === 1) roomId = client.playerRoom;
+          });
+          if (!roomId) return json(res, 404, { error: 'Player not in a room' });
+          gameLoop.flagStore.removeRoomFlag(roomId, flag);
+        } else {
+          gameLoop.flagStore.removePlayerFlag(playerId, flag);
+        }
+        return json(res, 200, { ok: true, action: 'removed', flag });
+      }
+
+      if (scope === 'room') {
+        let roomId = null;
+        wss.clients.forEach((client) => {
+          if (client.playerId === playerId && client.readyState === 1) roomId = client.playerRoom;
+        });
+        if (!roomId) return json(res, 404, { error: 'Player not in a room' });
+        gameLoop.flagStore.setRoomFlag(roomId, flag, value !== undefined ? value : true);
+      } else {
+        gameLoop.flagStore.setPlayerFlag(playerId, flag, value !== undefined ? value : true);
+      }
+      return json(res, 200, { ok: true, action: 'set', flag, value });
+    }).catch(() => json(res, 400, { error: 'Invalid request' }));
+  }
+
   return false;
 }
 
