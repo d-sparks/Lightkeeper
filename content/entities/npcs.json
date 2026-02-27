@@ -255,13 +255,37 @@
         { "speaker": "Tech Maren", "text": "We're still calibrating the output profiles. The system isn't fully certified yet, but it's stable enough." },
         { "speaker": "Tech Maren", "text": "When you get a Sol Unit, bring it in. Once we're fully online, a charge cycle takes minutes." }
       ],
+      "needs_charge": [
+        { "speaker": "Tech Maren", "text": "Sol Unit's nearly drained? Yeah, I can see the output readings from here. Slot it in — third terminal from the left." },
+        { "speaker": "Tech Maren", "text": "...There. Charge cycle complete. You're at full capacity." },
+        { "speaker": "Tech Maren", "text": "You should know — this generator is the single most valuable piece of equipment at Outpost Balor. Maybe on this whole stretch of the terminator." },
+        { "speaker": "Tech Maren", "text": "Erith is tidally locked. Permanent day on one hemisphere, permanent night on the other. We live on the terminator — the thin strip between the two." },
+        { "speaker": "Tech Maren", "text": "The only scalable power source on the planet is solar, and all of it comes from the dayside. Every watt that reaches the nightside comes through the lighthouse relay network." },
+        { "speaker": "Tech Maren", "text": "On the nightside? Batteries and portable generators. Both expensive. Both limited. If the supply lines from the dayside ever get cut..." },
+        { "speaker": "Tech Maren", "text": "The other option is uranium, mined off-planet. But the shipping costs make it a luxury. Only the core settlements can afford reactor fuel." },
+        { "speaker": "Tech Maren", "text": "So this generator — and the lighthouse network that powers it — that's what keeps every Sol Unit, every light rifle, every outpost on the terminator running." },
+        { "speaker": "Tech Maren", "text": "Lighthouse Mara going dark isn't just a security problem. It's an energy problem. Without that relay, this whole sector loses its power feed." },
+        { "speaker": "Tech Maren", "text": "Keep your unit charged. And keep those lighthouses running. Everything depends on it." }
+      ],
       "has_sol_unit": [
         { "speaker": "Tech Maren", "text": "You've got a Sol Unit? Good. Third slot from the left — connect the interface and I'll run the charge sequence." },
         { "speaker": "Tech Maren", "text": "We're not fully certified yet, so the output's capped. But it'll top you off before a deployment." },
         { "speaker": "Tech Maren", "text": "Come back when you've run it down. That's what we're here for." }
+      ],
+      "charged": [
+        { "speaker": "Tech Maren", "text": "Unit's fully charged. Come back when you need a top-up — that's what we're here for." },
+        { "speaker": "Tech Maren", "text": "And remember — out in the field, you won't have a charging terminal. Manage your energy carefully." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "sol_charged_first_time" }],
+        "use": "charged"
+      },
+      {
+        "conditions": [{ "hasFlag": "sol_training_complete" }],
+        "use": "needs_charge"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -360,7 +384,17 @@
         { "speaker": "Apprentice Sol Engineer", "text": "Press [I] to open your Inventory, then click OPEN on your weapon slot to see the Sol Grid." },
         { "speaker": "Apprentice Sol Engineer", "text": "Drag the Damage Booster from your inventory and place it next to the Sol Beam. Adjacent modifiers power up nearby abilities." },
         { "speaker": "Apprentice Sol Engineer", "text": "Grid placement matters. As you find more components out there, think about what goes next to what. That's the key to a good build." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Now go try it. Open your inventory and set up your grid before you head out." }
+        { "speaker": "Apprentice Sol Engineer", "text": "Fair warning — the unit's running on about five percent charge. There wasn't enough power to fully charge it." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Head through the south door to the training range and put a few rounds downrange. Then go see Tech Maren at the Power Station for a full charge." }
+      ],
+      "go_train": [
+        { "speaker": "Apprentice Sol Engineer", "text": "The training range is through the south door. Go put a few rounds downrange — get a feel for the Sol Beam." },
+        { "speaker": "Apprentice Sol Engineer", "text": "That unit's running on about five percent charge. It's enough to train, but you'll want to hit the Power Station afterward." }
+      ],
+      "training_done": [
+        { "speaker": "Apprentice Sol Engineer", "text": "Nice shooting. The Sol Beam packs a punch, doesn't it?" },
+        { "speaker": "Apprentice Sol Engineer", "text": "But you're running on fumes now. Head to the Power Station — south exit from the main hall. Tech Maren will get you charged up." },
+        { "speaker": "Apprentice Sol Engineer", "text": "That generator is the most important thing in this outpost. Without it, every Sol Unit and light rifle on the base goes dark." }
       ],
       "has_sol_unit": [
         { "speaker": "Apprentice Sol Engineer", "text": "That Sol Unit is solid work, if I say so myself. Take care of it and it'll take care of you." },
@@ -373,8 +407,16 @@
         "use": "first_meeting"
       },
       {
-        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "conditions": [{ "hasFlag": "sol_charged_first_time" }],
         "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasFlag": "sol_training_complete" }],
+        "use": "training_done"
+      },
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "go_train"
       },
       {
         "conditions": [{ "hasItem": "titanium_cylinders" }],

@@ -14,6 +14,7 @@
 //   { type: "removeItem",   itemType: "iron_key" }
 //   { type: "equipItem",    itemType: "sol_unit" }
 //   { type: "showMessage",  text: "The door unlocks with a click." }
+//   { type: "setEnergy",    value: 100 }  // or percent: 100
 //   { type: "toggleTile",   x: 5, y: 3 }
 
 const CONSTANTS = require('../../shared/constants');
@@ -71,6 +72,9 @@ class ActionExecutor {
         break;
       case 'showMessage':
         this.doShowMessage(action, context);
+        break;
+      case 'setEnergy':
+        this.doSetEnergy(action, context);
         break;
       case 'toggleTile':
         this.doToggleTile(action, context);
@@ -337,6 +341,16 @@ class ActionExecutor {
         type: CONSTANTS.MSG.QUEST_OBJECTIVE,
         objective: null,
       });
+    }
+  }
+
+  doSetEnergy(action, context) {
+    const player = context.player;
+    if (!player || player.maxEnergy <= 0) return;
+    if (action.percent !== undefined) {
+      player.energy = Math.min(player.maxEnergy * (action.percent / 100), player.maxEnergy);
+    } else if (action.value !== undefined) {
+      player.energy = Math.min(action.value, player.maxEnergy);
     }
   }
 

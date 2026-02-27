@@ -627,7 +627,9 @@ class GameLoop {
       // Initialize energy pool on first sol grid equip
       if (player.maxEnergy === 0) {
         player.maxEnergy = 100;
-        player.energy = player.maxEnergy;
+        player.energy = player.solGrid.initialEnergy !== undefined
+          ? player.solGrid.initialEnergy
+          : player.maxEnergy;
       }
       for (let y = 0; y < player.solGrid.size; y++) {
         for (let x = 0; x < player.solGrid.size; x++) {
@@ -687,6 +689,9 @@ class GameLoop {
     }
 
     player.solGrid = { size, cells, nextPlacementId };
+    if (solUnitDef.initialEnergy !== undefined) {
+      player.solGrid.initialEnergy = solUnitDef.initialEnergy;
+    }
   }
 
   // Find sol component definition by abilityId
