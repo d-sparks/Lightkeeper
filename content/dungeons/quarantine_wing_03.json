@@ -4339,28 +4339,7 @@
     }
   ],
   "npcSpawns": [],
-  "itemSpawns": [
-    {
-      "type": "health_potion",
-      "x": 8,
-      "y": 7
-    },
-    {
-      "type": "health_potion",
-      "x": 75,
-      "y": 15
-    },
-    {
-      "type": "health_potion",
-      "x": 25,
-      "y": 20
-    },
-    {
-      "type": "health_potion",
-      "x": 60,
-      "y": 20
-    }
-  ],
+  "itemSpawns": [],
   "exits": [
     {
       "x": 41,

@@ -290,10 +290,10 @@
       "default": [
         { "speaker": "Quartermaster Voss", "text": "Everything in this depot is catalogued and accounted for. You requisition, you sign, you return." },
         { "speaker": "Quartermaster Voss", "text": "The luddites hit the east supply run two weeks back. We lost three crates of class-four cells and a case of light rifle packs. Command hasn't sent replacements." },
-        { "speaker": "Quartermaster Voss", "text": "The bandages on the north shelf are field surplus. The health kit's from a prior operator — still effective. Take what you need and log it." }
+        { "speaker": "Quartermaster Voss", "text": "Medical supplies are stocked by my station. Stim compounds, sterile dressings — everything your Medipac needs. Take what you need and log it." }
       ],
       "quest_active": [
-        { "speaker": "Quartermaster Voss", "text": "Heading into the occupied wing? Take the bandages. Don't be a hero about resupply." }
+        { "speaker": "Quartermaster Voss", "text": "Heading into the occupied wing? Stock up on medical supplies first. Don't be a hero about resupply." }
       ],
       "has_sol_unit": [
         { "speaker": "Quartermaster Voss", "text": "Sol Unit's charged and ready? Good. Watch the east corridor on the way to Mara — that route's been compromised." }

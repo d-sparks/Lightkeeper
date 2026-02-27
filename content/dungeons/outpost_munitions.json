@@ -36,8 +36,11 @@
     { "type": "munitions_pvt_korrin", "x": 6, "y": 5 }
   ],
   "itemSpawns": [
-    { "type": "health_potion", "x": 5, "y": 2 },
-    { "type": "bandage", "x": 14, "y": 13 }
+    { "type": "medical_supplies", "x": 19, "y": 6 },
+    { "type": "medical_supplies", "x": 20, "y": 6 },
+    { "type": "medical_supplies", "x": 21, "y": 6 },
+    { "type": "medical_supplies", "x": 19, "y": 8 },
+    { "type": "medical_supplies", "x": 20, "y": 8 }
   ],
   "exits": [
     { "x": 12, "y": 0, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 30, "spawnY": 21 }

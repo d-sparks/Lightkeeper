@@ -912,6 +912,13 @@ class GameLoop {
   _useHeal(room, player, abilityDef, slotIdx) {
     if (player.health >= player.maxHealth) return false;
 
+    // Check if ability requires a consumable item
+    if (abilityDef.consumesItem) {
+      const idx = player.inventory.findIndex(i => i.type === abilityDef.consumesItem);
+      if (idx === -1) return false;
+      player.inventory.splice(idx, 1);
+    }
+
     const healAmount = Math.min(abilityDef.heal || 0, player.maxHealth - player.health);
     if (healAmount <= 0) return false;
 
