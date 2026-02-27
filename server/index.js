@@ -564,6 +564,26 @@ wss.on('connection', (ws) => {
         break;
       }
 
+      case CONSTANTS.MSG.TRACK_QUEST: {
+        if (!ws.playerRoom || !msg.questId) break;
+        const tracked = gameLoop.questTracker.setTrackedQuest(playerId, msg.questId);
+        if (tracked) {
+          const room = gameLoop.getRoom(ws.playerRoom);
+          const p = room && room.players.get(playerId);
+          if (p) {
+            const objective = gameLoop.questTracker.getActiveObjective(playerId);
+            p.questObjective = objective;
+            gameLoop._sendQuestObjective(playerId, ws.playerRoom);
+          }
+          // Send updated quest state with new tracked flag
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.QUEST_STATE,
+            quests: gameLoop.questTracker.getQuestStateForClient(playerId),
+          }));
+        }
+        break;
+      }
+
       case CONSTANTS.MSG.ATTACK: {
         if (!ws.playerRoom) break;
         const aimAngle = (msg.aimAngle !== undefined) ? msg.aimAngle : null;

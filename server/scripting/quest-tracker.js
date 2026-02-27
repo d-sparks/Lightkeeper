@@ -14,6 +14,9 @@ class QuestTracker {
     // Map<playerId, Map<questId, { activeSteps: Set, completedSteps: Set }>>
     this.playerStates = new Map();
 
+    // Map<playerId, questId> — which quest the player is tracking for the arrow
+    this.trackedQuests = new Map();
+
     // Callbacks set by index.js
     this.onObjectiveChanged = null;   // (playerId, roomId) => void
     this.onStepCompleted = null;      // (playerId, questId, stepId, stepDef) => void
@@ -33,10 +36,19 @@ class QuestTracker {
     }
 
     this.playerStates.set(playerId, questMap);
+
+    // Default tracked quest: first quest with active steps
+    for (const [questId, state] of questMap) {
+      if (state.activeSteps.size > 0) {
+        this.trackedQuests.set(playerId, questId);
+        break;
+      }
+    }
   }
 
   removePlayer(playerId) {
     this.playerStates.delete(playerId);
+    this.trackedQuests.delete(playerId);
   }
 
   // Check all active steps across all quests for the given player.
@@ -93,19 +105,38 @@ class QuestTracker {
     }
   }
 
-  // Returns the objective from the first active step (across all quests).
+  // Set which quest a player is tracking
+  setTrackedQuest(playerId, questId) {
+    const questMap = this.playerStates.get(playerId);
+    if (!questMap || !questMap.has(questId)) return false;
+    this.trackedQuests.set(playerId, questId);
+    return true;
+  }
+
+  getTrackedQuestId(playerId) {
+    return this.trackedQuests.get(playerId) || null;
+  }
+
+  // Returns the objective from the tracked quest's first active step.
+  // Falls back to the first active step across all quests if tracked quest has no objective.
   getActiveObjective(playerId) {
     const questMap = this.playerStates.get(playerId);
     if (!questMap) return null;
 
     const quests = this.content.getAllQuests();
-    for (const [questId, state] of questMap) {
+    const trackedId = this.trackedQuests.get(playerId);
+
+    // Helper: find first active objective in a quest
+    const findObjective = (questId) => {
+      const state = questMap.get(questId);
       const quest = quests[questId];
-      if (!quest) continue;
+      if (!state || !quest) return null;
       for (const stepId of state.activeSteps) {
         const stepDef = quest.steps[stepId];
         if (stepDef && stepDef.objective) {
           return {
+            questId,
+            questName: quest.name,
             label: stepDef.label,
             roomId: stepDef.objective.roomId,
             tileX: stepDef.objective.tileX,
@@ -113,6 +144,19 @@ class QuestTracker {
           };
         }
       }
+      return null;
+    };
+
+    // Try tracked quest first
+    if (trackedId) {
+      const obj = findObjective(trackedId);
+      if (obj) return obj;
+    }
+
+    // Fallback: first quest with an active objective
+    for (const [questId] of questMap) {
+      const obj = findObjective(questId);
+      if (obj) return obj;
     }
     return null;
   }
@@ -123,6 +167,7 @@ class QuestTracker {
     if (!questMap) return [];
 
     const quests = this.content.getAllQuests();
+    const trackedId = this.trackedQuests.get(playerId) || null;
     const result = [];
 
     for (const [questId, state] of questMap) {
@@ -146,6 +191,7 @@ class QuestTracker {
         id: questId,
         name: quest.name,
         description: quest.description,
+        tracked: questId === trackedId,
         steps,
       });
     }
@@ -158,7 +204,9 @@ class QuestTracker {
     const questMap = this.playerStates.get(playerId);
     if (!questMap) return null;
 
-    const result = {};
+    const result = {
+      _trackedQuestId: this.trackedQuests.get(playerId) || null,
+    };
     for (const [questId, state] of questMap) {
       result[questId] = {
         activeSteps: [...state.activeSteps],
@@ -175,7 +223,12 @@ class QuestTracker {
     const questMap = this.playerStates.get(playerId);
     if (!questMap) return;
 
+    if (saved._trackedQuestId) {
+      this.trackedQuests.set(playerId, saved._trackedQuestId);
+    }
+
     for (const [questId, savedState] of Object.entries(saved)) {
+      if (questId === '_trackedQuestId') continue;
       const state = questMap.get(questId);
       if (!state) continue;
       state.activeSteps = new Set(savedState.activeSteps || []);

@@ -461,7 +461,18 @@ class GameLoop {
     const room = this.rooms.get(currentRoomId);
     if (!room) return;
     const player = room.players.get(playerId);
-    if (!player || !player.questObjective) return;
+    if (!player) return;
+
+    if (!player.questObjective) {
+      // Send null objective to clear client display
+      if (this.actions.sendToPlayer) {
+        this.actions.sendToPlayer(playerId, {
+          type: CONSTANTS.MSG.QUEST_OBJECTIVE,
+          objective: null,
+        });
+      }
+      return;
+    }
 
     const obj = player.questObjective;
     let tileX = obj.tileX;
@@ -482,6 +493,7 @@ class GameLoop {
         type: CONSTANTS.MSG.QUEST_OBJECTIVE,
         objective: {
           label: obj.label,
+          questName: obj.questName || null,
           tileX,
           tileY,
           sameRoom,
