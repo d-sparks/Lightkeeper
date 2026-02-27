@@ -123,11 +123,11 @@
 
   // --- Inventory & equipment state ---
   let inventoryItems = [];
-  let equipmentState = { arms: null, medipac: null, accessory: null };
+  let equipmentState = { arms: null, sol_unit: null, medipac: null, accessory: null };
   let abilityState = [null, null, null, null, null, null];
   let cooldownState = [0, 0, 0, 0, 0, 0];
   let slot1InteractMode = null; // null or interact label string when slot 1 is overridden
-  const SLOT_DISPLAY_NAMES = { arms: 'Arms', medipac: 'Medipac', accessory: 'Accessory' };
+  const SLOT_DISPLAY_NAMES = { arms: 'Arms', sol_unit: 'Sol Unit', medipac: 'Medipac', accessory: 'Accessory' };
 
   // Sol grid state
   let solGridState = null;
@@ -420,16 +420,15 @@
           '<span class="inv-dot" style="background:' + rarityColor + '"></span>' +
           '<span class="slot-item-name" style="color:' + rarityColor + '">' + equipped.name + '</span>';
 
-        // Check if this is a sol unit (show OPEN tag on arms slot)
-        const itemDef = equipped._hasSolGrid;
-        if (slot === 'arms' && solGridState) {
+        // Check if this is a sol unit (show OPEN tag on sol_unit slot)
+        if (slot === 'sol_unit' && solGridState) {
           html += '<span class="sol-open-tag">OPEN</span>';
         }
 
         div.innerHTML = html;
         div.addEventListener('click', () => {
-          // If arms slot has sol unit with grid, switch to sol grid tab
-          if (slot === 'arms' && solGridState) {
+          // If sol_unit slot has sol unit with grid, switch to sol grid tab
+          if (slot === 'sol_unit' && solGridState) {
             switchTab('solgrid');
             return;
           }
