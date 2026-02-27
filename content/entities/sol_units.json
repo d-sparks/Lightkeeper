@@ -3,7 +3,7 @@
     "name": "Sol Unit Mk1",
     "gridSize": 5,
     "initialComponents": [
-      { "abilityId": "sol_beam", "gridX": 2, "gridY": 2 }
+      { "abilityId": "sol_cone", "gridX": 2, "gridY": 2 }
     ]
   }
 }

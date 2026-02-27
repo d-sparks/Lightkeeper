@@ -5,6 +5,12 @@
     "name": "Sol Beam Emitter",
     "shape": [[1]]
   },
+  "sol_cone_emitter": {
+    "type": "ability",
+    "abilityId": "sol_cone",
+    "name": "Sol Cone Emitter",
+    "shape": [[1]]
+  },
   "damage_booster": {
     "type": "modifier",
     "name": "Damage Booster",

@@ -78,6 +78,10 @@ class Renderer {
     // Damage number containers
     this.dmgContainer = null;
 
+    // Cone effect visuals
+    this.coneEffects = [];
+    this.coneGfx = null;
+
     // Spawn/exit graphics
     this.spawnGfx = null;
     this.exitGfx = null;
@@ -134,6 +138,10 @@ class Renderer {
     this.entityContainer = new PIXI.Container();
     this.entityContainer.sortableChildren = true;
     this.worldContainer.addChild(this.entityContainer);
+
+    // Cone effect graphics
+    this.coneGfx = new PIXI.Graphics();
+    this.worldContainer.addChild(this.coneGfx);
 
     // Click target indicator
     this.clickTargetGfx = new PIXI.Graphics();
@@ -808,6 +816,7 @@ class Renderer {
     this.renderNPCs();
     this.renderMonsters();
     this.renderProjectiles();
+    this.renderConeEffects();
     this.renderPlayers();
     this.renderDoorPrompts();
     this.renderDamageNumbers();
@@ -1614,6 +1623,30 @@ class Renderer {
     }
   }
 
+  // --- Cone effects ---
+
+  renderConeEffects() {
+    this.coneGfx.clear();
+    const dt = 1 / 60;
+    this.coneEffects = this.coneEffects.filter(cone => {
+      cone.age += dt;
+      if (cone.age >= cone.maxAge) return false;
+
+      const alpha = 0.4 * (1 - cone.age / cone.maxAge);
+      const halfAngle = cone.coneAngle / 2;
+      const startAngle = cone.angle - halfAngle;
+      const endAngle = cone.angle + halfAngle;
+
+      this.coneGfx.beginFill(0xffaa00, alpha);
+      this.coneGfx.moveTo(cone.x, cone.y);
+      this.coneGfx.arc(cone.x, cone.y, cone.range, startAngle, endAngle);
+      this.coneGfx.lineTo(cone.x, cone.y);
+      this.coneGfx.endFill();
+
+      return true;
+    });
+  }
+
   // --- Damage numbers ---
 
   processEvents(events) {
@@ -1639,6 +1672,14 @@ class Renderer {
           x: ev.x, y: ev.y,
           age: 0, maxAge: 1.2,
           color: '#fdd835',
+        });
+      } else if (ev.type === 'cone_effect') {
+        this.coneEffects.push({
+          x: ev.x, y: ev.y,
+          angle: ev.angle,
+          coneAngle: (ev.coneAngle || 60) * (Math.PI / 180),
+          range: ev.range,
+          age: 0, maxAge: 0.4,
         });
       }
     }
