@@ -46,7 +46,8 @@ class Renderer {
     this.overlayContainer = null; // fixed UI (minimap, damage numbers)
 
     // Tile sprite pool (reused across frames)
-    this.tileSprites = [];        // flat array of PIXI.Sprite for visible area
+    this.tileSprites = [];        // flat array of PIXI.Sprite for visible area (floor tiles)
+    this.wallSprites = [];        // wall tiles in entityContainer for depth sorting
     this.tileRows = 0;
     this.tileCols = 0;
 
@@ -742,18 +743,32 @@ class Renderer {
   _rebuildTilePool() {
     if (!this.tileContainer) return;
 
-    // Remove old tile sprites
+    // Remove old floor tile sprites
     this.tileContainer.removeChildren();
     this.tileSprites = [];
+
+    // Remove old wall tile sprites from entity container
+    for (const ws of this.wallSprites) {
+      this.entityContainer.removeChild(ws);
+    }
+    this.wallSprites = [];
 
     if (this.isoMode) {
       // In iso mode, allocate enough sprites for entire map (maps are small, ~960 tiles max)
       const count = this.map ? this.map.width * this.map.height : 600;
+      // Floor tile sprites in tileContainer (always behind entities)
       for (let i = 0; i < count; i++) {
         const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
         sprite.visible = false;
         this.tileContainer.addChild(sprite);
         this.tileSprites.push(sprite);
+      }
+      // Wall tile sprites in entityContainer (depth-sorted with entities)
+      for (let i = 0; i < count; i++) {
+        const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+        sprite.visible = false;
+        this.entityContainer.addChild(sprite);
+        this.wallSprites.push(sprite);
       }
       return;
     }
@@ -1028,7 +1043,8 @@ class Renderer {
     const cullT = this.camY - pad - wallRise;
     const cullB = this.camY + this.viewH + pad + wallRise;
 
-    let idx = 0;
+    let floorIdx = 0;
+    let wallIdx = 0;
     const w = this.map.width;
     const h = this.map.height;
 
@@ -1047,34 +1063,48 @@ class Renderer {
           continue;
         }
 
-        if (idx >= this.tileSprites.length) break;
-        const sprite = this.tileSprites[idx++];
-
         const tileId = String(this.map.data[ty * w + tx]);
         const tileDef = this.tileset ? this.tileset.tiles[tileId] : null;
         const tileName = tileDef ? tileDef.name : 'void';
         const isoKey = this.tileToIsoKey[tileName] || 'wall';
         const isWall = wallKeys.has(isoKey);
 
-        sprite.visible = true;
-        sprite.tint = 0xffffff;
-
-        if (this.isoTileLoaded && this.isoTileTextures[isoKey]) {
-          sprite.texture = this.isoTileTextures[isoKey];
-        } else {
-          sprite.texture = PIXI.Texture.WHITE;
-          sprite.tint = this.tileColors[tileId] !== undefined ? this.tileColors[tileId] : 0xff00ff;
-        }
-
         if (isWall) {
-          // Wall-type: anchor at bottom-center, size = dw x (dh + wallRise)
+          // Wall tiles go into entityContainer for depth sorting with entities
+          if (wallIdx >= this.wallSprites.length) continue;
+          const sprite = this.wallSprites[wallIdx++];
+
+          sprite.visible = true;
+          sprite.tint = 0xffffff;
+
+          if (this.isoTileLoaded && this.isoTileTextures[isoKey]) {
+            sprite.texture = this.isoTileTextures[isoKey];
+          } else {
+            sprite.texture = PIXI.Texture.WHITE;
+            sprite.tint = this.tileColors[tileId] !== undefined ? this.tileColors[tileId] : 0xff00ff;
+          }
+
           sprite.anchor.set(0.5, 1.0);
           sprite.width = dw;
           sprite.height = dh + wallRise;
           sprite.x = iso.x;
           sprite.y = iso.y + dh / 2;
+          sprite.zIndex = iso.y;
         } else {
-          // Floor-type: anchor at center, size = dw x dh
+          // Floor tiles stay in tileContainer (always behind entities)
+          if (floorIdx >= this.tileSprites.length) continue;
+          const sprite = this.tileSprites[floorIdx++];
+
+          sprite.visible = true;
+          sprite.tint = 0xffffff;
+
+          if (this.isoTileLoaded && this.isoTileTextures[isoKey]) {
+            sprite.texture = this.isoTileTextures[isoKey];
+          } else {
+            sprite.texture = PIXI.Texture.WHITE;
+            sprite.tint = this.tileColors[tileId] !== undefined ? this.tileColors[tileId] : 0xff00ff;
+          }
+
           sprite.anchor.set(0.5, 0.5);
           sprite.width = dw;
           sprite.height = dh;
@@ -1085,8 +1115,11 @@ class Renderer {
     }
 
     // Hide remaining sprites
-    while (idx < this.tileSprites.length) {
-      this.tileSprites[idx++].visible = false;
+    while (floorIdx < this.tileSprites.length) {
+      this.tileSprites[floorIdx++].visible = false;
+    }
+    while (wallIdx < this.wallSprites.length) {
+      this.wallSprites[wallIdx++].visible = false;
     }
   }
 
