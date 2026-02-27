@@ -191,6 +191,10 @@ class ContentLoader {
     return this.quests;
   }
 
+  getAllDungeons() {
+    return this.dungeons;
+  }
+
   loadTemplates() {
     const dir = path.join(this.contentDir, 'dungeons', 'templates');
     if (!fs.existsSync(dir)) return;

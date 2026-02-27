@@ -52,6 +52,14 @@ const api = {
       body: JSON.stringify({ message }),
     })).json();
   },
+  async rooms() { return (await checkedFetch('/api/checkpoint/rooms')).json(); },
+  async teleport(playerId, roomId) {
+    return (await checkedFetch('/api/checkpoint/teleport', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, roomId }),
+    })).json();
+  },
   async quests() { return (await checkedFetch('/api/checkpoint/quests')).json(); },
   async questJump(playerId, questId, stepId) {
     return (await checkedFetch('/api/checkpoint/quest-jump', {
@@ -403,6 +411,9 @@ function MainView() {
   const [jumpQuestId, setJumpQuestId] = useState('');
   const [jumpStepId, setJumpStepId] = useState('');
   const [jumpPlayerId, setJumpPlayerId] = useState('');
+  const [rooms, setRooms] = useState([]);
+  const [teleportRoomId, setTeleportRoomId] = useState('');
+  const [teleportPlayerId, setTeleportPlayerId] = useState('');
 
   const refreshSessions = useCallback(async () => {
     try { setSessions(await api.sessions()); } catch {}
@@ -416,11 +427,16 @@ function MainView() {
     try { setQuests(await api.quests()); } catch {}
   }, []);
 
+  const refreshRooms = useCallback(async () => {
+    try { setRooms(await api.rooms()); } catch {}
+  }, []);
+
   // Poll sessions every 3s
   useEffect(() => {
     refreshSessions();
     refreshSaves();
     refreshQuests();
+    refreshRooms();
     const interval = setInterval(refreshSessions, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -500,6 +516,21 @@ function MainView() {
     }
   };
 
+  const handleTeleport = async () => {
+    if (!teleportPlayerId) { showToast('Select a player first', 'err'); return; }
+    if (!teleportRoomId) { showToast('Select a room first', 'err'); return; }
+    try {
+      const result = await api.teleport(teleportPlayerId, teleportRoomId);
+      if (result.ok) {
+        showToast(`Teleported to: ${result.roomName}`);
+      } else {
+        showToast(result.error || 'Teleport failed', 'err');
+      }
+    } catch (e) {
+      showToast('Teleport failed', 'err');
+    }
+  };
+
   const selectedQuest = quests.find(q => q.id === jumpQuestId);
 
   const setLoadTarget = (file, playerId) => {
@@ -564,6 +595,27 @@ function MainView() {
             </select>
             <button class="btn btn-jump" disabled=${!jumpPlayerId || !jumpStepId}
               onClick=${handleQuestJump}>Go</button>
+          </div>
+        `
+      }
+    </div>
+
+    <div class="panel">
+      <h2>Room Teleport</h2>
+      ${rooms.length === 0
+        ? html`<div class="empty">No rooms loaded</div>`
+        : html`
+          <div class="quest-jump-row">
+            <select value=${teleportRoomId} onChange=${e => setTeleportRoomId(e.target.value)}>
+              <option value="">-- room --</option>
+              ${rooms.map(r => html`<option value=${r.id}>${r.name} (${r.id})</option>`)}
+            </select>
+            <select value=${teleportPlayerId} onChange=${e => setTeleportPlayerId(e.target.value)}>
+              <option value="">-- player --</option>
+              ${sessions.map(p => html`<option value=${p.playerId}>${p.name} (${p.playerId})</option>`)}
+            </select>
+            <button class="btn btn-jump" disabled=${!teleportPlayerId || !teleportRoomId}
+              onClick=${handleTeleport}>Go</button>
           </div>
         `
       }

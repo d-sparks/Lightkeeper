@@ -491,6 +491,99 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
     }).catch((e) => json(res, 400, { error: 'Invalid request' }));
   }
 
+  // --- List all dungeon rooms ---
+  if (url === '/api/checkpoint/rooms' && method === 'GET') {
+    const dungeons = content.getAllDungeons();
+    const result = [];
+    for (const [id, dungeon] of Object.entries(dungeons)) {
+      const spawns = (dungeon.spawns || [])
+        .filter(s => s.type === 'player_start')
+        .map(s => ({ x: s.x, y: s.y }));
+      result.push({ id, name: dungeon.name, spawns });
+    }
+    result.sort((a, b) => a.name.localeCompare(b.name));
+    return json(res, 200, result);
+  }
+
+  // --- Teleport a player to a room ---
+  if (url === '/api/checkpoint/teleport' && method === 'POST') {
+    return parseBody(req).then(body => {
+      const { playerId, roomId } = body;
+      if (!playerId || !roomId) return json(res, 400, { error: 'Missing playerId or roomId' });
+
+      // Validate room exists in content
+      const dungeon = content.getDungeon(roomId);
+      if (!dungeon) return json(res, 404, { error: 'Room not found in content' });
+
+      // Find player
+      let ws = null;
+      wss.clients.forEach((client) => {
+        if (client.playerId === playerId && client.readyState === 1) ws = client;
+      });
+      if (!ws || !ws.playerRoom) return json(res, 404, { error: 'Player not found or not in a room' });
+
+      const room = gameLoop.getRoom(ws.playerRoom);
+      if (!room) return json(res, 404, { error: 'Room not found' });
+      const player = room.players.get(playerId);
+      if (!player) return json(res, 404, { error: 'Player not in room' });
+
+      // Find a player_start spawn in the target dungeon
+      const spawn = (dungeon.spawns || []).find(s => s.type === 'player_start');
+      const spawnTX = spawn ? spawn.x : 2;
+      const spawnTY = spawn ? spawn.y : 2;
+
+      if (ws.playerRoom !== roomId) {
+        gameLoop.removePlayer(ws.playerRoom, playerId);
+        const targetRoom = gameLoop.getOrCreateRoom(roomId);
+        if (!targetRoom) return json(res, 500, { error: 'Could not create target room' });
+
+        gameLoop.addPlayerAt(roomId, player, spawnTX, spawnTY);
+        ws.playerRoom = roomId;
+
+        ws.send(JSON.stringify({
+          type: 'floor_change',
+          map: targetRoom.dungeon,
+          tileset: content.getTileset(targetRoom.dungeon.tileset),
+        }));
+      } else {
+        // Same room — just move to spawn
+        const TILE_SIZE = 32;
+        player.x = (spawnTX + 0.5) * TILE_SIZE;
+        player.y = (spawnTY + 0.5) * TILE_SIZE;
+      }
+
+      // Resync client
+      ws.send(JSON.stringify({
+        type: 'inventory',
+        items: player.inventory,
+        equipment: player.equipment,
+      }));
+      ws.send(JSON.stringify({
+        type: 'ability_state',
+        abilities: player.abilities,
+        cooldowns: player.cooldowns,
+      }));
+      if (player.solGrid) {
+        ws.send(JSON.stringify({
+          type: 'sol_grid',
+          grid: player.solGrid,
+        }));
+      }
+      ws.send(JSON.stringify({
+        type: 'quest_state',
+        quests: gameLoop.questTracker.getQuestStateForClient(playerId),
+      }));
+
+      const objective = gameLoop.questTracker.getActiveObjective(playerId);
+      if (objective) {
+        player.questObjective = objective;
+        gameLoop._sendQuestObjective(playerId, ws.playerRoom);
+      }
+
+      return json(res, 200, { ok: true, room: roomId, roomName: dungeon.name });
+    }).catch(() => json(res, 400, { error: 'Invalid request' }));
+  }
+
   // --- Get flags for a player ---
   const flagsGetMatch = url.match(/^\/api\/checkpoint\/flags\/(.+)$/);
   if (flagsGetMatch && method === 'GET') {
