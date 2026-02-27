@@ -40,9 +40,12 @@
     "dialogues": {
       "default": [
         { "speaker": "Warden Holt", "text": "Welcome to Outpost Balor. We've been expecting you." },
-        { "speaker": "Warden Holt", "text": "Your Sol Unit is with our engineer. He's been repairing and upgrading it for your assignment." },
-        { "speaker": "Warden Holt", "text": "Should be ready by now. Head through to the workshop — it's just down the corridor." },
-        { "speaker": "Warden Holt", "text": "There are some supplies along the way. Help yourself. You'll need them." }
+        { "speaker": "Warden Holt", "text": "First things first — you need to be armed. Head to the munitions depot and see Quartermaster Voss." },
+        { "speaker": "Warden Holt", "text": "She'll set you up with a weapon. After that, report to the workshop — the engineer needs your help." }
+      ],
+      "has_weapon": [
+        { "speaker": "Warden Holt", "text": "Good, you're armed. The engineer in the workshop has your Sol Unit — almost finished, but he's run into a problem." },
+        { "speaker": "Warden Holt", "text": "Head through the east corridor. There are some supplies along the way. Help yourself." }
       ],
       "quest_active": [
         { "speaker": "Warden Holt", "text": "The engineer sent you into the occupied wing? Those luddites took it over weeks ago. We haven't had the manpower to clear them out." },
@@ -75,6 +78,10 @@
       {
         "conditions": [{ "hasFlag": "quest_cylinders_active" }],
         "use": "quest_active"
+      },
+      {
+        "conditions": [{ "hasFlag": "received_weapon" }],
+        "use": "has_weapon"
       }
     ]
   },
@@ -312,9 +319,14 @@
     ],
     "dialogues": {
       "default": [
-        { "speaker": "Quartermaster Voss", "text": "Everything in this depot is catalogued and accounted for. You requisition, you sign, you return." },
-        { "speaker": "Quartermaster Voss", "text": "The luddites hit the east supply run two weeks back. We lost three crates of class-four cells and a case of light rifle packs. Command hasn't sent replacements." },
-        { "speaker": "Quartermaster Voss", "text": "Medical supplies are stocked by my station. Stim compounds, sterile dressings — everything your Medipac needs. Take what you need and log it." }
+        { "speaker": "Quartermaster Voss", "text": "Warden sent you? Right. I've got two options on the rack for you." },
+        { "speaker": "Quartermaster Voss", "text": "Standard Blaster — reliable at range. Low power but you can keep your distance." },
+        { "speaker": "Quartermaster Voss", "text": "Or a Combat Baton — hits harder up close, knocks them back. You'll need to get in their face though." },
+        { "speaker": "Quartermaster Voss", "text": "Pick one up from the rack. Your call." }
+      ],
+      "has_weapon": [
+        { "speaker": "Quartermaster Voss", "text": "Good choice. The workshop's back through the main hall — east corridor. Engineer's been waiting." },
+        { "speaker": "Quartermaster Voss", "text": "Medical supplies are stocked by my station. Take what you need and log it." }
       ],
       "quest_active": [
         { "speaker": "Quartermaster Voss", "text": "Heading into the occupied wing? Stock up on medical supplies first. Don't be a hero about resupply." }
@@ -331,6 +343,10 @@
       {
         "conditions": [{ "hasFlag": "quest_cylinders_active" }],
         "use": "quest_active"
+      },
+      {
+        "conditions": [{ "hasFlag": "received_weapon" }],
+        "use": "has_weapon"
       }
     ]
   },
@@ -359,8 +375,7 @@
         { "speaker": "Apprentice Sol Engineer", "text": "The repairs are almost done, but I'm missing critical parts. Titanium power cylinders — I can't finish without them." },
         { "speaker": "Apprentice Sol Engineer", "text": "There's a supply cache in the east wing. Problem is, luddites seized that section. They've been camped there for weeks." },
         { "speaker": "Apprentice Sol Engineer", "text": "The cylinders should still be in the cache, unless those wreckers have smashed them already." },
-        { "speaker": "Apprentice Sol Engineer", "text": "I know it's a lot to ask, but I can't leave the shop. The Unit's in a delicate state. Can you get them for me?" },
-        { "speaker": "Apprentice Sol Engineer", "text": "Here, take this blaster. You might need it." }
+        { "speaker": "Apprentice Sol Engineer", "text": "I know it's a lot to ask, but I can't leave the shop. The Unit's in a delicate state. Can you get them for me?" }
       ],
       "default": [
         { "speaker": "Apprentice Sol Engineer", "text": "You must be here for the Sol Unit. I've got bad news." },
@@ -403,7 +418,7 @@
     },
     "dialogueRules": [
       {
-        "conditions": [{ "not": { "hasFlag": "received_blaster" } }],
+        "conditions": [{ "not": { "hasFlag": "met_engineer" } }],
         "use": "first_meeting"
       },
       {

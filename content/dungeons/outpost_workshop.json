@@ -52,18 +52,6 @@
       ]
     },
     {
-      "id": "engineer_gives_blaster",
-      "event": "npc_interacted",
-      "filter": { "npcType": "sol_engineer_1" },
-      "conditions": [{ "not": { "hasFlag": "received_blaster" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "received_blaster" },
-        { "type": "giveItem", "itemType": "blaster" },
-        { "type": "equipItem", "itemType": "blaster" }
-      ],
-      "once": true
-    },
-    {
       "id": "engineer_quest_start",
       "event": "npc_interacted",
       "filter": { "npcType": "sol_engineer_1" },
@@ -72,6 +60,7 @@
         { "not": { "hasFlag": "received_sol_unit" } }
       ],
       "actions": [
+        { "type": "setFlag", "flag": "met_engineer" },
         { "type": "setFlag", "flag": "quest_cylinders_active" }
       ],
       "once": true

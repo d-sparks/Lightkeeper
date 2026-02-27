@@ -8,6 +8,15 @@
     "cooldown": 0.5,
     "defaultSlot": 1
   },
+  "melee_strike": {
+    "name": "Melee Strike",
+    "type": "melee_strike",
+    "damageMultiplier": 1.3,
+    "range": 2.0,
+    "knockback": 64,
+    "cooldown": 0.7,
+    "defaultSlot": 1
+  },
   "medipac_heal": {
     "name": "Medipac Heal",
     "type": "heal",

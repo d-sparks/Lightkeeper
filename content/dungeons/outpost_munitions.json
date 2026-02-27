@@ -40,7 +40,9 @@
     { "type": "medical_supplies", "x": 20, "y": 6 },
     { "type": "medical_supplies", "x": 21, "y": 6 },
     { "type": "medical_supplies", "x": 19, "y": 8 },
-    { "type": "medical_supplies", "x": 20, "y": 8 }
+    { "type": "medical_supplies", "x": 20, "y": 8 },
+    { "type": "blaster", "x": 20, "y": 9 },
+    { "type": "combat_baton", "x": 22, "y": 9 }
   ],
   "exits": [
     { "x": 12, "y": 0, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 30, "spawnY": 21 }
@@ -53,6 +55,30 @@
         { "type": "showMessage", "text": "Rows of supply racks line the walls. The smell of machine oil and spent cells hangs in the air." }
       ],
       "once": true
+    },
+    {
+      "id": "picked_blaster_qm",
+      "event": "item_picked_up",
+      "filter": { "itemType": "blaster" },
+      "conditions": [{ "not": { "hasFlag": "received_weapon" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "received_weapon" },
+        { "type": "equipItem", "itemType": "blaster" },
+        { "type": "removeEntity", "entityType": "item", "itemType": "combat_baton" },
+        { "type": "showMessage", "text": "You take the Standard Blaster. Reliable at range." }
+      ]
+    },
+    {
+      "id": "picked_combat_baton_qm",
+      "event": "item_picked_up",
+      "filter": { "itemType": "combat_baton" },
+      "conditions": [{ "not": { "hasFlag": "received_weapon" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "received_weapon" },
+        { "type": "equipItem", "itemType": "combat_baton" },
+        { "type": "removeEntity", "entityType": "item", "itemType": "blaster" },
+        { "type": "showMessage", "text": "You take the Combat Baton. Heavy hits with knockback." }
+      ]
     }
   ]
 }
