@@ -1741,53 +1741,59 @@ class Renderer {
       // Fade out in the second half
       const fadeAlpha = t < 0.4 ? 1.0 : Math.max(0, 1.0 - (t - 0.4) / 0.6);
 
+      // Convert center to worldContainer coords (iso or identity)
+      const c = this.isoMode ? this.worldToIso(cone.x, cone.y) : { x: cone.x, y: cone.y };
+      // Scale range for isometric (average of X and Y scale factors)
+      const isoRange = this.isoMode ? outerRange * 1.5 : outerRange;
+      const isoInner = this.isoMode ? innerRange * 1.5 : innerRange;
+
       // --- Filled cone sweep (semi-transparent) ---
-      if (outerRange > innerRange + 1) {
-        this.coneGfx.beginFill(0xffaa00, 0.2 * fadeAlpha);
-        if (innerRange > 1) {
+      if (isoRange > isoInner + 1) {
+        this.coneGfx.beginFill(0xffaa00, 0.35 * fadeAlpha);
+        if (isoInner > 1) {
           // Donut sector: outer arc forward, inner arc reversed
           this.coneGfx.moveTo(
-            cone.x + Math.cos(startAngle) * outerRange,
-            cone.y + Math.sin(startAngle) * outerRange
+            c.x + Math.cos(startAngle) * isoRange,
+            c.y + Math.sin(startAngle) * isoRange
           );
-          this.coneGfx.arc(cone.x, cone.y, outerRange, startAngle, endAngle);
+          this.coneGfx.arc(c.x, c.y, isoRange, startAngle, endAngle);
           this.coneGfx.lineTo(
-            cone.x + Math.cos(endAngle) * innerRange,
-            cone.y + Math.sin(endAngle) * innerRange
+            c.x + Math.cos(endAngle) * isoInner,
+            c.y + Math.sin(endAngle) * isoInner
           );
-          this.coneGfx.arc(cone.x, cone.y, innerRange, endAngle, startAngle, true);
+          this.coneGfx.arc(c.x, c.y, isoInner, endAngle, startAngle, true);
           this.coneGfx.closePath();
         } else {
           // Full sector from center
-          this.coneGfx.moveTo(cone.x, cone.y);
-          this.coneGfx.arc(cone.x, cone.y, outerRange, startAngle, endAngle);
-          this.coneGfx.lineTo(cone.x, cone.y);
+          this.coneGfx.moveTo(c.x, c.y);
+          this.coneGfx.arc(c.x, c.y, isoRange, startAngle, endAngle);
+          this.coneGfx.lineTo(c.x, c.y);
         }
         this.coneGfx.endFill();
       }
 
       // --- Bright leading edge arc ---
-      if (outerRange > 2) {
-        this.coneGfx.lineStyle(2, 0xffdd44, 0.5 * fadeAlpha);
+      if (isoRange > 2) {
+        this.coneGfx.lineStyle(3, 0xffdd44, 0.8 * fadeAlpha);
         this.coneGfx.moveTo(
-          cone.x + Math.cos(startAngle) * outerRange,
-          cone.y + Math.sin(startAngle) * outerRange
+          c.x + Math.cos(startAngle) * isoRange,
+          c.y + Math.sin(startAngle) * isoRange
         );
-        this.coneGfx.arc(cone.x, cone.y, outerRange, startAngle, endAngle);
+        this.coneGfx.arc(c.x, c.y, isoRange, startAngle, endAngle);
         this.coneGfx.lineStyle(0);
       }
 
       // --- Edge lines (cone boundaries) ---
-      this.coneGfx.lineStyle(1, 0xffaa00, 0.3 * fadeAlpha);
-      this.coneGfx.moveTo(cone.x, cone.y);
+      this.coneGfx.lineStyle(2, 0xffaa00, 0.5 * fadeAlpha);
+      this.coneGfx.moveTo(c.x, c.y);
       this.coneGfx.lineTo(
-        cone.x + Math.cos(startAngle) * outerRange,
-        cone.y + Math.sin(startAngle) * outerRange
+        c.x + Math.cos(startAngle) * isoRange,
+        c.y + Math.sin(startAngle) * isoRange
       );
-      this.coneGfx.moveTo(cone.x, cone.y);
+      this.coneGfx.moveTo(c.x, c.y);
       this.coneGfx.lineTo(
-        cone.x + Math.cos(endAngle) * outerRange,
-        cone.y + Math.sin(endAngle) * outerRange
+        c.x + Math.cos(endAngle) * isoRange,
+        c.y + Math.sin(endAngle) * isoRange
       );
       this.coneGfx.lineStyle(0);
 
@@ -1827,6 +1833,13 @@ class Renderer {
           x: ev.x, y: ev.y,
           age: 0, maxAge: 1.2,
           color: '#fdd835',
+        });
+      } else if (ev.type === 'level_up') {
+        this.damageNumbers.push({
+          text: `LEVEL ${ev.newLevel}!`,
+          x: ev.x, y: ev.y - 20,
+          age: 0, maxAge: 2.0,
+          color: '#ffa726',
         });
       } else if (ev.type === 'cone_effect') {
         this.coneEffects.push({

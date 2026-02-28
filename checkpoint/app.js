@@ -78,6 +78,13 @@ const api = {
       body: JSON.stringify({ playerId, flag, value, scope }),
     })).json();
   },
+  async setStats(playerId, stats) {
+    return (await checkedFetch('/api/checkpoint/stats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, ...stats }),
+    })).json();
+  },
   async removeFlag(playerId, flag, scope) {
     return (await checkedFetch('/api/checkpoint/flags', {
       method: 'POST',
@@ -402,6 +409,89 @@ function FlagEditor({ sessions }) {
   `;
 }
 
+// ─── Player Stats Editor ─────────────────────────────────────
+function PlayerStats({ sessions, onRefresh }) {
+  const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [fields, setFields] = useState({ health: '', maxHealth: '', energy: '', maxEnergy: '', xp: '', level: '' });
+  const [original, setOriginal] = useState({});
+
+  // Auto-populate when player selected or sessions update
+  useEffect(() => {
+    if (!selectedPlayer) return;
+    const session = sessions.find(s => s.playerId === selectedPlayer);
+    if (session) {
+      const vals = {
+        health: String(session.health),
+        maxHealth: String(session.maxHealth),
+        energy: String(session.energy),
+        maxEnergy: String(session.maxEnergy),
+        xp: String(session.xp),
+        level: String(session.level),
+      };
+      setFields(vals);
+      setOriginal(vals);
+    }
+  }, [selectedPlayer, sessions]);
+
+  const setField = (key, val) => {
+    setFields(prev => ({ ...prev, [key]: val }));
+  };
+
+  const handleApply = async () => {
+    if (!selectedPlayer) { showToast('Select a player first', 'err'); return; }
+    // Only send changed values
+    const stats = {};
+    for (const key of ['health', 'maxHealth', 'energy', 'maxEnergy', 'xp', 'level']) {
+      if (fields[key] !== original[key]) {
+        const val = Number(fields[key]);
+        if (isNaN(val)) { showToast(`Invalid value for ${key}`, 'err'); return; }
+        stats[key] = val;
+      }
+    }
+    if (Object.keys(stats).length === 0) { showToast('No changes to apply'); return; }
+    try {
+      const result = await api.setStats(selectedPlayer, stats);
+      if (result.ok) {
+        showToast('Stats updated');
+        onRefresh();
+      } else {
+        showToast(result.error || 'Failed', 'err');
+      }
+    } catch { showToast('Failed to update stats', 'err'); }
+  };
+
+  return html`
+    <div class="flag-editor-header">
+      <select value=${selectedPlayer} onChange=${e => setSelectedPlayer(e.target.value)}>
+        <option value="">-- select player --</option>
+        ${sessions.map(p => html`<option value=${p.playerId}>${p.name} (${p.playerId})</option>`)}
+      </select>
+    </div>
+    ${selectedPlayer && html`
+      <div class="stats-grid">
+        ${[
+          ['health', 'Health'],
+          ['maxHealth', 'Max Health'],
+          ['energy', 'Energy'],
+          ['maxEnergy', 'Max Energy'],
+          ['level', 'Level'],
+          ['xp', 'XP'],
+        ].map(([key, label]) => html`
+          <label class="stats-label" key=${key}>
+            <span>${label}</span>
+            <input type="number" class="flag-input" value=${fields[key]}
+              onInput=${e => setField(key, e.target.value)}
+              onKeyDown=${e => { if (e.key === 'Enter') handleApply(); }} />
+          </label>
+        `)}
+      </div>
+      <div style="margin-top:8px">
+        <button class="btn btn-save" onClick=${handleApply}>Apply</button>
+      </div>
+    `}
+  `;
+}
+
 // ─── Main View ──────────────────────────────────────────────
 function MainView() {
   const [sessions, setSessions] = useState([]);
@@ -556,7 +646,7 @@ function MainView() {
         ? html`<div class="empty">No players connected</div>`
         : html`
           <table>
-            <thead><tr><th>Player</th><th>Room</th><th>HP</th><th>Energy</th><th></th></tr></thead>
+            <thead><tr><th>Player</th><th>Room</th><th>HP</th><th>Energy</th><th>Level</th><th>XP</th><th></th></tr></thead>
             <tbody>
               ${sessions.map(s => html`
                 <tr key=${s.playerId}>
@@ -564,6 +654,8 @@ function MainView() {
                   <td>${s.room}</td>
                   <td>${s.health}/${s.maxHealth}</td>
                   <td>${s.energy}/${s.maxEnergy}</td>
+                  <td>${s.level}</td>
+                  <td>${s.xp}/${s.xpToNextLevel}</td>
                   <td><button class="btn btn-save" onClick=${() => handleSave(s.playerId)}>Save</button></td>
                 </tr>
               `)}
@@ -624,6 +716,11 @@ function MainView() {
     <div class="panel">
       <h2>Player Flags</h2>
       <${FlagEditor} sessions=${sessions} />
+    </div>
+
+    <div class="panel">
+      <h2>Player Stats</h2>
+      <${PlayerStats} sessions=${sessions} onRefresh=${refreshSessions} />
     </div>
 
     <div class="panel">

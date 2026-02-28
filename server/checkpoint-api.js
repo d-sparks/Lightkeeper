@@ -42,6 +42,9 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
         maxHealth: player.maxHealth,
         energy: Math.round(player.energy),
         maxEnergy: player.maxEnergy,
+        xp: player.xp,
+        level: player.level,
+        xpToNextLevel: player.xpToNextLevel,
       });
     });
     return json(res, 200, sessions);
@@ -491,6 +494,61 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
         room: targetRoomId,
       });
     }).catch((e) => json(res, 400, { error: 'Invalid request' }));
+  }
+
+  // --- Set player stats (health, energy, xp, level) ---
+  if (url === '/api/checkpoint/stats' && method === 'POST') {
+    return parseBody(req).then(body => {
+      const { playerId } = body;
+      if (!playerId) return json(res, 400, { error: 'Missing playerId' });
+
+      // Find player
+      let ws = null;
+      wss.clients.forEach((client) => {
+        if (client.playerId === playerId && client.readyState === 1) ws = client;
+      });
+      if (!ws || !ws.playerRoom) return json(res, 404, { error: 'Player not found or not in a room' });
+
+      const room = gameLoop.getRoom(ws.playerRoom);
+      if (!room) return json(res, 404, { error: 'Room not found' });
+      const player = room.players.get(playerId);
+      if (!player) return json(res, 404, { error: 'Player not in room' });
+
+      // Process in order: maxHealth before health, maxEnergy before energy, level before xp
+      if (body.maxHealth !== undefined) {
+        player.maxHealth = Math.max(1, Math.floor(body.maxHealth));
+        player.health = Math.min(player.health, player.maxHealth);
+      }
+      if (body.health !== undefined) {
+        player.health = Math.max(0, Math.min(Math.floor(body.health), player.maxHealth));
+      }
+      if (body.maxEnergy !== undefined) {
+        player.maxEnergy = Math.max(0, Math.floor(body.maxEnergy));
+        player.energy = Math.min(player.energy, player.maxEnergy);
+      }
+      if (body.energy !== undefined) {
+        player.energy = Math.max(0, Math.min(Math.floor(body.energy), player.maxEnergy));
+      }
+      if (body.level !== undefined) {
+        player.level = Math.max(1, Math.floor(body.level));
+        player.xpToNextLevel = gameLoop._xpForLevel(player.level);
+        player.xp = 0;
+      }
+      if (body.xp !== undefined) {
+        player.xp = Math.max(0, Math.min(Math.floor(body.xp), player.xpToNextLevel));
+      }
+
+      return json(res, 200, {
+        ok: true,
+        health: player.health,
+        maxHealth: player.maxHealth,
+        energy: Math.round(player.energy),
+        maxEnergy: player.maxEnergy,
+        xp: player.xp,
+        level: player.level,
+        xpToNextLevel: player.xpToNextLevel,
+      });
+    }).catch(() => json(res, 400, { error: 'Invalid request' }));
   }
 
   // --- List all dungeon rooms ---

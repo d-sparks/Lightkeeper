@@ -391,6 +391,10 @@ gameLoop.actions._getSolGridForClient = function (player) {
   return gameLoop.getSolGridForClient(player);
 };
 
+gameLoop.actions._onGrantXp = function (player, amount, room) {
+  gameLoop.grantXp(player, amount, room);
+};
+
 gameLoop.actions._onEquipChanged = function (player, itemDef) {
   // If equipping a sol unit, init the grid
   if (itemDef.hasSolGrid && itemDef.solUnitId) {

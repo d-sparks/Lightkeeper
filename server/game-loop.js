@@ -340,6 +340,9 @@ class GameLoop {
       energy: 0,
       maxEnergy: 0,
       questObjective: null,
+      xp: 0,
+      level: 1,
+      xpToNextLevel: this._xpForLevel(1),
     };
 
     room.players.set(playerId, player);
@@ -941,30 +944,8 @@ class GameLoop {
       player.energy -= abilityDef.energyCost;
     }
 
-    // Determine aim direction
-    let dirAngle;
-    if (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle)) {
-      dirAngle = aimAngle;
-    } else {
-      // Auto-aim: find nearest monster
-      const targetRange = 12 * CONSTANTS.TILE_SIZE;
-      let nearestMob = null;
-      let nearestDist = Infinity;
-      for (const [mid, mob] of room.monsters) {
-        const dx = mob.x - player.x;
-        const dy = mob.y - player.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < targetRange && dist < nearestDist) {
-          nearestMob = mob;
-          nearestDist = dist;
-        }
-      }
-      if (nearestMob) {
-        dirAngle = Math.atan2(nearestMob.y - player.y, nearestMob.x - player.x);
-      } else {
-        dirAngle = player.facing || 0;
-      }
-    }
+    // Cone always fires in the direction the player is facing
+    const dirAngle = player.facing || 0;
 
     const coneRange = (abilityDef.coneRange || 3) * CONSTANTS.TILE_SIZE;
     const halfAngle = ((abilityDef.coneAngle || 60) / 2) * (Math.PI / 180);
@@ -1021,6 +1002,12 @@ class GameLoop {
             this.killedMonsters.set(room.dungeonId, new Set());
           }
           this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
+        }
+
+        // Grant XP for kill
+        const monsterDef = this.content.getMonster(mob.type);
+        if (monsterDef && monsterDef.xp) {
+          this.grantXp(player, monsterDef.xp, room);
         }
 
         const ctx = this._scriptContext(player.id, room.id);
@@ -1116,6 +1103,12 @@ class GameLoop {
         this.killedMonsters.get(room.dungeonId).add(nearestMob.spawnKey);
       }
 
+      // Grant XP for kill
+      const monsterDef = this.content.getMonster(nearestMob.type);
+      if (monsterDef && monsterDef.xp) {
+        this.grantXp(player, monsterDef.xp, room);
+      }
+
       const ctx = this._scriptContext(player.id, room.id);
       this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
         playerId: player.id, roomId: room.id,
@@ -1161,7 +1154,6 @@ class GameLoop {
   update(dt) {
     for (const [roomId, room] of this.rooms) {
       room.tick++;
-      room.events = [];
 
       // Update each player's movement and cooldowns
       for (const [pid, player] of room.players) {
@@ -1462,6 +1454,15 @@ class GameLoop {
                 this.killedMonsters.set(room.dungeonId, new Set());
               }
               this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
+            }
+
+            // Grant XP for kill
+            const killer = room.players.get(proj.ownerId);
+            if (killer) {
+              const monsterDef = this.content.getMonster(mob.type);
+              if (monsterDef && monsterDef.xp) {
+                this.grantXp(killer, monsterDef.xp, room);
+              }
             }
 
             // Emit monster_killed scripting event
@@ -1837,6 +1838,58 @@ class GameLoop {
     return damage;
   }
 
+  // Calculate XP required to advance from a given level.
+  // Uses settings from content/settings.json xpSystem.
+  _xpForLevel(level) {
+    const settings = this.content.getSettings();
+    const xpSys = (settings && settings.xpSystem) || {};
+    const base = xpSys.baseXpToLevel || 100;
+    const scale = xpSys.xpScalingFactor || 1.5;
+    return Math.floor(base * Math.pow(scale, level - 1));
+  }
+
+  // Grant XP to a player, handling level-ups and HP increases.
+  // Returns the number of levels gained.
+  grantXp(player, amount, room) {
+    if (amount <= 0) return 0;
+    const settings = this.content.getSettings();
+    const xpSys = (settings && settings.xpSystem) || {};
+    const maxLevel = xpSys.maxLevel || 20;
+    const hpPerLevel = xpSys.hpPerLevel || 10;
+
+    player.xp += amount;
+    let levelsGained = 0;
+
+    while (player.xp >= player.xpToNextLevel && player.level < maxLevel) {
+      player.xp -= player.xpToNextLevel;
+      player.level++;
+      levelsGained++;
+      player.xpToNextLevel = this._xpForLevel(player.level);
+
+      // Increase max HP and heal the gained amount
+      player.maxHealth += hpPerLevel;
+      player.health = Math.min(player.health + hpPerLevel, player.maxHealth);
+
+      if (room) {
+        room.events.push({
+          type: 'level_up',
+          targetId: player.id,
+          newLevel: player.level,
+          x: player.x,
+          y: player.y,
+        });
+      }
+    }
+
+    // Clamp XP at max level
+    if (player.level >= maxLevel) {
+      player.xp = 0;
+      player.xpToNextLevel = 0;
+    }
+
+    return levelsGained;
+  }
+
   // Resolve which dialogue to show for an NPC based on rules and flags.
   // Priority: 1) activeDialogueId set by a trigger action, 2) dialogueRules, 3) default dialogue
   _resolveDialogue(npc, context) {
@@ -1875,6 +1928,7 @@ class GameLoop {
         facing: Math.round(p.facing * 100) / 100,
         health: p.health, maxHealth: p.maxHealth,
         energy: Math.round(p.energy), maxEnergy: p.maxEnergy,
+        xp: p.xp, level: p.level, xpToNextLevel: p.xpToNextLevel,
         colorIndex: p.colorIndex,
       };
       // Include weapon name if equipped (for rendering)

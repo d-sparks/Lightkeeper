@@ -8,7 +8,8 @@
       "description": "Find Warden Holt in the outpost entrance.",
       "prerequisiteSteps": [],
       "objective": { "roomId": "outpost_entrance", "tileX": 4, "tileY": 10 },
-      "completionConditions": [{ "hasFlag": "talked_to_warden" }]
+      "completionConditions": [{ "hasFlag": "talked_to_warden" }],
+      "completionActions": [{ "type": "grantXp", "amount": 10 }]
     },
     "get_weapon": {
       "label": "Get a Weapon",
@@ -22,35 +23,40 @@
       "description": "Visit the workshop and speak with the Sol Engineer.",
       "prerequisiteSteps": ["get_weapon"],
       "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 5 },
-      "completionConditions": [{ "hasFlag": "quest_cylinders_active" }]
+      "completionConditions": [{ "hasFlag": "quest_cylinders_active" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
     },
     "find_warlord_key": {
       "label": "Defeat the Warlord",
       "description": "Descend to the deepest level of the quarantine wing and defeat the luddite warlord.",
       "prerequisiteSteps": ["talk_to_engineer"],
       "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 7 },
-      "completionConditions": [{ "hasItem": "supply_crate_key" }]
+      "completionConditions": [{ "hasItem": "supply_crate_key" }],
+      "completionActions": [{ "type": "grantXp", "amount": 40 }]
     },
     "open_supply_crate": {
       "label": "Open the Supply Crate",
       "description": "Backtrack to level 2 and use the warlord's key on the locked supply crate.",
       "prerequisiteSteps": ["find_warlord_key"],
       "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 7 },
-      "completionConditions": [{ "hasItem": "titanium_cylinders" }]
+      "completionConditions": [{ "hasItem": "titanium_cylinders" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
     },
     "return_to_engineer": {
       "label": "Return to the Engineer",
       "description": "Bring the titanium cylinders back to the workshop.",
       "prerequisiteSteps": ["open_supply_crate"],
       "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 5 },
-      "completionConditions": [{ "hasFlag": "received_sol_unit" }]
+      "completionConditions": [{ "hasFlag": "received_sol_unit" }],
+      "completionActions": [{ "type": "grantXp", "amount": 25 }]
     },
     "charge_sol_unit": {
       "label": "Charge your Sol Unit",
       "description": "Head to the Power Station to charge the Sol Unit.",
       "prerequisiteSteps": ["return_to_engineer"],
       "objective": { "roomId": "outpost_charging_station", "tileX": 12, "tileY": 6 },
-      "completionConditions": [{ "hasFlag": "sol_unit_charged" }]
+      "completionConditions": [{ "hasFlag": "sol_unit_charged" }],
+      "completionActions": [{ "type": "grantXp", "amount": 20 }]
     }
   },
   "startStep": "talk_to_warden"
