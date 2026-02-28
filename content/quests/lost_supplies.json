@@ -6,9 +6,8 @@
   "steps": {
     "find_manifest": {
       "label": "Recover the Supply Manifest",
-      "description": "Search the outer corridor of the occupied wing for the lost supply manifest.",
+      "description": "Search the first level of the quarantine wing for the lost supply manifest.",
       "prerequisiteSteps": [],
-      "objective": { "roomId": "quarantine_wing_01", "tileX": 42, "tileY": 20 },
       "completionConditions": [{ "hasItem": "supply_manifest" }]
     },
     "return_to_voss": {
