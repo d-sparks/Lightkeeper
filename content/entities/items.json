@@ -95,5 +95,11 @@
     "type": "sol_component",
     "rarity": "uncommon",
     "solComponentId": "damage_booster"
+  },
+  "supply_manifest": {
+    "name": "Supply Manifest",
+    "description": "A battered clipboard with a supply manifest attached. Quartermaster Voss will want to see this.",
+    "type": "key",
+    "rarity": "common"
   }
 }

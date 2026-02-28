@@ -20,6 +20,7 @@ class QuestTracker {
     // Callbacks set by index.js
     this.onObjectiveChanged = null;   // (playerId, roomId) => void
     this.onStepCompleted = null;      // (playerId, questId, stepId, stepDef) => void
+    this.onQuestStarted = null;       // (playerId, questId, quest) => void
   }
 
   initPlayer(playerId) {
@@ -29,7 +30,8 @@ class QuestTracker {
     for (const [questId, quest] of Object.entries(quests)) {
       const activeSteps = new Set();
       const completedSteps = new Set();
-      if (quest.startStep && quest.steps[quest.startStep]) {
+      // Quests with startConditions remain inactive until conditions are met
+      if (quest.startStep && quest.steps[quest.startStep] && !quest.startConditions) {
         activeSteps.add(quest.startStep);
       }
       questMap.set(questId, { activeSteps, completedSteps });
@@ -64,6 +66,25 @@ class QuestTracker {
     for (const [questId, state] of questMap) {
       const quest = quests[questId];
       if (!quest) continue;
+
+      // Check if a quest with startConditions should now activate
+      if (quest.startConditions && state.activeSteps.size === 0 && state.completedSteps.size === 0) {
+        if (quest.startStep && quest.steps[quest.startStep]) {
+          if (this.conditions.evaluate(quest.startConditions, context)) {
+            state.activeSteps.add(quest.startStep);
+            if (this.onQuestStarted) {
+              this.onQuestStarted(playerId, questId, quest);
+            }
+            if (this.onObjectiveChanged) {
+              this.onObjectiveChanged(playerId, context.roomId);
+            }
+          } else {
+            continue;
+          }
+        } else {
+          continue;
+        }
+      }
 
       // Copy activeSteps so we can modify during iteration
       const active = [...state.activeSteps];
@@ -173,6 +194,9 @@ class QuestTracker {
     for (const [questId, state] of questMap) {
       const quest = quests[questId];
       if (!quest) continue;
+
+      // Skip quests that haven't started yet (have startConditions not yet met)
+      if (state.activeSteps.size === 0 && state.completedSteps.size === 0) continue;
 
       const steps = [];
       for (const [stepId, stepDef] of Object.entries(quest.steps)) {

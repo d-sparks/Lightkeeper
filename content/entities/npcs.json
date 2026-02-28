@@ -329,7 +329,23 @@
         { "speaker": "Quartermaster Voss", "text": "Medical supplies are stocked by my station. Take what you need and log it." }
       ],
       "quest_active": [
-        { "speaker": "Quartermaster Voss", "text": "Heading into the occupied wing? Stock up on medical supplies first. Don't be a hero about resupply." }
+        { "speaker": "Quartermaster Voss", "text": "Heading into the occupied wing? I've got a job for you." },
+        { "speaker": "Quartermaster Voss", "text": "Two weeks back, luddites hit the east supply run. We lost three crates of class-four cells and a case of light rifle packs." },
+        { "speaker": "Quartermaster Voss", "text": "The cargo's gone, but the supply manifest should still be there. It was clipped to the lead crate." },
+        { "speaker": "Quartermaster Voss", "text": "I need it back so I can file for replacements. Should be somewhere in the outer corridor — look near the storage alcoves." },
+        { "speaker": "Quartermaster Voss", "text": "Take the bandages on the way out. Don't be a hero about resupply." }
+      ],
+      "side_quest_active": [
+        { "speaker": "Quartermaster Voss", "text": "Any luck with that supply manifest? Should be in the outer corridor of the occupied wing, near the storage alcoves." }
+      ],
+      "side_quest_has_manifest": [
+        { "speaker": "Quartermaster Voss", "text": "You found it! Let me see..." },
+        { "speaker": "Quartermaster Voss", "text": "Class-four cells, light rifle packs, field rations... worse than I thought. But at least now I can file the requisition." },
+        { "speaker": "Quartermaster Voss", "text": "Good work. Take these — you'll need them more than the depot does." }
+      ],
+      "side_quest_complete": [
+        { "speaker": "Quartermaster Voss", "text": "Replacement requisition is filed. Command will take their time, as usual." },
+        { "speaker": "Quartermaster Voss", "text": "At least we know what we're short on now. Thanks again." }
       ],
       "has_sol_unit": [
         { "speaker": "Quartermaster Voss", "text": "Sol Unit's charged and ready? Good. Watch the east corridor on the way to Mara — that route's been compromised." }
@@ -337,8 +353,20 @@
     },
     "dialogueRules": [
       {
+        "conditions": [{ "hasItem": "supply_manifest" }],
+        "use": "side_quest_has_manifest"
+      },
+      {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasFlag": "voss_supply_quest_complete" }],
+        "use": "side_quest_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "voss_supply_quest_accepted" }],
+        "use": "side_quest_active"
       },
       {
         "conditions": [{ "hasFlag": "quest_cylinders_active" }],

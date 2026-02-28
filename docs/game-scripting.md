@@ -400,6 +400,35 @@ The scripting events endpoint returns a complete reference of available events, 
 
 ---
 
+## Quests
+
+Quest files live in `content/quests/`. Each quest has steps arranged as a DAG with prerequisites, completion conditions, and objectives.
+
+### Side Quests with `startConditions`
+
+Quests without `startConditions` activate immediately when a player joins (e.g., the main quest). To create a side quest that activates later, add a `startConditions` array:
+
+```json
+{
+  "id": "lost_supplies",
+  "name": "Lost Supplies",
+  "startConditions": [{ "hasFlag": "voss_supply_quest_accepted" }],
+  "steps": { ... },
+  "startStep": "find_manifest"
+}
+```
+
+The quest remains hidden from the player's quest log until its `startConditions` are met. When they are, the `startStep` activates and the player sees a "New Quest" toast notification.
+
+**Pattern for side quests:**
+1. Define a quest JSON with `startConditions` that check a flag
+2. Add a dungeon trigger that sets that flag (e.g., on NPC interaction)
+3. The trigger fires → flag is set → quest activates → player gets notified
+
+See `content/quests/lost_supplies.json` for a working example.
+
+---
+
 ## Examples in the Codebase
 
 The following content files contain working examples you can study and modify:
@@ -408,6 +437,8 @@ The following content files contain working examples you can study and modify:
 - **`content/tilesets/crypt.json`** — Tile 9 is a locked door requiring `iron_key`
 - **`content/dungeons/crypt_01.json`** — Triggers: iron key pickup message, skeleton kill counter, kill-all reward
 - **`content/dungeons/crypt_02.json`** — Trigger: sets `visited_crypt_02` flag on room entry
+- **`content/quests/lost_supplies.json`** — Side quest with `startConditions`, activated by NPC trigger
+- **`content/dungeons/outpost_munitions.json`** — Triggers for side quest acceptance and completion
 
 ---
 

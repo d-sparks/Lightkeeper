@@ -183,7 +183,7 @@ Standard trigger definitions (see `docs/game-scripting.md`). The token `{instanc
 
 Generated dungeons get IDs in the format: `proc:{templateId}:{seedString}`
 
-Example: `proc:proc_quarantine_deep:quarantine_wing_03_43_30_1708435200`
+Example: `proc:proc_quarantine_deep:outpost_workshop_12_8_1708435200`
 
 These IDs are used as room IDs and for tracking killed monsters / picked items, just like hand-authored dungeons.
 

@@ -368,6 +368,24 @@ gameLoop.questTracker.onStepCompleted = function (playerId, questId, stepId, ste
   }));
 };
 
+gameLoop.questTracker.onQuestStarted = function (playerId, questId, quest) {
+  const client = findClientByPlayerId(playerId);
+  if (!client) return;
+
+  // Send quest started toast
+  client.send(JSON.stringify({
+    type: CONSTANTS.MSG.QUEST_STARTED,
+    questId,
+    name: quest.name,
+  }));
+
+  // Send updated quest state
+  client.send(JSON.stringify({
+    type: CONSTANTS.MSG.QUEST_STATE,
+    quests: gameLoop.questTracker.getQuestStateForClient(playerId),
+  }));
+};
+
 // Wire up equip callback so actions can rebuild abilities
 gameLoop.actions._getSolGridForClient = function (player) {
   return gameLoop.getSolGridForClient(player);

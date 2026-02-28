@@ -99,6 +99,7 @@ const CONSTANTS = {
     QUEST_OBJECTIVE: 'quest_objective',
     QUEST_STATE: 'quest_state',
     QUEST_STEP_COMPLETE: 'quest_step_complete',
+    QUEST_STARTED: 'quest_started',
 
     // Bidirectional
     SOL_GRID_MOVE: 'sol_grid_move',
