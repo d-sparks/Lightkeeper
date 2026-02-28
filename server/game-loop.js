@@ -38,6 +38,7 @@ class GameLoop {
     this.eventBus = new EventBus();
     this.conditions = new ConditionEvaluator(this.flagStore);
     this.actions = new ActionExecutor(this.flagStore, this.eventBus, content);
+    this.actions.automation = this.automation;
     this.triggers = new TriggerRegistry(this.eventBus, this.conditions, this.actions, this.flagStore);
     this.questTracker = new QuestTracker(content, this.conditions, this.actions);
 
@@ -1572,12 +1573,17 @@ class GameLoop {
         this.pickedUpItems.get(room.dungeonId).add(closestItem.spawnIndex);
       }
       const closestItemDef = this.content.getItem(closestItem.type);
-      player.inventory.push({
-        type: closestItem.type,
-        name: closestItem.name,
-        rarity: closestItem.rarity,
-        category: closestItemDef ? closestItemDef.type : 'misc',
-      });
+      // Silicon goes to automation resources instead of inventory
+      if (closestItem.type === 'silicon') {
+        this.automation.addResource(playerId, 'silicon', 1);
+      } else {
+        player.inventory.push({
+          type: closestItem.type,
+          name: closestItem.name,
+          rarity: closestItem.rarity,
+          category: closestItemDef ? closestItemDef.type : 'misc',
+        });
+      }
       room.events.push({
         type: 'pickup',
         targetId: player.id,

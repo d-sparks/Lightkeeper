@@ -31,6 +31,7 @@
   const choiceOverlay = document.getElementById('choice-overlay');
   const choicePrompt = document.getElementById('choice-prompt');
   const choiceOptions = document.getElementById('choice-options');
+  const autoPanelContent = document.getElementById('auto-panel-content');
 
   // --- Instances ---
   const net = new NetClient();
@@ -180,10 +181,13 @@
   let questState = [];
   let questToastTimeout = null;
 
+  // Automation state
+  let autoState = null;
+
   // --- Unified character menu state ---
   let menuOpen = false;
   let menuTab = 'equipment';
-  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'quests'];
+  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'auto', 'quests'];
   let cursorIndex = 0;
 
   function openMenu(tab) {
@@ -233,6 +237,7 @@
     if (tab === 'equipment') renderEquipmentSlots();
     if (tab === 'inventory') renderInventoryGrid();
     if (tab === 'solgrid') renderSolGrid();
+    if (tab === 'auto') renderAutoTab();
     if (tab === 'quests') renderQuestPanel();
 
     resetCursor();
@@ -260,6 +265,7 @@
     if (menuTab === 'equipment') return characterMenu.querySelectorAll('.equip-slot-box');
     if (menuTab === 'inventory') return characterMenu.querySelectorAll('.inv-grid-cell');
     if (menuTab === 'solgrid') return characterMenu.querySelectorAll('.sol-cell');
+    if (menuTab === 'auto') return characterMenu.querySelectorAll('.auto-card');
     if (menuTab === 'quests') return characterMenu.querySelectorAll('.quest-step');
     return [];
   }
@@ -268,6 +274,7 @@
     if (menuTab === 'equipment') return 1;
     if (menuTab === 'inventory') return 5;
     if (menuTab === 'solgrid') return solGridState ? solGridState.size || 5 : 5;
+    if (menuTab === 'auto') return 1;
     if (menuTab === 'quests') return 1;
     return 1;
   }
@@ -311,6 +318,87 @@
     if (cursorIndex >= 0 && cursorIndex < items.length) {
       items[cursorIndex].click();
     }
+  }
+
+  // --- Auto (automation) panel ---
+  function renderAutoTab() {
+    autoPanelContent.innerHTML = '';
+    if (!autoState) {
+      autoPanelContent.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:12px 0;">No automation data</div>';
+      return;
+    }
+
+    // Resources display
+    const resDiv = document.createElement('div');
+    resDiv.className = 'auto-resources';
+    resDiv.innerHTML = '<div class="resource-label">Silicon</div>' +
+      '<div class="resource-value">' + (autoState.resources.silicon || 0) + '</div>';
+    autoPanelContent.appendChild(resDiv);
+
+    // Structures section
+    if (autoState.structures && autoState.structures.length > 0) {
+      const sTitle = document.createElement('div');
+      sTitle.className = 'auto-section-title';
+      sTitle.textContent = 'Structures';
+      autoPanelContent.appendChild(sTitle);
+
+      for (const s of autoState.structures) {
+        const card = document.createElement('div');
+        card.className = 'auto-card';
+        const isMaxed = s.maxCount > 0 && s.count >= s.maxCount;
+        if (isMaxed) card.classList.add('maxed');
+
+        const costStr = Object.entries(s.cost).map(([r, amt]) => amt + ' ' + r).join(', ');
+        const canAfford = Object.entries(s.cost).every(([r, amt]) => (autoState.resources[r] || 0) >= amt);
+
+        card.innerHTML = '<div class="auto-card-header">' +
+          '<span class="auto-card-name">' + s.name + '</span>' +
+          '<span class="auto-card-cost' + (canAfford ? '' : ' cant-afford') + '">' + costStr + '</span>' +
+          '</div>' +
+          '<div class="auto-card-desc">' + s.description + '</div>' +
+          '<div class="auto-card-count">Built: ' + s.count + (s.maxCount > 0 ? '/' + s.maxCount : '') + '</div>';
+
+        if (!isMaxed && canAfford) {
+          card.addEventListener('click', () => {
+            net.send({ type: CONSTANTS.MSG.AUTO_BUILD, structureId: s.id });
+          });
+        }
+
+        autoPanelContent.appendChild(card);
+      }
+    }
+
+    // Trades section
+    if (autoState.trades && autoState.trades.length > 0) {
+      const tTitle = document.createElement('div');
+      tTitle.className = 'auto-section-title';
+      tTitle.style.marginTop = '16px';
+      tTitle.textContent = 'Trade with MERIDIAN-7';
+      autoPanelContent.appendChild(tTitle);
+
+      for (const t of autoState.trades) {
+        const card = document.createElement('div');
+        card.className = 'auto-card';
+
+        const costStr = Object.entries(t.cost).map(([r, amt]) => amt + ' ' + r).join(', ');
+        const canAfford = Object.entries(t.cost).every(([r, amt]) => (autoState.resources[r] || 0) >= amt);
+
+        card.innerHTML = '<div class="auto-card-header">' +
+          '<span class="auto-card-name">' + t.name + '</span>' +
+          '<span class="auto-card-cost' + (canAfford ? '' : ' cant-afford') + '">' + costStr + '</span>' +
+          '</div>';
+
+        if (canAfford) {
+          card.addEventListener('click', () => {
+            net.send({ type: CONSTANTS.MSG.AUTO_TRADE, tradeId: t.id });
+          });
+        }
+
+        autoPanelContent.appendChild(card);
+      }
+    }
+
+    updateCursorHighlight();
   }
 
   // --- Quest panel ---
@@ -1087,6 +1175,11 @@
 
   net.on(CONSTANTS.MSG.QUEST_STARTED, (msg) => {
     showQuestToast('New Quest: ' + msg.name);
+  });
+
+  net.on(CONSTANTS.MSG.AUTO_STATE, (msg) => {
+    autoState = msg.auto || null;
+    if (menuOpen && menuTab === 'auto') renderAutoTab();
   });
 
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {

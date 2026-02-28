@@ -463,6 +463,12 @@ wss.on('connection', (ws) => {
           quests: gameLoop.questTracker.getQuestStateForClient(playerId),
         }));
 
+        // Send initial automation state
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.AUTO_STATE,
+          auto: gameLoop.automation.getStateForClient(playerId),
+        }));
+
         // Set initial objective from quest tracker and send it
         const objective = gameLoop.questTracker.getActiveObjective(playerId);
         if (objective) {
@@ -517,6 +523,13 @@ wss.on('connection', (ws) => {
             items: result.inventory,
             equipment: result.equipment,
           }));
+          // If silicon was picked up, also send updated automation state
+          if (result.item && result.item.type === 'silicon') {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.AUTO_STATE,
+              auto: gameLoop.automation.getStateForClient(playerId),
+            }));
+          }
         }
         break;
       }
@@ -838,6 +851,12 @@ setInterval(() => {
     // dialogue (e.g. showMessage) arrives after the client has the new map
     // and won't be immediately closed by the FLOOR_CHANGE handler.
     gameLoop.emitRoomEntered(t.playerId, targetRoomId);
+
+    // Send automation state (resource counts may affect UI on new floor)
+    ws.send(JSON.stringify({
+      type: CONSTANTS.MSG.AUTO_STATE,
+      auto: gameLoop.automation.getStateForClient(t.playerId),
+    }));
 
     // Re-send quest objective with updated exit resolution for new room
     if (player.questObjective) {

@@ -217,12 +217,28 @@ class ActionExecutor {
     const itemDef = this.content.getItem(action.itemType);
     if (!itemDef) return;
 
-    player.inventory.push({
-      type: action.itemType,
-      name: itemDef.name,
-      rarity: itemDef.rarity || 'common',
-      category: itemDef.type || 'misc',
-    });
+    const count = action.count || 1;
+
+    // Silicon goes to automation resources instead of inventory
+    if (action.itemType === 'silicon' && this.automation) {
+      this.automation.addResource(context.playerId, 'silicon', count);
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.AUTO_STATE,
+          auto: this.automation.getStateForClient(context.playerId),
+        });
+      }
+      return;
+    }
+
+    for (let i = 0; i < count; i++) {
+      player.inventory.push({
+        type: action.itemType,
+        name: itemDef.name,
+        rarity: itemDef.rarity || 'common',
+        category: itemDef.type || 'misc',
+      });
+    }
 
     // Notify client of inventory change
     if (this.sendToPlayer) {
