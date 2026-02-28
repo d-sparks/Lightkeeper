@@ -517,6 +517,14 @@ wss.on('connection', (ws) => {
         break;
       }
 
+      case CONSTANTS.MSG.CHOICE_SELECT: {
+        if (!ws.playerRoom) break;
+        if (msg.choiceId && msg.value) {
+          gameLoop.handleChoiceSelect(ws.playerRoom, playerId, msg.choiceId, msg.value);
+        }
+        break;
+      }
+
       case CONSTANTS.MSG.EQUIP: {
         if (!ws.playerRoom) break;
         const equipResult = gameLoop.tryEquip(ws.playerRoom, playerId, msg.index);
@@ -769,6 +777,11 @@ setInterval(() => {
       map: targetRoom.dungeon,
       tileset: content.getTileset(targetRoom.dungeon.tileset),
     }));
+
+    // Emit room_entered AFTER sending FLOOR_CHANGE so that any triggered
+    // dialogue (e.g. showMessage) arrives after the client has the new map
+    // and won't be immediately closed by the FLOOR_CHANGE handler.
+    gameLoop.emitRoomEntered(t.playerId, targetRoomId);
 
     // Re-send quest objective with updated exit resolution for new room
     if (player.questObjective) {

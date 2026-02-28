@@ -45,6 +45,7 @@ EventBus.Events = {
   ROOM_ENTERED:     'room_entered',
   PLAYER_DEATH:     'player_death',
   FLAG_CHANGED:     'flag_changed',
+  CHOICE_MADE:      'choice_made',
 };
 
 module.exports = EventBus;

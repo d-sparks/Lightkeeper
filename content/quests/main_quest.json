@@ -10,10 +10,17 @@
       "objective": { "roomId": "outpost_entrance", "tileX": 4, "tileY": 10 },
       "completionConditions": [{ "hasFlag": "talked_to_warden" }]
     },
+    "get_weapon": {
+      "label": "Get a Weapon",
+      "description": "Head to the munitions depot and get a weapon from Quartermaster Voss.",
+      "prerequisiteSteps": ["talk_to_warden"],
+      "objective": { "roomId": "outpost_munitions", "tileX": 21, "tileY": 7 },
+      "completionConditions": [{ "hasFlag": "received_weapon" }]
+    },
     "talk_to_engineer": {
       "label": "Talk to the Engineer",
       "description": "Visit the workshop and speak with the Sol Engineer.",
-      "prerequisiteSteps": ["talk_to_warden"],
+      "prerequisiteSteps": ["get_weapon"],
       "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 5 },
       "completionConditions": [{ "hasFlag": "quest_cylinders_active" }]
     },

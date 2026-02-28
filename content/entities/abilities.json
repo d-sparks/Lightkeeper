@@ -33,7 +33,7 @@
     "projectileSpeed": 300,
     "cooldown": 0.8,
     "energyCost": 5,
-    "defaultSlot": 1
+    "defaultSlot": 2
   },
   "sol_cone": {
     "name": "Sol Cone",
@@ -44,6 +44,6 @@
     "knockback": 96,
     "cooldown": 8.0,
     "energyCost": 10,
-    "defaultSlot": 1
+    "defaultSlot": 2
   }
 }

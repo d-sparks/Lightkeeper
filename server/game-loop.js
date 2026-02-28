@@ -357,7 +357,9 @@ class GameLoop {
     return player;
   }
 
-  // Add player to a room at a specific position (for floor transitions)
+  // Add player to a room at a specific position (for floor transitions).
+  // Does NOT emit room_entered — caller must call emitRoomEntered() after
+  // sending FLOOR_CHANGE so the client has the new map before dialogue arrives.
   addPlayerAt(roomId, player, spawnX, spawnY) {
     const room = this.rooms.get(roomId);
     if (!room) return null;
@@ -369,14 +371,20 @@ class GameLoop {
 
     room.players.set(player.id, player);
 
-    // Emit room_entered event
-    const ctx = this._scriptContext(player.id, roomId);
-    this._emitGameEvent(EventBus.Events.ROOM_ENTERED, {
-      playerId: player.id, roomId, dungeonId: room.dungeonId,
-    }, ctx);
-
     console.log(`[GameLoop] Player "${player.name}" (${player.id}) transitioned to room "${roomId}" at (${spawnX}, ${spawnY})`);
     return player;
+  }
+
+  // Emit room_entered event for a player already in the room.
+  // Called after FLOOR_CHANGE is sent to the client so triggered dialogue
+  // isn't immediately closed by the floor-change handler.
+  emitRoomEntered(playerId, roomId) {
+    const room = this.rooms.get(roomId);
+    if (!room) return;
+    const ctx = this._scriptContext(playerId, roomId);
+    this._emitGameEvent(EventBus.Events.ROOM_ENTERED, {
+      playerId, roomId, dungeonId: room.dungeonId,
+    }, ctx);
   }
 
   removePlayer(roomId, playerId) {
@@ -1673,6 +1681,19 @@ class GameLoop {
     }
 
     return null;
+  }
+
+  // Handle a player's choice menu selection
+  handleChoiceSelect(roomId, playerId, choiceId, value) {
+    const room = this.rooms.get(roomId);
+    if (!room) return;
+    const player = room.players.get(playerId);
+    if (!player) return;
+
+    const ctx = this._scriptContext(playerId, roomId);
+    this._emitGameEvent(EventBus.Events.CHOICE_MADE, {
+      playerId, roomId, choiceId, value,
+    }, ctx);
   }
 
   // Get a player's current inventory

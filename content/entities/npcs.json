@@ -318,12 +318,8 @@
       { "speaker": "Quartermaster Voss", "text": "Everything in this depot is catalogued. You requisition, you sign, you return." }
     ],
     "dialogues": {
-      "default": [
-        { "speaker": "Quartermaster Voss", "text": "Warden sent you? Right. I've got two options on the rack for you." },
-        { "speaker": "Quartermaster Voss", "text": "Standard Blaster — reliable at range. Low power but you can keep your distance." },
-        { "speaker": "Quartermaster Voss", "text": "Or a Combat Baton — hits harder up close, knocks them back. You'll need to get in their face though." },
-        { "speaker": "Quartermaster Voss", "text": "Pick one up from the rack. Your call." }
-      ],
+      "default": [],
+      "choosing_weapon": [],
       "has_weapon": [
         { "speaker": "Quartermaster Voss", "text": "Good choice. The workshop's back through the main hall — east corridor. Engineer's been waiting." },
         { "speaker": "Quartermaster Voss", "text": "Medical supplies are stocked by my station. Take what you need and log it." }
@@ -375,6 +371,10 @@
       {
         "conditions": [{ "hasFlag": "received_weapon" }],
         "use": "has_weapon"
+      },
+      {
+        "conditions": [{ "not": { "hasFlag": "received_weapon" } }],
+        "use": "choosing_weapon"
       }
     ]
   },

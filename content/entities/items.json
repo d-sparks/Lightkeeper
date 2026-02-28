@@ -71,8 +71,7 @@
     "slot": "sol_unit",
     "stats": { "attackDamage": 12 },
     "hasSolGrid": true,
-    "solUnitId": "sol_unit_mk1",
-    "ability": { "id": "sol_beam" }
+    "solUnitId": "sol_unit_mk1"
   },
   "medical_supplies": {
     "name": "Medical Supplies",

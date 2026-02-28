@@ -26,6 +26,9 @@
   const questPanelContent = document.getElementById('quest-panel-content');
   const solGridContainer = document.getElementById('sol-grid-container');
   const solGridInfo = document.getElementById('sol-grid-info');
+  const choiceOverlay = document.getElementById('choice-overlay');
+  const choicePrompt = document.getElementById('choice-prompt');
+  const choiceOptions = document.getElementById('choice-options');
 
   // --- Instances ---
   const net = new NetClient();
@@ -120,6 +123,44 @@
   dialogueOverlay.addEventListener('click', () => {
     if (dialogueActive) advanceDialogue();
   });
+
+  // --- Choice menu state ---
+  let choiceActive = false;
+
+  function showChoiceMenu(choiceId, prompt, options) {
+    closeDialogue();
+    closeMenu();
+    choiceActive = true;
+    input.dialogueActive = true;
+    choicePrompt.textContent = prompt;
+    choiceOptions.innerHTML = '';
+    for (const opt of options) {
+      const div = document.createElement('div');
+      div.className = 'choice-option';
+      const label = document.createElement('div');
+      label.className = 'choice-label';
+      label.textContent = opt.label;
+      div.appendChild(label);
+      if (opt.description) {
+        const desc = document.createElement('div');
+        desc.className = 'choice-desc';
+        desc.textContent = opt.description;
+        div.appendChild(desc);
+      }
+      div.addEventListener('click', () => {
+        net.send({ type: CONSTANTS.MSG.CHOICE_SELECT, choiceId, value: opt.value });
+        closeChoiceMenu();
+      });
+      choiceOptions.appendChild(div);
+    }
+    choiceOverlay.style.display = 'block';
+  }
+
+  function closeChoiceMenu() {
+    choiceActive = false;
+    input.dialogueActive = false;
+    choiceOverlay.style.display = 'none';
+  }
 
   // --- Inventory & equipment state ---
   let inventoryItems = [];
@@ -965,13 +1006,20 @@
     renderer.setMap(msg.map, msg.tileset);
     renderer.fullMap = false;
     input.clearMoveTarget();
-    // Close any open dialogue
+    // Close any open dialogue or choice menu
     closeDialogue();
+    closeChoiceMenu();
   });
 
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {
     if (msg.dialogue && msg.dialogue.length > 0) {
       showDialogue(msg.dialogue, msg.npcId);
+    }
+  });
+
+  net.on(CONSTANTS.MSG.CHOICE_MENU, (msg) => {
+    if (msg.options && msg.options.length > 0) {
+      showChoiceMenu(msg.choiceId, msg.prompt, msg.options);
     }
   });
 

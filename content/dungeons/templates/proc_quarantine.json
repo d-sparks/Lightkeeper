@@ -133,8 +133,7 @@
       "actions": [
         { "type": "setFlag", "flag": "warlord_defeated" },
         { "type": "spawnItem", "itemType": "supply_crate_key" },
-        { "type": "spawnItem", "itemType": "damage_booster_chip" },
-        { "type": "showMessage", "text": "The warlord falls. A key and a strange chip clatter to the ground." }
+        { "type": "showMessage", "text": "The warlord falls. A key clatters to the ground." }
       ],
       "once": true
     },
