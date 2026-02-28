@@ -1,0 +1,12 @@
+Done. Here's a summary of the changes:
+
+**`client/main.js`** (2 changes):
+- `updateActionBar()` (line 366): Mobile buttons now show the formatted ability name (e.g. "Blaster Shot") instead of just the slot number
+- `updateSlot1Display()` (line 758): When slot 1 exits interact mode, it now restores the ability name instead of "1"
+
+**`client/index.html`** (CSS):
+- Reduced `.ability-btn` base font-size from 14px to 12px so ability names fit
+- Reduced slot 1 font-size from 16px to 13px
+- Added `overflow: hidden`, `text-overflow: ellipsis`, `white-space: nowrap`, and `padding: 0 6px` to handle long ability names gracefully
+
+Empty slots still show just the slot number, and the interact override (e.g. "Pick up", "Talk") still works as before.

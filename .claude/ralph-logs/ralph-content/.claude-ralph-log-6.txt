@@ -1,0 +1,11 @@
+Done. The change was a single content-only edit to `content/quests/main_quest.json`:
+
+**What changed:** Added a new `"get_weapon"` quest step between `"talk_to_warden"` and `"talk_to_engineer"`. The step:
+- Points the quest tracker arrow to Quartermaster Voss in the munitions depot (tile 21,7)
+- Completes when the `received_weapon` flag is set (already triggered by the existing weapon choice mechanic)
+- Blocks the `"talk_to_engineer"` step until the player has a weapon
+
+**No other changes needed** because the existing NPC dialogue already supports this flow:
+- Warden Holt says "get a weapon from Quartermaster Voss, then report to the workshop"
+- Voss offers a weapon choice and sets `received_weapon`
+- After choosing, Voss says "workshop's back through the main hall — engineer's been waiting"

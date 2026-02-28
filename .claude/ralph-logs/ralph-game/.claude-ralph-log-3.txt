@@ -1,0 +1,11 @@
+Done. The cone attack now has an animated visual effect in `client/renderer.js:1721-1793`:
+
+**Before:** A static filled orange arc that simply faded out over 400ms.
+
+**After:** A directional expanding wave animation with:
+- **Expanding sweep** — outer radius grows outward with ease-out, creating the directional blast motion
+- **Wave ring** — an inner radius follows behind, turning the fill into a moving arc/ring shape as it expands
+- **See-through fill** — 0.2 alpha orange fill so you can see through the effect
+- **Bright leading edge** — a 2px yellow-orange arc stroke at the expanding front highlights where the blast is
+- **Cone boundary lines** — two lines from the player origin to the outer edges clearly delineate the cone shape
+- **Smooth fade** — everything fades out in the second half of the animation

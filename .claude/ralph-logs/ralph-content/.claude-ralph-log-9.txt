@@ -1,0 +1,9 @@
+Done. Here's what I changed:
+
+**`content/dungeons/outpost_perimeter.json`** — Split the single `darkness_warning` trigger into two conditional variants:
+
+1. **`darkness_warning_no_sol`** — Fires when the player enters without the `received_sol_unit` flag. Shows a 3-line warning that the darkness is pulling at them and they should turn back to get a Sol Unit from the engineer.
+
+2. **`darkness_warning_has_sol`** — Fires when the player enters with the flag. Shows atmospheric text acknowledging their Sol Unit is holding the dark at bay.
+
+Both triggers are `once: true`, so each player sees the appropriate message just on their first visit. Pure content change — no engine code modified.

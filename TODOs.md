@@ -1,19 +1,20 @@
 Fix conflicts
 
+Dev
+- Need a "give item to player" option in the checkpoint UI, e.g. for giving sol unit etc for dev purposes.
+
 Game
-- On mobile, display names of abilities on control buttons
-- On mobile, text is very very fuzzy. Can we fix that?
-- Add graphics for the cone attack to visualize it. It should be see through but have directional animation and show the cone shape.
-- Add an XP and level system. Finishing quests should give you XP and beating enemies should also. When you get to a new level, for now, you get higher HP only. The reward curve should be roughly such that by the time you get your sol unit you're level 2, or 3 if you cleared everything out.
+- Come up with a design and implementation for a modular sound system which we can upgrade later. Create some simple midi music and sound effects for the game we have so far.
+- When selecting a weaopn from quartermaster voss with controller, while that dialogue is open, the dpad and joystick should select amongst the options.
+- Can we add some sort of simple visual indicator/animation for the melee attack? There's zero feedback which makes it hard to use even in dev.
+- The supply manifest, a quest item, should at least show up as a special color dot on the minimap.
+- Implement tracking for side quests. I see a button for it but it doesn't do anything. Selecting it should switch visual guide indicators to ones that work to guide you for that side quest.
+- Clicking or tapping "close" on the game menu should close it.
+- Make sure enemies can't spawn inside walls or interactable squares. That can create interactions where we can't interact with the square because of the enemy and can't shoot the enemy because of the square.
 
 Content
-- The choice of combat baton vs standard blaster should be done in a menu so that (a) other players cant interfere with your pickup and (b) so you can clearly assess without accidentally picking one.
-- There needs to be a quest step before going to the apprentice sol engineer for the first time, to go to the quartermaster and get a weapon. (Or feel free to make it in the other order: sol engineer asks you to do the task, which you need a weapon for, so go to the quatermaster. Either way.) Update the quest tracker / next step directions to point to the appropriate next step.
-- The baton should do either 40 or 50% damage to a brawler, the one shot is too easy. Scale blaster damage accordingly.
-- Training room shouldn't be unlocked until after you have the sol unit.
+- Getting a weapon from quartermaster voss doesn't advance you to the next step of the quest.
+- After talking to the engineer, on quest step defeat the warlord, the quest tracker visual guide should guide you to floor 3 of the quarantine wing.
+- After defeating the warlord, the next step quest tracker should track you to the chest directly.
 - Add flavor text to the outside region saying you shouldn't come here without a sol unit.
-- The warlord shouldn't drop a damage booster chip since we get one from the quest anyway.
-- We seem to lose the melee attack after getting the sol unit. I don't want that, you're supposed to have both. Same goes for standard blaster. After getting the sol unit you should have skill 1: blaster/melee skill 2: cone attack.
-
-New worlds
-- Implement the plan laid out in .claude/ralph-logs/ralph-new-worlds/.claude-ralph-log-13.txt ; we can go with the recommendation as the answer to the questions. However, one thing is I'd like the entrance to add the entrance to the dayside in a new room called "Train station" which is accessible on the far side of "The Dark Perimeter" that way you only access it once you have a sol unit, and this is where you'll charge it.
+- The text for entering the Dark Perimeter with and without sol unit aren't showing up.
