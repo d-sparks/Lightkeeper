@@ -14,6 +14,7 @@ class ContentLoader {
     this.solComponents = {};
     this.quests = {};
     this.templates = {};
+    this.structures = {};
     this.settings = {};
   }
 
@@ -29,6 +30,7 @@ class ContentLoader {
     this.loadSolComponents();
     this.loadQuests();
     this.loadTemplates();
+    this.loadStructures();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
                 `${Object.keys(this.monsters).length} monster type(s), ` +
@@ -36,7 +38,8 @@ class ContentLoader {
                 `${Object.keys(this.items).length} item type(s), ` +
                 `${Object.keys(this.abilities).length} ability(s), ` +
                 `${Object.keys(this.quests).length} quest(s), ` +
-                `${Object.keys(this.templates).length} template(s)`);
+                `${Object.keys(this.templates).length} template(s), ` +
+                `${Object.keys(this.structures).length} structure(s)`);
   }
 
   loadJSON(filePath) {
@@ -208,6 +211,24 @@ class ContentLoader {
 
   getTemplate(id) {
     return this.templates[id] || null;
+  }
+
+  loadStructures() {
+    const filePath = path.join(this.contentDir, 'entities', 'structures.json');
+    if (!fs.existsSync(filePath)) {
+      this.structures = {};
+      return;
+    }
+    this.structures = this.loadJSON(filePath);
+    console.log(`[Content]   Structures: ${Object.keys(this.structures).length} types`);
+  }
+
+  getStructure(id) {
+    return this.structures[id] || null;
+  }
+
+  getStructures() {
+    return this.structures;
   }
 
   getTileset(id) {

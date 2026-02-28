@@ -1,6 +1,7 @@
 const CONSTANTS = require('../shared/constants');
 const Physics = require('./physics');
 const DungeonGenerator = require('./dungeon-generator');
+const Automation = require('./automation');
 const FlagStore = require('./scripting/flag-store');
 const EventBus = require('./scripting/event-bus');
 const ConditionEvaluator = require('./scripting/conditions');
@@ -29,11 +30,15 @@ class GameLoop {
     this.generatedDungeons = new Map(); // instanceId -> dungeon JSON
     this.serverEpoch = Date.now();
 
+    // Automation subsystem (dayside structures, resources, production)
+    this.automation = new Automation(content);
+
     // Scripting subsystem
     this.flagStore = new FlagStore();
     this.eventBus = new EventBus();
     this.conditions = new ConditionEvaluator(this.flagStore);
     this.actions = new ActionExecutor(this.flagStore, this.eventBus, content);
+    this.actions.automation = this.automation;
     this.triggers = new TriggerRegistry(this.eventBus, this.conditions, this.actions, this.flagStore);
     this.questTracker = new QuestTracker(content, this.conditions, this.actions);
 
@@ -1170,6 +1175,16 @@ class GameLoop {
           }
         }
         // No passive energy regeneration — sol units must be charged at stations
+        // ...except solar panel energy regen on the dayside
+        if (player.maxEnergy > 0) {
+          const regenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
+          if (regenRate > 0) {
+            player.energy = Math.min(player.maxEnergy, player.energy + regenRate * dt);
+          }
+        }
+
+        // Tick automation production (silicon harvesters etc.)
+        this.automation.updateProduction(pid, dt);
       }
 
       // Update monsters (AI + attacks)
@@ -1558,12 +1573,17 @@ class GameLoop {
         this.pickedUpItems.get(room.dungeonId).add(closestItem.spawnIndex);
       }
       const closestItemDef = this.content.getItem(closestItem.type);
-      player.inventory.push({
-        type: closestItem.type,
-        name: closestItem.name,
-        rarity: closestItem.rarity,
-        category: closestItemDef ? closestItemDef.type : 'misc',
-      });
+      // Silicon goes to automation resources instead of inventory
+      if (closestItem.type === 'silicon') {
+        this.automation.addResource(playerId, 'silicon', 1);
+      } else {
+        player.inventory.push({
+          type: closestItem.type,
+          name: closestItem.name,
+          rarity: closestItem.rarity,
+          category: closestItemDef ? closestItemDef.type : 'misc',
+        });
+      }
       room.events.push({
         type: 'pickup',
         targetId: player.id,

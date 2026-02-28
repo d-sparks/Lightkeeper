@@ -22,7 +22,7 @@
     3,
     3,
     3,
-    3,
+    6,
     3,
     3,
     3,
@@ -689,6 +689,14 @@
       "type": "stairs_up",
       "spawnX": 10,
       "spawnY": 1
+    },
+    {
+      "x": 14,
+      "y": 0,
+      "leadsTo": "train_station",
+      "type": "stairs_down",
+      "spawnX": 12,
+      "spawnY": 13
     }
   ],
   "triggers": [

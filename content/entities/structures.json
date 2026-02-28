@@ -1,0 +1,26 @@
+{
+  "solar_panel": {
+    "name": "Solar Panel",
+    "description": "Generates passive sol energy recharge for your Sol Unit. +1 energy per panel every 10 seconds while on the dayside.",
+    "cost": { "silicon": 3 },
+    "maxCount": 5,
+    "effect": {
+      "type": "energy_regen",
+      "amount": 1,
+      "intervalSeconds": 10,
+      "requiresRoom": "dayside_solar_fields"
+    }
+  },
+  "silicon_harvester": {
+    "name": "Silicon Harvester",
+    "description": "Automated drone that harvests silicon on the dayside. Produces 1 silicon every 60 seconds.",
+    "cost": { "silicon": 5 },
+    "maxCount": 3,
+    "effect": {
+      "type": "resource_production",
+      "produces": "silicon",
+      "amount": 1,
+      "intervalSeconds": 60
+    }
+  }
+}

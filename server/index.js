@@ -463,6 +463,12 @@ wss.on('connection', (ws) => {
           quests: gameLoop.questTracker.getQuestStateForClient(playerId),
         }));
 
+        // Send initial automation state
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.AUTO_STATE,
+          auto: gameLoop.automation.getStateForClient(playerId),
+        }));
+
         // Set initial objective from quest tracker and send it
         const objective = gameLoop.questTracker.getActiveObjective(playerId);
         if (objective) {
@@ -517,6 +523,13 @@ wss.on('connection', (ws) => {
             items: result.inventory,
             equipment: result.equipment,
           }));
+          // If silicon was picked up, also send updated automation state
+          if (result.item && result.item.type === 'silicon') {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.AUTO_STATE,
+              auto: gameLoop.automation.getStateForClient(playerId),
+            }));
+          }
         }
         break;
       }
@@ -703,6 +716,58 @@ wss.on('connection', (ws) => {
         }
         break;
       }
+
+      case CONSTANTS.MSG.AUTO_BUILD: {
+        if (!ws.playerRoom) break;
+        const built = gameLoop.automation.build(playerId, msg.structureId);
+        if (built) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.AUTO_STATE,
+            auto: gameLoop.automation.getStateForClient(playerId),
+          }));
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.AUTO_TRADE: {
+        if (!ws.playerRoom) break;
+        const tradeResult = gameLoop.automation.trade(playerId, msg.tradeId);
+        if (tradeResult) {
+          // Give items to player
+          const room = gameLoop.getRoom(ws.playerRoom);
+          const player = room && room.players.get(playerId);
+          if (player) {
+            for (const give of tradeResult) {
+              if (give.type === 'item') {
+                const itemDef = content.getItem(give.itemId);
+                if (itemDef) {
+                  for (let i = 0; i < (give.count || 1); i++) {
+                    player.inventory.push({
+                      name: itemDef.name,
+                      type: give.itemId,
+                      category: itemDef.type,
+                      rarity: itemDef.rarity || 'common',
+                      slot: itemDef.slot || null,
+                      stackable: itemDef.stackable || false,
+                    });
+                  }
+                }
+              }
+            }
+            gameLoop.flagStore.setFlag(playerId, ws.playerRoom, 'has_traded_meridian', true);
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.INVENTORY,
+              items: player.inventory,
+              equipment: player.equipment,
+            }));
+          }
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.AUTO_STATE,
+            auto: gameLoop.automation.getStateForClient(playerId),
+          }));
+        }
+        break;
+      }
     }
   });
 
@@ -786,6 +851,12 @@ setInterval(() => {
     // dialogue (e.g. showMessage) arrives after the client has the new map
     // and won't be immediately closed by the FLOOR_CHANGE handler.
     gameLoop.emitRoomEntered(t.playerId, targetRoomId);
+
+    // Send automation state (resource counts may affect UI on new floor)
+    ws.send(JSON.stringify({
+      type: CONSTANTS.MSG.AUTO_STATE,
+      auto: gameLoop.automation.getStateForClient(t.playerId),
+    }));
 
     // Re-send quest objective with updated exit resolution for new room
     if (player.questObjective) {
