@@ -1,0 +1,46 @@
+{
+  "id": "quarantine",
+  "image": "tilesets/quarantine.png",
+  "tileSize": 16,
+  "tiles": {
+    "0": { "name": "void",         "solid": true  },
+    "1": { "name": "stone_floor",  "solid": false },
+    "2": { "name": "cracked_floor","solid": false },
+    "3": { "name": "stone_wall",   "solid": true  },
+    "4": { "name": "door_closed",  "solid": true,  "interactable": "door", "togglesTo": 5 },
+    "5": { "name": "door_open",    "solid": false, "interactable": "door", "togglesTo": 4 },
+    "6": { "name": "stairs_down",  "solid": false, "exit": true },
+    "7": { "name": "water",        "solid": true  },
+    "8": { "name": "stairs_up",   "solid": false, "exit": true },
+    "9": {
+      "name": "locked_door",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasItem": "iron_key" }],
+      "failMessage": "The door is locked. You need a key.",
+      "onInteract": [{ "type": "removeItem", "itemType": "iron_key" }]
+    },
+    "10": {
+      "name": "chest_closed",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 11,
+      "conditions": [{ "hasItem": "supply_crate_key" }],
+      "failMessage": "The supply crate is locked. You need a key.",
+      "onInteract": [{ "type": "removeItem", "itemType": "supply_crate_key" }]
+    },
+    "11": {
+      "name": "chest_opened",
+      "solid": false
+    },
+    "12": {
+      "name": "sealed_gate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "talked_to_warden" }],
+      "failMessage": "The gate is sealed. Talk to Warden Holt first."
+    }
+  }
+}
