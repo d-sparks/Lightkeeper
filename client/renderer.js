@@ -751,10 +751,11 @@ class Renderer {
       this.cssZoom = availW / this.viewW;
 
       if (this.app) {
-        // Set renderer resolution to cssZoom so the backing buffer is at native pixel density.
-        // This keeps the coordinate system at viewW x viewH (zoomed) while rendering
-        // at full native resolution — text is crisp, pixel art stays clean with NEAREST.
-        this.app.renderer.resolution = this.cssZoom;
+        // Set renderer resolution to cssZoom * devicePixelRatio so the backing buffer
+        // matches the device's native physical resolution. Without DPR, text is fuzzy
+        // on high-density mobile screens. Cap at DPR 2 for performance.
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.app.renderer.resolution = this.cssZoom * dpr;
         this.app.renderer.resize(this.viewW, this.viewH);
       }
 
