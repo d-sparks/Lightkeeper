@@ -1,6 +1,7 @@
 const CONSTANTS = require('../shared/constants');
 const Physics = require('./physics');
 const DungeonGenerator = require('./dungeon-generator');
+const Automation = require('./automation');
 const FlagStore = require('./scripting/flag-store');
 const EventBus = require('./scripting/event-bus');
 const ConditionEvaluator = require('./scripting/conditions');
@@ -28,6 +29,9 @@ class GameLoop {
     this.generator = new DungeonGenerator(content);
     this.generatedDungeons = new Map(); // instanceId -> dungeon JSON
     this.serverEpoch = Date.now();
+
+    // Automation subsystem (dayside structures, resources, production)
+    this.automation = new Automation(content);
 
     // Scripting subsystem
     this.flagStore = new FlagStore();
@@ -1170,6 +1174,16 @@ class GameLoop {
           }
         }
         // No passive energy regeneration — sol units must be charged at stations
+        // ...except solar panel energy regen on the dayside
+        if (player.maxEnergy > 0) {
+          const regenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
+          if (regenRate > 0) {
+            player.energy = Math.min(player.maxEnergy, player.energy + regenRate * dt);
+          }
+        }
+
+        // Tick automation production (silicon harvesters etc.)
+        this.automation.updateProduction(pid, dt);
       }
 
       // Update monsters (AI + attacks)

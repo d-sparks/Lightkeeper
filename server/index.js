@@ -703,6 +703,58 @@ wss.on('connection', (ws) => {
         }
         break;
       }
+
+      case CONSTANTS.MSG.AUTO_BUILD: {
+        if (!ws.playerRoom) break;
+        const built = gameLoop.automation.build(playerId, msg.structureId);
+        if (built) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.AUTO_STATE,
+            auto: gameLoop.automation.getStateForClient(playerId),
+          }));
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.AUTO_TRADE: {
+        if (!ws.playerRoom) break;
+        const tradeResult = gameLoop.automation.trade(playerId, msg.tradeId);
+        if (tradeResult) {
+          // Give items to player
+          const room = gameLoop.getRoom(ws.playerRoom);
+          const player = room && room.players.get(playerId);
+          if (player) {
+            for (const give of tradeResult) {
+              if (give.type === 'item') {
+                const itemDef = content.getItem(give.itemId);
+                if (itemDef) {
+                  for (let i = 0; i < (give.count || 1); i++) {
+                    player.inventory.push({
+                      name: itemDef.name,
+                      type: give.itemId,
+                      category: itemDef.type,
+                      rarity: itemDef.rarity || 'common',
+                      slot: itemDef.slot || null,
+                      stackable: itemDef.stackable || false,
+                    });
+                  }
+                }
+              }
+            }
+            gameLoop.flagStore.setFlag(playerId, ws.playerRoom, 'has_traded_meridian', true);
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.INVENTORY,
+              items: player.inventory,
+              equipment: player.equipment,
+            }));
+          }
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.AUTO_STATE,
+            auto: gameLoop.automation.getStateForClient(playerId),
+          }));
+        }
+        break;
+      }
     }
   });
 

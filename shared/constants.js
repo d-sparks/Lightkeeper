@@ -103,6 +103,12 @@ const CONSTANTS = {
     QUEST_STEP_COMPLETE: 'quest_step_complete',
     QUEST_STARTED: 'quest_started',
 
+    // Automation (Client -> Server)
+    AUTO_BUILD: 'auto_build',
+    AUTO_TRADE: 'auto_trade',
+    // Automation (Server -> Client)
+    AUTO_STATE: 'auto_state',
+
     // Bidirectional
     SOL_GRID_MOVE: 'sol_grid_move',
     SOL_GRID_PLACE: 'sol_grid_place',

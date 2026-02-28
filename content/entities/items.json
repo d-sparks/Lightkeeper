@@ -95,6 +95,13 @@
     "rarity": "uncommon",
     "solComponentId": "damage_booster"
   },
+  "silicon": {
+    "name": "Silicon",
+    "description": "Refined silicon crystal harvested from the dayside. Used for construction and trade with the Array.",
+    "type": "consumable",
+    "rarity": "common",
+    "stackable": true
+  },
   "supply_manifest": {
     "name": "Supply Manifest",
     "description": "A battered clipboard with a supply manifest attached. Quartermaster Voss will want to see this.",
