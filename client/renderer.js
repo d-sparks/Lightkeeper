@@ -1725,16 +1725,71 @@ class Renderer {
       cone.age += dt;
       if (cone.age >= cone.maxAge) return false;
 
-      const alpha = 0.4 * (1 - cone.age / cone.maxAge);
+      const t = cone.age / cone.maxAge; // 0..1 normalized time
       const halfAngle = cone.coneAngle / 2;
       const startAngle = cone.angle - halfAngle;
       const endAngle = cone.angle + halfAngle;
 
-      this.coneGfx.beginFill(0xffaa00, alpha);
+      // Outer radius expands with ease-out
+      const outerT = Math.min(t / 0.5, 1.0);
+      const outerRange = cone.range * (1 - (1 - outerT) * (1 - outerT));
+
+      // Inner radius follows behind, creating a sweeping wave
+      const innerT = Math.max((t - 0.15) / 0.5, 0);
+      const innerRange = cone.range * Math.min(1 - (1 - innerT) * (1 - innerT), 1.0) * 0.9;
+
+      // Fade out in the second half
+      const fadeAlpha = t < 0.4 ? 1.0 : Math.max(0, 1.0 - (t - 0.4) / 0.6);
+
+      // --- Filled cone sweep (semi-transparent) ---
+      if (outerRange > innerRange + 1) {
+        this.coneGfx.beginFill(0xffaa00, 0.2 * fadeAlpha);
+        if (innerRange > 1) {
+          // Donut sector: outer arc forward, inner arc reversed
+          this.coneGfx.moveTo(
+            cone.x + Math.cos(startAngle) * outerRange,
+            cone.y + Math.sin(startAngle) * outerRange
+          );
+          this.coneGfx.arc(cone.x, cone.y, outerRange, startAngle, endAngle);
+          this.coneGfx.lineTo(
+            cone.x + Math.cos(endAngle) * innerRange,
+            cone.y + Math.sin(endAngle) * innerRange
+          );
+          this.coneGfx.arc(cone.x, cone.y, innerRange, endAngle, startAngle, true);
+          this.coneGfx.closePath();
+        } else {
+          // Full sector from center
+          this.coneGfx.moveTo(cone.x, cone.y);
+          this.coneGfx.arc(cone.x, cone.y, outerRange, startAngle, endAngle);
+          this.coneGfx.lineTo(cone.x, cone.y);
+        }
+        this.coneGfx.endFill();
+      }
+
+      // --- Bright leading edge arc ---
+      if (outerRange > 2) {
+        this.coneGfx.lineStyle(2, 0xffdd44, 0.5 * fadeAlpha);
+        this.coneGfx.moveTo(
+          cone.x + Math.cos(startAngle) * outerRange,
+          cone.y + Math.sin(startAngle) * outerRange
+        );
+        this.coneGfx.arc(cone.x, cone.y, outerRange, startAngle, endAngle);
+        this.coneGfx.lineStyle(0);
+      }
+
+      // --- Edge lines (cone boundaries) ---
+      this.coneGfx.lineStyle(1, 0xffaa00, 0.3 * fadeAlpha);
       this.coneGfx.moveTo(cone.x, cone.y);
-      this.coneGfx.arc(cone.x, cone.y, cone.range, startAngle, endAngle);
-      this.coneGfx.lineTo(cone.x, cone.y);
-      this.coneGfx.endFill();
+      this.coneGfx.lineTo(
+        cone.x + Math.cos(startAngle) * outerRange,
+        cone.y + Math.sin(startAngle) * outerRange
+      );
+      this.coneGfx.moveTo(cone.x, cone.y);
+      this.coneGfx.lineTo(
+        cone.x + Math.cos(endAngle) * outerRange,
+        cone.y + Math.sin(endAngle) * outerRange
+      );
+      this.coneGfx.lineStyle(0);
 
       return true;
     });
