@@ -12,6 +12,8 @@
   const energyFill = document.getElementById('energy-fill');
   const energyText = document.getElementById('energy-text');
   const hudName = document.getElementById('hud-name');
+  const xpFill = document.getElementById('xp-fill');
+  const xpText = document.getElementById('xp-text');
   const dialogueOverlay = document.getElementById('dialogue-overlay');
   const dialogueSpeaker = document.getElementById('dialogue-speaker');
   const dialogueText = document.getElementById('dialogue-text');
@@ -404,7 +406,7 @@
         }
         if (mobileSlot) {
           mobileSlot.classList.remove('empty');
-          mobileSlot.textContent = slotNum;
+          mobileSlot.textContent = label;
         }
       } else {
         if (desktopSlot) {
@@ -796,7 +798,7 @@
         }
         if (mobileSlot) {
           mobileSlot.classList.remove('empty');
-          mobileSlot.textContent = '1';
+          mobileSlot.textContent = aLabel;
         }
       } else {
         if (desktopSlot) {
@@ -977,6 +979,15 @@
           energyText.textContent = `SOL ${Math.round(me.energy)}/${me.maxEnergy}`;
         } else {
           energyBar.style.display = 'none';
+        }
+        // XP bar
+        if (me.xpToNextLevel > 0) {
+          const xpPct = (me.xp / me.xpToNextLevel) * 100;
+          xpFill.style.width = `${xpPct}%`;
+          xpText.textContent = `LV ${me.level}  ${me.xp}/${me.xpToNextLevel}`;
+        } else {
+          xpFill.style.width = '100%';
+          xpText.textContent = `LV ${me.level}  MAX`;
         }
         hudName.textContent = me.name;
         if (me.facing !== undefined) lastFacing = me.facing;

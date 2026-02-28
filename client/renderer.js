@@ -751,10 +751,11 @@ class Renderer {
       this.cssZoom = availW / this.viewW;
 
       if (this.app) {
-        // Set renderer resolution to cssZoom so the backing buffer is at native pixel density.
-        // This keeps the coordinate system at viewW x viewH (zoomed) while rendering
-        // at full native resolution — text is crisp, pixel art stays clean with NEAREST.
-        this.app.renderer.resolution = this.cssZoom;
+        // Set renderer resolution to cssZoom * devicePixelRatio so the backing buffer
+        // matches the device's native physical resolution. Without DPR, text is fuzzy
+        // on high-density mobile screens. Cap at DPR 2 for performance.
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.app.renderer.resolution = this.cssZoom * dpr;
         this.app.renderer.resize(this.viewW, this.viewH);
       }
 
@@ -1724,16 +1725,77 @@ class Renderer {
       cone.age += dt;
       if (cone.age >= cone.maxAge) return false;
 
-      const alpha = 0.4 * (1 - cone.age / cone.maxAge);
+      const t = cone.age / cone.maxAge; // 0..1 normalized time
       const halfAngle = cone.coneAngle / 2;
       const startAngle = cone.angle - halfAngle;
       const endAngle = cone.angle + halfAngle;
 
-      this.coneGfx.beginFill(0xffaa00, alpha);
-      this.coneGfx.moveTo(cone.x, cone.y);
-      this.coneGfx.arc(cone.x, cone.y, cone.range, startAngle, endAngle);
-      this.coneGfx.lineTo(cone.x, cone.y);
-      this.coneGfx.endFill();
+      // Outer radius expands with ease-out
+      const outerT = Math.min(t / 0.5, 1.0);
+      const outerRange = cone.range * (1 - (1 - outerT) * (1 - outerT));
+
+      // Inner radius follows behind, creating a sweeping wave
+      const innerT = Math.max((t - 0.15) / 0.5, 0);
+      const innerRange = cone.range * Math.min(1 - (1 - innerT) * (1 - innerT), 1.0) * 0.9;
+
+      // Fade out in the second half
+      const fadeAlpha = t < 0.4 ? 1.0 : Math.max(0, 1.0 - (t - 0.4) / 0.6);
+
+      // Convert center to worldContainer coords (iso or identity)
+      const c = this.isoMode ? this.worldToIso(cone.x, cone.y) : { x: cone.x, y: cone.y };
+      // Scale range for isometric (average of X and Y scale factors)
+      const isoRange = this.isoMode ? outerRange * 1.5 : outerRange;
+      const isoInner = this.isoMode ? innerRange * 1.5 : innerRange;
+
+      // --- Filled cone sweep (semi-transparent) ---
+      if (isoRange > isoInner + 1) {
+        this.coneGfx.beginFill(0xffaa00, 0.35 * fadeAlpha);
+        if (isoInner > 1) {
+          // Donut sector: outer arc forward, inner arc reversed
+          this.coneGfx.moveTo(
+            c.x + Math.cos(startAngle) * isoRange,
+            c.y + Math.sin(startAngle) * isoRange
+          );
+          this.coneGfx.arc(c.x, c.y, isoRange, startAngle, endAngle);
+          this.coneGfx.lineTo(
+            c.x + Math.cos(endAngle) * isoInner,
+            c.y + Math.sin(endAngle) * isoInner
+          );
+          this.coneGfx.arc(c.x, c.y, isoInner, endAngle, startAngle, true);
+          this.coneGfx.closePath();
+        } else {
+          // Full sector from center
+          this.coneGfx.moveTo(c.x, c.y);
+          this.coneGfx.arc(c.x, c.y, isoRange, startAngle, endAngle);
+          this.coneGfx.lineTo(c.x, c.y);
+        }
+        this.coneGfx.endFill();
+      }
+
+      // --- Bright leading edge arc ---
+      if (isoRange > 2) {
+        this.coneGfx.lineStyle(3, 0xffdd44, 0.8 * fadeAlpha);
+        this.coneGfx.moveTo(
+          c.x + Math.cos(startAngle) * isoRange,
+          c.y + Math.sin(startAngle) * isoRange
+        );
+        this.coneGfx.arc(c.x, c.y, isoRange, startAngle, endAngle);
+        this.coneGfx.lineStyle(0);
+      }
+
+      // --- Edge lines (cone boundaries) ---
+      this.coneGfx.lineStyle(2, 0xffaa00, 0.5 * fadeAlpha);
+      this.coneGfx.moveTo(c.x, c.y);
+      this.coneGfx.lineTo(
+        c.x + Math.cos(startAngle) * isoRange,
+        c.y + Math.sin(startAngle) * isoRange
+      );
+      this.coneGfx.moveTo(c.x, c.y);
+      this.coneGfx.lineTo(
+        c.x + Math.cos(endAngle) * isoRange,
+        c.y + Math.sin(endAngle) * isoRange
+      );
+      this.coneGfx.lineStyle(0);
 
       return true;
     });
@@ -1771,6 +1833,13 @@ class Renderer {
           x: ev.x, y: ev.y,
           age: 0, maxAge: 1.2,
           color: '#fdd835',
+        });
+      } else if (ev.type === 'level_up') {
+        this.damageNumbers.push({
+          text: `LEVEL ${ev.newLevel}!`,
+          x: ev.x, y: ev.y - 20,
+          age: 0, maxAge: 2.0,
+          color: '#ffa726',
         });
       } else if (ev.type === 'cone_effect') {
         this.coneEffects.push({

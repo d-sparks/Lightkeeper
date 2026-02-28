@@ -15,6 +15,7 @@
 //   { type: "equipItem",    itemType: "sol_unit" }
 //   { type: "showMessage",  text: "The door unlocks with a click." }
 //   { type: "setEnergy",    value: 100 }  // or percent: 100
+//   { type: "grantXp",      amount: 50 }
 //   { type: "toggleTile",   x: 5, y: 3 }
 //   { type: "showChoice",  choiceId: "weapon_choice", prompt: "Choose:", options: [{label, description, value}] }
 
@@ -76,6 +77,9 @@ class ActionExecutor {
         break;
       case 'setEnergy':
         this.doSetEnergy(action, context);
+        break;
+      case 'grantXp':
+        this.doGrantXp(action, context);
         break;
       case 'toggleTile':
         this.doToggleTile(action, context);
@@ -366,6 +370,17 @@ class ActionExecutor {
       prompt: action.prompt || '',
       options: action.options || [],
     });
+  }
+
+  doGrantXp(action, context) {
+    const player = context.player;
+    if (!player) return;
+    const amount = action.amount || 0;
+    if (amount <= 0) return;
+    // Delegate to gameLoop.grantXp via callback
+    if (this._onGrantXp) {
+      this._onGrantXp(player, amount, context.room);
+    }
   }
 
   doToggleTile(action, context) {

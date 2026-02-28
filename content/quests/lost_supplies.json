@@ -8,7 +8,8 @@
       "label": "Recover the Supply Manifest",
       "description": "Search the first level of the quarantine wing for the lost supply manifest.",
       "prerequisiteSteps": [],
-      "completionConditions": [{ "hasItem": "supply_manifest" }]
+      "completionConditions": [{ "hasItem": "supply_manifest" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
     },
     "return_to_voss": {
       "label": "Return to Quartermaster Voss",
@@ -17,6 +18,7 @@
       "objective": { "roomId": "outpost_munitions", "tileX": 21, "tileY": 7 },
       "completionConditions": [{ "hasFlag": "voss_supply_quest_complete" }],
       "completionActions": [
+        { "type": "grantXp", "amount": 30 },
         { "type": "showMessage", "text": "Quest complete: Lost Supplies" }
       ]
     }
