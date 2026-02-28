@@ -693,14 +693,35 @@
   ],
   "triggers": [
     {
-      "id": "darkness_warning",
+      "id": "darkness_warning_no_sol",
       "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "received_sol_unit" } }
+      ],
       "actions": [
         {
           "type": "showMessage",
           "lines": [
             "You step beyond the outpost walls. The darkness here is absolute — the void presses in from all sides.",
-            "Without a Sol Unit, the darkness will drain your life force. Find one in the Outpost Workshop."
+            "You can feel it pulling at you already. Without a Sol Unit, you won't last long out here.",
+            "Turn back. Find the engineer in the Outpost Workshop and get a Sol Unit before venturing into the dark."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "darkness_warning_has_sol",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "received_sol_unit" }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "You step beyond the outpost walls. The darkness here is absolute — the void presses in from all sides.",
+            "Your Sol Unit hums faintly against the pressing dark. Stay sharp."
           ]
         }
       ],
