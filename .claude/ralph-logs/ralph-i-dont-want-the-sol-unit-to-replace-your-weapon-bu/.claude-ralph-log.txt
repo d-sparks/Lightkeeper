@@ -1,0 +1,13 @@
+Done. Here's a summary of what was changed across 5 files:
+
+**New equipment layout**: Arms, Sol Unit, Medipac, Accessory (was Arms, Medipac, Accessory)
+
+**Changes made:**
+
+1. **`shared/constants.js`** - Added `'sol_unit'` to `EQUIPMENT_SLOTS`
+2. **`content/entities/items.json`** - Changed sol_unit item from `slot: "weapon"` to `slot: "sol_unit"` and `type: "equipment"` (so it equips to its own dedicated slot)
+3. **`server/game-loop.js`** - Added `sol_unit: null` to player equipment init, added sol_unit ability rebuild section in `_rebuildAbilities()`, and fixed a pre-existing bug where `tryAttack()` checked `player.equipment.weapon` (undefined) instead of `player.equipment.arms`
+4. **`client/main.js`** - Added `'Sol Unit'` display name, updated default equipment state, moved the sol grid "OPEN" tag and click handler from the `arms` slot to the `sol_unit` slot
+5. **`server/checkpoint-api.js`** - Updated default equipment structure for checkpoint restore
+
+Players can now equip a primary weapon (e.g., blaster, rusty sword) in the Arms slot AND a Sol Unit in its own slot. Both contribute attack damage and abilities independently. The existing quest triggers that give/equip the sol_unit will automatically use the new slot.

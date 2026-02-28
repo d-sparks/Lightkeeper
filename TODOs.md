@@ -1,22 +1,19 @@
 Fix conflicts
-- ralph/add-a-melee-weapon-which-is-an-alternative-to-the 
-- ralph/big-feature-run-the-procedural-creation-algorithm 
-- ralph/big-feature-should-have-a-ui-to-create-procedural 
-- ralph/i-dont-want-the-sol-unit-to-replace-your-weapon-bu
-- ralph/implement-side-quests-and-a-first-side-quest      
-- ralph/make-some-new-sprites-the-iso-perspective-is-perfe
-
-Dev
-- On the checkpoint screen, I'd like to add a way to jump to any quest. Can we add a quest dropdown and go to quest which (1) sets any necessary flags to enable that quest and (2) puts the selected player into the room to proceed with the first quest item of that quest?
-- I want to be able to visualize the quest chain in the checkpoints endpoint. It is supposed to be a dag, what's a good way to visualize the progression? This can be at the very bottom of the checkpoint page.
-- We need to have a way to edit flags and view flags in the dev settings. This could be on the checkpoint screen as well. Do we already have that? If not please add it, if so, please make the UI on the checkpoints page.
-
 
 Game
-- Rendering depth/overlay issue was fixed for NPCs in the last couple of days. But this should also apply to NPCs, enemies, items.
-- Seeing error "Uncaught Error: Texture Error: frame does not fit inside the base Texture dimensions: X: 160 + 16 = 176 > 160 or Y: 0 + 16 = 16 > 16 at set frame (pixi.min.js:381:17434) at new B (pixi.min.js:381:13882) at Renderer._buildTileTextures (renderer.js:188:31) at Renderer.setMap (renderer.js:703:10) at main.js:860:14 at ws.onmessage (net.js:31:20)"
+- On mobile, display names of abilities on control buttons
+- On mobile, text is very very fuzzy. Can we fix that?
+- Add graphics for the cone attack to visualize it. It should be see through but have directional animation and show the cone shape.
+- Add an XP and level system. Finishing quests should give you XP and beating enemies should also. When you get to a new level, for now, you get higher HP only. The reward curve should be roughly such that by the time you get your sol unit you're level 2, or 3 if you cleared everything out.
 
+Content
+- The choice of combat baton vs standard blaster should be done in a menu so that (a) other players cant interfere with your pickup and (b) so you can clearly assess without accidentally picking one.
+- There needs to be a quest step before going to the apprentice sol engineer for the first time, to go to the quartermaster and get a weapon. (Or feel free to make it in the other order: sol engineer asks you to do the task, which you need a weapon for, so go to the quatermaster. Either way.) Update the quest tracker / next step directions to point to the appropriate next step.
+- The baton should do either 40 or 50% damage to a brawler, the one shot is too easy. Scale blaster damage accordingly.
+- Training room shouldn't be unlocked until after you have the sol unit.
+- Add flavor text to the outside region saying you shouldn't come here without a sol unit.
+- The warlord shouldn't drop a damage booster chip since we get one from the quest anyway.
+- We seem to lose the melee attack after getting the sol unit. I don't want that, you're supposed to have both. Same goes for standard blaster. After getting the sol unit you should have skill 1: blaster/melee skill 2: cone attack.
 
 New worlds
-- How can we implement lighting that looks good and conveys the light/dark theme of the game? Let's add a section outside of outpost balor that is very dark, and can only be navigated properly / safely once you get the sol unit.
-- Let's start the automation world/zone on the dayside. Currently no way to get there besides dev checkpoints, but, over there we should meet Meridian-7 and be able to place our first solar panel, and recharge our sol unit. Create a comprehensive plan and implement the automation system with menus, playable on mobile desktop or with controller, with an eye towards extensibility and engaging automation loops a la stardew/factario, with our dayside AI theme in mind.
+- Implement the plan laid out in .claude/ralph-logs/ralph-new-worlds/.claude-ralph-log-13.txt ; we can go with the recommendation as the answer to the questions. However, one thing is I'd like the entrance to add the entrance to the dayside in a new room called "Train station" which is accessible on the far side of "The Dark Perimeter" that way you only access it once you have a sol unit, and this is where you'll charge it.

@@ -1,0 +1,15 @@
+Done. Here's a summary of what was done:
+
+**There was no charge level on sol units before** — just a hardcoded `maxEnergy: 100` with passive regeneration at 5/sec. Here's what changed:
+
+### Content (`content/entities/sol_units.json`)
+- Added `maxCharge: 100` to `sol_unit_mk1` — each sol unit variant can now define its own charge capacity
+
+### Server (`server/game-loop.js`)
+- **`_initSolGrid`**: Now reads `maxCharge` from the sol unit definition and sets `maxEnergy`/`energy` from it (instead of hardcoded 100 in `_rebuildAbilities`)
+- **Removed passive energy regen**: The `energy + 5 * dt` regeneration loop is gone — players must find ways to recharge at stations
+- **`_useHeal`**: Added energy cost check (was missing — only `_fireProjectile` checked it before)
+
+### Client (`client/index.html` + `client/main.js`)
+- Energy bar now shows **"SOL X/Y"** text overlay (e.g. "SOL 85/100") so players can see their exact charge level
+- Bar height increased from 10px to 12px for readability with the text

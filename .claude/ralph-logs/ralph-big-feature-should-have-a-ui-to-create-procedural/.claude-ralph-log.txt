@@ -1,0 +1,33 @@
+Done. Here's a summary of what was implemented:
+
+## Changes Made
+
+### `server/editor-api.js`
+- Added `POST /api/editor/templates` endpoint to create new procedural templates
+- Added `DELETE /api/editor/templates/:id` endpoint to delete templates
+
+### `editor/app.js` (689 lines added)
+**New components:**
+- **`NewTemplateModal`** - Modal for creating new procedural templates with ID, name pattern, and depth range fields. Creates a sensible default template with entrance/exit rooms, grid settings, and empty monster/item pools.
+- **`TemplateSection`** - Collapsible section component used throughout the editor
+- **`RangeInput`** - Reusable min/max range input component
+- **`TemplateEditor`** (complete rewrite) - Replaced the raw JSON textarea with a structured form containing 10 collapsible sections:
+  - **Basic Settings**: Name pattern, tileset, tile size, depth range
+  - **Grid**: Dimensions, wall/floor tiles, alt floor settings
+  - **Rooms**: Count, size ranges, padding, placement attempts
+  - **Corridors**: Width range, door chance, extra connections
+  - **Required Rooms**: Full card-based editor with tag, entrance/exit flags, depth constraints, size, placement hints
+  - **Exits**: Entrance and descent stair configuration
+  - **Monsters**: Budget system, pool list with type/weight/cost/minDepth
+  - **Items**: Count range, pool list with type/weight/max
+  - **Triggers**: Event-based trigger editor with depth filtering and JSON action editing
+  - **Player Spawns**: Count and position
+  - **Raw JSON**: Fallback toggle for power users
+- **`RequiredRoomsList`**, **`MonsterPoolList`**, **`ItemPoolList`**, **`TemplateTriggerList`** - List editors for each pool type with add/remove functionality
+
+**DungeonList updates:**
+- Templates section always visible (not hidden when empty)
+- "+ New Template" button added
+
+### `editor/style.css` (84 lines added)
+- Styles for `.tmpl-editor-body`, `.tmpl-section`, `.tmpl-card`, `.tmpl-card-inline`, `.tmpl-list` and related elements matching the existing dark theme
