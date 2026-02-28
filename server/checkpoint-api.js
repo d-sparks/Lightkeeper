@@ -195,6 +195,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
           map: targetRoom.dungeon,
           tileset: content.getTileset(targetRoom.dungeon.tileset),
         }));
+        gameLoop.emitRoomEntered(playerId, checkpoint.room);
       } else {
         // Same room — restore exact position
         player.x = checkpoint.x;
@@ -429,6 +430,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
           map: targetRoom.dungeon,
           tileset: content.getTileset(targetRoom.dungeon.tileset),
         }));
+        gameLoop.emitRoomEntered(playerId, targetRoomId);
       } else {
         player.x = spawnX;
         player.y = spawnY;
@@ -545,6 +547,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
           map: targetRoom.dungeon,
           tileset: content.getTileset(targetRoom.dungeon.tileset),
         }));
+        gameLoop.emitRoomEntered(playerId, roomId);
       } else {
         // Same room — just move to spawn
         const TILE_SIZE = 32;

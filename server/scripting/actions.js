@@ -16,6 +16,7 @@
 //   { type: "showMessage",  text: "The door unlocks with a click." }
 //   { type: "setEnergy",    value: 100 }  // or percent: 100
 //   { type: "toggleTile",   x: 5, y: 3 }
+//   { type: "showChoice",  choiceId: "weapon_choice", prompt: "Choose:", options: [{label, description, value}] }
 
 const CONSTANTS = require('../../shared/constants');
 
@@ -84,6 +85,9 @@ class ActionExecutor {
         break;
       case 'clearQuestObjective':
         this.doClearQuestObjective(action, context);
+        break;
+      case 'showChoice':
+        this.doShowChoice(action, context);
         break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
@@ -352,6 +356,16 @@ class ActionExecutor {
     } else if (action.value !== undefined) {
       player.energy = Math.min(action.value, player.maxEnergy);
     }
+  }
+
+  doShowChoice(action, context) {
+    if (!this.sendToPlayer) return;
+    this.sendToPlayer(context.playerId, {
+      type: CONSTANTS.MSG.CHOICE_MENU,
+      choiceId: action.choiceId,
+      prompt: action.prompt || '',
+      options: action.options || [],
+    });
   }
 
   doToggleTile(action, context) {

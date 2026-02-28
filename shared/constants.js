@@ -80,6 +80,7 @@ const CONSTANTS = {
     ATTACK:        'attack',
     USE_ABILITY:   'use_ability',
     TRACK_QUEST:   'track_quest',
+    CHOICE_SELECT: 'choice_select',
 
     // Server -> Client
     WELCOME:       'welcome',
@@ -95,6 +96,7 @@ const CONSTANTS = {
     INVENTORY:     'inventory',
     ABILITY_STATE: 'ability_state',
     SOL_GRID:      'sol_grid',
+    CHOICE_MENU:   'choice_menu',
 
     QUEST_OBJECTIVE: 'quest_objective',
     QUEST_STATE: 'quest_state',
