@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const DungeonGenerator = require('./dungeon-generator');
 
 const CONTENT_DIR = path.join(__dirname, '..', 'content');
 
@@ -106,6 +107,63 @@ function handleEditorAPI(req, res) {
         return json(res, 200, data);
       }).catch(() => json(res, 400, { error: 'Invalid JSON' }));
     }
+  }
+
+  // POST /api/editor/templates/:id/generate - run procedural generation, save as hand-authored dungeon
+  const templateGenMatch = url.match(/^\/api\/editor\/templates\/([a-zA-Z0-9_-]+)\/generate$/);
+  if (templateGenMatch && method === 'POST') {
+    const templateId = templateGenMatch[1];
+    const templatePath = path.join(CONTENT_DIR, 'dungeons', 'templates', `${templateId}.json`);
+    if (!fs.existsSync(templatePath)) return json(res, 404, { error: 'Template not found' });
+
+    return parseBody(req).then(body => {
+      if (!body.id) return json(res, 400, { error: 'Missing dungeon id' });
+      const safeId = body.id.replace(/[^a-zA-Z0-9_-]/g, '');
+      if (safeId !== body.id) return json(res, 400, { error: 'Invalid id characters' });
+
+      const dungeonPath = path.join(CONTENT_DIR, 'dungeons', `${safeId}.json`);
+      if (fs.existsSync(dungeonPath)) return json(res, 409, { error: 'Dungeon already exists' });
+
+      const template = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
+      const depth = Number(body.depth) || (template.depth ? template.depth.min : 1);
+      const seed = body.seed || `editor_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+      const generator = new DungeonGenerator(null);
+      const context = {
+        fromDungeon: 'editor',
+        exitX: 0,
+        exitY: 0,
+        depth,
+        serverEpoch: seed,
+      };
+
+      const result = generator.generate(template, context);
+      if (!result) return json(res, 500, { error: 'Generation failed after 3 attempts' });
+
+      const dungeon = result.dungeon;
+      dungeon.id = safeId;
+      dungeon.name = body.name || dungeon.name;
+      // Clean up procedural exit references — replace template self-references with placeholder
+      if (dungeon.exits) {
+        for (const exit of dungeon.exits) {
+          if (exit.leadsTo === template.id) {
+            exit.leadsTo = '';
+          }
+          if (exit.leadsTo === 'editor') {
+            exit.leadsTo = '';
+          }
+        }
+      }
+      // Remove depth field from exits (procedural-only concept)
+      if (dungeon.exits) {
+        for (const exit of dungeon.exits) {
+          delete exit.depth;
+        }
+      }
+
+      fs.writeFileSync(dungeonPath, JSON.stringify(dungeon, null, 2));
+      return json(res, 201, dungeon);
+    }).catch(e => json(res, 400, { error: e.message || 'Invalid request' }));
   }
 
   // --- Tilesets ---
