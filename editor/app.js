@@ -73,6 +73,8 @@ const api = {
     if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Generation failed'); }
     return res.json();
   },
+  async createTemplate(data) { return (await checkedFetch('/api/editor/templates', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })).json(); },
+  async deleteTemplate(id) { return (await checkedFetch(`/api/editor/templates/${id}`, { method: 'DELETE' })).json(); },
 };
 
 // ─── Tile colors (match game rendering) ─────────────────────
@@ -196,6 +198,7 @@ function DungeonList({ onOpen, onOpenTemplate, gitConfigured, onShowQuests }) {
   const [dungeons, setDungeons] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [showNew, setShowNew] = useState(false);
+  const [showNewTemplate, setShowNewTemplate] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
   const [showBranch, setShowBranch] = useState(false);
@@ -326,23 +329,31 @@ function DungeonList({ onOpen, onOpenTemplate, gitConfigured, onShowQuests }) {
         `)}
         ${dungeons.length === 0 && html`<p style="color: var(--text-dim); text-align: center; padding: 40px 0;">No dungeons yet. Create one!</p>`}
       </div>
-      ${templates.length > 0 && html`
-        <div style="padding:0 20px">
-          <h3 style="color:var(--text-dim);margin-bottom:8px">Procedural Templates</h3>
-        </div>
-        <div class="dungeon-cards">
-          ${templates.map(t => html`
-            <div class="dungeon-card" key=${t.id} onClick=${() => onOpenTemplate(t.id)}>
-              <div class="dungeon-card-info">
-                <h3>${t.name} <span class="template-badge">Procedural</span></h3>
-                <p>${t.id} · depth ${t.depth ? t.depth.min + '-' + t.depth.max : '?'}</p>
-              </div>
-              <div class="dungeon-card-arrow">›</div>
+      <div style="padding:0 20px;display:flex;align-items:center;justify-content:space-between">
+        <h3 style="color:var(--text-dim);margin-bottom:8px">Procedural Templates</h3>
+        <button class="topbar-btn" style="font-size:12px;height:28px;padding:0 10px" onClick=${() => setShowNewTemplate(true)}>+ New Template</button>
+      </div>
+      <div class="dungeon-cards">
+        ${templates.map(t => html`
+          <div class="dungeon-card" key=${t.id} onClick=${() => onOpenTemplate(t.id)}>
+            <div class="dungeon-card-info">
+              <h3>${t.name} <span class="template-badge">Procedural</span></h3>
+              <p>${t.id} · depth ${t.depth ? t.depth.min + '-' + t.depth.max : '?'}</p>
             </div>
-          `)}
-        </div>
-      `}
+            <div class="dungeon-card-arrow">›</div>
+          </div>
+        `)}
+        ${templates.length === 0 && html`<p style="color: var(--text-dim); text-align: center; padding: 20px 0;">No procedural templates yet.</p>`}
+      </div>
       ${showNew && html`<${NewDungeonModal} onCreate=${createDungeon} onClose=${() => setShowNew(false)} />`}
+      ${showNewTemplate && html`<${NewTemplateModal} onCreate=${(id, data) => {
+        api.createTemplate(data).then(() => {
+          showToast('Template created', 'success');
+          setShowNewTemplate(false);
+          api.listTemplates().then(setTemplates).catch(() => {});
+          onOpenTemplate(id);
+        }).catch(() => showToast('Failed to create template', 'error'));
+      }} onClose=${() => setShowNewTemplate(false)} />`}
       ${showPublish && html`<${PublishModal} onPublish=${doPublish} onClose=${() => setShowPublish(false)} />`}
       ${showBranch && html`<${BranchModal} onLoad=${onBranchLoaded} onClose=${() => setShowBranch(false)} />`}
     </div>
@@ -382,6 +393,73 @@ function NewDungeonModal({ onCreate, onClose }) {
           <div class="field">
             <label>Height</label>
             <input type="number" value=${height} onInput=${e => setHeight(e.target.value)} min="5" max="100" />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button onClick=${onClose}>Cancel</button>
+          <button class="primary" onClick=${submit}>Create</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── New Template Modal ────────────────────────────────────
+function NewTemplateModal({ onCreate, onClose }) {
+  const [id, setId] = useState('proc_');
+  const [namePattern, setNamePattern] = useState('');
+  const [depthMin, setDepthMin] = useState(1);
+  const [depthMax, setDepthMax] = useState(3);
+
+  const submit = () => {
+    const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!safeId || !namePattern) return;
+    const data = {
+      id: safeId,
+      type: 'procedural',
+      namePattern,
+      tileset: 'crypt',
+      tileSize: 32,
+      depth: { min: Number(depthMin), max: Number(depthMax) },
+      grid: { width: 40, height: 30, wallTile: 3, floorTile: 1, altFloorTile: 2, altFloorChance: 0.05 },
+      rooms: { count: { min: 5, max: 8 }, width: { min: 5, max: 10 }, height: { min: 5, max: 8 }, padding: 2, maxPlacementAttempts: 200 },
+      corridors: { width: { min: 2, max: 3 }, doorChance: 0.3, doorTile: 4, extraConnectionChance: 0.2 },
+      requiredRooms: [
+        { tag: 'entrance', isEntrance: true, width: { min: 5, max: 7 }, height: { min: 5, max: 7 } },
+        { tag: 'exit_room', isExit: true, width: { min: 4, max: 6 }, height: { min: 4, max: 6 } }
+      ],
+      exits: {
+        entrance: { tile: 8, position: 'entrance_room', leadsTo: '$source' },
+        descent: { tile: 6, position: 'exit_room', leadsTo: '$next', hideDescentOnLast: true }
+      },
+      monsters: { budget: { base: 4, perDepth: 2 }, pool: [], maxPerRoom: 3, avoidEntranceRoom: true },
+      items: { pool: [], countRange: { min: 1, max: 3 } },
+      triggers: [],
+      spawns: { count: 4, position: 'entrance_room' }
+    };
+    onCreate(safeId, data);
+  };
+
+  return html`
+    <div class="modal-overlay" onClick=${(e) => e.target === e.currentTarget && onClose()}>
+      <div class="modal">
+        <h2>New Procedural Template</h2>
+        <div class="field">
+          <label>ID (e.g. proc_cave_01)</label>
+          <input value=${id} onInput=${e => setId(e.target.value)} placeholder="proc_template_id" />
+        </div>
+        <div class="field">
+          <label>Name Pattern (use {depth} for level number)</label>
+          <input value=${namePattern} onInput=${e => setNamePattern(e.target.value)} placeholder="Cave System - Level {depth}" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Min Depth</label>
+            <input type="number" value=${depthMin} onInput=${e => setDepthMin(e.target.value)} min="1" max="20" />
+          </div>
+          <div class="field">
+            <label>Max Depth</label>
+            <input type="number" value=${depthMax} onInput=${e => setDepthMax(e.target.value)} min="1" max="20" />
           </div>
         </div>
         <div class="modal-actions">
@@ -2825,39 +2903,91 @@ function StepEditorModal({ quest, stepId, onSave, onClose }) {
   `;
 }
 
-// ─── Template Editor ────────────────────────────────────────
+// ─── Template Section (collapsible) ─────────────────────────
+function TemplateSection({ title, defaultOpen, children }) {
+  const [open, setOpen] = useState(defaultOpen !== false);
+  return html`
+    <div class="tmpl-section">
+      <div class="tmpl-section-header" onClick=${() => setOpen(v => !v)}>
+        <span class="tmpl-section-arrow">${open ? '\u25BC' : '\u25B6'}</span>
+        <h3>${title}</h3>
+      </div>
+      ${open && html`<div class="tmpl-section-body">${children}</div>`}
+    </div>
+  `;
+}
+
+// ─── Range Input (min/max pair) ──────────────────────────────
+function RangeInput({ label, value, onChange, min, max, step }) {
+  const v = value || { min: 0, max: 0 };
+  return html`
+    <div class="field">
+      <label>${label}</label>
+      <div class="field-row" style="margin-bottom:0">
+        <input type="number" value=${v.min} style="flex:1"
+          onInput=${e => onChange({ ...v, min: Number(e.target.value) })}
+          min=${min} max=${max} step=${step} placeholder="min" />
+        <span style="color:var(--text-dim);align-self:center;font-size:12px">to</span>
+        <input type="number" value=${v.max} style="flex:1"
+          onInput=${e => onChange({ ...v, max: Number(e.target.value) })}
+          min=${min} max=${max} step=${step} placeholder="max" />
+      </div>
+    </div>
+  `;
+}
+
+// ─── Template Editor ─────────────────────────────────────────
 function TemplateEditor({ templateId, onBack, onOpen }) {
   const [template, setTemplate] = useState(null);
-  const [text, setText] = useState('');
+  const [tilesets, setTilesets] = useState([]);
+  const [monsters, setMonsters] = useState({});
+  const [items, setItems] = useState({});
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showGenerate, setShowGenerate] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
 
   useEffect(() => {
-    api.getTemplate(templateId).then(t => {
+    Promise.all([
+      api.getTemplate(templateId),
+      api.getTilesets(),
+      api.getMonsters(),
+      api.getItems()
+    ]).then(([t, ts, m, it]) => {
       setTemplate(t);
-      setText(JSON.stringify(t, null, 2));
+      setTilesets(ts);
+      setMonsters(m);
+      setItems(it);
     });
   }, [templateId]);
 
-  const apply = () => {
-    try {
-      const parsed = JSON.parse(text);
-      setTemplate(parsed);
-      setDirty(true);
-      showToast('JSON applied', 'success');
-    } catch { showToast('Invalid JSON', 'error'); }
-  };
+  const update = useCallback((updater) => {
+    setTemplate(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
+      return next;
+    });
+    setDirty(true);
+  }, []);
+
+  const updateNested = useCallback((path, value) => {
+    update(prev => {
+      const next = JSON.parse(JSON.stringify(prev));
+      const parts = path.split('.');
+      let obj = next;
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (obj[parts[i]] === undefined) obj[parts[i]] = {};
+        obj = obj[parts[i]];
+      }
+      obj[parts[parts.length - 1]] = value;
+      return next;
+    });
+  }, [update]);
 
   const save = async () => {
-    let data;
-    try { data = JSON.parse(text); }
-    catch { showToast('Invalid JSON — fix before saving', 'error'); return; }
     setSaving(true);
     try {
-      const result = await api.saveTemplate(templateId, data);
+      const result = await api.saveTemplate(templateId, template);
       setTemplate(result);
-      setText(JSON.stringify(result, null, 2));
       setDirty(false);
       showToast('Template saved', 'success');
     } catch { showToast('Save failed', 'error'); }
@@ -2870,27 +3000,252 @@ function TemplateEditor({ templateId, onBack, onOpen }) {
     onOpen(dungeonId);
   };
 
+  const doDelete = async () => {
+    try {
+      await api.deleteTemplate(templateId);
+      showToast('Template deleted', 'success');
+      onBack();
+    } catch { showToast('Delete failed', 'error'); }
+  };
+
   if (!template) return html`<div style="padding:60px;text-align:center;color:var(--text-dim)">Loading...</div>`;
+
+  const t = template;
+  const grid = t.grid || {};
+  const rooms = t.rooms || {};
+  const corridors = t.corridors || {};
+  const exits = t.exits || {};
+  const mons = t.monsters || {};
+  const itms = t.items || {};
+  const spawns = t.spawns || {};
 
   return html`
     <div class="dungeon-list-page">
       <div class="dungeon-list-header">
         <div style="display:flex;align-items:center;gap:12px">
-          <button class="topbar-btn" onClick=${onBack}>Back</button>
-          <h1>${template.namePattern || template.id}</h1>
+          <button class="topbar-btn" onClick=${onBack}>\u2190 Back</button>
+          <h1>${t.namePattern || t.id}</h1>
           <span class="template-badge">Procedural</span>
           ${dirty && html`<span style="color:#ffa726;font-size:12px">Unsaved</span>`}
         </div>
         <div style="display:flex;gap:8px">
           <button class="topbar-btn" onClick=${() => setShowGenerate(true)}>Generate Sample</button>
           <button class="topbar-btn" onClick=${apply}>Apply</button>
+          <button class="topbar-btn danger" onClick=${() => setShowDelete(true)}>Delete</button>
           <button class="topbar-btn primary" onClick=${save} disabled=${saving}>${saving ? 'Saving...' : 'Save'}</button>
         </div>
       </div>
-      <div style="padding:16px 20px;flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <textarea class="raw-json-textarea" style="flex:1;min-height:300px;font-size:13px"
-          value=${text}
-          onInput=${e => { setText(e.target.value); setDirty(true); }} />
+      <div class="tmpl-editor-body">
+
+        <!-- Basic Settings -->
+        <${TemplateSection} title="Basic Settings">
+          <div class="field">
+            <label>ID</label>
+            <input value=${t.id} disabled style="opacity:0.5" />
+          </div>
+          <div class="field">
+            <label>Name Pattern (use {depth} for level number)</label>
+            <input value=${t.namePattern || ''} onInput=${e => update({ namePattern: e.target.value })} placeholder="Cave System - Level {depth}" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Tileset</label>
+              <select value=${t.tileset || 'crypt'} onChange=${e => update({ tileset: e.target.value })}>
+                ${tilesets.map(ts => html`<option key=${ts.id} value=${ts.id}>${ts.id}</option>`)}
+              </select>
+            </div>
+            <div class="field">
+              <label>Tile Size</label>
+              <input type="number" value=${t.tileSize || 32} onInput=${e => update({ tileSize: Number(e.target.value) })} min="8" max="64" />
+            </div>
+          </div>
+          <${RangeInput} label="Depth Range" value=${t.depth} onChange=${v => update({ depth: v })} min=${1} max=${20} />
+        <//>
+
+        <!-- Grid -->
+        <${TemplateSection} title="Grid">
+          <div class="field-row">
+            <div class="field">
+              <label>Width</label>
+              <input type="number" value=${grid.width || 40} onInput=${e => updateNested('grid.width', Number(e.target.value))} min="10" max="100" />
+            </div>
+            <div class="field">
+              <label>Height</label>
+              <input type="number" value=${grid.height || 30} onInput=${e => updateNested('grid.height', Number(e.target.value))} min="10" max="100" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Wall Tile</label>
+              <input type="number" value=${grid.wallTile != null ? grid.wallTile : 3} onInput=${e => updateNested('grid.wallTile', Number(e.target.value))} min="0" />
+            </div>
+            <div class="field">
+              <label>Floor Tile</label>
+              <input type="number" value=${grid.floorTile != null ? grid.floorTile : 1} onInput=${e => updateNested('grid.floorTile', Number(e.target.value))} min="0" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Alt Floor Tile</label>
+              <input type="number" value=${grid.altFloorTile != null ? grid.altFloorTile : 2} onInput=${e => updateNested('grid.altFloorTile', Number(e.target.value))} min="0" />
+            </div>
+            <div class="field">
+              <label>Alt Floor Chance</label>
+              <input type="number" value=${grid.altFloorChance != null ? grid.altFloorChance : 0.05} onInput=${e => updateNested('grid.altFloorChance', Number(e.target.value))} min="0" max="1" step="0.01" />
+            </div>
+          </div>
+        <//>
+
+        <!-- Rooms -->
+        <${TemplateSection} title="Rooms">
+          <${RangeInput} label="Room Count" value=${rooms.count} onChange=${v => updateNested('rooms.count', v)} min=${1} max=${20} />
+          <${RangeInput} label="Room Width" value=${rooms.width} onChange=${v => updateNested('rooms.width', v)} min=${3} max=${20} />
+          <${RangeInput} label="Room Height" value=${rooms.height} onChange=${v => updateNested('rooms.height', v)} min=${3} max=${20} />
+          <div class="field-row">
+            <div class="field">
+              <label>Padding</label>
+              <input type="number" value=${rooms.padding != null ? rooms.padding : 2} onInput=${e => updateNested('rooms.padding', Number(e.target.value))} min="0" max="10" />
+            </div>
+            <div class="field">
+              <label>Max Attempts</label>
+              <input type="number" value=${rooms.maxPlacementAttempts || 200} onInput=${e => updateNested('rooms.maxPlacementAttempts', Number(e.target.value))} min="50" max="1000" />
+            </div>
+          </div>
+        <//>
+
+        <!-- Corridors -->
+        <${TemplateSection} title="Corridors">
+          <${RangeInput} label="Corridor Width" value=${corridors.width} onChange=${v => updateNested('corridors.width', v)} min=${1} max=${5} />
+          <div class="field-row">
+            <div class="field">
+              <label>Door Chance</label>
+              <input type="number" value=${corridors.doorChance != null ? corridors.doorChance : 0.3} onInput=${e => updateNested('corridors.doorChance', Number(e.target.value))} min="0" max="1" step="0.05" />
+            </div>
+            <div class="field">
+              <label>Door Tile</label>
+              <input type="number" value=${corridors.doorTile != null ? corridors.doorTile : 4} onInput=${e => updateNested('corridors.doorTile', Number(e.target.value))} min="0" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Extra Connection Chance</label>
+            <input type="number" value=${corridors.extraConnectionChance != null ? corridors.extraConnectionChance : 0.2} onInput=${e => updateNested('corridors.extraConnectionChance', Number(e.target.value))} min="0" max="1" step="0.05" />
+          </div>
+        <//>
+
+        <!-- Required Rooms -->
+        <${TemplateSection} title="Required Rooms (${(t.requiredRooms || []).length})">
+          <${RequiredRoomsList} rooms=${t.requiredRooms || []} onChange=${v => update({ requiredRooms: v })} />
+        <//>
+
+        <!-- Exits -->
+        <${TemplateSection} title="Exits">
+          <div class="tmpl-card">
+            <div class="tmpl-card-title">Entrance (stairs up)</div>
+            <div class="field-row">
+              <div class="field">
+                <label>Tile ID</label>
+                <input type="number" value=${(exits.entrance || {}).tile || 8} onInput=${e => updateNested('exits.entrance.tile', Number(e.target.value))} min="0" />
+              </div>
+              <div class="field">
+                <label>Position</label>
+                <input value=${(exits.entrance || {}).position || 'entrance_room'} onInput=${e => updateNested('exits.entrance.position', e.target.value)} />
+              </div>
+            </div>
+            <div class="field">
+              <label>Leads To</label>
+              <input value=${(exits.entrance || {}).leadsTo || '$source'} onInput=${e => updateNested('exits.entrance.leadsTo', e.target.value)} />
+            </div>
+          </div>
+          <div class="tmpl-card" style="margin-top:8px">
+            <div class="tmpl-card-title">Descent (stairs down)</div>
+            <div class="field-row">
+              <div class="field">
+                <label>Tile ID</label>
+                <input type="number" value=${(exits.descent || {}).tile || 6} onInput=${e => updateNested('exits.descent.tile', Number(e.target.value))} min="0" />
+              </div>
+              <div class="field">
+                <label>Position</label>
+                <input value=${(exits.descent || {}).position || 'exit_room'} onInput=${e => updateNested('exits.descent.position', e.target.value)} />
+              </div>
+            </div>
+            <div class="field">
+              <label>Leads To</label>
+              <input value=${(exits.descent || {}).leadsTo || '$next'} onInput=${e => updateNested('exits.descent.leadsTo', e.target.value)} />
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label style="display:flex;align-items:center;gap:6px">
+                <input type="checkbox" checked=${(exits.descent || {}).hideDescentOnLast || false}
+                  onChange=${e => updateNested('exits.descent.hideDescentOnLast', e.target.checked)} />
+                Hide descent on last depth
+              </label>
+            </div>
+          </div>
+        <//>
+
+        <!-- Monsters -->
+        <${TemplateSection} title="Monsters">
+          <div class="field-row">
+            <div class="field">
+              <label>Base Budget</label>
+              <input type="number" value=${(mons.budget || {}).base || 4} onInput=${e => updateNested('monsters.budget.base', Number(e.target.value))} min="0" />
+            </div>
+            <div class="field">
+              <label>Per Depth</label>
+              <input type="number" value=${(mons.budget || {}).perDepth || 2} onInput=${e => updateNested('monsters.budget.perDepth', Number(e.target.value))} min="0" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Max Per Room</label>
+              <input type="number" value=${mons.maxPerRoom || 3} onInput=${e => updateNested('monsters.maxPerRoom', Number(e.target.value))} min="1" />
+            </div>
+            <div class="field">
+              <label style="display:flex;align-items:center;gap:6px;padding-top:18px">
+                <input type="checkbox" checked=${mons.avoidEntranceRoom !== false}
+                  onChange=${e => updateNested('monsters.avoidEntranceRoom', e.target.checked)} />
+                Avoid entrance room
+              </label>
+            </div>
+          </div>
+          <${MonsterPoolList} pool=${mons.pool || []} monsters=${monsters}
+            onChange=${v => updateNested('monsters.pool', v)} />
+        <//>
+
+        <!-- Items -->
+        <${TemplateSection} title="Items">
+          <${RangeInput} label="Item Count" value=${itms.countRange} onChange=${v => updateNested('items.countRange', v)} min=${0} max=${10} />
+          <${ItemPoolList} pool=${itms.pool || []} items=${items}
+            onChange=${v => updateNested('items.pool', v)} />
+        <//>
+
+        <!-- Triggers -->
+        <${TemplateSection} title="Triggers (${(t.triggers || []).length})" defaultOpen=${false}>
+          <${TemplateTriggerList} triggers=${t.triggers || []} onChange=${v => update({ triggers: v })} />
+        <//>
+
+        <!-- Player Spawns -->
+        <${TemplateSection} title="Player Spawns">
+          <div class="field-row">
+            <div class="field">
+              <label>Count</label>
+              <input type="number" value=${spawns.count || 4} onInput=${e => updateNested('spawns.count', Number(e.target.value))} min="1" max="10" />
+            </div>
+            <div class="field">
+              <label>Position</label>
+              <input value=${spawns.position || 'entrance_room'} onInput=${e => updateNested('spawns.position', e.target.value)} placeholder="entrance_room" />
+            </div>
+          </div>
+        <//>
+
+        <!-- Raw JSON -->
+        <${TemplateSection} title="Raw JSON" defaultOpen=${false}>
+          <${RawJsonToggle} data=${template} onApply=${(parsed) => {
+            if (typeof parsed !== 'object' || Array.isArray(parsed)) { showToast('Template must be an object', 'error'); return; }
+            setTemplate(parsed);
+            setDirty(true);
+          }} />
+        <//>
+
       </div>
       ${showGenerate && html`<${GenerateModal} templateId=${templateId} template=${template}
         onGenerated=${onGenerated} onClose=${() => setShowGenerate(false)} />`}
@@ -2959,6 +3314,264 @@ function GenerateModal({ templateId, template, onGenerated, onClose }) {
           </button>
         </div>
       </div>
+    </div>
+
+    ${showDelete && html`
+      <div class="modal-overlay" onClick=${e => e.target === e.currentTarget && setShowDelete(false)}>
+        <div class="modal">
+          <h2>Delete Template</h2>
+          <p style="color:var(--text-dim);font-size:13px;margin-bottom:12px">
+            Are you sure you want to delete <strong>${t.namePattern || t.id}</strong>? This cannot be undone.
+          </p>
+          <div class="modal-actions">
+            <button onClick=${() => setShowDelete(false)}>Cancel</button>
+            <button class="primary" style="background:var(--danger);border-color:var(--danger)" onClick=${doDelete}>Delete</button>
+          </div>
+        </div>
+      </div>
+    `}
+  `;
+}
+
+// ─── Required Rooms List ─────────────────────────────────────
+function RequiredRoomsList({ rooms, onChange }) {
+  const add = () => {
+    onChange([...rooms, { tag: 'room_' + (rooms.length + 1), width: { min: 4, max: 6 }, height: { min: 4, max: 6 } }]);
+  };
+
+  const remove = (idx) => {
+    onChange(rooms.filter((_, i) => i !== idx));
+  };
+
+  const updateRoom = (idx, field, value) => {
+    const updated = rooms.map((r, i) => i === idx ? { ...r, [field]: value } : r);
+    onChange(updated);
+  };
+
+  return html`
+    <div class="tmpl-list">
+      ${rooms.map((room, i) => html`
+        <div class="tmpl-card" key=${i}>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div class="tmpl-card-title">${room.tag || 'unnamed'}</div>
+            <button class="spawn-remove" onClick=${() => remove(i)}>\u00D7</button>
+          </div>
+          <div class="field">
+            <label>Tag</label>
+            <input value=${room.tag || ''} onInput=${e => updateRoom(i, 'tag', e.target.value)} placeholder="room_tag" />
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-dim)">
+              <input type="checkbox" checked=${room.isEntrance || false}
+                onChange=${e => updateRoom(i, 'isEntrance', e.target.checked || undefined)} /> Entrance
+            </label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-dim)">
+              <input type="checkbox" checked=${room.isExit || false}
+                onChange=${e => updateRoom(i, 'isExit', e.target.checked || undefined)} /> Exit
+            </label>
+          </div>
+          <${RangeInput} label="Width" value=${room.width} onChange=${v => updateRoom(i, 'width', v)} min=${3} max=${20} />
+          <${RangeInput} label="Height" value=${room.height} onChange=${v => updateRoom(i, 'height', v)} min=${3} max=${20} />
+          <div class="field-row">
+            <div class="field">
+              <label>Depth (only on)</label>
+              <input type="number" value=${room.depth != null ? room.depth : ''} onInput=${e => {
+                const val = e.target.value;
+                updateRoom(i, 'depth', val === '' ? undefined : Number(val));
+              }} placeholder="any" />
+            </div>
+            <div class="field">
+              <label>Max Depth</label>
+              <input type="number" value=${room.maxDepth != null ? room.maxDepth : ''} onInput=${e => {
+                const val = e.target.value;
+                updateRoom(i, 'maxDepth', val === '' ? undefined : Number(val));
+              }} placeholder="any" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Place Near</label>
+              <input value=${room.placeNear || ''} onInput=${e => updateRoom(i, 'placeNear', e.target.value || undefined)} placeholder="tag name" />
+            </div>
+            <div class="field">
+              <label>Center Tile</label>
+              <input type="number" value=${room.centerTile != null ? room.centerTile : ''} onInput=${e => {
+                const val = e.target.value;
+                updateRoom(i, 'centerTile', val === '' ? undefined : Number(val));
+              }} placeholder="none" />
+            </div>
+          </div>
+        </div>
+      `)}
+      <button class="topbar-btn" style="align-self:flex-start" onClick=${add}>+ Add Room</button>
+    </div>
+  `;
+}
+
+// ─── Monster Pool List ───────────────────────────────────────
+function MonsterPoolList({ pool, monsters, onChange }) {
+  const add = () => {
+    const firstType = Object.keys(monsters)[0] || 'skeleton';
+    onChange([...pool, { type: firstType, weight: 1, cost: 1, minDepth: 0 }]);
+  };
+
+  const remove = (idx) => {
+    onChange(pool.filter((_, i) => i !== idx));
+  };
+
+  const updateEntry = (idx, field, value) => {
+    const updated = pool.map((e, i) => i === idx ? { ...e, [field]: value } : e);
+    onChange(updated);
+  };
+
+  const monsterList = Object.entries(monsters);
+
+  return html`
+    <div class="tmpl-list">
+      <label style="font-size:12px;color:var(--text-dim);margin-bottom:4px;display:block">Monster Pool</label>
+      ${pool.map((entry, i) => html`
+        <div class="tmpl-card-inline" key=${i}>
+          <select value=${entry.type} onChange=${e => updateEntry(i, 'type', e.target.value)} style="flex:2">
+            ${monsterList.map(([id, m]) => html`<option key=${id} value=${id}>${m.name || id}</option>`)}
+            ${!monsters[entry.type] && html`<option value=${entry.type}>${entry.type}</option>`}
+          </select>
+          <input type="number" value=${entry.weight} onInput=${e => updateEntry(i, 'weight', Number(e.target.value))}
+            min="1" title="Weight" style="flex:1;width:50px" placeholder="wt" />
+          <input type="number" value=${entry.cost} onInput=${e => updateEntry(i, 'cost', Number(e.target.value))}
+            min="1" title="Cost" style="flex:1;width:50px" placeholder="cost" />
+          <input type="number" value=${entry.minDepth || 0} onInput=${e => updateEntry(i, 'minDepth', Number(e.target.value))}
+            min="0" title="Min Depth" style="flex:1;width:50px" placeholder="minD" />
+          <button class="spawn-remove" onClick=${() => remove(i)}>\u00D7</button>
+        </div>
+      `)}
+      ${pool.length > 0 && html`
+        <div style="display:flex;gap:4px;font-size:10px;color:var(--text-dim);padding:0 4px">
+          <span style="flex:2">Type</span><span style="flex:1">Weight</span><span style="flex:1">Cost</span><span style="flex:1">MinD</span><span style="width:24px"></span>
+        </div>
+      `}
+      <button class="topbar-btn" style="align-self:flex-start" onClick=${add}>+ Add Monster</button>
+    </div>
+  `;
+}
+
+// ─── Item Pool List ──────────────────────────────────────────
+function ItemPoolList({ pool, items, onChange }) {
+  const add = () => {
+    const firstType = Object.keys(items)[0] || 'health_potion';
+    onChange([...pool, { type: firstType, weight: 1, max: 2 }]);
+  };
+
+  const remove = (idx) => {
+    onChange(pool.filter((_, i) => i !== idx));
+  };
+
+  const updateEntry = (idx, field, value) => {
+    const updated = pool.map((e, i) => i === idx ? { ...e, [field]: value } : e);
+    onChange(updated);
+  };
+
+  const itemList = Object.entries(items);
+
+  return html`
+    <div class="tmpl-list">
+      <label style="font-size:12px;color:var(--text-dim);margin-bottom:4px;display:block">Item Pool</label>
+      ${pool.map((entry, i) => html`
+        <div class="tmpl-card-inline" key=${i}>
+          <select value=${entry.type} onChange=${e => updateEntry(i, 'type', e.target.value)} style="flex:2">
+            ${itemList.map(([id, it]) => html`<option key=${id} value=${id}>${it.name || id}</option>`)}
+            ${!items[entry.type] && html`<option value=${entry.type}>${entry.type}</option>`}
+          </select>
+          <input type="number" value=${entry.weight} onInput=${e => updateEntry(i, 'weight', Number(e.target.value))}
+            min="1" title="Weight" style="flex:1;width:50px" placeholder="wt" />
+          <input type="number" value=${entry.max != null ? entry.max : ''} onInput=${e => {
+            const val = e.target.value;
+            updateEntry(i, 'max', val === '' ? undefined : Number(val));
+          }} min="0" title="Max" style="flex:1;width:50px" placeholder="max" />
+          <button class="spawn-remove" onClick=${() => remove(i)}>\u00D7</button>
+        </div>
+      `)}
+      ${pool.length > 0 && html`
+        <div style="display:flex;gap:4px;font-size:10px;color:var(--text-dim);padding:0 4px">
+          <span style="flex:2">Type</span><span style="flex:1">Weight</span><span style="flex:1">Max</span><span style="width:24px"></span>
+        </div>
+      `}
+      <button class="topbar-btn" style="align-self:flex-start" onClick=${add}>+ Add Item</button>
+    </div>
+  `;
+}
+
+// ─── Template Trigger List ───────────────────────────────────
+function TemplateTriggerList({ triggers, onChange }) {
+  const add = () => {
+    onChange([...triggers, { id: 'trigger_{instanceId}', event: 'room_entered', actions: [{ type: 'showMessage', text: '' }], once: true }]);
+  };
+
+  const remove = (idx) => {
+    onChange(triggers.filter((_, i) => i !== idx));
+  };
+
+  const updateTrigger = (idx, field, value) => {
+    const updated = triggers.map((t, i) => i === idx ? { ...t, [field]: value } : t);
+    onChange(updated);
+  };
+
+  return html`
+    <div class="tmpl-list">
+      ${triggers.map((trig, i) => html`
+        <div class="tmpl-card" key=${i}>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div class="tmpl-card-title">${trig.id || 'unnamed'}</div>
+            <button class="spawn-remove" onClick=${() => remove(i)}>\u00D7</button>
+          </div>
+          <div class="field">
+            <label>Trigger ID (use {instanceId})</label>
+            <input value=${trig.id || ''} onInput=${e => updateTrigger(i, 'id', e.target.value)} />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Event</label>
+              <select value=${trig.event || ''} onChange=${e => updateTrigger(i, 'event', e.target.value)}>
+                <option value="room_entered">room_entered</option>
+                <option value="item_picked_up">item_picked_up</option>
+                <option value="monster_killed">monster_killed</option>
+                <option value="npc_interacted">npc_interacted</option>
+                <option value="door_interacted">door_interacted</option>
+                <option value="player_death">player_death</option>
+                <option value="flag_changed">flag_changed</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Depth (only on)</label>
+              <input type="number" value=${trig.depth != null ? trig.depth : ''} onInput=${e => {
+                const val = e.target.value;
+                updateTrigger(i, 'depth', val === '' ? undefined : Number(val));
+              }} placeholder="any" />
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-dim)">
+              <input type="checkbox" checked=${trig.once || false}
+                onChange=${e => updateTrigger(i, 'once', e.target.checked)} /> Once
+            </label>
+          </div>
+          <div class="field">
+            <label>Filter (JSON)</label>
+            <input value=${trig.filter ? JSON.stringify(trig.filter) : ''} onInput=${e => {
+              const val = e.target.value;
+              if (!val) { updateTrigger(i, 'filter', undefined); return; }
+              try { updateTrigger(i, 'filter', JSON.parse(val)); } catch {}
+            }} placeholder='{"itemType": "key"}' style="font-family:monospace;font-size:12px" />
+          </div>
+          <div class="field">
+            <label>Actions (JSON)</label>
+            <textarea class="raw-json-textarea" rows="3" value=${JSON.stringify(trig.actions || [], null, 2)}
+              onInput=${e => {
+                try { updateTrigger(i, 'actions', JSON.parse(e.target.value)); } catch {}
+              }} />
+          </div>
+        </div>
+      `)}
+      <button class="topbar-btn" style="align-self:flex-start" onClick=${add}>+ Add Trigger</button>
     </div>
   `;
 }
