@@ -673,7 +673,7 @@
       height: 56px;
       border-radius: 6px;
       font-family: inherit;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: bold;
       letter-spacing: 1px;
       display: flex;
@@ -681,6 +681,11 @@
       justify-content: center;
       text-align: center;
       pointer-events: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 6px;
+      box-sizing: border-box;
       background: rgba(140, 180, 210, 0.08);
       border: 1.5px solid rgba(140, 180, 210, 0.22);
       color: rgba(180, 210, 230, 0.7);
@@ -694,7 +699,7 @@
       bottom: 8px;
       width: 150px;
       height: 72px;
-      font-size: 16px;
+      font-size: 13px;
       background: rgba(239, 83, 80, 0.1);
       border-color: rgba(239, 83, 80, 0.3);
       color: rgba(239, 120, 110, 0.85);

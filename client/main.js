@@ -404,7 +404,7 @@
         }
         if (mobileSlot) {
           mobileSlot.classList.remove('empty');
-          mobileSlot.textContent = slotNum;
+          mobileSlot.textContent = label;
         }
       } else {
         if (desktopSlot) {
@@ -796,7 +796,7 @@
         }
         if (mobileSlot) {
           mobileSlot.classList.remove('empty');
-          mobileSlot.textContent = '1';
+          mobileSlot.textContent = aLabel;
         }
       } else {
         if (desktopSlot) {
