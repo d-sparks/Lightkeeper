@@ -184,6 +184,36 @@
       background: rgba(255,167,38,0.25);
     }
 
+    #sound-btn {
+      position: absolute;
+      top: 8px;
+      right: 92px;
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: rgba(255,167,38,0.1);
+      border: 1px solid rgba(255,167,38,0.3);
+      color: #ffa726;
+      font-family: inherit;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 30;
+      pointer-events: auto;
+    }
+
+    #sound-btn:active {
+      background: rgba(255,167,38,0.25);
+    }
+
+    #sound-btn.muted {
+      color: #555;
+      border-color: rgba(85,85,85,0.3);
+      background: rgba(85,85,85,0.1);
+    }
+
     #join-screen {
       text-align: center;
     }
@@ -329,8 +359,10 @@
       border-color: rgba(100, 181, 246, 0.5);
     }
 
-    .choice-option:active {
+    .choice-option:active,
+    .choice-option.choice-selected {
       background: rgba(100, 181, 246, 0.25);
+      border-color: rgba(100, 181, 246, 0.6);
     }
 
     .choice-option .choice-label {
@@ -1204,6 +1236,7 @@
     </div>
     <div id="quest-btn">LOG</div>
     <div id="inventory-btn">INV</div>
+    <div id="sound-btn" title="Toggle sound">&#9835;</div>
   </div>
 
   <!-- Desktop action bar (6 ability slots + interact/inventory) -->
@@ -1266,7 +1299,6 @@
       <div class="inv-tab active" data-tab="equipment">EQUIP</div>
       <div class="inv-tab" data-tab="inventory">ITEMS</div>
       <div class="inv-tab" data-tab="solgrid">SOL</div>
-      <div class="inv-tab" data-tab="auto">AUTO</div>
       <div class="inv-tab" data-tab="quests">QUESTS</div>
     </div>
     <div id="inv-tab-equipment" class="inv-tab-content">
@@ -1318,6 +1350,7 @@
   <script src="net.js"></script>
   <script src="input.js"></script>
   <script src="renderer.js"></script>
+  <script src="audio.js"></script>
   <script src="main.js"></script>
 
 </body>

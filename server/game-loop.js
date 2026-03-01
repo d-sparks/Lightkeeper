@@ -129,6 +129,7 @@ class GameLoop {
           type: spawn.type,
           name: itemDef.name,
           rarity: itemDef.rarity || 'common',
+          category: itemDef.type,
           x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
           y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
           spawnIndex: i,
@@ -164,6 +165,25 @@ class GameLoop {
     return room;
   }
 
+  // Find a nearby spawnable tile using a spiral search from the given tile position
+  findSpawnableTile(dungeon, tileX, tileY) {
+    if (this.content.isSpawnable(dungeon, tileX, tileY)) {
+      return { x: tileX, y: tileY };
+    }
+    // Search expanding rings up to 5 tiles away
+    for (let r = 1; r <= 5; r++) {
+      for (let dx = -r; dx <= r; dx++) {
+        for (let dy = -r; dy <= r; dy++) {
+          if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue; // Only ring perimeter
+          if (this.content.isSpawnable(dungeon, tileX + dx, tileY + dy)) {
+            return { x: tileX + dx, y: tileY + dy };
+          }
+        }
+      }
+    }
+    return null; // No valid tile found
+  }
+
   spawnMonsters(room) {
     if (!room.dungeon.monsterSpawns) return;
     const killed = this.killedMonsters.get(room.dungeonId);
@@ -177,13 +197,20 @@ class GameLoop {
         if (killed && killed.has(spawnKey)) continue;  // Stay dead
         const id = `mob_${room.nextMonsterId++}`;
         const offsetX = count > 1 ? (i - (count - 1) / 2) * 1.5 : 0;
+        const targetTileX = Math.floor(spawn.x + 0.5 + offsetX);
+        const targetTileY = spawn.y;
+        const validTile = this.findSpawnableTile(room.dungeon, targetTileX, targetTileY);
+        if (!validTile) {
+          console.warn(`[GameLoop] No valid spawn tile for ${spawn.type} near (${targetTileX}, ${targetTileY}), skipping`);
+          continue;
+        }
         room.monsters.set(id, {
           id,
           spawnKey,
           type: spawn.type,
           name: def.name,
-          x: (spawn.x + 0.5 + offsetX) * CONSTANTS.TILE_SIZE,
-          y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
+          x: (validTile.x + 0.5) * CONSTANTS.TILE_SIZE,
+          y: (validTile.y + 0.5) * CONSTANTS.TILE_SIZE,
           health: def.health,
           maxHealth: def.health,
           speed: def.speed,
@@ -246,6 +273,7 @@ class GameLoop {
           type: spawn.type,
           name: itemDef.name,
           rarity: itemDef.rarity || 'common',
+          category: itemDef.type,
           x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
           y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
         });
@@ -472,6 +500,23 @@ class GameLoop {
     return null;
   }
 
+  // Find a ground item by type across all active rooms.
+  // Returns { roomId, tileX, tileY } or null.
+  _findItemInRooms(itemType) {
+    for (const [roomId, room] of this.rooms) {
+      for (const [, item] of room.items) {
+        if (item.type === itemType) {
+          return {
+            roomId,
+            tileX: Math.floor(item.x / CONSTANTS.TILE_SIZE),
+            tileY: Math.floor(item.y / CONSTANTS.TILE_SIZE),
+          };
+        }
+      }
+    }
+    return null;
+  }
+
   // Send quest objective to a player, resolving exit coordinates if needed
   _sendQuestObjective(playerId, currentRoomId) {
     const room = this.rooms.get(currentRoomId);
@@ -491,13 +536,25 @@ class GameLoop {
     }
 
     const obj = player.questObjective;
+    let targetRoomId = obj.roomId;
     let tileX = obj.tileX;
     let tileY = obj.tileY;
-    let sameRoom = (currentRoomId === obj.roomId);
 
-    if (!sameRoom) {
+    // Resolve objectiveItem: find the item's actual location in active rooms
+    if (obj.objectiveItem) {
+      const itemLoc = this._findItemInRooms(obj.objectiveItem);
+      if (itemLoc) {
+        targetRoomId = itemLoc.roomId;
+        tileX = itemLoc.tileX;
+        tileY = itemLoc.tileY;
+      }
+    }
+
+    let sameRoom = (currentRoomId === targetRoomId);
+
+    if (!sameRoom && targetRoomId) {
       // Find exit toward target room
-      const exit = this._resolveExitToward(currentRoomId, obj.roomId);
+      const exit = this._resolveExitToward(currentRoomId, targetRoomId);
       if (exit) {
         tileX = exit.tileX;
         tileY = exit.tileY;
@@ -1062,6 +1119,15 @@ class GameLoop {
     const damage = this.getPlayerAttackDamage(player) * (abilityDef.damageMultiplier || 1.0);
     nearestMob.health -= damage;
     nearestMob.aggroTarget = player.id;
+
+    // Melee slash visual
+    const slashAngle = Math.atan2(nearestMob.y - player.y, nearestMob.x - player.x);
+    room.events.push({
+      type: 'melee_effect',
+      x: player.x, y: player.y,
+      angle: slashAngle,
+      range: range,
+    });
 
     room.events.push({
       type: 'damage', targetId: nearestMob.id,
@@ -1978,7 +2044,7 @@ class GameLoop {
     for (const [iid, item] of room.items) {
       items.push({
         id: item.id, type: item.type, name: item.name,
-        rarity: item.rarity,
+        rarity: item.rarity, category: item.category,
         x: item.x, y: item.y,
       });
     }

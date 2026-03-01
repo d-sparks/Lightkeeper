@@ -33,12 +33,27 @@
   const choiceOptions = document.getElementById('choice-options');
   const autoPanelContent = document.getElementById('auto-panel-content');
 
+  const soundBtn = document.getElementById('sound-btn');
+
   // --- Instances ---
   const net = new NetClient();
   const renderer = new Renderer(canvas);
   const input = new InputHandler(net);
+  const audio = new AudioManager();
   input.renderer = renderer;  // For click-to-move coordinate conversion
   renderer.aimIndicator = input.aimIndicator;  // For aim line drawing
+
+  // Load audio definitions
+  fetch('/content/audio/sounds.json').then(r => r.json()).then(d => audio.loadSounds(d)).catch(() => {});
+  fetch('/content/audio/music.json').then(r => r.json()).then(d => audio.loadMusic(d)).catch(() => {});
+
+  // Sound mute button
+  if (audio.muted) soundBtn.classList.add('muted');
+  soundBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const muted = audio.toggleMute();
+    soundBtn.classList.toggle('muted', muted);
+  });
 
   // --- Responsive canvas sizing ---
   function resizeCanvas() {
@@ -58,6 +73,7 @@
   let dialogueLines = [];    // Array of { speaker, text }
   let dialogueIndex = 0;
   let dialogueMode = null;   // 'bubble' or 'system'
+  let dialogueNpcId = null;  // NPC instance ID for current dialogue
 
   function showDialogue(lines, npcId) {
     closeDialogue();
@@ -75,6 +91,7 @@
     dialogueIndex = 0;
     dialogueActive = true;
     input.dialogueActive = true;
+    dialogueNpcId = npcId || null;
 
     if (usesBubble) {
       dialogueMode = 'bubble';
@@ -91,6 +108,8 @@
       const still = renderer.advanceSpeechBubble();
       if (!still) {
         closeDialogue();
+      } else {
+        audio.play('dialogue_advance');
       }
       return;
     }
@@ -100,6 +119,7 @@
       closeDialogue();
       return;
     }
+    audio.play('dialogue_advance');
     updateDialogueDisplay();
   }
 
@@ -107,12 +127,20 @@
     if (dialogueMode === 'bubble') {
       renderer.closeSpeechBubble();
     }
+    // Check if we were talking to MERIDIAN-7 to open auto panel
+    let wasMeridian = false;
+    if (dialogueNpcId && renderer.state && renderer.state.npcs) {
+      const npc = renderer.state.npcs.find(n => n.id === dialogueNpcId);
+      if (npc && npc.type === 'meridian_7') wasMeridian = true;
+    }
     dialogueActive = false;
     input.dialogueActive = false;
     dialogueLines = [];
     dialogueIndex = 0;
     dialogueMode = null;
+    dialogueNpcId = null;
     dialogueOverlay.style.display = 'none';
+    if (wasMeridian) openMenu('auto');
   }
 
   function updateDialogueDisplay() {
@@ -129,17 +157,26 @@
 
   // --- Choice menu state ---
   let choiceActive = false;
+  let choiceSelectedIndex = 0;
+  let currentChoiceId = null;
+  let currentChoiceOptions = [];
 
   function showChoiceMenu(choiceId, prompt, options) {
     closeDialogue();
     closeMenu();
     choiceActive = true;
     input.dialogueActive = true;
+    input.choiceActive = true;
+    currentChoiceId = choiceId;
+    currentChoiceOptions = options;
+    choiceSelectedIndex = 0;
     choicePrompt.textContent = prompt;
     choiceOptions.innerHTML = '';
-    for (const opt of options) {
+    for (let i = 0; i < options.length; i++) {
+      const opt = options[i];
       const div = document.createElement('div');
       div.className = 'choice-option';
+      if (i === 0) div.classList.add('choice-selected');
       const label = document.createElement('div');
       label.className = 'choice-label';
       label.textContent = opt.label;
@@ -152,6 +189,7 @@
       }
       div.addEventListener('click', () => {
         net.send({ type: CONSTANTS.MSG.CHOICE_SELECT, choiceId, value: opt.value });
+        audio.play('choice_select');
         closeChoiceMenu();
       });
       choiceOptions.appendChild(div);
@@ -159,9 +197,40 @@
     choiceOverlay.style.display = 'block';
   }
 
+  function updateChoiceSelection() {
+    const items = choiceOptions.querySelectorAll('.choice-option');
+    items.forEach((el, i) => {
+      el.classList.toggle('choice-selected', i === choiceSelectedIndex);
+    });
+  }
+
+  function navigateChoice(dir) {
+    if (!choiceActive || currentChoiceOptions.length === 0) return;
+    if (dir === 'up') {
+      choiceSelectedIndex = (choiceSelectedIndex - 1 + currentChoiceOptions.length) % currentChoiceOptions.length;
+    } else if (dir === 'down') {
+      choiceSelectedIndex = (choiceSelectedIndex + 1) % currentChoiceOptions.length;
+    }
+    updateChoiceSelection();
+    audio.play('dialogue_advance');
+  }
+
+  function confirmChoice() {
+    if (!choiceActive || currentChoiceOptions.length === 0) return;
+    const opt = currentChoiceOptions[choiceSelectedIndex];
+    if (opt) {
+      net.send({ type: CONSTANTS.MSG.CHOICE_SELECT, choiceId: currentChoiceId, value: opt.value });
+      audio.play('choice_select');
+      closeChoiceMenu();
+    }
+  }
+
   function closeChoiceMenu() {
     choiceActive = false;
     input.dialogueActive = false;
+    input.choiceActive = false;
+    currentChoiceId = null;
+    currentChoiceOptions = [];
     choiceOverlay.style.display = 'none';
   }
 
@@ -187,7 +256,8 @@
   // --- Unified character menu state ---
   let menuOpen = false;
   let menuTab = 'equipment';
-  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'auto', 'quests'];
+  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'quests'];
+  const ALL_CONTENT_TABS = ['equipment', 'inventory', 'solgrid', 'auto', 'quests'];
   let cursorIndex = 0;
 
   function openMenu(tab) {
@@ -196,6 +266,7 @@
     renderer.fullMap = false;
     characterMenu.style.display = 'block';
     switchTab(tab || 'equipment');
+    audio.play('menu_open');
   }
 
   function closeMenu() {
@@ -203,6 +274,7 @@
     input.menuOpen = false;
     characterMenu.style.display = 'none';
     solGridSelectedComponent = null;
+    audio.play('menu_close');
   }
 
   function toggleMenu(tab) {
@@ -224,8 +296,8 @@
     document.querySelectorAll('#character-menu .inv-tab').forEach(t => {
       t.classList.toggle('active', t.dataset.tab === tab);
     });
-    // Show/hide content divs
-    for (const t of MENU_TABS) {
+    // Show/hide content divs (includes auto which is only opened via NPC)
+    for (const t of ALL_CONTENT_TABS) {
       const el = document.getElementById('inv-tab-' + t);
       if (el) el.style.display = t === tab ? '' : 'none';
     }
@@ -473,6 +545,13 @@
     });
   });
 
+  // Close button click handler
+  const closeHint = document.querySelector('#character-menu .inv-hint');
+  if (closeHint) {
+    closeHint.style.cursor = 'pointer';
+    closeHint.addEventListener('click', () => closeMenu());
+  }
+
   function updateActionBar() {
     for (let i = 0; i < 6; i++) {
       const slotNum = i + 1;
@@ -608,6 +687,7 @@
       } else {
         cell.addEventListener('click', () => {
           net.send({ type: CONSTANTS.MSG.EQUIP, index: idx });
+          audio.play('equip');
         });
       }
 
@@ -957,10 +1037,12 @@
     }
 
     net.send({ type: CONSTANTS.MSG.ATTACK, aimAngle, slot });
+    audio.play('ability_cast');
   };
 
   // --- Interact dispatch ---
   input.onInteract = function () {
+    if (choiceActive) { confirmChoice(); return; }
     if (dialogueActive) { advanceDialogue(); return; }
     if (menuOpen) { closeMenu(); return; }
     net.send({ type: CONSTANTS.MSG.INTERACT });
@@ -1000,10 +1082,21 @@
     closeMenu();
   };
 
+  input.onChoiceNavigate = function (dir) {
+    navigateChoice(dir);
+  };
+
+  input.onChoiceConfirm = function () {
+    confirmChoice();
+  };
+
   // --- Join flow ---
   function doJoin() {
     const name = nameInput.value.trim() || 'Adventurer';
     net.send({ type: CONSTANTS.MSG.JOIN, name });
+
+    // Initialize audio on first user gesture
+    audio.init();
 
     // Request fullscreen on mobile to hide browser chrome (URL bar)
     if ('ontouchstart' in window) {
@@ -1038,18 +1131,39 @@
     joined = true;
 
     hudName.textContent = msg.playerId;
+
+    // Start background music
+    audio.resume();
+    const roomName = (msg.map && msg.map.name || '').toLowerCase();
+    if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
+      audio.playMusic('outpost');
+    } else {
+      audio.playMusic('dungeon');
+    }
   });
 
   net.on(CONSTANTS.MSG.STATE, (msg) => {
     renderer.setState(msg);
 
-    // Process combat events for damage numbers
+    // Process combat events for damage numbers + audio
     if (msg.events) {
       renderer.processEvents(msg.events);
-      // Clear click-to-move on player death
       for (const ev of msg.events) {
         if (ev.type === 'death' && ev.targetId === renderer.myId) {
           input.clearMoveTarget();
+          audio.play('death_player');
+        } else if (ev.type === 'death') {
+          audio.play('death_monster');
+        } else if (ev.type === 'damage') {
+          audio.play(ev.targetId === renderer.myId ? 'hit_take' : 'hit_deal');
+        } else if (ev.type === 'darkness_damage') {
+          audio.play('darkness_damage');
+        } else if (ev.type === 'heal') {
+          audio.play('heal');
+        } else if (ev.type === 'pickup') {
+          audio.play('pickup');
+        } else if (ev.type === 'level_up') {
+          audio.play('level_up');
         }
       }
     }
@@ -1108,17 +1222,27 @@
     // Close any open dialogue or choice menu
     closeDialogue();
     closeChoiceMenu();
+    audio.play('floor_change');
+    // Switch music based on room name
+    const roomName = (msg.map.name || '').toLowerCase();
+    if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
+      audio.playMusic('outpost');
+    } else {
+      audio.playMusic('dungeon');
+    }
   });
 
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {
     if (msg.dialogue && msg.dialogue.length > 0) {
       showDialogue(msg.dialogue, msg.npcId);
+      audio.play('dialogue_open');
     }
   });
 
   net.on(CONSTANTS.MSG.CHOICE_MENU, (msg) => {
     if (msg.options && msg.options.length > 0) {
       showChoiceMenu(msg.choiceId, msg.prompt, msg.options);
+      audio.play('choice_open');
     }
   });
 
@@ -1128,6 +1252,7 @@
       const idx = msg.y * renderer.map.width + msg.x;
       renderer.map.data[idx] = msg.tileId;
     }
+    audio.play('door_open');
   });
 
   net.on(CONSTANTS.MSG.SOL_GRID, (msg) => {
@@ -1171,10 +1296,12 @@
 
   net.on(CONSTANTS.MSG.QUEST_STEP_COMPLETE, (msg) => {
     showQuestToast('\u2714 ' + msg.label);
+    audio.play('quest_step_complete');
   });
 
   net.on(CONSTANTS.MSG.QUEST_STARTED, (msg) => {
     showQuestToast('New Quest: ' + msg.name);
+    audio.play('quest_started');
   });
 
   net.on(CONSTANTS.MSG.AUTO_STATE, (msg) => {

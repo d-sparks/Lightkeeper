@@ -23,12 +23,15 @@ class InputHandler {
     this.onMenuNavigate = null;  // (direction) => void — D-pad/stick when menu open
     this.onMenuConfirm = null;   // () => void — A when menu open
     this.onMenuClose = null;     // () => void — B when menu open
+    this.onChoiceNavigate = null; // (direction) => void — D-pad/stick when choice menu open
+    this.onChoiceConfirm = null;  // () => void — A when choice menu open
 
     // Click-to-move
     this.renderer = null;
     this.moveTarget = null;
     this.clickMoving = false;
     this.dialogueActive = false;
+    this.choiceActive = false;
     this.menuOpen = false;
 
     // Diablo-style ability selection
@@ -569,6 +572,23 @@ class InputHandler {
       // Suppress movement: zero out gamepad keys when menu is open
       this.gamepadKeys = { up: false, down: false, left: false, right: false };
 
+    } else if (this.choiceActive) {
+      // === CHOICE MENU MODE ===
+      // A(0) = confirm selection
+      if (pressed(0) && this.onChoiceConfirm) this.onChoiceConfirm();
+      // B(1) = close/back (advance dialogue to dismiss)
+      if (pressed(1) && this.onInteract) this.onInteract();
+
+      // D-pad navigation (rising edge)
+      if (pressed(12) && this.onChoiceNavigate) this.onChoiceNavigate('up');
+      if (pressed(13) && this.onChoiceNavigate) this.onChoiceNavigate('down');
+
+      // Left stick navigation (throttled)
+      this.handleStickChoiceNav(ly);
+
+      // Suppress movement while choice menu is open
+      this.gamepadKeys = { up: false, down: false, left: false, right: false };
+
     } else if (this.dialogueActive) {
       // === DIALOGUE MODE ===
       // A(0) or LT(6) = advance dialogue
@@ -624,6 +644,19 @@ class InputHandler {
 
     // Save for edge detection
     this.gamepadPrevButtons = gp.buttons.map(b => ({ pressed: b.pressed }));
+  }
+
+  handleStickChoiceNav(ly) {
+    const now = performance.now();
+    if (now - this.menuNavTimer < 200) return;
+    const threshold = 0.5;
+    let dir = null;
+    if (ly < -threshold) dir = 'up';
+    else if (ly > threshold) dir = 'down';
+    if (dir && this.onChoiceNavigate) {
+      this.onChoiceNavigate(dir);
+      this.menuNavTimer = now;
+    }
   }
 
   handleStickMenuNav(lx, ly) {

@@ -428,7 +428,7 @@
         { "speaker": "MERIDIAN-7", "text": "I am the Array's liaison for this sector. My function is resource exchange and infrastructure coordination." },
         { "speaker": "MERIDIAN-7", "text": "The dayside is automated. Harvesters collect silicon. Solar panels generate power. The Array manages all of it." },
         { "speaker": "MERIDIAN-7", "text": "Humans cannot survive on the dayside without protection. But you can deploy structures remotely through this terminal." },
-        { "speaker": "MERIDIAN-7", "text": "I am providing you with an initial allocation of silicon. Use your AUTO interface to build structures." },
+        { "speaker": "MERIDIAN-7", "text": "I am providing you with an initial allocation of silicon. I will open the automation terminal for you." },
         { "speaker": "MERIDIAN-7", "text": "Solar panels will recharge your Sol Unit passively. Silicon harvesters will generate resources over time." },
         { "speaker": "MERIDIAN-7", "text": "When you have surplus silicon, return here. I can offer equipment, components, and advanced schematics in exchange." }
       ],
@@ -441,7 +441,7 @@
       ],
       "returning": [
         { "speaker": "MERIDIAN-7", "text": "// WELCOME BACK // TRADE INTERFACE ACTIVE //" },
-        { "speaker": "MERIDIAN-7", "text": "Your dayside structures continue to produce while you are away. Check your AUTO tab for current resources." },
+        { "speaker": "MERIDIAN-7", "text": "Your dayside structures continue to produce while you are away. Let me show you the current status." },
         { "speaker": "MERIDIAN-7", "text": "The Array values consistent trade partners. Continue building and we will both benefit." }
       ]
     },

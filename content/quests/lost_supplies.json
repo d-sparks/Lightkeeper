@@ -8,6 +8,8 @@
       "label": "Recover the Supply Manifest",
       "description": "Search the first level of the quarantine wing for the lost supply manifest.",
       "prerequisiteSteps": [],
+      "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 7 },
+      "objectiveItem": "supply_manifest",
       "completionConditions": [{ "hasItem": "supply_manifest" }],
       "completionActions": [{ "type": "grantXp", "amount": 15 }]
     },
