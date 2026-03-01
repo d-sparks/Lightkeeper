@@ -107,5 +107,11 @@
     "description": "A battered clipboard with a supply manifest attached. Quartermaster Voss will want to see this.",
     "type": "key",
     "rarity": "common"
+  },
+  "umbracite": {
+    "name": "Umbracite",
+    "description": "A dense crystalline mineral found in the terminator zone. Rare and valuable — the Array's automated systems prize it above all else.",
+    "type": "key",
+    "rarity": "uncommon"
   }
 }

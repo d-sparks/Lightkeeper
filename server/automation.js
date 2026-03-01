@@ -113,6 +113,23 @@ class Automation {
     return regenPerSecond;
   }
 
+  // Grant a structure for free (used by scripting actions)
+  grantStructure(playerId, structureId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const def = structures[structureId];
+    if (!def) return false;
+
+    const state = this.getState(playerId);
+    const currentCount = state.structures[structureId] || 0;
+    if (def.maxCount && currentCount >= def.maxCount) return false;
+
+    state.structures[structureId] = currentCount + 1;
+    if (!state.productionTimers[structureId]) {
+      state.productionTimers[structureId] = 0;
+    }
+    return true;
+  }
+
   // Execute a trade with MERIDIAN-7
   trade(playerId, tradeId) {
     const trades = {

@@ -18,6 +18,7 @@
 //   { type: "grantXp",      amount: 50 }
 //   { type: "toggleTile",   x: 5, y: 3 }
 //   { type: "showChoice",  choiceId: "weapon_choice", prompt: "Choose:", options: [{label, description, value}] }
+//   { type: "giveStructure", structureId: "solar_panel" }
 
 const CONSTANTS = require('../../shared/constants');
 
@@ -92,6 +93,9 @@ class ActionExecutor {
         break;
       case 'showChoice':
         this.doShowChoice(action, context);
+        break;
+      case 'giveStructure':
+        this.doGiveStructure(action, context);
         break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
@@ -397,6 +401,17 @@ class ActionExecutor {
     // Delegate to gameLoop.grantXp via callback
     if (this._onGrantXp) {
       this._onGrantXp(player, amount, context.room);
+    }
+  }
+
+  doGiveStructure(action, context) {
+    if (!this.automation) return;
+    const success = this.automation.grantStructure(context.playerId, action.structureId);
+    if (success && this.sendToPlayer) {
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.AUTO_STATE,
+        auto: this.automation.getStateForClient(context.playerId),
+      });
     }
   }
 

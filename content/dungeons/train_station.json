@@ -35,7 +35,9 @@
     { "type": "station_tech_yara", "x": 6, "y": 5 },
     { "type": "meridian_7", "x": 18, "y": 5 }
   ],
-  "itemSpawns": [],
+  "itemSpawns": [
+    { "type": "umbracite", "x": 12, "y": 10 }
+  ],
   "exits": [
     { "x": 12, "y": 14, "leadsTo": "outpost_perimeter", "type": "stairs_up", "spawnX": 14, "spawnY": 2 },
     { "x": 12, "y": 0, "leadsTo": "dayside_solar_fields", "type": "stairs_down", "spawnX": 15, "spawnY": 28 }
@@ -65,15 +67,17 @@
       ]
     },
     {
-      "id": "meridian_starter_silicon",
+      "id": "meridian_umbracite_trade",
       "event": "npc_interacted",
       "filter": { "npcType": "meridian_7" },
       "conditions": [
-        { "not": { "hasFlag": "received_starter_silicon" } }
+        { "hasItem": "umbracite" },
+        { "not": { "hasFlag": "traded_umbracite_meridian" } }
       ],
       "actions": [
-        { "type": "giveItem", "itemType": "silicon", "count": 5 },
-        { "type": "setFlag", "flag": "received_starter_silicon" }
+        { "type": "removeItem", "itemType": "umbracite" },
+        { "type": "giveStructure", "structureId": "solar_panel" },
+        { "type": "setFlag", "flag": "traded_umbracite_meridian" }
       ],
       "once": true
     }

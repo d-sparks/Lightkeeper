@@ -403,7 +403,7 @@
         { "speaker": "Tech Yara", "text": "The transit lines are all dead — have been since before I was posted here. But the power tap still works." },
         { "speaker": "Tech Yara", "text": "I keep the charging terminal running. Any Sol Unit, light rifle, anything that takes solar charge — bring it here." },
         { "speaker": "Tech Yara", "text": "The terminal on the other side is MERIDIAN-7's interface. That's the Array's representative. Talks like a machine, thinks like a machine, is a machine." },
-        { "speaker": "Tech Yara", "text": "But it trades fair. If you've got silicon or materials, MERIDIAN can set you up with structures on the dayside." }
+        { "speaker": "Tech Yara", "text": "But it trades fair. If you've got umbracite or materials, MERIDIAN can set you up with structures on the dayside." }
       ],
       "has_charged": [
         { "speaker": "Tech Yara", "text": "Unit's topped off. You're good to go." },
@@ -428,16 +428,20 @@
         { "speaker": "MERIDIAN-7", "text": "I am the Array's liaison for this sector. My function is resource exchange and infrastructure coordination." },
         { "speaker": "MERIDIAN-7", "text": "The dayside is automated. Harvesters collect silicon. Solar panels generate power. The Array manages all of it." },
         { "speaker": "MERIDIAN-7", "text": "Humans cannot survive on the dayside without protection. But you can deploy structures remotely through this terminal." },
-        { "speaker": "MERIDIAN-7", "text": "I am providing you with an initial allocation of silicon. I will open the automation terminal for you." },
-        { "speaker": "MERIDIAN-7", "text": "Solar panels will recharge your Sol Unit passively. Silicon harvesters will generate resources over time." },
-        { "speaker": "MERIDIAN-7", "text": "When you have surplus silicon, return here. I can offer equipment, components, and advanced schematics in exchange." }
+        { "speaker": "MERIDIAN-7", "text": "The Array requires umbracite — a rare crystalline mineral found in the terminator zone. Bring me umbracite and I will provide infrastructure in return." },
+        { "speaker": "MERIDIAN-7", "text": "There may be a fragment nearby. This station was once a transit hub — materials pass through here." }
       ],
-      "has_silicon": [
-        { "speaker": "MERIDIAN-7", "text": "// TRADE INTERFACE READY //" },
-        { "speaker": "MERIDIAN-7", "text": "You have silicon reserves. I can offer the following exchanges:" },
-        { "speaker": "MERIDIAN-7", "text": "5 silicon — Damage Booster Chip. Enhances Sol Grid abilities when placed adjacent." },
-        { "speaker": "MERIDIAN-7", "text": "10 silicon — Medical Supplies x5. Standard field dressings for your Medipac." },
-        { "speaker": "MERIDIAN-7", "text": "Interact again when you are ready to trade. The Array's terms are fair." }
+      "has_umbracite": [
+        { "speaker": "MERIDIAN-7", "text": "// RESOURCE DETECTED // UMBRACITE CRYSTAL //" },
+        { "speaker": "MERIDIAN-7", "text": "You have umbracite. The Array values this mineral above all others. It is essential to our expansion protocols." },
+        { "speaker": "MERIDIAN-7", "text": "I will deploy a Solar Panel on the dayside in exchange. It will passively recharge your Sol Unit while you are there." },
+        { "speaker": "MERIDIAN-7", "text": "Interact again to confirm the exchange." }
+      ],
+      "traded": [
+        { "speaker": "MERIDIAN-7", "text": "// EXCHANGE COMPLETE // SOLAR PANEL DEPLOYED //" },
+        { "speaker": "MERIDIAN-7", "text": "Your solar panel is active on the dayside. It will recharge your Sol Unit passively while you are in the solar fields." },
+        { "speaker": "MERIDIAN-7", "text": "Silicon is abundant on the dayside. Collect it to build more structures through your AUTO interface." },
+        { "speaker": "MERIDIAN-7", "text": "When you have surplus silicon, return here. I can offer equipment, components, and advanced schematics in exchange." }
       ],
       "returning": [
         { "speaker": "MERIDIAN-7", "text": "// WELCOME BACK // TRADE INTERFACE ACTIVE //" },
@@ -451,8 +455,12 @@
         "use": "returning"
       },
       {
-        "conditions": [{ "hasFlag": "received_starter_silicon" }],
-        "use": "has_silicon"
+        "conditions": [{ "hasFlag": "traded_umbracite_meridian" }],
+        "use": "traded"
+      },
+      {
+        "conditions": [{ "hasItem": "umbracite" }],
+        "use": "has_umbracite"
       }
     ]
   },
