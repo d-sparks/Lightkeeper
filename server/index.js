@@ -436,10 +436,11 @@ wss.on('connection', (ws) => {
         }
 
         const room = gameLoop.getRoom(ws.playerRoom);
+        const welcomeMap = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.WELCOME,
           playerId,
-          map: room.dungeon,
+          map: welcomeMap,
           tileset: content.getTileset(room.dungeon.tileset),
         }));
 
@@ -719,13 +720,14 @@ wss.on('connection', (ws) => {
 
       case CONSTANTS.MSG.AUTO_BUILD: {
         if (!ws.playerRoom) break;
-        const built = gameLoop.automation.build(playerId, msg.structureId);
-        if (built) {
-          ws.send(JSON.stringify({
-            type: CONSTANTS.MSG.AUTO_STATE,
-            auto: gameLoop.automation.getStateForClient(playerId),
-          }));
-        }
+        const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY);
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.AUTO_STATE,
+          auto: gameLoop.automation.getStateForClient(playerId),
+          buildResult: built ? 'success' : 'fail',
+          buildX: msg.gridX,
+          buildY: msg.gridY,
+        }));
         break;
       }
 
@@ -842,9 +844,10 @@ setInterval(() => {
     gameLoop.addPlayerAt(targetRoomId, player, spawnX, spawnY);
     ws.playerRoom = targetRoomId;
 
+    const floorMap = gameLoop.automation.getOverlayedMapData(t.playerId, targetRoom.dungeon);
     ws.send(JSON.stringify({
       type: CONSTANTS.MSG.FLOOR_CHANGE,
-      map: targetRoom.dungeon,
+      map: floorMap,
       tileset: content.getTileset(targetRoom.dungeon.tileset),
     }));
 
