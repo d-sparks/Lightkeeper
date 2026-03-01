@@ -92,6 +92,14 @@ const api = {
       body: JSON.stringify({ playerId, flag, scope, remove: true }),
     })).json();
   },
+  async items() { return (await checkedFetch('/api/checkpoint/items')).json(); },
+  async giveItem(playerId, itemType, count) {
+    return (await checkedFetch('/api/checkpoint/give-item', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, itemType, count }),
+    })).json();
+  },
 };
 
 // ─── Toast ──────────────────────────────────────────────────
@@ -492,6 +500,45 @@ function PlayerStats({ sessions, onRefresh }) {
   `;
 }
 
+// ─── Give Item ───────────────────────────────────────────────
+function GiveItem({ sessions, items }) {
+  const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [selectedItem, setSelectedItem] = useState('');
+  const [count, setCount] = useState('1');
+
+  const handleGive = async () => {
+    if (!selectedPlayer) { showToast('Select a player first', 'err'); return; }
+    if (!selectedItem) { showToast('Select an item first', 'err'); return; }
+    const n = Math.max(1, Math.floor(Number(count) || 1));
+    try {
+      const result = await api.giveItem(selectedPlayer, selectedItem, n);
+      if (result.ok) {
+        showToast(`Gave ${result.count}x ${result.item}`);
+      } else {
+        showToast(result.error || 'Failed', 'err');
+      }
+    } catch { showToast('Failed to give item', 'err'); }
+  };
+
+  return html`
+    <div class="quest-jump-row">
+      <select value=${selectedPlayer} onChange=${e => setSelectedPlayer(e.target.value)}>
+        <option value="">-- player --</option>
+        ${sessions.map(p => html`<option value=${p.playerId}>${p.name} (${p.playerId})</option>`)}
+      </select>
+      <select value=${selectedItem} onChange=${e => setSelectedItem(e.target.value)}>
+        <option value="">-- item --</option>
+        ${items.map(it => html`<option value=${it.id}>${it.name} (${it.type})</option>`)}
+      </select>
+      <input type="number" class="flag-input" style="width:60px" min="1" value=${count}
+        onInput=${e => setCount(e.target.value)}
+        onKeyDown=${e => { if (e.key === 'Enter') handleGive(); }} />
+      <button class="btn btn-save" disabled=${!selectedPlayer || !selectedItem}
+        onClick=${handleGive}>Give</button>
+    </div>
+  `;
+}
+
 // ─── Main View ──────────────────────────────────────────────
 function MainView() {
   const [sessions, setSessions] = useState([]);
@@ -504,6 +551,7 @@ function MainView() {
   const [rooms, setRooms] = useState([]);
   const [teleportRoomId, setTeleportRoomId] = useState('');
   const [teleportPlayerId, setTeleportPlayerId] = useState('');
+  const [items, setItems] = useState([]);
 
   const refreshSessions = useCallback(async () => {
     try { setSessions(await api.sessions()); } catch {}
@@ -521,12 +569,17 @@ function MainView() {
     try { setRooms(await api.rooms()); } catch {}
   }, []);
 
+  const refreshItems = useCallback(async () => {
+    try { setItems(await api.items()); } catch {}
+  }, []);
+
   // Poll sessions every 3s
   useEffect(() => {
     refreshSessions();
     refreshSaves();
     refreshQuests();
     refreshRooms();
+    refreshItems();
     const interval = setInterval(refreshSessions, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -721,6 +774,11 @@ function MainView() {
     <div class="panel">
       <h2>Player Stats</h2>
       <${PlayerStats} sessions=${sessions} onRefresh=${refreshSessions} />
+    </div>
+
+    <div class="panel">
+      <h2>Give Item</h2>
+      <${GiveItem} sessions=${sessions} items=${items} />
     </div>
 
     <div class="panel">

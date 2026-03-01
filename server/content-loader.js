@@ -194,6 +194,10 @@ class ContentLoader {
     return this.quests;
   }
 
+  getAllItems() {
+    return this.items;
+  }
+
   getAllDungeons() {
     return this.dungeons;
   }
