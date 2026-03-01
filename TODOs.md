@@ -2,6 +2,7 @@ Fix conflicts
 
 Dev
 - Need a "give item to player" option in the checkpoint UI, e.g. for giving sol unit etc for dev purposes.
+- Can you come up with an overall plan for automated testing that could exist for this game? Write a concise summary in TESTING.md
 
 Game
 - Come up with a design and implementation for a modular sound system which we can upgrade later. Create some simple midi music and sound effects for the game we have so far.
@@ -11,6 +12,7 @@ Game
 - Implement tracking for side quests. I see a button for it but it doesn't do anything. Selecting it should switch visual guide indicators to ones that work to guide you for that side quest.
 - Clicking or tapping "close" on the game menu should close it.
 - Make sure enemies can't spawn inside walls or interactable squares. That can create interactions where we can't interact with the square because of the enemy and can't shoot the enemy because of the square.
+- Auto grid should not be accessible except when standing near meridian-7. Instead of making it part of the menu as a tab, we should make it accessible by talking to meridian-7. That's how you open the automation crafting window.
 
 Content
 - Getting a weapon from quartermaster voss doesn't advance you to the next step of the quest.
@@ -18,3 +20,8 @@ Content
 - After defeating the warlord, the next step quest tracker should track you to the chest directly.
 - Add flavor text to the outside region saying you shouldn't come here without a sol unit.
 - The text for entering the Dark Perimeter with and without sol unit aren't showing up.
+
+Automation UI
+- I don't think Meridian-7 wants silicon (which is abundant on the dayside)... I think we can take silicon back to an engineer to upgrade our sol unit. Instead, I think Meridian-7 wants umbracite. Let's, for now, add a piece of umbracite at the train station which we can trade to Meridian-7 for our first solar array. Make sure to commit your changes.
+- I'd like for the automation UI to be a 2d non-isometric view placement UI. When you craft something, you pick where to place it on a square grid. That square grid should reflect the solar array level - and later in the game when you can safely access the solar array, you can actually walk through all the things you've constructed. Come up with an implementation plan for this feature, and write the plan to "automation_screen.md". Remember: the automation needs to feel awesome! We also need introspection where we can see how much silicon we've harvested, and some global progress bar for our automation. Make sure to commit your changes.
+- Implement the plan in "automation_screen.md".

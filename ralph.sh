@@ -37,7 +37,7 @@ DRY_RUN=false
 START_AT=1
 ONLY=""
 SECTION_FILTER=""
-MAX_TURNS=50
+MAX_TURNS=100
 YOLO=false
 
 # ─── Parse args ───────────────────────────────────────────────
