@@ -1,0 +1,9 @@
+Done. Here's what I changed:
+
+**`server/content-loader.js`** — Added `isSpawnable(dungeon, tileX, tileY)` method that returns `false` for tiles that are solid, interactable (doors, chests), or exits (stairs). This ensures monsters never block important tiles.
+
+**`server/game-loop.js`** — Two changes:
+1. Added `findSpawnableTile(dungeon, tileX, tileY)` that first checks the target tile, then searches outward in expanding rings (up to 5 tiles) for a valid spawn position.
+2. Modified `spawnMonsters()` to validate each monster's target tile before placing it. If the tile is invalid (wall, door, chest, stairs), the monster gets relocated to the nearest valid tile. If no valid tile exists within range, the spawn is skipped with a warning log.
+
+This handles both direct spawn positions from dungeon JSON and the offset positions created when `count > 1` pushes monsters into adjacent tiles.

@@ -1,1 +1,11 @@
-Error: Reached max turns (50)
+Done. Here's a summary of the changes:
+
+**Problem**: When a choice menu was open (like Quartermaster Voss's weapon selection), the gamepad had no way to navigate or select options — only mouse/touch clicks worked.
+
+**Changes across 3 files**:
+
+- **`client/input.js`**: Added a `choiceActive` flag and two new callbacks (`onChoiceNavigate`, `onChoiceConfirm`). Added a new `CHOICE MENU MODE` block in the gamepad polling that checks before dialogue mode — d-pad up/down and left stick navigate options, A confirms, B dismisses. Movement is suppressed. Added `handleStickChoiceNav()` for throttled stick navigation.
+
+- **`client/main.js`**: Tracks `choiceSelectedIndex`, `currentChoiceId`, and `currentChoiceOptions`. First option is pre-selected when the choice menu opens. `navigateChoice()` wraps around the option list. `confirmChoice()` sends the selection to the server. The `onInteract` callback also routes through `confirmChoice()` when the choice menu is active (so E/Enter on keyboard also confirms).
+
+- **`client/index.html`**: Added `.choice-selected` CSS class sharing the `:active` styling (highlighted background + border) to visually indicate the selected option.

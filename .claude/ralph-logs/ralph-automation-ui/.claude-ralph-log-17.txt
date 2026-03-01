@@ -1,0 +1,15 @@
+Done. Committed `automation_screen.md` with the full implementation plan. Here's the summary:
+
+**Core concept:** The automation UI is a **top-down 2D grid placement screen** (not isometric) that opens when interacting with MERIDIAN-7. The 12×12 grid maps directly to tiles in the `dayside_solar_fields` dungeon — so structures you place in the UI become real tiles you can walk through later.
+
+**Key features planned:**
+
+1. **Grid placement UI** — CSS grid following the same patterns as the existing sol grid. Select a structure from a build palette, click a cell to place it. Placement animations and visual feedback.
+
+2. **Dual-reality mapping** — Automation grid coordinates offset into dungeon tile positions. When visiting dayside, the server merges your placements into the MAP data so your solar panels and harvesters appear as real tiles/entities.
+
+3. **Introspection panel** — Sidebar showing silicon count, production rate per minute, total harvested, energy regen rate, and structure counts.
+
+4. **Global progress bar** — Automation levels (Outpost → Depot → Array Node → Solar Complex → Array Sector) with a filling progress bar and level names.
+
+5. **5-phase implementation** — Server state updates → Client UI → MERIDIAN-7 screen access via scripting → Dungeon tile sync → Polish (tooltips, sound, controller support).

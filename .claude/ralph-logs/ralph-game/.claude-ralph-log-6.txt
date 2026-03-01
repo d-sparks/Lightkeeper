@@ -1,0 +1,9 @@
+Done. Here's what I changed:
+
+**Server** (`game-loop.js` + `scripting/actions.js`):
+- Added `category` field (from item definition's `type`, e.g. `"key"`) to all item spawn points and to the state broadcast, so the client knows the item category.
+
+**Client** (`renderer.js`):
+- Both minimap modes (isometric and top-down) now check `item.category === 'key'` to render quest/key items as **larger cyan dots** (`0x00e5ff`, using `dotLarge` size) instead of the default **small yellow dots** (`0xfdd835`, `dotSmall` size).
+
+This means the supply manifest and all other key-type items (quest items) will visually stand out on the minimap with a distinct cyan color and larger size.

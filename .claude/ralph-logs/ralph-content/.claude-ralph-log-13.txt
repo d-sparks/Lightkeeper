@@ -1,0 +1,11 @@
+Done. Here's what I changed:
+
+**Problem**: After defeating the warlord, the "Open the Supply Crate" quest step was pointing the arrow at the workshop (`outpost_workshop`) instead of the chest in the procedural quarantine dungeon.
+
+**Changes across 3 files**:
+
+1. **`content/quests/main_quest.json`** — Changed the `open_supply_crate` objective from `{ "roomId": "outpost_workshop", "tileX": 20, "tileY": 7 }` to `{ "roomId": "proc_quarantine", "depth": 2, "targetTile": 10 }`. This points the quest arrow to the chest (tile 10) on quarantine floor 2.
+
+2. **`server/game-loop.js`** — Added `targetTile` support to `_sendQuestObjective`. When the player is on the target depth and `targetTile` is set, it scans the tile data to find that specific tile's coordinates (the chest) instead of defaulting to the first monster.
+
+3. **`server/scripting/quest-tracker.js`** — Pass through the `targetTile` field from quest step definitions to the active objective.

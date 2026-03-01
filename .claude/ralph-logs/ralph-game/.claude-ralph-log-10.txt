@@ -1,0 +1,14 @@
+Done. Here's a summary of the changes:
+
+**What changed:**
+
+1. **`client/index.html`** — Removed the AUTO tab button from the character menu tab bar. The auto content div is kept so the panel can still render.
+
+2. **`client/main.js`** — Three changes:
+   - Removed `'auto'` from `MENU_TABS` (can't cycle to it or click it). Added `ALL_CONTENT_TABS` to handle show/hide of content divs including auto.
+   - Added `dialogueNpcId` tracking — stores which NPC started the current dialogue.
+   - In `closeDialogue()`, checks if the NPC was `meridian_7` and if so, opens the menu directly to the auto panel.
+
+3. **`content/entities/npcs.json`** — Updated MERIDIAN-7 dialogue to no longer reference the "AUTO interface" or "AUTO tab", since the panel now opens automatically after the conversation.
+
+**How it works:** When the player talks to MERIDIAN-7, dialogue plays normally. When the dialogue ends, the automation crafting panel opens automatically — showing structures to build and trades to make. The player can close it with the usual menu close key or interact.

@@ -1,0 +1,13 @@
+Done. Here's what I added:
+
+**File:** `content/dungeons/outpost_entrance.json`
+
+Added a new `outside_warning_no_sol` trigger that fires when:
+- The player has talked to the warden (gates are open, so going outside is possible)
+- The player hasn't received a Sol Unit yet
+
+The flavor text reads:
+> "A cold wind howls through the north gate. Beyond the outpost walls lies the dark perimeter — open ground with no light, no shelter."
+> "You'll need a Sol Unit before heading out there. The Workshop engineer can set you up with one."
+
+This complements the existing warning in `outpost_perimeter.json` (which fires after you're already outside) by giving players a heads-up while they're still safe in the outpost.

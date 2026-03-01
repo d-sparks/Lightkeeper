@@ -1,13 +1,10 @@
 Done. Here's what was wrong and what I fixed:
 
-**Root cause**: Two things overwrote the weapon ability in slot 1:
-1. The `sol_unit` item in `items.json` had `"ability": { "id": "sol_beam" }` — this directly overwrote the weapon during `_rebuildAbilities()` step 2
-2. Both `sol_cone` and `sol_beam` in `abilities.json` had `defaultSlot: 1` — same slot as the weapon
+**Root cause:** `removePlayer()` in `game-loop.js` called `questTracker.removePlayer(playerId)` every time a player left a room — including during floor transitions. This wiped all quest progress. When the player transitioned from `outpost_entrance` (where they talk to Warden Holt) to `outpost_munitions` (where they get a weapon from Voss), their quest tracker state was deleted. So even though choosing a weapon correctly set the `received_weapon` flag, the quest tracker had no record of the `get_weapon` step being active, and the quest never advanced.
 
-**Fix** (pure content/JSON changes):
-- **`abilities.json`**: Changed `sol_beam` and `sol_cone` from `defaultSlot: 1` to `defaultSlot: 2`
-- **`items.json`**: Removed the `"ability": { "id": "sol_beam" }` from the sol_unit item (abilities come from the grid, not the equipment)
+**Fix (3 files):**
+- `server/game-loop.js`: Removed `questTracker.removePlayer()` from `removePlayer()` so quest state persists across floor transitions
+- `server/index.js`: Added `questTracker.removePlayer()` to the WebSocket disconnect handler, where cleanup actually belongs
+- `server/checkpoint-api.js`: Updated stale comments that referenced the old behavior
 
-**Result**: After getting the sol unit, players now have:
-- Slot 1 (left-click): weapon ability (blaster_shot or melee_strike)
-- Slot 2 (right-click): sol_cone from the grid
+This was actually a broader bug — it affected ALL quests across ALL floor transitions, not just the Voss weapon quest.

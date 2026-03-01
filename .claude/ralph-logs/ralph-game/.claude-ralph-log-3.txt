@@ -1,11 +1,20 @@
-Done. The cone attack now has an animated visual effect in `client/renderer.js:1721-1793`:
+Done. Here's a summary of what was built:
 
-**Before:** A static filled orange arc that simply faded out over 400ms.
+## Sound System Architecture
 
-**After:** A directional expanding wave animation with:
-- **Expanding sweep** — outer radius grows outward with ease-out, creating the directional blast motion
-- **Wave ring** — an inner radius follows behind, turning the fill into a moving arc/ring shape as it expands
-- **See-through fill** — 0.2 alpha orange fill so you can see through the effect
-- **Bright leading edge** — a 2px yellow-orange arc stroke at the expanding front highlights where the blast is
-- **Cone boundary lines** — two lines from the player origin to the outer edges clearly delineate the cone shape
-- **Smooth fade** — everything fades out in the second half of the animation
+### Engine Layer: `client/audio.js`
+- **AudioManager** class using the Web Audio API
+- **Procedural synthesis** with multi-layer sounds — each sound can combine oscillators (sine, square, sawtooth, triangle), noise generators (white/pink), ADSR envelopes, frequency sweeps, vibrato, and bandpass filters
+- **Music sequencer** that plays note patterns from JSON definitions at configurable BPM, with bass layers
+- **Upgrade path built in**: any sound definition with a `sample` field will play a loaded AudioBuffer instead of synthesizing — so you can later replace individual sounds with real audio files without changing any engine code
+- **Volume management**: master/SFX/music gain nodes, mute toggle, preferences saved to localStorage
+
+### Content Layer: `content/audio/`
+- **`sounds.json`** — 22 sound effect definitions: combat hits (deal/take), monster/player death, heal, item pickup, level up, floor change, door toggle, dialogue open/advance, menu open/close/navigate, equip, ability cast, quest started/step complete, choice open/select, darkness damage
+- **`music.json`** — 3 music tracks: `dungeon` (dark C minor, 70 BPM triangle waves), `outpost` (calm melodic, 55 BPM sine waves), `combat` (uptempo, 110 BPM square waves)
+
+### Integration Points
+- All major game events trigger appropriate sounds (combat, items, UI, transitions, quests)
+- Music auto-switches between outpost/dungeon based on room name
+- Mute toggle button (musical note icon) in the HUD top-right area
+- AudioContext properly initialized on user gesture (join button) per browser autoplay policy

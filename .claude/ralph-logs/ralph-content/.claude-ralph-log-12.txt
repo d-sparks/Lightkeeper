@@ -1,0 +1,16 @@
+Done. Here's what was changed across 3 files:
+
+**Content change** (`content/quests/main_quest.json`):
+- Changed the "Defeat the Warlord" step objective from `{ "roomId": "outpost_workshop", "tileX": 20, "tileY": 7 }` to `{ "roomId": "proc_quarantine", "depth": 3 }` — pointing to the quarantine template at depth 3 instead of the workshop exit
+
+**Engine changes** (minimal, to support procedural template objectives):
+- `server/scripting/quest-tracker.js`: Pass `depth` through the objective data
+- `server/game-loop.js` (`_sendQuestObjective`): Detect when the player is inside a procedural instance of the target template. On the matching depth → `sameRoom=true`, arrow points to a monster. On other depths → BFS naturally finds the descent exit (since generated exits use the template ID as `leadsTo`)
+
+**How the arrow now guides at each location:**
+| Player location | Arrow behavior |
+|---|---|
+| Workshop | Points to quarantine entrance exit (20,7) via BFS |
+| Quarantine floor 1 | Points to descent stairs via BFS |
+| Quarantine floor 2 | Points to descent stairs via BFS |
+| Quarantine floor 3 | Points to the warlord (sameRoom) |
