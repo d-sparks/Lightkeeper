@@ -129,6 +129,7 @@ class GameLoop {
           type: spawn.type,
           name: itemDef.name,
           rarity: itemDef.rarity || 'common',
+          category: itemDef.type,
           x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
           y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
           spawnIndex: i,
@@ -246,6 +247,7 @@ class GameLoop {
           type: spawn.type,
           name: itemDef.name,
           rarity: itemDef.rarity || 'common',
+          category: itemDef.type,
           x: (spawn.x + 0.5) * CONSTANTS.TILE_SIZE,
           y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
         });
@@ -1987,7 +1989,7 @@ class GameLoop {
     for (const [iid, item] of room.items) {
       items.push({
         id: item.id, type: item.type, name: item.name,
-        rarity: item.rarity,
+        rarity: item.rarity, category: item.category,
         x: item.x, y: item.y,
       });
     }

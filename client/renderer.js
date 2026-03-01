@@ -2057,12 +2057,14 @@ class Renderer {
 
       // Items
       if (this.state && this.state.items) {
-        this.minimapGfx.beginFill(0xfdd835);
         for (const item of this.state.items) {
           const p = isoPx(item.x, item.y);
-          this.minimapGfx.drawRect(p.x - dotSmall / 2, p.y - dotSmall / 2, dotSmall, dotSmall);
+          const color = item.category === 'key' ? 0x00e5ff : 0xfdd835;
+          const dot = item.category === 'key' ? dotLarge : dotSmall;
+          this.minimapGfx.beginFill(color);
+          this.minimapGfx.drawRect(p.x - dot / 2, p.y - dot / 2, dot, dot);
+          this.minimapGfx.endFill();
         }
-        this.minimapGfx.endFill();
       }
 
       // Players
@@ -2150,13 +2152,15 @@ class Renderer {
 
       // Items
       if (this.state && this.state.items) {
-        this.minimapGfx.beginFill(0xfdd835);
         for (const item of this.state.items) {
           const dotX = Math.round(mmX + (item.x / ts) * scale);
           const dotY = Math.round(mmY + (item.y / ts) * scale);
-          this.minimapGfx.drawRect(dotX - dotSmall / 2, dotY - dotSmall / 2, dotSmall, dotSmall);
+          const color = item.category === 'key' ? 0x00e5ff : 0xfdd835;
+          const dot = item.category === 'key' ? dotLarge : dotSmall;
+          this.minimapGfx.beginFill(color);
+          this.minimapGfx.drawRect(dotX - dot / 2, dotY - dot / 2, dot, dot);
+          this.minimapGfx.endFill();
         }
-        this.minimapGfx.endFill();
       }
 
       // Players

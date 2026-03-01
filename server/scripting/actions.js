@@ -206,6 +206,7 @@ class ActionExecutor {
       type: action.itemType,
       name: itemDef.name,
       rarity: itemDef.rarity || 'common',
+      category: itemDef.type,
       x,
       y,
     });
