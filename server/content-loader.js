@@ -247,6 +247,19 @@ class ContentLoader {
     if (!tileDef) return true;
     return tileDef.solid === true;
   }
+
+  // Check if a tile is suitable for monster spawning (not solid, not interactable, not an exit)
+  isSpawnable(dungeon, tileX, tileY) {
+    if (tileX < 0 || tileY < 0 || tileX >= dungeon.width || tileY >= dungeon.height) {
+      return false;
+    }
+    const tileId = dungeon.data[tileY * dungeon.width + tileX];
+    const tileset = this.tilesets[dungeon.tileset];
+    if (!tileset) return false;
+    const tileDef = tileset.tiles[String(tileId)];
+    if (!tileDef) return false;
+    return !tileDef.solid && !tileDef.interactable && !tileDef.exit;
+  }
 }
 
 module.exports = ContentLoader;

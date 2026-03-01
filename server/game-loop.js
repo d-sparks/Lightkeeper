@@ -165,6 +165,25 @@ class GameLoop {
     return room;
   }
 
+  // Find a nearby spawnable tile using a spiral search from the given tile position
+  findSpawnableTile(dungeon, tileX, tileY) {
+    if (this.content.isSpawnable(dungeon, tileX, tileY)) {
+      return { x: tileX, y: tileY };
+    }
+    // Search expanding rings up to 5 tiles away
+    for (let r = 1; r <= 5; r++) {
+      for (let dx = -r; dx <= r; dx++) {
+        for (let dy = -r; dy <= r; dy++) {
+          if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue; // Only ring perimeter
+          if (this.content.isSpawnable(dungeon, tileX + dx, tileY + dy)) {
+            return { x: tileX + dx, y: tileY + dy };
+          }
+        }
+      }
+    }
+    return null; // No valid tile found
+  }
+
   spawnMonsters(room) {
     if (!room.dungeon.monsterSpawns) return;
     const killed = this.killedMonsters.get(room.dungeonId);
@@ -178,13 +197,20 @@ class GameLoop {
         if (killed && killed.has(spawnKey)) continue;  // Stay dead
         const id = `mob_${room.nextMonsterId++}`;
         const offsetX = count > 1 ? (i - (count - 1) / 2) * 1.5 : 0;
+        const targetTileX = Math.floor(spawn.x + 0.5 + offsetX);
+        const targetTileY = spawn.y;
+        const validTile = this.findSpawnableTile(room.dungeon, targetTileX, targetTileY);
+        if (!validTile) {
+          console.warn(`[GameLoop] No valid spawn tile for ${spawn.type} near (${targetTileX}, ${targetTileY}), skipping`);
+          continue;
+        }
         room.monsters.set(id, {
           id,
           spawnKey,
           type: spawn.type,
           name: def.name,
-          x: (spawn.x + 0.5 + offsetX) * CONSTANTS.TILE_SIZE,
-          y: (spawn.y + 0.5) * CONSTANTS.TILE_SIZE,
+          x: (validTile.x + 0.5) * CONSTANTS.TILE_SIZE,
+          y: (validTile.y + 0.5) * CONSTANTS.TILE_SIZE,
           health: def.health,
           maxHealth: def.health,
           speed: def.speed,
