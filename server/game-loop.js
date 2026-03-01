@@ -428,7 +428,6 @@ class GameLoop {
     if (!room) return null;
     const player = room.players.get(playerId);
     room.players.delete(playerId);
-    this.questTracker.removePlayer(playerId);
     console.log(`[GameLoop] Player ${playerId} left room "${roomId}"`);
 
     // Clean up empty rooms (but keep the starting room)
