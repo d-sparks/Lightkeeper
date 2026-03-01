@@ -584,6 +584,30 @@
       font-size: 10px;
     }
 
+    .inv-detail-panel {
+      min-height: 40px;
+      padding: 8px 10px;
+      margin-top: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .inv-detail-panel:empty { border-color: transparent; }
+    .inv-detail-panel .detail-name {
+      font-size: 14px;
+      color: #ccc;
+    }
+    .inv-detail-panel .detail-desc {
+      font-size: 12px;
+      color: #888;
+    }
+    .inv-detail-panel .detail-stats {
+      font-size: 12px;
+      color: #66bb6a;
+    }
+
     /* Equipment slot redesign */
     .equip-slot-box {
       font-size: 16px;
@@ -612,7 +636,18 @@
       letter-spacing: 1px;
     }
 
+    .equip-slot-box .slot-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
     .equip-slot-box .slot-item-name { color: #ccc; }
+    .equip-slot-box .slot-item-stats {
+      font-size: 12px;
+      color: #888;
+      line-height: 1.3;
+    }
     .equip-slot-box .slot-empty-label { color: #444; font-style: italic; }
 
     .equip-slot-box .sol-open-tag {

@@ -1616,6 +1616,7 @@ class GameLoop {
             toDungeon: exit.leadsTo,
             spawnX: exit.spawnX != null ? exit.spawnX : null,
             spawnY: exit.spawnY != null ? exit.spawnY : null,
+            targetId: exit.targetId || null,
             exitX: exit.x,
             exitY: exit.y,
             depth: exit.depth,

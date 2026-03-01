@@ -442,6 +442,7 @@ wss.on('connection', (ws) => {
           playerId,
           map: welcomeMap,
           tileset: content.getTileset(room.dungeon.tileset),
+          itemCatalog: content.getAllItems(),
         }));
 
         // Send initial empty inventory and equipment
@@ -487,7 +488,10 @@ wss.on('connection', (ws) => {
 
       case CONSTANTS.MSG.INPUT: {
         if (ws.playerRoom) {
-          gameLoop.setPlayerInput(ws.playerRoom, playerId, msg.keys);
+          const input = msg.keys || {};
+          if (msg.dx !== undefined) input.dx = msg.dx;
+          if (msg.dy !== undefined) input.dy = msg.dy;
+          gameLoop.setPlayerInput(ws.playerRoom, playerId, input);
         }
         break;
       }
@@ -833,9 +837,16 @@ setInterval(() => {
     // Use the room's actual ID (may differ from t.toDungeon for procedural instances)
     const targetRoomId = targetRoom.id;
 
-    // If exit didn't specify spawnX/Y, use target dungeon's spawn points
+    // Resolve spawn position: targetId > spawnX/Y > first player_start > fallback (2,2)
     let spawnX = t.spawnX;
     let spawnY = t.spawnY;
+    if (t.targetId && targetRoom.dungeon.exits) {
+      const targetExit = targetRoom.dungeon.exits.find(e => e.id === t.targetId);
+      if (targetExit) {
+        spawnX = targetExit.x;
+        spawnY = targetExit.y;
+      }
+    }
     if (spawnX == null || spawnY == null) {
       const sp = (targetRoom.dungeon.spawns && targetRoom.dungeon.spawns[0]) || { x: 2, y: 2 };
       spawnX = sp.x;
