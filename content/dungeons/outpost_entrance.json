@@ -1205,6 +1205,24 @@
         }
       ],
       "once": true
+    },
+    {
+      "id": "outside_warning_no_sol",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "talked_to_warden" },
+        { "not": { "hasFlag": "received_sol_unit" } }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "A cold wind howls through the north gate. Beyond the outpost walls lies the dark perimeter — open ground with no light, no shelter.",
+            "You'll need a Sol Unit before heading out there. The Workshop engineer can set you up with one."
+          ]
+        }
+      ],
+      "once": true
     }
   ]
 }
