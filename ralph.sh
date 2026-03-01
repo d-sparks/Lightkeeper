@@ -139,6 +139,91 @@ Fix all merge conflicts in this repository. The rebase is already in progress.
 PROMPT
 }
 
+# ─── Run a TEMPLATE[pattern] loop ────────────────────────────
+# Expands a single task into multiple Claude runs, one per matching file.
+# Files are re-globbed each iteration so renamed/removed files drop out.
+run_template_loop() {
+  local worktree="$1"
+  local section="$2"
+  local pattern="$3"
+  local prompt_template="$4"
+  local num="$5"
+
+  local last_file=""
+  local iteration=0
+
+  while true; do
+    # Re-glob each iteration — files get renamed (e.g. CONTENT_001.md → DONE_CONTENT_001.md)
+    mapfile -t files < <(find "$worktree" -maxdepth 1 -name "$pattern" -not -name "DONE_*" | sort)
+
+    # No more matching files → done
+    if [[ ${#files[@]} -eq 0 ]]; then
+      echo "    No more files matching '${pattern}'. Template loop complete."
+      break
+    fi
+
+    local current_file
+    current_file="$(basename "${files[0]}")"
+
+    # Safeguard: same file twice in a row → Claude didn't rename it → abort
+    if [[ "$current_file" == "$last_file" ]]; then
+      local artifact="${worktree}/RALPH_LOOP_ERROR.md"
+      cat > "$artifact" <<ERRDOC
+# Ralph Template Loop Aborted
+
+## What happened
+The template loop for pattern \`${pattern}\` hit the same file twice in a row.
+
+**File:** \`${current_file}\`
+**Iteration:** ${iteration} (this was attempt #2 on this file)
+
+## Why this happens
+The template prompt is expected to rename or remove each file after processing
+(e.g., renaming \`CONTENT_001.md\` to \`DONE_CONTENT_001.md\`). If Claude fails
+to do this, the file matches the glob again on the next iteration.
+
+## What to do
+1. Check \`.claude-ralph-log-*.txt\` in the worktree for Claude's output
+2. Inspect \`${current_file}\` to see if it was partially processed
+3. Manually rename or remove the file and re-run
+ERRDOC
+      echo "    ABORT: File '${current_file}' matched twice in a row."
+      echo "    Error artifact: ${artifact}"
+      # Stage + commit the error artifact so it survives in the branch
+      (cd "$worktree" && git add RALPH_LOOP_ERROR.md && git commit -m "Ralph: template loop aborted on ${current_file}") || true
+      return 1
+    fi
+
+    last_file="$current_file"
+    iteration=$((iteration + 1))
+
+    # Substitute %T → filename in the prompt template
+    local task="${prompt_template//%T/$current_file}"
+
+    echo ""
+    echo "    ─── Template iteration #${iteration}: ${current_file} ───"
+
+    local prompt
+    prompt="$(build_prompt "$section" "$task")"
+
+    echo "    Running Claude (max ${MAX_TURNS} turns)..."
+    echo ""
+
+    local CLAUDE_ARGS=(--max-turns "$MAX_TURNS" --verbose)
+    if $YOLO; then
+      CLAUDE_ARGS+=(--dangerously-skip-permissions)
+    fi
+
+    (
+      cd "$worktree"
+      echo "$prompt" | claude "${CLAUDE_ARGS[@]}" \
+        2>&1 | tee "${worktree}/.claude-ralph-log-${num}-iter${iteration}.txt"
+    ) || {
+      echo "    Claude exited with non-zero status for iteration #${iteration}, continuing..."
+    }
+  done
+}
+
 # ─── Handle "Fix conflicts" section ──────────────────────────
 # Each task is a branch name. We check it out, rebase onto main,
 # and have Claude resolve any conflicts.
@@ -305,23 +390,35 @@ for section in "${SECTIONS[@]}"; do
     echo "  TODO #${num}: ${task:0:80}$([ ${#task} -gt 80 ] && echo '...')"
     echo "  ───────────────────────────────────────────────────"
 
-    prompt="$(build_prompt "$section" "$task")"
+    # ─── Check for TEMPLATE[pattern] task ──────────────────────
+    if [[ "$task" =~ ^TEMPLATE\[([^]]+)\]:\ (.+) ]]; then
+      template_pattern="${BASH_REMATCH[1]}"
+      template_prompt="${BASH_REMATCH[2]}"
 
-    echo "  Running Claude (max ${MAX_TURNS} turns)..."
-    echo ""
+      echo "  Template task: pattern='${template_pattern}'"
+      run_template_loop "$worktree_path" "$section" "$template_pattern" "$template_prompt" "$num" || {
+        echo "  Template loop failed for TODO #${num}. Check RALPH_LOOP_ERROR.md in worktree."
+      }
+    else
+      # ─── Normal single-shot task ──────────────────────────────
+      prompt="$(build_prompt "$section" "$task")"
 
-    CLAUDE_ARGS=(--max-turns "$MAX_TURNS" --verbose)
-    if $YOLO; then
-      CLAUDE_ARGS+=(--dangerously-skip-permissions)
+      echo "  Running Claude (max ${MAX_TURNS} turns)..."
+      echo ""
+
+      CLAUDE_ARGS=(--max-turns "$MAX_TURNS" --verbose)
+      if $YOLO; then
+        CLAUDE_ARGS+=(--dangerously-skip-permissions)
+      fi
+
+      (
+        cd "$worktree_path"
+        echo "$prompt" | claude "${CLAUDE_ARGS[@]}" \
+          2>&1 | tee "${worktree_path}/.claude-ralph-log-${num}.txt"
+      ) || {
+        echo "  Claude exited with non-zero status for TODO #${num}, continuing..."
+      }
     fi
-
-    (
-      cd "$worktree_path"
-      echo "$prompt" | claude "${CLAUDE_ARGS[@]}" \
-        2>&1 | tee "${worktree_path}/.claude-ralph-log-${num}.txt"
-    ) || {
-      echo "  Claude exited with non-zero status for TODO #${num}, continuing..."
-    }
   done
 
   # Check if there are any commits beyond base
