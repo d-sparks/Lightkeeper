@@ -836,9 +836,16 @@ setInterval(() => {
     // Use the room's actual ID (may differ from t.toDungeon for procedural instances)
     const targetRoomId = targetRoom.id;
 
-    // If exit didn't specify spawnX/Y, use target dungeon's spawn points
+    // Resolve spawn position: targetId > spawnX/Y > first player_start > fallback (2,2)
     let spawnX = t.spawnX;
     let spawnY = t.spawnY;
+    if (t.targetId && targetRoom.dungeon.exits) {
+      const targetExit = targetRoom.dungeon.exits.find(e => e.id === t.targetId);
+      if (targetExit) {
+        spawnX = targetExit.x;
+        spawnY = targetExit.y;
+      }
+    }
     if (spawnX == null || spawnY == null) {
       const sp = (targetRoom.dungeon.spawns && targetRoom.dungeon.spawns[0]) || { x: 2, y: 2 };
       spawnX = sp.x;

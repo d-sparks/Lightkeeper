@@ -882,7 +882,7 @@ function SpawnList({ dungeon, updateDungeon, onEditNPC, onEditItem }) {
     ...dungeon.monsterSpawns.map((s, i) => ({ ...s, _kind: 'monster', _i: i, _label: `${s.type} (${s.x},${s.y}) x${s.count}` })),
     ...dungeon.npcSpawns.map((s, i) => ({ ...s, _kind: 'npc', _i: i, _label: `${s.type} (${s.x},${s.y})` })),
     ...(dungeon.itemSpawns || []).map((s, i) => ({ ...s, _kind: 'item', _i: i, _label: `${s.type} (${s.x},${s.y})` })),
-    ...dungeon.exits.map((s, i) => ({ ...s, _kind: 'exit', _i: i, _label: `Exit→${s.leadsTo} (${s.x},${s.y})` })),
+    ...dungeon.exits.map((s, i) => ({ ...s, _kind: 'exit', _i: i, _label: `Exit${s.id ? ` [${s.id}]` : ''}→${s.leadsTo} (${s.x},${s.y})` })),
   ];
 
   const remove = (kind, idx) => {
@@ -1047,7 +1047,7 @@ function MovePanel({ dungeon, updateDungeon, selectedSpawn, setSelectedSpawn, on
 
   const kind = selectedSpawn.kind;
   const label = kind === 'spawn' ? 'Player Start'
-    : kind === 'exit' ? 'Exit / Stairs'
+    : kind === 'exit' ? `Exit${spawn.id ? ` [${spawn.id}]` : ''}`
     : kind === 'monster' ? `Monster: ${spawn.type}`
     : kind === 'npc' ? `NPC: ${spawn.type}`
     : kind === 'item' ? `Item: ${spawn.type}`
@@ -1076,8 +1076,16 @@ function MovePanel({ dungeon, updateDungeon, selectedSpawn, setSelectedSpawn, on
 
       ${kind === 'exit' && html`
         <div class="field">
+          <label>Exit ID <span style="color:var(--text-dim);font-weight:normal">(optional — lets other exits link here)</span></label>
+          <input value=${spawn.id || ''} onInput=${e => updateProp('id', e.target.value || undefined)} placeholder="e.g. north_door" />
+        </div>
+        <div class="field">
           <label>Leads To (dungeon ID)</label>
           <input value=${spawn.leadsTo || ''} onInput=${e => updateProp('leadsTo', e.target.value)} placeholder="e.g. crypt_02" />
+        </div>
+        <div class="field">
+          <label>Target Exit ID <span style="color:var(--text-dim);font-weight:normal">(spawn at this exit in target room)</span></label>
+          <input value=${spawn.targetId || ''} onInput=${e => updateProp('targetId', e.target.value || undefined)} placeholder="e.g. south_door" />
         </div>
         <div class="field">
           <label>Stair Type</label>
@@ -1086,13 +1094,13 @@ function MovePanel({ dungeon, updateDungeon, selectedSpawn, setSelectedSpawn, on
             <option value="stairs_up">stairs_up</option>
           </select>
         </div>
-        <div class="field-row">
+        <div class="field-row" style="opacity:${spawn.targetId ? 0.4 : 1}">
           <div class="field">
-            <label>Spawn X</label>
+            <label>Spawn X ${spawn.targetId ? '(overridden)' : ''}</label>
             <input type="number" value=${spawn.spawnX || 0} onInput=${e => updateProp('spawnX', Number(e.target.value))} min="0" />
           </div>
           <div class="field">
-            <label>Spawn Y</label>
+            <label>Spawn Y ${spawn.targetId ? '(overridden)' : ''}</label>
             <input type="number" value=${spawn.spawnY || 0} onInput=${e => updateProp('spawnY', Number(e.target.value))} min="0" />
           </div>
         </div>
@@ -1195,7 +1203,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
     if (dungeon.itemSpawns) {
       for (const s of dungeon.itemSpawns) drawMarker(s.x, s.y, SPAWN_COLORS.item, 'I');
     }
-    for (const s of dungeon.exits) drawMarker(s.x, s.y, SPAWN_COLORS.exit, 'E');
+    for (const s of dungeon.exits) drawMarker(s.x, s.y, SPAWN_COLORS.exit, s.id ? s.id[0].toUpperCase() : 'E');
 
     // Draw selection highlight for move tool
     if (selectedSpawn) {
