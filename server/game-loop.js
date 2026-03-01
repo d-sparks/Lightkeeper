@@ -1063,6 +1063,15 @@ class GameLoop {
     nearestMob.health -= damage;
     nearestMob.aggroTarget = player.id;
 
+    // Melee slash visual
+    const slashAngle = Math.atan2(nearestMob.y - player.y, nearestMob.x - player.x);
+    room.events.push({
+      type: 'melee_effect',
+      x: player.x, y: player.y,
+      angle: slashAngle,
+      range: range,
+    });
+
     room.events.push({
       type: 'damage', targetId: nearestMob.id,
       amount: damage, x: nearestMob.x, y: nearestMob.y,

@@ -84,6 +84,10 @@ class Renderer {
     this.coneEffects = [];
     this.coneGfx = null;
 
+    // Melee slash effect visuals
+    this.meleeEffects = [];
+    this.meleeGfx = null;
+
     // Spawn/exit graphics
     this.spawnGfx = null;
     this.exitGfx = null;
@@ -144,6 +148,10 @@ class Renderer {
     // Cone effect graphics
     this.coneGfx = new PIXI.Graphics();
     this.worldContainer.addChild(this.coneGfx);
+
+    // Melee slash effect graphics
+    this.meleeGfx = new PIXI.Graphics();
+    this.worldContainer.addChild(this.meleeGfx);
 
     // Click target indicator
     this.clickTargetGfx = new PIXI.Graphics();
@@ -921,6 +929,7 @@ class Renderer {
     this.renderMonsters();
     this.renderProjectiles();
     this.renderConeEffects();
+    this.renderMeleeEffects();
     this.renderPlayers();
     this.renderDoorPrompts();
     this.renderDamageNumbers();
@@ -1821,6 +1830,50 @@ class Renderer {
     });
   }
 
+  renderMeleeEffects() {
+    this.meleeGfx.clear();
+    const dt = 1 / 60;
+    this.meleeEffects = this.meleeEffects.filter(slash => {
+      slash.age += dt;
+      if (slash.age >= slash.maxAge) return false;
+
+      const t = slash.age / slash.maxAge; // 0..1
+      const fadeAlpha = 1.0 - t;
+
+      // Slash arc: 120-degree sweep centered on attack direction
+      const halfArc = Math.PI / 3; // 60 degrees each side
+      const startAngle = slash.angle - halfArc;
+      const endAngle = slash.angle + halfArc;
+
+      // Arc expands outward quickly
+      const expandT = Math.min(t / 0.4, 1.0);
+      const radius = slash.range * (0.4 + 0.6 * expandT);
+
+      const c = this.isoMode ? this.worldToIso(slash.x, slash.y) : { x: slash.x, y: slash.y };
+      const isoRadius = this.isoMode ? radius * 1.5 : radius;
+
+      // Thick bright slash arc
+      this.meleeGfx.lineStyle(4, 0xffffff, 0.9 * fadeAlpha);
+      this.meleeGfx.moveTo(
+        c.x + Math.cos(startAngle) * isoRadius,
+        c.y + Math.sin(startAngle) * isoRadius
+      );
+      this.meleeGfx.arc(c.x, c.y, isoRadius, startAngle, endAngle);
+      this.meleeGfx.lineStyle(0);
+
+      // Thin outer glow
+      this.meleeGfx.lineStyle(2, 0xb8975a, 0.5 * fadeAlpha);
+      this.meleeGfx.moveTo(
+        c.x + Math.cos(startAngle) * (isoRadius + 3),
+        c.y + Math.sin(startAngle) * (isoRadius + 3)
+      );
+      this.meleeGfx.arc(c.x, c.y, isoRadius + 3, startAngle, endAngle);
+      this.meleeGfx.lineStyle(0);
+
+      return true;
+    });
+  }
+
   // --- Damage numbers ---
 
   processEvents(events) {
@@ -1868,6 +1921,13 @@ class Renderer {
           coneAngle: (ev.coneAngle || 60) * (Math.PI / 180),
           range: ev.range,
           age: 0, maxAge: 0.4,
+        });
+      } else if (ev.type === 'melee_effect') {
+        this.meleeEffects.push({
+          x: ev.x, y: ev.y,
+          angle: ev.angle,
+          range: ev.range,
+          age: 0, maxAge: 0.2,
         });
       }
     }
