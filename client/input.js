@@ -186,10 +186,11 @@ class InputHandler {
       return;
     }
 
-    // Movement — also clears combat target
+    // Movement — also clears combat target (suppress while menu is open)
     const action = this.keyMap[e.key];
     if (action) {
       e.preventDefault();
+      if (this.menuOpen) return;
       this.combatTarget = null;
       this.clearMoveTarget();
       if (!this.keys[action]) {
@@ -915,6 +916,12 @@ class InputHandler {
       left:  nx < -threshold,
       right: nx > threshold,
     };
+    this.sendInput();
+  }
+
+  stopMovement() {
+    this.keys = { up: false, down: false, left: false, right: false };
+    this.clearMoveTarget();
     this.sendInput();
   }
 

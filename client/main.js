@@ -266,6 +266,7 @@
   function openMenu(tab) {
     menuOpen = true;
     input.menuOpen = true;
+    input.stopMovement();
     renderer.fullMap = false;
     characterMenu.style.display = 'block';
     switchTab(tab || 'equipment');
