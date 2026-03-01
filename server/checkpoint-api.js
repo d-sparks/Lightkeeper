@@ -695,6 +695,70 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
     }).catch(() => json(res, 400, { error: 'Invalid request' }));
   }
 
+  // --- List all item types (for give-item UI) ---
+  if (url === '/api/checkpoint/items' && method === 'GET') {
+    const items = content.getAllItems();
+    const result = [];
+    for (const [id, item] of Object.entries(items)) {
+      result.push({ id, name: item.name, type: item.type, rarity: item.rarity || 'common' });
+    }
+    result.sort((a, b) => a.name.localeCompare(b.name));
+    return json(res, 200, result);
+  }
+
+  // --- Give item to a player ---
+  if (url === '/api/checkpoint/give-item' && method === 'POST') {
+    return parseBody(req).then(body => {
+      const { playerId, itemType, count } = body;
+      if (!playerId || !itemType) return json(res, 400, { error: 'Missing playerId or itemType' });
+
+      const itemDef = content.getItem(itemType);
+      if (!itemDef) return json(res, 404, { error: 'Item type not found' });
+
+      // Find player
+      let ws = null;
+      wss.clients.forEach((client) => {
+        if (client.playerId === playerId && client.readyState === 1) ws = client;
+      });
+      if (!ws || !ws.playerRoom) return json(res, 404, { error: 'Player not found or not in a room' });
+
+      const room = gameLoop.getRoom(ws.playerRoom);
+      if (!room) return json(res, 404, { error: 'Room not found' });
+      const player = room.players.get(playerId);
+      if (!player) return json(res, 404, { error: 'Player not in room' });
+
+      const giveCount = Math.max(1, Math.floor(count || 1));
+
+      // Silicon goes to automation resources
+      if (itemType === 'silicon' && gameLoop.automation) {
+        gameLoop.automation.addResource(playerId, 'silicon', giveCount);
+        ws.send(JSON.stringify({
+          type: 'auto_state',
+          auto: gameLoop.automation.getStateForClient(playerId),
+        }));
+        return json(res, 200, { ok: true, item: itemDef.name, count: giveCount, destination: 'automation' });
+      }
+
+      for (let i = 0; i < giveCount; i++) {
+        player.inventory.push({
+          type: itemType,
+          name: itemDef.name,
+          rarity: itemDef.rarity || 'common',
+          category: itemDef.type || 'misc',
+        });
+      }
+
+      // Resync client inventory
+      ws.send(JSON.stringify({
+        type: 'inventory',
+        items: player.inventory,
+        equipment: player.equipment,
+      }));
+
+      return json(res, 200, { ok: true, item: itemDef.name, count: giveCount });
+    }).catch(() => json(res, 400, { error: 'Invalid request' }));
+  }
+
   return false;
 }
 
