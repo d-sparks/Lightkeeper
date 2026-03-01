@@ -154,15 +154,19 @@ class QuestTracker {
       if (!state || !quest) return null;
       for (const stepId of state.activeSteps) {
         const stepDef = quest.steps[stepId];
-        if (stepDef && stepDef.objective) {
-          return {
+        if (stepDef && (stepDef.objective || stepDef.objectiveItem)) {
+          const obj = {
             questId,
             questName: quest.name,
             label: stepDef.label,
-            roomId: stepDef.objective.roomId,
-            tileX: stepDef.objective.tileX,
-            tileY: stepDef.objective.tileY,
+            roomId: stepDef.objective ? stepDef.objective.roomId : null,
+            tileX: stepDef.objective ? stepDef.objective.tileX : 0,
+            tileY: stepDef.objective ? stepDef.objective.tileY : 0,
           };
+          if (stepDef.objectiveItem) {
+            obj.objectiveItem = stepDef.objectiveItem;
+          }
+          return obj;
         }
       }
       return null;

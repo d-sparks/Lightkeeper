@@ -474,6 +474,23 @@ class GameLoop {
     return null;
   }
 
+  // Find a ground item by type across all active rooms.
+  // Returns { roomId, tileX, tileY } or null.
+  _findItemInRooms(itemType) {
+    for (const [roomId, room] of this.rooms) {
+      for (const [, item] of room.items) {
+        if (item.type === itemType) {
+          return {
+            roomId,
+            tileX: Math.floor(item.x / CONSTANTS.TILE_SIZE),
+            tileY: Math.floor(item.y / CONSTANTS.TILE_SIZE),
+          };
+        }
+      }
+    }
+    return null;
+  }
+
   // Send quest objective to a player, resolving exit coordinates if needed
   _sendQuestObjective(playerId, currentRoomId) {
     const room = this.rooms.get(currentRoomId);
@@ -493,13 +510,25 @@ class GameLoop {
     }
 
     const obj = player.questObjective;
+    let targetRoomId = obj.roomId;
     let tileX = obj.tileX;
     let tileY = obj.tileY;
-    let sameRoom = (currentRoomId === obj.roomId);
 
-    if (!sameRoom) {
+    // Resolve objectiveItem: find the item's actual location in active rooms
+    if (obj.objectiveItem) {
+      const itemLoc = this._findItemInRooms(obj.objectiveItem);
+      if (itemLoc) {
+        targetRoomId = itemLoc.roomId;
+        tileX = itemLoc.tileX;
+        tileY = itemLoc.tileY;
+      }
+    }
+
+    let sameRoom = (currentRoomId === targetRoomId);
+
+    if (!sameRoom && targetRoomId) {
       // Find exit toward target room
-      const exit = this._resolveExitToward(currentRoomId, obj.roomId);
+      const exit = this._resolveExitToward(currentRoomId, targetRoomId);
       if (exit) {
         tileX = exit.tileX;
         tileY = exit.tileY;
