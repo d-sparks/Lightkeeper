@@ -147,17 +147,26 @@
 
   // --- Choice menu state ---
   let choiceActive = false;
+  let choiceSelectedIndex = 0;
+  let currentChoiceId = null;
+  let currentChoiceOptions = [];
 
   function showChoiceMenu(choiceId, prompt, options) {
     closeDialogue();
     closeMenu();
     choiceActive = true;
     input.dialogueActive = true;
+    input.choiceActive = true;
+    currentChoiceId = choiceId;
+    currentChoiceOptions = options;
+    choiceSelectedIndex = 0;
     choicePrompt.textContent = prompt;
     choiceOptions.innerHTML = '';
-    for (const opt of options) {
+    for (let i = 0; i < options.length; i++) {
+      const opt = options[i];
       const div = document.createElement('div');
       div.className = 'choice-option';
+      if (i === 0) div.classList.add('choice-selected');
       const label = document.createElement('div');
       label.className = 'choice-label';
       label.textContent = opt.label;
@@ -178,9 +187,40 @@
     choiceOverlay.style.display = 'block';
   }
 
+  function updateChoiceSelection() {
+    const items = choiceOptions.querySelectorAll('.choice-option');
+    items.forEach((el, i) => {
+      el.classList.toggle('choice-selected', i === choiceSelectedIndex);
+    });
+  }
+
+  function navigateChoice(dir) {
+    if (!choiceActive || currentChoiceOptions.length === 0) return;
+    if (dir === 'up') {
+      choiceSelectedIndex = (choiceSelectedIndex - 1 + currentChoiceOptions.length) % currentChoiceOptions.length;
+    } else if (dir === 'down') {
+      choiceSelectedIndex = (choiceSelectedIndex + 1) % currentChoiceOptions.length;
+    }
+    updateChoiceSelection();
+    audio.play('dialogue_advance');
+  }
+
+  function confirmChoice() {
+    if (!choiceActive || currentChoiceOptions.length === 0) return;
+    const opt = currentChoiceOptions[choiceSelectedIndex];
+    if (opt) {
+      net.send({ type: CONSTANTS.MSG.CHOICE_SELECT, choiceId: currentChoiceId, value: opt.value });
+      audio.play('choice_select');
+      closeChoiceMenu();
+    }
+  }
+
   function closeChoiceMenu() {
     choiceActive = false;
     input.dialogueActive = false;
+    input.choiceActive = false;
+    currentChoiceId = null;
+    currentChoiceOptions = [];
     choiceOverlay.style.display = 'none';
   }
 
@@ -984,6 +1024,7 @@
 
   // --- Interact dispatch ---
   input.onInteract = function () {
+    if (choiceActive) { confirmChoice(); return; }
     if (dialogueActive) { advanceDialogue(); return; }
     if (menuOpen) { closeMenu(); return; }
     net.send({ type: CONSTANTS.MSG.INTERACT });
@@ -1021,6 +1062,14 @@
 
   input.onMenuClose = function () {
     closeMenu();
+  };
+
+  input.onChoiceNavigate = function (dir) {
+    navigateChoice(dir);
+  };
+
+  input.onChoiceConfirm = function () {
+    confirmChoice();
   };
 
   // --- Join flow ---
