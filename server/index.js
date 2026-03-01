@@ -775,6 +775,7 @@ wss.on('connection', (ws) => {
     console.log(`[WS] Client disconnected: ${playerId}`);
     if (ws.playerRoom) {
       gameLoop.removePlayer(ws.playerRoom, playerId);
+      gameLoop.questTracker.removePlayer(playerId);
       broadcast(ws.playerRoom, {
         type: CONSTANTS.MSG.PLAYER_LEAVE,
         playerId,

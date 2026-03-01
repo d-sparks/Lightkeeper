@@ -428,7 +428,6 @@ class GameLoop {
     if (!room) return null;
     const player = room.players.get(playerId);
     room.players.delete(playerId);
-    this.questTracker.removePlayer(playerId);
     console.log(`[GameLoop] Player ${playerId} left room "${roomId}"`);
 
     // Clean up empty rooms (but keep the starting room)
@@ -551,6 +550,34 @@ class GameLoop {
     }
 
     let sameRoom = (currentRoomId === targetRoomId);
+
+    // For procedural template objectives (e.g. roomId="proc_quarantine", depth=3),
+    // check if the player is in a generated instance of that template
+    if (!sameRoom && obj.depth != null && room.dungeon.depth != null
+        && currentRoomId.startsWith('proc:' + obj.roomId + ':')) {
+      if (room.dungeon.depth === obj.depth) {
+        sameRoom = true;
+        if (obj.targetTile != null) {
+          // Scan tile data for specific tile (e.g. a chest)
+          const d = room.dungeon;
+          for (let i = 0; i < d.data.length; i++) {
+            if (d.data[i] === obj.targetTile) {
+              tileX = i % d.width;
+              tileY = Math.floor(i / d.width);
+              break;
+            }
+          }
+        } else {
+          // Find a monster to point at
+          for (const mob of room.monsters.values()) {
+            tileX = Math.floor(mob.x / CONSTANTS.TILE_SIZE);
+            tileY = Math.floor(mob.y / CONSTANTS.TILE_SIZE);
+            break; // Use first monster as fallback target
+          }
+        }
+      }
+      // Otherwise player is on a different depth — BFS will find the descent exit
+    }
 
     if (!sameRoom && targetRoomId) {
       // Find exit toward target room

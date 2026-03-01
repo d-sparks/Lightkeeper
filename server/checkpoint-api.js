@@ -406,7 +406,6 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
       }
 
       // Set flags BEFORE room transition so room_entered triggers see them
-      // (removePlayer clears quest state but NOT flags)
       gameLoop.flagStore.playerFlags.set(playerId, {});
       for (const [flag, value] of Object.entries(flagsToSet)) {
         gameLoop.flagStore.setPlayerFlag(playerId, flag, value);
@@ -439,7 +438,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
         player.y = spawnY;
       }
 
-      // Set quest state AFTER room transition (removePlayer deletes quest state)
+      // Reset quest state to match the target step
       gameLoop.questTracker.initPlayer(playerId);
       const questState = {
         _trackedQuestId: questId,
