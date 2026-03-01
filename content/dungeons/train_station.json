@@ -80,6 +80,17 @@
         { "type": "setFlag", "flag": "traded_umbracite_meridian" }
       ],
       "once": true
+    },
+    {
+      "id": "meridian_open_automation",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7" },
+      "conditions": [
+        { "hasFlag": "traded_umbracite_meridian" }
+      ],
+      "actions": [
+        { "type": "openAutomation" }
+      ]
     }
   ]
 }

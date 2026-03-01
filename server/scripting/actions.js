@@ -19,6 +19,7 @@
 //   { type: "toggleTile",   x: 5, y: 3 }
 //   { type: "showChoice",  choiceId: "weapon_choice", prompt: "Choose:", options: [{label, description, value}] }
 //   { type: "giveStructure", structureId: "solar_panel" }
+//   { type: "openAutomation" }
 
 const CONSTANTS = require('../../shared/constants');
 
@@ -96,6 +97,9 @@ class ActionExecutor {
         break;
       case 'giveStructure':
         this.doGiveStructure(action, context);
+        break;
+      case 'openAutomation':
+        this.doOpenAutomation(action, context);
         break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
@@ -413,6 +417,15 @@ class ActionExecutor {
         auto: this.automation.getStateForClient(context.playerId),
       });
     }
+  }
+
+  doOpenAutomation(action, context) {
+    if (!this.automation || !this.sendToPlayer) return;
+    this.sendToPlayer(context.playerId, {
+      type: CONSTANTS.MSG.AUTO_STATE,
+      auto: this.automation.getStateForClient(context.playerId),
+      openScreen: true,
+    });
   }
 
   doToggleTile(action, context) {

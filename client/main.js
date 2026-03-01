@@ -32,6 +32,7 @@
   const choicePrompt = document.getElementById('choice-prompt');
   const choiceOptions = document.getElementById('choice-options');
   const autoPanelContent = document.getElementById('auto-panel-content');
+  const automationOverlay = document.getElementById('automation-overlay');
 
   const soundBtn = document.getElementById('sound-btn');
 
@@ -252,6 +253,8 @@
 
   // Automation state
   let autoState = null;
+  let automationScreenOpen = false;
+  let automationSelectedStructure = null; // structureId selected for placement
 
   // --- Unified character menu state ---
   let menuOpen = false;
@@ -471,6 +474,347 @@
     }
 
     updateCursorHighlight();
+  }
+
+  // --- Automation full-screen overlay ---
+  function openAutomationScreen() {
+    if (automationScreenOpen) return;
+    automationScreenOpen = true;
+    input.dialogueActive = true;
+    closeMenu();
+    closeDialogue();
+    automationSelectedStructure = null;
+    renderAutomationScreen();
+    automationOverlay.style.display = 'block';
+  }
+
+  function closeAutomationScreen() {
+    if (!automationScreenOpen) return;
+    automationScreenOpen = false;
+    input.dialogueActive = false;
+    automationOverlay.style.display = 'none';
+    automationSelectedStructure = null;
+  }
+
+  function renderAutomationScreen() {
+    if (!autoState) return;
+    automationOverlay.innerHTML = '';
+
+    const screen = document.createElement('div');
+    screen.className = 'auto-screen';
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'auto-screen-header';
+    const title = document.createElement('div');
+    title.className = 'auto-screen-title';
+    title.textContent = 'Solar Array Command';
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'auto-screen-close';
+    closeBtn.textContent = '[ESC] Close';
+    closeBtn.addEventListener('click', closeAutomationScreen);
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    screen.appendChild(header);
+
+    // Progress bar
+    if (autoState.stats) {
+      const prog = document.createElement('div');
+      prog.className = 'auto-progress';
+      const progLabel = document.createElement('div');
+      progLabel.className = 'auto-progress-label';
+      progLabel.textContent = autoState.stats.automationLevelName || 'None';
+      const progBar = document.createElement('div');
+      progBar.className = 'auto-progress-bar';
+      const progFill = document.createElement('div');
+      progFill.className = 'auto-progress-fill';
+      progFill.style.width = (autoState.stats.automationProgress * 100) + '%';
+      progBar.appendChild(progFill);
+      const progText = document.createElement('div');
+      progText.className = 'auto-progress-text';
+      if (autoState.stats.automationLevel > 0 && autoState.stats.automationProgress < 1) {
+        progText.textContent = 'Level ' + autoState.stats.automationLevel +
+          ' \u2014 ' + autoState.stats.totalStructures + '/' + autoState.stats.nextThreshold + ' to next level';
+      } else if (autoState.stats.automationProgress >= 1) {
+        progText.textContent = 'Level ' + autoState.stats.automationLevel + ' \u2014 Max level reached';
+      } else {
+        progText.textContent = 'Place your first structure to begin';
+      }
+      prog.appendChild(progLabel);
+      prog.appendChild(progBar);
+      prog.appendChild(progText);
+      screen.appendChild(prog);
+    }
+
+    // Body: grid + sidebar
+    const body = document.createElement('div');
+    body.className = 'auto-body';
+
+    // Grid area
+    const gridArea = document.createElement('div');
+    gridArea.className = 'auto-grid-area';
+
+    if (autoState.grid) {
+      const grid = document.createElement('div');
+      grid.className = 'auto-grid';
+      grid.style.gridTemplateColumns = 'repeat(' + autoState.grid.width + ', 38px)';
+
+      // Build lookup sets for quick access
+      const blockedSet = new Set();
+      for (const b of (autoState.grid.blocked || [])) {
+        blockedSet.add(b.y * autoState.grid.width + b.x);
+      }
+      const preBuiltMap = new Map();
+      for (const pb of (autoState.grid.preBuilt || [])) {
+        preBuiltMap.set(pb.y * autoState.grid.width + pb.x, pb);
+      }
+      const placementMap = new Map();
+      for (const p of (autoState.grid.placements || [])) {
+        placementMap.set(p.y * autoState.grid.width + p.x, p);
+      }
+
+      // Structure lookup for icons/colors
+      const structDefs = {};
+      for (const s of (autoState.structures || [])) {
+        structDefs[s.id] = s;
+      }
+
+      for (let cy = 0; cy < autoState.grid.height; cy++) {
+        for (let cx = 0; cx < autoState.grid.width; cx++) {
+          const idx = cy * autoState.grid.width + cx;
+          const cell = document.createElement('div');
+          cell.className = 'auto-grid-cell';
+          cell.dataset.gx = cx;
+          cell.dataset.gy = cy;
+
+          const placement = placementMap.get(idx);
+          const preBuilt = preBuiltMap.get(idx);
+          const isBlocked = blockedSet.has(idx);
+
+          if (placement) {
+            // Player-placed structure
+            cell.classList.add('placed');
+            const def = structDefs[placement.structureId];
+            if (def) {
+              cell.textContent = def.gridIcon || '?';
+              cell.style.color = def.gridColor || '#888';
+              cell.style.background = 'rgba(255, 167, 38, 0.08)';
+              cell.title = def.name;
+            }
+            cell.addEventListener('click', () => {
+              // Show structure info (future: allow removal)
+            });
+          } else if (preBuilt) {
+            // Array infrastructure
+            cell.classList.add('prebuilt');
+            cell.textContent = '\u25a0';
+            cell.title = preBuilt.label;
+          } else if (isBlocked) {
+            // Wall / non-buildable
+            cell.classList.add('blocked');
+          } else {
+            // Buildable empty cell
+            cell.classList.add('buildable');
+            if (automationSelectedStructure) {
+              const selDef = structDefs[automationSelectedStructure];
+              const canAfford = selDef && Object.entries(selDef.cost).every(
+                ([r, amt]) => (autoState.resources[r] || 0) >= amt
+              );
+              const isMaxed = selDef && selDef.maxCount > 0 && selDef.count >= selDef.maxCount;
+              if (canAfford && !isMaxed) {
+                cell.classList.add('can-build');
+                cell.addEventListener('click', () => {
+                  net.send({
+                    type: CONSTANTS.MSG.AUTO_BUILD,
+                    structureId: automationSelectedStructure,
+                    gridX: cx,
+                    gridY: cy,
+                  });
+                });
+              }
+            }
+          }
+
+          grid.appendChild(cell);
+        }
+      }
+
+      gridArea.appendChild(grid);
+    }
+
+    // Build palette
+    const palette = document.createElement('div');
+    palette.className = 'auto-build-palette';
+    const palTitle = document.createElement('div');
+    palTitle.className = 'auto-palette-title';
+    palTitle.textContent = 'Build';
+    palette.appendChild(palTitle);
+
+    const palItems = document.createElement('div');
+    palItems.className = 'auto-palette-items';
+
+    for (const s of (autoState.structures || [])) {
+      const item = document.createElement('div');
+      item.className = 'auto-palette-item';
+      const isMaxed = s.maxCount > 0 && s.count >= s.maxCount;
+      const canAfford = Object.entries(s.cost).every(
+        ([r, amt]) => (autoState.resources[r] || 0) >= amt
+      );
+
+      if (isMaxed) item.classList.add('maxed');
+      else if (!canAfford) item.classList.add('cant-afford');
+      if (automationSelectedStructure === s.id) item.classList.add('selected');
+
+      const icon = document.createElement('span');
+      icon.className = 'auto-palette-icon';
+      icon.textContent = s.gridIcon || '?';
+      icon.style.color = s.gridColor || '#888';
+
+      const name = document.createElement('span');
+      name.textContent = s.name;
+
+      const costStr = Object.entries(s.cost).map(([r, amt]) => amt + '\u26cf').join(' ');
+      const cost = document.createElement('span');
+      cost.className = 'auto-palette-cost';
+      cost.textContent = costStr;
+
+      const count = document.createElement('span');
+      count.className = 'auto-palette-count';
+      count.textContent = s.count + (s.maxCount > 0 ? '/' + s.maxCount : '');
+
+      item.appendChild(icon);
+      item.appendChild(name);
+      item.appendChild(cost);
+      item.appendChild(count);
+
+      if (!isMaxed) {
+        item.addEventListener('click', () => {
+          automationSelectedStructure = (automationSelectedStructure === s.id) ? null : s.id;
+          renderAutomationScreen();
+        });
+      }
+
+      palItems.appendChild(item);
+    }
+    palette.appendChild(palItems);
+
+    const hint = document.createElement('div');
+    hint.className = 'auto-build-hint';
+    hint.textContent = automationSelectedStructure
+      ? 'Click an empty grid cell to place'
+      : 'Select a structure above, then click the grid to place it';
+    palette.appendChild(hint);
+
+    gridArea.appendChild(palette);
+    body.appendChild(gridArea);
+
+    // Sidebar
+    const sidebar = document.createElement('div');
+    sidebar.className = 'auto-sidebar';
+
+    // Resources section
+    const resSection = document.createElement('div');
+    resSection.className = 'auto-sidebar-section';
+    const resTitle = document.createElement('div');
+    resTitle.className = 'auto-sidebar-title';
+    resTitle.textContent = 'Resources';
+    resSection.appendChild(resTitle);
+
+    const siliconRow = document.createElement('div');
+    siliconRow.className = 'auto-stat-row';
+    siliconRow.innerHTML = '\u26cf Silicon: <span class="stat-value">' +
+      (autoState.resources.silicon || 0) + '</span>';
+    resSection.appendChild(siliconRow);
+
+    if (autoState.stats) {
+      if (autoState.stats.siliconPerMinute > 0) {
+        const rateRow = document.createElement('div');
+        rateRow.className = 'auto-stat-row';
+        rateRow.innerHTML = '\u25b8 <span class="stat-value">+' +
+          autoState.stats.siliconPerMinute.toFixed(1) + '</span>/min';
+        resSection.appendChild(rateRow);
+      }
+      if (autoState.stats.totalSiliconProduced > 0) {
+        const totalRow = document.createElement('div');
+        totalRow.className = 'auto-stat-row';
+        totalRow.innerHTML = '\u25b8 ' + autoState.stats.totalSiliconProduced +
+          ' total<span class="stat-sub">harvested</span>';
+        resSection.appendChild(totalRow);
+      }
+      if (autoState.stats.energyRegenPerSecond > 0) {
+        const energyRow = document.createElement('div');
+        energyRow.className = 'auto-stat-row';
+        energyRow.innerHTML = '\u26a1 Energy: <span class="stat-value">+' +
+          autoState.stats.energyRegenPerSecond.toFixed(1) + '/s</span>';
+        resSection.appendChild(energyRow);
+
+        // Count solar panels
+        const panelCount = (autoState.structures || []).find(s => s.id === 'solar_panel');
+        if (panelCount && panelCount.count > 0) {
+          const panelRow = document.createElement('div');
+          panelRow.className = 'auto-stat-row';
+          panelRow.innerHTML = '\u25b8 ' + panelCount.count + ' panel' +
+            (panelCount.count !== 1 ? 's' : '') + ' active';
+          resSection.appendChild(panelRow);
+        }
+      }
+    }
+    sidebar.appendChild(resSection);
+
+    // Trades section
+    if (autoState.trades && autoState.trades.length > 0) {
+      const tradeSection = document.createElement('div');
+      tradeSection.className = 'auto-sidebar-section';
+      const tradeTitle = document.createElement('div');
+      tradeTitle.className = 'auto-sidebar-title';
+      tradeTitle.textContent = 'MERIDIAN-7 Trades';
+      tradeSection.appendChild(tradeTitle);
+
+      for (const t of autoState.trades) {
+        const row = document.createElement('div');
+        row.className = 'auto-trade-row';
+        const canAfford = Object.entries(t.cost).every(
+          ([r, amt]) => (autoState.resources[r] || 0) >= amt
+        );
+        if (!canAfford) row.classList.add('cant-afford');
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = t.name;
+        const costSpan = document.createElement('span');
+        costSpan.className = 'auto-trade-cost';
+        costSpan.textContent = Object.entries(t.cost).map(
+          ([r, amt]) => amt + '\u26cf'
+        ).join(' ');
+
+        row.appendChild(nameSpan);
+        row.appendChild(costSpan);
+
+        if (canAfford) {
+          row.addEventListener('click', () => {
+            net.send({ type: CONSTANTS.MSG.AUTO_TRADE, tradeId: t.id });
+          });
+        }
+        tradeSection.appendChild(row);
+      }
+      sidebar.appendChild(tradeSection);
+    }
+
+    body.appendChild(sidebar);
+    screen.appendChild(body);
+    automationOverlay.appendChild(screen);
+  }
+
+  // Flash a grid cell after build attempt
+  function flashAutomationCell(gridX, gridY, success) {
+    if (!automationScreenOpen) return;
+    const cell = automationOverlay.querySelector(
+      '.auto-grid-cell[data-gx="' + gridX + '"][data-gy="' + gridY + '"]'
+    );
+    if (!cell) return;
+    cell.classList.add(success ? 'flash-success' : 'flash-fail');
+    setTimeout(() => {
+      cell.classList.remove('flash-success', 'flash-fail');
+    }, 400);
   }
 
   // --- Quest panel ---
@@ -1043,6 +1387,7 @@
   // --- Interact dispatch ---
   input.onInteract = function () {
     if (choiceActive) { confirmChoice(); return; }
+    if (automationScreenOpen) { closeAutomationScreen(); return; }
     if (dialogueActive) { advanceDialogue(); return; }
     if (menuOpen) { closeMenu(); return; }
     net.send({ type: CONSTANTS.MSG.INTERACT });
@@ -1079,6 +1424,7 @@
   };
 
   input.onMenuClose = function () {
+    if (automationScreenOpen) { closeAutomationScreen(); return; }
     closeMenu();
   };
 
@@ -1219,9 +1565,10 @@
     renderer.setMap(msg.map, msg.tileset);
     renderer.fullMap = false;
     input.clearMoveTarget();
-    // Close any open dialogue or choice menu
+    // Close any open dialogue, choice menu, or automation screen
     closeDialogue();
     closeChoiceMenu();
+    closeAutomationScreen();
     audio.play('floor_change');
     // Switch music based on room name
     const roomName = (msg.map.name || '').toLowerCase();
@@ -1306,6 +1653,19 @@
 
   net.on(CONSTANTS.MSG.AUTO_STATE, (msg) => {
     autoState = msg.auto || null;
+
+    // Handle build result flash animation
+    if (msg.buildResult && msg.buildX !== undefined) {
+      flashAutomationCell(msg.buildX, msg.buildY, msg.buildResult === 'success');
+    }
+
+    // Open full-screen automation overlay if server says so
+    if (msg.openScreen) {
+      openAutomationScreen();
+    } else if (automationScreenOpen) {
+      renderAutomationScreen();
+    }
+
     if (menuOpen && menuTab === 'auto') renderAutoTab();
   });
 
