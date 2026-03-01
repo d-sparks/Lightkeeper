@@ -534,6 +534,13 @@
     });
   });
 
+  // Close button click handler
+  const closeHint = document.querySelector('#character-menu .inv-hint');
+  if (closeHint) {
+    closeHint.style.cursor = 'pointer';
+    closeHint.addEventListener('click', () => closeMenu());
+  }
+
   function updateActionBar() {
     for (let i = 0; i < 6; i++) {
       const slotNum = i + 1;
