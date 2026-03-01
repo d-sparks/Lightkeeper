@@ -14,18 +14,26 @@
 
 - There should be a worldmap - ideally traversable by foot or by craft to give an open world feel.
 
-- There are three progression systems: (1) the main one is your sol unit / sol grid. (2) the second one is the automation loop. (3) you also level up and get skill points in passives and allow holding higher level gear/mods, just to make it worth it to engage in combat rather than skating past foes.
+- There are three progression systems: (1) the main one is your sol unit / sol grid. (2) the second one is the automation loop. (3) you also level up and get skill points in passives and allow holding higher level gear/mods, just to make it worth it to engage in combat rather than skating past foes, but also this third progression system has three specializations which ultimately unlock: best DPS abilities/mods, best healer/caster mods, or summoner mods where you can have two AI companions/minions.
 
 - You harvest something nightside by dungeon crawling that you trade to the dayside for your abilities. That "trade" interface should only have these abilities and upgraded versions of those abilities. This is the "skill tree" which should be the most exciting part of the early game. It should be clear that you can unlock this in a linear fashion by progressing through the dungeon crawling side of the game.
 
 - Modifiers are random drops which can dramatically change your efficacy but not your ability tree.
 
-- QUESTION: Do we want playable combat content in the habitable zone? If so, what is the tension / who are we fighting there? Beasts maybe? 
+- The habitable zone will be safe by default, no foes really. Except maybe in story arcs, if too many lighthouses go down or MERIDIAN-7 eventually invades. This will be like the tower in Destiny. You'll go there early game and do your trading for consumables.
 
-- QUESTION: Do we want off-planet content? I.e. where we'd go for uranium? I think we should design a rough sketch of this so that either we have it for lore or if we think we don't have enough content we can add it to the game. Very likely endgame automation will be getting us uranium from off planet, question is whether we ourselves can go there yet or not.
+- I want the automation loop to (a) gate which trade tiers are available (b) give you consumables that fuel your dungeon crawls e.g. non-rechargeable batteries.
 
-- QUESTION: What is the ultimate enemy we need to defeat? Starts by seeming like the luddites ends up being...?
+- Off planet mining of uranium will be a known, expensive thing. Late game automation will access it. Off planet dungeon crawling would be a DLC, expansion, or sequel.
 
-- BIGGEST QUESTION 1: Exactly what is the automation and gameplay loop like? To what extent do we synchronize progress between them? How do we punctuate the two so that (a) you're compelled to do both, (b) you feel like you're free to choose which to focus on, and (c) it feels natural/good to go back and forth between them. Stardew is the shining example here where you can choose to farm a little and dungeon crawl a little every day, focus just on one, or focus just on the other. How do we get something that feels as good here?  [ I guess resource gathering should start out as a manual process? ]
+- The main gameplay loop in the early to mid game: harvest materials --> manage automations, craft consumables like single-use batteries, dungeon crawl as far as you can on your consumables, loop. Automation slowly replaces manual harvesting.
 
-- BIGGEST QUESTION 2: What is the automation loop like. How does it start, how does it progress, what does it give you.
+- Definitely the stuff you mine on the nightside is traded for your main abilities from the array.
+
+- Once the gameplay loop really starts: you login to the game, you're at your plot. There will always be enough resources you can manually mine there to make a couple of single use batteries, which can help you get started on any quest. You'll take care of business there (automation, farming, crafting), then head to your next quest by train (later craft?).
+
+- TAKING SHAPE: 
+
+QUESTION: How soon do you get umbracite, which unlocks automation? Or does it give you your first major new ability?
+
+QUESTION: Exactly how does it start.
