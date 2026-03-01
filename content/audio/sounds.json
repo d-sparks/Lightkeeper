@@ -49,11 +49,11 @@
   },
 
   "pickup": {
-    "volume": 0.35,
-    "duration": 0.15,
+    "volume": 0.12,
+    "duration": 0.1,
     "layers": [
-      { "wave": "square", "freq": 600, "freqEnd": 900, "attack": 0.005, "decay": 0.04, "sustain": 0.3, "release": 0.05 },
-      { "wave": "square", "freq": 900, "freqEnd": 1200, "delay": 0.06, "attack": 0.005, "decay": 0.04, "sustain": 0.2, "release": 0.04 }
+      { "wave": "sine", "freq": 600, "freqEnd": 800, "attack": 0.005, "decay": 0.03, "sustain": 0.15, "release": 0.04 },
+      { "wave": "sine", "freq": 800, "freqEnd": 1000, "delay": 0.04, "attack": 0.005, "decay": 0.03, "sustain": 0.1, "release": 0.03 }
     ]
   },
 

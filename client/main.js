@@ -1569,7 +1569,6 @@
     closeDialogue();
     closeChoiceMenu();
     closeAutomationScreen();
-    audio.play('floor_change');
     // Switch music based on room name
     const roomName = (msg.map.name || '').toLowerCase();
     if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
