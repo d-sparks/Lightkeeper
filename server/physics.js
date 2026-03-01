@@ -15,19 +15,26 @@ class Physics {
     let dx = 0;
     let dy = 0;
 
-    if (player.input.up)    dy -= 1;
-    if (player.input.down)  dy += 1;
-    if (player.input.left)  dx -= 1;
-    if (player.input.right) dx += 1;
+    // Prefer analog dx/dy for omnidirectional movement (joystick, gamepad, click-to-move)
+    if (player.input.dx != null && player.input.dy != null &&
+        (player.input.dx !== 0 || player.input.dy !== 0)) {
+      dx = player.input.dx;
+      dy = player.input.dy;
+    } else {
+      // Fall back to 8-directional from boolean keys (keyboard)
+      if (player.input.up)    dy -= 1;
+      if (player.input.down)  dy += 1;
+      if (player.input.left)  dx -= 1;
+      if (player.input.right) dx += 1;
+    }
 
-    // Normalize diagonal movement
-    if (dx !== 0 && dy !== 0) {
-      const len = Math.sqrt(dx * dx + dy * dy);
+    // Normalize so speed is consistent regardless of direction/magnitude
+    const len = Math.sqrt(dx * dx + dy * dy);
+    if (len === 0) return;
+    if (len > 1) {
       dx /= len;
       dy /= len;
     }
-
-    if (dx === 0 && dy === 0) return;
 
     // Move to desired position, then resolve overlaps with solid tiles
     player.x += dx * speed;

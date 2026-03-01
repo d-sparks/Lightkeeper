@@ -62,7 +62,13 @@ class InputHandler {
     this.gamepadIndex = null;
     this.gamepadPrevButtons = [];
     this.gamepadKeys = { up: false, down: false, left: false, right: false };
+    this.gamepadDX = 0;  // analog stick values for omnidirectional movement
+    this.gamepadDY = 0;
     this.menuNavTimer = 0;  // throttle stick navigation in menus
+
+    // Click-to-move analog direction
+    this.moveDX = 0;
+    this.moveDY = 0;
 
     // Key mappings
     this.keyMap = {
@@ -483,6 +489,8 @@ class InputHandler {
       this.gamepadIndex = null;
       this.gamepadPrevButtons = [];
       this.gamepadKeys = { up: false, down: false, left: false, right: false };
+      this.gamepadDX = 0;
+      this.gamepadDY = 0;
       this.sendInput();
     });
 
@@ -571,6 +579,8 @@ class InputHandler {
 
       // Suppress movement: zero out gamepad keys when menu is open
       this.gamepadKeys = { up: false, down: false, left: false, right: false };
+      this.gamepadDX = 0;
+      this.gamepadDY = 0;
 
     } else if (this.choiceActive) {
       // === CHOICE MENU MODE ===
@@ -588,6 +598,8 @@ class InputHandler {
 
       // Suppress movement while choice menu is open
       this.gamepadKeys = { up: false, down: false, left: false, right: false };
+      this.gamepadDX = 0;
+      this.gamepadDY = 0;
 
     } else if (this.dialogueActive) {
       // === DIALOGUE MODE ===
@@ -606,8 +618,11 @@ class InputHandler {
                           newKeys.down !== this.gamepadKeys.down ||
                           newKeys.left !== this.gamepadKeys.left ||
                           newKeys.right !== this.gamepadKeys.right;
+      const analogChanged = lx !== this.gamepadDX || ly !== this.gamepadDY;
       this.gamepadKeys = newKeys;
-      if (keysChanged) this.sendInput();
+      this.gamepadDX = lx;
+      this.gamepadDY = ly;
+      if (keysChanged || analogChanged) this.sendInput();
 
     } else {
       // === GAMEPLAY MODE ===
@@ -638,8 +653,11 @@ class InputHandler {
                           newKeys.down !== this.gamepadKeys.down ||
                           newKeys.left !== this.gamepadKeys.left ||
                           newKeys.right !== this.gamepadKeys.right;
+      const analogChanged = lx !== this.gamepadDX || ly !== this.gamepadDY;
       this.gamepadKeys = newKeys;
-      if (keysChanged) this.sendInput();
+      this.gamepadDX = lx;
+      this.gamepadDY = ly;
+      if (keysChanged || analogChanged) this.sendInput();
     }
 
     // Save for edge detection
@@ -813,6 +831,8 @@ class InputHandler {
     if (!this.moveTarget) return;
     this.moveTarget = null;
     this.clickMoving = false;
+    this.moveDX = 0;
+    this.moveDY = 0;
     if (this.renderer) this.renderer.clickTarget = null;
   }
 
@@ -843,6 +863,8 @@ class InputHandler {
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < this.moveTarget.interactRange) {
           // In range — stop moving, attack the monster
+          this.moveDX = 0;
+          this.moveDY = 0;
           this.keys = { up: false, down: false, left: false, right: false };
           this.sendInput();
           const aimAngle = Math.atan2(dy, dx);
@@ -885,6 +907,8 @@ class InputHandler {
     const threshold = 0.3;
     const nx = dx / dist;
     const ny = dy / dist;
+    this.moveDX = nx;
+    this.moveDY = ny;
     this.keys = {
       up:    ny < -threshold,
       down:  ny > threshold,
@@ -917,13 +941,48 @@ class InputHandler {
       right: this.keys.right || joyKeys.right || this.gamepadKeys.right,
     };
 
-    const json = JSON.stringify(merged);
+    // Compute analog direction for omnidirectional movement
+    let dx = 0, dy = 0;
+
+    // Keyboard / click-to-move
+    if (this.clickMoving && (this.moveDX !== 0 || this.moveDY !== 0)) {
+      dx += this.moveDX;
+      dy += this.moveDY;
+    } else {
+      if (this.keys.up) dy -= 1;
+      if (this.keys.down) dy += 1;
+      if (this.keys.left) dx -= 1;
+      if (this.keys.right) dx += 1;
+    }
+
+    // Touch joystick (analog)
+    dx += this.joyDX;
+    dy += this.joyDY;
+
+    // Gamepad (analog)
+    dx += this.gamepadDX;
+    dy += this.gamepadDY;
+
+    // Normalize to unit vector if magnitude > 1
+    const mag = Math.sqrt(dx * dx + dy * dy);
+    if (mag > 1) {
+      dx /= mag;
+      dy /= mag;
+    }
+
+    // Round to reduce network noise (2 decimal places ≈ sub-degree precision)
+    dx = Math.round(dx * 100) / 100;
+    dy = Math.round(dy * 100) / 100;
+
+    const json = JSON.stringify({ k: merged, dx, dy });
     if (json === this.lastSent) return;
     this.lastSent = json;
 
     this.net.send({
       type: CONSTANTS.MSG.INPUT,
       keys: merged,
+      dx,
+      dy,
     });
   }
 }

@@ -487,7 +487,10 @@ wss.on('connection', (ws) => {
 
       case CONSTANTS.MSG.INPUT: {
         if (ws.playerRoom) {
-          gameLoop.setPlayerInput(ws.playerRoom, playerId, msg.keys);
+          const input = msg.keys || {};
+          if (msg.dx !== undefined) input.dx = msg.dx;
+          if (msg.dy !== undefined) input.dy = msg.dy;
+          gameLoop.setPlayerInput(ws.playerRoom, playerId, input);
         }
         break;
       }
