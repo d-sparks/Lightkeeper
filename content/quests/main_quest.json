@@ -30,7 +30,7 @@
       "label": "Defeat the Warlord",
       "description": "Descend to the deepest level of the quarantine wing and defeat the luddite warlord.",
       "prerequisiteSteps": ["talk_to_engineer"],
-      "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 7 },
+      "objective": { "roomId": "proc_quarantine", "depth": 3 },
       "completionConditions": [{ "hasItem": "supply_crate_key" }],
       "completionActions": [{ "type": "grantXp", "amount": 40 }]
     },

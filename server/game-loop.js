@@ -551,6 +551,22 @@ class GameLoop {
 
     let sameRoom = (currentRoomId === targetRoomId);
 
+    // For procedural template objectives (e.g. roomId="proc_quarantine", depth=3),
+    // check if the player is in a generated instance of that template
+    if (!sameRoom && obj.depth != null && room.dungeon.depth != null
+        && currentRoomId.startsWith('proc:' + obj.roomId + ':')) {
+      if (room.dungeon.depth === obj.depth) {
+        // Player is on the target floor — find a monster to point at
+        sameRoom = true;
+        for (const mob of room.monsters.values()) {
+          tileX = Math.floor(mob.x / CONSTANTS.TILE_SIZE);
+          tileY = Math.floor(mob.y / CONSTANTS.TILE_SIZE);
+          break; // Use first monster as fallback target
+        }
+      }
+      // Otherwise player is on a different depth — BFS will find the descent exit
+    }
+
     if (!sameRoom && targetRoomId) {
       // Find exit toward target room
       const exit = this._resolveExitToward(currentRoomId, targetRoomId);
