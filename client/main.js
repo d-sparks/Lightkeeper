@@ -236,6 +236,7 @@
   }
 
   // --- Inventory & equipment state ---
+  let itemCatalog = {}; // item type -> full definition from server
   let inventoryItems = [];
   let equipmentState = { arms: null, sol_unit: null, medipac: null, accessory: null };
   let abilityState = [null, null, null, null, null, null];
@@ -957,6 +958,22 @@
     }
   }
 
+  function formatItemStats(item) {
+    const def = itemCatalog[item.type];
+    const parts = [];
+    if (def && def.description) parts.push(def.description);
+    const stats = item.stats || (def && def.stats);
+    if (stats) {
+      if (stats.attackDamage) parts.push('+' + stats.attackDamage + ' ATK');
+      if (stats.projectile) parts.push('Ranged');
+    }
+    const effect = def && def.effect;
+    if (effect) {
+      if (effect.heal) parts.push('Heals ' + effect.heal + ' HP');
+    }
+    return parts;
+  }
+
   function renderEquipmentSlots() {
     // Clear existing slot elements (keep the label)
     const label = equipmentSlots.querySelector('.equip-label');
@@ -971,9 +988,15 @@
 
       if (equipped) {
         const rarityColor = CONSTANTS.RARITY_COLORS[equipped.rarity] || CONSTANTS.RARITY_COLORS.common;
+        const statParts = formatItemStats(equipped);
         let html = '<span class="slot-label-name">' + displayName + '</span>' +
           '<span class="inv-dot" style="background:' + rarityColor + '"></span>' +
-          '<span class="slot-item-name" style="color:' + rarityColor + '">' + equipped.name + '</span>';
+          '<span class="slot-item-info"><span class="slot-item-name" style="color:' + rarityColor + '">' + equipped.name + '</span>';
+
+        if (statParts.length > 0) {
+          html += '<span class="slot-item-stats">' + statParts.join(' · ') + '</span>';
+        }
+        html += '</span>';
 
         // Check if this is a sol unit (show OPEN tag on sol_unit slot)
         if (slot === 'sol_unit' && solGridState) {
@@ -1006,6 +1029,8 @@
     inventoryList.innerHTML = '';
     const grid = document.createElement('div');
     grid.className = 'inv-grid';
+    const detailPanel = document.createElement('div');
+    detailPanel.className = 'inv-detail-panel';
 
     for (let i = 0; i < inventoryItems.length; i++) {
       const item = inventoryItems[i];
@@ -1036,11 +1061,41 @@
         });
       }
 
+      cell.addEventListener('mouseenter', () => showItemDetail(item, detailPanel));
+      cell.addEventListener('mouseleave', () => { detailPanel.innerHTML = ''; });
+
       grid.appendChild(cell);
     }
 
     inventoryList.appendChild(grid);
+    inventoryList.appendChild(detailPanel);
+
     updateCursorHighlight();
+  }
+
+  function showItemDetail(item, panel) {
+    const parts = formatItemStats(item);
+    if (parts.length === 0) {
+      panel.innerHTML = '';
+      return;
+    }
+    const def = itemCatalog[item.type];
+    let html = '<span class="detail-name">' + item.name + '</span>';
+    if (def && def.description) {
+      html += '<span class="detail-desc">' + def.description + '</span>';
+    }
+    const statLine = [];
+    const stats = item.stats || (def && def.stats);
+    if (stats) {
+      if (stats.attackDamage) statLine.push('+' + stats.attackDamage + ' ATK');
+      if (stats.projectile) statLine.push('Ranged');
+    }
+    const effect = def && def.effect;
+    if (effect && effect.heal) statLine.push('Heals ' + effect.heal + ' HP');
+    if (statLine.length > 0) {
+      html += '<span class="detail-stats">' + statLine.join(' · ') + '</span>';
+    }
+    panel.innerHTML = html;
   }
 
   function renderSolGrid() {
@@ -1464,6 +1519,7 @@
 
     renderer.setMyId(msg.playerId);
     renderer.setMap(msg.map, msg.tileset);
+    if (msg.itemCatalog) itemCatalog = msg.itemCatalog;
 
     // Switch from join screen to game
     joinScreen.style.display = 'none';

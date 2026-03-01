@@ -442,6 +442,7 @@ wss.on('connection', (ws) => {
           playerId,
           map: welcomeMap,
           tileset: content.getTileset(room.dungeon.tileset),
+          itemCatalog: content.getAllItems(),
         }));
 
         // Send initial empty inventory and equipment
