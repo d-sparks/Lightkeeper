@@ -73,6 +73,7 @@
   let dialogueLines = [];    // Array of { speaker, text }
   let dialogueIndex = 0;
   let dialogueMode = null;   // 'bubble' or 'system'
+  let dialogueNpcId = null;  // NPC instance ID for current dialogue
 
   function showDialogue(lines, npcId) {
     closeDialogue();
@@ -90,6 +91,7 @@
     dialogueIndex = 0;
     dialogueActive = true;
     input.dialogueActive = true;
+    dialogueNpcId = npcId || null;
 
     if (usesBubble) {
       dialogueMode = 'bubble';
@@ -125,12 +127,20 @@
     if (dialogueMode === 'bubble') {
       renderer.closeSpeechBubble();
     }
+    // Check if we were talking to MERIDIAN-7 to open auto panel
+    let wasMeridian = false;
+    if (dialogueNpcId && renderer.state && renderer.state.npcs) {
+      const npc = renderer.state.npcs.find(n => n.id === dialogueNpcId);
+      if (npc && npc.type === 'meridian_7') wasMeridian = true;
+    }
     dialogueActive = false;
     input.dialogueActive = false;
     dialogueLines = [];
     dialogueIndex = 0;
     dialogueMode = null;
+    dialogueNpcId = null;
     dialogueOverlay.style.display = 'none';
+    if (wasMeridian) openMenu('auto');
   }
 
   function updateDialogueDisplay() {
@@ -246,7 +256,8 @@
   // --- Unified character menu state ---
   let menuOpen = false;
   let menuTab = 'equipment';
-  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'auto', 'quests'];
+  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'quests'];
+  const ALL_CONTENT_TABS = ['equipment', 'inventory', 'solgrid', 'auto', 'quests'];
   let cursorIndex = 0;
 
   function openMenu(tab) {
@@ -285,8 +296,8 @@
     document.querySelectorAll('#character-menu .inv-tab').forEach(t => {
       t.classList.toggle('active', t.dataset.tab === tab);
     });
-    // Show/hide content divs
-    for (const t of MENU_TABS) {
+    // Show/hide content divs (includes auto which is only opened via NPC)
+    for (const t of ALL_CONTENT_TABS) {
       const el = document.getElementById('inv-tab-' + t);
       if (el) el.style.display = t === tab ? '' : 'none';
     }
