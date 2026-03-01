@@ -33,12 +33,27 @@
   const choiceOptions = document.getElementById('choice-options');
   const autoPanelContent = document.getElementById('auto-panel-content');
 
+  const soundBtn = document.getElementById('sound-btn');
+
   // --- Instances ---
   const net = new NetClient();
   const renderer = new Renderer(canvas);
   const input = new InputHandler(net);
+  const audio = new AudioManager();
   input.renderer = renderer;  // For click-to-move coordinate conversion
   renderer.aimIndicator = input.aimIndicator;  // For aim line drawing
+
+  // Load audio definitions
+  fetch('/content/audio/sounds.json').then(r => r.json()).then(d => audio.loadSounds(d)).catch(() => {});
+  fetch('/content/audio/music.json').then(r => r.json()).then(d => audio.loadMusic(d)).catch(() => {});
+
+  // Sound mute button
+  if (audio.muted) soundBtn.classList.add('muted');
+  soundBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const muted = audio.toggleMute();
+    soundBtn.classList.toggle('muted', muted);
+  });
 
   // --- Responsive canvas sizing ---
   function resizeCanvas() {
@@ -91,6 +106,8 @@
       const still = renderer.advanceSpeechBubble();
       if (!still) {
         closeDialogue();
+      } else {
+        audio.play('dialogue_advance');
       }
       return;
     }
@@ -100,6 +117,7 @@
       closeDialogue();
       return;
     }
+    audio.play('dialogue_advance');
     updateDialogueDisplay();
   }
 
@@ -152,6 +170,7 @@
       }
       div.addEventListener('click', () => {
         net.send({ type: CONSTANTS.MSG.CHOICE_SELECT, choiceId, value: opt.value });
+        audio.play('choice_select');
         closeChoiceMenu();
       });
       choiceOptions.appendChild(div);
@@ -196,6 +215,7 @@
     renderer.fullMap = false;
     characterMenu.style.display = 'block';
     switchTab(tab || 'equipment');
+    audio.play('menu_open');
   }
 
   function closeMenu() {
@@ -203,6 +223,7 @@
     input.menuOpen = false;
     characterMenu.style.display = 'none';
     solGridSelectedComponent = null;
+    audio.play('menu_close');
   }
 
   function toggleMenu(tab) {
@@ -608,6 +629,7 @@
       } else {
         cell.addEventListener('click', () => {
           net.send({ type: CONSTANTS.MSG.EQUIP, index: idx });
+          audio.play('equip');
         });
       }
 
@@ -957,6 +979,7 @@
     }
 
     net.send({ type: CONSTANTS.MSG.ATTACK, aimAngle, slot });
+    audio.play('ability_cast');
   };
 
   // --- Interact dispatch ---
@@ -1005,6 +1028,9 @@
     const name = nameInput.value.trim() || 'Adventurer';
     net.send({ type: CONSTANTS.MSG.JOIN, name });
 
+    // Initialize audio on first user gesture
+    audio.init();
+
     // Request fullscreen on mobile to hide browser chrome (URL bar)
     if ('ontouchstart' in window) {
       const el = document.documentElement;
@@ -1038,18 +1064,39 @@
     joined = true;
 
     hudName.textContent = msg.playerId;
+
+    // Start background music
+    audio.resume();
+    const roomName = (msg.map && msg.map.name || '').toLowerCase();
+    if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
+      audio.playMusic('outpost');
+    } else {
+      audio.playMusic('dungeon');
+    }
   });
 
   net.on(CONSTANTS.MSG.STATE, (msg) => {
     renderer.setState(msg);
 
-    // Process combat events for damage numbers
+    // Process combat events for damage numbers + audio
     if (msg.events) {
       renderer.processEvents(msg.events);
-      // Clear click-to-move on player death
       for (const ev of msg.events) {
         if (ev.type === 'death' && ev.targetId === renderer.myId) {
           input.clearMoveTarget();
+          audio.play('death_player');
+        } else if (ev.type === 'death') {
+          audio.play('death_monster');
+        } else if (ev.type === 'damage') {
+          audio.play(ev.targetId === renderer.myId ? 'hit_take' : 'hit_deal');
+        } else if (ev.type === 'darkness_damage') {
+          audio.play('darkness_damage');
+        } else if (ev.type === 'heal') {
+          audio.play('heal');
+        } else if (ev.type === 'pickup') {
+          audio.play('pickup');
+        } else if (ev.type === 'level_up') {
+          audio.play('level_up');
         }
       }
     }
@@ -1108,17 +1155,27 @@
     // Close any open dialogue or choice menu
     closeDialogue();
     closeChoiceMenu();
+    audio.play('floor_change');
+    // Switch music based on room name
+    const roomName = (msg.map.name || '').toLowerCase();
+    if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
+      audio.playMusic('outpost');
+    } else {
+      audio.playMusic('dungeon');
+    }
   });
 
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {
     if (msg.dialogue && msg.dialogue.length > 0) {
       showDialogue(msg.dialogue, msg.npcId);
+      audio.play('dialogue_open');
     }
   });
 
   net.on(CONSTANTS.MSG.CHOICE_MENU, (msg) => {
     if (msg.options && msg.options.length > 0) {
       showChoiceMenu(msg.choiceId, msg.prompt, msg.options);
+      audio.play('choice_open');
     }
   });
 
@@ -1128,6 +1185,7 @@
       const idx = msg.y * renderer.map.width + msg.x;
       renderer.map.data[idx] = msg.tileId;
     }
+    audio.play('door_open');
   });
 
   net.on(CONSTANTS.MSG.SOL_GRID, (msg) => {
@@ -1171,10 +1229,12 @@
 
   net.on(CONSTANTS.MSG.QUEST_STEP_COMPLETE, (msg) => {
     showQuestToast('\u2714 ' + msg.label);
+    audio.play('quest_step_complete');
   });
 
   net.on(CONSTANTS.MSG.QUEST_STARTED, (msg) => {
     showQuestToast('New Quest: ' + msg.name);
+    audio.play('quest_started');
   });
 
   net.on(CONSTANTS.MSG.AUTO_STATE, (msg) => {
