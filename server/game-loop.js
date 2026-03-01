@@ -556,12 +556,24 @@ class GameLoop {
     if (!sameRoom && obj.depth != null && room.dungeon.depth != null
         && currentRoomId.startsWith('proc:' + obj.roomId + ':')) {
       if (room.dungeon.depth === obj.depth) {
-        // Player is on the target floor — find a monster to point at
         sameRoom = true;
-        for (const mob of room.monsters.values()) {
-          tileX = Math.floor(mob.x / CONSTANTS.TILE_SIZE);
-          tileY = Math.floor(mob.y / CONSTANTS.TILE_SIZE);
-          break; // Use first monster as fallback target
+        if (obj.targetTile != null) {
+          // Scan tile data for specific tile (e.g. a chest)
+          const d = room.dungeon;
+          for (let i = 0; i < d.data.length; i++) {
+            if (d.data[i] === obj.targetTile) {
+              tileX = i % d.width;
+              tileY = Math.floor(i / d.width);
+              break;
+            }
+          }
+        } else {
+          // Find a monster to point at
+          for (const mob of room.monsters.values()) {
+            tileX = Math.floor(mob.x / CONSTANTS.TILE_SIZE);
+            tileY = Math.floor(mob.y / CONSTANTS.TILE_SIZE);
+            break; // Use first monster as fallback target
+          }
         }
       }
       // Otherwise player is on a different depth — BFS will find the descent exit

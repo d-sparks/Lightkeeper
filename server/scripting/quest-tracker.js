@@ -163,6 +163,7 @@ class QuestTracker {
             tileX: stepDef.objective ? stepDef.objective.tileX : 0,
             tileY: stepDef.objective ? stepDef.objective.tileY : 0,
             depth: stepDef.objective ? stepDef.objective.depth : null,
+            targetTile: stepDef.objective ? stepDef.objective.targetTile : null,
           };
           if (stepDef.objectiveItem) {
             obj.objectiveItem = stepDef.objectiveItem;

@@ -38,7 +38,7 @@
       "label": "Open the Supply Crate",
       "description": "Backtrack to level 2 and use the warlord's key on the locked supply crate.",
       "prerequisiteSteps": ["find_warlord_key"],
-      "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 7 },
+      "objective": { "roomId": "proc_quarantine", "depth": 2, "targetTile": 10 },
       "completionConditions": [{ "hasItem": "titanium_cylinders" }],
       "completionActions": [{ "type": "grantXp", "amount": 15 }]
     },
