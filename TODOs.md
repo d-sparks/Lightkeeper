@@ -1,8 +1,7 @@
 Fix conflicts
 
-Game
-- Is this game 8 directional? Can we make the actual movement omnidirectional even if animations will be 8 directional? For smoother movement?
-- Make sounds for item pickup much subtler. And remove the sound for entering a room.
-- Doors need to link not just to other rooms, but specific doors of other rooms. Make this easily editable in the editor. (E.g. we can give an id to a tile and then link other exits to that tile.)
-- If you open a menu while moving, you should come to a stop rather than moving indefinitely.
-- Show stats and properties of items in the equipment menu and also the item menu.
+Extend current arc
+- The current story arc involves arriving at outpost balor, retrieving cylinders, getting your sol unit, then you can safely go outside to head to the train station. Instead of having an interface there, we just want to be able to take the train to a city in the habitable zone where we will get our plot and be able to harvest materials and craft rechargeable batteries. Then we'll head back to outpost balor's dark perimeter. However, I want to significantly extend the scope and arc that this arises, and enrich the areas. Can you write a plan out in a sequence of files for each step of this, so we can extend the quests and areas in a fun way, add new quest lines and side quests, NPCs and items? Each file should have a high level overview of what should be implemented there. Name the files CONTENT_001.md, CONTENT_002.md, .... There should be no more than 5 of these total.
+- TEMPLATE[CONTENT_*.md]: Read the content of %T , then carefully implement it. Look at the previous commit to see the end state where we can expect players to have reached. Make sure we won't get stuck and can reliably progress forward from the last piece of content to this one. Feel free to add NPCs, music, iso sprites, story beats, new types of monsters, XP, items, etc. Come up with a compelling bit of content, plan it out carefully, and implement it. When you're done, rename %T to DONE_%T.
+- Design a worldmap feature, it should show dayside, habitable zone, and nightside. Output balor and lighthouse mara should be on there. This is a big feature so do it carefully. Consider UI elements for mobile, desktop with mouse/kb and gamepad.
+- Make sure the existing content integrates with the worldmap seamlessly.
