@@ -1,0 +1,616 @@
+{
+  "id": "homestead_plot",
+  "name": "East Terrace — Plot 7",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "width": 22,
+  "height": 16,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,2,2,2,2,1,1,1,1,1,1,3,3,4,3,3,1,1,3,
+    3,1,1,2,20,2,20,2,1,1,1,1,1,1,3,1,1,1,3,1,1,3,
+    3,1,1,2,2,20,2,2,1,1,1,1,1,1,3,1,2,1,3,1,1,3,
+    3,1,1,2,2,2,2,2,1,1,1,1,1,1,3,1,1,1,3,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,21,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,6,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 20, "y": 14, "type": "player_start" },
+    { "x": 19, "y": 14, "type": "player_start" },
+    { "x": 20, "y": 13, "type": "player_start" },
+    { "x": 19, "y": 13, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "garden_mite", "x": 8, "y": 3 },
+    { "type": "garden_mite", "x": 9, "y": 5 }
+  ],
+  "npcSpawns": [
+    { "type": "neighbor_sera", "x": 3, "y": 8 },
+    { "type": "vell", "x": 16, "y": 11 },
+    { "type": "jorrit", "x": 6, "y": 12 }
+  ],
+  "itemSpawns": [],
+  "exits": [
+    { "x": 21, "y": 14, "leadsTo": "meridian_civic", "type": "stairs_down", "spawnX": 23, "spawnY": 2 },
+    { "x": 16, "y": 3, "leadsTo": "homestead_interior", "type": "stairs_down", "spawnX": 5, "spawnY": 8 }
+  ],
+  "triggers": [
+    {
+      "id": "remove_mites_no_watch",
+      "event": "room_entered",
+      "conditions": [
+        { "or": [
+          { "not": { "hasFlag": "terrace_watch_accepted" } },
+          { "hasFlag": "terrace_watch_ambush_done" }
+        ]}
+      ],
+      "actions": [
+        { "type": "removeEntity", "entityType": "monster", "monsterType": "garden_mite" }
+      ]
+    },
+    {
+      "id": "enter_homestead",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "visited_homestead" },
+        { "type": "showMessage", "lines": [
+          "Plot 7, East Terrace. It's not much — a patch of soil, a lean-to, and a view of the twilight line. But it's yours.",
+          "Three garden plots sit ready in the northwest corner. A small shelter stands nearby. A community notice board is posted along the path."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "sera_first_meeting",
+      "event": "npc_interacted",
+      "filter": { "npcType": "neighbor_sera" },
+      "conditions": [
+        { "not": { "hasFlag": "sera_first_meeting" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "sera_first_meeting" },
+        { "type": "giveItem", "itemType": "resin_growing_guide" },
+        { "type": "giveItem", "itemType": "resin_bush_seeds", "count": 2 },
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "lines": [
+          "Sera hands you a worn notebook and two small seed packets.",
+          "'Resin Bush Seeds. Plant them in the garden plots and they'll grow stabilizing resin — the stuff Master Yun uses for batteries.'",
+          "'Give them a bit of time. Do some exploring, talk to people, and when you come back, they'll be ready for harvest.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "sera_seed_shop",
+      "event": "npc_interacted",
+      "filter": { "npcType": "neighbor_sera" },
+      "conditions": [
+        { "hasFlag": "sera_first_meeting" },
+        { "not": { "hasFlag": "pest_quest_started" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "sera_seeds", "prompt": "Sera's got seeds available. What would you like?", "options": [
+          { "label": "Resin Bush Seeds (x2)", "description": "Seeds for growing stabilizing resin in your garden plots.", "value": "buy_seeds" },
+          { "label": "Just chatting", "description": "No purchase needed.", "value": "nothing" }
+        ]}
+      ]
+    },
+    {
+      "id": "sera_buy_seeds",
+      "event": "choice_made",
+      "filter": { "choiceId": "sera_seeds", "value": "buy_seeds" },
+      "actions": [
+        { "type": "giveItem", "itemType": "resin_bush_seeds", "count": 2 },
+        { "type": "showMessage", "text": "Sera hands over two seed packets. 'Plant them, forget about them, come back later. They practically grow themselves.'" }
+      ]
+    },
+
+    {
+      "id": "pest_quest_start",
+      "event": "npc_interacted",
+      "filter": { "npcType": "neighbor_sera" },
+      "conditions": [
+        { "hasFlag": "garden_slot_1_planted" },
+        { "not": { "hasFlag": "pest_quest_started" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "pest_quest_started" },
+        { "type": "showMessage", "lines": [
+          "Sera frowns at her garden next door. 'Those garden mites are back. Tiny little terrors — they chew through resin bush roots.'",
+          "'I need a Sonic Repeller to drive them off. Component Dealer Mira in the market might sell one. Or Master Yun at the workshop could probably build one.'",
+          "'Help me out and I'll give you some Enriched Soil — doubles the resin yield from your next harvest.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "pest_quest_turn_in",
+      "event": "npc_interacted",
+      "filter": { "npcType": "neighbor_sera" },
+      "conditions": [
+        { "hasFlag": "pest_quest_started" },
+        { "hasItem": "sonic_repeller" },
+        { "not": { "hasFlag": "pest_quest_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "sonic_repeller" },
+        { "type": "giveItem", "itemType": "enriched_soil" },
+        { "type": "setFlag", "flag": "pest_quest_complete" },
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "lines": [
+          "Sera activates the Sonic Repeller and places it near her garden bed. A low hum fills the air.",
+          "'There — listen. They're already scattering. Won't come back as long as this thing's running.'",
+          "'Here — Enriched Soil, as promised. Spread it on one of your garden plots before you plant. You'll get double the resin from that harvest.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "sera_seed_shop_post_pest",
+      "event": "npc_interacted",
+      "filter": { "npcType": "neighbor_sera" },
+      "conditions": [
+        { "hasFlag": "pest_quest_complete" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "sera_seeds_post", "prompt": "Sera's got seeds available. What would you like?", "options": [
+          { "label": "Resin Bush Seeds (x2)", "description": "Seeds for growing stabilizing resin in your garden plots.", "value": "buy_seeds" },
+          { "label": "Just chatting", "description": "No purchase needed.", "value": "nothing" }
+        ]}
+      ]
+    },
+    {
+      "id": "sera_buy_seeds_post",
+      "event": "choice_made",
+      "filter": { "choiceId": "sera_seeds_post", "value": "buy_seeds" },
+      "actions": [
+        { "type": "giveItem", "itemType": "resin_bush_seeds", "count": 2 },
+        { "type": "showMessage", "text": "Sera hands over two seed packets. 'My best stock. The mites haven't touched these.'" }
+      ]
+    },
+
+    {
+      "id": "garden_slot_1_interact_empty",
+      "event": "door_interacted",
+      "filter": { "tileX": 4, "tileY": 4 },
+      "conditions": [
+        { "not": { "hasFlag": "garden_slot_1_planted" } },
+        { "hasItem": "resin_bush_seeds" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "plant_slot_1", "prompt": "An empty garden plot. The soil looks ready for planting.", "options": [
+          { "label": "Plant Seeds", "description": "Plant Resin Bush Seeds in this plot.", "value": "plant" },
+          { "label": "Leave it", "description": "Don't plant anything right now.", "value": "leave" }
+        ]}
+      ]
+    },
+    {
+      "id": "garden_slot_1_no_seeds",
+      "event": "door_interacted",
+      "filter": { "tileX": 4, "tileY": 4 },
+      "conditions": [
+        { "not": { "hasFlag": "garden_slot_1_planted" } },
+        { "not": { "hasItem": "resin_bush_seeds" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "An empty garden plot. You'd need Resin Bush Seeds to plant something here. Neighbor Sera sells them." }
+      ]
+    },
+    {
+      "id": "garden_slot_1_plant",
+      "event": "choice_made",
+      "filter": { "choiceId": "plant_slot_1", "value": "plant" },
+      "actions": [
+        { "type": "removeItem", "itemType": "resin_bush_seeds" },
+        { "type": "setFlag", "flag": "garden_slot_1_planted" },
+        { "type": "grantXp", "amount": 5 },
+        { "type": "showMessage", "text": "You kneel and press the seeds into the warm soil. Sera watches approvingly from her plot. 'Good. Give it time — explore the city, do some work, and when you come back, they'll be ready.'" }
+      ]
+    },
+    {
+      "id": "garden_slot_1_growing",
+      "event": "door_interacted",
+      "filter": { "tileX": 4, "tileY": 4 },
+      "conditions": [
+        { "hasFlag": "garden_slot_1_planted" },
+        { "not": { "hasFlag": "garden_slot_1_ready" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The resin bush is growing. Small green shoots push up through the soil. It needs more time — go explore the city or complete some tasks, and it'll be ready when you return." }
+      ]
+    },
+    {
+      "id": "garden_slot_1_harvest",
+      "event": "door_interacted",
+      "filter": { "tileX": 4, "tileY": 4 },
+      "conditions": [
+        { "hasFlag": "garden_slot_1_planted" },
+        { "hasFlag": "garden_slot_1_ready" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "harvest_slot_1", "prompt": "The resin bush is mature — thick amber resin glistens on its stems.", "options": [
+          { "label": "Harvest", "description": "Collect stabilizing resin from this plant.", "value": "harvest" },
+          { "label": "Leave it", "description": "Let it keep growing.", "value": "leave" }
+        ]}
+      ]
+    },
+    {
+      "id": "garden_slot_1_do_harvest",
+      "event": "choice_made",
+      "filter": { "choiceId": "harvest_slot_1", "value": "harvest" },
+      "actions": [
+        { "type": "giveItem", "itemType": "stabilizing_resin" },
+        { "type": "removeFlag", "flag": "garden_slot_1_ready" },
+        { "type": "grantXp", "amount": 10 },
+        { "type": "showMessage", "text": "You carefully peel a clump of stabilizing resin from the bush's stems. The plant is already starting to produce more — it'll be ready again after you've been out and about." }
+      ]
+    },
+
+    {
+      "id": "garden_slot_2_interact_empty",
+      "event": "door_interacted",
+      "filter": { "tileX": 6, "tileY": 4 },
+      "conditions": [
+        { "not": { "hasFlag": "garden_slot_2_planted" } },
+        { "hasItem": "resin_bush_seeds" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "plant_slot_2", "prompt": "An empty garden plot. The soil looks ready for planting.", "options": [
+          { "label": "Plant Seeds", "description": "Plant Resin Bush Seeds in this plot.", "value": "plant" },
+          { "label": "Leave it", "description": "Don't plant anything right now.", "value": "leave" }
+        ]}
+      ]
+    },
+    {
+      "id": "garden_slot_2_no_seeds",
+      "event": "door_interacted",
+      "filter": { "tileX": 6, "tileY": 4 },
+      "conditions": [
+        { "not": { "hasFlag": "garden_slot_2_planted" } },
+        { "not": { "hasItem": "resin_bush_seeds" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "An empty garden plot. You'd need Resin Bush Seeds to plant something here." }
+      ]
+    },
+    {
+      "id": "garden_slot_2_plant",
+      "event": "choice_made",
+      "filter": { "choiceId": "plant_slot_2", "value": "plant" },
+      "actions": [
+        { "type": "removeItem", "itemType": "resin_bush_seeds" },
+        { "type": "setFlag", "flag": "garden_slot_2_planted" },
+        { "type": "grantXp", "amount": 5 },
+        { "type": "showMessage", "text": "Seeds planted. Another patch of soil put to work." }
+      ]
+    },
+    {
+      "id": "garden_slot_2_growing",
+      "event": "door_interacted",
+      "filter": { "tileX": 6, "tileY": 4 },
+      "conditions": [
+        { "hasFlag": "garden_slot_2_planted" },
+        { "not": { "hasFlag": "garden_slot_2_ready" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The resin bush is growing. Thin green tendrils curl upward. Give it time." }
+      ]
+    },
+    {
+      "id": "garden_slot_2_harvest",
+      "event": "door_interacted",
+      "filter": { "tileX": 6, "tileY": 4 },
+      "conditions": [
+        { "hasFlag": "garden_slot_2_planted" },
+        { "hasFlag": "garden_slot_2_ready" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "harvest_slot_2", "prompt": "The resin bush is mature — thick amber resin glistens on its stems.", "options": [
+          { "label": "Harvest", "description": "Collect stabilizing resin from this plant.", "value": "harvest" },
+          { "label": "Leave it", "description": "Let it keep growing.", "value": "leave" }
+        ]}
+      ]
+    },
+    {
+      "id": "garden_slot_2_do_harvest",
+      "event": "choice_made",
+      "filter": { "choiceId": "harvest_slot_2", "value": "harvest" },
+      "actions": [
+        { "type": "giveItem", "itemType": "stabilizing_resin" },
+        { "type": "removeFlag", "flag": "garden_slot_2_ready" },
+        { "type": "grantXp", "amount": 10 },
+        { "type": "showMessage", "text": "You harvest another clump of stabilizing resin. The amber substance is warm to the touch." }
+      ]
+    },
+
+    {
+      "id": "garden_slot_3_interact_empty",
+      "event": "door_interacted",
+      "filter": { "tileX": 5, "tileY": 5 },
+      "conditions": [
+        { "not": { "hasFlag": "garden_slot_3_planted" } },
+        { "hasItem": "resin_bush_seeds" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "plant_slot_3", "prompt": "An empty garden plot. The soil looks ready for planting.", "options": [
+          { "label": "Plant Seeds", "description": "Plant Resin Bush Seeds in this plot.", "value": "plant" },
+          { "label": "Leave it", "description": "Don't plant anything right now.", "value": "leave" }
+        ]}
+      ]
+    },
+    {
+      "id": "garden_slot_3_no_seeds",
+      "event": "door_interacted",
+      "filter": { "tileX": 5, "tileY": 5 },
+      "conditions": [
+        { "not": { "hasFlag": "garden_slot_3_planted" } },
+        { "not": { "hasItem": "resin_bush_seeds" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "An empty garden plot. You'd need Resin Bush Seeds to plant something here." }
+      ]
+    },
+    {
+      "id": "garden_slot_3_plant",
+      "event": "choice_made",
+      "filter": { "choiceId": "plant_slot_3", "value": "plant" },
+      "actions": [
+        { "type": "removeItem", "itemType": "resin_bush_seeds" },
+        { "type": "setFlag", "flag": "garden_slot_3_planted" },
+        { "type": "grantXp", "amount": 5 },
+        { "type": "showMessage", "text": "Seeds planted. The garden is starting to look productive." }
+      ]
+    },
+    {
+      "id": "garden_slot_3_growing",
+      "event": "door_interacted",
+      "filter": { "tileX": 5, "tileY": 5 },
+      "conditions": [
+        { "hasFlag": "garden_slot_3_planted" },
+        { "not": { "hasFlag": "garden_slot_3_ready" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The resin bush is growing. Sturdy leaves spread outward. Give it more time." }
+      ]
+    },
+    {
+      "id": "garden_slot_3_harvest",
+      "event": "door_interacted",
+      "filter": { "tileX": 5, "tileY": 5 },
+      "conditions": [
+        { "hasFlag": "garden_slot_3_planted" },
+        { "hasFlag": "garden_slot_3_ready" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "harvest_slot_3", "prompt": "The resin bush is mature — thick amber resin glistens on its stems.", "options": [
+          { "label": "Harvest", "description": "Collect stabilizing resin from this plant.", "value": "harvest" },
+          { "label": "Leave it", "description": "Let it keep growing.", "value": "leave" }
+        ]}
+      ]
+    },
+    {
+      "id": "garden_slot_3_do_harvest",
+      "event": "choice_made",
+      "filter": { "choiceId": "harvest_slot_3", "value": "harvest" },
+      "actions": [
+        { "type": "giveItem", "itemType": "stabilizing_resin" },
+        { "type": "removeFlag", "flag": "garden_slot_3_ready" },
+        { "type": "grantXp", "amount": 10 },
+        { "type": "showMessage", "text": "You harvest the last of the ripe resin. Your garden is producing well." }
+      ]
+    },
+
+    {
+      "id": "garden_growth_check_1",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "garden_slot_1_planted" },
+        { "not": { "hasFlag": "garden_slot_1_ready" } },
+        { "or": [
+          { "hasFlag": "yun_tutorial_complete" },
+          { "hasFlag": "crafted_first_battery" },
+          { "hasFlag": "bought_from_garro" },
+          { "hasFlag": "bought_from_mira" },
+          { "hasFlag": "pest_quest_complete" },
+          { "hasFlag": "davi_wrench_returned" },
+          { "hasFlag": "solen_quest_accepted" }
+        ]}
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "garden_slot_1_ready" }
+      ]
+    },
+    {
+      "id": "garden_growth_check_2",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "garden_slot_2_planted" },
+        { "not": { "hasFlag": "garden_slot_2_ready" } },
+        { "or": [
+          { "hasFlag": "yun_tutorial_complete" },
+          { "hasFlag": "crafted_first_battery" },
+          { "hasFlag": "bought_from_garro" },
+          { "hasFlag": "bought_from_mira" },
+          { "hasFlag": "pest_quest_complete" },
+          { "hasFlag": "davi_wrench_returned" },
+          { "hasFlag": "solen_quest_accepted" }
+        ]}
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "garden_slot_2_ready" }
+      ]
+    },
+    {
+      "id": "garden_growth_check_3",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "garden_slot_3_planted" },
+        { "not": { "hasFlag": "garden_slot_3_ready" } },
+        { "or": [
+          { "hasFlag": "yun_tutorial_complete" },
+          { "hasFlag": "crafted_first_battery" },
+          { "hasFlag": "bought_from_garro" },
+          { "hasFlag": "bought_from_mira" },
+          { "hasFlag": "pest_quest_complete" },
+          { "hasFlag": "davi_wrench_returned" },
+          { "hasFlag": "solen_quest_accepted" }
+        ]}
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "garden_slot_3_ready" }
+      ]
+    },
+    {
+      "id": "garden_mature_message",
+      "event": "room_entered",
+      "conditions": [
+        { "or": [
+          { "hasFlag": "garden_slot_1_ready" },
+          { "hasFlag": "garden_slot_2_ready" },
+          { "hasFlag": "garden_slot_3_ready" }
+        ]}
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Your resin bushes have matured. Thick amber resin glistens on their stems — ready for harvesting." }
+      ],
+      "once": true
+    },
+
+    {
+      "id": "notice_board_interact",
+      "event": "door_interacted",
+      "filter": { "tileX": 10, "tileY": 9 },
+      "conditions": [
+        { "not": { "hasFlag": "read_notice_board" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "read_notice_board" },
+        { "type": "showChoice", "choiceId": "notice_board", "prompt": "EAST TERRACE COMMUNITY BOARD — Two postings catch your eye:", "options": [
+          { "label": "Lost Cat", "description": "Resident Vell has lost their cat. 'Orange tabby, answers to Ember. Usually.'", "value": "lost_cat" },
+          { "label": "Terrace Watch", "description": "Volunteer needed for nightly watch rotation. Compensation provided.", "value": "terrace_watch" },
+          { "label": "Walk away", "description": "You've got other things to do.", "value": "ignore" }
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "notice_board_reread",
+      "event": "door_interacted",
+      "filter": { "tileX": 10, "tileY": 9 },
+      "conditions": [
+        { "hasFlag": "read_notice_board" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "— EAST TERRACE COMMUNITY BOARD —",
+          "LOST CAT: Orange tabby, name 'Ember.' Contact Vell, Plot 3.",
+          "TERRACE WATCH: Volunteer needed for nightly perimeter rotation. See Jorrit."
+        ]}
+      ]
+    },
+    {
+      "id": "notice_lost_cat",
+      "event": "choice_made",
+      "filter": { "choiceId": "notice_board", "value": "lost_cat" },
+      "actions": [
+        { "type": "setFlag", "flag": "lost_cat_quest_started" },
+        { "type": "showMessage", "lines": [
+          "'LOST: Orange tabby, answers to Ember (usually). Last seen heading toward the market district two days ago.'",
+          "'If found, please contact Vell at Plot 3, East Terrace. Reward offered.'",
+          "Vell is standing right here on the terrace. The cat likes warm places and people who smell like books..."
+        ]}
+      ]
+    },
+    {
+      "id": "notice_terrace_watch",
+      "event": "choice_made",
+      "filter": { "choiceId": "notice_board", "value": "terrace_watch" },
+      "actions": [
+        { "type": "showChoice", "choiceId": "terrace_watch_signup", "prompt": "'TERRACE WATCH VOLUNTEER NEEDED. One shift, nightly rotation. The terrace neighborhood needs a volunteer to watch the eastern perimeter fence. Compensation: 3 silicon per shift.'", "options": [
+          { "label": "Sign up", "description": "Volunteer for the terrace watch. You might encounter something.", "value": "accept" },
+          { "label": "Not now", "description": "Maybe later.", "value": "decline" }
+        ]}
+      ]
+    },
+    {
+      "id": "terrace_watch_accept",
+      "event": "choice_made",
+      "filter": { "choiceId": "terrace_watch_signup", "value": "accept" },
+      "actions": [
+        { "type": "setFlag", "flag": "terrace_watch_accepted" },
+        { "type": "grantXp", "amount": 5 },
+        { "type": "showMessage", "text": "You sign your name on the roster. The next time you return to the terrace, you'll take your shift." }
+      ]
+    },
+
+    {
+      "id": "terrace_watch_ambush",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "terrace_watch_accepted" },
+        { "not": { "hasFlag": "terrace_watch_ambush_done" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "terrace_watch_ambush_done" },
+        { "type": "showMessage", "lines": [
+          "You take your terrace watch shift. For hours, nothing. The fence hums quietly in the twilight.",
+          "Then — movement. Two garden mites skitter through a gap in the fence, heading for the garden plots."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "terrace_watch_complete",
+      "event": "monster_killed",
+      "filter": { "monsterType": "garden_mite" },
+      "conditions": [
+        { "hasFlag": "terrace_watch_ambush_done" },
+        { "not": { "hasFlag": "terrace_watch_complete" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "terrace_watch_complete" },
+        { "type": "giveItem", "itemType": "silicon", "count": 3 },
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "lines": [
+          "The mites are dealt with. Jorrit jogs over from the water station.",
+          "'Nice work! The neighbors will sleep easier tonight. Here — your share of the watch fund.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "vell_cat_found_dialog",
+      "event": "npc_interacted",
+      "filter": { "npcType": "vell" },
+      "conditions": [
+        { "hasFlag": "lost_cat_found" },
+        { "not": { "hasFlag": "lost_cat_complete" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "lost_cat_complete" },
+        { "type": "giveItem", "itemType": "ration_pack", "count": 2 },
+        { "type": "grantXp", "amount": 20 },
+        { "type": "showMessage", "lines": [
+          "Vell's face lights up. 'Ember's in the Archives? With Solen? Of course she is — that old bookworm's been sneaking her fish scraps for months!'",
+          "'Thank you, truly. When you're my age and living alone, a cat's the best company there is.'",
+          "Vell presses two ration packs into your hands. 'It's not much, but the terrace shares what it has.'"
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

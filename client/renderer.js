@@ -2212,6 +2212,8 @@ class Renderer {
   renderQuestArrow() {
     this.questArrowGfx.clear();
     if (!this.questObjective || !this.state) return;
+    // Skip world-space arrow when a UI tutorial hint is active
+    if (this.questObjective.uiHint) return;
 
     const ts = CONSTANTS.TILE_SIZE;
     const me = this.state.players.find(p => p.id === this.myId);

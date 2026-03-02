@@ -14,7 +14,7 @@
     8,1,1,1,1,1,1,1,4,1,1,2,1,1,2,1,1,4,1,1,1,1,1,1,3,
     3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,
     3,1,1,1,14,14,1,1,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,
-    3,1,1,1,6,6,1,1,3,3,3,3,3,3,3,3,3,1,1,1,6,1,1,1,3,
+    3,1,1,1,6,6,1,15,3,3,3,3,3,3,3,3,3,1,1,1,6,1,1,1,3,
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
@@ -35,12 +35,15 @@
     { "type": "outpost_warden_workshop", "x": 20, "y": 2 },
     { "type": "sol_engineer_1", "x": 20, "y": 5 }
   ],
-  "itemSpawns": [],
+  "itemSpawns": [
+    { "type": "basement_note", "x": 6, "y": 1 }
+  ],
   "exits": [
     { "x": 0, "y": 4, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 37, "spawnY": 11 },
     { "x": 20, "y": 7, "leadsTo": "proc_quarantine", "type": "stairs_down" },
     { "x": 4, "y": 7, "leadsTo": "outpost_training_range", "type": "stairs_down", "spawnX": 9, "spawnY": 1 },
-    { "x": 5, "y": 7, "leadsTo": "outpost_training_range", "type": "stairs_down", "spawnX": 10, "spawnY": 1 }
+    { "x": 5, "y": 7, "leadsTo": "outpost_training_range", "type": "stairs_down", "spawnX": 10, "spawnY": 1 },
+    { "x": 7, "y": 7, "leadsTo": "outpost_basement", "type": "stairs_down", "spawnX": 5, "spawnY": 9 }
   ],
   "triggers": [
     {
@@ -92,6 +95,28 @@
         { "type": "toggleTile", "x": 5, "y": 6 }
       ],
       "once": true
+    },
+    {
+      "id": "basement_note_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "basement_note" },
+      "actions": [
+        { "type": "setFlag", "flag": "found_basement_note" },
+        { "type": "toggleTile", "x": 7, "y": 7 },
+        { "type": "showMessage", "lines": [
+          "You read the crumpled note: 'They won't find me down here. I just need to hold out until the next train.'",
+          "Something shifts behind a crate in the corner. There are stairs leading down — a hidden lower level."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "auto_reveal_basement",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "found_basement_note" }],
+      "actions": [
+        { "type": "toggleTile", "x": 7, "y": 7 }
+      ]
     }
   ]
 }

@@ -154,7 +154,7 @@ class QuestTracker {
       if (!state || !quest) return null;
       for (const stepId of state.activeSteps) {
         const stepDef = quest.steps[stepId];
-        if (stepDef && (stepDef.objective || stepDef.objectiveItem)) {
+        if (stepDef && (stepDef.objective || stepDef.objectiveItem || stepDef.uiHint)) {
           const obj = {
             questId,
             questName: quest.name,
@@ -167,6 +167,9 @@ class QuestTracker {
           };
           if (stepDef.objectiveItem) {
             obj.objectiveItem = stepDef.objectiveItem;
+          }
+          if (stepDef.uiHint) {
+            obj.uiHint = stepDef.uiHint;
           }
           return obj;
         }

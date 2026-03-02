@@ -1,0 +1,159 @@
+{
+  "id": "meridian_civic",
+  "name": "Civic Center",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "width": 25,
+  "height": 18,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,6,3,3,3,3,3,3,3,3,3,3,3,3,
+    6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,24,
+    3,1,1,3,3,3,3,4,3,3,3,1,1,1,3,3,3,4,3,3,3,1,1,1,3,
+    3,1,1,3,1,1,1,1,1,1,3,1,1,1,3,1,1,1,1,1,3,1,1,1,3,
+    3,1,1,3,1,2,2,2,2,1,3,1,1,1,3,1,2,2,2,1,3,1,1,1,3,
+    3,1,1,3,1,2,2,2,2,1,3,1,1,1,3,1,2,2,2,1,3,1,1,1,3,
+    3,1,1,3,1,1,1,1,1,1,3,1,1,1,3,1,1,1,1,1,3,1,1,1,3,
+    3,1,1,3,3,3,3,3,3,3,3,1,1,1,3,3,3,3,3,3,3,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,3,3,3,3,4,3,1,1,1,1,1,1,1,3,3,3,3,4,3,1,1,3,
+    3,1,1,3,1,1,1,1,3,1,1,1,1,1,1,1,3,1,1,1,1,3,1,1,3,
+    3,1,1,3,1,2,2,1,3,1,1,1,1,1,1,1,3,1,2,2,1,3,1,1,3,
+    3,1,1,3,1,1,1,1,3,1,1,1,1,1,1,1,3,1,1,1,1,3,1,1,3,
+    3,1,1,3,3,3,3,3,3,1,1,1,1,1,1,1,3,3,3,3,3,3,1,1,6,
+    3,3,3,3,3,3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 8, "type": "player_start" },
+    { "x": 2, "y": 8, "type": "player_start" },
+    { "x": 1, "y": 9, "type": "player_start" },
+    { "x": 2, "y": 9, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [
+    { "type": "registrar_hollis", "x": 6, "y": 5 },
+    { "type": "councillor_asha", "x": 17, "y": 5 },
+    { "type": "liaison_thorne", "x": 6, "y": 14 }
+  ],
+  "itemSpawns": [],
+  "exits": [
+    { "x": 0, "y": 1, "leadsTo": "meridian_station", "type": "stairs_down", "spawnX": 28, "spawnY": 9 },
+    { "x": 12, "y": 0, "leadsTo": "meridian_market", "type": "stairs_down", "spawnX": 12, "spawnY": 17 },
+    { "x": 24, "y": 16, "leadsTo": "meridian_residential", "type": "stairs_down", "spawnX": 1, "spawnY": 8 },
+    { "x": 12, "y": 17, "leadsTo": "meridian_station", "type": "stairs_up", "spawnX": 28, "spawnY": 9 },
+    { "x": 24, "y": 2, "leadsTo": "homestead_plot", "type": "stairs_down", "spawnX": 20, "spawnY": 14 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_civic",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Civic Center. Clean lines, functional architecture. This is where Meridian City governs itself.",
+          "Offices line both sides of the main hall. A reception desk sits unattended — budget cuts, presumably."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "hollis_gives_deed",
+      "event": "npc_interacted",
+      "filter": { "npcType": "registrar_hollis" },
+      "conditions": [
+        { "hasFlag": "has_transit_pass" },
+        { "not": { "hasFlag": "has_homestead_deed" } }
+      ],
+      "actions": [
+        { "type": "giveItem", "itemType": "homestead_deed" },
+        { "type": "setFlag", "flag": "has_homestead_deed" },
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "text": "Hollis stamps the deed with a heavy seal. 'Plot 7, East Terrace. It's yours. Don't let it go to waste.'" }
+      ],
+      "once": true
+    },
+    {
+      "id": "thorne_offer",
+      "event": "npc_interacted",
+      "filter": { "npcType": "liaison_thorne" },
+      "conditions": [
+        { "not": { "hasFlag": "accepted_array_deal" } },
+        { "not": { "hasFlag": "declined_array_deal" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "array_deal", "prompt": "Thorne offers you a data-sharing arrangement with the Array. Better trade rates in exchange for your exploration data.", "options": [
+          { "label": "Accept", "description": "Share exploration data with the Array for premium trade rates", "value": "accept" },
+          { "label": "Decline", "description": "Keep your data private. Standard trade rates apply.", "value": "decline" }
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "array_deal_accept",
+      "event": "choice_made",
+      "filter": { "choiceId": "array_deal", "value": "accept" },
+      "actions": [
+        { "type": "setFlag", "flag": "accepted_array_deal" },
+        { "type": "showMessage", "lines": [
+          "You agree to share your exploration data with MERIDIAN-7.",
+          "Thorne smiles — a practiced, professional smile. 'Wise choice. Your Premium Terminal access is now active at the Array Hub.'"
+        ]}
+      ]
+    },
+    {
+      "id": "array_deal_decline",
+      "event": "choice_made",
+      "filter": { "choiceId": "array_deal", "value": "decline" },
+      "actions": [
+        { "type": "setFlag", "flag": "declined_array_deal" },
+        { "type": "showMessage", "text": "You decline the offer. Thorne's smile doesn't waver. 'Of course. The offer remains open, should you reconsider.'" }
+      ]
+    },
+    {
+      "id": "homestead_hint",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "has_homestead_deed" },
+        { "not": { "hasFlag": "visited_homestead" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "You have the Homestead Deed for Plot 7. The East Terrace is accessible through the gate in the northeast wall." }
+      ],
+      "once": true
+    },
+    {
+      "id": "asha_quest_offer",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "not": { "hasFlag": "asha_quest_accepted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_quest_accepted" },
+        { "type": "showMessage", "text": "Councillor Denn nods thoughtfully. 'When you're ready to return to the dark perimeter, collect biological samples for me. Fungal cultures, organism tissue, soil from the relay stations. This research could change everything.'" },
+        { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    },
+    {
+      "id": "asha_samples_delivery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "biological_samples" },
+        { "hasFlag": "asha_quest_accepted" },
+        { "not": { "hasFlag": "asha_quest_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "biological_samples" },
+        { "type": "setFlag", "flag": "asha_quest_complete" },
+        { "type": "setFlag", "flag": "asha_samples_collected" },
+        { "type": "giveItem", "itemType": "bio_resonance_amplifier_chip" },
+        { "type": "grantXp", "amount": 60 }
+      ],
+      "once": true
+    }
+  ]
+}

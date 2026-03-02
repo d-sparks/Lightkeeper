@@ -1,0 +1,39 @@
+{
+  "id": "the_deserter",
+  "name": "The Deserter",
+  "description": "Fen Maro, the person hiding in Outpost Balor's basement, wants you to deliver a letter to Warden Holt and find their squad's supply cache.",
+  "startConditions": [{ "hasFlag": "fen_letter_accepted" }],
+  "steps": {
+    "deliver_letter": {
+      "label": "Deliver Fen's Letter to Warden Holt",
+      "description": "Return to Outpost Balor and give Fen's letter to Warden Holt.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "outpost_entrance", "tileX": 4, "tileY": 10 },
+      "completionConditions": [{ "hasFlag": "fen_letter_delivered" }],
+      "completionActions": [{ "type": "grantXp", "amount": 25 }]
+    },
+    "find_cache": {
+      "label": "Find the Squad's Supply Cache",
+      "description": "Search the deep perimeter east for Fen's squad's collapsed supply bunker, northeast of the main passage.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "fen_cache" },
+      "completionConditions": [{ "hasFlag": "found_fen_cache" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 40 },
+        { "type": "showMessage", "text": "You found Fen's squad's cache — military-grade equipment preserved in a collapsed bunker." }
+      ]
+    },
+    "return_to_fen": {
+      "label": "Return to Fen Maro",
+      "description": "Tell Fen about the cache and their squad's last camp.",
+      "prerequisiteSteps": ["deliver_letter", "find_cache"],
+      "objective": { "roomId": "meridian_residential" },
+      "completionConditions": [{ "hasFlag": "fen_quest_complete" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "text": "Quest complete: The Deserter. Fen has made peace with their past and offers to serve as your guide." }
+      ]
+    }
+  },
+  "startStep": "deliver_letter"
+}

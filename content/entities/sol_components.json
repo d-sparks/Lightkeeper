@@ -22,5 +22,71 @@
     "name": "Cooldown Reducer",
     "bonus": { "cooldownReduction": 0.15 },
     "shape": [[1, 1]]
+  },
+  "signal_booster": {
+    "type": "modifier",
+    "name": "Signal Booster",
+    "bonus": { "cooldownReduction": 0.20 },
+    "shape": [[1]]
+  },
+  "cooldown_reducer_mk2": {
+    "type": "modifier",
+    "name": "Cooldown Reducer Mk2",
+    "bonus": { "cooldownReduction": 0.25 },
+    "shape": [[1, 1]]
+  },
+  "night_vision_lens": {
+    "type": "modifier",
+    "name": "Night Vision Lens",
+    "bonus": { "damageMultiplier": 0.15 },
+    "shape": [[1]]
+  },
+  "reinforced_battery": {
+    "type": "modifier",
+    "name": "Reinforced Battery",
+    "bonus": { "cooldownReduction": 0.10 },
+    "shape": [[1]]
+  },
+  "efficiency_core": {
+    "type": "modifier",
+    "name": "Efficiency Core",
+    "bonus": { "cooldownReduction": 0.20 },
+    "shape": [[1]]
+  },
+  "area_expander": {
+    "type": "modifier",
+    "name": "Area Expander",
+    "bonus": { "damageMultiplier": 0.20 },
+    "shape": [[1]]
+  },
+  "power_tap": {
+    "type": "modifier",
+    "name": "Power Tap",
+    "bonus": { "damageMultiplier": 0.15, "cooldownReduction": 0.15 },
+    "shape": [[1, 1]]
+  },
+  "sol_shield_emitter": {
+    "type": "ability",
+    "abilityId": "sol_shield",
+    "name": "Sol Shield Emitter",
+    "shape": [[1]]
+  },
+  "guardian_core": {
+    "type": "modifier",
+    "name": "Guardian Core",
+    "bonus": { "damageMultiplier": 0.35, "cooldownReduction": 0.25 },
+    "shape": [[1, 1]]
+  },
+  "bio_resonance_amplifier": {
+    "type": "modifier",
+    "name": "Bio-Resonance Amplifier",
+    "bonus": { "damageMultiplier": 0.15, "cooldownReduction": 0.20 },
+    "shape": [[1]]
+  },
+  "resonance_detector": {
+    "type": "modifier",
+    "name": "Resonance Detector",
+    "bonus": { "damageMultiplier": 0.20, "cooldownReduction": 0.15 },
+    "shape": [[1]]
   }
 }

@@ -3,6 +3,15 @@
     "name": "Sol Unit Mk1",
     "gridSize": 5,
     "maxCharge": 100,
+    "initialEnergy": 40,
+    "initialComponents": [
+      { "abilityId": "sol_cone", "gridX": 2, "gridY": 2 }
+    ]
+  },
+  "sol_unit_mk1_plus": {
+    "name": "Sol Unit Mk1+",
+    "gridSize": 6,
+    "maxCharge": 120,
     "initialEnergy": 5,
     "initialComponents": [
       { "abilityId": "sol_cone", "gridX": 2, "gridY": 2 }

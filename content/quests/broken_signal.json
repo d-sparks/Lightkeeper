@@ -1,0 +1,31 @@
+{
+  "id": "broken_signal",
+  "name": "The Broken Signal",
+  "description": "Comms Officer Daley has detected a strange signal from beyond the deep perimeter. Find its source and report back.",
+  "startConditions": [{ "hasFlag": "daley_gave_coordinates" }],
+  "steps": {
+    "find_signal": {
+      "label": "Find the Signal Source",
+      "description": "Follow Daley's coordinates into the deep perimeter east and locate the source of the broken signal.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "signal_cave" },
+      "completionConditions": [{ "hasFlag": "signal_source_found" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 35 },
+        { "type": "showMessage", "text": "You found the signal source — a dead Lightkeeper's camp with a damaged transmitter and a journal." }
+      ]
+    },
+    "return_to_daley": {
+      "label": "Return to Comms Officer Daley",
+      "description": "Bring the Lightkeeper's journal back to Daley at Outpost Balor's comms room.",
+      "prerequisiteSteps": ["find_signal"],
+      "objective": { "roomId": "outpost_comms" },
+      "completionConditions": [{ "hasFlag": "broken_signal_complete" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "text": "Quest complete: The Broken Signal. The dead Lightkeeper's data has been preserved. Daley will analyze the transmissions." }
+      ]
+    }
+  },
+  "startStep": "find_signal"
+}

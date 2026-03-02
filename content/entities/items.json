@@ -113,5 +113,355 @@
     "description": "A dense crystalline mineral found in the terminator zone. Rare and valuable — the Array's automated systems prize it above all else.",
     "type": "key",
     "rarity": "uncommon"
+  },
+  "ration_pack": {
+    "name": "Ration Pack",
+    "description": "Standard-issue field rations. Bland but nutritious. Restores 10 health.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": { "heal": 10 }
+  },
+  "field_medkit": {
+    "name": "Field Medkit",
+    "description": "A proper medical kit with fungal salve and stim compounds. Restores 40 health.",
+    "type": "consumable",
+    "rarity": "uncommon",
+    "effect": { "heal": 40 }
+  },
+  "circuit_board": {
+    "name": "Circuit Board",
+    "description": "A salvageable relay circuit board. Comms Officer Daley could use this to repair the long-range radio.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "backup_power_cell": {
+    "name": "Backup Power Cell",
+    "description": "A charged power cell in good condition. Daley needs one of these for the comms array.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "basement_note": {
+    "name": "Crumpled Note",
+    "description": "A hastily written note: 'They won't find me down here. I just need to hold out until the next train.'",
+    "type": "key",
+    "rarity": "common"
+  },
+  "bioluminescent_moss": {
+    "name": "Bioluminescent Moss",
+    "description": "A clump of softly glowing moss harvested from the deep crypt. Dr. Vasik needs this for a healing salve.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "signal_booster_chip": {
+    "name": "Signal Booster",
+    "description": "A tuned frequency amplifier chip. Place it in a Sol Grid to reduce cooldowns of adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "signal_booster"
+  },
+  "cooldown_reducer_mk2_chip": {
+    "name": "Cooldown Reducer Mk2",
+    "description": "An improved cooldown modifier. Significantly reduces cooldowns of adjacent Sol abilities.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "cooldown_reducer_mk2"
+  },
+  "flare": {
+    "name": "Flare",
+    "description": "A single-use emergency flare. The burst of light drives back the dark and soothes frayed nerves. Restores 15 health.",
+    "type": "consumable",
+    "rarity": "uncommon",
+    "effect": { "heal": 15 }
+  },
+  "relay_log": {
+    "name": "Relay Log",
+    "description": "A water-damaged operations log from a failed Lighthouse relay. The last entry mentions 'something moving under the ground' and coordinates that don't match any known settlement.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "tannis_dog_tags": {
+    "name": "Tannis's Dog Tags",
+    "description": "Standard-issue identification tags. The name reads 'PVT. TANNIS, R.' — these must have been torn off during the attack on the perimeter.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "watchtower_journal": {
+    "name": "Watchtower Journal",
+    "description": "A worn observation journal from a long-dead watchman. The entries document decades of the dark's encroachment. The last entry reads simply: 'The light went out.'",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "transit_pass": {
+    "name": "Transit Pass",
+    "description": "An authorized transit pass for the Meridian City rail line. Tech Yara's signature is scrawled on the back.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "night_vision_lens_chip": {
+    "name": "Night Vision Lens",
+    "description": "A dark-adapted optical modifier salvaged from the old watchtower. Boosts damage output when placed in a Sol Grid.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "night_vision_lens"
+  },
+  "chitin_plate": {
+    "name": "Chitin Plate",
+    "description": "A thick plate of hardened chitin harvested from a Nest Mother. Valuable crafting material — an armorer in Meridian City could make use of this.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "reinforced_battery_chip": {
+    "name": "Reinforced Battery Casing",
+    "description": "A reinforced power casing that improves Sol Unit efficiency. Place it in a Sol Grid to reduce cooldowns of adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "reinforced_battery"
+  },
+  "umbracite_shard": {
+    "name": "Umbracite Shard",
+    "description": "A raw fragment of umbracite crystal, smaller than a refined piece but still valuable. The Array's automated systems will trade well for this.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "tempered_blade": {
+    "name": "Tempered Blade",
+    "description": "City-forged steel, properly tempered and balanced. A significant upgrade from outpost-grade weapons.",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "weapon",
+    "stats": { "attackDamage": 8 },
+    "ability": { "id": "melee_strike" }
+  },
+  "precision_blaster": {
+    "name": "Precision Blaster",
+    "description": "A refined energy weapon with improved optics and tighter beam focus. Faster and more accurate than standard issue.",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "weapon",
+    "stats": { "attackDamage": 6, "projectile": true },
+    "ability": { "id": "precision_shot" }
+  },
+  "shock_baton": {
+    "name": "Shock Baton",
+    "description": "An electrified close-quarters weapon. The capacitor discharge sends targets stumbling backward.",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "weapon",
+    "stats": { "attackDamage": 7 },
+    "ability": { "id": "shock_strike" }
+  },
+  "pulse_rifle": {
+    "name": "Pulse Rifle",
+    "description": "Military-grade energy weapon. Fires concentrated pulses that punch through targets.",
+    "type": "weapon",
+    "rarity": "rare",
+    "slot": "weapon",
+    "stats": { "attackDamage": 5, "projectile": true },
+    "ability": { "id": "pulse_shot" }
+  },
+  "efficiency_core_chip": {
+    "name": "Efficiency Core",
+    "description": "A precision-engineered power regulator. Place in a Sol Grid to reduce energy costs of adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "efficiency_core"
+  },
+  "area_expander_chip": {
+    "name": "Area Expander",
+    "description": "A signal amplifier that broadens the effective radius of adjacent Sol abilities. Place in a Sol Grid.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "area_expander"
+  },
+  "power_tap_chip": {
+    "name": "Power Tap",
+    "description": "A rare power generation module. Significantly boosts the output of adjacent Sol abilities. The first step toward true energy independence.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "power_tap"
+  },
+  "sol_shield_chip": {
+    "name": "Sol Shield Emitter",
+    "description": "A defensive Sol component that generates a brief energy barrier. Place in a Sol Grid to gain the Sol Shield ability.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "sol_shield_emitter"
+  },
+  "homestead_deed": {
+    "name": "Homestead Deed",
+    "description": "Official documentation granting you Plot 7, East Terrace in the Meridian City homestead district. Signed by Land Registrar Hollis.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "umbral_seed": {
+    "name": "Umbral Seed",
+    "description": "A strange, dark seed that pulses with faint bioluminescence. Sable says it's from deep Nightside — where the planet 'remembers.' It feels warm in your hand.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "fens_letter": {
+    "name": "Fen's Letter",
+    "description": "A sealed letter addressed to Warden Holt at Outpost Balor. The envelope is worn, as if Fen has been carrying it for a long time.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "copper_coil": {
+    "name": "Copper Coil",
+    "description": "Precision-wound copper wire coils. Essential component for battery construction and electrical work.",
+    "type": "key",
+    "rarity": "common"
+  },
+  "calibration_wrench": {
+    "name": "Calibration Wrench",
+    "description": "A specialized tool marked with 'DAVI' in scratchy handwriting. Someone's clearly attached to this wrench.",
+    "type": "key",
+    "rarity": "common"
+  },
+  "resin_bush_seeds": {
+    "name": "Resin Bush Seeds",
+    "description": "Hardy seeds engineered for Terminator Zone soil. Plant in a garden plot and they'll grow stabilizing resin — the key ingredient for rechargeable batteries.",
+    "type": "key",
+    "rarity": "common"
+  },
+  "stabilizing_resin": {
+    "name": "Stabilizing Resin",
+    "description": "A thick, amber-colored resin harvested from homestead plants. Prevents battery cores from overheating during charge cycles. Essential for rechargeable battery construction.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "enriched_soil": {
+    "name": "Enriched Soil",
+    "description": "Nutrient-dense soil blend prepared by an experienced gardener. Apply to a garden plot to double the next resin harvest.",
+    "type": "consumable",
+    "rarity": "uncommon"
+  },
+  "sonic_repeller": {
+    "name": "Sonic Repeller",
+    "description": "A small ultrasonic device that drives away garden pests. Neighbor Sera could use one of these for her mite problem.",
+    "type": "key",
+    "rarity": "common"
+  },
+  "rechargeable_battery_l1": {
+    "name": "Rechargeable Battery",
+    "description": "A hand-crafted rechargeable power cell. Restores 30 energy when used and can be recharged at any charging station for free. Self-sufficiency in your pocket.",
+    "type": "consumable",
+    "rarity": "rare",
+    "effect": { "energy": 30 }
+  },
+  "resin_growing_guide": {
+    "name": "Resin Growing Guide",
+    "description": "A hand-written guide to growing stabilizing resin bushes in the Terminator Zone. Notes from Neighbor Sera: 'The soil here is good — not too hot, not too cold. That's the whole point of the Ring.'",
+    "type": "key",
+    "rarity": "common"
+  },
+  "modified_battery_casing": {
+    "name": "Modified Battery Casing",
+    "description": "A reinforced battery housing crafted from Nest Mother chitin and copper coils. Master Crafter Yun can use this to upgrade your Sol Unit's energy capacity.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "crystallized_umbracite": {
+    "name": "Crystallized Umbracite",
+    "description": "A perfectly formed crystal of umbracite that pulses with faint inner light. Unlike raw umbracite shards, this crystal seems almost alive — warm to the touch and vibrating at a frequency you can feel but not hear.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "survey_marker_data": {
+    "name": "Survey Marker Data",
+    "description": "Data extracted from Survey Marker Delta-7. Old geological readings, thermal maps, and subsurface scans — exactly what Archivist Solen has been looking for.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "biological_samples": {
+    "name": "Biological Samples",
+    "description": "Specimens of ravine lichen and deep fungus sealed in collection vials. The organisms glow faintly with bioluminescence. Councillor Asha Denn needs these for her research.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "deep_fungus": {
+    "name": "Deep Fungus",
+    "description": "A cluster of dark-adapted fungi from deep in the ravine. The caps pulse with a faint violet bioluminescence. Could be useful for advanced crafting.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "lurker_hide": {
+    "name": "Lurker Hide",
+    "description": "Thick, armored hide stripped from a Ravine Lurker. Incredibly tough — an armorer could make something formidable from this.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "guardian_core_chip": {
+    "name": "Guardian Core",
+    "description": "A crystalline power core ripped from a Crystal Guardian. It hums with energy far beyond anything manufactured. Place it in a Sol Grid for a massive boost to adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "guardian_core"
+  },
+  "resonance_fragment": {
+    "name": "Resonance Fragment",
+    "description": "A shard of crystalline material that vibrates in your hand. It came from the deepest part of the Nightside — from a place where the ground itself seemed alive. Every faction on Erith would want this.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "sol_unit_mk1_plus": {
+    "name": "Sol Unit Mk1+",
+    "description": "A military-grade Sol Unit frame with a 6x6 component grid. Found in Fen's squad's supply cache. Significantly more powerful than the standard Mk1.",
+    "type": "equipment",
+    "rarity": "epic",
+    "slot": "sol_unit",
+    "stats": { "attackDamage": 15 },
+    "hasSolGrid": true,
+    "solUnitId": "sol_unit_mk1_plus"
+  },
+  "hardened_battery_casing": {
+    "name": "Hardened Battery Casing",
+    "description": "A military-spec battery housing designed for deep Nightside operations. Combined with umbracite and copper coils, Yun can craft a more powerful rechargeable battery.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "rechargeable_battery_l2": {
+    "name": "Rechargeable Battery L2",
+    "description": "An upgraded rechargeable power cell built with hardened military components. Restores 60 energy when used and can be recharged at any charging station.",
+    "type": "consumable",
+    "rarity": "epic",
+    "effect": { "energy": 60 }
+  },
+  "bio_resonance_amplifier_chip": {
+    "name": "Bio-Resonance Amplifier",
+    "description": "A modifier synthesized from biological samples that have adapted to the Underlumen's crystalline structure. Enhances the healing properties of all adjacent Sol components.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "bio_resonance_amplifier"
+  },
+  "resonance_detector_chip": {
+    "name": "Resonance Detector",
+    "description": "A sensitive instrument calibrated using old survey data. It can detect hidden passages, buried items, and subsurface anomalies. Place in a Sol Grid to boost adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "resonance_detector"
+  },
+  "squad_leaders_visor": {
+    "name": "Squad Leader's Visor",
+    "description": "A tactical visor from Fen's squad leader. The heads-up display still works — enemy silhouettes glow through darkness and thin cover. A memento of fallen comrades.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "lightkeeper_journal": {
+    "name": "Dead Lightkeeper's Journal",
+    "description": "A water-stained journal found beside a skeleton in a cave. The final entry describes 'walls that hummed' and 'light that came from below, not above.' The handwriting grows more erratic toward the end.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "daley_coordinates": {
+    "name": "Signal Coordinates",
+    "description": "A set of coordinates decoded by Comms Officer Daley from a looping transmission. They point to a location deep in the dark perimeter — where something is still broadcasting.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "umbral_extract": {
+    "name": "Umbral Extract",
+    "description": "A dark, viscous substance produced by the Gloomvine — the transformed Umbral Seed. It pulses faintly with bioluminescence. A rare material for advanced crafting.",
+    "type": "key",
+    "rarity": "epic"
   }
 }

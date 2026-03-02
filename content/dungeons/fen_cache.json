@@ -1,0 +1,85 @@
+{
+  "id": "fen_cache",
+  "name": "Fen's Squad Cache",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "ambientLight": 0.15,
+  "width": 14,
+  "height": 8,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    8,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,2,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,2,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "sol_unit_mk1_plus", "x": 7, "y": 3 },
+    { "type": "hardened_battery_casing", "x": 9, "y": 3 },
+    { "type": "squad_leaders_visor", "x": 7, "y": 5 },
+    { "type": "medical_supplies", "x": 11, "y": 2 },
+    { "type": "medical_supplies", "x": 11, "y": 5 },
+    { "type": "medical_supplies", "x": 5, "y": 4 }
+  ],
+  "exits": [
+    { "x": 0, "y": 1, "leadsTo": "deep_perimeter_east", "type": "stairs_up", "spawnX": 26, "spawnY": 4 }
+  ],
+  "triggers": [
+    {
+      "id": "fen_cache_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A collapsed supply bunker, partially buried under rock and soil. Someone dug it out — the tool marks are old.",
+          "Inside: the remains of a last camp. Bedrolls arranged in military formation. A field stove, long cold. Personal effects scattered on makeshift shelves.",
+          "A team photo is pinned to the wall — five faces, smiling in front of an outpost gate. Fen is on the far right, looking younger. Happier.",
+          "Whatever happened to this squad, they didn't die here. They set up camp, stashed their supplies, and went out one last time. Only Fen came back."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "fen_cache_found",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "found_fen_cache" },
+        { "type": "grantXp", "amount": 40 }
+      ],
+      "once": true
+    },
+    {
+      "id": "sol_unit_mk1_plus_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "sol_unit_mk1_plus" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A military-grade Sol Unit frame — the Mk1+, with a 6x6 component grid. Significantly more powerful than your standard Mk1.",
+          "This was squad leader's equipment. Top-of-the-line when it was issued. Still is, really — nothing civilian-grade comes close.",
+          "Equip it to transfer your existing components to the larger grid."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "hardened_casing_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "hardened_battery_casing" },
+      "actions": [
+        { "type": "showMessage", "text": "A military-spec battery housing. Combined with umbracite and copper coils at Yun's workshop, this could make a much more powerful rechargeable battery." }
+      ],
+      "once": true
+    }
+  ]
+}

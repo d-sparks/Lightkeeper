@@ -1,0 +1,28 @@
+{
+  "id": "councillors_request",
+  "name": "The Councillor's Request",
+  "description": "Councillor Asha Denn needs biological samples from the deep perimeter for her research into subsurface anomalies.",
+  "startConditions": [{ "hasFlag": "asha_quest_accepted" }],
+  "steps": {
+    "collect_samples": {
+      "label": "Collect Biological Samples",
+      "description": "Travel to the perimeter ravine in the deep perimeter east and collect biological samples from the bioluminescent ecosystem.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "perimeter_ravine" },
+      "completionConditions": [{ "hasFlag": "asha_samples_collected" }],
+      "completionActions": [{ "type": "grantXp", "amount": 40 }]
+    },
+    "return_to_asha": {
+      "label": "Return to Councillor Denn",
+      "description": "Bring the biological samples back to Councillor Asha Denn at the Civic Center.",
+      "prerequisiteSteps": ["collect_samples"],
+      "objective": { "roomId": "meridian_civic", "tileX": 17, "tileY": 5 },
+      "completionConditions": [{ "hasFlag": "asha_quest_complete" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 60 },
+        { "type": "showMessage", "text": "Quest complete: The Councillor's Request. Asha Denn's research could change everything." }
+      ]
+    }
+  },
+  "startStep": "collect_samples"
+}

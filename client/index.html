@@ -1584,6 +1584,39 @@
         pointer-events: auto;
       }
     }
+
+    /* Tutorial arrow — pulsing yellow indicator for sol grid tutorial */
+    .tutorial-arrow {
+      position: absolute;
+      z-index: 200;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 14px solid #ffa726;
+      filter: drop-shadow(0 0 6px rgba(255,167,38,0.8));
+      animation: tutorial-bob 1s ease-in-out infinite;
+    }
+    .tutorial-arrow-label {
+      position: absolute;
+      z-index: 200;
+      pointer-events: none;
+      color: #ffa726;
+      font-size: 11px;
+      font-weight: bold;
+      text-shadow: 0 0 4px #000, 0 0 4px #000;
+      white-space: nowrap;
+      animation: tutorial-pulse 1s ease-in-out infinite;
+    }
+    @keyframes tutorial-bob {
+      0%, 100% { transform: translateY(0); opacity: 0.9; }
+      50% { transform: translateY(-6px); opacity: 1; }
+    }
+    @keyframes tutorial-pulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
   </style>
 </head>
 <body>

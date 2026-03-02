@@ -54,11 +54,11 @@
       "filter": { "npcType": "charging_tech_maren" },
       "conditions": [
         { "hasFlag": "sol_training_complete" },
-        { "not": { "hasFlag": "sol_charged_first_time" } }
+        { "not": { "hasFlag": "sol_unit_charged" } }
       ],
       "actions": [
         { "type": "setEnergy", "percent": 100 },
-        { "type": "setFlag", "flag": "sol_charged_first_time" }
+        { "type": "setFlag", "flag": "sol_unit_charged" }
       ],
       "once": true
     },
@@ -67,7 +67,7 @@
       "event": "room_entered",
       "conditions": [
         { "hasFlag": "sol_training_complete" },
-        { "not": { "hasFlag": "sol_charged_first_time" } }
+        { "not": { "hasFlag": "sol_unit_charged" } }
       ],
       "actions": [
         { "type": "showMessage", "text": "Your Sol Unit's energy indicator is flashing red. Talk to Tech Maren at the charging terminals." }

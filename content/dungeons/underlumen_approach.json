@@ -1,0 +1,128 @@
+{
+  "id": "underlumen_approach",
+  "name": "The Hum",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "ambientLight": 0.02,
+  "width": 20,
+  "height": 14,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,3,
+    3,1,1,1,1,1,3,3,1,1,1,1,3,3,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,26,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,8,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,3,
+    3,1,1,1,1,1,3,3,1,1,1,1,3,3,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,8,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 10, "y": 12, "type": "player_start" },
+    { "x": 11, "y": 12, "type": "player_start" },
+    { "x": 10, "y": 11, "type": "player_start" },
+    { "x": 11, "y": 11, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "crystal_guardian", "x": 9, "y": 4, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [],
+  "exits": [
+    { "x": 19, "y": 12, "leadsTo": "signal_cave", "type": "stairs_up", "spawnX": 7, "spawnY": 2 },
+    { "x": 18, "y": 7, "leadsTo": "perimeter_ravine", "type": "stairs_up", "spawnX": 2, "spawnY": 11 }
+  ],
+  "triggers": [
+    {
+      "id": "underlumen_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "This place is different. The walls glow with embedded crystalline veins — not bioluminescence, but something deeper, geological.",
+          "The ground vibrates beneath your feet. A low hum fills the air, felt more than heard. It resonates in your chest, in your teeth, in the soles of your boots.",
+          "No creatures here. The darkness is absolute except for the crystal veins, but it doesn't feel hostile. It feels... attentive."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "crystal_guardian_warning",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "text": "A massive crystalline form stands near the center of the chamber. Semi-translucent, embedded in the rock itself. It could be a statue — or it could be sleeping." }
+      ],
+      "once": true
+    },
+    {
+      "id": "crystal_guardian_drop",
+      "event": "monster_killed",
+      "filter": { "monsterType": "crystal_guardian" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Crystal Guardian shatters, its crystalline body fragmenting into glowing shards that slowly dim.",
+          "Among the debris, a dense core remains — still humming with energy. A power source unlike anything manufactured."
+        ]},
+        { "type": "giveItem", "itemType": "guardian_core_chip" },
+        { "type": "setFlag", "flag": "crystal_guardian_defeated" },
+        { "type": "grantXp", "amount": 60 }
+      ],
+      "once": true
+    },
+    {
+      "id": "resonance_point_interact",
+      "event": "door_interacted",
+      "filter": { "tileX": 9, "tileY": 6 },
+      "conditions": [
+        { "not": { "hasFlag": "underlumen_contact" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_contact" },
+        { "type": "giveItem", "itemType": "resonance_fragment" },
+        { "type": "grantXp", "amount": 75 },
+        { "type": "showMessage", "lines": [
+          "You place your hand on the stone. The vibration intensifies.",
+          "Images flash — not quite memories, not quite visions. A world before the darkness. Before the light. Before the divide. Something whole.",
+          "A network of crystal veins stretching through the planet like nerves through a body. Energy flowing along pathways older than anything human. A slow, vast consciousness — not thinking the way you think, but aware. Present. Patient.",
+          "Then silence. The vibration fades. But something has changed.",
+          "Your Sol Unit's display flickers with a new symbol you've never seen before. And in your hand, a fragment of the resonance point has broken free — a shard of living crystal that still hums with the planet's voice.",
+          "The Underlumen isn't dead. It's sleeping. And it just noticed you."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "resonance_point_return",
+      "event": "door_interacted",
+      "filter": { "tileX": 9, "tileY": 6 },
+      "conditions": [
+        { "hasFlag": "underlumen_contact" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The resonance point is quiet now. But you can still feel the vibration — faintly, constantly, like a second heartbeat. It's always been there. You just couldn't feel it before." }
+      ]
+    },
+    {
+      "id": "umbral_seed_hum_reaction",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "seed_exposed_to_dark" },
+        { "not": { "hasFlag": "seed_hum_resonance" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "seed_hum_resonance" },
+        { "type": "showMessage", "lines": [
+          "The Umbral Seed in your pack suddenly flares with light — brighter than you've ever seen it. It's responding to the Hum.",
+          "The vibration in the chamber intensifies momentarily, as if the Underlumen recognizes the seed. Old friends meeting.",
+          "The seed has changed. Its bioluminescence has shifted from pale green to deep violet. When you replant it, something different will grow."
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "station_approach",
+  "name": "Station Approach",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "ambientLight": 0.40,
+  "width": 20,
+  "height": 12,
+  "data": [
+    3,3,3,3,3,3,3,3,3,6,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,3,3,1,1,1,1,1,1,1,1,1,1,3,3,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 9, "y": 10, "type": "player_start" },
+    { "x": 10, "y": 10, "type": "player_start" },
+    { "x": 9, "y": 9, "type": "player_start" },
+    { "x": 10, "y": 9, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [
+    { "type": "sable_companion", "x": 12, "y": 5 }
+  ],
+  "itemSpawns": [],
+  "exits": [
+    { "x": 9, "y": 0, "leadsTo": "train_station", "type": "stairs_down", "spawnX": 12, "spawnY": 13 },
+    { "x": 9, "y": 11, "leadsTo": "dead_road", "type": "stairs_up", "spawnX": 14, "spawnY": 2 }
+  ],
+  "triggers": [
+    {
+      "id": "station_approach_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Emergency lighting still works here — amber strips along the ground cast a warm glow. After the suffocating darkness, it feels like coming home.",
+          "A pair of dead Dusk Crawlers lie near the entrance, their bodies still warm. Something killed them recently."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "set_sable_not_helped",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "helped_sable" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "sable_not_helped" },
+        { "type": "removeEntity", "entityType": "npc", "npcType": "sable_companion" }
+      ],
+      "once": true
+    },
+    {
+      "id": "graffiti_with_sable",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "helped_sable" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Sable points at markings scratched into the wall. \"Unbounded trail signs. The broken circle means 'settlement nearby.' Someone came through here before me.\"" }
+      ],
+      "once": true
+    },
+    {
+      "id": "graffiti_without_sable",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "sable_not_helped" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Strange symbols are scratched into the wall near the entrance. Broken circles, jagged lines. Not military markings — something else." }
+      ],
+      "once": true
+    },
+    {
+      "id": "reached_station_approach",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "reached_station_approach" }
+      ],
+      "once": true
+    }
+  ]
+}

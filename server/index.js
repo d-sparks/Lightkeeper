@@ -668,10 +668,21 @@ wss.on('connection', (ws) => {
 
       case CONSTANTS.MSG.SOL_GRID_PLACE: {
         if (!ws.playerRoom) break;
-        const ok = gameLoop.trySolGridPlace(
+        const placeResult = gameLoop.trySolGridPlace(
           ws.playerRoom, playerId, msg.inventoryIndex, msg.gridX, msg.gridY
         );
-        if (ok) {
+        if (placeResult && placeResult.ok) {
+          // Set flag when damage booster chip is placed (for quest tracking)
+          if (placeResult.itemType === 'damage_booster_chip') {
+            gameLoop.flagStore.setFlag(playerId, ws.playerRoom, 'damage_booster_equipped', true);
+            gameLoop.eventBus.emit('flag_changed', {
+              playerId,
+              roomId: ws.playerRoom,
+              flag: 'damage_booster_equipped',
+              value: true,
+              scope: 'player',
+            });
+          }
           const room2 = gameLoop.getRoom(ws.playerRoom);
           const p2 = room2 && room2.players.get(playerId);
           if (p2) {

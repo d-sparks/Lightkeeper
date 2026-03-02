@@ -1,0 +1,20 @@
+{
+  "id": "lost_tool",
+  "name": "Lost Tool",
+  "description": "Apprentice Davi has lost his calibration wrench somewhere in the Workshop District.",
+  "startConditions": [{ "hasFlag": "found_davi_wrench" }],
+  "steps": {
+    "return_wrench": {
+      "label": "Return Davi's Calibration Wrench",
+      "description": "Bring the calibration wrench back to Apprentice Davi in the Workshop District.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "meridian_workshop", "tileX": 14, "tileY": 5 },
+      "completionConditions": [{ "hasFlag": "davi_wrench_returned" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "text": "Quest complete: Lost Tool. Davi rewards you with Copper Coils." }
+      ]
+    }
+  },
+  "startStep": "return_wrench"
+}

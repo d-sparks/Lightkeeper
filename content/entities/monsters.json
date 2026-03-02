@@ -73,5 +73,102 @@
     "attackSpeed": 0,
     "ai": "melee_chase",
     "xp": 0
+  },
+  "dusk_crawler": {
+    "name": "Dusk Crawler",
+    "sprite": "sprites/dusk_crawler.png",
+    "size": [16, 16],
+    "health": 15,
+    "speed": 3.0,
+    "damage": 4,
+    "attackRange": 1,
+    "attackSpeed": 1.2,
+    "ai": "melee_chase",
+    "xp": 5
+  },
+  "shade_stalker": {
+    "name": "Shade Stalker",
+    "sprite": "sprites/shade_stalker.png",
+    "size": [16, 16],
+    "health": 45,
+    "speed": 2.5,
+    "damage": 10,
+    "attackRange": 1.5,
+    "attackSpeed": 1.0,
+    "ai": "melee_chase",
+    "xp": 18
+  },
+  "nest_mother": {
+    "name": "Nest Mother",
+    "sprite": "sprites/nest_mother.png",
+    "size": [16, 16],
+    "health": 80,
+    "speed": 1.5,
+    "damage": 12,
+    "attackRange": 1.5,
+    "attackSpeed": 0.8,
+    "ai": "melee_chase",
+    "xp": 45
+  },
+  "shade_stalker_alpha": {
+    "name": "Shade Stalker Alpha",
+    "sprite": "sprites/shade_stalker_alpha.png",
+    "size": [16, 16],
+    "health": 60,
+    "speed": 2.8,
+    "damage": 14,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "xp": 30
+  },
+  "garden_mite": {
+    "name": "Garden Mite",
+    "sprite": "sprites/garden_mite.png",
+    "size": [16, 16],
+    "health": 8,
+    "speed": 2.0,
+    "damage": 2,
+    "attackRange": 1,
+    "attackSpeed": 1.5,
+    "ai": "melee_chase",
+    "xp": 3
+  },
+  "gloom_wraith": {
+    "name": "Gloom Wraith",
+    "sprite": "sprites/gloom_wraith.png",
+    "size": [16, 16],
+    "health": 55,
+    "speed": 2.0,
+    "damage": 12,
+    "attackRange": 6,
+    "attackSpeed": 0.8,
+    "projectile": "shadow_bolt",
+    "ai": "ranged_kite",
+    "xp": 25
+  },
+  "ravine_lurker": {
+    "name": "Ravine Lurker",
+    "sprite": "sprites/ravine_lurker.png",
+    "size": [16, 16],
+    "health": 70,
+    "speed": 1.8,
+    "damage": 15,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "xp": 35
+  },
+  "crystal_guardian": {
+    "name": "Crystal Guardian",
+    "sprite": "sprites/crystal_guardian.png",
+    "size": [16, 16],
+    "health": 100,
+    "speed": 1.0,
+    "damage": 18,
+    "attackRange": 2,
+    "attackSpeed": 0.7,
+    "ai": "melee_chase",
+    "xp": 60
   }
 }

@@ -1,0 +1,75 @@
+{
+  "id": "perimeter_breach",
+  "name": "The Breach",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "ambientLight": 0.05,
+  "width": 25,
+  "height": 16,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,6,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,3,3,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,3,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,2,1,1,1,1,1,1,1,2,3,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 12, "y": 14, "type": "player_start" },
+    { "x": 13, "y": 14, "type": "player_start" },
+    { "x": 12, "y": 13, "type": "player_start" },
+    { "x": 13, "y": 13, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "shade_stalker", "x": 6, "y": 4, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 18, "y": 7, "count": 1, "patrol": "wander" },
+    { "type": "dusk_crawler", "x": 10, "y": 6, "count": 2, "patrol": "wander" },
+    { "type": "dusk_crawler", "x": 16, "y": 11, "count": 2, "patrol": "wander" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "tannis_dog_tags", "x": 11, "y": 5 },
+    { "type": "bandage", "x": 20, "y": 11 }
+  ],
+  "exits": [
+    { "x": 12, "y": 0, "leadsTo": "dead_road", "type": "stairs_down", "spawnX": 14, "spawnY": 14 },
+    { "x": 12, "y": 15, "leadsTo": "perimeter_outer_ring", "type": "stairs_up", "spawnX": 27, "spawnY": 2 }
+  ],
+  "triggers": [
+    {
+      "id": "breach_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The old perimeter wall is torn apart here. Massive claw marks score the concrete. Emergency lights flicker erratically.",
+          "This is where the Nightside creatures have been getting through. This is where Tannis was attacked."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "dog_tags_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "tannis_dog_tags" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Standard-issue identification tags, half-buried in rubble. The chain is snapped — torn off by force.",
+          "\"PVT. TANNIS, R.\" — Tannis from the infirmary. He'd probably want these back."
+        ]},
+        { "type": "setFlag", "flag": "found_tannis_tags" }
+      ],
+      "once": true
+    }
+  ]
+}

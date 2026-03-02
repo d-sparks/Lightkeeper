@@ -50,13 +50,77 @@
       "completionConditions": [{ "hasFlag": "received_sol_unit" }],
       "completionActions": [{ "type": "grantXp", "amount": 25 }]
     },
+    "equip_damage_booster": {
+      "label": "Equip the Damage Booster",
+      "description": "Open your Sol Grid and place the Damage Booster next to the Sol Cone.",
+      "prerequisiteSteps": ["return_to_engineer"],
+      "uiHint": "sol_grid_tutorial",
+      "completionConditions": [{ "hasFlag": "damage_booster_equipped" }],
+      "completionActions": [{ "type": "grantXp", "amount": 10 }]
+    },
+    "training_range": {
+      "label": "Complete Sol Training",
+      "description": "Head to the training range and destroy the targets.",
+      "prerequisiteSteps": ["equip_damage_booster"],
+      "objective": { "roomId": "outpost_training_range", "tileX": 9, "tileY": 6 },
+      "completionConditions": [{ "hasFlag": "sol_training_complete" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
     "charge_sol_unit": {
       "label": "Charge your Sol Unit",
       "description": "Head to the Power Station to charge the Sol Unit.",
-      "prerequisiteSteps": ["return_to_engineer"],
+      "prerequisiteSteps": ["training_range"],
       "objective": { "roomId": "outpost_charging_station", "tileX": 12, "tileY": 6 },
       "completionConditions": [{ "hasFlag": "sol_unit_charged" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
+    },
+    "cross_perimeter": {
+      "label": "Cross the Dark Perimeter",
+      "description": "Pass through the perimeter gate and traverse the dangerous outer ring to reach the train station.",
+      "prerequisiteSteps": ["charge_sol_unit"],
+      "objective": { "roomId": "station_approach" },
+      "completionConditions": [{ "hasFlag": "reached_station_approach" }],
+      "completionActions": [{ "type": "grantXp", "amount": 30 }]
+    },
+    "get_transit_pass": {
+      "label": "Get a Transit Pass",
+      "description": "Help Tech Yara clear the junction box nest to earn a Transit Pass for the train to Meridian City.",
+      "prerequisiteSteps": ["cross_perimeter"],
+      "objective": { "roomId": "train_station", "tileX": 6, "tileY": 5 },
+      "completionConditions": [{ "hasFlag": "has_transit_pass" }],
+      "completionActions": [{ "type": "grantXp", "amount": 25 }]
+    },
+    "board_train": {
+      "label": "Board the Train to Meridian City",
+      "description": "Use your Transit Pass to open the platform gate and board the train.",
+      "prerequisiteSteps": ["get_transit_pass"],
+      "objective": { "roomId": "train_station", "tileX": 12, "tileY": 0 },
+      "completionConditions": [{ "hasFlag": "boarded_train" }],
+      "completionActions": [{ "type": "grantXp", "amount": 40 }]
+    },
+    "arrive_meridian": {
+      "label": "Arrive at Meridian City",
+      "description": "You've boarded the train. Ride it to Meridian City and explore the station.",
+      "prerequisiteSteps": ["board_train"],
+      "objective": { "roomId": "meridian_station", "tileX": 15, "tileY": 10 },
+      "completionConditions": [{ "hasFlag": "arrived_meridian" }],
+      "completionActions": [{ "type": "grantXp", "amount": 25 }]
+    },
+    "visit_civic_center": {
+      "label": "Visit the Civic Center",
+      "description": "Head east from the station to the Civic Center and meet Land Registrar Hollis.",
+      "prerequisiteSteps": ["arrive_meridian"],
+      "objective": { "roomId": "meridian_civic", "tileX": 6, "tileY": 5 },
+      "completionConditions": [{ "hasFlag": "has_homestead_deed" }],
+      "completionActions": [{ "type": "grantXp", "amount": 20 }]
+    },
+    "visit_workshop": {
+      "label": "Visit the Workshop District",
+      "description": "Head west from the station to the Workshop District and meet Master Crafter Yun.",
+      "prerequisiteSteps": ["visit_civic_center"],
+      "objective": { "roomId": "meridian_workshop", "tileX": 5, "tileY": 5 },
+      "completionConditions": [{ "hasFlag": "met_crafter_yun" }],
+      "completionActions": [{ "type": "grantXp", "amount": 30 }]
     }
   },
   "startStep": "talk_to_warden"
