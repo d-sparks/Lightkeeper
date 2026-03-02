@@ -62,6 +62,38 @@
       "name": "hidden_passage",
       "solid": true,
       "togglesTo": 6
+    },
+    "16": {
+      "name": "blast_door",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "fenn_opened_gate" }],
+      "failMessage": "The blast door is sealed. Talk to Gate Sergeant Fenn."
+    },
+    "17": {
+      "name": "junction_box_b",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "junction_a_activated" }],
+      "failMessage": "This junction box won't activate. Reroute power from Junction A first."
+    },
+    "18": {
+      "name": "maintenance_hatch",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "relay_junction_complete" }],
+      "failMessage": "The maintenance hatch is sealed. Both power junctions need to be active."
+    },
+    "19": {
+      "name": "transit_gate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "has_transit_pass" }],
+      "failMessage": "The platform gate is locked. You need a Transit Pass to board."
     }
   }
 }

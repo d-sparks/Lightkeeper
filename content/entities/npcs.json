@@ -25,9 +25,20 @@
         { "speaker": "Old Keeper", "text": "Deep in the Bone Chamber — the second level of the crypt. Look along the far walls where the water seeps through." },
         { "speaker": "Old Keeper", "text": "The moss feeds on the minerals in the runoff. It's the only living thing down there that doesn't want to kill you." },
         { "speaker": "Old Keeper", "text": "Be careful harvesting it. Disturbing the moss sometimes attracts the skeletons. They guard everything in those depths." }
+      ],
+      "has_watchtower_journal": [
+        { "speaker": "Old Keeper", "text": "Where did you find this? The old watchtower... I thought it had collapsed years ago." },
+        { "speaker": "Old Keeper", "text": "I knew the man who wrote this journal. Watcher Corrin. He stayed at his post long after everyone else abandoned the perimeter." },
+        { "speaker": "Old Keeper", "text": "He documented the retreat of the light, year by year. Every failed floodlight. Every meter of ground we lost." },
+        { "speaker": "Old Keeper", "text": "'The light went out.' That was his way. Never dramatic. Just... factual." },
+        { "speaker": "Old Keeper", "text": "He deserved better than to be forgotten up there. Thank you for bringing this to me." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "watchtower_journal" }],
+        "use": "has_watchtower_journal"
+      },
       {
         "conditions": [{ "hasFlag": "vasik_asked_for_moss" }, { "not": { "hasFlag": "keeper_told_moss_location" } }],
         "use": "asked_about_moss"
@@ -419,11 +430,26 @@
     ],
     "dialogues": {
       "default": [
-        { "speaker": "Tech Yara", "text": "Welcome to the train station. Or what's left of it." },
-        { "speaker": "Tech Yara", "text": "The transit lines are all dead — have been since before I was posted here. But the power tap still works." },
-        { "speaker": "Tech Yara", "text": "I keep the charging terminal running. Any Sol Unit, light rifle, anything that takes solar charge — bring it here." },
-        { "speaker": "Tech Yara", "text": "The terminal on the other side is MERIDIAN-7's interface. That's the Array's representative. Talks like a machine, thinks like a machine, is a machine." },
-        { "speaker": "Tech Yara", "text": "But it trades fair. If you've got umbracite or materials, MERIDIAN can set you up with structures on the dayside." }
+        { "speaker": "Tech Yara", "text": "Wait — is that a person? An actual human being?" },
+        { "speaker": "Tech Yara", "text": "Sorry, it's just — I haven't seen another person in weeks. The last patrol from Balor was over a month ago." },
+        { "speaker": "Tech Yara", "text": "I'm Yara. Station tech. I keep the transit systems operational, though 'operational' is a strong word these days." },
+        { "speaker": "Tech Yara", "text": "The train to Meridian City still runs — automated, on a fixed schedule. But I can't authorize passengers without a Transit Pass." },
+        { "speaker": "Tech Yara", "text": "Problem is, something's wrong with Junction Box 7 outside. It's been making terrible noises. Grinding, screeching. I haven't dared check it alone." },
+        { "speaker": "Tech Yara", "text": "Clear whatever's nesting out there and I'll authorize your Transit Pass. Fair deal?" }
+      ],
+      "junction_quest_active": [
+        { "speaker": "Tech Yara", "text": "The junction box is through the east door. Just... be careful out there. Whatever moved in, it's been getting louder." }
+      ],
+      "junction_cleared": [
+        { "speaker": "Tech Yara", "text": "You cleared it? Oh thank the light. I've been hearing those sounds for days." },
+        { "speaker": "Tech Yara", "text": "A deal's a deal. Here's your Transit Pass — authorized for one trip to Meridian City." },
+        { "speaker": "Tech Yara", "text": "The train's automated. Just open the platform gate at the north end of the station and step on. MERIDIAN-7 handles the rest." },
+        { "speaker": "Tech Yara", "text": "Oh, and if you're looking to trade in the city, there's a merchant named Volkov who buys relics and salvage. Pays well for pre-dark stuff." }
+      ],
+      "has_transit_pass": [
+        { "speaker": "Tech Yara", "text": "You've got your pass. The platform gate is at the north end of the station." },
+        { "speaker": "Tech Yara", "text": "Meridian City is... well, it's something. Biggest settlement in the terminator zone. You'll be safe there. Mostly." },
+        { "speaker": "Tech Yara", "text": "Tell them Yara sent you if anyone gives you trouble at the gates." }
       ],
       "has_charged": [
         { "speaker": "Tech Yara", "text": "Unit's topped off. You're good to go." },
@@ -431,6 +457,18 @@
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "has_transit_pass" }],
+        "use": "has_transit_pass"
+      },
+      {
+        "conditions": [{ "hasFlag": "junction_cleared" }],
+        "use": "junction_cleared"
+      },
+      {
+        "conditions": [{ "hasFlag": "yara_junction_quest" }],
+        "use": "junction_quest_active"
+      },
       {
         "conditions": [{ "hasFlag": "charged_at_station" }],
         "use": "has_charged"
@@ -629,9 +667,21 @@
         { "speaker": "Comms Officer Daley", "text": "Duskwall's transmissions are getting worse. They're talking about evacuating the outer settlements." },
         { "speaker": "Comms Officer Daley", "text": "And that 'Sable' signal keeps appearing. Whoever they are, they're using Unbounded encryption. That's... unusual." },
         { "speaker": "Comms Officer Daley", "text": "I'll keep listening. If I pick up anything urgent, I'll pass it along." }
+      ],
+      "has_relay_log": [
+        { "speaker": "Comms Officer Daley", "text": "A relay operations log? Let me see that." },
+        { "speaker": "Comms Officer Daley", "text": "This is from Relay Station 7 — it went dark about six years ago. We always assumed it was equipment failure." },
+        { "speaker": "Comms Officer Daley", "text": "But this last entry... 'Something moving under the ground. Seismic readings off the chart. Coordinates don't match any settlement.' " },
+        { "speaker": "Comms Officer Daley", "text": "That matches some anomalous readings I've been picking up on the restored frequencies. Deep-earth vibrations. Rhythmic, almost... purposeful." },
+        { "speaker": "Comms Officer Daley", "text": "The Underlumen. It's an old Unbounded legend — something that lives beneath the dark side. Most people think it's superstition." },
+        { "speaker": "Comms Officer Daley", "text": "But if this relay operator was detecting the same thing six years ago... maybe it's not just a legend." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "relay_log" }, { "hasFlag": "comms_restored" }],
+        "use": "has_relay_log"
+      },
       {
         "conditions": [{ "hasFlag": "comms_restored" }],
         "use": "comms_restored"
@@ -714,9 +764,21 @@
         { "speaker": "Pvt. Tannis", "text": "The crawlers — they're new. They weren't there a month ago. They're scouts for something bigger." },
         { "speaker": "Pvt. Tannis", "text": "They move fast and they swarm. Don't let them surround you. And watch the edges of the light — that's where they hide." },
         { "speaker": "Pvt. Tannis", "text": "The perimeter isn't safe anymore. Whatever's happening with the lighthouses... it's making the dark bolder." }
+      ],
+      "has_dog_tags": [
+        { "speaker": "Pvt. Tannis", "text": "My dog tags... you found them out there?" },
+        { "speaker": "Pvt. Tannis", "text": "I lost them when those things dragged me. I thought I'd never... I mean, they're just tags, but..." },
+        { "speaker": "Pvt. Tannis", "text": "My squad — the three of us who were on perimeter patrol that night. Cpl. Meyrin and Spc. Dolan didn't make it back." },
+        { "speaker": "Pvt. Tannis", "text": "I was the only one. I don't know why. Maybe because I was closest to the wall when they hit." },
+        { "speaker": "Pvt. Tannis", "text": "Thank you. I want you to have this — it was Dolan's. He modified the battery casing himself. Good engineer." },
+        { "speaker": "Pvt. Tannis", "text": "Take it. Use it. Make sure what happened to my squad means something." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "tannis_dog_tags" }],
+        "use": "has_dog_tags"
+      },
       {
         "conditions": [{ "hasFlag": "vasik_quest_complete" }],
         "use": "recovering"
@@ -799,6 +861,115 @@
       {
         "conditions": [{ "hasFlag": "quest_cylinders_active" }],
         "use": "quest_active"
+      }
+    ]
+  },
+  "gate_sgt_fenn": {
+    "name": "Sgt. Fenn",
+    "dialogue": [
+      { "speaker": "Sgt. Fenn", "text": "Hold up. This gate doesn't open without my say-so." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Sgt. Fenn", "text": "Gate Sergeant Fenn. Twenty years on the perimeter." },
+        { "speaker": "Sgt. Fenn", "text": "So you're the one Holt is sending out there. Can't say I envy you." },
+        { "speaker": "Sgt. Fenn", "text": "Every year the dark gets a little closer. Every year we pull the line back a little more." },
+        { "speaker": "Sgt. Fenn", "text": "Used to be you could see the old watchtower from here. Now it's swallowed up. Nothing but dark past this gate." },
+        { "speaker": "Sgt. Fenn", "text": "Here — take this flare. Standard issue for perimeter crossings. Save it for when you really need it." },
+        { "speaker": "Sgt. Fenn", "text": "Stay on the main road if you can. The crawlers are bad, but the Shade Stalkers are worse. Fast, smart, and they hunt in pairs." },
+        { "speaker": "Sgt. Fenn", "text": "I'm opening the gate. Once it closes behind you... well, there's no coming back through this way." },
+        { "speaker": "Sgt. Fenn", "text": "Good luck out there. You'll need it." }
+      ],
+      "gate_opened": [
+        { "speaker": "Sgt. Fenn", "text": "Gate's open. Head north through the outer ring." },
+        { "speaker": "Sgt. Fenn", "text": "Remember — Shade Stalkers hunt in pairs. Keep your Sol Unit charged and your eyes open." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "fenn_opened_gate" }],
+        "use": "gate_opened"
+      }
+    ]
+  },
+  "sable_dead_road": {
+    "name": "Sable",
+    "dialogue": [
+      { "speaker": "Sable", "text": "Please — don't shoot." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Sable", "text": "Please — don't shoot. I'm not a raider. I'm not Unbounded — well, I am, but not the kind you're thinking of." },
+        { "speaker": "Sable", "text": "My name is Sable. I came from the deep Nightside to warn the Ring settlements." },
+        { "speaker": "Sable", "text": "Something is stirring out there. Something beneath the dark. The ground itself is... moving." },
+        { "speaker": "Sable", "text": "The Unbounded aren't all raiders. We have settlements — hidden ones, with bioluminescent gardens. We live with the dark, not against it." },
+        { "speaker": "Sable", "text": "But whatever's happening down below is driving the creatures to the surface. The Shade Stalkers, the crawlers — they're fleeing from something worse." },
+        { "speaker": "Sable", "text": "I've been hiding behind this wreck, waiting for those stalkers to move on. Thank you for driving them off." },
+        { "speaker": "Sable", "text": "If you're heading to the train station, I'll walk with you. I can teach you to read the dark — the signs, the trails." },
+        { "speaker": "Sable", "text": "The Unbounded leave markers. Small things — scratches on walls, patterns in debris. They mark safe passages and warnings." }
+      ],
+      "helped": [
+        { "speaker": "Sable", "text": "We should keep moving. The stalkers in this area won't stay scared for long." },
+        { "speaker": "Sable", "text": "You fight well, by the way. Most Ring soldiers shoot first and ask questions... well, they don't ask questions." },
+        { "speaker": "Sable", "text": "I need to reach Meridian City. There are people there who might listen. The Ring's council needs to know what's coming." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "helped_sable" }],
+        "use": "helped"
+      }
+    ]
+  },
+  "sable_companion": {
+    "name": "Sable",
+    "dialogue": [
+      { "speaker": "Sable", "text": "Almost there. I can see the station lights ahead." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Sable", "text": "See those markings on the wall? Unbounded trail signs. This area is known to my people." },
+        { "speaker": "Sable", "text": "That symbol — the broken circle — means 'settlement nearby.' Someone from the deep Nightside came through here before me." },
+        { "speaker": "Sable", "text": "The dead crawlers near the entrance... something killed them recently. Something bigger than a stalker." },
+        { "speaker": "Sable", "text": "The dark has its own ecosystem. We Unbounded have studied it for generations. But lately, even we can't predict what's coming next." }
+      ]
+    },
+    "dialogueRules": []
+  },
+  "sable_station": {
+    "name": "Sable",
+    "dialogue": [
+      { "speaker": "Sable", "text": "The train station. I've heard stories about this place." }
+    ],
+    "dialogues": {
+      "companion_farewell": [
+        { "speaker": "Sable", "text": "This is where I leave you." },
+        { "speaker": "Sable", "text": "I have my own way of traveling. The dark roads — paths through the Nightside that the Ring doesn't know about." },
+        { "speaker": "Sable", "text": "I'll find you in Meridian City. There's a market district near the inner wall. Ask around for 'the dark woman' — people will point you to me." },
+        { "speaker": "Sable", "text": "And... thank you. For helping me back there. For not shooting first." },
+        { "speaker": "Sable", "text": "When we meet again, I'll teach you more about the Nightside. There are things out there worth protecting, not just fearing." }
+      ],
+      "injured": [
+        { "speaker": "Sable", "text": "*winces* ...You. I saw you on the road. You walked right past me." },
+        { "speaker": "Sable", "text": "Don't worry — I'm not angry. I understand. Out here, trust is a luxury." },
+        { "speaker": "Sable", "text": "I fought my way clear eventually. The stalkers got a few good hits in, but I'm tougher than I look." },
+        { "speaker": "Sable", "text": "My name is Sable. I'm Unbounded — not a raider, before you reach for your weapon." },
+        { "speaker": "Sable", "text": "I'm heading to Meridian City to warn the Ring about something stirring in the deep Nightside. That's all I'll say for now." },
+        { "speaker": "Sable", "text": "Maybe in the city, if you're willing to listen, I'll tell you more. But trust has to be earned." }
+      ],
+      "default": [
+        { "speaker": "Sable", "text": "The train station. A crossroads. Even the Unbounded use the railways sometimes — in secret, of course." },
+        { "speaker": "Sable", "text": "I'll be heading to Meridian City by my own route. The dark roads are faster, if you know the way." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "helped_sable" }],
+        "use": "companion_farewell"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_not_helped" }],
+        "use": "injured"
       }
     ]
   }

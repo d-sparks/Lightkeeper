@@ -8,7 +8,7 @@
   "height": 16,
   "data": [
     3,3,3,3,3,3,3,3,3,3,3,3,6,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,19,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,3,3,1,1,3,
     3,1,1,3,1,1,1,1,3,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,3,
@@ -16,7 +16,7 @@
     3,1,1,3,1,2,2,1,3,1,1,1,1,1,3,1,1,2,2,1,1,3,1,1,3,
     3,1,1,3,1,1,1,1,3,1,1,1,1,1,3,1,1,1,1,1,1,3,1,1,3,
     3,1,1,4,1,1,1,1,4,1,1,1,1,1,4,1,1,1,1,1,1,4,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,6,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
@@ -33,14 +33,16 @@
   "monsterSpawns": [],
   "npcSpawns": [
     { "type": "station_tech_yara", "x": 6, "y": 5 },
-    { "type": "meridian_7", "x": 18, "y": 5 }
+    { "type": "meridian_7", "x": 18, "y": 5 },
+    { "type": "sable_station", "x": 10, "y": 11 }
   ],
   "itemSpawns": [
     { "type": "umbracite", "x": 12, "y": 10 }
   ],
   "exits": [
-    { "x": 12, "y": 14, "leadsTo": "outpost_perimeter", "type": "stairs_up", "spawnX": 14, "spawnY": 2 },
-    { "x": 12, "y": 0, "leadsTo": "dayside_solar_fields", "type": "stairs_down", "spawnX": 15, "spawnY": 28 }
+    { "x": 12, "y": 14, "leadsTo": "station_approach", "type": "stairs_up", "spawnX": 9, "spawnY": 2 },
+    { "x": 12, "y": 0, "leadsTo": "dayside_solar_fields", "type": "stairs_down", "spawnX": 15, "spawnY": 28 },
+    { "x": 23, "y": 9, "leadsTo": "station_junction", "type": "stairs_down", "spawnX": 7, "spawnY": 1 }
   ],
   "triggers": [
     {
@@ -48,11 +50,47 @@
       "event": "room_entered",
       "actions": [
         { "type": "showMessage", "lines": [
-          "The old transit hub is barely functional. Exposed conduits line the ceiling, crackling with repurposed power from the border relay.",
-          "To the left, a makeshift charging bay. To the right, a solar terminal — the only link to the Array's automated systems on the dayside."
+          "The train station. Working emergency lights bathe the platform in amber warmth. After the endless dark, it feels like sanctuary.",
+          "A departure board on the wall reads: NEXT TRAIN TO MERIDIAN CITY — DELAYED. A tech works at a charging terminal to the left."
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "yara_quest_start",
+      "event": "npc_interacted",
+      "filter": { "npcType": "station_tech_yara" },
+      "conditions": [
+        { "not": { "hasFlag": "yara_junction_quest" } },
+        { "not": { "hasFlag": "junction_cleared" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "yara_junction_quest" }
+      ],
+      "once": true
+    },
+    {
+      "id": "yara_gives_transit_pass",
+      "event": "npc_interacted",
+      "filter": { "npcType": "station_tech_yara" },
+      "conditions": [
+        { "hasFlag": "junction_cleared" },
+        { "not": { "hasFlag": "has_transit_pass" } }
+      ],
+      "actions": [
+        { "type": "giveItem", "itemType": "transit_pass" },
+        { "type": "setFlag", "flag": "has_transit_pass" },
+        { "type": "showMessage", "text": "The departure board flickers and updates: NEXT TRAIN TO MERIDIAN CITY — BOARDING." }
+      ],
+      "once": true
+    },
+    {
+      "id": "transit_gate_auto_open",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "has_transit_pass" }],
+      "actions": [
+        { "type": "toggleTile", "x": 12, "y": 1 }
+      ]
     },
     {
       "id": "charge_sol_at_station",
@@ -90,6 +128,17 @@
       ],
       "actions": [
         { "type": "openAutomation" }
+      ]
+    },
+    {
+      "id": "remove_sable_if_not_met",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "helped_sable" } },
+        { "not": { "hasFlag": "sable_not_helped" } }
+      ],
+      "actions": [
+        { "type": "removeEntity", "entityType": "npc", "npcType": "sable_station" }
       ]
     }
   ]

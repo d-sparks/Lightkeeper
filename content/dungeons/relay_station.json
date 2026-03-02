@@ -1,0 +1,119 @@
+{
+  "id": "relay_station",
+  "name": "Collapsed Relay Station",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "ambientLight": 0.10,
+  "width": 18,
+  "height": 14,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,2,1,1,1,3,3,1,1,1,1,2,1,1,3,
+    3,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,3,
+    3,1,1,4,1,1,1,1,1,1,1,1,1,17,1,1,1,3,
+    3,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,18,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,2,1,1,1,1,1,1,1,2,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 9, "y": 12, "type": "player_start" },
+    { "x": 10, "y": 12, "type": "player_start" },
+    { "x": 9, "y": 11, "type": "player_start" },
+    { "x": 10, "y": 11, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "nest_mother", "x": 9, "y": 8, "count": 1 },
+    { "type": "dusk_crawler", "x": 5, "y": 9, "count": 2, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 13, "y": 9, "count": 2, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "umbracite_shard", "x": 4, "y": 8 },
+    { "type": "relay_log", "x": 14, "y": 8 }
+  ],
+  "exits": [
+    { "x": 9, "y": 13, "leadsTo": "perimeter_outer_ring", "type": "stairs_up", "spawnX": 2, "spawnY": 5 }
+  ],
+  "triggers": [
+    {
+      "id": "relay_station_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The relay station is barely standing. Half the ceiling has caved in, and dark vines creep through the cracks.",
+          "Two junction boxes flank the room. A sealed maintenance hatch divides the station in two. Something large moves in the darkness beyond it."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "junction_a_interact",
+      "event": "door_interacted",
+      "filter": { "tileX": 3, "tileY": 3 },
+      "conditions": [
+        { "not": { "hasFlag": "junction_a_activated" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "junction_a_activated" },
+        { "type": "showMessage", "text": "You reroute the power connection. Junction A hums to life. A faint light flickers inside the conduit running toward the maintenance hatch." }
+      ],
+      "once": true
+    },
+    {
+      "id": "junction_b_interact",
+      "event": "door_interacted",
+      "filter": { "tileX": 13, "tileY": 3 },
+      "conditions": [
+        { "hasFlag": "junction_a_activated" }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "relay_junction_complete" },
+        { "type": "toggleTile", "x": 8, "y": 6 },
+        { "type": "showMessage", "text": "Junction B connects. Power surges through the relay and the maintenance hatch grinds open with a screech of rusted metal. Something stirs in the darkness beyond." }
+      ],
+      "once": true
+    },
+    {
+      "id": "relay_log_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "relay_log" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The relay log is water-damaged but readable. The last entry catches your eye:",
+          "\"Day 847. Seismic readings off the chart again. Something is moving under the ground. Deep. Rhythmic. The instruments say it's at least 3 klicks down.\"",
+          "\"Coordinates don't match any known settlement or geological feature. I've reported it to Balor. No response.\"",
+          "\"Day 848. No entry.\""
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "umbracite_shard_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "umbracite_shard" },
+      "actions": [
+        { "type": "showMessage", "text": "A raw fragment of umbracite crystal, partially embedded in the collapsed wall. It pulses with a faint inner light. The Array's automated systems would trade well for this." }
+      ],
+      "once": true
+    },
+    {
+      "id": "nest_mother_killed",
+      "event": "monster_killed",
+      "filter": { "monsterType": "nest_mother" },
+      "actions": [
+        { "type": "showMessage", "text": "The Nest Mother collapses with a shuddering hiss. The remaining crawlers scatter into the cracks in the walls." },
+        { "type": "spawnItem", "itemType": "chitin_plate", "x": 9, "y": 8 },
+        { "type": "setFlag", "flag": "nest_mother_defeated" }
+      ],
+      "once": true
+    }
+  ]
+}

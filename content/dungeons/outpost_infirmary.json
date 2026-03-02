@@ -77,6 +77,21 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "tannis_dog_tags_return",
+      "event": "npc_interacted",
+      "filter": { "npcType": "infirmary_pvt_tannis" },
+      "conditions": [
+        { "hasItem": "tannis_dog_tags" }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "tannis_dog_tags" },
+        { "type": "giveItem", "itemType": "reinforced_battery_chip" },
+        { "type": "setFlag", "flag": "returned_tannis_tags" },
+        { "type": "showMessage", "text": "Tannis takes the dog tags with trembling hands. After a long silence, he presses a modified battery casing into your palm. \"It was Dolan's. Take it.\"" }
+      ],
+      "once": true
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "id": "tannis_tags",
+  "name": "Tannis's Tags",
+  "description": "Return the dog tags found at the breach to Pvt. Tannis in the outpost infirmary.",
+  "startConditions": [{ "hasFlag": "found_tannis_tags" }],
+  "steps": {
+    "find_tags": {
+      "label": "Dog Tags Found",
+      "description": "You found Pvt. Tannis's dog tags at the breach in the perimeter wall.",
+      "prerequisiteSteps": [],
+      "completionConditions": [{ "hasItem": "tannis_dog_tags" }],
+      "completionActions": [{ "type": "grantXp", "amount": 10 }]
+    },
+    "return_to_tannis": {
+      "label": "Return Tags to Tannis",
+      "description": "Bring the dog tags back to Pvt. Tannis in the outpost infirmary.",
+      "prerequisiteSteps": ["find_tags"],
+      "objective": { "roomId": "outpost_infirmary", "tileX": 11, "tileY": 3 },
+      "completionConditions": [{ "hasFlag": "returned_tannis_tags" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "text": "Quest complete: Tannis's Tags" }
+      ]
+    }
+  },
+  "startStep": "find_tags"
+}

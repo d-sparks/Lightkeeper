@@ -1,0 +1,44 @@
+{
+  "id": "relay_recovery",
+  "name": "Relay Recovery",
+  "description": "Investigate the collapsed relay station on the outer ring and recover what you can.",
+  "startConditions": [{ "hasFlag": "kade_intel_received" }],
+  "steps": {
+    "find_relay": {
+      "label": "Find the Collapsed Relay Station",
+      "description": "Follow Kade's map data to find the side path in the outer ring leading to the old relay station.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "relay_station" },
+      "completionConditions": [{ "hasFlag": "junction_a_activated" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
+    "solve_puzzle": {
+      "label": "Restore Power to the Relay",
+      "description": "Reroute power through both junction boxes to open the sealed maintenance hatch.",
+      "prerequisiteSteps": ["find_relay"],
+      "objective": { "roomId": "relay_station" },
+      "completionConditions": [{ "hasFlag": "relay_junction_complete" }],
+      "completionActions": [{ "type": "grantXp", "amount": 20 }]
+    },
+    "defeat_nest_mother": {
+      "label": "Defeat the Nest Mother",
+      "description": "Clear the creature that has nested in the relay station's maintenance area.",
+      "prerequisiteSteps": ["solve_puzzle"],
+      "objective": { "roomId": "relay_station" },
+      "completionConditions": [{ "hasFlag": "nest_mother_defeated" }],
+      "completionActions": [{ "type": "grantXp", "amount": 35 }]
+    },
+    "recover_relay_log": {
+      "label": "Recover the Relay Log",
+      "description": "Search the relay station for the operations log.",
+      "prerequisiteSteps": ["defeat_nest_mother"],
+      "objectiveItem": "relay_log",
+      "completionConditions": [{ "hasItem": "relay_log" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 20 },
+        { "type": "showMessage", "text": "Quest complete: Relay Recovery. The relay log may interest Comms Officer Daley back at Outpost Balor." }
+      ]
+    }
+  },
+  "startStep": "find_relay"
+}

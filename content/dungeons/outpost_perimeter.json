@@ -712,10 +712,10 @@
     {
       "x": 14,
       "y": 0,
-      "leadsTo": "train_station",
+      "leadsTo": "perimeter_gate",
       "type": "stairs_down",
-      "spawnX": 12,
-      "spawnY": 13
+      "spawnX": 9,
+      "spawnY": 10
     }
   ],
   "triggers": [

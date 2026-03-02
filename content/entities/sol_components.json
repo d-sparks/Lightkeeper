@@ -34,5 +34,17 @@
     "name": "Cooldown Reducer Mk2",
     "bonus": { "cooldownReduction": 0.25 },
     "shape": [[1, 1]]
+  },
+  "night_vision_lens": {
+    "type": "modifier",
+    "name": "Night Vision Lens",
+    "bonus": { "damageMultiplier": 0.15 },
+    "shape": [[1]]
+  },
+  "reinforced_battery": {
+    "type": "modifier",
+    "name": "Reinforced Battery",
+    "bonus": { "cooldownReduction": 0.10 },
+    "shape": [[1]]
   }
 }

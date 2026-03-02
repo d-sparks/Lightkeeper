@@ -165,5 +165,62 @@
     "type": "sol_component",
     "rarity": "rare",
     "solComponentId": "cooldown_reducer_mk2"
+  },
+  "flare": {
+    "name": "Flare",
+    "description": "A single-use emergency flare. The burst of light drives back the dark and soothes frayed nerves. Restores 15 health.",
+    "type": "consumable",
+    "rarity": "uncommon",
+    "effect": { "heal": 15 }
+  },
+  "relay_log": {
+    "name": "Relay Log",
+    "description": "A water-damaged operations log from a failed Lighthouse relay. The last entry mentions 'something moving under the ground' and coordinates that don't match any known settlement.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "tannis_dog_tags": {
+    "name": "Tannis's Dog Tags",
+    "description": "Standard-issue identification tags. The name reads 'PVT. TANNIS, R.' — these must have been torn off during the attack on the perimeter.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "watchtower_journal": {
+    "name": "Watchtower Journal",
+    "description": "A worn observation journal from a long-dead watchman. The entries document decades of the dark's encroachment. The last entry reads simply: 'The light went out.'",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "transit_pass": {
+    "name": "Transit Pass",
+    "description": "An authorized transit pass for the Meridian City rail line. Tech Yara's signature is scrawled on the back.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "night_vision_lens_chip": {
+    "name": "Night Vision Lens",
+    "description": "A dark-adapted optical modifier salvaged from the old watchtower. Boosts damage output when placed in a Sol Grid.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "night_vision_lens"
+  },
+  "chitin_plate": {
+    "name": "Chitin Plate",
+    "description": "A thick plate of hardened chitin harvested from a Nest Mother. Valuable crafting material — an armorer in Meridian City could make use of this.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "reinforced_battery_chip": {
+    "name": "Reinforced Battery Casing",
+    "description": "A reinforced power casing that improves Sol Unit efficiency. Place it in a Sol Grid to reduce cooldowns of adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "reinforced_battery"
+  },
+  "umbracite_shard": {
+    "name": "Umbracite Shard",
+    "description": "A raw fragment of umbracite crystal, smaller than a refined piece but still valuable. The Array's automated systems will trade well for this.",
+    "type": "key",
+    "rarity": "uncommon"
   }
 }

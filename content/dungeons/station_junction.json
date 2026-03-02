@@ -1,0 +1,87 @@
+{
+  "id": "station_junction",
+  "name": "Junction Box 7",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "ambientLight": 0.20,
+  "width": 15,
+  "height": 10,
+  "data": [
+    3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,2,1,1,1,1,2,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,3,3,1,1,1,1,3,3,1,1,1,3,
+    3,1,1,3,2,1,1,1,1,2,3,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,4,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 7, "y": 1, "type": "player_start" },
+    { "x": 8, "y": 1, "type": "player_start" },
+    { "x": 7, "y": 2, "type": "player_start" },
+    { "x": 8, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "dusk_crawler", "x": 4, "y": 5, "count": 2, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 10, "y": 5, "count": 2, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 7, "y": 7, "count": 2, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "ration_pack", "x": 3, "y": 3 }
+  ],
+  "exits": [
+    { "x": 7, "y": 0, "leadsTo": "train_station", "type": "stairs_up", "spawnX": 22, "spawnY": 9 }
+  ],
+  "triggers": [
+    {
+      "id": "junction_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The junction box area is overrun. Dusk Crawlers have nested around the main power conduit.",
+          "The grinding noise Yara mentioned is the crawlers chewing on the insulation. They need to be cleared out."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "junction_box_interact",
+      "event": "door_interacted",
+      "filter": { "tileX": 7, "tileY": 7 },
+      "actions": [
+        { "type": "showMessage", "text": "You reset the junction box and seal the damaged conduit. The power flow stabilizes. Yara will be relieved." },
+        { "type": "setFlag", "flag": "junction_cleared" }
+      ],
+      "once": true
+    },
+    {
+      "id": "crawlers_killed_all",
+      "event": "monster_killed",
+      "filter": { "monsterType": "dusk_crawler" },
+      "conditions": [
+        { "not": { "hasFlag": "junction_crawlers_cleared" } }
+      ],
+      "actions": [
+        { "type": "incrementFlag", "flag": "junction_crawler_kills" }
+      ]
+    },
+    {
+      "id": "crawlers_cleared_check",
+      "event": "monster_killed",
+      "filter": { "monsterType": "dusk_crawler" },
+      "conditions": [
+        { "hasFlag": "junction_crawler_kills", "value": 6 }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "junction_crawlers_cleared" },
+        { "type": "showMessage", "text": "The last crawler scurries into the darkness. The nest is cleared." }
+      ],
+      "once": true
+    }
+  ]
+}
