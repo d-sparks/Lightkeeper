@@ -222,5 +222,99 @@
     "description": "A raw fragment of umbracite crystal, smaller than a refined piece but still valuable. The Array's automated systems will trade well for this.",
     "type": "key",
     "rarity": "uncommon"
+  },
+  "tempered_blade": {
+    "name": "Tempered Blade",
+    "description": "City-forged steel, properly tempered and balanced. A significant upgrade from outpost-grade weapons.",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "weapon",
+    "stats": { "attackDamage": 8 },
+    "ability": { "id": "melee_strike" }
+  },
+  "precision_blaster": {
+    "name": "Precision Blaster",
+    "description": "A refined energy weapon with improved optics and tighter beam focus. Faster and more accurate than standard issue.",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "weapon",
+    "stats": { "attackDamage": 6, "projectile": true },
+    "ability": { "id": "precision_shot" }
+  },
+  "shock_baton": {
+    "name": "Shock Baton",
+    "description": "An electrified close-quarters weapon. The capacitor discharge sends targets stumbling backward.",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "weapon",
+    "stats": { "attackDamage": 7 },
+    "ability": { "id": "shock_strike" }
+  },
+  "pulse_rifle": {
+    "name": "Pulse Rifle",
+    "description": "Military-grade energy weapon. Fires concentrated pulses that punch through targets.",
+    "type": "weapon",
+    "rarity": "rare",
+    "slot": "weapon",
+    "stats": { "attackDamage": 5, "projectile": true },
+    "ability": { "id": "pulse_shot" }
+  },
+  "efficiency_core_chip": {
+    "name": "Efficiency Core",
+    "description": "A precision-engineered power regulator. Place in a Sol Grid to reduce energy costs of adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "efficiency_core"
+  },
+  "area_expander_chip": {
+    "name": "Area Expander",
+    "description": "A signal amplifier that broadens the effective radius of adjacent Sol abilities. Place in a Sol Grid.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "area_expander"
+  },
+  "power_tap_chip": {
+    "name": "Power Tap",
+    "description": "A rare power generation module. Significantly boosts the output of adjacent Sol abilities. The first step toward true energy independence.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "power_tap"
+  },
+  "sol_shield_chip": {
+    "name": "Sol Shield Emitter",
+    "description": "A defensive Sol component that generates a brief energy barrier. Place in a Sol Grid to gain the Sol Shield ability.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "sol_shield_emitter"
+  },
+  "homestead_deed": {
+    "name": "Homestead Deed",
+    "description": "Official documentation granting you Plot 7, East Terrace in the Meridian City homestead district. Signed by Land Registrar Hollis.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "umbral_seed": {
+    "name": "Umbral Seed",
+    "description": "A strange, dark seed that pulses with faint bioluminescence. Sable says it's from deep Nightside — where the planet 'remembers.' It feels warm in your hand.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "fens_letter": {
+    "name": "Fen's Letter",
+    "description": "A sealed letter addressed to Warden Holt at Outpost Balor. The envelope is worn, as if Fen has been carrying it for a long time.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "copper_coil": {
+    "name": "Copper Coil",
+    "description": "Precision-wound copper wire coils. Essential component for battery construction and electrical work.",
+    "type": "key",
+    "rarity": "common"
+  },
+  "calibration_wrench": {
+    "name": "Calibration Wrench",
+    "description": "A specialized tool marked with 'DAVI' in scratchy handwriting. Someone's clearly attached to this wrench.",
+    "type": "key",
+    "rarity": "common"
   }
 }

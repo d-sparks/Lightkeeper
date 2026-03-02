@@ -1,0 +1,125 @@
+{
+  "id": "meridian_residential",
+  "name": "Residential Quarter",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "width": 25,
+  "height": 16,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,3,3,4,3,3,1,1,1,1,1,1,1,1,1,3,3,4,3,3,1,1,3,
+    3,1,1,3,1,1,1,3,1,1,1,1,1,1,1,1,1,3,1,1,1,3,1,1,3,
+    3,1,1,3,1,2,1,3,1,1,1,1,1,1,1,1,1,3,1,2,1,3,1,1,3,
+    3,1,1,3,1,1,1,3,1,1,1,1,1,1,1,1,1,3,1,1,1,3,1,1,3,
+    3,1,1,3,3,3,3,3,1,1,1,1,1,1,1,1,1,3,3,3,3,3,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,3,3,3,4,3,3,3,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,3,1,1,1,1,1,3,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,3,1,2,2,2,1,3,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,3,1,1,1,1,1,3,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 8, "type": "player_start" },
+    { "x": 2, "y": 8, "type": "player_start" },
+    { "x": 1, "y": 9, "type": "player_start" },
+    { "x": 2, "y": 9, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [
+    { "type": "fen_maro", "x": 5, "y": 5 },
+    { "type": "sable_meridian", "x": 12, "y": 12 }
+  ],
+  "itemSpawns": [],
+  "exits": [
+    { "x": 0, "y": 1, "leadsTo": "meridian_civic", "type": "stairs_down", "spawnX": 23, "spawnY": 15 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_residential",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Residential Quarter. Quieter than the market, more personal. Small homes and apartments line the paths, their windows warm with light.",
+          "There's a small garden in the southern section — unusual plants glow softly in the twilight."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "remove_sable_meridian_no_encounter",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "helped_sable" } },
+        { "not": { "hasFlag": "sable_not_helped" } }
+      ],
+      "actions": [
+        { "type": "removeEntity", "entityType": "npc", "npcType": "sable_meridian" }
+      ]
+    },
+    {
+      "id": "fen_recognized",
+      "event": "npc_interacted",
+      "filter": { "npcType": "fen_maro" },
+      "conditions": [
+        { "hasFlag": "found_basement_note" },
+        { "not": { "hasFlag": "fen_letter_accepted" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "fen_letter", "prompt": "Fen Maro recognizes you from their journal. They offer you a letter to deliver to Warden Holt at Outpost Balor.", "options": [
+          { "label": "Accept", "description": "Take Fen's letter to Warden Holt. Fen will also mark a supply cache location.", "value": "accept" },
+          { "label": "Decline", "description": "You're not heading back to Balor anytime soon.", "value": "decline" }
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "fen_letter_accept",
+      "event": "choice_made",
+      "filter": { "choiceId": "fen_letter", "value": "accept" },
+      "actions": [
+        { "type": "giveItem", "itemType": "fens_letter" },
+        { "type": "setFlag", "flag": "fen_letter_accepted" },
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "lines": [
+          "Fen presses the worn envelope into your hands. Their fingers tremble slightly.",
+          "'Thank you. And the cache — it's near the old watchtower, hidden in a collapsed section of wall. My squad's gear. Better than anything in the shops.'",
+          "'Tell Holt I'm sorry. That's all I ask.'"
+        ]}
+      ]
+    },
+    {
+      "id": "fen_letter_decline",
+      "event": "choice_made",
+      "filter": { "choiceId": "fen_letter", "value": "decline" },
+      "actions": [
+        { "type": "showMessage", "text": "Fen nods slowly. 'I understand. Maybe another time.' They turn back to the window." }
+      ]
+    },
+    {
+      "id": "sable_gives_seed",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sable_meridian" },
+      "conditions": [
+        { "hasFlag": "helped_sable" },
+        { "not": { "hasFlag": "sable_gave_seed" } }
+      ],
+      "actions": [
+        { "type": "giveItem", "itemType": "umbral_seed" },
+        { "type": "setFlag", "flag": "sable_gave_seed" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "lines": [
+          "Sable places a dark, softly pulsing seed in your palm. It's warm to the touch.",
+          "'An Umbral Seed. From the deepest Nightside. Where the planet's heartbeat is strongest.'",
+          "'I don't know what it'll become in the light. But you should have it. A gift between worlds.'"
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

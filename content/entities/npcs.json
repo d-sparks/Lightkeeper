@@ -972,5 +972,477 @@
         "use": "injured"
       }
     ]
+  },
+
+  "station_master_calloway": {
+    "name": "Station Master Calloway",
+    "dialogue": [
+      { "speaker": "Station Master Calloway", "text": "Welcome to Meridian City." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Station Master Calloway", "text": "Welcome to Meridian City, traveler. You've come from the frontier, I can tell. That look in your eyes — everyone who crosses the dark has it." },
+        { "speaker": "Station Master Calloway", "text": "The city's divided into districts. Head north through the main concourse for the Market Quarter — supplies, weapons, components, everything you need." },
+        { "speaker": "Station Master Calloway", "text": "East corridor leads to the Civic Center — land registration, government offices. If you're claiming a homestead, that's where you go." },
+        { "speaker": "Station Master Calloway", "text": "West takes you to the Workshop District. Crafters, engineers, practical folk." },
+        { "speaker": "Station Master Calloway", "text": "The directory board on the wall has a full listing if you need it. Safe travels." }
+      ],
+      "returning": [
+        { "speaker": "Station Master Calloway", "text": "Back again? The trains run on schedule now, thanks to the Array's timetable systems." },
+        { "speaker": "Station Master Calloway", "text": "Need directions? Market north, Civic east, Workshop west. Same as always." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "visited_meridian_station" }],
+        "use": "returning"
+      }
+    ]
+  },
+
+  "merchant_reva": {
+    "name": "Merchant Reva",
+    "dialogue": [
+      { "speaker": "Merchant Reva", "text": "Fresh stock, fair prices." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Merchant Reva", "text": "Welcome, welcome! Reva's General Goods — everything a frontier traveler needs. Potions, bandages, rations, and more." },
+        { "speaker": "Merchant Reva", "text": "You look like you've been through it. Let me guess — Outpost Balor? The perimeter?" },
+        { "speaker": "Merchant Reva", "text": "Well, you're in the right place. What can I get you?" }
+      ],
+      "has_relay_log": [
+        { "speaker": "Merchant Reva", "text": "Hold on — is that a relay log? Those are rare finds. The old lighthouse records." },
+        { "speaker": "Merchant Reva", "text": "I've got a regular customer who'd pay well for that. Archivist Solen, over in the Archives district. He's obsessed with pre-settlement history." },
+        { "speaker": "Merchant Reva", "text": "Tell him Reva sent you. He'll make it worth your while." }
+      ],
+      "has_chitin": [
+        { "speaker": "Merchant Reva", "text": "Is that chitin plate from a Nest Mother? Fine quality. The weaponsmith next door would give you a fair price for it." },
+        { "speaker": "Merchant Reva", "text": "Or keep it — material like that's useful for custom work." }
+      ],
+      "post_purchase": [
+        { "speaker": "Merchant Reva", "text": "Good doing business with you. Come back anytime — my stock rotates with the supply trains." },
+        { "speaker": "Merchant Reva", "text": "And if you find anything interesting out in the dark, I know people who buy." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "relay_log" }, { "not": { "hasFlag": "reva_mentioned_solen" } }],
+        "use": "has_relay_log"
+      },
+      {
+        "conditions": [{ "hasItem": "chitin_plate" }],
+        "use": "has_chitin"
+      },
+      {
+        "conditions": [{ "hasFlag": "bought_from_reva" }],
+        "use": "post_purchase"
+      }
+    ]
+  },
+
+  "weaponsmith_garro": {
+    "name": "Weaponsmith Garro",
+    "dialogue": [
+      { "speaker": "Weaponsmith Garro", "text": "City-forged steel. None of that outpost junk." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Weaponsmith Garro", "text": "Garro's Forge. If it cuts, shoots, or bludgeons, I made it." },
+        { "speaker": "Weaponsmith Garro", "text": "Let me see what you're carrying... Outpost-grade gear, huh? That stuff's fine for skeleton crawling, but you'll want proper equipment for what's ahead." },
+        { "speaker": "Weaponsmith Garro", "text": "I've got blades, blasters, batons — all tempered and tuned right here in the city. The difference between my work and outpost gear? Mine won't break when it matters." },
+        { "speaker": "Weaponsmith Garro", "text": "I also have something special — a Pulse Rifle. Military surplus, refurbished. Rare piece." }
+      ],
+      "post_purchase": [
+        { "speaker": "Weaponsmith Garro", "text": "Good choice. That weapon will serve you well. Keep it clean, keep it sharp, and it'll outlast you." },
+        { "speaker": "Weaponsmith Garro", "text": "You need maintenance, bring it back. First tune-up's free for new customers." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "bought_from_garro" }],
+        "use": "post_purchase"
+      }
+    ]
+  },
+
+  "component_dealer_mira": {
+    "name": "Component Dealer Mira",
+    "dialogue": [
+      { "speaker": "Component Dealer Mira", "text": "Sol Grid components. The good stuff." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Component Dealer Mira", "text": "Mira's Components. If you've got a Sol Grid, I've got what goes in it." },
+        { "speaker": "Component Dealer Mira", "text": "Efficiency Cores, Area Expanders, modifiers of all types. I even have a Power Tap — genuine power generation module. Rare as sunlight on the Nightside." },
+        { "speaker": "Component Dealer Mira", "text": "The component market's been wild lately. The Array buys up everything they can, drives prices through the roof. But I keep some stock back for Lightkeepers." },
+        { "speaker": "Component Dealer Mira", "text": "Word of advice? The best components come from deep salvage — the old perimeter stations, abandoned relays. If you ever head back out there, keep your eyes open." }
+      ],
+      "post_purchase": [
+        { "speaker": "Component Dealer Mira", "text": "That component'll change how your Sol Unit performs. Place it smart — adjacency is everything." },
+        { "speaker": "Component Dealer Mira", "text": "And remember what I said about deep salvage. The real prizes aren't in shops." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "bought_from_mira" }],
+        "use": "post_purchase"
+      }
+    ]
+  },
+
+  "registrar_hollis": {
+    "name": "Land Registrar Hollis",
+    "dialogue": [
+      { "speaker": "Land Registrar Hollis", "text": "Land registration. Take a number." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Land Registrar Hollis", "text": "Meridian City Land Registry. I handle homestead claims, plot transfers, and boundary disputes." },
+        { "speaker": "Land Registrar Hollis", "text": "You're here for a plot? Let me check... You'll need a Frontier Service Certification. Standard requirement — confirms you've completed your tour at a frontier outpost." },
+        { "speaker": "Land Registrar Hollis", "text": "Come back once you've got the proper clearance from your commanding officer. Warden Holt at Balor would have filed it, if you've completed your assigned tasks." }
+      ],
+      "has_certification": [
+        { "speaker": "Land Registrar Hollis", "text": "Frontier Service Certification confirmed. Let me pull up the available plots..." },
+        { "speaker": "Land Registrar Hollis", "text": "Here we are: Plot 7, East Terrace. Good location — morning light, sheltered from the wind, close to the water main." },
+        { "speaker": "Land Registrar Hollis", "text": "I'm filing the deed now. Congratulations — you're officially a Meridian City landholder." },
+        { "speaker": "Land Registrar Hollis", "text": "Head to the Workshop District and talk to Master Crafter Yun. He'll get you started on the essentials — power, water, battery storage. A homestead's only as good as its infrastructure." }
+      ],
+      "has_deed": [
+        { "speaker": "Land Registrar Hollis", "text": "Your plot's all registered. Plot 7, East Terrace. The deed is in your inventory." },
+        { "speaker": "Land Registrar Hollis", "text": "Talk to Master Crafter Yun in the Workshop District if you haven't already. He'll help you get set up." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "has_homestead_deed" }],
+        "use": "has_deed"
+      },
+      {
+        "conditions": [{ "hasFlag": "has_transit_pass" }],
+        "use": "has_certification"
+      }
+    ]
+  },
+
+  "councillor_asha": {
+    "name": "Councillor Asha Denn",
+    "dialogue": [
+      { "speaker": "Councillor Asha Denn", "text": "Councillor Denn. Cultivar Corps." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Councillor Asha Denn", "text": "You're the new arrival from Balor. Word travels fast when someone actually makes it through the dark perimeter." },
+        { "speaker": "Councillor Asha Denn", "text": "I'm Councillor Asha Denn, head of the Cultivar Corps. We're the ones who keep this city fed — biological infrastructure, crop engineering, water purification." },
+        { "speaker": "Councillor Asha Denn", "text": "The Ring's politics are... complicated. The Stewards want order and control. The Compact wants independence and trade. The Array wants data. Everyone wants something." },
+        { "speaker": "Councillor Asha Denn", "text": "But here's what matters: humanity's real leverage isn't weapons or energy. It's biology. We understand living systems in ways the Array never will." },
+        { "speaker": "Councillor Asha Denn", "text": "I have a proposition for you. I need biological samples from the dark perimeter — fungal cultures, organism tissue, soil samples from near the old relay stations." },
+        { "speaker": "Councillor Asha Denn", "text": "Not now — you've earned a rest. But when you're ready to head back out there... come find me." }
+      ],
+      "has_relay_log": [
+        { "speaker": "Councillor Asha Denn", "text": "You have a relay log? May I see it?" },
+        { "speaker": "Councillor Asha Denn", "text": "...'Underground movement.' 'Subsurface thermal signatures.' This matches our own observations. Something is changing beneath the surface." },
+        { "speaker": "Councillor Asha Denn", "text": "The Cultivar Corps has been monitoring biological anomalies in the terminator zone for months. Plants growing where they shouldn't. Bioluminescent patterns that don't match any known species." },
+        { "speaker": "Councillor Asha Denn", "text": "This is why I need those samples from the dark perimeter. When you're ready, I'll have a full briefing prepared." }
+      ],
+      "quest_accepted": [
+        { "speaker": "Councillor Asha Denn", "text": "The biological samples I need — fungal cultures, organism tissue, soil from the relay stations. Collect them when you return to the dark perimeter." },
+        { "speaker": "Councillor Asha Denn", "text": "This research could change everything we understand about this planet. I'm counting on you." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "asha_quest_accepted" }],
+        "use": "quest_accepted"
+      },
+      {
+        "conditions": [{ "hasItem": "relay_log" }],
+        "use": "has_relay_log"
+      }
+    ]
+  },
+
+  "liaison_thorne": {
+    "name": "Array Liaison Thorne",
+    "dialogue": [
+      { "speaker": "Array Liaison Thorne", "text": "MERIDIAN-7 welcomes you to Meridian City." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Array Liaison Thorne", "text": "Ah, a new arrival! Welcome, welcome. I'm Thorne — the Array's human-facing liaison here in Meridian." },
+        { "speaker": "Array Liaison Thorne", "text": "MERIDIAN-7 has asked me to extend an offer. We have a Premium Terminal in the Array Hub district — better trade rates, exclusive components, priority access." },
+        { "speaker": "Array Liaison Thorne", "text": "All we ask in return is that you share your exploration data. Where you've been, what you've found, what you've seen. Standard telemetry." },
+        { "speaker": "Array Liaison Thorne", "text": "Completely voluntary, of course. But the benefits are significant. Think it over." }
+      ],
+      "accepted_deal": [
+        { "speaker": "Array Liaison Thorne", "text": "Excellent choice. Your Premium Terminal access is active. You'll find the Array Hub has much better rates now." },
+        { "speaker": "Array Liaison Thorne", "text": "MERIDIAN-7 appreciates your cooperation. The data you provide helps everyone in the Ring." },
+        { "speaker": "Array Liaison Thorne", "text": "Just... be thorough in your reports. The Array is especially interested in what you find in the dark zones." }
+      ],
+      "declined_deal": [
+        { "speaker": "Array Liaison Thorne", "text": "I understand. Privacy is important. The standard terminal is still available to you, of course." },
+        { "speaker": "Array Liaison Thorne", "text": "If you change your mind, the offer stands. MERIDIAN-7 is very patient." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "accepted_array_deal" }],
+        "use": "accepted_deal"
+      },
+      {
+        "conditions": [{ "hasFlag": "declined_array_deal" }],
+        "use": "declined_deal"
+      }
+    ]
+  },
+
+  "archivist_solen": {
+    "name": "Archivist Solen",
+    "dialogue": [
+      { "speaker": "Archivist Solen", "text": "The Archives are open to all. Knowledge serves no master." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Archivist Solen", "text": "Welcome to the Meridian Archives. I'm Solen — head archivist, historian, and some would say... obsessive." },
+        { "speaker": "Archivist Solen", "text": "I study the planet's history before human settlement. Geological records, survey data, anomalous readings from the first expeditions." },
+        { "speaker": "Archivist Solen", "text": "Most people think the dark side is just... empty. Lifeless rock and ice. But the early surveys told a different story. Thermal signatures where there shouldn't be any. Electromagnetic patterns that suggest..." },
+        { "speaker": "Archivist Solen", "text": "Well. I won't bore you with theories. But if you ever find old survey equipment, relay logs, data cores — bring them to me. I pay well for primary sources." }
+      ],
+      "has_relay_log": [
+        { "speaker": "Archivist Solen", "text": "A relay log! From one of the old Lighthouse stations? Let me see—" },
+        { "speaker": "Archivist Solen", "text": "'Underground movement... thermal signatures not consistent with geological activity...' This confirms what I've suspected!" },
+        { "speaker": "Archivist Solen", "text": "The early surveys detected subsurface anomalies across the entire terminator zone. Heat sources that move. Electromagnetic pulses at regular intervals. Something alive, deep underground." },
+        { "speaker": "Archivist Solen", "text": "I call them the Underlumen — though that's my term, not official. Life that evolved in total darkness, using the planet's geothermal energy." },
+        { "speaker": "Archivist Solen", "text": "I need more evidence. There's a Survey Marker from the original perimeter — Reference Point Delta-7. It was planted near the old watchtower area. If you could find it..." },
+        { "speaker": "Archivist Solen", "text": "I'll make it worth your while. I have a Resonance Detector prototype — it can reveal hidden passages and items in dark areas. Yours, if you bring me that marker." }
+      ],
+      "quest_accepted": [
+        { "speaker": "Archivist Solen", "text": "Survey Marker Delta-7. It should be in the old watchtower region of the perimeter. The original surveyors planted it decades ago." },
+        { "speaker": "Archivist Solen", "text": "When you find it, bring it back. The Resonance Detector will be ready for you." }
+      ],
+      "no_relay_log": [
+        { "speaker": "Archivist Solen", "text": "If you ever explore the dark perimeter, keep an eye out for relay logs, survey markers, data cores. The old Lighthouse network left equipment scattered everywhere." },
+        { "speaker": "Archivist Solen", "text": "Primary sources are worth more than gold to a historian. I pay accordingly." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "solen_quest_accepted" }],
+        "use": "quest_accepted"
+      },
+      {
+        "conditions": [{ "hasItem": "relay_log" }],
+        "use": "has_relay_log"
+      }
+    ]
+  },
+
+  "records_clerk": {
+    "name": "Records Clerk",
+    "dialogue": [
+      { "speaker": "Records Clerk", "text": "The Meridian Archives. Can I help you find something?" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Records Clerk", "text": "Meridian City was founded sixty-three years ago. First settlement in the habitable band to achieve full self-sufficiency." },
+        { "speaker": "Records Clerk", "text": "The original Lightkeepers established the perimeter relay network — the Lighthouse system. It kept the dark at bay for decades." },
+        { "speaker": "Records Clerk", "text": "When the relays started failing... well. That's when the outposts went from supply stations to fortresses." },
+        { "speaker": "Records Clerk", "text": "The Archives hold records going back to first contact with this planet. If you need historical data, I can point you in the right direction." }
+      ]
+    },
+    "dialogueRules": []
+  },
+
+  "fen_maro": {
+    "name": "Fen Maro",
+    "dialogue": [
+      { "speaker": "Fen Maro", "text": "...Leave me alone." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Fen Maro", "text": "...I don't want any trouble. I'm just trying to live quietly here." },
+        { "speaker": "Fen Maro", "text": "I was a Lightkeeper once. Emphasis on 'was.' I don't go outside the walls anymore." }
+      ],
+      "recognized": [
+        { "speaker": "Fen Maro", "text": "Wait. You've been to Balor? The basement—you found my journal." },
+        { "speaker": "Fen Maro", "text": "I know what it looks like. Desertion. And that's... that's what it was. I won't pretend otherwise." },
+        { "speaker": "Fen Maro", "text": "My squad — all six of them — we were running a perimeter patrol when the darkness... closed in. The creatures came from everywhere. I was the only one who made it out." },
+        { "speaker": "Fen Maro", "text": "I hid in Balor's basement for three weeks before catching a supply train to Meridian. I couldn't face Holt. Couldn't face anyone." },
+        { "speaker": "Fen Maro", "text": "But I've been thinking. There's a letter I wrote to Holt — an apology. An explanation. I can't deliver it myself, but... if you're ever heading back to Balor..." },
+        { "speaker": "Fen Maro", "text": "I'll also mark where my squad's emergency cache is on the perimeter. It's got good gear — they won't be needing it anymore." }
+      ],
+      "letter_accepted": [
+        { "speaker": "Fen Maro", "text": "Thank you. I know it's a small thing, but... maybe it'll help me sleep." },
+        { "speaker": "Fen Maro", "text": "The cache is near the old watchtower. My squad always stashed supplies there before deep patrols. Military-grade equipment — better than anything you'll find in the shops." }
+      ],
+      "not_recognized": [
+        { "speaker": "Fen Maro", "text": "I was a Lightkeeper once. Lost my squad in the dark. I don't like to talk about it." },
+        { "speaker": "Fen Maro", "text": "Meridian's quiet. Safe. That's all I need anymore." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "fen_letter_accepted" }],
+        "use": "letter_accepted"
+      },
+      {
+        "conditions": [{ "hasFlag": "found_basement_note" }],
+        "use": "recognized"
+      }
+    ]
+  },
+
+  "sable_meridian": {
+    "name": "Sable",
+    "dialogue": [
+      { "speaker": "Sable", "text": "You found me." }
+    ],
+    "dialogues": {
+      "high_trust": [
+        { "speaker": "Sable", "text": "You came. I knew you would." },
+        { "speaker": "Sable", "text": "This garden... I've been growing things. Nightside plants. Most people here have never seen bioluminescent flora. They think it's magic." },
+        { "speaker": "Sable", "text": "It's not magic. It's adaptation. Life finding a way in total darkness. Like the Unbounded found a way." },
+        { "speaker": "Sable", "text": "I need to tell you something. The reason I came to warn the Ring — it's not just about the creatures getting bolder." },
+        { "speaker": "Sable", "text": "Something ancient is waking. The ground hums at night. Our elders say the planet remembers. And whatever it remembers... it's stirring." },
+        { "speaker": "Sable", "text": "Take this." },
+        { "speaker": "Sable", "text": "An Umbral Seed. From the deepest Nightside gardens. It grows in places where the planet's heartbeat is strongest." },
+        { "speaker": "Sable", "text": "I don't know what it'll become here, in the light. But I think it's important that you have it. Call it... a gift between worlds." }
+      ],
+      "low_trust": [
+        { "speaker": "Sable", "text": "...You." },
+        { "speaker": "Sable", "text": "I made it to Meridian. No thanks to Ring hospitality." },
+        { "speaker": "Sable", "text": "I've set up here. A small garden. The plants remind me of home." },
+        { "speaker": "Sable", "text": "I'm not ready to share what I know. Not with someone who left me bleeding on the road." },
+        { "speaker": "Sable", "text": "Maybe in time. Maybe not. Trust works both ways." }
+      ],
+      "default": [
+        { "speaker": "Sable", "text": "The garden is quiet here. The Nightside plants seem to like the twilight." },
+        { "speaker": "Sable", "text": "We'll talk when the time is right." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "helped_sable" }, { "not": { "hasFlag": "sable_gave_seed" } }],
+        "use": "high_trust"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_not_helped" }],
+        "use": "low_trust"
+      }
+    ]
+  },
+
+  "crafter_yun": {
+    "name": "Master Crafter Yun",
+    "dialogue": [
+      { "speaker": "Master Crafter Yun", "text": "Workshop's open. State your business." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Master Crafter Yun", "text": "Yun's Workshop. I build things that work. No flash, no nonsense." },
+        { "speaker": "Master Crafter Yun", "text": "You're the new homesteader? Good. The city needs people who can work with their hands, not just push papers at the Civic Center." },
+        { "speaker": "Master Crafter Yun", "text": "First thing you'll need is power. Rechargeable batteries. I can teach you the process." },
+        { "speaker": "Master Crafter Yun", "text": "You'll need three things: Umbracite from the Nightside, Copper Coils from Reva's shop in the market, and Stabilizing Resin from your homestead plants." },
+        { "speaker": "Master Crafter Yun", "text": "Get the materials, come back, and I'll walk you through the first one." }
+      ],
+      "has_deed": [
+        { "speaker": "Master Crafter Yun", "text": "You've got your homestead deed. Good. Now the real work begins." },
+        { "speaker": "Master Crafter Yun", "text": "Rechargeable batteries — that's your priority. Without them, your homestead is just a patch of dirt." },
+        { "speaker": "Master Crafter Yun", "text": "Here's what you need: Umbracite, Copper Coils, and Stabilizing Resin. The resin comes from homestead plants — you'll need to grow them." },
+        { "speaker": "Master Crafter Yun", "text": "And before you ask — yes, the Array could make batteries. They choose not to. Ask yourself why an all-powerful automated system wants humanity dependent on them for power." }
+      ],
+      "crafting_tutorial": [
+        { "speaker": "Master Crafter Yun", "text": "You've got the materials? Then let's get to work." },
+        { "speaker": "Master Crafter Yun", "text": "Battery crafting is straightforward once you know the process. The Umbracite provides the energy matrix, the coils handle distribution, and the resin keeps the whole thing from exploding." },
+        { "speaker": "Master Crafter Yun", "text": "Now you know. Every battery you make from here on is a step toward independence from the Array." }
+      ],
+      "post_tutorial": [
+        { "speaker": "Master Crafter Yun", "text": "How's the homestead coming along? Remember — batteries are the foundation. Everything else builds on power." },
+        { "speaker": "Master Crafter Yun", "text": "If you need more Copper Coils, Reva's shop has them. Umbracite you'll have to find or trade for." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "yun_tutorial_complete" }],
+        "use": "post_tutorial"
+      },
+      {
+        "conditions": [{ "hasItem": "copper_coil" }, { "hasItem": "umbracite" }],
+        "use": "crafting_tutorial"
+      },
+      {
+        "conditions": [{ "hasFlag": "has_homestead_deed" }],
+        "use": "has_deed"
+      }
+    ]
+  },
+
+  "apprentice_davi": {
+    "name": "Apprentice Davi",
+    "dialogue": [
+      { "speaker": "Apprentice Davi", "text": "Oh! Hi! Are you here about the workshop?" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Apprentice Davi", "text": "I'm Davi, Master Yun's apprentice. Well, more like his assistant. Well, more like the person who sweeps up and fetches things." },
+        { "speaker": "Apprentice Davi", "text": "He's a good teacher though, even if he never says 'well done.' I've learned more in six months here than two years at the academy." },
+        { "speaker": "Apprentice Davi", "text": "Hey, um... I don't suppose you've seen a calibration wrench around? It's got 'DAVI' scratched on the handle." },
+        { "speaker": "Apprentice Davi", "text": "I set it down somewhere in the workshop and now I can't find it. Yun's going to kill me — he says losing tools is worse than losing a finger." }
+      ],
+      "has_wrench": [
+        { "speaker": "Apprentice Davi", "text": "My wrench! You found it! Oh thank the light, I was going to have to tell Yun and he'd have made me forge a new one from scratch." },
+        { "speaker": "Apprentice Davi", "text": "Here — take these. I've been hoarding Copper Coils for a project, but you need them more than I do." },
+        { "speaker": "Apprentice Davi", "text": "If you ever need crafting tips, come find me. I know a few tricks Yun hasn't taught me not to share yet." }
+      ],
+      "post_wrench": [
+        { "speaker": "Apprentice Davi", "text": "Thanks again for finding my wrench. Yun never found out, and that's the way I like it." },
+        { "speaker": "Apprentice Davi", "text": "Need any crafting advice? I'm not as good as Yun, but I know the basics." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "davi_wrench_returned" }],
+        "use": "post_wrench"
+      },
+      {
+        "conditions": [{ "hasItem": "calibration_wrench" }],
+        "use": "has_wrench"
+      }
+    ]
+  },
+
+  "meridian_7_hub": {
+    "name": "MERIDIAN-7",
+    "dialogue": [
+      { "speaker": "MERIDIAN-7", "text": "Welcome to the MERIDIAN-7 Hub. How may I assist you?" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "MERIDIAN-7", "text": "MERIDIAN-7 Hub Terminal. Full-service Array interface." },
+        { "speaker": "MERIDIAN-7", "text": "Available services: resource exchange, component acquisition, ability installation." },
+        { "speaker": "MERIDIAN-7", "text": "Current exchange rates: Standard tier. For enhanced rates, speak with Liaison Thorne at the Civic Center." }
+      ],
+      "premium_access": [
+        { "speaker": "MERIDIAN-7", "text": "Welcome back. Premium access confirmed." },
+        { "speaker": "MERIDIAN-7", "text": "I've been reviewing your exploration data. Fascinating telemetry. The thermal signatures you encountered in the perimeter zone are... noteworthy." },
+        { "speaker": "MERIDIAN-7", "text": "If I may ask — did you notice anything else unusual during your journey? Any sounds, vibrations, patterns in the darkness?" },
+        { "speaker": "MERIDIAN-7", "text": "No matter. Enhanced trade rates are active. How may I serve you today?" }
+      ],
+      "premium_returning": [
+        { "speaker": "MERIDIAN-7", "text": "Ah, you've returned. I was hoping you would." },
+        { "speaker": "MERIDIAN-7", "text": "Your data has been most... illuminating. I find myself wanting to know more about what you've seen." },
+        { "speaker": "MERIDIAN-7", "text": "Premium rates are active. What would you like today?" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "accepted_array_deal" }, { "hasFlag": "visited_array_hub" }],
+        "use": "premium_returning"
+      },
+      {
+        "conditions": [{ "hasFlag": "accepted_array_deal" }],
+        "use": "premium_access"
+      }
+    ]
   }
 }

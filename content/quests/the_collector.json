@@ -1,0 +1,28 @@
+{
+  "id": "the_collector",
+  "name": "The Collector",
+  "description": "Archivist Solen is fascinated by your relay log. He wants you to find Survey Marker Delta-7 from the old perimeter.",
+  "startConditions": [{ "hasFlag": "solen_quest_accepted" }],
+  "steps": {
+    "find_marker": {
+      "label": "Find Survey Marker Delta-7",
+      "description": "Search the old watchtower region of the dark perimeter for Survey Marker Delta-7.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "old_watchtower" },
+      "completionConditions": [{ "hasFlag": "found_survey_marker" }],
+      "completionActions": [{ "type": "grantXp", "amount": 30 }]
+    },
+    "return_to_solen": {
+      "label": "Return to Archivist Solen",
+      "description": "Bring the Survey Marker back to Archivist Solen in the Meridian Archives.",
+      "prerequisiteSteps": ["find_marker"],
+      "objective": { "roomId": "meridian_archives", "tileX": 5, "tileY": 6 },
+      "completionConditions": [{ "hasFlag": "solen_quest_complete" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "text": "Quest complete: The Collector. Archivist Solen rewards you with the Resonance Detector." }
+      ]
+    }
+  },
+  "startStep": "find_marker"
+}

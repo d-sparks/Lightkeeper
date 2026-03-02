@@ -46,5 +46,29 @@
     "name": "Reinforced Battery",
     "bonus": { "cooldownReduction": 0.10 },
     "shape": [[1]]
+  },
+  "efficiency_core": {
+    "type": "modifier",
+    "name": "Efficiency Core",
+    "bonus": { "cooldownReduction": 0.20 },
+    "shape": [[1]]
+  },
+  "area_expander": {
+    "type": "modifier",
+    "name": "Area Expander",
+    "bonus": { "damageMultiplier": 0.20 },
+    "shape": [[1]]
+  },
+  "power_tap": {
+    "type": "modifier",
+    "name": "Power Tap",
+    "bonus": { "damageMultiplier": 0.15, "cooldownReduction": 0.15 },
+    "shape": [[1, 1]]
+  },
+  "sol_shield_emitter": {
+    "type": "ability",
+    "abilityId": "sol_shield",
+    "name": "Sol Shield Emitter",
+    "shape": [[1]]
   }
 }

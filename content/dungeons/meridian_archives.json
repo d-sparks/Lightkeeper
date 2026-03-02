@@ -1,0 +1,72 @@
+{
+  "id": "meridian_archives",
+  "name": "The Archives",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "width": 20,
+  "height": 14,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,3,3,1,1,3,3,1,1,3,3,1,1,3,3,1,1,3,
+    3,1,1,3,3,1,1,3,3,1,1,3,3,1,1,3,3,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,6,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,3,3,1,1,3,3,1,1,3,3,1,1,3,3,1,1,3,
+    3,1,1,3,3,1,1,3,3,1,1,3,3,1,1,3,3,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 18, "y": 7, "type": "player_start" },
+    { "x": 17, "y": 7, "type": "player_start" },
+    { "x": 18, "y": 6, "type": "player_start" },
+    { "x": 17, "y": 6, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [
+    { "type": "archivist_solen", "x": 5, "y": 6 },
+    { "type": "records_clerk", "x": 14, "y": 6 }
+  ],
+  "itemSpawns": [],
+  "exits": [
+    { "x": 18, "y": 7, "leadsTo": "meridian_market", "type": "stairs_down", "spawnX": 1, "spawnY": 16 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_archives",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Archives. Rows of data terminals and physical records stretch into the distance. The air smells of old paper and ozone.",
+          "It's quieter here than the rest of the city. The kind of quiet that comes from people thinking hard."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "solen_relay_log",
+      "event": "npc_interacted",
+      "filter": { "npcType": "archivist_solen" },
+      "conditions": [
+        { "hasItem": "relay_log" },
+        { "not": { "hasFlag": "solen_quest_accepted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "solen_quest_accepted" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "lines": [
+          "Solen's eyes widen as he reads the relay log. 'Underground movement... thermal signatures not consistent with geological activity...'",
+          "'This is extraordinary. The Underlumen — I knew it. Life beneath the surface, using geothermal energy. The planet isn't dead at all.'",
+          "'I need more evidence. Survey Marker Delta-7, planted by the original surveyors near the old watchtower. Find it for me, and I'll give you my Resonance Detector prototype.'"
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

@@ -81,6 +81,30 @@
       "objective": { "roomId": "train_station", "tileX": 12, "tileY": 0 },
       "completionConditions": [{ "hasFlag": "boarded_train" }],
       "completionActions": [{ "type": "grantXp", "amount": 40 }]
+    },
+    "arrive_meridian": {
+      "label": "Arrive at Meridian City",
+      "description": "You've boarded the train. Ride it to Meridian City and explore the station.",
+      "prerequisiteSteps": ["board_train"],
+      "objective": { "roomId": "meridian_station", "tileX": 15, "tileY": 10 },
+      "completionConditions": [{ "hasFlag": "arrived_meridian" }],
+      "completionActions": [{ "type": "grantXp", "amount": 25 }]
+    },
+    "visit_civic_center": {
+      "label": "Visit the Civic Center",
+      "description": "Head east from the station to the Civic Center and meet Land Registrar Hollis.",
+      "prerequisiteSteps": ["arrive_meridian"],
+      "objective": { "roomId": "meridian_civic", "tileX": 6, "tileY": 5 },
+      "completionConditions": [{ "hasFlag": "has_homestead_deed" }],
+      "completionActions": [{ "type": "grantXp", "amount": 20 }]
+    },
+    "visit_workshop": {
+      "label": "Visit the Workshop District",
+      "description": "Head west from the station to the Workshop District and meet Master Crafter Yun.",
+      "prerequisiteSteps": ["visit_civic_center"],
+      "objective": { "roomId": "meridian_workshop", "tileX": 5, "tileY": 5 },
+      "completionConditions": [{ "hasFlag": "yun_tutorial_complete" }],
+      "completionActions": [{ "type": "grantXp", "amount": 30 }]
     }
   },
   "startStep": "talk_to_warden"

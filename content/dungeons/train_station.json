@@ -41,7 +41,7 @@
   ],
   "exits": [
     { "x": 12, "y": 14, "leadsTo": "station_approach", "type": "stairs_up", "spawnX": 9, "spawnY": 2 },
-    { "x": 12, "y": 0, "leadsTo": "dayside_solar_fields", "type": "stairs_down", "spawnX": 15, "spawnY": 28 },
+    { "x": 12, "y": 0, "leadsTo": "meridian_station", "type": "stairs_down", "spawnX": 15, "spawnY": 17 },
     { "x": 23, "y": 9, "leadsTo": "station_junction", "type": "stairs_down", "spawnX": 7, "spawnY": 1 }
   ],
   "triggers": [
@@ -129,6 +129,20 @@
       "actions": [
         { "type": "openAutomation" }
       ]
+    },
+    {
+      "id": "board_train_flag",
+      "event": "door_interacted",
+      "filter": { "tileX": 12, "tileY": 1 },
+      "conditions": [{ "hasFlag": "has_transit_pass" }],
+      "actions": [
+        { "type": "setFlag", "flag": "boarded_train" },
+        { "type": "showMessage", "lines": [
+          "You step through the platform gate. The train hums to life, doors sliding open.",
+          "You board. The doors close behind you."
+        ]}
+      ],
+      "once": true
     },
     {
       "id": "remove_sable_if_not_met",

@@ -1,0 +1,22 @@
+{
+  "id": "array_access",
+  "name": "Array Access",
+  "description": "Liaison Thorne offers premium Array terminal access in exchange for sharing your exploration data.",
+  "startConditions": [{ "hasFlag": "arrived_meridian" }],
+  "steps": {
+    "meet_thorne": {
+      "label": "Meet Array Liaison Thorne",
+      "description": "Visit the Civic Center and speak with Thorne about the Array's offer.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "meridian_civic", "tileX": 6, "tileY": 14 },
+      "completionConditions": [
+        { "or": [
+          { "hasFlag": "accepted_array_deal" },
+          { "hasFlag": "declined_array_deal" }
+        ]}
+      ],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    }
+  },
+  "startStep": "meet_thorne"
+}

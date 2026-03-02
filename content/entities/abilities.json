@@ -45,5 +45,40 @@
     "cooldown": 8.0,
     "energyCost": 10,
     "defaultSlot": 2
+  },
+  "precision_shot": {
+    "name": "Precision Shot",
+    "type": "projectile",
+    "damageMultiplier": 1.2,
+    "projectileRadius": 4,
+    "projectileSpeed": 400,
+    "cooldown": 0.4,
+    "defaultSlot": 1
+  },
+  "shock_strike": {
+    "name": "Shock Strike",
+    "type": "melee_strike",
+    "damageMultiplier": 1.2,
+    "range": 2.0,
+    "knockback": 128,
+    "cooldown": 0.6,
+    "defaultSlot": 1
+  },
+  "pulse_shot": {
+    "name": "Pulse Shot",
+    "type": "projectile",
+    "damageMultiplier": 1.8,
+    "projectileRadius": 6,
+    "projectileSpeed": 350,
+    "cooldown": 0.6,
+    "defaultSlot": 1
+  },
+  "sol_shield": {
+    "name": "Sol Shield",
+    "type": "heal",
+    "heal": 35,
+    "cooldown": 12.0,
+    "energyCost": 15,
+    "defaultSlot": 3
   }
 }
