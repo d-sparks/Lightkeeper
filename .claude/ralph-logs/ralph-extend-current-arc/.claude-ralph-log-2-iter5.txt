@@ -1,0 +1,27 @@
+CONTENT_005 implementation is complete. Here's a summary of everything that was done:
+
+**6 New Dungeons:**
+- **Deep Perimeter East** — Main hub area with gloom wraiths/shade stalkers, connecting to all new zones
+- **Signal Cave** — Dead Lightkeeper discovery, broken signal source, lore-heavy
+- **Perimeter Ravine** — Bioluminescent ecosystem with ravine lurkers and bio samples
+- **Old Survey Point** — Peaceful vantage point with Survey Marker Delta-7 and Nightside vista
+- **Fen's Squad Cache** — Emotional squad bunker with Mk1+ Sol Unit (6x6 grid upgrade)
+- **Underlumen Approach** — Crystal guardian mini-boss, resonance point climax
+
+**3 New Monsters:** gloom_wraith (ranged kiter), ravine_lurker (melee), crystal_guardian (boss)
+
+**16 New Items** including Sol Unit Mk1+, L2 rechargeable battery, resonance fragment, umbral extract
+
+**3 New Sol Components:** guardian_core, bio_resonance_amplifier, resonance_detector
+
+**Quest Completions:**
+- The Collector → Survey Marker at Old Survey Point → Solen rewards Resonance Detector
+- The Councillor's Request → Bio samples from Ravine → Asha rewards Bio Resonance Amplifier
+- The Deserter → Cache + letter delivery → Fen becomes guide
+- New quest: The Broken Signal (Daley → signal cave → journal return)
+
+**Systems:**
+- Gloomvine growth (umbral seed + deep dark exposure → harvestable plant)
+- L2 battery crafting at Yun's workshop
+- Homestead personal log updates
+- 8 NPCs updated with new dialogue states (warden, Daley, Vasik, Tannis, Asha, Solen, Fen, Sable, MERIDIAN-7)

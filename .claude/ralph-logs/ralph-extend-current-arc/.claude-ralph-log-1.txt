@@ -1,0 +1,13 @@
+Done. Here's the arc across the 5 content files:
+
+**CONTENT_001 — Enriching Outpost Balor**: Adds mess hall, comms room, infirmary, and hidden basement. 6 new NPCs (Cook Brannigan, Comms Officer Daley, Dr. Vasik, Surveyor Kade, etc.). 3 side quests (Broken Signal, The Wounded, Missing Rations) that plant seeds for later. New items including Signal Booster and Field Medkit recipe.
+
+**CONTENT_002 — The Dark Perimeter & Train Station**: 7 new areas between Balor and the train station. First real Nightside exposure with Shade Stalkers and a Nest Mother mini-boss. The pivotal Sable encounter (help her or don't — tracked via trust flag). Collapsed Relay Station with Underlumen foreshadowing. Old Watchtower with emotional lore. Expands the train station with Tech Yara and the Transit Pass quest.
+
+**CONTENT_003 — Meridian City**: 7 city districts (station, market, civic center, archives, residential, workshop, Array hub). Major faction NPCs: Councillor Asha Denn, Array Liaison Thorne, Archivist Solen. Fen Maro (the basement fugitive from CONTENT_001) reappears. Weapon upgrades, new sol components including the first Power Generator. The Array data-sharing deal as a meaningful choice. Sable reappears with the Umbral Seed.
+
+**CONTENT_004 — The Homestead**: Harvesting loop — plant resin bushes, harvest stabilizing resin, craft rechargeable batteries at Yun's workshop. Growth gated by milestones (not timers). Neighbor Sera and terrace community for warmth. The Umbral Seed quest thread. Sol Unit capacity upgrade via Yun's Challenge. Small community quests for grounding.
+
+**CONTENT_005 — Return to the Deep Perimeter**: Harder perimeter with new enemies (Gloom Wraiths, Ravine Lurkers, Crystal Guardian). Resolves 5+ quest threads from previous content. The Underlumen encounter at "the Hum" — the arc's climax. Sol Unit Mk1+ (6x6 grid) from Fen's cache. Rechargeable Battery L2. The Resonance Fragment as a story lynchpin every faction reacts to differently. Ends with narrative hooks into Act 1.
+
+All quests use the existing TCA scripting system — no engine changes needed.
