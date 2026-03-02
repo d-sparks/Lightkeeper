@@ -56,6 +56,7 @@
           "MERIDIAN CITY — TERMINUS. Please watch the gap.",
           "You step onto the platform. The station is vast — vaulted ceilings, holographic advertisements, crowds of people moving with purpose. After the isolation of the frontier, it's almost overwhelming."
         ]},
+        { "type": "setFlag", "flag": "boarded_train" },
         { "type": "setFlag", "flag": "arrived_meridian" },
         { "type": "setFlag", "flag": "visited_meridian_station" },
         { "type": "setEnergy", "percent": 100 }

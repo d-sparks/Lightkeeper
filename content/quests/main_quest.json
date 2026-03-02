@@ -50,10 +50,26 @@
       "completionConditions": [{ "hasFlag": "received_sol_unit" }],
       "completionActions": [{ "type": "grantXp", "amount": 25 }]
     },
+    "equip_damage_booster": {
+      "label": "Equip the Damage Booster",
+      "description": "Open your Sol Grid and place the Damage Booster next to the Sol Cone.",
+      "prerequisiteSteps": ["return_to_engineer"],
+      "uiHint": "sol_grid_tutorial",
+      "completionConditions": [{ "hasFlag": "damage_booster_equipped" }],
+      "completionActions": [{ "type": "grantXp", "amount": 10 }]
+    },
+    "training_range": {
+      "label": "Complete Sol Training",
+      "description": "Head to the training range and destroy the targets.",
+      "prerequisiteSteps": ["equip_damage_booster"],
+      "objective": { "roomId": "outpost_training_range", "tileX": 9, "tileY": 6 },
+      "completionConditions": [{ "hasFlag": "sol_training_complete" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
     "charge_sol_unit": {
       "label": "Charge your Sol Unit",
       "description": "Head to the Power Station to charge the Sol Unit.",
-      "prerequisiteSteps": ["return_to_engineer"],
+      "prerequisiteSteps": ["training_range"],
       "objective": { "roomId": "outpost_charging_station", "tileX": 12, "tileY": 6 },
       "completionConditions": [{ "hasFlag": "sol_unit_charged" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
@@ -103,7 +119,7 @@
       "description": "Head west from the station to the Workshop District and meet Master Crafter Yun.",
       "prerequisiteSteps": ["visit_civic_center"],
       "objective": { "roomId": "meridian_workshop", "tileX": 5, "tileY": 5 },
-      "completionConditions": [{ "hasFlag": "yun_tutorial_complete" }],
+      "completionConditions": [{ "hasFlag": "met_crafter_yun" }],
       "completionActions": [{ "type": "grantXp", "amount": 30 }]
     }
   },

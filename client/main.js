@@ -252,6 +252,113 @@
   let questState = [];
   let questToastTimeout = null;
 
+  // Tutorial arrow state (driven by quest uiHint)
+  let tutorialPhase = null;  // null | 'open_menu' | 'click_sol_tab' | 'select_component' | 'place_component'
+  let tutorialArrowEl = null;
+  let tutorialLabelEl = null;
+
+  function clearTutorialArrow() {
+    if (tutorialArrowEl) { tutorialArrowEl.remove(); tutorialArrowEl = null; }
+    if (tutorialLabelEl) { tutorialLabelEl.remove(); tutorialLabelEl = null; }
+  }
+
+  function showTutorialArrow(targetEl, labelText, side) {
+    clearTutorialArrow();
+    if (!targetEl) return;
+    const rect = targetEl.getBoundingClientRect();
+    const arrow = document.createElement('div');
+    arrow.className = 'tutorial-arrow';
+    const label = document.createElement('div');
+    label.className = 'tutorial-arrow-label';
+    label.textContent = labelText;
+
+    if (side === 'below') {
+      // Upward-pointing arrow below the target (bigger for visibility)
+      arrow.style.borderLeft = '14px solid transparent';
+      arrow.style.borderRight = '14px solid transparent';
+      arrow.style.borderTop = 'none';
+      arrow.style.borderBottom = '20px solid #ffa726';
+      arrow.style.left = (rect.left + rect.width / 2 - 14) + 'px';
+      arrow.style.top = (rect.bottom + 8) + 'px';
+      label.style.left = (rect.left + rect.width / 2) + 'px';
+      label.style.top = (rect.bottom + 32) + 'px';
+      label.style.transform = 'translateX(-50%)';
+      label.style.fontSize = '13px';
+    } else if (side === 'above') {
+      arrow.style.left = (rect.left + rect.width / 2 - 10) + 'px';
+      arrow.style.top = (rect.top - 18) + 'px';
+      label.style.left = (rect.left + rect.width / 2) + 'px';
+      label.style.top = (rect.top - 36) + 'px';
+      label.style.transform = 'translateX(-50%)';
+    } else {
+      // 'left' — arrow to the left of target
+      arrow.style.left = (rect.left - 26) + 'px';
+      arrow.style.top = (rect.top + rect.height / 2 - 7) + 'px';
+      arrow.style.borderTop = 'none';
+      arrow.style.borderBottom = '10px solid transparent';
+      arrow.style.borderLeft = 'none';
+      arrow.style.borderRight = '14px solid #ffa726';
+      label.style.left = (rect.left - 30) + 'px';
+      label.style.top = (rect.top + rect.height / 2 - 20) + 'px';
+      label.style.transform = 'translateX(-100%)';
+    }
+
+    document.body.appendChild(arrow);
+    document.body.appendChild(label);
+    tutorialArrowEl = arrow;
+    tutorialLabelEl = label;
+  }
+
+  function updateTutorialArrow() {
+    if (!tutorialPhase) { clearTutorialArrow(); return; }
+
+    if (tutorialPhase === 'open_menu') {
+      // Point at the INV button
+      const btn = document.getElementById('inventory-btn');
+      if (btn) showTutorialArrow(btn, 'Press I / tap INV', 'below');
+      return;
+    }
+
+    if (tutorialPhase === 'click_sol_tab') {
+      // Point at the SOL tab in the character menu
+      const solTab = document.querySelector('#character-menu .inv-tab[data-tab="solgrid"]');
+      if (solTab) showTutorialArrow(solTab, 'Click SOL tab', 'above');
+      return;
+    }
+
+    if (tutorialPhase === 'select_component') {
+      // Point at the first sol component in the component list
+      const compCell = document.querySelector('#inv-tab-solgrid .has-modifier');
+      if (compCell) {
+        showTutorialArrow(compCell, 'Select the booster', 'above');
+      }
+      return;
+    }
+
+    if (tutorialPhase === 'place_component') {
+      // Point at grid cell adjacent to the sol cone (cell 2,1 — above center)
+      const cells = document.querySelectorAll('#inv-tab-solgrid .sol-cell');
+      // Grid is 5x5, cell (2,1) = index 7
+      if (cells.length >= 25 && cells[7]) {
+        showTutorialArrow(cells[7], 'Place here', 'above');
+      }
+      return;
+    }
+  }
+
+  function advanceTutorialPhase() {
+    if (tutorialPhase === 'open_menu') {
+      tutorialPhase = 'click_sol_tab';
+    } else if (tutorialPhase === 'click_sol_tab') {
+      tutorialPhase = 'select_component';
+    } else if (tutorialPhase === 'select_component') {
+      tutorialPhase = 'place_component';
+    } else if (tutorialPhase === 'place_component') {
+      tutorialPhase = null;
+    }
+    updateTutorialArrow();
+  }
+
   // Automation state
   let autoState = null;
   let automationScreenOpen = false;
@@ -280,6 +387,11 @@
     characterMenu.style.display = 'none';
     solGridSelectedComponent = null;
     audio.play('menu_close');
+    // Reset tutorial to open_menu phase if we close during the tutorial
+    if (tutorialPhase && tutorialPhase !== 'open_menu') {
+      tutorialPhase = 'open_menu';
+      updateTutorialArrow();
+    }
   }
 
   function toggleMenu(tab) {
@@ -316,6 +428,14 @@
     if (tab === 'solgrid') renderSolGrid();
     if (tab === 'auto') renderAutoTab();
     if (tab === 'quests') renderQuestPanel();
+
+    // Advance tutorial: menu opened → show SOL tab arrow; SOL tab clicked → show component arrow
+    if (tutorialPhase === 'open_menu') {
+      advanceTutorialPhase(); // open_menu → click_sol_tab
+    }
+    if (tab === 'solgrid' && tutorialPhase === 'click_sol_tab') {
+      advanceTutorialPhase(); // click_sol_tab → select_component
+    }
 
     resetCursor();
   }
@@ -1235,6 +1355,9 @@
         }
         compCell.addEventListener('click', () => {
           solGridSelectedComponent = (solGridSelectedComponent === idx) ? null : idx;
+          if (solGridSelectedComponent !== null && tutorialPhase === 'select_component') {
+            advanceTutorialPhase();
+          }
           renderSolGrid();
         });
         compGrid.appendChild(compCell);
@@ -1249,6 +1372,10 @@
       solGridInfo.textContent = 'Click a component below to select, or click placed to remove';
     }
     updateCursorHighlight();
+    // Reposition tutorial arrow after sol grid re-render
+    if (tutorialPhase === 'select_component' || tutorialPhase === 'place_component') {
+      setTimeout(updateTutorialArrow, 0);
+    }
   }
 
   // --- Dynamic interact button label ---
@@ -1672,6 +1799,14 @@
     }
     // Re-render equipment slots to show/hide OPEN tag
     if (menuOpen && menuTab === 'equipment') renderEquipmentSlots();
+    // Complete tutorial placement phase when grid updates with a new modifier
+    if (tutorialPhase === 'place_component' && solGridState) {
+      const hasModifier = solGridState.cells.some(c => c && c.modifierId);
+      if (hasModifier) {
+        tutorialPhase = null;
+        clearTutorialArrow();
+      }
+    }
   });
 
   net.on(CONSTANTS.MSG.ABILITY_STATE, (msg) => {
@@ -1689,6 +1824,18 @@
       questLabel.style.display = '';
     } else {
       questLabel.style.display = 'none';
+    }
+    // Start or clear sol grid tutorial
+    if (msg.objective && msg.objective.uiHint === 'sol_grid_tutorial') {
+      if (!tutorialPhase) {
+        tutorialPhase = 'open_menu';
+        updateTutorialArrow();
+      }
+    } else {
+      if (tutorialPhase) {
+        tutorialPhase = null;
+        clearTutorialArrow();
+      }
     }
   });
 

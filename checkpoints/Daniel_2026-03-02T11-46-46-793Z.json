@@ -1,0 +1,227 @@
+{
+  "label": "Daniel - 3/2/2026, 6:46:46 AM",
+  "playerName": "Daniel",
+  "room": "outpost_workshop",
+  "timestamp": "2026-03-02T11:46:46.793Z",
+  "x": 597.8569541236931,
+  "y": 215.93099731349585,
+  "health": 80,
+  "maxHealth": 110,
+  "energy": 0,
+  "maxEnergy": 0,
+  "inventory": [
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "ration_pack",
+      "name": "Ration Pack",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "ration_pack",
+      "name": "Ration Pack",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "basement_note",
+      "name": "Crumpled Note",
+      "rarity": "common",
+      "category": "key"
+    },
+    {
+      "type": "supply_manifest",
+      "name": "Supply Manifest",
+      "rarity": "common",
+      "category": "key"
+    },
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "medical_supplies",
+      "name": "Medical Supplies",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "titanium_cylinders",
+      "name": "Titanium Cylinders",
+      "rarity": "uncommon",
+      "category": "key"
+    }
+  ],
+  "equipment": {
+    "arms": {
+      "type": "combat_baton",
+      "name": "Combat Baton",
+      "rarity": "common",
+      "category": "weapon",
+      "slot": "arms",
+      "stats": {
+        "attackDamage": 5
+      }
+    },
+    "sol_unit": null,
+    "medipac": {
+      "type": "medipac",
+      "name": "Medipac",
+      "rarity": "common",
+      "category": "equipment",
+      "slot": "medipac",
+      "stats": {}
+    },
+    "accessory": null
+  },
+  "solGrid": null,
+  "flags": {
+    "__trigger_welcome_to_outpost_fired": true,
+    "__trigger_receive_medipac_fired": true,
+    "received_medipac": true,
+    "__trigger_comms_room_welcome_fired": true,
+    "__trigger_daley_quest_start_fired": true,
+    "daley_quest_active": true,
+    "__trigger_mess_hall_welcome_fired": true,
+    "__trigger_brannigan_start_ration_quest_fired": true,
+    "brannigan_rations_quest": true,
+    "__trigger_kade_gives_intel_fired": true,
+    "kade_intel_received": true,
+    "__trigger_infirmary_welcome_fired": true,
+    "__trigger_vasik_quest_start_infirmary_fired": true,
+    "vasik_asked_for_moss": true,
+    "__trigger_talked_to_warden_entrance_fired": true,
+    "talked_to_warden": true,
+    "__trigger_enter_power_station_fired": true,
+    "__trigger_outside_warning_no_sol_fired": true,
+    "__trigger_enter_munitions_fired": true,
+    "received_weapon": true,
+    "__trigger_basement_note_pickup_fired": true,
+    "found_basement_note": true,
+    "__trigger_engineer_quest_start_fired": true,
+    "met_engineer": true,
+    "quest_cylinders_active": true,
+    "__trigger_enter_proc_quarantine_1_fired": true,
+    "__trigger_enter_proc_quarantine_2_fired": true,
+    "__trigger_enter_proc_quarantine_3_fired": true,
+    "__trigger_warlord_killed_proc_quarantine_3_fired": true,
+    "warlord_defeated": true,
+    "__trigger_key_pickup_proc_quarantine_3_fired": true,
+    "__trigger_chest_opened_proc_quarantine_2_fired": true,
+    "__trigger_cylinder_pickup_proc_quarantine_2_fired": true
+  },
+  "questState": {
+    "_trackedQuestId": "main_quest",
+    "array_access": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "broken_signal": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "councillors_request": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "lost_supplies": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "lost_tool": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "main_quest": {
+      "activeSteps": [
+        "return_to_engineer"
+      ],
+      "completedSteps": [
+        "talk_to_warden",
+        "get_weapon",
+        "talk_to_engineer",
+        "find_warlord_key",
+        "open_supply_crate"
+      ]
+    },
+    "relay_recovery": {
+      "activeSteps": [
+        "find_relay"
+      ],
+      "completedSteps": []
+    },
+    "tannis_tags": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "the_collector": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "the_deserter": {
+      "activeSteps": [],
+      "completedSteps": []
+    }
+  }
+}

@@ -359,7 +359,7 @@
     },
     "dialogueRules": [
       {
-        "conditions": [{ "hasFlag": "sol_charged_first_time" }],
+        "conditions": [{ "hasFlag": "sol_unit_charged" }],
         "use": "charged"
       },
       {
@@ -932,7 +932,7 @@
         "use": "first_meeting"
       },
       {
-        "conditions": [{ "hasFlag": "sol_charged_first_time" }],
+        "conditions": [{ "hasFlag": "sol_unit_charged" }],
         "use": "has_sol_unit"
       },
       {

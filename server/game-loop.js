@@ -42,11 +42,14 @@ class GameLoop {
     this.triggers = new TriggerRegistry(this.eventBus, this.conditions, this.actions, this.flagStore);
     this.questTracker = new QuestTracker(content, this.conditions, this.actions);
 
-    // Subscribe quest tracker to flag_changed events on the eventBus directly,
-    // since flag_changed is emitted via eventBus.emit() in actions.js but does
-    // NOT go through _emitGameEvent().
+    // Subscribe to flag_changed events on the eventBus directly, since
+    // flag_changed is emitted via eventBus.emit() in actions.js but does
+    // NOT go through _emitGameEvent(). Both the trigger registry and the
+    // quest tracker need to see these events.
     this.eventBus.on('flag_changed', (payload) => {
-      this.questTracker.processEvent('flag_changed', this._scriptContext(payload.playerId, payload.roomId));
+      const ctx = this._scriptContext(payload.playerId, payload.roomId);
+      this.triggers.processEvent('flag_changed', payload, ctx);
+      this.questTracker.processEvent('flag_changed', ctx);
     });
   }
 
@@ -535,6 +538,22 @@ class GameLoop {
     }
 
     const obj = player.questObjective;
+
+    // UI-hint-only objectives (no world-space arrow needed)
+    if (obj.uiHint && !obj.roomId) {
+      if (this.actions.sendToPlayer) {
+        this.actions.sendToPlayer(playerId, {
+          type: CONSTANTS.MSG.QUEST_OBJECTIVE,
+          objective: {
+            label: obj.label,
+            questName: obj.questName || null,
+            uiHint: obj.uiHint,
+          },
+        });
+      }
+      return;
+    }
+
     let targetRoomId = obj.roomId;
     let tileX = obj.tileX;
     let tileY = obj.tileY;
@@ -594,6 +613,7 @@ class GameLoop {
         objective: {
           label: obj.label,
           questName: obj.questName || null,
+          uiHint: obj.uiHint || null,
           tileX,
           tileY,
           sameRoom,
@@ -872,7 +892,7 @@ class GameLoop {
     // Remove from inventory
     player.inventory.splice(inventoryIndex, 1);
     this._rebuildAbilities(player);
-    return true;
+    return { ok: true, itemType: item.type };
   }
 
   // Remove a placed sol_component from the grid, return it to inventory

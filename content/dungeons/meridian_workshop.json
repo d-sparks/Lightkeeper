@@ -54,6 +54,18 @@
       "once": true
     },
     {
+      "id": "meet_yun",
+      "event": "npc_interacted",
+      "filter": { "npcType": "crafter_yun" },
+      "conditions": [
+        { "not": { "hasFlag": "met_crafter_yun" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "met_crafter_yun" }
+      ],
+      "once": true
+    },
+    {
       "id": "yun_crafting_tutorial",
       "event": "npc_interacted",
       "filter": { "npcType": "crafter_yun" },

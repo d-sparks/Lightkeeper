@@ -81,7 +81,8 @@
       "actions": [
         { "type": "giveItem", "itemType": "transit_pass" },
         { "type": "setFlag", "flag": "has_transit_pass" },
-        { "type": "showMessage", "text": "The departure board flickers and updates: NEXT TRAIN TO MERIDIAN CITY — BOARDING." }
+        { "type": "toggleTile", "x": 12, "y": 1 },
+        { "type": "showMessage", "text": "The departure board flickers and updates: NEXT TRAIN TO MERIDIAN CITY — BOARDING. The platform gate clicks open." }
       ],
       "once": true
     },
@@ -133,17 +134,14 @@
     },
     {
       "id": "board_train_flag",
-      "event": "door_interacted",
-      "filter": { "tileX": 12, "tileY": 1 },
-      "conditions": [{ "hasFlag": "has_transit_pass" }],
-      "actions": [
-        { "type": "setFlag", "flag": "boarded_train" },
-        { "type": "showMessage", "lines": [
-          "You step through the platform gate. The train hums to life, doors sliding open.",
-          "You board. The doors close behind you."
-        ]}
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "has_transit_pass" },
+        { "not": { "hasFlag": "boarded_train" } }
       ],
-      "once": true
+      "actions": [
+        { "type": "showMessage", "text": "The platform gate is open. The train waits at the far end — step through to board." }
+      ]
     },
     {
       "id": "remove_sable_if_not_met",
