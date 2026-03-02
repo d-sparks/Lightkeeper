@@ -483,6 +483,11 @@
       "type": "iron_key",
       "x": 18,
       "y": 12
+    },
+    {
+      "type": "circuit_board",
+      "x": 20,
+      "y": 2
     }
   ],
   "triggers": [
@@ -518,6 +523,28 @@
         { "type": "showMessage", "text": "The last skeleton crumbles. The crypt grows quiet." },
         { "type": "spawnItem", "itemType": "medical_supplies" }
       ]
+    },
+    {
+      "id": "keeper_tells_moss_location",
+      "event": "npc_interacted",
+      "filter": { "npcType": "old_keeper" },
+      "conditions": [
+        { "hasFlag": "vasik_asked_for_moss" },
+        { "not": { "hasFlag": "keeper_told_moss_location" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "keeper_told_moss_location" }
+      ],
+      "once": true
+    },
+    {
+      "id": "circuit_board_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "circuit_board" },
+      "actions": [
+        { "type": "showMessage", "text": "A relay circuit board, still in good condition. Comms Officer Daley could use this." }
+      ],
+      "once": true
     }
   ]
 }

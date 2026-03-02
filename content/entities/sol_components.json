@@ -22,5 +22,17 @@
     "name": "Cooldown Reducer",
     "bonus": { "cooldownReduction": 0.15 },
     "shape": [[1, 1]]
+  },
+  "signal_booster": {
+    "type": "modifier",
+    "name": "Signal Booster",
+    "bonus": { "cooldownReduction": 0.20 },
+    "shape": [[1]]
+  },
+  "cooldown_reducer_mk2": {
+    "type": "modifier",
+    "name": "Cooldown Reducer Mk2",
+    "bonus": { "cooldownReduction": 0.25 },
+    "shape": [[1, 1]]
   }
 }

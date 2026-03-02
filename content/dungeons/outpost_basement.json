@@ -1,0 +1,70 @@
+{
+  "id": "outpost_basement",
+  "name": "Outpost Balor - Lower Level",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "ambientLight": 0.3,
+  "width": 18,
+  "height": 12,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,3,3,3,3,1,1,1,1,1,3,
+    3,1,1,1,2,1,1,1,3,3,3,3,1,2,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,2,1,1,1,1,1,3,3,3,3,1,1,2,1,1,3,
+    3,1,1,1,1,1,1,1,3,3,3,3,1,1,1,1,1,3,
+    3,3,3,3,1,1,3,3,3,3,3,3,3,3,1,1,3,3,
+    3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,
+    3,3,3,3,1,1,1,2,1,1,2,1,1,1,1,1,3,3,
+    3,3,3,3,1,8,1,1,1,1,1,1,1,1,1,1,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 5, "y": 9, "type": "player_start" },
+    { "x": 6, "y": 9, "type": "player_start" },
+    { "x": 5, "y": 10, "type": "player_start" },
+    { "x": 6, "y": 10, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "cooldown_reducer_mk2_chip", "x": 2, "y": 2 },
+    { "type": "ration_pack", "x": 14, "y": 2 }
+  ],
+  "exits": [
+    { "x": 5, "y": 10, "leadsTo": "outpost_workshop", "type": "stairs_up", "spawnX": 6, "spawnY": 6 }
+  ],
+  "triggers": [
+    {
+      "id": "basement_welcome",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A forgotten lower level beneath the workshop. The air is stale and cold.",
+          "Signs of recent habitation: a sleeping bag in the corner, empty ration tins, tally marks scratched into the wall.",
+          "Whoever was here is long gone."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "find_journal_fragment",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "found_basement_hideout" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "found_basement_hideout" },
+        { "type": "showMessage", "lines": [
+          "You find a torn journal page near the sleeping bag:",
+          "'Day 14. Supplies running low. Stealing from the mess hall at night. The cook is getting suspicious.'",
+          "'Day 22. Can't stay much longer. The next train to Meridian leaves in three days. I have to make it.'",
+          "'Day 24. Tonight. I go tonight. If anyone finds this — I'm sorry. I had no choice.'"
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

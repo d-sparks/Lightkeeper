@@ -57,6 +57,11 @@
       "togglesTo": 5,
       "conditions": [{ "hasFlag": "received_sol_unit" }],
       "failMessage": "The gate is sealed. Get your Sol Unit from the engineer first."
+    },
+    "15": {
+      "name": "hidden_passage",
+      "solid": true,
+      "togglesTo": 6
     }
   }
 }

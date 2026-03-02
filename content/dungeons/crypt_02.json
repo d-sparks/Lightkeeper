@@ -49,6 +49,29 @@
         { "type": "setFlag", "flag": "visited_crypt_02", "scope": "player" }
       ],
       "once": true
+    },
+    {
+      "id": "spawn_moss_if_keeper_told",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "keeper_told_moss_location" },
+        { "not": { "hasFlag": "moss_spawned" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "moss_spawned" },
+        { "type": "spawnItem", "itemType": "bioluminescent_moss", "x": 12, "y": 10 },
+        { "type": "showMessage", "text": "You spot a patch of softly glowing moss along the far wall — just where the Old Keeper said it would be." }
+      ],
+      "once": true
+    },
+    {
+      "id": "moss_pickup_message",
+      "event": "item_picked_up",
+      "filter": { "itemType": "bioluminescent_moss" },
+      "actions": [
+        { "type": "showMessage", "text": "You carefully harvest the bioluminescent moss. Dr. Vasik can use this to make the healing salve." }
+      ],
+      "once": true
     }
   ]
 }

@@ -73,5 +73,17 @@
     "attackSpeed": 0,
     "ai": "melee_chase",
     "xp": 0
+  },
+  "dusk_crawler": {
+    "name": "Dusk Crawler",
+    "sprite": "sprites/dusk_crawler.png",
+    "size": [16, 16],
+    "health": 15,
+    "speed": 3.0,
+    "damage": 4,
+    "attackRange": 1,
+    "attackSpeed": 1.2,
+    "ai": "melee_chase",
+    "xp": 5
   }
 }

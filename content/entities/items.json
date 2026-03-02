@@ -113,5 +113,57 @@
     "description": "A dense crystalline mineral found in the terminator zone. Rare and valuable — the Array's automated systems prize it above all else.",
     "type": "key",
     "rarity": "uncommon"
+  },
+  "ration_pack": {
+    "name": "Ration Pack",
+    "description": "Standard-issue field rations. Bland but nutritious. Restores 10 health.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": { "heal": 10 }
+  },
+  "field_medkit": {
+    "name": "Field Medkit",
+    "description": "A proper medical kit with fungal salve and stim compounds. Restores 40 health.",
+    "type": "consumable",
+    "rarity": "uncommon",
+    "effect": { "heal": 40 }
+  },
+  "circuit_board": {
+    "name": "Circuit Board",
+    "description": "A salvageable relay circuit board. Comms Officer Daley could use this to repair the long-range radio.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "backup_power_cell": {
+    "name": "Backup Power Cell",
+    "description": "A charged power cell in good condition. Daley needs one of these for the comms array.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "basement_note": {
+    "name": "Crumpled Note",
+    "description": "A hastily written note: 'They won't find me down here. I just need to hold out until the next train.'",
+    "type": "key",
+    "rarity": "common"
+  },
+  "bioluminescent_moss": {
+    "name": "Bioluminescent Moss",
+    "description": "A clump of softly glowing moss harvested from the deep crypt. Dr. Vasik needs this for a healing salve.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "signal_booster_chip": {
+    "name": "Signal Booster",
+    "description": "A tuned frequency amplifier chip. Place it in a Sol Grid to reduce cooldowns of adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "signal_booster"
+  },
+  "cooldown_reducer_mk2_chip": {
+    "name": "Cooldown Reducer Mk2",
+    "description": "An improved cooldown modifier. Significantly reduces cooldowns of adjacent Sol abilities.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "cooldown_reducer_mk2"
   }
 }
