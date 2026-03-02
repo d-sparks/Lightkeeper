@@ -92,6 +92,22 @@
         { "type": "showMessage", "text": "Tannis takes the dog tags with trembling hands. After a long silence, he presses a modified battery casing into your palm. \"It was Dolan's. Take it.\"" }
       ],
       "once": true
+    },
+    {
+      "id": "vasik_preserves_samples",
+      "event": "npc_interacted",
+      "filter": { "npcType": "infirmary_dr_vasik" },
+      "conditions": [
+        { "hasItem": "biological_samples" },
+        { "hasFlag": "vasik_quest_complete" },
+        { "not": { "hasFlag": "samples_preserved" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "samples_preserved" },
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "text": "Dr. Vasik carefully preserves the biological samples using her medical compounds. 'Properly sealed and temperature-stabilized. Councillor Denn will get much better data from these.'" }
+      ],
+      "once": true
     }
   ]
 }

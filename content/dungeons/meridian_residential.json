@@ -120,6 +120,27 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "fen_quest_complete",
+      "event": "npc_interacted",
+      "filter": { "npcType": "fen_maro" },
+      "conditions": [
+        { "hasFlag": "fen_letter_delivered" },
+        { "hasFlag": "found_fen_cache" },
+        { "not": { "hasFlag": "fen_quest_complete" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "fen_quest_complete" },
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "lines": [
+          "Fen listens in silence as you describe the cache. The bedrolls in formation. The cold field stove. The team photo.",
+          "They close their eyes for a long moment. When they open them again, something has shifted.",
+          "'You brought their memory back. That's... that's enough. Thank you.'",
+          "'I know these perimeters better than anyone alive. If you need a guide, or someone to watch your back out there — I'm ready.'"
+        ]}
+      ],
+      "once": true
     }
   ]
 }

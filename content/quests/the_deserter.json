@@ -14,13 +14,24 @@
     },
     "find_cache": {
       "label": "Find the Squad's Supply Cache",
-      "description": "Search near the old watchtower on the dark perimeter for Fen's squad's emergency supply cache.",
+      "description": "Search the deep perimeter east for Fen's squad's collapsed supply bunker, northeast of the main passage.",
       "prerequisiteSteps": [],
-      "objective": { "roomId": "old_watchtower" },
+      "objective": { "roomId": "fen_cache" },
       "completionConditions": [{ "hasFlag": "found_fen_cache" }],
       "completionActions": [
         { "type": "grantXp", "amount": 40 },
-        { "type": "showMessage", "text": "Quest complete: The Deserter. Fen's squad's cache contained rare military-grade equipment." }
+        { "type": "showMessage", "text": "You found Fen's squad's cache — military-grade equipment preserved in a collapsed bunker." }
+      ]
+    },
+    "return_to_fen": {
+      "label": "Return to Fen Maro",
+      "description": "Tell Fen about the cache and their squad's last camp.",
+      "prerequisiteSteps": ["deliver_letter", "find_cache"],
+      "objective": { "roomId": "meridian_residential" },
+      "completionConditions": [{ "hasFlag": "fen_quest_complete" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "text": "Quest complete: The Deserter. Fen has made peace with their past and offers to serve as your guide." }
       ]
     }
   },

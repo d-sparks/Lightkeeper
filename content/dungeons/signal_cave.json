@@ -1,0 +1,100 @@
+{
+  "id": "signal_cave",
+  "name": "The Signal Source",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "ambientLight": 0.02,
+  "width": 15,
+  "height": 12,
+  "data": [
+    3,3,3,3,3,3,3,6,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,3,3,1,1,1,1,1,1,3,3,1,1,3,
+    3,1,3,1,1,1,1,1,1,1,1,3,1,1,3,
+    3,1,1,1,1,2,1,1,2,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,1,1,1,1,1,2,1,1,1,1,3,3,3,
+    3,3,3,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,3,3,1,1,2,1,1,1,1,1,3,3,3,3,
+    3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,
+    3,3,3,3,1,1,1,1,1,1,3,3,3,8,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 13, "y": 10, "type": "player_start" },
+    { "x": 12, "y": 10, "type": "player_start" },
+    { "x": 13, "y": 9, "type": "player_start" },
+    { "x": 12, "y": 9, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "gloom_wraith", "x": 5, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "gloom_wraith", "x": 9, "y": 7, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "lightkeeper_journal", "x": 5, "y": 3 },
+    { "type": "crystallized_umbracite", "x": 7, "y": 8 }
+  ],
+  "exits": [
+    { "x": 13, "y": 10, "leadsTo": "deep_perimeter_east", "type": "stairs_up", "spawnX": 2, "spawnY": 5 },
+    { "x": 7, "y": 0, "leadsTo": "underlumen_approach", "type": "stairs_down", "spawnX": 10, "spawnY": 12 }
+  ],
+  "triggers": [
+    {
+      "id": "signal_cave_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A narrow cave entrance, barely wide enough to squeeze through. Inside, the walls are damp and close.",
+          "A faint electronic hum fills the space — something is broadcasting from deeper within.",
+          "The air smells of minerals and age. No one has been here in a very long time."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "find_dead_lightkeeper",
+      "event": "item_picked_up",
+      "filter": { "itemType": "lightkeeper_journal" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A skeleton in a Lightkeeper's uniform, slumped against the cave wall. Their hand still rests on an old emergency transmitter, set to loop.",
+          "A journal lies open beside them. The final entry, written in increasingly unsteady handwriting:",
+          "\"Day 14. Can't reach the outpost. Transmitter on loop — someone will hear it eventually. Found something underground.\"",
+          "\"The walls hum. Not like machinery. Like breathing. And there's light coming from below. Not sunlight. Not electrical. Something else.\"",
+          "\"I should go deeper. I should report this. But my legs won't carry me anymore. If you're reading this, go where I couldn't.\"",
+          "\"The planet is alive.\""
+        ]},
+        { "type": "setFlag", "flag": "found_dead_lightkeeper" }
+      ],
+      "once": true
+    },
+    {
+      "id": "crystallized_umbracite_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "crystallized_umbracite" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The moment you touch it, you feel something. Not a sound — a vibration, deep in your bones. As if the ground itself took a breath.",
+          "The crystal is warm. Perfectly formed, with facets that catch light that isn't there. It pulses with a rhythm like a heartbeat.",
+          "This is nothing like raw umbracite. This is something else entirely."
+        ]},
+        { "type": "setFlag", "flag": "found_crystallized_umbracite" }
+      ],
+      "once": true
+    },
+    {
+      "id": "daley_coordinates_check",
+      "event": "room_entered",
+      "conditions": [
+        { "hasItem": "daley_coordinates" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Daley's coordinates match this location exactly. The signal she intercepted came from here — from a dead Lightkeeper's emergency transmitter, broadcasting on loop for years." },
+        { "type": "setFlag", "flag": "signal_source_found" }
+      ],
+      "once": true
+    }
+  ]
+}

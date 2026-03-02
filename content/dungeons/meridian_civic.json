@@ -136,6 +136,24 @@
         { "type": "grantXp", "amount": 15 }
       ],
       "once": true
+    },
+    {
+      "id": "asha_samples_delivery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "biological_samples" },
+        { "hasFlag": "asha_quest_accepted" },
+        { "not": { "hasFlag": "asha_quest_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "biological_samples" },
+        { "type": "setFlag", "flag": "asha_quest_complete" },
+        { "type": "setFlag", "flag": "asha_samples_collected" },
+        { "type": "giveItem", "itemType": "bio_resonance_amplifier_chip" },
+        { "type": "grantXp", "amount": 60 }
+      ],
+      "once": true
     }
   ]
 }

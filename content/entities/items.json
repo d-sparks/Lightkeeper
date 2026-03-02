@@ -359,5 +359,109 @@
     "description": "A reinforced battery housing crafted from Nest Mother chitin and copper coils. Master Crafter Yun can use this to upgrade your Sol Unit's energy capacity.",
     "type": "key",
     "rarity": "rare"
+  },
+  "crystallized_umbracite": {
+    "name": "Crystallized Umbracite",
+    "description": "A perfectly formed crystal of umbracite that pulses with faint inner light. Unlike raw umbracite shards, this crystal seems almost alive — warm to the touch and vibrating at a frequency you can feel but not hear.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "survey_marker_data": {
+    "name": "Survey Marker Data",
+    "description": "Data extracted from Survey Marker Delta-7. Old geological readings, thermal maps, and subsurface scans — exactly what Archivist Solen has been looking for.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "biological_samples": {
+    "name": "Biological Samples",
+    "description": "Specimens of ravine lichen and deep fungus sealed in collection vials. The organisms glow faintly with bioluminescence. Councillor Asha Denn needs these for her research.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "deep_fungus": {
+    "name": "Deep Fungus",
+    "description": "A cluster of dark-adapted fungi from deep in the ravine. The caps pulse with a faint violet bioluminescence. Could be useful for advanced crafting.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "lurker_hide": {
+    "name": "Lurker Hide",
+    "description": "Thick, armored hide stripped from a Ravine Lurker. Incredibly tough — an armorer could make something formidable from this.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "guardian_core_chip": {
+    "name": "Guardian Core",
+    "description": "A crystalline power core ripped from a Crystal Guardian. It hums with energy far beyond anything manufactured. Place it in a Sol Grid for a massive boost to adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "guardian_core"
+  },
+  "resonance_fragment": {
+    "name": "Resonance Fragment",
+    "description": "A shard of crystalline material that vibrates in your hand. It came from the deepest part of the Nightside — from a place where the ground itself seemed alive. Every faction on Erith would want this.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "sol_unit_mk1_plus": {
+    "name": "Sol Unit Mk1+",
+    "description": "A military-grade Sol Unit frame with a 6x6 component grid. Found in Fen's squad's supply cache. Significantly more powerful than the standard Mk1.",
+    "type": "equipment",
+    "rarity": "epic",
+    "slot": "sol_unit",
+    "stats": { "attackDamage": 15 },
+    "hasSolGrid": true,
+    "solUnitId": "sol_unit_mk1_plus"
+  },
+  "hardened_battery_casing": {
+    "name": "Hardened Battery Casing",
+    "description": "A military-spec battery housing designed for deep Nightside operations. Combined with umbracite and copper coils, Yun can craft a more powerful rechargeable battery.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "rechargeable_battery_l2": {
+    "name": "Rechargeable Battery L2",
+    "description": "An upgraded rechargeable power cell built with hardened military components. Restores 60 energy when used and can be recharged at any charging station.",
+    "type": "consumable",
+    "rarity": "epic",
+    "effect": { "energy": 60 }
+  },
+  "bio_resonance_amplifier_chip": {
+    "name": "Bio-Resonance Amplifier",
+    "description": "A modifier synthesized from biological samples that have adapted to the Underlumen's crystalline structure. Enhances the healing properties of all adjacent Sol components.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "bio_resonance_amplifier"
+  },
+  "resonance_detector_chip": {
+    "name": "Resonance Detector",
+    "description": "A sensitive instrument calibrated using old survey data. It can detect hidden passages, buried items, and subsurface anomalies. Place in a Sol Grid to boost adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "resonance_detector"
+  },
+  "squad_leaders_visor": {
+    "name": "Squad Leader's Visor",
+    "description": "A tactical visor from Fen's squad leader. The heads-up display still works — enemy silhouettes glow through darkness and thin cover. A memento of fallen comrades.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "lightkeeper_journal": {
+    "name": "Dead Lightkeeper's Journal",
+    "description": "A water-stained journal found beside a skeleton in a cave. The final entry describes 'walls that hummed' and 'light that came from below, not above.' The handwriting grows more erratic toward the end.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "daley_coordinates": {
+    "name": "Signal Coordinates",
+    "description": "A set of coordinates decoded by Comms Officer Daley from a looping transmission. They point to a location deep in the dark perimeter — where something is still broadcasting.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "umbral_extract": {
+    "name": "Umbral Extract",
+    "description": "A dark, viscous substance produced by the Gloomvine — the transformed Umbral Seed. It pulses faintly with bioluminescence. A rare material for advanced crafting.",
+    "type": "key",
+    "rarity": "epic"
   }
 }

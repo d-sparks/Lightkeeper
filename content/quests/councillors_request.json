@@ -1,14 +1,14 @@
 {
   "id": "councillors_request",
   "name": "The Councillor's Request",
-  "description": "Councillor Asha Denn needs biological samples from the dark perimeter for her research into subsurface anomalies.",
+  "description": "Councillor Asha Denn needs biological samples from the deep perimeter for her research into subsurface anomalies.",
   "startConditions": [{ "hasFlag": "asha_quest_accepted" }],
   "steps": {
     "collect_samples": {
       "label": "Collect Biological Samples",
-      "description": "Return to the dark perimeter and collect fungal cultures, organism tissue, and soil samples from the relay stations.",
+      "description": "Travel to the perimeter ravine in the deep perimeter east and collect biological samples from the bioluminescent ecosystem.",
       "prerequisiteSteps": [],
-      "objective": { "roomId": "relay_station" },
+      "objective": { "roomId": "perimeter_ravine" },
       "completionConditions": [{ "hasFlag": "asha_samples_collected" }],
       "completionActions": [{ "type": "grantXp", "amount": 40 }]
     },

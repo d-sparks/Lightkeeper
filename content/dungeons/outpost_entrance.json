@@ -104,10 +104,39 @@
     {
       "id": "remove_warden_after_warlord",
       "event": "room_entered",
-      "conditions": [{ "hasFlag": "warlord_defeated" }],
+      "conditions": [
+        { "hasFlag": "warlord_defeated" },
+        { "not": { "hasFlag": "arrived_meridian" } }
+      ],
       "actions": [
         { "type": "removeEntity", "entityType": "npc", "npcType": "outpost_warden" }
       ]
+    },
+    {
+      "id": "fen_letter_delivery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "outpost_warden" },
+      "conditions": [
+        { "hasItem": "fens_letter" },
+        { "hasFlag": "arrived_meridian" }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "fens_letter" },
+        { "type": "setFlag", "flag": "fen_letter_delivered" },
+        { "type": "grantXp", "amount": 30 }
+      ],
+      "once": true
+    },
+    {
+      "id": "return_from_meridian_welcome",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "arrived_meridian" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Outpost Balor. You're back — but the place feels different. Tenser. The perimeter patrols have doubled, and there are new scorch marks on the outer walls." }
+      ],
+      "once": true
     },
     {
       "id": "sol_grid_tutorial_reminder",

@@ -1,14 +1,14 @@
 {
   "id": "the_collector",
   "name": "The Collector",
-  "description": "Archivist Solen is fascinated by your relay log. He wants you to find Survey Marker Delta-7 from the old perimeter.",
+  "description": "Archivist Solen is fascinated by your relay log. He wants you to find Survey Marker Delta-7 at the Old Survey Point beyond the perimeter ravine.",
   "startConditions": [{ "hasFlag": "solen_quest_accepted" }],
   "steps": {
     "find_marker": {
       "label": "Find Survey Marker Delta-7",
-      "description": "Search the old watchtower region of the dark perimeter for Survey Marker Delta-7.",
+      "description": "Travel through the deep perimeter east and the ravine to find the Old Survey Point where Survey Marker Delta-7 was installed.",
       "prerequisiteSteps": [],
-      "objective": { "roomId": "old_watchtower" },
+      "objective": { "roomId": "old_survey_point" },
       "completionConditions": [{ "hasFlag": "found_survey_marker" }],
       "completionActions": [{ "type": "grantXp", "amount": 30 }]
     },

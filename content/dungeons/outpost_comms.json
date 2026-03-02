@@ -71,6 +71,37 @@
         { "type": "showMessage", "text": "Comms partially restored! You received a Signal Booster chip." }
       ],
       "once": true
+    },
+    {
+      "id": "daley_gives_coordinates",
+      "event": "npc_interacted",
+      "filter": { "npcType": "comms_officer_daley" },
+      "conditions": [
+        { "hasFlag": "comms_restored" },
+        { "hasFlag": "arrived_meridian" },
+        { "not": { "hasFlag": "daley_gave_coordinates" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "daley_gave_coordinates" },
+        { "type": "giveItem", "itemType": "daley_coordinates" }
+      ],
+      "once": true
+    },
+    {
+      "id": "daley_signal_complete",
+      "event": "npc_interacted",
+      "filter": { "npcType": "comms_officer_daley" },
+      "conditions": [
+        { "hasItem": "lightkeeper_journal" },
+        { "hasFlag": "signal_source_found" },
+        { "not": { "hasFlag": "broken_signal_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "lightkeeper_journal" },
+        { "type": "setFlag", "flag": "broken_signal_complete" },
+        { "type": "grantXp", "amount": 50 }
+      ],
+      "once": true
     }
   ]
 }

@@ -70,5 +70,23 @@
     "abilityId": "sol_shield",
     "name": "Sol Shield Emitter",
     "shape": [[1]]
+  },
+  "guardian_core": {
+    "type": "modifier",
+    "name": "Guardian Core",
+    "bonus": { "damageMultiplier": 0.35, "cooldownReduction": 0.25 },
+    "shape": [[1, 1]]
+  },
+  "bio_resonance_amplifier": {
+    "type": "modifier",
+    "name": "Bio-Resonance Amplifier",
+    "bonus": { "damageMultiplier": 0.15, "cooldownReduction": 0.20 },
+    "shape": [[1]]
+  },
+  "resonance_detector": {
+    "type": "modifier",
+    "name": "Resonance Detector",
+    "bonus": { "damageMultiplier": 0.20, "cooldownReduction": 0.15 },
+    "shape": [[1]]
   }
 }

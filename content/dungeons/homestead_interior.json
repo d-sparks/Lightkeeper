@@ -122,14 +122,67 @@
       ]
     },
     {
-      "id": "seed_pot_planted",
+      "id": "seed_pot_planted_not_exposed",
       "event": "door_interacted",
       "filter": { "tileX": 8, "tileY": 3 },
       "conditions": [
-        { "hasFlag": "umbral_seed_planted" }
+        { "hasFlag": "umbral_seed_planted" },
+        { "not": { "hasFlag": "umbral_seed_dark_exposed" } },
+        { "not": { "hasFlag": "gloomvine_grown" } }
       ],
       "actions": [
         { "type": "showMessage", "text": "The Umbral Seed sits in its pot, barely glowing. It needs exposure to the deep dark — a night on the Nightside — to truly grow. Sable might know more." }
+      ]
+    },
+    {
+      "id": "seed_pot_ready_to_grow",
+      "event": "door_interacted",
+      "filter": { "tileX": 8, "tileY": 3 },
+      "conditions": [
+        { "hasFlag": "umbral_seed_planted" },
+        { "hasFlag": "umbral_seed_dark_exposed" },
+        { "not": { "hasFlag": "gloomvine_grown" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "gloomvine_grown" },
+        { "type": "giveItem", "itemType": "umbral_extract" },
+        { "type": "grantXp", "amount": 40 },
+        { "type": "showMessage", "lines": [
+          "The seed has changed. Tendrils of deep violet have erupted from the soil, climbing the shelf and reaching toward the ceiling.",
+          "A Gloomvine. Pulsing with a warm, steady bioluminescence — the heartbeat of the Nightside, growing in your homestead.",
+          "Small droplets of dark liquid bead along the vine's leaves. Umbral Extract — the substance Sable spoke of. Liquid memory.",
+          "The vine seems to respond to your presence, its glow brightening as you approach. It remembers the darkness you carried it through."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "gloomvine_harvest",
+      "event": "door_interacted",
+      "filter": { "tileX": 8, "tileY": 3 },
+      "conditions": [
+        { "hasFlag": "gloomvine_grown" }
+      ],
+      "actions": [
+        { "type": "giveItem", "itemType": "umbral_extract" },
+        { "type": "showMessage", "text": "The Gloomvine pulses gently as you collect another vial of Umbral Extract. The vine is endlessly productive — fed by something deep beneath the surface." }
+      ]
+    },
+    {
+      "id": "personal_log_deep_perimeter",
+      "event": "door_interacted",
+      "filter": { "tileX": 2, "tileY": 3 },
+      "conditions": [
+        { "hasFlag": "underlumen_contact" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "— PERSONAL LOG —",
+          "Returned to the deep perimeter. Found the signal cave, the ravine, the old survey point. The planet is alive in ways no one expected.",
+          "Made contact with something at the Underlumen Approach. A resonance. The planet... hums. It remembers.",
+          "The Gloomvine grows. Daley's signal is resolved. Fen's squad found their peace. Solen and Asha have their data.",
+          "Whatever comes next — the Underlumen, the Array's response, the thing that's waking — I'll face it. I'm not alone anymore."
+        ]}
       ]
     }
   ]

@@ -16,7 +16,7 @@
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,3,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,6,3,
+    6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,6,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,3,3,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
     3,1,1,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
@@ -50,7 +50,8 @@
   "exits": [
     { "x": 14, "y": 0, "leadsTo": "station_approach", "type": "stairs_down", "spawnX": 9, "spawnY": 10 },
     { "x": 14, "y": 15, "leadsTo": "perimeter_breach", "type": "stairs_up", "spawnX": 12, "spawnY": 2 },
-    { "x": 28, "y": 8, "leadsTo": "old_watchtower", "type": "stairs_down", "spawnX": 5, "spawnY": 8 }
+    { "x": 28, "y": 8, "leadsTo": "old_watchtower", "type": "stairs_down", "spawnX": 5, "spawnY": 8 },
+    { "x": 0, "y": 8, "leadsTo": "deep_perimeter_east", "type": "stairs_down", "spawnX": 27, "spawnY": 18 }
   ],
   "triggers": [
     {
@@ -83,6 +84,17 @@
       "event": "room_entered",
       "actions": [
         { "type": "showMessage", "text": "In the distance to the east, you can make out the silhouette of a derelict watchtower against the dim sky." }
+      ],
+      "once": true
+    },
+    {
+      "id": "deep_perimeter_hint",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "arrived_meridian" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "To the west, the darkness deepens beyond the old perimeter line. The terrain has changed since you were last here — the shadows seem closer, the creatures bolder." }
       ],
       "once": true
     }

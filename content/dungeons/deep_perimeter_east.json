@@ -1,0 +1,121 @@
+{
+  "id": "deep_perimeter_east",
+  "name": "The Expanded Dark",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "ambientLight": 0.03,
+  "width": 30,
+  "height": 20,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,6,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,25,3,
+    6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,3,3,3,1,1,1,3,3,3,1,1,1,1,1,1,1,1,1,2,1,3,
+    3,1,1,1,1,1,1,1,1,3,2,3,1,1,1,3,2,3,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,3,3,3,1,1,1,3,3,3,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
+    3,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,3,3
+  ],
+  "spawns": [
+    { "x": 27, "y": 18, "type": "player_start" },
+    { "x": 26, "y": 18, "type": "player_start" },
+    { "x": 27, "y": 17, "type": "player_start" },
+    { "x": 26, "y": 17, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "gloom_wraith", "x": 8, "y": 3, "count": 1, "patrol": "wander" },
+    { "type": "gloom_wraith", "x": 20, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "gloom_wraith", "x": 14, "y": 15, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 4, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "shade_stalker", "x": 22, "y": 14, "count": 1, "patrol": "guard" },
+    { "type": "shade_stalker", "x": 12, "y": 6, "count": 1, "patrol": "wander" },
+    { "type": "dusk_crawler", "x": 16, "y": 2, "count": 2, "patrol": "wander" },
+    { "type": "dusk_crawler", "x": 6, "y": 16, "count": 2, "patrol": "wander" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "umbracite", "x": 10, "y": 10 },
+    { "type": "umbracite", "x": 16, "y": 10 },
+    { "type": "umbracite", "x": 3, "y": 2 },
+    { "type": "bandage", "x": 20, "y": 3 },
+    { "type": "field_medkit", "x": 7, "y": 14 }
+  ],
+  "exits": [
+    { "x": 27, "y": 19, "leadsTo": "dead_road", "type": "stairs_up", "spawnX": 2, "spawnY": 8 },
+    { "x": 0, "y": 5, "leadsTo": "signal_cave", "type": "stairs_down", "spawnX": 13, "spawnY": 10 },
+    { "x": 14, "y": 0, "leadsTo": "perimeter_ravine", "type": "stairs_down", "spawnX": 12, "spawnY": 16 },
+    { "x": 28, "y": 4, "leadsTo": "fen_cache", "type": "stairs_down", "spawnX": 1, "spawnY": 4 }
+  ],
+  "triggers": [
+    {
+      "id": "deep_perimeter_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The darkness here is absolute. The outpost's floodlights are distant specks behind you — barely visible, impossibly far away.",
+          "The air is colder. Heavier. You can feel it pressing against your skin like something physical.",
+          "Old perimeter markers jut from the ground at intervals, their territorial carvings eroded almost to nothing. Unbounded symbols — Sable's people were here, once."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "umbracite_deposit_1",
+      "event": "item_picked_up",
+      "filter": { "itemType": "umbracite" },
+      "conditions": [
+        { "not": { "hasFlag": "found_deep_umbracite" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "found_deep_umbracite" },
+        { "type": "showMessage", "lines": [
+          "Umbracite deposits — clusters of dark crystal embedded in the rock, larger and more pure than anything near the outpost.",
+          "This is the primary source. The Array wants this material desperately. You're starting to understand why."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "umbral_seed_deep_reaction",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "umbral_seed_planted" },
+        { "not": { "hasFlag": "seed_exposed_to_dark" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "seed_exposed_to_dark" },
+        { "type": "showMessage", "lines": [
+          "Something stirs in your pack. The Umbral Seed — you brought it from the homestead pot for dark exposure.",
+          "Out here, in the true Nightside, the seed is responding. Its bioluminescent pulse quickens, matching a rhythm you can't hear but can feel in your bones.",
+          "The seed is drinking in the darkness. Changing."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "fen_cache_hint",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "fen_letter_accepted" },
+        { "not": { "hasFlag": "found_fen_cache" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "According to Fen's description, the squad's supply cache should be through a collapsed passage to the northeast." }
+      ],
+      "once": true
+    }
+  ]
+}

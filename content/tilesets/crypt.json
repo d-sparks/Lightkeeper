@@ -126,6 +126,26 @@
       "togglesTo": 5,
       "conditions": [{ "hasFlag": "has_homestead_deed" }],
       "failMessage": "This path leads to the East Terrace homesteads. You need a Homestead Deed from the Land Registry."
+    },
+    "25": {
+      "name": "cache_entrance",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "fen_letter_accepted" }],
+      "failMessage": "A collapsed passage, half-buried in rubble. You'd need to know exactly where to dig to get through."
+    },
+    "26": {
+      "name": "resonance_point",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 26
+    },
+    "27": {
+      "name": "survey_marker",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 27
     }
   }
 }

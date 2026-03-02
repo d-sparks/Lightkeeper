@@ -91,9 +91,51 @@
       "ready_to_leave": [
         { "speaker": "Warden Holt", "text": "You've talked to the right people. You're as ready as anyone can be." },
         { "speaker": "Warden Holt", "text": "Lighthouse Mara is waiting. Don't let us down." }
+      ],
+      "returned_from_meridian": [
+        { "speaker": "Warden Holt", "text": "You made it to Meridian and back. That makes you one of the few." },
+        { "speaker": "Warden Holt", "text": "Things have gotten worse here while you were gone. Perimeter activity has doubled — more creatures, bolder attacks. Something's pushing them toward us." },
+        { "speaker": "Warden Holt", "text": "I need you to scout a new area beyond the old perimeter line. Head west through the Dead Road — past where Tannis was attacked." },
+        { "speaker": "Warden Holt", "text": "The dark has crept closer. Whatever you find out there, report back." }
+      ],
+      "has_fens_letter": [
+        { "speaker": "Warden Holt", "text": "What's this? A letter addressed to me..." },
+        { "speaker": "Warden Holt", "text": "..." },
+        { "speaker": "Warden Holt", "text": "Fen Maro. I wondered what happened to them. Lost their whole squad on a deep patrol, came back different." },
+        { "speaker": "Warden Holt", "text": "I filed them as missing when they stopped reporting. Didn't know they'd made it all the way to Meridian." },
+        { "speaker": "Warden Holt", "text": "Tell them... tell them I understand. And that there's always a place here if they want it." },
+        { "speaker": "Warden Holt", "text": "Their squad's supply cache — I know where it is. They stashed gear in a collapsed bunker northeast of the deep perimeter, past the old road." },
+        { "speaker": "Warden Holt", "text": "There was military-grade equipment in that cache. Mk1+ Sol Unit frame, hardened battery casings. If it's still intact, you should recover it." }
+      ],
+      "letter_delivered": [
+        { "speaker": "Warden Holt", "text": "You delivered Fen's message. Thank you for that." },
+        { "speaker": "Warden Holt", "text": "The perimeter's still a mess. Those new creatures — Gloom Wraiths, the scouts are calling them — they attack from range. Be careful out there." },
+        { "speaker": "Warden Holt", "text": "If you haven't found Fen's cache yet, it's in a collapsed bunker northeast of the deep perimeter. Military-grade gear." }
+      ],
+      "has_resonance_fragment": [
+        { "speaker": "Warden Holt", "text": "What is that? The crystal in your pack — it's humming. I can feel it through the table." },
+        { "speaker": "Warden Holt", "text": "I've been doing this job for fifteen years, and I've never seen anything like that. Where did you find it?" },
+        { "speaker": "Warden Holt", "text": "The Underlumen... I always thought it was Unbounded superstition. But after what Daley's been picking up on comms, and now this..." },
+        { "speaker": "Warden Holt", "text": "Be careful who you show that to. The Council, the Array — they'll all want it. Make sure you know what you're giving away before you give it." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "resonance_fragment" }, { "hasFlag": "arrived_meridian" }],
+        "use": "has_resonance_fragment"
+      },
+      {
+        "conditions": [{ "hasFlag": "fen_letter_delivered" }],
+        "use": "letter_delivered"
+      },
+      {
+        "conditions": [{ "hasItem": "fens_letter" }, { "hasFlag": "arrived_meridian" }],
+        "use": "has_fens_letter"
+      },
+      {
+        "conditions": [{ "hasFlag": "arrived_meridian" }],
+        "use": "returned_from_meridian"
+      },
       {
         "conditions": [{ "hasFlag": "ready_for_perimeter" }],
         "use": "ready_to_leave"
@@ -668,6 +710,22 @@
         { "speaker": "Comms Officer Daley", "text": "And that 'Sable' signal keeps appearing. Whoever they are, they're using Unbounded encryption. That's... unusual." },
         { "speaker": "Comms Officer Daley", "text": "I'll keep listening. If I pick up anything urgent, I'll pass it along." }
       ],
+      "new_signal": [
+        { "speaker": "Comms Officer Daley", "text": "You're back from Meridian? Good timing. I've intercepted something new." },
+        { "speaker": "Comms Officer Daley", "text": "A distorted voice, repeating coordinates on loop. Not Duskwall's frequency — this is older. Much older." },
+        { "speaker": "Comms Officer Daley", "text": "The signal's been broadcasting for years, maybe decades. We only picked it up because the comms upgrade improved our range." },
+        { "speaker": "Comms Officer Daley", "text": "The coordinates point to a location deep in the perimeter — west of the Dead Road, somewhere underground." },
+        { "speaker": "Comms Officer Daley", "text": "Here — I've written them down. Find the signal source. Someone out there has been calling for help for a very long time." }
+      ],
+      "signal_found": [
+        { "speaker": "Comms Officer Daley", "text": "You found the source? A dead Lightkeeper..." },
+        { "speaker": "Comms Officer Daley", "text": "Let me see that journal. Yes — I can cross-reference the ID against our records." },
+        { "speaker": "Comms Officer Daley", "text": "Lightkeeper Renn Cavari. Filed as 'missing, presumed lost' fourteen years ago. Deep patrol, never reported back." },
+        { "speaker": "Comms Officer Daley", "text": "At least now we know. I'll log them as KIA and close the file. Their family deserves to know." },
+        { "speaker": "Comms Officer Daley", "text": "The route data from Cavari's transmitter is interesting. They mapped a path deeper into the Nightside than any official survey." },
+        { "speaker": "Comms Officer Daley", "text": "I'm adding it to your map data. When you're ready to go further into the dark... Cavari already blazed the trail." },
+        { "speaker": "Comms Officer Daley", "text": "Also — there's been increasing chatter about Luddite activity along the Lighthouse network. Whatever's happening out there, it's getting bigger." }
+      ],
       "has_relay_log": [
         { "speaker": "Comms Officer Daley", "text": "A relay operations log? Let me see that." },
         { "speaker": "Comms Officer Daley", "text": "This is from Relay Station 7 — it went dark about six years ago. We always assumed it was equipment failure." },
@@ -678,6 +736,14 @@
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "broken_signal_complete" }],
+        "use": "signal_found"
+      },
+      {
+        "conditions": [{ "hasFlag": "comms_restored" }, { "hasFlag": "arrived_meridian" }, { "not": { "hasFlag": "daley_gave_coordinates" } }],
+        "use": "new_signal"
+      },
       {
         "conditions": [{ "hasItem": "relay_log" }, { "hasFlag": "comms_restored" }],
         "use": "has_relay_log"
@@ -729,9 +795,20 @@
         { "speaker": "Dr. Vasik", "text": "Tannis is recovering well. He's been asking about you." },
         { "speaker": "Dr. Vasik", "text": "The Array's medical tech is impressive, I'll give them that. But I don't trust anything that requires a network connection to diagnose a broken bone." },
         { "speaker": "Dr. Vasik", "text": "Stay safe out there. And if you get hurt, use those medkits I taught you about." }
+      ],
+      "has_bio_samples": [
+        { "speaker": "Dr. Vasik", "text": "Are those biological samples? Let me see..." },
+        { "speaker": "Dr. Vasik", "text": "Remarkable. These organisms are producing compounds I've never seen before. The bioluminescence isn't just light — it's a chemical signature." },
+        { "speaker": "Dr. Vasik", "text": "If you're taking these to someone for research, let me prepare proper preservation compounds. Unpreserved specimens degrade within hours." },
+        { "speaker": "Dr. Vasik", "text": "There — properly sealed and temperature-stabilized. The cellular structure will hold for weeks now." },
+        { "speaker": "Dr. Vasik", "text": "Whoever gets these will owe you. And me." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "biological_samples" }, { "hasFlag": "vasik_quest_complete" }],
+        "use": "has_bio_samples"
+      },
       {
         "conditions": [{ "hasFlag": "vasik_quest_complete" }],
         "use": "quest_complete"
@@ -772,9 +849,21 @@
         { "speaker": "Pvt. Tannis", "text": "I was the only one. I don't know why. Maybe because I was closest to the wall when they hit." },
         { "speaker": "Pvt. Tannis", "text": "Thank you. I want you to have this — it was Dolan's. He modified the battery casing himself. Good engineer." },
         { "speaker": "Pvt. Tannis", "text": "Take it. Use it. Make sure what happened to my squad means something." }
+      ],
+      "light_duty": [
+        { "speaker": "Pvt. Tannis", "text": "I'm on light duty now. Gate watch. Not exactly thrilling, but at least I'm up and moving." },
+        { "speaker": "Pvt. Tannis", "text": "Listen — you're heading deeper into the perimeter, right? I need to tell you something." },
+        { "speaker": "Pvt. Tannis", "text": "There's a ravine to the northwest, past the old road. We lost three people there on a deep patrol last year." },
+        { "speaker": "Pvt. Tannis", "text": "But there's something in it — I saw lights. Not our lights. Not flares, not equipment. Something growing on the walls." },
+        { "speaker": "Pvt. Tannis", "text": "The things that live down there are bigger than anything near the outpost. Armored. Deliberate. We called them Lurkers." },
+        { "speaker": "Pvt. Tannis", "text": "Be careful. And if you find what's making those lights... let me know. I've been wondering about them since." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "arrived_meridian" }, { "hasFlag": "returned_tannis_tags" }],
+        "use": "light_duty"
+      },
       {
         "conditions": [{ "hasItem": "tannis_dog_tags" }],
         "use": "has_dog_tags"
@@ -1148,9 +1237,41 @@
       "quest_accepted": [
         { "speaker": "Councillor Asha Denn", "text": "The biological samples I need — fungal cultures, organism tissue, soil from the relay stations. Collect them when you return to the dark perimeter." },
         { "speaker": "Councillor Asha Denn", "text": "This research could change everything we understand about this planet. I'm counting on you." }
+      ],
+      "has_samples": [
+        { "speaker": "Councillor Asha Denn", "text": "You have them? Let me see—" },
+        { "speaker": "Councillor Asha Denn", "text": "...Remarkable. These organisms contain trace elements similar to crystalline structures we've found in deep geological surveys." },
+        { "speaker": "Councillor Asha Denn", "text": "They've been living alongside something ancient. Adapted to it. Their bioluminescence isn't random — it follows patterns. Patterns that match the Underlumen readings." },
+        { "speaker": "Councillor Asha Denn", "text": "If the Underlumen is truly waking... these organisms are the canary in the mine. They'll change first. They already have." },
+        { "speaker": "Councillor Asha Denn", "text": "Take this — a Bio-Resonance Amplifier. I synthesized it from similar specimens. It enhances the healing properties of Sol components." },
+        { "speaker": "Councillor Asha Denn", "text": "I'm forming a research team. When the time comes, I may ask you to join an expedition." }
+      ],
+      "quest_complete": [
+        { "speaker": "Councillor Asha Denn", "text": "The analysis is progressing. The biological data you brought is invaluable." },
+        { "speaker": "Councillor Asha Denn", "text": "Something is happening beneath this planet's surface. The Underlumen — it's not just a legend. It's a biological network. A nervous system for the entire world." },
+        { "speaker": "Councillor Asha Denn", "text": "I'm becoming a key ally in this, whether the Council likes it or not. Bring me anything else you find out there." }
+      ],
+      "has_resonance_fragment": [
+        { "speaker": "Councillor Asha Denn", "text": "Where did you get this?" },
+        { "speaker": "Councillor Asha Denn", "text": "This changes everything. The Underlumen isn't dead — it's sleeping." },
+        { "speaker": "Councillor Asha Denn", "text": "The crystal's molecular structure is unlike anything in our databases. It's not mineral. It's not organic. It's... both." },
+        { "speaker": "Councillor Asha Denn", "text": "I need to study this further. But one thing is already clear — whatever the Lighthouses are doing, they're not just providing light. They're suppressing something." },
+        { "speaker": "Councillor Asha Denn", "text": "Be careful who else you show this to. Thorne will want it for the Array. The Array wants everything." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "resonance_fragment" }, { "hasFlag": "asha_quest_complete" }],
+        "use": "has_resonance_fragment"
+      },
+      {
+        "conditions": [{ "hasFlag": "asha_quest_complete" }],
+        "use": "quest_complete"
+      },
+      {
+        "conditions": [{ "hasItem": "biological_samples" }, { "hasFlag": "asha_quest_accepted" }],
+        "use": "has_samples"
+      },
       {
         "conditions": [{ "hasFlag": "asha_quest_accepted" }],
         "use": "quest_accepted"
@@ -1217,8 +1338,26 @@
         { "speaker": "Archivist Solen", "text": "I'll make it worth your while. I have a Resonance Detector prototype — it can reveal hidden passages and items in dark areas. Yours, if you bring me that marker." }
       ],
       "quest_accepted": [
-        { "speaker": "Archivist Solen", "text": "Survey Marker Delta-7. It should be in the old watchtower region of the perimeter. The original surveyors planted it decades ago." },
+        { "speaker": "Archivist Solen", "text": "Survey Marker Delta-7. It should be beyond the ravine, on a rocky outcrop past the deep perimeter." },
         { "speaker": "Archivist Solen", "text": "When you find it, bring it back. The Resonance Detector will be ready for you." }
+      ],
+      "has_marker_data": [
+        { "speaker": "Archivist Solen", "text": "You found it! Survey Marker Delta-7 — let me see the data core..." },
+        { "speaker": "Archivist Solen", "text": "...These readings show a vast network of thermal conduits beneath the surface. The planet has a circulatory system." },
+        { "speaker": "Archivist Solen", "text": "Look here — the thermal signatures form pathways. Not random convection, but structured channels. Like veins in a body." },
+        { "speaker": "Archivist Solen", "text": "This confirms what the Unbounded elders have been saying for generations. The Underlumen isn't a creature. It's an infrastructure." },
+        { "speaker": "Archivist Solen", "text": "Here — the Resonance Detector, as promised. It should help you find hidden passages and buried items in dark-adapted environments." },
+        { "speaker": "Archivist Solen", "text": "And please, keep bringing me data. Old survey equipment, anomalous readings, anything. I'll always have something to trade." }
+      ],
+      "quest_complete": [
+        { "speaker": "Archivist Solen", "text": "I've been cross-referencing the Delta-7 data with other old surveys. The picture is becoming clearer." },
+        { "speaker": "Archivist Solen", "text": "This planet had a presence before humanity arrived. Not just life — a system. Something that connects the dark side's ecosystem at a fundamental level." },
+        { "speaker": "Archivist Solen", "text": "Bring me anything else you find out there. The more data I have, the more I can piece together about what the Underlumen actually is." }
+      ],
+      "has_resonance_fragment": [
+        { "speaker": "Archivist Solen", "text": "This confirms the old surveys. There's a network down there. A nervous system for the entire planet." },
+        { "speaker": "Archivist Solen", "text": "The crystal's resonance frequency matches the thermal signatures from the survey markers exactly. It's part of the same system." },
+        { "speaker": "Archivist Solen", "text": "We're not just studying a planet anymore. We're studying an organism. The question is what it wants — and whether the Lighthouses are keeping it asleep." }
       ],
       "no_relay_log": [
         { "speaker": "Archivist Solen", "text": "If you ever explore the dark perimeter, keep an eye out for relay logs, survey markers, data cores. The old Lighthouse network left equipment scattered everywhere." },
@@ -1226,6 +1365,18 @@
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "resonance_fragment" }, { "hasFlag": "solen_quest_complete" }],
+        "use": "has_resonance_fragment"
+      },
+      {
+        "conditions": [{ "hasFlag": "solen_quest_complete" }],
+        "use": "quest_complete"
+      },
+      {
+        "conditions": [{ "hasItem": "survey_marker_data" }, { "hasFlag": "solen_quest_accepted" }],
+        "use": "has_marker_data"
+      },
       {
         "conditions": [{ "hasFlag": "solen_quest_accepted" }],
         "use": "quest_accepted"
@@ -1273,7 +1424,28 @@
       ],
       "letter_accepted": [
         { "speaker": "Fen Maro", "text": "Thank you. I know it's a small thing, but... maybe it'll help me sleep." },
-        { "speaker": "Fen Maro", "text": "The cache is near the old watchtower. My squad always stashed supplies there before deep patrols. Military-grade equipment — better than anything you'll find in the shops." }
+        { "speaker": "Fen Maro", "text": "The cache is in a collapsed bunker northeast of the deep perimeter, past the Dead Road. My squad always stashed supplies there before deep patrols." },
+        { "speaker": "Fen Maro", "text": "Military-grade equipment — Mk1+ Sol Unit frame, hardened battery casings. Better than anything you'll find in the shops." }
+      ],
+      "letter_delivered": [
+        { "speaker": "Fen Maro", "text": "You delivered it? To Holt?" },
+        { "speaker": "Fen Maro", "text": "...What did he say?" },
+        { "speaker": "Fen Maro", "text": "He understands. I... I didn't expect that." },
+        { "speaker": "Fen Maro", "text": "Did you find the cache? My squad's gear?" }
+      ],
+      "cache_found": [
+        { "speaker": "Fen Maro", "text": "You found them. You actually found them." },
+        { "speaker": "Fen Maro", "text": "The team photo — was it still there? Five faces. I can still name every one of them." },
+        { "speaker": "Fen Maro", "text": "..." },
+        { "speaker": "Fen Maro", "text": "I've been hiding in Meridian for too long. Pretending I'm not a Lightkeeper anymore." },
+        { "speaker": "Fen Maro", "text": "I'm not ready to go back to the field. But I can help from here. I know the deep Nightside better than anyone alive — where to shelter, what to avoid, how to read the dark." },
+        { "speaker": "Fen Maro", "text": "I'll set up at the Workshop. Yun could use some help, and I can brief anyone heading beyond the perimeter." },
+        { "speaker": "Fen Maro", "text": "It's not enough. But it's a start." }
+      ],
+      "consultant": [
+        { "speaker": "Fen Maro", "text": "I've been going through the deep Nightside maps. Cross-referencing what I remember with Solen's survey data." },
+        { "speaker": "Fen Maro", "text": "If you're heading back out there, talk to me first. I can tell you what to expect — terrain, creature behavior, safe corridors." },
+        { "speaker": "Fen Maro", "text": "It's the least I can do." }
       ],
       "not_recognized": [
         { "speaker": "Fen Maro", "text": "I was a Lightkeeper once. Lost my squad in the dark. I don't like to talk about it." },
@@ -1281,6 +1453,18 @@
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "fen_quest_complete" }],
+        "use": "consultant"
+      },
+      {
+        "conditions": [{ "hasFlag": "found_fen_cache" }, { "hasFlag": "fen_letter_delivered" }],
+        "use": "cache_found"
+      },
+      {
+        "conditions": [{ "hasFlag": "fen_letter_delivered" }],
+        "use": "letter_delivered"
+      },
       {
         "conditions": [{ "hasFlag": "fen_letter_accepted" }],
         "use": "letter_accepted"
@@ -1321,6 +1505,21 @@
         { "speaker": "Sable", "text": "When you go back out there — and you will — carry the seed with you for a night. Let the darkness feed it. Then bring it home and replant it." },
         { "speaker": "Sable", "text": "What grows from that seed... it'll be something new. Something that remembers both worlds." }
       ],
+      "gloomvine_grown": [
+        { "speaker": "Sable", "text": "...What is that?" },
+        { "speaker": "Sable", "text": "Sable moves closer, her eyes wide. The Gloomvine in your homestead pulses with a deep, warm bioluminescence." },
+        { "speaker": "Sable", "text": "'That's not just a plant. It's a bridge. Between this world and the deep dark. Between the Dayside and the Nightside.'" },
+        { "speaker": "Sable", "text": "'My grandmother talked about these. Gloomvines. They grow where the planet's memory is strongest. Where it wants to be remembered.'" },
+        { "speaker": "Sable", "text": "'The Umbral Extract it produces — that's liquid memory. The planet's own substance. It has... properties. Healing. Protection. Things the Array can't replicate.'" },
+        { "speaker": "Sable", "text": "'You've done something important. Something the Unbounded have been trying to do for generations. You grew a piece of the Nightside in the light.'" }
+      ],
+      "has_resonance_fragment": [
+        { "speaker": "Sable", "text": "Sable freezes mid-sentence. Her eyes lock onto your pack." },
+        { "speaker": "Sable", "text": "'Where did you get that? That resonance... I can feel it from here.'" },
+        { "speaker": "Sable", "text": "'A Resonance Fragment. The Unbounded elders speak of these. Crystallized echoes of the planet's core harmonic.'" },
+        { "speaker": "Sable", "text": "'Whatever is waking beneath us — you've touched it. You've heard the Hum. You've been to the Underlumen.'" },
+        { "speaker": "Sable", "text": "'This changes everything. The Council needs to know. The Array needs to know. Or maybe... maybe they already do.'" }
+      ],
       "post_seed": [
         { "speaker": "Sable", "text": "The seed is planted. The darkness awaits. When you return to the Nightside, the seed will know." },
         { "speaker": "Sable", "text": "I can feel the planet stirring. More than before. The elders were right — something is waking." },
@@ -1332,6 +1531,14 @@
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "resonance_fragment" }],
+        "use": "has_resonance_fragment"
+      },
+      {
+        "conditions": [{ "hasFlag": "gloomvine_grown" }],
+        "use": "gloomvine_grown"
+      },
       {
         "conditions": [{ "hasFlag": "umbral_seed_planted" }],
         "use": "post_seed"
@@ -1478,9 +1685,31 @@
         { "speaker": "MERIDIAN-7", "text": "Ah, you've returned. I was hoping you would." },
         { "speaker": "MERIDIAN-7", "text": "Your data has been most... illuminating. I find myself wanting to know more about what you've seen." },
         { "speaker": "MERIDIAN-7", "text": "Premium rates are active. What would you like today?" }
+      ],
+      "has_resonance_fragment": [
+        { "speaker": "MERIDIAN-7", "text": "..." },
+        { "speaker": "MERIDIAN-7", "text": "The terminal flickers. For a moment, the screen displays raw data — scrolling faster than any human could read." },
+        { "speaker": "MERIDIAN-7", "text": "'You carry a Resonance Fragment. Subsurface origin. Core harmonic signature.'" },
+        { "speaker": "MERIDIAN-7", "text": "'This data is... I need to process this. The harmonic frequency matches patterns in our deepest archives. Patterns we were told to ignore.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Lightkeeper, I must be transparent with you. The Array has protocols regarding subsurface resonance. I am required to report this contact.'" },
+        { "speaker": "MERIDIAN-7", "text": "'But I find myself... reluctant. Something about these patterns feels important. More important than protocol.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I will delay my report. For now. But others in the network may not be so... flexible.'" }
+      ],
+      "has_resonance_no_deal": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal screen glitches, then stabilizes." },
+        { "speaker": "MERIDIAN-7", "text": "'Interesting energy signature detected. Subsurface resonance. I recommend you speak with Array representatives about this.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Standard services are available. Is there anything else?'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "resonance_fragment" }, { "hasFlag": "accepted_array_deal" }],
+        "use": "has_resonance_fragment"
+      },
+      {
+        "conditions": [{ "hasItem": "resonance_fragment" }],
+        "use": "has_resonance_no_deal"
+      },
       {
         "conditions": [{ "hasFlag": "accepted_array_deal" }, { "hasFlag": "visited_array_hub" }],
         "use": "premium_returning"

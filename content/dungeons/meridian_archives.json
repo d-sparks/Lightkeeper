@@ -104,6 +104,23 @@
       "actions": [
         { "type": "removeEntity", "entityType": "npc", "npcType": "archives_cat" }
       ]
+    },
+    {
+      "id": "solen_marker_delivery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "archivist_solen" },
+      "conditions": [
+        { "hasItem": "survey_marker_data" },
+        { "hasFlag": "solen_quest_accepted" },
+        { "not": { "hasFlag": "solen_quest_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "survey_marker_data" },
+        { "type": "setFlag", "flag": "solen_quest_complete" },
+        { "type": "giveItem", "itemType": "resonance_detector_chip" },
+        { "type": "grantXp", "amount": 50 }
+      ],
+      "once": true
     }
   ]
 }
