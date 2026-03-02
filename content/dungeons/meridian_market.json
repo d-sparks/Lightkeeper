@@ -217,6 +217,78 @@
           "She leans in. 'You want the best components? They're not in shops. They're in the old perimeter stations, buried in the dark. Deep salvage. Keep that in mind.'"
         ]}
       ]
+    },
+
+    {
+      "id": "reva_return_shop",
+      "event": "npc_interacted",
+      "filter": { "npcType": "merchant_reva" },
+      "conditions": [
+        { "hasFlag": "bought_from_reva" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "reva_return", "prompt": "Reva's General Goods — return customer special. What can I get you?", "options": [
+          { "label": "Resin Bush Seeds (x2)", "description": "Seeds for growing stabilizing resin in your homestead garden.", "value": "seeds" },
+          { "label": "Copper Coils (x2)", "description": "Crafting material for battery construction.", "value": "coils" },
+          { "label": "Health Potions (x3)", "description": "Three health potions.", "value": "potions" },
+          { "label": "Nothing", "description": "Just browsing.", "value": "nothing" }
+        ]}
+      ]
+    },
+    {
+      "id": "reva_return_buy_seeds",
+      "event": "choice_made",
+      "filter": { "choiceId": "reva_return", "value": "seeds" },
+      "actions": [
+        { "type": "giveItem", "itemType": "resin_bush_seeds", "count": 2 },
+        { "type": "showMessage", "text": "Reva hands over two seed packets. 'From my best supplier. These'll grow well in that East Terrace soil.'" }
+      ]
+    },
+    {
+      "id": "reva_return_buy_coils",
+      "event": "choice_made",
+      "filter": { "choiceId": "reva_return", "value": "coils" },
+      "actions": [
+        { "type": "giveItem", "itemType": "copper_coil", "count": 2 },
+        { "type": "showMessage", "text": "Reva produces two copper coils. 'Same quality as always. Yun's standards are my standards.'" }
+      ]
+    },
+    {
+      "id": "reva_return_buy_potions",
+      "event": "choice_made",
+      "filter": { "choiceId": "reva_return", "value": "potions" },
+      "actions": [
+        { "type": "giveItem", "itemType": "health_potion", "count": 3 },
+        { "type": "showMessage", "text": "Reva wraps three potions in cloth. 'A classic. Can't go wrong.'" }
+      ]
+    },
+
+    {
+      "id": "mira_repeller_shop",
+      "event": "npc_interacted",
+      "filter": { "npcType": "component_dealer_mira" },
+      "conditions": [
+        { "hasFlag": "bought_from_mira" },
+        { "hasFlag": "pest_quest_started" },
+        { "not": { "hasFlag": "pest_quest_complete" } },
+        { "not": { "hasItem": "sonic_repeller" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "mira_repeller", "prompt": "Mira notices you looking at her specialty items. 'I heard about the mite problem on the terrace. I've got something for that.'", "options": [
+          { "label": "Sonic Repeller", "description": "An ultrasonic device that drives away garden pests.", "value": "buy" },
+          { "label": "No thanks", "description": "Maybe you'll get one somewhere else.", "value": "decline" }
+        ]}
+      ]
+    },
+    {
+      "id": "mira_buy_repeller",
+      "event": "choice_made",
+      "filter": { "choiceId": "mira_repeller", "value": "buy" },
+      "actions": [
+        { "type": "giveItem", "itemType": "sonic_repeller" },
+        { "type": "grantXp", "amount": 5 },
+        { "type": "showMessage", "text": "Mira hands over a small device with a mesh speaker. 'Tuned to the frequency that mites hate. Give it to Sera — she'll know what to do with it.'" }
+      ]
     }
   ]
 }

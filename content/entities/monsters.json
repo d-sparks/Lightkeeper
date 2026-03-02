@@ -121,5 +121,17 @@
     "attackSpeed": 0.9,
     "ai": "melee_chase",
     "xp": 30
+  },
+  "garden_mite": {
+    "name": "Garden Mite",
+    "sprite": "sprites/garden_mite.png",
+    "size": [16, 16],
+    "health": 8,
+    "speed": 2.0,
+    "damage": 2,
+    "attackRange": 1,
+    "attackSpeed": 1.5,
+    "ai": "melee_chase",
+    "xp": 3
   }
 }

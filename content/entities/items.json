@@ -316,5 +316,48 @@
     "description": "A specialized tool marked with 'DAVI' in scratchy handwriting. Someone's clearly attached to this wrench.",
     "type": "key",
     "rarity": "common"
+  },
+  "resin_bush_seeds": {
+    "name": "Resin Bush Seeds",
+    "description": "Hardy seeds engineered for Terminator Zone soil. Plant in a garden plot and they'll grow stabilizing resin — the key ingredient for rechargeable batteries.",
+    "type": "key",
+    "rarity": "common"
+  },
+  "stabilizing_resin": {
+    "name": "Stabilizing Resin",
+    "description": "A thick, amber-colored resin harvested from homestead plants. Prevents battery cores from overheating during charge cycles. Essential for rechargeable battery construction.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "enriched_soil": {
+    "name": "Enriched Soil",
+    "description": "Nutrient-dense soil blend prepared by an experienced gardener. Apply to a garden plot to double the next resin harvest.",
+    "type": "consumable",
+    "rarity": "uncommon"
+  },
+  "sonic_repeller": {
+    "name": "Sonic Repeller",
+    "description": "A small ultrasonic device that drives away garden pests. Neighbor Sera could use one of these for her mite problem.",
+    "type": "key",
+    "rarity": "common"
+  },
+  "rechargeable_battery_l1": {
+    "name": "Rechargeable Battery",
+    "description": "A hand-crafted rechargeable power cell. Restores 30 energy when used and can be recharged at any charging station for free. Self-sufficiency in your pocket.",
+    "type": "consumable",
+    "rarity": "rare",
+    "effect": { "energy": 30 }
+  },
+  "resin_growing_guide": {
+    "name": "Resin Growing Guide",
+    "description": "A hand-written guide to growing stabilizing resin bushes in the Terminator Zone. Notes from Neighbor Sera: 'The soil here is good — not too hot, not too cold. That's the whole point of the Ring.'",
+    "type": "key",
+    "rarity": "common"
+  },
+  "modified_battery_casing": {
+    "name": "Modified Battery Casing",
+    "description": "A reinforced battery housing crafted from Nest Mother chitin and copper coils. Master Crafter Yun can use this to upgrade your Sol Unit's energy capacity.",
+    "type": "key",
+    "rarity": "rare"
   }
 }

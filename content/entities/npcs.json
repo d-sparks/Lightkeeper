@@ -1315,12 +1315,31 @@
         { "speaker": "Sable", "text": "I'm not ready to share what I know. Not with someone who left me bleeding on the road." },
         { "speaker": "Sable", "text": "Maybe in time. Maybe not. Trust works both ways." }
       ],
+      "seed_planted": [
+        { "speaker": "Sable", "text": "You planted it? Good. But it won't grow here — not yet." },
+        { "speaker": "Sable", "text": "The Umbral Seed needs darkness to grow. Real darkness, not just shade. The deep, living dark of the Nightside." },
+        { "speaker": "Sable", "text": "When you go back out there — and you will — carry the seed with you for a night. Let the darkness feed it. Then bring it home and replant it." },
+        { "speaker": "Sable", "text": "What grows from that seed... it'll be something new. Something that remembers both worlds." }
+      ],
+      "post_seed": [
+        { "speaker": "Sable", "text": "The seed is planted. The darkness awaits. When you return to the Nightside, the seed will know." },
+        { "speaker": "Sable", "text": "I can feel the planet stirring. More than before. The elders were right — something is waking." },
+        { "speaker": "Sable", "text": "Be careful out there. The dark isn't what it was." }
+      ],
       "default": [
         { "speaker": "Sable", "text": "The garden is quiet here. The Nightside plants seem to like the twilight." },
         { "speaker": "Sable", "text": "We'll talk when the time is right." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "umbral_seed_planted" }],
+        "use": "post_seed"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_gave_seed" }, { "hasItem": "umbral_seed" }],
+        "use": "seed_planted"
+      },
       {
         "conditions": [{ "hasFlag": "helped_sable" }, { "not": { "hasFlag": "sable_gave_seed" } }],
         "use": "high_trust"
@@ -1357,11 +1376,38 @@
         { "speaker": "Master Crafter Yun", "text": "Now you know. Every battery you make from here on is a step toward independence from the Array." }
       ],
       "post_tutorial": [
-        { "speaker": "Master Crafter Yun", "text": "How's the homestead coming along? Remember — batteries are the foundation. Everything else builds on power." },
+        { "speaker": "Master Crafter Yun", "text": "You've got the theory. Now get some Stabilizing Resin from your homestead garden and we'll build your first battery." },
         { "speaker": "Master Crafter Yun", "text": "If you need more Copper Coils, Reva's shop has them. Umbracite you'll have to find or trade for." }
+      ],
+      "post_battery": [
+        { "speaker": "Master Crafter Yun", "text": "You're self-sufficient now. That changes everything." },
+        { "speaker": "Master Crafter Yun", "text": "Bring me more materials and I'll help you craft additional batteries. You know the recipe: Umbracite, Copper Coils, and Stabilizing Resin." },
+        { "speaker": "Master Crafter Yun", "text": "And think about what I said. The Array hoards this knowledge. Every battery you make is a statement." }
+      ],
+      "challenge_offered": [
+        { "speaker": "Master Crafter Yun", "text": "The challenge stands. Bring me a Modified Battery Casing — crafted from a Chitin Plate and a Copper Coil." },
+        { "speaker": "Master Crafter Yun", "text": "You'll need to hunt a Nest Mother for the chitin. They're in the dark perimeter — the same territory you crossed to reach the train station." },
+        { "speaker": "Master Crafter Yun", "text": "Bring me the casing and I'll upgrade your Sol Unit. Permanently." }
+      ],
+      "challenge_complete": [
+        { "speaker": "Master Crafter Yun", "text": "Your Sol Unit's running at extended capacity now. You can feel the difference, can't you?" },
+        { "speaker": "Master Crafter Yun", "text": "Most people never learn to build their own equipment. They buy what the Array sells, use what the Array provides." },
+        { "speaker": "Master Crafter Yun", "text": "You're different. That's why the Array will be watching you. They don't like independence." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "yun_challenge_complete" }],
+        "use": "challenge_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "yun_challenge_accepted" }, { "not": { "hasFlag": "yun_challenge_complete" } }],
+        "use": "challenge_offered"
+      },
+      {
+        "conditions": [{ "hasFlag": "crafted_first_battery" }],
+        "use": "post_battery"
+      },
       {
         "conditions": [{ "hasFlag": "yun_tutorial_complete" }],
         "use": "post_tutorial"
@@ -1444,5 +1490,122 @@
         "use": "premium_access"
       }
     ]
+  },
+
+  "neighbor_sera": {
+    "name": "Neighbor Sera",
+    "dialogue": [
+      { "speaker": "Neighbor Sera", "text": "Oh, hello! You must be the new owner of Plot 7." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Neighbor Sera", "text": "Welcome to the East Terrace! I'm Sera — I've got the plot next door. Plot 6." },
+        { "speaker": "Neighbor Sera", "text": "Fifteen years I've been growing things in this soil. Stabilizing resin bushes, mostly. The twilight zone's got its own rhythms — you learn to work with them." },
+        { "speaker": "Neighbor Sera", "text": "The soil here is good — not too hot, not too cold. That's the whole point of the Ring, isn't it?" },
+        { "speaker": "Neighbor Sera", "text": "My husband Dorin was a Lightkeeper. Retired after an injury on the perimeter. So I understand your life — the coming and going, the dark out there, the relief of coming home." },
+        { "speaker": "Neighbor Sera", "text": "Here — take this growing guide. And come talk to me when you're ready for seeds." }
+      ],
+      "seed_shop": [
+        { "speaker": "Neighbor Sera", "text": "Need more seeds? I've always got stock. The resin bushes practically grow themselves once they get started." },
+        { "speaker": "Neighbor Sera", "text": "Plant them in the garden plots, give them time, and they'll produce stabilizing resin. It's the key ingredient for rechargeable batteries." }
+      ],
+      "pest_problem": [
+        { "speaker": "Neighbor Sera", "text": "Those garden mites are back. Tiny little things, but they eat through resin bush roots like nothing." },
+        { "speaker": "Neighbor Sera", "text": "I need a Sonic Repeller to drive them off. Component Dealer Mira in the market might have one, or Master Yun could probably build one at the workshop." },
+        { "speaker": "Neighbor Sera", "text": "If you could help me out, I'd make it worth your while. I've got some Enriched Soil that'll double your next resin harvest." }
+      ],
+      "pest_quest_complete": [
+        { "speaker": "Neighbor Sera", "text": "The mites are gone! That repeller works like a charm. My resin bushes are already bouncing back." },
+        { "speaker": "Neighbor Sera", "text": "The terrace community looks after each other. That's how we've survived fifteen years on the edge of habitable space." },
+        { "speaker": "Neighbor Sera", "text": "You ever need advice about growing, you come to me. I've forgotten more about Terminator Zone soil than most people ever learn." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "pest_quest_complete" }],
+        "use": "pest_quest_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "pest_quest_started" }, { "not": { "hasFlag": "pest_quest_complete" } }],
+        "use": "pest_problem"
+      },
+      {
+        "conditions": [{ "hasFlag": "sera_first_meeting" }],
+        "use": "seed_shop"
+      }
+    ]
+  },
+
+  "vell": {
+    "name": "Vell",
+    "dialogue": [
+      { "speaker": "Vell", "text": "Have you seen a cat around here? Orange tabby, answers to 'Ember.' Usually." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Vell", "text": "Name's Vell. I've been on the East Terrace since before they paved the walkways. Watched this whole neighborhood grow up around me." },
+        { "speaker": "Vell", "text": "My cat Ember's gone missing again. She wanders off, usually comes back. But it's been two days now." },
+        { "speaker": "Vell", "text": "If you spot an orange tabby anywhere in the city, would you let me know? She likes warm places and people who smell like books." }
+      ],
+      "cat_found": [
+        { "speaker": "Vell", "text": "You found Ember?! In the Archives? Of course — Solen's been feeding her fish scraps, the old softie." },
+        { "speaker": "Vell", "text": "Thank you, truly. When you're my age and living alone, a cat's the best company there is." },
+        { "speaker": "Vell", "text": "Here — take these. It's not much, but the terrace shares what it has." }
+      ],
+      "post_quest": [
+        { "speaker": "Vell", "text": "Ember's back home and sleeping on the warm spot by the heater. All's right with the world." },
+        { "speaker": "Vell", "text": "You know, this terrace used to be farmland. Before the city expanded, before the Ring was established. Just open soil and sky." },
+        { "speaker": "Vell", "text": "Sometimes I miss those days. Simpler times. But then I remember the dark was closer then, too." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "lost_cat_complete" }],
+        "use": "post_quest"
+      },
+      {
+        "conditions": [{ "hasFlag": "lost_cat_found" }],
+        "use": "cat_found"
+      }
+    ]
+  },
+
+  "jorrit": {
+    "name": "Jorrit",
+    "dialogue": [
+      { "speaker": "Jorrit", "text": "Hey. Watch the pipes — I'm running diagnostics." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Jorrit", "text": "I'm Jorrit. I keep the terrace water system running. Pumps, filters, reclamation units — the unglamorous essentials." },
+        { "speaker": "Jorrit", "text": "The Array offered to automate the whole thing once. MERIDIAN-7 said it could run the water system 'with zero human oversight required.'" },
+        { "speaker": "Jorrit", "text": "We put it to a vote. The terrace voted no, twenty-three to four. People up here like doing things themselves." },
+        { "speaker": "Jorrit", "text": "The Array doesn't get that. It sees inefficiency. We see independence." }
+      ],
+      "post_watch": [
+        { "speaker": "Jorrit", "text": "Heard you took a watch shift. Good on you — the terrace appreciates people who pitch in." },
+        { "speaker": "Jorrit", "text": "It's not glamorous work, watching the perimeter fence. But it matters. Everything out here matters." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "terrace_watch_complete" }],
+        "use": "post_watch"
+      }
+    ]
+  },
+
+  "archives_cat": {
+    "name": "Orange Tabby",
+    "dialogue": [
+      { "speaker": "Orange Tabby", "text": "Mrrow?" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Orange Tabby", "text": "An orange tabby cat sits between two stacks of data tablets, purring contentedly. A small dish of fish scraps sits nearby." },
+        { "speaker": "Orange Tabby", "text": "The cat looks well-fed and comfortable. A worn collar reads 'EMBER — if found, return to Vell, East Terrace.'" }
+      ]
+    },
+    "dialogueRules": []
   }
 }

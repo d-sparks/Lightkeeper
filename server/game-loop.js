@@ -1933,6 +1933,21 @@ class GameLoop {
       });
     }
 
+    // Energy effect (e.g. rechargeable batteries)
+    if (itemDef.effect.energy && player.energy !== undefined) {
+      const maxEnergy = player.maxEnergy || 100;
+      if (player.energy < maxEnergy) {
+        const restoreAmount = Math.min(itemDef.effect.energy, maxEnergy - player.energy);
+        player.energy += restoreAmount;
+        used = true;
+
+        room.events.push({
+          type: 'heal', targetId: player.id,
+          amount: restoreAmount, x: player.x, y: player.y,
+        });
+      }
+    }
+
     if (!used) return null;
 
     // Remove the consumed item

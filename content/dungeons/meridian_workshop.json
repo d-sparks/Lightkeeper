@@ -104,6 +104,176 @@
         ]}
       ],
       "once": true
+    },
+
+    {
+      "id": "yun_craft_battery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "crafter_yun" },
+      "conditions": [
+        { "hasFlag": "yun_tutorial_complete" },
+        { "hasItem": "stabilizing_resin" },
+        { "not": { "hasFlag": "crafted_first_battery" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "craft_battery", "prompt": "Yun inspects your Stabilizing Resin. 'You've got the last ingredient. Ready to build your first rechargeable battery?'", "options": [
+          { "label": "Craft Battery", "description": "Use Stabilizing Resin to complete the battery (Umbracite and Copper Coils were provided earlier).", "value": "craft" },
+          { "label": "Not yet", "description": "Hold off for now.", "value": "wait" }
+        ]}
+      ]
+    },
+    {
+      "id": "yun_craft_battery_confirm",
+      "event": "choice_made",
+      "filter": { "choiceId": "craft_battery", "value": "craft" },
+      "conditions": [
+        { "hasItem": "stabilizing_resin" }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "stabilizing_resin" },
+        { "type": "giveItem", "itemType": "rechargeable_battery_l1" },
+        { "type": "setFlag", "flag": "crafted_first_battery" },
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "lines": [
+          "Yun works with practiced efficiency. The resin is heated, shaped, and pressed around the energy matrix you prepared earlier.",
+          "'There she is. Holds a charge, releases it clean. Better than those disposable cells you've been burning through.'",
+          "'You're self-sufficient now. That's rare. Most Lightkeepers burn through cells and come begging for more.'",
+          "'The Array could teach anyone to make these. They don't. They want you dependent. Remember that.'"
+        ]}
+      ]
+    },
+
+    {
+      "id": "yun_craft_more_batteries",
+      "event": "npc_interacted",
+      "filter": { "npcType": "crafter_yun" },
+      "conditions": [
+        { "hasFlag": "crafted_first_battery" },
+        { "hasItem": "stabilizing_resin" },
+        { "hasItem": "copper_coil" },
+        { "hasItem": "umbracite" },
+        { "not": { "hasFlag": "yun_challenge_complete" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "craft_battery_extra", "prompt": "Yun nods at your materials. 'Another battery? I can show you the process again.'", "options": [
+          { "label": "Craft Battery", "description": "Use 1x Umbracite, 1x Copper Coil, 1x Stabilizing Resin.", "value": "craft" },
+          { "label": "Not now", "description": "Save your materials.", "value": "wait" }
+        ]}
+      ]
+    },
+    {
+      "id": "yun_craft_more_confirm",
+      "event": "choice_made",
+      "filter": { "choiceId": "craft_battery_extra", "value": "craft" },
+      "actions": [
+        { "type": "removeItem", "itemType": "umbracite" },
+        { "type": "removeItem", "itemType": "copper_coil" },
+        { "type": "removeItem", "itemType": "stabilizing_resin" },
+        { "type": "giveItem", "itemType": "rechargeable_battery_l1" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "text": "Yun guides you through another battery assembly. 'You're getting the hang of it. Soon you won't need me at all.'" }
+      ]
+    },
+
+    {
+      "id": "yun_challenge_offer",
+      "event": "npc_interacted",
+      "filter": { "npcType": "crafter_yun" },
+      "conditions": [
+        { "hasFlag": "crafted_first_battery" },
+        { "not": { "hasFlag": "yun_challenge_accepted" } },
+        { "not": { "hasItem": "stabilizing_resin" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "yun_challenge_accepted" },
+        { "type": "showMessage", "lines": [
+          "Yun studies you with an appraising look. 'You've got steady hands. Let's see if you can handle something harder.'",
+          "'I want you to craft a Modified Battery Casing. Take a Chitin Plate — you'll need one from a Nest Mother — and a Copper Coil. Shape them together.'",
+          "'Bring me the finished casing and I'll use it to upgrade your Sol Unit. Extended energy capacity. Permanent improvement.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "yun_challenge_craft",
+      "event": "npc_interacted",
+      "filter": { "npcType": "crafter_yun" },
+      "conditions": [
+        { "hasFlag": "yun_challenge_accepted" },
+        { "hasItem": "chitin_plate" },
+        { "hasItem": "copper_coil" },
+        { "not": { "hasFlag": "yun_challenge_complete" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "yun_challenge_craft", "prompt": "You have the materials for Yun's challenge. Craft a Modified Battery Casing?", "options": [
+          { "label": "Craft Casing", "description": "Use 1x Chitin Plate + 1x Copper Coil to craft the Modified Battery Casing.", "value": "craft" },
+          { "label": "Not yet", "description": "Hold onto the materials.", "value": "wait" }
+        ]}
+      ]
+    },
+    {
+      "id": "yun_challenge_craft_confirm",
+      "event": "choice_made",
+      "filter": { "choiceId": "yun_challenge_craft", "value": "craft" },
+      "actions": [
+        { "type": "removeItem", "itemType": "chitin_plate" },
+        { "type": "removeItem", "itemType": "copper_coil" },
+        { "type": "giveItem", "itemType": "modified_battery_casing" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "text": "You shape the chitin plate around the copper coil framework. The result is a reinforced battery housing — lighter and stronger than standard materials." }
+      ]
+    },
+    {
+      "id": "yun_challenge_turn_in",
+      "event": "npc_interacted",
+      "filter": { "npcType": "crafter_yun" },
+      "conditions": [
+        { "hasFlag": "yun_challenge_accepted" },
+        { "hasItem": "modified_battery_casing" },
+        { "not": { "hasFlag": "yun_challenge_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "modified_battery_casing" },
+        { "type": "setFlag", "flag": "yun_challenge_complete" },
+        { "type": "grantXp", "amount": 60 },
+        { "type": "showMessage", "lines": [
+          "Yun takes the casing, turning it over in his hands. A rare smile crosses his face.",
+          "'Clean work. Very clean. This'll integrate directly into your Sol Unit's power system.'",
+          "He fits the casing into your Sol Unit with a series of precise adjustments. You feel the energy capacity expand.",
+          "'Twenty percent more capacity. Permanent. That's the difference between a craftsman and a consumer.'",
+          "'And here's something to think about: the Array could teach anyone to make these. They don't. They want you dependent on their energy supply. Independence is a threat to them.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "yun_craft_sonic_repeller",
+      "event": "npc_interacted",
+      "filter": { "npcType": "crafter_yun" },
+      "conditions": [
+        { "hasFlag": "pest_quest_started" },
+        { "hasItem": "copper_coil" },
+        { "not": { "hasFlag": "pest_quest_complete" } },
+        { "not": { "hasItem": "sonic_repeller" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "craft_repeller", "prompt": "Yun notices you have the materials. 'I heard about Sera's mite problem. I can build a Sonic Repeller from a Copper Coil if you want.'", "options": [
+          { "label": "Craft Repeller", "description": "Use 1x Copper Coil to build a Sonic Repeller.", "value": "craft" },
+          { "label": "No thanks", "description": "Maybe you'll buy one from Mira instead.", "value": "decline" }
+        ]}
+      ]
+    },
+    {
+      "id": "yun_craft_repeller_confirm",
+      "event": "choice_made",
+      "filter": { "choiceId": "craft_repeller", "value": "craft" },
+      "actions": [
+        { "type": "removeItem", "itemType": "copper_coil" },
+        { "type": "giveItem", "itemType": "sonic_repeller" },
+        { "type": "grantXp", "amount": 10 },
+        { "type": "showMessage", "text": "Yun rigs a small ultrasonic emitter from the copper coil. 'Simple device. Mites hate the frequency. Give it to Sera and her crops will be fine.'" }
+      ]
     }
   ]
 }

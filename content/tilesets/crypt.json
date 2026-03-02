@@ -94,6 +94,38 @@
       "togglesTo": 5,
       "conditions": [{ "hasFlag": "has_transit_pass" }],
       "failMessage": "The platform gate is locked. You need a Transit Pass to board."
+    },
+    "20": {
+      "name": "garden_plot",
+      "solid": false,
+      "interactable": "door",
+      "togglesTo": 20
+    },
+    "21": {
+      "name": "notice_board",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 21
+    },
+    "22": {
+      "name": "seed_pot",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 22
+    },
+    "23": {
+      "name": "personal_log",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 23
+    },
+    "24": {
+      "name": "homestead_gate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "has_homestead_deed" }],
+      "failMessage": "This path leads to the East Terrace homesteads. You need a Homestead Deed from the Land Registry."
     }
   }
 }

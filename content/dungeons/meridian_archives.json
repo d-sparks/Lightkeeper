@@ -31,7 +31,8 @@
   "monsterSpawns": [],
   "npcSpawns": [
     { "type": "archivist_solen", "x": 5, "y": 6 },
-    { "type": "records_clerk", "x": 14, "y": 6 }
+    { "type": "records_clerk", "x": 14, "y": 6 },
+    { "type": "archives_cat", "x": 17, "y": 11 }
   ],
   "itemSpawns": [],
   "exits": [
@@ -67,6 +68,42 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "set_archives_visited",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "visited_meridian_archives" }
+      ],
+      "once": true
+    },
+    {
+      "id": "find_cat",
+      "event": "npc_interacted",
+      "filter": { "npcType": "archives_cat" },
+      "conditions": [
+        { "hasFlag": "lost_cat_quest_started" },
+        { "not": { "hasFlag": "lost_cat_found" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "lost_cat_found" },
+        { "type": "grantXp", "amount": 10 },
+        { "type": "showMessage", "lines": [
+          "The orange tabby purrs and bumps its head against your hand. The collar reads 'EMBER — if found, return to Vell, East Terrace.'",
+          "So this is Vell's missing cat. She looks comfortable here — Archivist Solen has clearly been feeding her. You should tell Vell you found her."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "remove_cat_no_quest",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "lost_cat_quest_started" } }
+      ],
+      "actions": [
+        { "type": "removeEntity", "entityType": "npc", "npcType": "archives_cat" }
+      ]
     }
   ]
 }

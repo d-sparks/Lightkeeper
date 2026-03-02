@@ -1,0 +1,136 @@
+{
+  "id": "homestead_interior",
+  "name": "Homestead Interior",
+  "depth": 0,
+  "tileset": "crypt",
+  "tileSize": 32,
+  "width": 12,
+  "height": 10,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,23,1,1,1,1,1,22,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,2,2,2,2,1,1,1,3,
+    3,1,1,1,2,2,2,2,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,8,
+    3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 5, "y": 8, "type": "player_start" },
+    { "x": 6, "y": 8, "type": "player_start" },
+    { "x": 5, "y": 7, "type": "player_start" },
+    { "x": 6, "y": 7, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [],
+  "itemSpawns": [],
+  "exits": [
+    { "x": 11, "y": 8, "leadsTo": "homestead_plot", "type": "stairs_up", "spawnX": 16, "spawnY": 4 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_interior",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Your shelter. Small but solid — a cot, a workbench, and a desk. The walls are thick enough to muffle the wind.",
+          "A writing desk sits against the west wall. An empty ceramic pot rests on a shelf to the east."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "personal_log_interact",
+      "event": "door_interacted",
+      "filter": { "tileX": 2, "tileY": 3 },
+      "conditions": [
+        { "not": { "hasFlag": "crafted_first_battery" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "— PERSONAL LOG —",
+          "You flip through the pages. Notes from your journey so far:",
+          "Arrived at Outpost Balor. Received weapon and Sol Unit. Cleared the occupied wing of luddite forces.",
+          "Traversed the dark perimeter. Encountered shade stalkers, nest mothers, and the remnants of old relay stations.",
+          "Reached Meridian City via the rail line. Secured a homestead on the East Terrace.",
+          "Current objective: Craft a rechargeable battery. Need Umbracite, Copper Coils, and Stabilizing Resin."
+        ]}
+      ]
+    },
+    {
+      "id": "personal_log_post_battery",
+      "event": "door_interacted",
+      "filter": { "tileX": 2, "tileY": 3 },
+      "conditions": [
+        { "hasFlag": "crafted_first_battery" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "— PERSONAL LOG —",
+          "Crafted first rechargeable battery at Yun's workshop. Self-sufficient power — no longer dependent on Array energy supply.",
+          "The homestead garden is producing stabilizing resin. The terrace community has been welcoming.",
+          "Multiple contacts have asked me to return to the dark perimeter: biological samples for Councillor Denn, survey markers for Archivist Solen, a letter for Warden Holt.",
+          "Something is stirring on the Nightside. The planet remembers."
+        ]}
+      ]
+    },
+
+    {
+      "id": "seed_pot_empty",
+      "event": "door_interacted",
+      "filter": { "tileX": 8, "tileY": 3 },
+      "conditions": [
+        { "not": { "hasFlag": "umbral_seed_planted" } },
+        { "not": { "hasItem": "umbral_seed" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "An empty ceramic pot on a shelf. The soil inside is dark and damp. It feels like something should be growing here." }
+      ]
+    },
+    {
+      "id": "seed_pot_has_seed",
+      "event": "door_interacted",
+      "filter": { "tileX": 8, "tileY": 3 },
+      "conditions": [
+        { "not": { "hasFlag": "umbral_seed_planted" } },
+        { "hasItem": "umbral_seed" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "plant_umbral_seed", "prompt": "The Umbral Seed pulses faintly in your pack. This pot's dark soil looks like it could be a good home for it.", "options": [
+          { "label": "Plant the Seed", "description": "Place the Umbral Seed in the pot.", "value": "plant" },
+          { "label": "Not yet", "description": "Keep carrying it for now.", "value": "wait" }
+        ]}
+      ]
+    },
+    {
+      "id": "plant_umbral_seed",
+      "event": "choice_made",
+      "filter": { "choiceId": "plant_umbral_seed", "value": "plant" },
+      "actions": [
+        { "type": "removeItem", "itemType": "umbral_seed" },
+        { "type": "setFlag", "flag": "umbral_seed_planted" },
+        { "type": "grantXp", "amount": 20 },
+        { "type": "showMessage", "lines": [
+          "You press the Umbral Seed into the dark soil. For a moment, the bioluminescent pulse brightens — then fades to a faint glow.",
+          "The seed sits inert in its pot. Sable said it needs darkness to grow. Real darkness — not just shade.",
+          "'When you go back out there, bring it with you for a night. Then replant it.'"
+        ]}
+      ]
+    },
+    {
+      "id": "seed_pot_planted",
+      "event": "door_interacted",
+      "filter": { "tileX": 8, "tileY": 3 },
+      "conditions": [
+        { "hasFlag": "umbral_seed_planted" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The Umbral Seed sits in its pot, barely glowing. It needs exposure to the deep dark — a night on the Nightside — to truly grow. Sable might know more." }
+      ]
+    }
+  ]
+}
