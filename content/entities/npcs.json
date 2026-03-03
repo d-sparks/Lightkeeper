@@ -909,12 +909,12 @@
         { "speaker": "Apprentice Sol Engineer", "text": "Press [I] to open your Inventory, then click OPEN on your weapon slot to see the Sol Grid." },
         { "speaker": "Apprentice Sol Engineer", "text": "Drag the Damage Booster from your inventory and place it next to the Sol Beam. Adjacent modifiers power up nearby abilities." },
         { "speaker": "Apprentice Sol Engineer", "text": "Grid placement matters. As you find more components out there, think about what goes next to what. That's the key to a good build." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Fair warning — the unit's running on about five percent charge. There wasn't enough power to fully charge it." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Head through the south door to the training range and put a few rounds downrange. Then go see Tech Maren at the Power Station for a full charge." }
+        { "speaker": "Apprentice Sol Engineer", "text": "Fair warning — energy is a precious resource out here. Every shot costs power, and recharging isn't easy." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Head through the south door to the training range and put a few rounds downrange. Then go see Tech Maren at the Power Station to top off your charge." }
       ],
       "go_train": [
         { "speaker": "Apprentice Sol Engineer", "text": "The training range is through the south door. Go put a few rounds downrange — get a feel for the Sol Beam." },
-        { "speaker": "Apprentice Sol Engineer", "text": "That unit's running on about five percent charge. It's enough to train, but you'll want to hit the Power Station afterward." }
+        { "speaker": "Apprentice Sol Engineer", "text": "Energy's hard to come by, so don't waste it. But you've got enough for some training — hit the Power Station afterward to recharge." }
       ],
       "training_done": [
         { "speaker": "Apprentice Sol Engineer", "text": "Nice shooting. The Sol Beam packs a punch, doesn't it?" },
