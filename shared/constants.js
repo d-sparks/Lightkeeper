@@ -109,6 +109,9 @@ const CONSTANTS = {
     // Automation (Server -> Client)
     AUTO_STATE: 'auto_state',
 
+    // World map (Server -> Client)
+    WORLDMAP: 'worldmap',
+
     // Bidirectional
     SOL_GRID_MOVE: 'sol_grid_move',
     SOL_GRID_PLACE: 'sol_grid_place',

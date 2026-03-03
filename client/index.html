@@ -214,6 +214,30 @@
       background: rgba(85,85,85,0.1);
     }
 
+    #worldmap-btn {
+      position: absolute;
+      top: 8px;
+      right: 134px;
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: rgba(255,167,38,0.1);
+      border: 1px solid rgba(255,167,38,0.3);
+      color: #ffa726;
+      font-family: inherit;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 50;
+    }
+
+    #worldmap-btn:active {
+      background: rgba(255,167,38,0.25);
+    }
+
     #join-screen {
       text-align: center;
     }
@@ -1533,6 +1557,132 @@
       }
     }
 
+    /* ========== Worldmap overlay ========== */
+    #worldmap-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 6, 14, 0.98);
+      z-index: 100;
+    }
+
+    #worldmap-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #worldmap-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    #worldmap-title {
+      font-size: 14px;
+      color: #ffa726;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      pointer-events: none;
+    }
+
+    #worldmap-close {
+      font-size: 13px;
+      color: #888;
+      cursor: pointer;
+      padding: 4px 10px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      pointer-events: auto;
+    }
+
+    #worldmap-close:hover {
+      color: #ccc;
+      border-color: #888;
+    }
+
+    #worldmap-tooltip {
+      display: none;
+      position: absolute;
+      background: rgba(15, 15, 30, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 10px 14px;
+      max-width: 260px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    #worldmap-tooltip .wm-tip-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    #worldmap-tooltip .wm-tip-zone {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    #worldmap-tooltip .wm-tip-desc {
+      font-size: 11px;
+      color: #aaa;
+      line-height: 1.4;
+    }
+
+    #worldmap-legend {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .wm-legend-item {
+      font-size: 11px;
+      color: #999;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .wm-legend-swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    #worldmap-hint {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #555;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Worldmap location cursor highlight (gamepad) */
+    .wm-cursor-active #worldmap-canvas {
+      cursor: none;
+    }
+
     /* Rotate-to-landscape warning overlay */
     #rotate-warning {
       display: none;
@@ -1656,6 +1806,7 @@
       <div class="player-name" id="hud-name"></div>
       <div id="quest-label"></div>
     </div>
+    <div id="worldmap-btn" title="World Map [N]">MAP</div>
     <div id="quest-btn">LOG</div>
     <div id="inventory-btn">INV</div>
     <div id="sound-btn" title="Toggle sound">&#9835;</div>
@@ -1756,6 +1907,21 @@
   </div>
 
   <div id="automation-overlay"></div>
+
+  <div id="worldmap-overlay">
+    <canvas id="worldmap-canvas"></canvas>
+    <div id="worldmap-header">
+      <div id="worldmap-title">WORLD OF ERITH</div>
+      <div id="worldmap-close">[ESC] Close</div>
+    </div>
+    <div id="worldmap-tooltip"></div>
+    <div id="worldmap-legend">
+      <span class="wm-legend-item"><span class="wm-legend-swatch" style="background:#ff6b35"></span>Dayside</span>
+      <span class="wm-legend-item"><span class="wm-legend-swatch" style="background:#4fc3f7"></span>Habitable</span>
+      <span class="wm-legend-item"><span class="wm-legend-swatch" style="background:#7c4dff"></span>Nightside</span>
+    </div>
+    <div id="worldmap-hint" class="mobile-only">Tap location for details</div>
+  </div>
 
   <div id="quest-toast"></div>
 

@@ -1,0 +1,187 @@
+{
+  "zones": [
+    {
+      "id": "dayside",
+      "name": "The Dayside",
+      "description": "Superheated desert of molten glass and limitless solar energy. Domain of the Array.",
+      "color": "#ff6b35",
+      "bgColor": "#3a1800",
+      "xRange": [0.0, 0.25]
+    },
+    {
+      "id": "habitable",
+      "name": "The Terminator Zone",
+      "description": "The narrow band of twilight where humanity survives. Cities, Greenways, and Lighthouses.",
+      "color": "#4fc3f7",
+      "bgColor": "#0d2a3a",
+      "xRange": [0.25, 0.65]
+    },
+    {
+      "id": "nightside",
+      "name": "The Nightside",
+      "description": "Permanent darkness and lethal cold. Bioluminescent predators and ancient ruins.",
+      "color": "#7c4dff",
+      "bgColor": "#0a0a1e",
+      "xRange": [0.65, 1.0]
+    }
+  ],
+  "locations": [
+    {
+      "id": "dayside_solar_fields",
+      "name": "Solar Fields",
+      "zone": "dayside",
+      "x": 0.12,
+      "y": 0.45,
+      "icon": "array",
+      "description": "Vast harvester arrays managed by the Array. Source of energy and silicon.",
+      "rooms": ["dayside_solar_fields"]
+    },
+    {
+      "id": "meridian_city",
+      "name": "Meridian City",
+      "zone": "habitable",
+      "x": 0.38,
+      "y": 0.35,
+      "icon": "city",
+      "description": "Capital of the Terminator Zone. Seat of the Meridian Council.",
+      "rooms": ["meridian_station", "meridian_market", "meridian_archives", "meridian_civic", "meridian_residential", "meridian_workshop", "meridian_array_hub"]
+    },
+    {
+      "id": "homestead",
+      "name": "Homestead",
+      "zone": "habitable",
+      "x": 0.42,
+      "y": 0.58,
+      "icon": "settlement",
+      "description": "A frontier settlement on the edge of the habitable zone.",
+      "rooms": ["homestead_plot", "homestead_interior"]
+    },
+    {
+      "id": "outpost_balor",
+      "name": "Outpost Balor",
+      "zone": "habitable",
+      "x": 0.55,
+      "y": 0.42,
+      "icon": "outpost",
+      "description": "Frontier Lightkeeper outpost. Your base of operations on the border.",
+      "rooms": ["outpost_entrance", "outpost_basement", "outpost_workshop", "outpost_mess_hall", "outpost_comms", "outpost_munitions", "outpost_infirmary", "outpost_charging_station", "outpost_training_range", "outpost_perimeter"]
+    },
+    {
+      "id": "perimeter",
+      "name": "The Perimeter",
+      "zone": "habitable",
+      "x": 0.60,
+      "y": 0.50,
+      "icon": "frontier",
+      "description": "Fortified border between the habitable zone and the Nightside.",
+      "rooms": ["perimeter_gate", "perimeter_outer_ring", "perimeter_breach", "perimeter_ravine"]
+    },
+    {
+      "id": "station_junction",
+      "name": "Station Junction",
+      "zone": "habitable",
+      "x": 0.48,
+      "y": 0.30,
+      "icon": "station",
+      "description": "Transit hub connecting the frontier to Meridian City.",
+      "rooms": ["station_junction", "station_approach", "train_station"]
+    },
+    {
+      "id": "lighthouse_mara",
+      "name": "Lighthouse Mara",
+      "zone": "nightside",
+      "x": 0.70,
+      "y": 0.40,
+      "icon": "lighthouse",
+      "description": "The nearest fallen Lighthouse. First expedition into the true Nightside.",
+      "rooms": ["relay_station"]
+    },
+    {
+      "id": "old_watchtower",
+      "name": "Old Watchtower",
+      "zone": "nightside",
+      "x": 0.73,
+      "y": 0.55,
+      "icon": "ruin",
+      "description": "Crumbling pre-war observation post. Something stirs in the ruins.",
+      "rooms": ["old_watchtower", "old_survey_point"]
+    },
+    {
+      "id": "frost_crypts",
+      "name": "Frost Crypts",
+      "zone": "nightside",
+      "x": 0.78,
+      "y": 0.35,
+      "icon": "dungeon",
+      "description": "Frozen caverns deep in the dark. Ice formations and creatures that camouflage as frost.",
+      "rooms": ["crypt_01", "crypt_02"]
+    },
+    {
+      "id": "signal_cave",
+      "name": "Signal Cave",
+      "zone": "nightside",
+      "x": 0.75,
+      "y": 0.65,
+      "icon": "cave",
+      "description": "A cave emitting strange signals. Source unknown.",
+      "rooms": ["signal_cave"]
+    },
+    {
+      "id": "dead_road",
+      "name": "The Dead Road",
+      "zone": "nightside",
+      "x": 0.82,
+      "y": 0.50,
+      "icon": "path",
+      "description": "Ancient trade route into the deep Nightside. Long abandoned.",
+      "rooms": ["dead_road"]
+    },
+    {
+      "id": "fen_cache",
+      "name": "Fen Cache",
+      "zone": "nightside",
+      "x": 0.80,
+      "y": 0.68,
+      "icon": "cache",
+      "description": "Hidden supply cache in the wetlands. Unbounded territory.",
+      "rooms": ["fen_cache"]
+    },
+    {
+      "id": "deep_perimeter",
+      "name": "Deep Perimeter",
+      "zone": "nightside",
+      "x": 0.88,
+      "y": 0.45,
+      "icon": "frontier",
+      "description": "The furthest reach of Lightkeeper patrols. Beyond here, nothing is charted.",
+      "rooms": ["deep_perimeter_east"]
+    },
+    {
+      "id": "underlumen_approach",
+      "name": "Underlumen Approach",
+      "zone": "nightside",
+      "x": 0.92,
+      "y": 0.52,
+      "icon": "ruin",
+      "description": "Pre-human ruins pulsing with an eerie glow. The Underlumen stirs.",
+      "rooms": ["underlumen_approach"]
+    }
+  ],
+  "connections": [
+    ["meridian_city", "station_junction"],
+    ["station_junction", "homestead"],
+    ["station_junction", "outpost_balor"],
+    ["homestead", "outpost_balor"],
+    ["outpost_balor", "perimeter"],
+    ["perimeter", "lighthouse_mara"],
+    ["perimeter", "old_watchtower"],
+    ["lighthouse_mara", "frost_crypts"],
+    ["old_watchtower", "signal_cave"],
+    ["lighthouse_mara", "dead_road"],
+    ["signal_cave", "fen_cache"],
+    ["dead_road", "deep_perimeter"],
+    ["dead_road", "fen_cache"],
+    ["deep_perimeter", "underlumen_approach"],
+    ["meridian_city", "dayside_solar_fields"]
+  ]
+}

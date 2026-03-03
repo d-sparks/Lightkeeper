@@ -472,6 +472,16 @@ wss.on('connection', (ws) => {
           auto: gameLoop.automation.getStateForClient(playerId),
         }));
 
+        // Send worldmap data
+        const worldmap = content.getWorldmap();
+        if (worldmap) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.WORLDMAP,
+            worldmap,
+            currentLocation: content.getWorldmapLocation(spawnRoom),
+          }));
+        }
+
         // Set initial objective from quest tracker and send it
         const objective = gameLoop.questTracker.getActiveObjective(playerId);
         if (objective) {
@@ -914,6 +924,15 @@ setInterval(() => {
       type: CONSTANTS.MSG.AUTO_STATE,
       auto: gameLoop.automation.getStateForClient(t.playerId),
     }));
+
+    // Update worldmap current location
+    const newLocation = content.getWorldmapLocation(targetRoomId);
+    if (newLocation) {
+      ws.send(JSON.stringify({
+        type: CONSTANTS.MSG.WORLDMAP,
+        currentLocation: newLocation,
+      }));
+    }
 
     // Re-send quest objective with updated exit resolution for new room
     if (player.questObjective) {
