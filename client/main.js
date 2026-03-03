@@ -464,7 +464,7 @@
     if (menuTab === 'inventory') return characterMenu.querySelectorAll('.inv-grid-cell');
     if (menuTab === 'solgrid') return characterMenu.querySelectorAll('.sol-cell');
     if (menuTab === 'auto') return characterMenu.querySelectorAll('.auto-card');
-    if (menuTab === 'quests') return characterMenu.querySelectorAll('.quest-step');
+    if (menuTab === 'quests') return characterMenu.querySelectorAll('.quest-track-btn, .quest-step');
     return [];
   }
 
