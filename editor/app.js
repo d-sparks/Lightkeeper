@@ -723,7 +723,9 @@ function Editor({ dungeonId, onBack }) {
     />`}
     <${SpawnList} dungeon=${dungeon} updateDungeon=${updateDungeon}
       onEditNPC=${(type) => setShowNPCEditor(type || true)}
-      onEditItem=${(type) => setShowItemEditor(type || true)} />
+      onEditItem=${(type) => setShowItemEditor(type || true)}
+      selectedSpawn=${selectedSpawn}
+      onSelectSpawn=${(sel) => { setTool('move'); setSelectedSpawn(sel); }} />
     <${EntitySection}
       onEditNPCs=${() => setShowNPCEditor(true)}
       onEditItems=${() => setShowItemEditor(true)}
@@ -876,7 +878,7 @@ function SpawnPanel({ dungeon, updateDungeon, spawnMode, setSpawnMode, spawnEnti
 }
 
 // ─── Spawn List ─────────────────────────────────────────────
-function SpawnList({ dungeon, updateDungeon, onEditNPC, onEditItem }) {
+function SpawnList({ dungeon, updateDungeon, onEditNPC, onEditItem, selectedSpawn, onSelectSpawn }) {
   const allSpawns = [
     ...dungeon.spawns.map((s, i) => ({ ...s, _kind: 'spawn', _i: i, _label: `Player (${s.x},${s.y})` })),
     ...dungeon.monsterSpawns.map((s, i) => ({ ...s, _kind: 'monster', _i: i, _label: `${s.type} (${s.x},${s.y}) x${s.count}` })),
@@ -907,21 +909,23 @@ function SpawnList({ dungeon, updateDungeon, onEditNPC, onEditItem }) {
     return SPAWN_COLORS.exit;
   };
 
+  const isSelected = (s) => selectedSpawn && selectedSpawn.kind === s._kind && selectedSpawn.index === s._i;
+
   return html`
     <div class="panel-section">
       <h3>Spawns (${allSpawns.length})</h3>
       <div class="spawn-list">
         ${allSpawns.map(s => {
-          const clickable = (s._kind === 'npc' && onEditNPC) || (s._kind === 'item' && onEditItem);
+          const selected = isSelected(s);
           const onClick = () => {
-            if (s._kind === 'npc' && onEditNPC) onEditNPC(s.type);
-            else if (s._kind === 'item' && onEditItem) onEditItem(s.type);
+            if (onSelectSpawn) onSelectSpawn({ kind: s._kind, index: s._i });
           };
           return html`
-            <div class="spawn-item" key="${s._kind}-${s._i}">
+            <div class="spawn-item ${selected ? 'spawn-item-selected' : ''}" key="${s._kind}-${s._i}"
+              onClick=${onClick} style="cursor:pointer">
               <div class="spawn-dot" style="background:${colorFor(s._kind)}"></div>
-              <span class=${clickable ? 'spawn-label-link' : ''} onClick=${clickable ? onClick : undefined}>${s._label}</span>
-              <button class="spawn-remove" onClick=${() => remove(s._kind, s._i)}>×</button>
+              <span class="spawn-label-link">${s._label}</span>
+              <button class="spawn-remove" onClick=${(e) => { e.stopPropagation(); remove(s._kind, s._i); }}>×</button>
             </div>
           `;
         })}
@@ -1872,7 +1876,32 @@ function RawJsonActionFields({ action, onChange }) {
   `;
 }
 
-function ActionFields({ action, onChange }) {
+// Collect all flag names from an array of triggers (actions + conditions)
+function collectFlagNames(triggers) {
+  const flags = new Set();
+  const scanConditions = (cond) => {
+    if (!cond) return;
+    if (Array.isArray(cond)) { cond.forEach(scanConditions); return; }
+    if (cond.hasFlag) flags.add(cond.hasFlag);
+    if (cond.flag) flags.add(cond.flag);
+    if (cond.flagGreaterThan && cond.flagGreaterThan.flag) flags.add(cond.flagGreaterThan.flag);
+    if (cond.not) scanConditions(cond.not);
+    if (cond.condition) scanConditions(cond.condition);
+    if (cond.all) cond.all.forEach(scanConditions);
+    if (cond.any) cond.any.forEach(scanConditions);
+  };
+  for (const t of triggers) {
+    scanConditions(t.conditions);
+    for (const a of (t.actions || [])) {
+      if (a.flag) flags.add(a.flag);
+    }
+    // Also check filter for flag references
+    if (t.filter && t.filter.flag) flags.add(t.filter.flag);
+  }
+  return [...flags].sort();
+}
+
+function ActionFields({ action, onChange, knownFlags }) {
   const set = (field, value) => onChange({ ...action, [field]: value });
 
   switch (action.type) {
@@ -1916,7 +1945,7 @@ function ActionFields({ action, onChange }) {
       return html`
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <div class="field" style="flex:2"><label>Flag</label>
-            <input value=${action.flag || ''} onInput=${e => set('flag', e.target.value)} /></div>
+            <input list="known-flags" value=${action.flag || ''} onInput=${e => set('flag', e.target.value)} placeholder="type or select flag" /></div>
           <div class="field" style="flex:1"><label>Value</label>
             <input value=${action.value != null ? action.value : ''} onInput=${e => set('value', e.target.value)} /></div>
           <div class="field" style="flex:1"><label>Scope</label>
@@ -1929,7 +1958,7 @@ function ActionFields({ action, onChange }) {
       return html`
         <div style="display:flex;gap:6px">
           <div class="field" style="flex:2"><label>Flag</label>
-            <input value=${action.flag || ''} onInput=${e => set('flag', e.target.value)} /></div>
+            <input list="known-flags" value=${action.flag || ''} onInput=${e => set('flag', e.target.value)} placeholder="type or select flag" /></div>
           <div class="field" style="flex:1"><label>Scope</label>
             <select value=${action.scope || 'player'} onChange=${e => set('scope', e.target.value)}>
               <option value="player">player</option><option value="room">room</option><option value="global">global</option>
@@ -1940,7 +1969,7 @@ function ActionFields({ action, onChange }) {
       return html`
         <div style="display:flex;gap:6px">
           <div class="field" style="flex:2"><label>Flag</label>
-            <input value=${action.flag || ''} onInput=${e => set('flag', e.target.value)} /></div>
+            <input list="known-flags" value=${action.flag || ''} onInput=${e => set('flag', e.target.value)} placeholder="type or select flag" /></div>
           <div class="field" style="flex:1"><label>Amount</label>
             <input type="number" value=${action.amount != null ? action.amount : 1} onInput=${e => set('amount', Number(e.target.value))} /></div>
         </div>
@@ -2022,7 +2051,7 @@ function ActionFields({ action, onChange }) {
   }
 }
 
-function ActionListEditor({ actions, scriptRef, onChange }) {
+function ActionListEditor({ actions, scriptRef, onChange, knownFlags }) {
   const actionTypes = (scriptRef && scriptRef.actionTypes) || [];
   const update = (idx, newAction) => {
     const copy = [...actions];
@@ -2042,6 +2071,9 @@ function ActionListEditor({ actions, scriptRef, onChange }) {
   return html`
     <div>
       <span class="trigger-section-label">Actions</span>
+      <datalist id="known-flags">
+        ${(knownFlags || []).map(f => html`<option key=${f} value=${f} />`)}
+      </datalist>
       <div class="trigger-action-list">
         ${actions.map((action, idx) => html`
           <div class="trigger-action-card" key=${idx}>
@@ -2057,7 +2089,7 @@ function ActionListEditor({ actions, scriptRef, onChange }) {
               <button class="trigger-action-move" onClick=${() => move(idx, 1)} title="Move down">↓</button>
               <button class="spawn-remove" onClick=${() => remove(idx)}>×</button>
             </div>
-            <${ActionFields} action=${action} onChange=${(a) => update(idx, a)} />
+            <${ActionFields} action=${action} onChange=${(a) => update(idx, a)} knownFlags=${knownFlags} />
           </div>
         `)}
       </div>
@@ -2223,12 +2255,60 @@ function TriggerEditorModal({ dungeonId, onClose }) {
 
           <div>
             <span class="trigger-section-label">Conditions (JSON)</span>
+            <div class="condition-insert-row">
+              <datalist id="condition-flags">
+                ${collectFlagNames(triggers).map(f => html`<option key=${f} value=${f} />`)}
+              </datalist>
+              <input id="condition-flag-input" list="condition-flags" style="flex:1;font-size:11px"
+                placeholder="type or select flag name" />
+              <button class="tool-btn" style="font-size:11px;padding:2px 8px" onClick=${() => {
+                const inp = document.getElementById('condition-flag-input');
+                const flag = inp ? inp.value.trim() : '';
+                if (!flag) return;
+                const snippet = JSON.stringify({ hasFlag: flag });
+                const existing = conditionsText.trim();
+                if (!existing) {
+                  setConditionsText('[\n  ' + snippet + '\n]');
+                } else {
+                  try {
+                    const parsed = JSON.parse(existing);
+                    const arr = Array.isArray(parsed) ? parsed : [parsed];
+                    arr.push({ hasFlag: flag });
+                    setConditionsText(JSON.stringify(arr, null, 2));
+                  } catch {
+                    setConditionsText(existing + '\n' + snippet);
+                  }
+                }
+                inp.value = '';
+              }}>+ hasFlag</button>
+              <button class="tool-btn" style="font-size:11px;padding:2px 8px" onClick=${() => {
+                const inp = document.getElementById('condition-flag-input');
+                const flag = inp ? inp.value.trim() : '';
+                if (!flag) return;
+                const snippet = { not: { hasFlag: flag } };
+                const existing = conditionsText.trim();
+                if (!existing) {
+                  setConditionsText('[\n  ' + JSON.stringify(snippet) + '\n]');
+                } else {
+                  try {
+                    const parsed = JSON.parse(existing);
+                    const arr = Array.isArray(parsed) ? parsed : [parsed];
+                    arr.push(snippet);
+                    setConditionsText(JSON.stringify(arr, null, 2));
+                  } catch {
+                    setConditionsText(existing + '\n' + JSON.stringify(snippet));
+                  }
+                }
+                inp.value = '';
+              }}>+ not hasFlag</button>
+            </div>
             <textarea class="trigger-conditions-textarea" rows="4"
               value=${conditionsText}
               onInput=${e => setConditionsText(e.target.value)} />
           </div>
 
           <${ActionListEditor} actions=${current.actions || []} scriptRef=${scriptRef}
+            knownFlags=${collectFlagNames(triggers)}
             onChange=${(a) => updateTrigger(t => { t.actions = a; })} />
         `}
 
