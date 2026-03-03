@@ -588,11 +588,12 @@ class GameLoop {
             }
           }
         } else {
-          // Find a monster to point at
+          // Find a monster to point at (prefer specific type if given)
           for (const mob of room.monsters.values()) {
+            if (obj.targetMonster && mob.type !== obj.targetMonster) continue;
             tileX = Math.floor(mob.x / CONSTANTS.TILE_SIZE);
             tileY = Math.floor(mob.y / CONSTANTS.TILE_SIZE);
-            break; // Use first monster as fallback target
+            break;
           }
         }
       }
