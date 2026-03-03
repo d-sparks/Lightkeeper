@@ -169,19 +169,20 @@
   ],
   "connections": [
     ["meridian_city", "station_junction"],
-    ["station_junction", "homestead"],
-    ["station_junction", "outpost_balor"],
-    ["homestead", "outpost_balor"],
+    ["meridian_city", "homestead"],
+    ["station_junction", "dayside_solar_fields"],
+    ["station_junction", "dead_road"],
     ["outpost_balor", "perimeter"],
+    ["outpost_balor", "frost_crypts"],
     ["perimeter", "lighthouse_mara"],
     ["perimeter", "old_watchtower"],
-    ["lighthouse_mara", "frost_crypts"],
-    ["old_watchtower", "signal_cave"],
-    ["lighthouse_mara", "dead_road"],
-    ["signal_cave", "fen_cache"],
+    ["perimeter", "dead_road"],
+    ["perimeter", "deep_perimeter"],
+    ["perimeter", "underlumen_approach"],
+    ["dead_road", "old_watchtower"],
     ["dead_road", "deep_perimeter"],
-    ["dead_road", "fen_cache"],
-    ["deep_perimeter", "underlumen_approach"],
-    ["meridian_city", "dayside_solar_fields"]
+    ["deep_perimeter", "signal_cave"],
+    ["deep_perimeter", "fen_cache"],
+    ["signal_cave", "underlumen_approach"]
   ]
 }
