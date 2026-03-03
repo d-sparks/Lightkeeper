@@ -1055,8 +1055,10 @@ class GameLoop {
       player.energy -= abilityDef.energyCost;
     }
 
-    // Cone always fires in the direction the player is facing
-    const dirAngle = player.facing || 0;
+    // Use aim angle if provided, otherwise fall back to player facing direction
+    const dirAngle = (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle))
+      ? aimAngle
+      : (player.facing || 0);
 
     const coneRange = (abilityDef.coneRange || 3) * CONSTANTS.TILE_SIZE;
     const halfAngle = ((abilityDef.coneAngle || 60) / 2) * (Math.PI / 180);

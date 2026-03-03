@@ -423,6 +423,12 @@ class InputHandler {
       if (Math.sqrt(dx * dx + dy * dy) > 15) {
         aimAngle = Math.atan2(dy, dx);
       }
+    } else if (this.joystickActive) {
+      // Tap without drag: use joystick direction if actively held
+      const jLen = Math.sqrt(this.joyDX * this.joyDX + this.joyDY * this.joyDY);
+      if (jLen > 0.2) {
+        aimAngle = Math.atan2(this.joyDY, this.joyDX);
+      }
     }
 
     if (this.onAbility) this.onAbility(drag.slot, aimAngle);
@@ -549,8 +555,15 @@ class InputHandler {
         this.aimIndicator.active = true;
         this.aimIndicator.angle = gamepadAimAngle;
       }
-    } else if (!this.abilityDrag) {
-      this.aimIndicator.active = false;
+    } else {
+      // Fallback: use left stick direction for aiming when right stick is idle
+      const lLen = Math.sqrt(lx * lx + ly * ly);
+      if (lLen > 0.3) {
+        gamepadAimAngle = Math.atan2(ly, lx);
+      }
+      if (!this.abilityDrag) {
+        this.aimIndicator.active = false;
+      }
     }
 
     // Y(3) always toggles menu
@@ -737,10 +750,10 @@ class InputHandler {
         return;
       }
 
-      // Shift+left-click: force-cast ability 1 at cursor (stand still)
+      // Shift+left-click: cast selected ability at cursor (stand still)
       if (this.shiftHeld) {
         const aimAngle = this.getMouseAimAngle();
-        if (this.onAbility) this.onAbility(1, aimAngle);
+        if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle);
         return;
       }
 
