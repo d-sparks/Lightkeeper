@@ -1857,27 +1857,33 @@
       }
     }
 
-    // Slot 1 interact override: if there's an interactable nearby and no monsters nearby,
-    // override slot 1 to show the interact action instead of the normal ability
+    // Slot 1 interact override: override slot 1 to show the interact action.
+    // Items always override slot 1 (pickup should work even in combat).
+    // Doors/NPCs only override when no monsters are nearby.
     const prevMode = slot1InteractMode;
     slot1InteractMode = null;
 
     if (label) {
-      // Check if any alive monsters are within aggro range
-      let monstersNearby = false;
-      if (renderer.state.monsters) {
-        const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * ts;
-        for (const mob of renderer.state.monsters) {
-          if (mob.health <= 0) continue;
-          const dx = mob.x - me.x, dy = mob.y - me.y;
-          if (Math.sqrt(dx * dx + dy * dy) < aggroRange) {
-            monstersNearby = true;
-            break;
+      if (label === 'Pick up') {
+        // Items always take priority — pickup should work even in combat
+        slot1InteractMode = label;
+      } else {
+        // Doors/NPCs: only override when no monsters are nearby
+        let monstersNearby = false;
+        if (renderer.state.monsters) {
+          const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * ts;
+          for (const mob of renderer.state.monsters) {
+            if (mob.health <= 0) continue;
+            const dx = mob.x - me.x, dy = mob.y - me.y;
+            if (Math.sqrt(dx * dx + dy * dy) < aggroRange) {
+              monstersNearby = true;
+              break;
+            }
           }
         }
-      }
-      if (!monstersNearby) {
-        slot1InteractMode = label;
+        if (!monstersNearby) {
+          slot1InteractMode = label;
+        }
       }
     }
 
