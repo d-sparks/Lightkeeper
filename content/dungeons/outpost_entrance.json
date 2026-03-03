@@ -50,7 +50,7 @@
   "exits": [
     { "x": 39, "y": 11, "leadsTo": "outpost_workshop", "type": "stairs_down", "spawnX": 2, "spawnY": 4 },
     { "x": 19, "y": 23, "leadsTo": "outpost_charging_station", "type": "stairs_down", "spawnX": 12, "spawnY": 1 },
-    { "x": 30, "y": 23, "leadsTo": "outpost_munitions", "type": "stairs_down", "spawnX": 4, "spawnY": 7 },
+    { "x": 30, "y": 23, "leadsTo": "outpost_munitions", "type": "stairs_down", "spawnX": 12, "spawnY": 1 },
     { "x": 10, "y": 0, "leadsTo": "outpost_perimeter", "type": "stairs_up", "spawnX": 14, "spawnY": 17 },
     { "x": 0, "y": 5, "leadsTo": "outpost_comms", "type": "stairs_down", "spawnX": 9, "spawnY": 5 },
     { "x": 0, "y": 18, "leadsTo": "outpost_mess_hall", "type": "stairs_down", "spawnX": 17, "spawnY": 7 }
