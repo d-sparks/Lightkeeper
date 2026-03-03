@@ -556,8 +556,11 @@ class InputHandler {
     // Y(3) always toggles menu
     if (pressed(3) && this.onMenuOpen) this.onMenuOpen();
 
-    // Start(9) / Back(8) → open menu on quests tab
-    if ((pressed(9) || pressed(8)) && this.onQuestPanel) this.onQuestPanel();
+    // Start(9) → open menu on quests tab
+    if (pressed(9) && this.onQuestPanel) this.onQuestPanel();
+
+    // Back(8) → toggle full map
+    if (pressed(8) && this.onMapToggle) this.onMapToggle();
 
     if (this.menuOpen) {
       // === MENU OPEN MODE ===

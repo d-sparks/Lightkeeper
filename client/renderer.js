@@ -172,6 +172,16 @@ class Renderer {
     this.minimapGfx = new PIXI.Graphics();
     this.overlayContainer.addChild(this.minimapGfx);
 
+    this.roomNameText = new PIXI.Text('', {
+      fontFamily: 'monospace',
+      fontSize: 14,
+      fill: 0xffffff,
+      align: 'center',
+    });
+    this.roomNameText.anchor.set(0.5, 1);
+    this.roomNameText.visible = false;
+    this.overlayContainer.addChild(this.roomNameText);
+
     this.dmgContainer = new PIXI.Container();
     this.overlayContainer.addChild(this.dmgContainer);
 
@@ -2204,6 +2214,16 @@ class Renderer {
         this.viewportTX * scale,
         this.viewportTY * scale
       );
+    }
+
+    // Room name label (full map only)
+    if (full && this.map.name) {
+      this.roomNameText.text = this.map.name;
+      this.roomNameText.x = Math.round(this.minimapBounds.x + this.minimapBounds.w / 2);
+      this.roomNameText.y = Math.round(this.minimapBounds.y - 4);
+      this.roomNameText.visible = true;
+    } else {
+      this.roomNameText.visible = false;
     }
   }
 
