@@ -1760,6 +1760,8 @@ class Renderer {
   renderConeEffects() {
     this.coneGfx.clear();
     const dt = 1 / 60;
+    const SEGMENTS = 20;
+
     this.coneEffects = this.coneEffects.filter(cone => {
       cone.age += dt;
       if (cone.age >= cone.maxAge) return false;
@@ -1780,60 +1782,71 @@ class Renderer {
       // Fade out in the second half
       const fadeAlpha = t < 0.4 ? 1.0 : Math.max(0, 1.0 - (t - 0.4) / 0.6);
 
-      // Convert center to worldContainer coords (iso or identity)
-      const c = this.isoMode ? this.worldToIso(cone.x, cone.y) : { x: cone.x, y: cone.y };
-      // Scale range for isometric (average of X and Y scale factors)
-      const isoRange = this.isoMode ? outerRange * 1.5 : outerRange;
-      const isoInner = this.isoMode ? innerRange * 1.5 : innerRange;
+      // Convert world-space point to screen coords (iso or identity)
+      const toScreen = (wx, wy) => {
+        return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+      };
+
+      // Center in screen coords
+      const c = toScreen(cone.x, cone.y);
+
+      // Sample points along the cone arc in world space, convert to screen
+      const outerPoints = [];
+      const innerPoints = [];
+      for (let i = 0; i <= SEGMENTS; i++) {
+        const a = startAngle + (endAngle - startAngle) * (i / SEGMENTS);
+        const owx = cone.x + Math.cos(a) * outerRange;
+        const owy = cone.y + Math.sin(a) * outerRange;
+        outerPoints.push(toScreen(owx, owy));
+
+        if (innerRange > 1) {
+          const iwx = cone.x + Math.cos(a) * innerRange;
+          const iwy = cone.y + Math.sin(a) * innerRange;
+          innerPoints.push(toScreen(iwx, iwy));
+        }
+      }
 
       // --- Filled cone sweep (semi-transparent) ---
-      if (isoRange > isoInner + 1) {
+      if (outerRange > innerRange + 1) {
         this.coneGfx.beginFill(0xffaa00, 0.35 * fadeAlpha);
-        if (isoInner > 1) {
+        if (innerPoints.length > 0) {
           // Donut sector: outer arc forward, inner arc reversed
-          this.coneGfx.moveTo(
-            c.x + Math.cos(startAngle) * isoRange,
-            c.y + Math.sin(startAngle) * isoRange
-          );
-          this.coneGfx.arc(c.x, c.y, isoRange, startAngle, endAngle);
-          this.coneGfx.lineTo(
-            c.x + Math.cos(endAngle) * isoInner,
-            c.y + Math.sin(endAngle) * isoInner
-          );
-          this.coneGfx.arc(c.x, c.y, isoInner, endAngle, startAngle, true);
+          this.coneGfx.moveTo(outerPoints[0].x, outerPoints[0].y);
+          for (let i = 1; i < outerPoints.length; i++) {
+            this.coneGfx.lineTo(outerPoints[i].x, outerPoints[i].y);
+          }
+          this.coneGfx.lineTo(innerPoints[innerPoints.length - 1].x, innerPoints[innerPoints.length - 1].y);
+          for (let i = innerPoints.length - 2; i >= 0; i--) {
+            this.coneGfx.lineTo(innerPoints[i].x, innerPoints[i].y);
+          }
           this.coneGfx.closePath();
         } else {
           // Full sector from center
           this.coneGfx.moveTo(c.x, c.y);
-          this.coneGfx.arc(c.x, c.y, isoRange, startAngle, endAngle);
+          for (const p of outerPoints) {
+            this.coneGfx.lineTo(p.x, p.y);
+          }
           this.coneGfx.lineTo(c.x, c.y);
         }
         this.coneGfx.endFill();
       }
 
       // --- Bright leading edge arc ---
-      if (isoRange > 2) {
+      if (outerRange > 2) {
         this.coneGfx.lineStyle(3, 0xffdd44, 0.8 * fadeAlpha);
-        this.coneGfx.moveTo(
-          c.x + Math.cos(startAngle) * isoRange,
-          c.y + Math.sin(startAngle) * isoRange
-        );
-        this.coneGfx.arc(c.x, c.y, isoRange, startAngle, endAngle);
+        this.coneGfx.moveTo(outerPoints[0].x, outerPoints[0].y);
+        for (let i = 1; i < outerPoints.length; i++) {
+          this.coneGfx.lineTo(outerPoints[i].x, outerPoints[i].y);
+        }
         this.coneGfx.lineStyle(0);
       }
 
       // --- Edge lines (cone boundaries) ---
       this.coneGfx.lineStyle(2, 0xffaa00, 0.5 * fadeAlpha);
       this.coneGfx.moveTo(c.x, c.y);
-      this.coneGfx.lineTo(
-        c.x + Math.cos(startAngle) * isoRange,
-        c.y + Math.sin(startAngle) * isoRange
-      );
+      this.coneGfx.lineTo(outerPoints[0].x, outerPoints[0].y);
       this.coneGfx.moveTo(c.x, c.y);
-      this.coneGfx.lineTo(
-        c.x + Math.cos(endAngle) * isoRange,
-        c.y + Math.sin(endAngle) * isoRange
-      );
+      this.coneGfx.lineTo(outerPoints[outerPoints.length - 1].x, outerPoints[outerPoints.length - 1].y);
       this.coneGfx.lineStyle(0);
 
       return true;
