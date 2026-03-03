@@ -1679,6 +1679,24 @@
           if (!comp.isExtension) {
             cell.textContent = comp.modifierId.replace(/_/g, ' ');
           }
+        } else if (comp.generatorId) {
+          cell.classList.add('has-generator');
+          if (!comp.isExtension) {
+            let html = '<div class="sol-cell-name">' + (comp.componentName || comp.generatorId.replace(/_/g, ' ')) + '</div>';
+            if (comp.energyRegen) {
+              html += '<div class="sol-mod-tag">+' + comp.energyRegen + '/s</div>';
+            }
+            cell.innerHTML = html;
+          }
+        } else if (comp.batteryId) {
+          cell.classList.add('has-battery');
+          if (!comp.isExtension) {
+            let html = '<div class="sol-cell-name">' + (comp.componentName || comp.batteryId.replace(/_/g, ' ')) + '</div>';
+            if (comp.energyCapacity) {
+              html += '<div class="sol-mod-tag">+' + comp.energyCapacity + ' cap</div>';
+            }
+            cell.innerHTML = html;
+          }
         }
         if (comp.isExtension) {
           cell.style.opacity = '0.6';
@@ -1960,7 +1978,7 @@
   let lastFacing = 0;
 
   // --- Ability dispatch ---
-  input.onAbility = function (slot, aimAngle) {
+  input.onAbility = function (slot, aimAngle, isMouseTarget) {
     // Slot 1 interact override: behave like interact key
     if (slot === 1 && slot1InteractMode) {
       if (dialogueActive) { advanceDialogue(); return; }
@@ -1989,7 +2007,13 @@
       aimAngle = lastFacing;
     }
 
-    net.send({ type: CONSTANTS.MSG.ATTACK, aimAngle, slot });
+    const msg = { type: CONSTANTS.MSG.ATTACK, aimAngle, slot };
+    // Include mouse world position for position-based abilities (e.g. teleport)
+    if (isMouseTarget && input.mouseActive) {
+      msg.targetX = Math.round(input.mouseWorldX);
+      msg.targetY = Math.round(input.mouseWorldY);
+    }
+    net.send(msg);
     audio.play('ability_cast');
   };
 

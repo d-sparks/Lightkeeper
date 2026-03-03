@@ -375,6 +375,7 @@ class GameLoop {
       solGrid: null,
       energy: 0,
       maxEnergy: 0,
+      solGridEnergyRegen: 0,
       questObjective: null,
       xp: 0,
       level: 1,
@@ -679,24 +680,42 @@ class GameLoop {
       const cell = grid.cells[i];
       if (!cell) { clientCells.push(null); continue; }
       const clientCell = Object.assign({}, cell);
-      // For ability cells (non-extension), compute and attach modifier info
-      if (cell.abilityId && !cell.isExtension) {
-        const x = i % size;
-        const y = Math.floor(i / size);
-        const mods = this._getAdjacentModifiers(grid, x, y);
-        if (mods.length > 0) {
-          clientCell.modifiers = mods.map(m => ({
-            name: m.name,
-            bonus: m.bonus,
-          }));
+      if (!cell.isExtension) {
+        // For ability cells, compute and attach modifier info
+        if (cell.abilityId) {
+          const x = i % size;
+          const y = Math.floor(i / size);
+          const mods = this._getAdjacentModifiers(grid, x, y);
+          if (mods.length > 0) {
+            clientCell.modifiers = mods.map(m => ({
+              name: m.name,
+              bonus: m.bonus,
+            }));
+          }
+          // Also include base ability stats for display
+          const abilityDef = this.content.getAbility(cell.abilityId);
+          if (abilityDef) {
+            clientCell.baseStats = {
+              damageMultiplier: abilityDef.damageMultiplier || 1.0,
+              cooldown: abilityDef.cooldown || 0.5,
+            };
+          }
         }
-        // Also include base ability stats for display
-        const abilityDef = this.content.getAbility(cell.abilityId);
-        if (abilityDef) {
-          clientCell.baseStats = {
-            damageMultiplier: abilityDef.damageMultiplier || 1.0,
-            cooldown: abilityDef.cooldown || 0.5,
-          };
+        // For generator cells, include regen info
+        if (cell.generatorId) {
+          const compDef = this.content.getSolComponent(cell.generatorId);
+          if (compDef) {
+            clientCell.componentName = compDef.name;
+            clientCell.energyRegen = compDef.energyRegen;
+          }
+        }
+        // For battery cells, include capacity info
+        if (cell.batteryId) {
+          const compDef = this.content.getSolComponent(cell.batteryId);
+          if (compDef) {
+            clientCell.componentName = compDef.name;
+            clientCell.energyCapacity = compDef.energyCapacity;
+          }
         }
       }
       clientCells.push(clientCell);
@@ -757,12 +776,17 @@ class GameLoop {
       }
     }
 
-    // Sol grid abilities (if sol unit is equipped, scan grid for ability components)
+    // Sol grid: scan for abilities, generators, and batteries
+    player.solGridEnergyRegen = 0;
+    let extraMaxEnergy = 0;
     if (player.solGrid) {
       for (let y = 0; y < player.solGrid.size; y++) {
         for (let x = 0; x < player.solGrid.size; x++) {
           const cell = player.solGrid.cells[y * player.solGrid.size + x];
-          if (cell && cell.abilityId && !cell.isExtension) {
+          if (!cell || cell.isExtension) continue;
+
+          // Abilities
+          if (cell.abilityId) {
             const abilityDef = this.content.getAbility(cell.abilityId);
             if (abilityDef) {
               const slotIdx = (abilityDef.defaultSlot || 1) - 1;
@@ -777,8 +801,25 @@ class GameLoop {
               }
             }
           }
+
+          // Generators — passive energy regen per second
+          if (cell.generatorId) {
+            const compDef = this.content.getSolComponent(cell.generatorId);
+            if (compDef && compDef.energyRegen) {
+              player.solGridEnergyRegen += compDef.energyRegen;
+            }
+          }
+
+          // Batteries — extra energy capacity
+          if (cell.batteryId) {
+            const compDef = this.content.getSolComponent(cell.batteryId);
+            if (compDef && compDef.energyCapacity) {
+              extraMaxEnergy += compDef.energyCapacity;
+            }
+          }
         }
       }
+      player.maxEnergy += extraMaxEnergy;
     }
   }
 
@@ -886,6 +927,8 @@ class GameLoop {
         };
         if (compDef.type === 'ability' && compDef.abilityId) cell.abilityId = compDef.abilityId;
         if (compDef.type === 'modifier') cell.modifierId = itemDef.solComponentId;
+        if (compDef.type === 'generator') cell.generatorId = itemDef.solComponentId;
+        if (compDef.type === 'battery') cell.batteryId = itemDef.solComponentId;
         if (sx !== 0 || sy !== 0) cell.isExtension = true;
         player.solGrid.cells[cy * size + cx] = cell;
       }
@@ -913,6 +956,10 @@ class GameLoop {
     let solComponentId = null;
     if (clickedCell.modifierId) {
       solComponentId = clickedCell.modifierId;
+    } else if (clickedCell.generatorId) {
+      solComponentId = clickedCell.generatorId;
+    } else if (clickedCell.batteryId) {
+      solComponentId = clickedCell.batteryId;
     } else if (clickedCell.abilityId) {
       // Find sol component by abilityId
       const comp = this._findSolComponentByAbility(clickedCell.abilityId);
@@ -952,7 +999,7 @@ class GameLoop {
   }
 
   // Use an ability from a given slot
-  tryUseAbility(roomId, playerId, slot, aimAngle) {
+  tryUseAbility(roomId, playerId, slot, aimAngle, extraData) {
     const room = this.rooms.get(roomId);
     if (!room) return false;
     const player = room.players.get(playerId);
@@ -985,6 +1032,8 @@ class GameLoop {
         return this._useMeleeStrike(room, player, abilityDef, slotIdx);
       case 'heal':
         return this._useHeal(room, player, abilityDef, slotIdx);
+      case 'teleport':
+        return this._useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData);
       default:
         return false;
     }
@@ -1278,6 +1327,97 @@ class GameLoop {
     return 'heal';
   }
 
+  _useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData) {
+    // Check energy cost
+    if (abilityDef.energyCost) {
+      if (player.energy < abilityDef.energyCost) return false;
+    }
+
+    const ts = CONSTANTS.TILE_SIZE;
+    let targetX, targetY;
+
+    if (extraData && extraData.targetX !== undefined && extraData.targetY !== undefined) {
+      // Mouse click: teleport to click position, capped at max range
+      const maxRange = (abilityDef.maxRange || 20) * ts;
+      const dx = extraData.targetX - player.x;
+      const dy = extraData.targetY - player.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > maxRange) {
+        targetX = player.x + (dx / dist) * maxRange;
+        targetY = player.y + (dy / dist) * maxRange;
+      } else {
+        targetX = extraData.targetX;
+        targetY = extraData.targetY;
+      }
+    } else if (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle)) {
+      // Stick/shift: teleport in direction by fixed distance (~3/4 screen)
+      const fixedDist = (abilityDef.stickDistance || 12) * ts;
+      targetX = player.x + Math.cos(aimAngle) * fixedDist;
+      targetY = player.y + Math.sin(aimAngle) * fixedDist;
+    } else {
+      return false; // No direction provided
+    }
+
+    // Clamp to map bounds
+    const dungeon = room.dungeon;
+    targetX = Math.max(ts * 0.5, Math.min(targetX, (dungeon.width - 0.5) * ts));
+    targetY = Math.max(ts * 0.5, Math.min(targetY, (dungeon.height - 0.5) * ts));
+
+    // If target is inside a solid tile, walk back along the line to find a valid spot
+    const tileX = Math.floor(targetX / ts);
+    const tileY = Math.floor(targetY / ts);
+    if (this.content.isSolid(dungeon, tileX, tileY)) {
+      const dx = targetX - player.x;
+      const dy = targetY - player.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 1) return false;
+      // Step backward along the line in half-tile increments
+      const stepSize = ts * 0.5;
+      const steps = Math.floor(dist / stepSize);
+      let found = false;
+      for (let i = steps - 1; i >= 0; i--) {
+        const ratio = (i * stepSize) / dist;
+        const cx = player.x + dx * ratio;
+        const cy = player.y + dy * ratio;
+        const ctx = Math.floor(cx / ts);
+        const cty = Math.floor(cy / ts);
+        if (!this.content.isSolid(dungeon, ctx, cty)) {
+          targetX = cx;
+          targetY = cy;
+          found = true;
+          break;
+        }
+      }
+      if (!found) return false; // No valid position along the line
+    }
+
+    // Deduct energy
+    player.energy -= abilityDef.energyCost;
+
+    const fromX = player.x;
+    const fromY = player.y;
+
+    // Teleport
+    player.x = targetX;
+    player.y = targetY;
+
+    // Resolve any remaining wall overlaps at the destination
+    this.physics.resolveCollisions(player, dungeon);
+
+    // Set cooldown
+    player.cooldowns[slotIdx] = abilityDef.cooldown || 3.0;
+
+    // Send teleport effect event for client rendering
+    room.events.push({
+      type: 'teleport',
+      targetId: player.id,
+      fromX, fromY,
+      toX: player.x, toY: player.y,
+    });
+
+    return true;
+  }
+
   update(dt) {
     for (const [roomId, room] of this.rooms) {
       room.tick++;
@@ -1296,10 +1436,10 @@ class GameLoop {
             player.cooldowns[i] = Math.max(0, player.cooldowns[i] - dt);
           }
         }
-        // No passive energy regeneration — sol units must be charged at stations
-        // ...except solar panel energy regen on the dayside
+        // Energy regeneration: solar panels (dayside) + sol grid generators
         if (player.maxEnergy > 0) {
-          const regenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
+          let regenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
+          if (player.solGridEnergyRegen > 0) regenRate += player.solGridEnergyRegen;
           if (regenRate > 0) {
             player.energy = Math.min(player.maxEnergy, player.energy + regenRate * dt);
           }

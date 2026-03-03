@@ -151,7 +151,7 @@ class InputHandler {
     if (e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault();
       const aimAngle = this.getMouseAimAngle();
-      if (this.onAbility) this.onAbility(1, aimAngle);
+      if (this.onAbility) this.onAbility(1, aimAngle, true);
       return;
     }
 
@@ -779,7 +779,7 @@ class InputHandler {
         e.preventDefault();
         if (this.dialogueActive || this.menuOpen) return;
         const aimAngle = this.getMouseAimAngle();
-        if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle);
+        if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle, true);
         return;
       }
 
@@ -809,7 +809,7 @@ class InputHandler {
       // Shift+left-click: cast selected ability at cursor (stand still)
       if (this.shiftHeld) {
         const aimAngle = this.getMouseAimAngle();
-        if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle);
+        if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle, true);
         return;
       }
 

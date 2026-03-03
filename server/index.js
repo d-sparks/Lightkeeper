@@ -657,7 +657,7 @@ wss.on('connection', (ws) => {
         if (!ws.playerRoom) break;
         const aimAngle = (msg.aimAngle !== undefined) ? msg.aimAngle : null;
         const attackSlot = msg.slot || 1;
-        const abilityResult = gameLoop.tryUseAbility(ws.playerRoom, playerId, attackSlot, aimAngle);
+        const abilityResult = gameLoop.tryUseAbility(ws.playerRoom, playerId, attackSlot, aimAngle, msg);
         // After a heal, send updated medipac charges to client
         if (abilityResult === 'heal') {
           const healRoom = gameLoop.getRoom(ws.playerRoom);

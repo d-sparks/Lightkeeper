@@ -80,5 +80,14 @@
     "cooldown": 12.0,
     "energyCost": 15,
     "defaultSlot": 3
+  },
+  "sol_teleport": {
+    "name": "Sol Teleport",
+    "type": "teleport",
+    "cooldown": 3.0,
+    "energyCost": 200,
+    "maxRange": 20,
+    "stickDistance": 12,
+    "defaultSlot": 4
   }
 }
