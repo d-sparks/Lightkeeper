@@ -96,10 +96,10 @@
   },
 
   "dialogue_open": {
-    "volume": 0.2,
-    "duration": 0.1,
+    "volume": 0.08,
+    "duration": 0.08,
     "layers": [
-      { "wave": "sine", "freq": 800, "attack": 0.005, "decay": 0.03, "sustain": 0.2, "release": 0.04 }
+      { "wave": "sine", "freq": 500, "attack": 0.01, "decay": 0.03, "sustain": 0.1, "release": 0.03 }
     ]
   },
 

@@ -1753,7 +1753,8 @@
     closeDialogue();
     closeChoiceMenu();
     closeAutomationScreen();
-    // Switch music based on room name
+    // Play floor change SFX and switch music based on room name
+    audio.play('floor_change');
     const roomName = (msg.map.name || '').toLowerCase();
     if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
       audio.playMusic('outpost');
