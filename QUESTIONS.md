@@ -37,3 +37,5 @@
 QUESTION: How soon do you get umbracite, which unlocks automation? Or does it give you your first major new ability?
 
 QUESTION: Exactly how does it start.
+
+QUESTION: Reasonable room size + compression scheme?
