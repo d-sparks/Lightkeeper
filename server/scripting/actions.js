@@ -17,6 +17,7 @@
 //   { type: "setEnergy",    value: 100 }  // or percent: 100
 //   { type: "grantXp",      amount: 50 }
 //   { type: "toggleTile",   x: 5, y: 3 }
+//   { type: "setTile",      x: 5, y: 3, tileId: 3 }
 //   { type: "showChoice",  choiceId: "weapon_choice", prompt: "Choose:", options: [{label, description, value}] }
 //   { type: "giveStructure", structureId: "solar_panel" }
 //   { type: "openAutomation" }
@@ -85,6 +86,9 @@ class ActionExecutor {
         break;
       case 'toggleTile':
         this.doToggleTile(action, context);
+        break;
+      case 'setTile':
+        this.doSetTile(action, context);
         break;
       case 'setQuestObjective':
         this.doSetQuestObjective(action, context);
@@ -448,6 +452,21 @@ class ActionExecutor {
       auto: this.automation.getStateForClient(context.playerId),
       openScreen: true,
     });
+  }
+
+  doSetTile(action, context) {
+    const room = context.room;
+    if (!room) return;
+    const idx = action.y * room.dungeon.width + action.x;
+    room.dungeon.data[idx] = action.tileId;
+    if (this.broadcastToRoom) {
+      this.broadcastToRoom(context.roomId, {
+        type: CONSTANTS.MSG.DOOR_TOGGLE,
+        x: action.x,
+        y: action.y,
+        tileId: action.tileId,
+      });
+    }
   }
 
   doToggleTile(action, context) {
