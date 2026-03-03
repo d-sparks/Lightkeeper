@@ -450,6 +450,7 @@ wss.on('connection', (ws) => {
           type: CONSTANTS.MSG.INVENTORY,
           items: player.inventory,
           equipment: player.equipment,
+          medipacCharges: player.medipacCharges,
         }));
 
         // Send initial ability state
@@ -523,10 +524,13 @@ wss.on('connection', (ws) => {
           });
         } else if (result.interactType === 'pickup') {
           // Send updated inventory to the picking player
+          const pickupRoom = gameLoop.getRoom(ws.playerRoom);
+          const pickupPlayer = pickupRoom && pickupRoom.players.get(playerId);
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.INVENTORY,
             items: result.inventory,
             equipment: result.equipment,
+            medipacCharges: pickupPlayer ? pickupPlayer.medipacCharges : 0,
           }));
           // If silicon was picked up, also send updated automation state
           if (result.item && result.item.type === 'silicon') {
@@ -551,10 +555,13 @@ wss.on('connection', (ws) => {
         if (!ws.playerRoom) break;
         const equipResult = gameLoop.tryEquip(ws.playerRoom, playerId, msg.index);
         if (equipResult) {
+          const equipRoom = gameLoop.getRoom(ws.playerRoom);
+          const equipPlayer = equipRoom && equipRoom.players.get(playerId);
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.INVENTORY,
             items: equipResult.inventory,
             equipment: equipResult.equipment,
+            medipacCharges: equipPlayer ? equipPlayer.medipacCharges : 0,
           }));
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.ABILITY_STATE,
@@ -562,12 +569,10 @@ wss.on('connection', (ws) => {
             cooldowns: equipResult.cooldowns,
           }));
           // Send sol grid state if applicable
-          const room = gameLoop.getRoom(ws.playerRoom);
-          const p = room && room.players.get(playerId);
-          if (p && p.solGrid) {
+          if (equipPlayer && equipPlayer.solGrid) {
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.SOL_GRID,
-              grid: gameLoop.getSolGridForClient(p),
+              grid: gameLoop.getSolGridForClient(equipPlayer),
             }));
           }
         }
@@ -578,10 +583,13 @@ wss.on('connection', (ws) => {
         if (!ws.playerRoom) break;
         const unequipResult = gameLoop.tryUnequip(ws.playerRoom, playerId, msg.slot);
         if (unequipResult) {
+          const unequipRoom2 = gameLoop.getRoom(ws.playerRoom);
+          const unequipPlayer2 = unequipRoom2 && unequipRoom2.players.get(playerId);
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.INVENTORY,
             items: unequipResult.inventory,
             equipment: unequipResult.equipment,
+            medipacCharges: unequipPlayer2 ? unequipPlayer2.medipacCharges : 0,
           }));
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.ABILITY_STATE,
@@ -603,10 +611,13 @@ wss.on('connection', (ws) => {
         if (!ws.playerRoom) break;
         const useResult = gameLoop.tryUseItem(ws.playerRoom, playerId, msg.index);
         if (useResult) {
+          const useRoom = gameLoop.getRoom(ws.playerRoom);
+          const usePlayer = useRoom && useRoom.players.get(playerId);
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.INVENTORY,
             items: useResult.inventory,
             equipment: useResult.equipment,
+            medipacCharges: usePlayer ? usePlayer.medipacCharges : 0,
           }));
         }
         break;
@@ -636,7 +647,20 @@ wss.on('connection', (ws) => {
         if (!ws.playerRoom) break;
         const aimAngle = (msg.aimAngle !== undefined) ? msg.aimAngle : null;
         const attackSlot = msg.slot || 1;
-        gameLoop.tryUseAbility(ws.playerRoom, playerId, attackSlot, aimAngle);
+        const abilityResult = gameLoop.tryUseAbility(ws.playerRoom, playerId, attackSlot, aimAngle);
+        // After a heal, send updated medipac charges to client
+        if (abilityResult === 'heal') {
+          const healRoom = gameLoop.getRoom(ws.playerRoom);
+          const healPlayer = healRoom && healRoom.players.get(playerId);
+          if (healPlayer) {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.INVENTORY,
+              items: healPlayer.inventory,
+              equipment: healPlayer.equipment,
+              medipacCharges: healPlayer.medipacCharges,
+            }));
+          }
+        }
         break;
       }
 
@@ -694,6 +718,7 @@ wss.on('connection', (ws) => {
               type: CONSTANTS.MSG.INVENTORY,
               items: p2.inventory,
               equipment: p2.equipment,
+              medipacCharges: p2.medipacCharges,
             }));
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.ABILITY_STATE,
@@ -722,6 +747,7 @@ wss.on('connection', (ws) => {
               type: CONSTANTS.MSG.INVENTORY,
               items: p3.inventory,
               equipment: p3.equipment,
+              medipacCharges: p3.medipacCharges,
             }));
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.ABILITY_STATE,
@@ -756,17 +782,21 @@ wss.on('connection', (ws) => {
           if (player) {
             for (const give of tradeResult) {
               if (give.type === 'item') {
-                const itemDef = content.getItem(give.itemId);
-                if (itemDef) {
-                  for (let i = 0; i < (give.count || 1); i++) {
-                    player.inventory.push({
-                      name: itemDef.name,
-                      type: give.itemId,
-                      category: itemDef.type,
-                      rarity: itemDef.rarity || 'common',
-                      slot: itemDef.slot || null,
-                      stackable: itemDef.stackable || false,
-                    });
+                if (give.itemId === 'medical_supplies') {
+                  player.medipacCharges = (player.medipacCharges || 0) + (give.count || 1);
+                } else {
+                  const itemDef = content.getItem(give.itemId);
+                  if (itemDef) {
+                    for (let i = 0; i < (give.count || 1); i++) {
+                      player.inventory.push({
+                        name: itemDef.name,
+                        type: give.itemId,
+                        category: itemDef.type,
+                        rarity: itemDef.rarity || 'common',
+                        slot: itemDef.slot || null,
+                        stackable: itemDef.stackable || false,
+                      });
+                    }
                   }
                 }
               }
@@ -776,6 +806,7 @@ wss.on('connection', (ws) => {
               type: CONSTANTS.MSG.INVENTORY,
               items: player.inventory,
               equipment: player.equipment,
+              medipacCharges: player.medipacCharges,
             }));
           }
           ws.send(JSON.stringify({

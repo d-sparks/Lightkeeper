@@ -241,6 +241,7 @@
   let equipmentState = { arms: null, sol_unit: null, medipac: null, accessory: null };
   let abilityState = [null, null, null, null, null, null];
   let cooldownState = [0, 0, 0, 0, 0, 0];
+  let medipacCharges = 0;
   let slot1InteractMode = null; // null or interact label string when slot 1 is overridden
   const SLOT_DISPLAY_NAMES = { arms: 'Arms', sol_unit: 'Sol Unit', medipac: 'Medipac', accessory: 'Accessory' };
 
@@ -1036,16 +1037,36 @@
           desktopSlot.classList.remove('empty');
           const labelEl = desktopSlot.querySelector('.slot-label');
           if (labelEl) labelEl.textContent = label;
+          // Show medipac charge counter
+          let badge = desktopSlot.querySelector('.charge-badge');
+          if (abilityId === 'medipac_heal') {
+            if (!badge) {
+              badge = document.createElement('span');
+              badge.className = 'charge-badge';
+              desktopSlot.appendChild(badge);
+            }
+            badge.textContent = medipacCharges;
+            badge.style.display = '';
+            badge.classList.toggle('empty-charges', medipacCharges <= 0);
+          } else if (badge) {
+            badge.style.display = 'none';
+          }
         }
         if (mobileSlot) {
           mobileSlot.classList.remove('empty');
-          mobileSlot.textContent = label;
+          if (abilityId === 'medipac_heal') {
+            mobileSlot.textContent = label + ' (' + medipacCharges + ')';
+          } else {
+            mobileSlot.textContent = label;
+          }
         }
       } else {
         if (desktopSlot) {
           desktopSlot.classList.add('empty');
           const labelEl = desktopSlot.querySelector('.slot-label');
           if (labelEl) labelEl.innerHTML = '&mdash;';
+          const badge = desktopSlot.querySelector('.charge-badge');
+          if (badge) badge.style.display = 'none';
         }
         if (mobileSlot) {
           mobileSlot.classList.add('empty');
@@ -1117,6 +1138,11 @@
           html += '<span class="slot-item-stats">' + statParts.join(' · ') + '</span>';
         }
         html += '</span>';
+
+        // Show medipac charge count
+        if (slot === 'medipac') {
+          html += '<span class="medipac-charges">' + medipacCharges + ' supplies</span>';
+        }
 
         // Check if this is a sol unit (show OPEN tag on sol_unit slot)
         if (slot === 'sol_unit' && solGridState) {
@@ -1878,6 +1904,10 @@
     if (msg.equipment) {
       equipmentState = msg.equipment;
     }
+    if (msg.medipacCharges !== undefined) {
+      medipacCharges = msg.medipacCharges;
+    }
+    updateActionBar();
     if (menuOpen && (menuTab === 'equipment' || menuTab === 'inventory')) {
       if (menuTab === 'equipment') renderEquipmentSlots();
       if (menuTab === 'inventory') renderInventoryGrid();

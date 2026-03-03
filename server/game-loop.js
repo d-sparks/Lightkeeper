@@ -379,6 +379,7 @@ class GameLoop {
       xp: 0,
       level: 1,
       xpToNextLevel: this._xpForLevel(1),
+      medipacCharges: 0,
     };
 
     room.players.set(playerId, player);
@@ -1242,11 +1243,16 @@ class GameLoop {
   _useHeal(room, player, abilityDef, slotIdx) {
     if (player.health >= player.maxHealth) return false;
 
-    // Check if ability requires a consumable item
+    // Check if ability requires a consumable item (medical_supplies use medipac charges)
     if (abilityDef.consumesItem) {
-      const idx = player.inventory.findIndex(i => i.type === abilityDef.consumesItem);
-      if (idx === -1) return false;
-      player.inventory.splice(idx, 1);
+      if (abilityDef.consumesItem === 'medical_supplies') {
+        if (!player.medipacCharges || player.medipacCharges <= 0) return false;
+        player.medipacCharges--;
+      } else {
+        const idx = player.inventory.findIndex(i => i.type === abilityDef.consumesItem);
+        if (idx === -1) return false;
+        player.inventory.splice(idx, 1);
+      }
     }
 
     // Check energy cost
@@ -1266,7 +1272,7 @@ class GameLoop {
       amount: healAmount, x: player.x, y: player.y,
     });
 
-    return true;
+    return 'heal';
   }
 
   update(dt) {
@@ -1690,6 +1696,9 @@ class GameLoop {
       // Silicon goes to automation resources instead of inventory
       if (closestItem.type === 'silicon') {
         this.automation.addResource(playerId, 'silicon', 1);
+      } else if (closestItem.type === 'medical_supplies') {
+        // Medical supplies go to medipac charges, not inventory
+        player.medipacCharges = (player.medipacCharges || 0) + 1;
       } else {
         player.inventory.push({
           type: closestItem.type,

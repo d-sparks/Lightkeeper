@@ -240,6 +240,20 @@ class ActionExecutor {
       return;
     }
 
+    // Medical supplies go to medipac charges, not inventory
+    if (action.itemType === 'medical_supplies') {
+      player.medipacCharges = (player.medipacCharges || 0) + count;
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.INVENTORY,
+          items: player.inventory,
+          equipment: player.equipment,
+          medipacCharges: player.medipacCharges,
+        });
+      }
+      return;
+    }
+
     for (let i = 0; i < count; i++) {
       player.inventory.push({
         type: action.itemType,
@@ -255,6 +269,7 @@ class ActionExecutor {
         type: CONSTANTS.MSG.INVENTORY,
         items: player.inventory,
         equipment: player.equipment,
+        medipacCharges: player.medipacCharges,
       });
     }
   }
@@ -263,9 +278,14 @@ class ActionExecutor {
     const player = context.player;
     if (!player) return;
 
-    const idx = player.inventory.findIndex(item => item.type === action.itemType);
-    if (idx !== -1) {
-      player.inventory.splice(idx, 1);
+    // Medical supplies use the charge counter
+    if (action.itemType === 'medical_supplies') {
+      if (player.medipacCharges > 0) player.medipacCharges--;
+    } else {
+      const idx = player.inventory.findIndex(item => item.type === action.itemType);
+      if (idx !== -1) {
+        player.inventory.splice(idx, 1);
+      }
     }
 
     // Notify client of inventory change
@@ -274,6 +294,7 @@ class ActionExecutor {
         type: CONSTANTS.MSG.INVENTORY,
         items: player.inventory,
         equipment: player.equipment,
+        medipacCharges: player.medipacCharges,
       });
     }
   }
@@ -321,6 +342,7 @@ class ActionExecutor {
         type: CONSTANTS.MSG.INVENTORY,
         items: player.inventory,
         equipment: player.equipment,
+        medipacCharges: player.medipacCharges,
       });
       this.sendToPlayer(context.playerId, {
         type: CONSTANTS.MSG.ABILITY_STATE,
