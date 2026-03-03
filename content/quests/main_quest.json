@@ -74,10 +74,18 @@
       "completionConditions": [{ "hasFlag": "sol_unit_charged" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
     },
+    "report_to_warden": {
+      "label": "Report to Warden Holt",
+      "description": "Return to the outpost entrance and report to Warden Holt that your Sol Unit is charged.",
+      "prerequisiteSteps": ["charge_sol_unit"],
+      "objective": { "roomId": "outpost_entrance", "tileX": 4, "tileY": 10 },
+      "completionConditions": [{ "hasFlag": "ready_for_perimeter" }],
+      "completionActions": [{ "type": "grantXp", "amount": 10 }]
+    },
     "cross_perimeter": {
       "label": "Cross the Dark Perimeter",
       "description": "Pass through the perimeter gate and traverse the dangerous outer ring to reach the train station.",
-      "prerequisiteSteps": ["charge_sol_unit"],
+      "prerequisiteSteps": ["report_to_warden"],
       "objective": { "roomId": "station_approach" },
       "completionConditions": [{ "hasFlag": "reached_station_approach" }],
       "completionActions": [{ "type": "grantXp", "amount": 30 }]

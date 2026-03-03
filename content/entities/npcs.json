@@ -88,6 +88,13 @@
         { "speaker": "Warden Holt", "text": "Check the mess hall — Surveyor Kade has maps of the route ahead. And if Tannis is conscious, get his report on the perimeter." },
         { "speaker": "Warden Holt", "text": "The notice board in the mess hall has bounty postings too. Every bit of intel helps." }
       ],
+      "sol_unit_charged": [
+        { "speaker": "Warden Holt", "text": "Sol Unit's charged and ready. Good. You've done everything you can here." },
+        { "speaker": "Warden Holt", "text": "The perimeter gate is to the north. Beyond it, you're on your own — no more outpost walls, no more patrols." },
+        { "speaker": "Warden Holt", "text": "The dark perimeter is dangerous ground. Creatures out there are drawn to light, and your Sol Unit will be the brightest thing for kilometers." },
+        { "speaker": "Warden Holt", "text": "Follow the path to the train station. It's the only way to reach Meridian City — and from there, Lighthouse Mara." },
+        { "speaker": "Warden Holt", "text": "Good luck. We're all counting on you." }
+      ],
       "ready_to_leave": [
         { "speaker": "Warden Holt", "text": "You've talked to the right people. You're as ready as anyone can be." },
         { "speaker": "Warden Holt", "text": "Lighthouse Mara is waiting. Don't let us down." }
@@ -139,6 +146,10 @@
       {
         "conditions": [{ "hasFlag": "ready_for_perimeter" }],
         "use": "ready_to_leave"
+      },
+      {
+        "conditions": [{ "hasFlag": "sol_unit_charged" }],
+        "use": "sol_unit_charged"
       },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],

@@ -106,11 +106,25 @@
       "event": "room_entered",
       "conditions": [
         { "hasFlag": "warlord_defeated" },
+        { "not": { "hasFlag": "sol_unit_charged" } },
         { "not": { "hasFlag": "arrived_meridian" } }
       ],
       "actions": [
         { "type": "removeEntity", "entityType": "npc", "npcType": "outpost_warden" }
       ]
+    },
+    {
+      "id": "report_charged_to_warden",
+      "event": "npc_interacted",
+      "filter": { "npcType": "outpost_warden" },
+      "conditions": [
+        { "hasFlag": "sol_unit_charged" },
+        { "not": { "hasFlag": "ready_for_perimeter" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "ready_for_perimeter" }
+      ],
+      "once": true
     },
     {
       "id": "fen_letter_delivery",

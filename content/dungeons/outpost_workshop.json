@@ -55,6 +55,14 @@
       ]
     },
     {
+      "id": "remove_warden_after_charge",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "sol_unit_charged" }],
+      "actions": [
+        { "type": "removeEntity", "entityType": "npc", "npcType": "outpost_warden_workshop" }
+      ]
+    },
+    {
       "id": "auto_open_training_gates",
       "event": "room_entered",
       "conditions": [{ "hasFlag": "received_sol_unit" }],
