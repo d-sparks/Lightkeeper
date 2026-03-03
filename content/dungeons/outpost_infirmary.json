@@ -34,7 +34,7 @@
     { "type": "bandage", "x": 12, "y": 7 }
   ],
   "exits": [
-    { "x": 0, "y": 1, "leadsTo": "outpost_mess_hall", "type": "stairs_up", "spawnX": 17, "spawnY": 12 }
+    { "x": 0, "y": 1, "leadsTo": "outpost_mess_hall", "type": "stairs_up", "spawnX": 1, "spawnY": 12 }
   ],
   "triggers": [
     {
