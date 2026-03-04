@@ -18,6 +18,10 @@ class InputHandler {
     this.onInventory = null;     // () => void
     this.onQuestPanel = null;    // () => void
     this.onMapToggle = null;     // () => void — Tab toggle full map
+    this.onWorldmap = null;      // () => void — toggle worldmap
+    this.onWorldmapNav = null;   // (direction) => void — D-pad/stick in worldmap
+    this.onWorldmapClose = null; // () => void — close worldmap
+    this.worldmapOpen = false;
     this.onMenuOpen = null;      // () => void — Y button toggle menu
     this.onMenuCycle = null;     // (direction) => void — LT/RT when menu open
     this.onMenuNavigate = null;  // (direction) => void — D-pad/stick when menu open
@@ -147,7 +151,7 @@ class InputHandler {
     if (e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault();
       const aimAngle = this.getMouseAimAngle();
-      if (this.onAbility) this.onAbility(1, aimAngle);
+      if (this.onAbility) this.onAbility(1, aimAngle, true);
       return;
     }
 
@@ -179,9 +183,21 @@ class InputHandler {
       return;
     }
 
-    // Escape → close menu
+    // N → worldmap
+    if (e.key === 'n' || e.key === 'N') {
+      e.preventDefault();
+      if (this.worldmapOpen) {
+        if (this.onWorldmapClose) this.onWorldmapClose();
+      } else {
+        if (this.onWorldmap) this.onWorldmap();
+      }
+      return;
+    }
+
+    // Escape → close menu or worldmap
     if (e.key === 'Escape') {
       e.preventDefault();
+      if (this.worldmapOpen && this.onWorldmapClose) { this.onWorldmapClose(); return; }
       if (this.menuOpen && this.onMenuClose) this.onMenuClose();
       return;
     }
@@ -423,6 +439,12 @@ class InputHandler {
       if (Math.sqrt(dx * dx + dy * dy) > 15) {
         aimAngle = Math.atan2(dy, dx);
       }
+    } else if (this.joystickActive) {
+      // Tap without drag: use joystick direction if actively held
+      const jLen = Math.sqrt(this.joyDX * this.joyDX + this.joyDY * this.joyDY);
+      if (jLen > 0.2) {
+        aimAngle = Math.atan2(this.joyDY, this.joyDX);
+      }
     }
 
     if (this.onAbility) this.onAbility(drag.slot, aimAngle);
@@ -549,17 +571,67 @@ class InputHandler {
         this.aimIndicator.active = true;
         this.aimIndicator.angle = gamepadAimAngle;
       }
-    } else if (!this.abilityDrag) {
-      this.aimIndicator.active = false;
+    } else {
+      // Fallback: use left stick direction for aiming when right stick is idle
+      const lLen = Math.sqrt(lx * lx + ly * ly);
+      if (lLen > 0.3) {
+        gamepadAimAngle = Math.atan2(ly, lx);
+      }
+      if (!this.abilityDrag) {
+        this.aimIndicator.active = false;
+      }
     }
 
-    // Y(3) always toggles menu
-    if (pressed(3) && this.onMenuOpen) this.onMenuOpen();
+    // Y(3) always toggles menu (unless worldmap open)
+    if (pressed(3) && !this.worldmapOpen && this.onMenuOpen) this.onMenuOpen();
 
-    // Start(9) / Back(8) → open menu on quests tab
-    if ((pressed(9) || pressed(8)) && this.onQuestPanel) this.onQuestPanel();
+    // Start(9) → open menu on quests tab or close worldmap
+    if (pressed(9)) {
+      if (this.worldmapOpen && this.onWorldmapClose) this.onWorldmapClose();
+      else if (this.onQuestPanel) this.onQuestPanel();
+    }
 
-    if (this.menuOpen) {
+    // Back(8) → toggle worldmap (long press feel: just use it as worldmap toggle)
+    if (pressed(8)) {
+      if (this.worldmapOpen) {
+        if (this.onWorldmapClose) this.onWorldmapClose();
+      } else {
+        if (this.onWorldmap) this.onWorldmap();
+      }
+    }
+
+    if (this.worldmapOpen) {
+      // === WORLDMAP MODE ===
+      // B(1) = close worldmap
+      if (pressed(1) && this.onWorldmapClose) this.onWorldmapClose();
+
+      // D-pad navigation (rising edge)
+      if (pressed(12) && this.onWorldmapNav) this.onWorldmapNav('up');
+      if (pressed(13) && this.onWorldmapNav) this.onWorldmapNav('down');
+      if (pressed(14) && this.onWorldmapNav) this.onWorldmapNav('left');
+      if (pressed(15) && this.onWorldmapNav) this.onWorldmapNav('right');
+
+      // Left stick navigation (throttled)
+      const now = Date.now();
+      if (now - this.menuNavTimer > 200) {
+        if (Math.abs(lx) > 0.5 || Math.abs(ly) > 0.5) {
+          this.menuNavTimer = now;
+          if (this.onWorldmapNav) {
+            if (Math.abs(lx) > Math.abs(ly)) {
+              this.onWorldmapNav(lx > 0 ? 'right' : 'left');
+            } else {
+              this.onWorldmapNav(ly > 0 ? 'down' : 'up');
+            }
+          }
+        }
+      }
+
+      // Suppress movement
+      this.gamepadKeys = { up: false, down: false, left: false, right: false };
+      this.gamepadDX = 0;
+      this.gamepadDY = 0;
+
+    } else if (this.menuOpen) {
       // === MENU OPEN MODE ===
       // A(0) = confirm, B(1) = close
       if (pressed(0) && this.onMenuConfirm) this.onMenuConfirm();
@@ -707,7 +779,7 @@ class InputHandler {
         e.preventDefault();
         if (this.dialogueActive || this.menuOpen) return;
         const aimAngle = this.getMouseAimAngle();
-        if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle);
+        if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle, true);
         return;
       }
 
@@ -734,10 +806,10 @@ class InputHandler {
         return;
       }
 
-      // Shift+left-click: force-cast ability 1 at cursor (stand still)
+      // Shift+left-click: cast selected ability at cursor (stand still)
       if (this.shiftHeld) {
         const aimAngle = this.getMouseAimAngle();
-        if (this.onAbility) this.onAbility(1, aimAngle);
+        if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle, true);
         return;
       }
 

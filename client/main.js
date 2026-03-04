@@ -35,6 +35,7 @@
   const automationOverlay = document.getElementById('automation-overlay');
 
   const soundBtn = document.getElementById('sound-btn');
+  const worldmapBtn = document.getElementById('worldmap-btn');
 
   // --- Instances ---
   const net = new NetClient();
@@ -54,6 +55,12 @@
     e.stopPropagation();
     const muted = audio.toggleMute();
     soundBtn.classList.toggle('muted', muted);
+  });
+
+  // World map button
+  worldmapBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleWorldmap();
   });
 
   // --- Responsive canvas sizing ---
@@ -241,6 +248,7 @@
   let equipmentState = { arms: null, sol_unit: null, medipac: null, accessory: null };
   let abilityState = [null, null, null, null, null, null];
   let cooldownState = [0, 0, 0, 0, 0, 0];
+  let medipacCharges = 0;
   let slot1InteractMode = null; // null or interact label string when slot 1 is overridden
   const SLOT_DISPLAY_NAMES = { arms: 'Arms', sol_unit: 'Sol Unit', medipac: 'Medipac', accessory: 'Accessory' };
 
@@ -364,6 +372,393 @@
   let automationScreenOpen = false;
   let automationSelectedStructure = null; // structureId selected for placement
 
+  // --- Worldmap state ---
+  let worldmapData = null;          // Full worldmap JSON from server
+  let worldmapCurrentLocation = null; // Location id player is in
+  let worldmapOpen = false;
+  let worldmapHoveredLocation = null; // Location id under cursor
+  let worldmapSelectedIndex = 0;      // Index for gamepad navigation
+  let worldmapAnimFrame = null;       // Animation frame id
+
+  const worldmapOverlay = document.getElementById('worldmap-overlay');
+  const worldmapCanvas = document.getElementById('worldmap-canvas');
+  const worldmapCtx = worldmapCanvas.getContext('2d');
+  const worldmapTooltip = document.getElementById('worldmap-tooltip');
+  const worldmapCloseBtn = document.getElementById('worldmap-close');
+
+  function openWorldmap() {
+    if (!worldmapData || worldmapOpen) return;
+    worldmapOpen = true;
+    input.dialogueActive = true;
+    input.worldmapOpen = true;
+    closeMenu();
+    closeDialogue();
+    renderer.fullMap = false;
+    worldmapOverlay.style.display = 'block';
+    worldmapHoveredLocation = null;
+    worldmapTooltip.style.display = 'none';
+    // Size canvas to overlay
+    worldmapCanvas.width = worldmapOverlay.clientWidth;
+    worldmapCanvas.height = worldmapOverlay.clientHeight;
+    // Set initial gamepad cursor to current location
+    if (worldmapCurrentLocation && worldmapData.locations) {
+      const idx = worldmapData.locations.findIndex(l => l.id === worldmapCurrentLocation);
+      worldmapSelectedIndex = idx >= 0 ? idx : 0;
+    }
+    renderWorldmapLoop();
+    audio.play('menu_open');
+  }
+
+  function closeWorldmap() {
+    if (!worldmapOpen) return;
+    worldmapOpen = false;
+    input.dialogueActive = false;
+    input.worldmapOpen = false;
+    worldmapOverlay.style.display = 'none';
+    worldmapTooltip.style.display = 'none';
+    if (worldmapAnimFrame) {
+      cancelAnimationFrame(worldmapAnimFrame);
+      worldmapAnimFrame = null;
+    }
+    audio.play('menu_close');
+  }
+
+  function toggleWorldmap() {
+    if (worldmapOpen) closeWorldmap();
+    else openWorldmap();
+  }
+
+  worldmapCloseBtn.addEventListener('click', closeWorldmap);
+
+  // --- Worldmap rendering ---
+  function getWorldmapLayout() {
+    // Compute pixel positions for all locations based on normalized coords
+    const w = worldmapCanvas.width;
+    const h = worldmapCanvas.height;
+    const pad = 60;
+    const mapW = w - pad * 2;
+    const mapH = h - pad * 2 - 40; // extra top margin for header
+    const topY = pad + 30;
+
+    return {
+      w, h, pad, mapW, mapH, topY,
+      locX: (nx) => pad + nx * mapW,
+      locY: (ny) => topY + ny * mapH,
+    };
+  }
+
+  function renderWorldmapLoop() {
+    if (!worldmapOpen) return;
+    renderWorldmap();
+    worldmapAnimFrame = requestAnimationFrame(renderWorldmapLoop);
+  }
+
+  function renderWorldmap() {
+    if (!worldmapData) return;
+    const ctx = worldmapCtx;
+    const { w, h, pad, mapW, mapH, topY, locX, locY } = getWorldmapLayout();
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Draw zone backgrounds (vertical bands)
+    for (const zone of worldmapData.zones) {
+      const x0 = pad + zone.xRange[0] * mapW;
+      const x1 = pad + zone.xRange[1] * mapW;
+      ctx.fillStyle = zone.bgColor;
+      ctx.fillRect(x0, topY - 20, x1 - x0, mapH + 40);
+
+      // Zone divider line
+      if (zone.xRange[0] > 0) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(x0, topY - 20);
+        ctx.lineTo(x0, topY + mapH + 20);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Zone label at top
+      ctx.fillStyle = zone.color;
+      ctx.globalAlpha = 0.3;
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(zone.name.toUpperCase(), (x0 + x1) / 2, topY - 6);
+      ctx.globalAlpha = 1;
+    }
+
+    // Draw connections (lines between linked locations)
+    const locMap = {};
+    for (const loc of worldmapData.locations) {
+      locMap[loc.id] = loc;
+    }
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 1;
+    for (const conn of worldmapData.connections) {
+      const a = locMap[conn[0]];
+      const b = locMap[conn[1]];
+      if (!a || !b) continue;
+      ctx.beginPath();
+      ctx.moveTo(locX(a.x), locY(a.y));
+      ctx.lineTo(locX(b.x), locY(b.y));
+      ctx.stroke();
+    }
+
+    // Draw locations
+    const now = Date.now();
+    for (let i = 0; i < worldmapData.locations.length; i++) {
+      const loc = worldmapData.locations[i];
+      const px = locX(loc.x);
+      const py = locY(loc.y);
+      const isCurrent = loc.id === worldmapCurrentLocation;
+      const isHovered = loc.id === worldmapHoveredLocation;
+      const isGamepadSelected = !worldmapHoveredLocation && i === worldmapSelectedIndex;
+
+      // Find zone color
+      const zone = worldmapData.zones.find(z => z.id === loc.zone);
+      const color = zone ? zone.color : '#888';
+
+      // Location dot
+      let radius = isCurrent ? 7 : 5;
+      if (isHovered || isGamepadSelected) radius += 2;
+
+      // Pulsing glow for current location
+      if (isCurrent) {
+        const pulse = 0.3 + 0.3 * Math.sin(now / 400);
+        ctx.beginPath();
+        ctx.arc(px, py, radius + 6, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = pulse;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      // Hover/selection glow
+      if (isHovered || isGamepadSelected) {
+        ctx.beginPath();
+        ctx.arc(px, py, radius + 3, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.2;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      // Dot fill
+      ctx.beginPath();
+      ctx.arc(px, py, radius, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.globalAlpha = isCurrent ? 1 : 0.7;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Icon symbol inside dot
+      const iconSymbol = getLocationIcon(loc.icon);
+      if (iconSymbol && radius >= 5) {
+        ctx.fillStyle = '#000';
+        ctx.font = (radius < 6 ? 8 : 10) + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(iconSymbol, px, py + 1);
+      }
+
+      // Dot border
+      ctx.beginPath();
+      ctx.arc(px, py, radius, 0, Math.PI * 2);
+      ctx.strokeStyle = isCurrent ? '#fff' : 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = isCurrent ? 2 : 1;
+      ctx.stroke();
+
+      // Label
+      ctx.fillStyle = isCurrent ? '#fff' : '#aaa';
+      ctx.font = (isCurrent ? 'bold ' : '') + '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(loc.name, px, py + radius + 4);
+    }
+
+    // "YOU ARE HERE" indicator
+    if (worldmapCurrentLocation) {
+      const cur = locMap[worldmapCurrentLocation];
+      if (cur) {
+        const px = locX(cur.x);
+        const py = locY(cur.y);
+        ctx.fillStyle = '#ffa726';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('YOU ARE HERE', px, py - 14);
+      }
+    }
+  }
+
+  function getLocationIcon(iconType) {
+    switch (iconType) {
+      case 'city': return '\u2302';       // house
+      case 'outpost': return '\u2691';    // flag
+      case 'lighthouse': return '\u2600'; // sun
+      case 'dungeon': return '\u2620';    // skull
+      case 'ruin': return '\u25B3';       // triangle
+      case 'cave': return '\u25CF';       // circle
+      case 'settlement': return '\u2616'; // house variant
+      case 'station': return '\u2708';    // plane (transport)
+      case 'frontier': return '\u2694';   // swords
+      case 'array': return '\u2699';      // gear
+      case 'path': return '\u2192';       // arrow
+      case 'cache': return '\u2605';      // star
+      default: return null;
+    }
+  }
+
+  // --- Worldmap mouse interaction ---
+  function getLocationAtPoint(screenX, screenY) {
+    if (!worldmapData) return null;
+    const rect = worldmapCanvas.getBoundingClientRect();
+    const cx = (screenX - rect.left) * (worldmapCanvas.width / rect.width);
+    const cy = (screenY - rect.top) * (worldmapCanvas.height / rect.height);
+    const { locX, locY } = getWorldmapLayout();
+    const hitRadius = 20;
+
+    let closest = null;
+    let closestDist = hitRadius;
+    for (const loc of worldmapData.locations) {
+      const px = locX(loc.x);
+      const py = locY(loc.y);
+      const dx = cx - px;
+      const dy = cy - py;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closest = loc;
+      }
+    }
+    return closest;
+  }
+
+  worldmapCanvas.addEventListener('mousemove', (e) => {
+    if (!worldmapOpen) return;
+    const loc = getLocationAtPoint(e.clientX, e.clientY);
+    if (loc) {
+      worldmapHoveredLocation = loc.id;
+      showWorldmapTooltip(loc, e.clientX, e.clientY);
+    } else {
+      worldmapHoveredLocation = null;
+      worldmapTooltip.style.display = 'none';
+    }
+  });
+
+  worldmapCanvas.addEventListener('click', (e) => {
+    if (!worldmapOpen) return;
+    const loc = getLocationAtPoint(e.clientX, e.clientY);
+    if (loc) {
+      showWorldmapTooltip(loc, e.clientX, e.clientY);
+    } else {
+      closeWorldmap();
+    }
+  });
+
+  // Touch support for worldmap
+  worldmapCanvas.addEventListener('touchstart', (e) => {
+    if (!worldmapOpen || e.touches.length === 0) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const loc = getLocationAtPoint(touch.clientX, touch.clientY);
+    if (loc) {
+      worldmapHoveredLocation = loc.id;
+      showWorldmapTooltip(loc, touch.clientX, touch.clientY);
+    } else {
+      closeWorldmap();
+    }
+  }, { passive: false });
+
+  function showWorldmapTooltip(loc, screenX, screenY) {
+    const zone = worldmapData.zones.find(z => z.id === loc.zone);
+    const zoneColor = zone ? zone.color : '#888';
+    const zoneName = zone ? zone.name : '';
+    const isCurrent = loc.id === worldmapCurrentLocation;
+
+    worldmapTooltip.innerHTML =
+      '<div class="wm-tip-name">' + loc.name + (isCurrent ? ' (Current)' : '') + '</div>' +
+      '<div class="wm-tip-zone" style="color:' + zoneColor + '">' + zoneName + '</div>' +
+      '<div class="wm-tip-desc">' + (loc.description || '') + '</div>';
+    worldmapTooltip.style.display = 'block';
+
+    // Position tooltip near cursor, clamped to viewport
+    const tw = 260;
+    const th = worldmapTooltip.offsetHeight || 80;
+    let tx = screenX + 16;
+    let ty = screenY - th / 2;
+    if (tx + tw > window.innerWidth - 10) tx = screenX - tw - 16;
+    if (ty < 10) ty = 10;
+    if (ty + th > window.innerHeight - 10) ty = window.innerHeight - th - 10;
+    worldmapTooltip.style.left = tx + 'px';
+    worldmapTooltip.style.top = ty + 'px';
+  }
+
+  // Gamepad navigation for worldmap
+  function worldmapNavigate(direction) {
+    if (!worldmapOpen || !worldmapData || worldmapData.locations.length === 0) return;
+    const locs = worldmapData.locations;
+    const cur = locs[worldmapSelectedIndex];
+    if (!cur) return;
+
+    // Find nearest location in the given direction
+    let bestIdx = -1;
+    let bestScore = Infinity;
+    const { locX, locY } = getWorldmapLayout();
+    const cx = locX(cur.x);
+    const cy = locY(cur.y);
+
+    for (let i = 0; i < locs.length; i++) {
+      if (i === worldmapSelectedIndex) continue;
+      const loc = locs[i];
+      const px = locX(loc.x);
+      const py = locY(loc.y);
+      const dx = px - cx;
+      const dy = py - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      // Check direction match
+      let match = false;
+      if (direction === 'right' && dx > 20) match = true;
+      if (direction === 'left' && dx < -20) match = true;
+      if (direction === 'down' && dy > 20) match = true;
+      if (direction === 'up' && dy < -20) match = true;
+
+      if (match) {
+        // Score: distance with penalty for perpendicular offset
+        const perpendicular = (direction === 'left' || direction === 'right') ? Math.abs(dy) : Math.abs(dx);
+        const score = dist + perpendicular * 0.5;
+        if (score < bestScore) {
+          bestScore = score;
+          bestIdx = i;
+        }
+      }
+    }
+
+    if (bestIdx >= 0) {
+      worldmapSelectedIndex = bestIdx;
+      worldmapHoveredLocation = null;
+      // Show tooltip for gamepad-selected location
+      const loc = locs[worldmapSelectedIndex];
+      const { locX: lx, locY: ly } = getWorldmapLayout();
+      const rect = worldmapCanvas.getBoundingClientRect();
+      const sx = rect.left + (lx(loc.x) / worldmapCanvas.width) * rect.width;
+      const sy = rect.top + (ly(loc.y) / worldmapCanvas.height) * rect.height;
+      showWorldmapTooltip(loc, sx, sy);
+      audio.play('dialogue_advance');
+    }
+  }
+
+  // Resize handler for worldmap canvas
+  function resizeWorldmapCanvas() {
+    if (!worldmapOpen) return;
+    worldmapCanvas.width = worldmapOverlay.clientWidth;
+    worldmapCanvas.height = worldmapOverlay.clientHeight;
+  }
+  window.addEventListener('resize', resizeWorldmapCanvas);
+
   // --- Unified character menu state ---
   let menuOpen = false;
   let menuTab = 'equipment';
@@ -463,7 +858,7 @@
     if (menuTab === 'inventory') return characterMenu.querySelectorAll('.inv-grid-cell');
     if (menuTab === 'solgrid') return characterMenu.querySelectorAll('.sol-cell');
     if (menuTab === 'auto') return characterMenu.querySelectorAll('.auto-card');
-    if (menuTab === 'quests') return characterMenu.querySelectorAll('.quest-step');
+    if (menuTab === 'quests') return characterMenu.querySelectorAll('.quest-track-btn, .quest-step');
     return [];
   }
 
@@ -1036,16 +1431,36 @@
           desktopSlot.classList.remove('empty');
           const labelEl = desktopSlot.querySelector('.slot-label');
           if (labelEl) labelEl.textContent = label;
+          // Show medipac charge counter
+          let badge = desktopSlot.querySelector('.charge-badge');
+          if (abilityId === 'medipac_heal') {
+            if (!badge) {
+              badge = document.createElement('span');
+              badge.className = 'charge-badge';
+              desktopSlot.appendChild(badge);
+            }
+            badge.textContent = medipacCharges;
+            badge.style.display = '';
+            badge.classList.toggle('empty-charges', medipacCharges <= 0);
+          } else if (badge) {
+            badge.style.display = 'none';
+          }
         }
         if (mobileSlot) {
           mobileSlot.classList.remove('empty');
-          mobileSlot.textContent = label;
+          if (abilityId === 'medipac_heal') {
+            mobileSlot.textContent = label + ' (' + medipacCharges + ')';
+          } else {
+            mobileSlot.textContent = label;
+          }
         }
       } else {
         if (desktopSlot) {
           desktopSlot.classList.add('empty');
           const labelEl = desktopSlot.querySelector('.slot-label');
           if (labelEl) labelEl.innerHTML = '&mdash;';
+          const badge = desktopSlot.querySelector('.charge-badge');
+          if (badge) badge.style.display = 'none';
         }
         if (mobileSlot) {
           mobileSlot.classList.add('empty');
@@ -1117,6 +1532,11 @@
           html += '<span class="slot-item-stats">' + statParts.join(' · ') + '</span>';
         }
         html += '</span>';
+
+        // Show medipac charge count
+        if (slot === 'medipac') {
+          html += '<span class="medipac-charges">' + medipacCharges + ' supplies</span>';
+        }
 
         // Check if this is a sol unit (show OPEN tag on sol_unit slot)
         if (slot === 'sol_unit' && solGridState) {
@@ -1258,6 +1678,24 @@
           cell.classList.add('has-modifier');
           if (!comp.isExtension) {
             cell.textContent = comp.modifierId.replace(/_/g, ' ');
+          }
+        } else if (comp.generatorId) {
+          cell.classList.add('has-generator');
+          if (!comp.isExtension) {
+            let html = '<div class="sol-cell-name">' + (comp.componentName || comp.generatorId.replace(/_/g, ' ')) + '</div>';
+            if (comp.energyRegen) {
+              html += '<div class="sol-mod-tag">+' + comp.energyRegen + '/s</div>';
+            }
+            cell.innerHTML = html;
+          }
+        } else if (comp.batteryId) {
+          cell.classList.add('has-battery');
+          if (!comp.isExtension) {
+            let html = '<div class="sol-cell-name">' + (comp.componentName || comp.batteryId.replace(/_/g, ' ')) + '</div>';
+            if (comp.energyCapacity) {
+              html += '<div class="sol-mod-tag">+' + comp.energyCapacity + ' cap</div>';
+            }
+            cell.innerHTML = html;
           }
         }
         if (comp.isExtension) {
@@ -1437,27 +1875,33 @@
       }
     }
 
-    // Slot 1 interact override: if there's an interactable nearby and no monsters nearby,
-    // override slot 1 to show the interact action instead of the normal ability
+    // Slot 1 interact override: override slot 1 to show the interact action.
+    // Items always override slot 1 (pickup should work even in combat).
+    // Doors/NPCs only override when no monsters are nearby.
     const prevMode = slot1InteractMode;
     slot1InteractMode = null;
 
     if (label) {
-      // Check if any alive monsters are within aggro range
-      let monstersNearby = false;
-      if (renderer.state.monsters) {
-        const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * ts;
-        for (const mob of renderer.state.monsters) {
-          if (mob.health <= 0) continue;
-          const dx = mob.x - me.x, dy = mob.y - me.y;
-          if (Math.sqrt(dx * dx + dy * dy) < aggroRange) {
-            monstersNearby = true;
-            break;
+      if (label === 'Pick up') {
+        // Items always take priority — pickup should work even in combat
+        slot1InteractMode = label;
+      } else {
+        // Doors/NPCs: only override when no monsters are nearby
+        let monstersNearby = false;
+        if (renderer.state.monsters) {
+          const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * ts;
+          for (const mob of renderer.state.monsters) {
+            if (mob.health <= 0) continue;
+            const dx = mob.x - me.x, dy = mob.y - me.y;
+            if (Math.sqrt(dx * dx + dy * dy) < aggroRange) {
+              monstersNearby = true;
+              break;
+            }
           }
         }
-      }
-      if (!monstersNearby) {
-        slot1InteractMode = label;
+        if (!monstersNearby) {
+          slot1InteractMode = label;
+        }
       }
     }
 
@@ -1534,7 +1978,7 @@
   let lastFacing = 0;
 
   // --- Ability dispatch ---
-  input.onAbility = function (slot, aimAngle) {
+  input.onAbility = function (slot, aimAngle, isMouseTarget) {
     // Slot 1 interact override: behave like interact key
     if (slot === 1 && slot1InteractMode) {
       if (dialogueActive) { advanceDialogue(); return; }
@@ -1563,7 +2007,13 @@
       aimAngle = lastFacing;
     }
 
-    net.send({ type: CONSTANTS.MSG.ATTACK, aimAngle, slot });
+    const msg = { type: CONSTANTS.MSG.ATTACK, aimAngle, slot };
+    // Include mouse world position for position-based abilities (e.g. teleport)
+    if (isMouseTarget && input.mouseActive) {
+      msg.targetX = Math.round(input.mouseWorldX);
+      msg.targetY = Math.round(input.mouseWorldY);
+    }
+    net.send(msg);
     audio.play('ability_cast');
   };
 
@@ -1582,7 +2032,20 @@
   };
 
   input.onMapToggle = function () {
+    if (worldmapOpen) { closeWorldmap(); return; }
     renderer.toggleFullMap();
+  };
+
+  input.onWorldmap = function () {
+    toggleWorldmap();
+  };
+
+  input.onWorldmapNav = function (dir) {
+    worldmapNavigate(dir);
+  };
+
+  input.onWorldmapClose = function () {
+    closeWorldmap();
   };
 
   input.onQuestPanel = function () {
@@ -1607,6 +2070,7 @@
   };
 
   input.onMenuClose = function () {
+    if (worldmapOpen) { closeWorldmap(); return; }
     if (automationScreenOpen) { closeAutomationScreen(); return; }
     closeMenu();
   };
@@ -1749,11 +2213,13 @@
     renderer.setMap(msg.map, msg.tileset);
     renderer.fullMap = false;
     input.clearMoveTarget();
-    // Close any open dialogue, choice menu, or automation screen
+    // Close any open dialogue, choice menu, worldmap, or automation screen
     closeDialogue();
     closeChoiceMenu();
     closeAutomationScreen();
-    // Switch music based on room name
+    closeWorldmap();
+    // Play floor change SFX and switch music based on room name
+    audio.play('floor_change');
     const roomName = (msg.map.name || '').toLowerCase();
     if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
       audio.playMusic('outpost');
@@ -1854,6 +2320,15 @@
     audio.play('quest_started');
   });
 
+  net.on(CONSTANTS.MSG.WORLDMAP, (msg) => {
+    if (msg.worldmap) {
+      worldmapData = msg.worldmap;
+    }
+    if (msg.currentLocation) {
+      worldmapCurrentLocation = msg.currentLocation;
+    }
+  });
+
   net.on(CONSTANTS.MSG.AUTO_STATE, (msg) => {
     autoState = msg.auto || null;
 
@@ -1877,6 +2352,10 @@
     if (msg.equipment) {
       equipmentState = msg.equipment;
     }
+    if (msg.medipacCharges !== undefined) {
+      medipacCharges = msg.medipacCharges;
+    }
+    updateActionBar();
     if (menuOpen && (menuTab === 'equipment' || menuTab === 'inventory')) {
       if (menuTab === 'equipment') renderEquipmentSlots();
       if (menuTab === 'inventory') renderInventoryGrid();

@@ -66,6 +66,10 @@ class ConditionEvaluator {
     if (condition.hasItem !== undefined) {
       const player = context.player;
       if (!player) return false;
+      // Medical supplies are stored as medipac charges, not inventory items
+      if (condition.hasItem === 'medical_supplies') {
+        return (player.medipacCharges || 0) > 0;
+      }
       return player.inventory.some(item => item.type === condition.hasItem);
     }
 

@@ -15,6 +15,7 @@ class ContentLoader {
     this.quests = {};
     this.templates = {};
     this.structures = {};
+    this.worldmap = null;
     this.settings = {};
   }
 
@@ -31,6 +32,7 @@ class ContentLoader {
     this.loadQuests();
     this.loadTemplates();
     this.loadStructures();
+    this.loadWorldmap();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
                 `${Object.keys(this.monsters).length} monster type(s), ` +
@@ -233,6 +235,29 @@ class ContentLoader {
 
   getStructures() {
     return this.structures;
+  }
+
+  loadWorldmap() {
+    const filePath = path.join(this.contentDir, 'worldmap.json');
+    if (!fs.existsSync(filePath)) {
+      this.worldmap = null;
+      return;
+    }
+    this.worldmap = this.loadJSON(filePath);
+    console.log(`[Content]   Worldmap: ${(this.worldmap.locations || []).length} locations, ${(this.worldmap.connections || []).length} connections`);
+  }
+
+  getWorldmap() {
+    return this.worldmap;
+  }
+
+  // Find which worldmap location a room belongs to
+  getWorldmapLocation(roomId) {
+    if (!this.worldmap) return null;
+    for (const loc of this.worldmap.locations) {
+      if (loc.rooms && loc.rooms.includes(roomId)) return loc.id;
+    }
+    return null;
   }
 
   getTileset(id) {

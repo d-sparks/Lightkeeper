@@ -375,10 +375,12 @@ class GameLoop {
       solGrid: null,
       energy: 0,
       maxEnergy: 0,
+      solGridEnergyRegen: 0,
       questObjective: null,
       xp: 0,
       level: 1,
       xpToNextLevel: this._xpForLevel(1),
+      medipacCharges: 0,
     };
 
     room.players.set(playerId, player);
@@ -587,11 +589,12 @@ class GameLoop {
             }
           }
         } else {
-          // Find a monster to point at
+          // Find a monster to point at (prefer specific type if given)
           for (const mob of room.monsters.values()) {
+            if (obj.targetMonster && mob.type !== obj.targetMonster) continue;
             tileX = Math.floor(mob.x / CONSTANTS.TILE_SIZE);
             tileY = Math.floor(mob.y / CONSTANTS.TILE_SIZE);
-            break; // Use first monster as fallback target
+            break;
           }
         }
       }
@@ -677,24 +680,42 @@ class GameLoop {
       const cell = grid.cells[i];
       if (!cell) { clientCells.push(null); continue; }
       const clientCell = Object.assign({}, cell);
-      // For ability cells (non-extension), compute and attach modifier info
-      if (cell.abilityId && !cell.isExtension) {
-        const x = i % size;
-        const y = Math.floor(i / size);
-        const mods = this._getAdjacentModifiers(grid, x, y);
-        if (mods.length > 0) {
-          clientCell.modifiers = mods.map(m => ({
-            name: m.name,
-            bonus: m.bonus,
-          }));
+      if (!cell.isExtension) {
+        // For ability cells, compute and attach modifier info
+        if (cell.abilityId) {
+          const x = i % size;
+          const y = Math.floor(i / size);
+          const mods = this._getAdjacentModifiers(grid, x, y);
+          if (mods.length > 0) {
+            clientCell.modifiers = mods.map(m => ({
+              name: m.name,
+              bonus: m.bonus,
+            }));
+          }
+          // Also include base ability stats for display
+          const abilityDef = this.content.getAbility(cell.abilityId);
+          if (abilityDef) {
+            clientCell.baseStats = {
+              damageMultiplier: abilityDef.damageMultiplier || 1.0,
+              cooldown: abilityDef.cooldown || 0.5,
+            };
+          }
         }
-        // Also include base ability stats for display
-        const abilityDef = this.content.getAbility(cell.abilityId);
-        if (abilityDef) {
-          clientCell.baseStats = {
-            damageMultiplier: abilityDef.damageMultiplier || 1.0,
-            cooldown: abilityDef.cooldown || 0.5,
-          };
+        // For generator cells, include regen info
+        if (cell.generatorId) {
+          const compDef = this.content.getSolComponent(cell.generatorId);
+          if (compDef) {
+            clientCell.componentName = compDef.name;
+            clientCell.energyRegen = compDef.energyRegen;
+          }
+        }
+        // For battery cells, include capacity info
+        if (cell.batteryId) {
+          const compDef = this.content.getSolComponent(cell.batteryId);
+          if (compDef) {
+            clientCell.componentName = compDef.name;
+            clientCell.energyCapacity = compDef.energyCapacity;
+          }
         }
       }
       clientCells.push(clientCell);
@@ -755,12 +776,17 @@ class GameLoop {
       }
     }
 
-    // Sol grid abilities (if sol unit is equipped, scan grid for ability components)
+    // Sol grid: scan for abilities, generators, and batteries
+    player.solGridEnergyRegen = 0;
+    let extraMaxEnergy = 0;
     if (player.solGrid) {
       for (let y = 0; y < player.solGrid.size; y++) {
         for (let x = 0; x < player.solGrid.size; x++) {
           const cell = player.solGrid.cells[y * player.solGrid.size + x];
-          if (cell && cell.abilityId && !cell.isExtension) {
+          if (!cell || cell.isExtension) continue;
+
+          // Abilities
+          if (cell.abilityId) {
             const abilityDef = this.content.getAbility(cell.abilityId);
             if (abilityDef) {
               const slotIdx = (abilityDef.defaultSlot || 1) - 1;
@@ -775,8 +801,25 @@ class GameLoop {
               }
             }
           }
+
+          // Generators — passive energy regen per second
+          if (cell.generatorId) {
+            const compDef = this.content.getSolComponent(cell.generatorId);
+            if (compDef && compDef.energyRegen) {
+              player.solGridEnergyRegen += compDef.energyRegen;
+            }
+          }
+
+          // Batteries — extra energy capacity
+          if (cell.batteryId) {
+            const compDef = this.content.getSolComponent(cell.batteryId);
+            if (compDef && compDef.energyCapacity) {
+              extraMaxEnergy += compDef.energyCapacity;
+            }
+          }
         }
       }
+      player.maxEnergy += extraMaxEnergy;
     }
   }
 
@@ -884,6 +927,8 @@ class GameLoop {
         };
         if (compDef.type === 'ability' && compDef.abilityId) cell.abilityId = compDef.abilityId;
         if (compDef.type === 'modifier') cell.modifierId = itemDef.solComponentId;
+        if (compDef.type === 'generator') cell.generatorId = itemDef.solComponentId;
+        if (compDef.type === 'battery') cell.batteryId = itemDef.solComponentId;
         if (sx !== 0 || sy !== 0) cell.isExtension = true;
         player.solGrid.cells[cy * size + cx] = cell;
       }
@@ -911,6 +956,10 @@ class GameLoop {
     let solComponentId = null;
     if (clickedCell.modifierId) {
       solComponentId = clickedCell.modifierId;
+    } else if (clickedCell.generatorId) {
+      solComponentId = clickedCell.generatorId;
+    } else if (clickedCell.batteryId) {
+      solComponentId = clickedCell.batteryId;
     } else if (clickedCell.abilityId) {
       // Find sol component by abilityId
       const comp = this._findSolComponentByAbility(clickedCell.abilityId);
@@ -950,7 +999,7 @@ class GameLoop {
   }
 
   // Use an ability from a given slot
-  tryUseAbility(roomId, playerId, slot, aimAngle) {
+  tryUseAbility(roomId, playerId, slot, aimAngle, extraData) {
     const room = this.rooms.get(roomId);
     if (!room) return false;
     const player = room.players.get(playerId);
@@ -983,6 +1032,8 @@ class GameLoop {
         return this._useMeleeStrike(room, player, abilityDef, slotIdx);
       case 'heal':
         return this._useHeal(room, player, abilityDef, slotIdx);
+      case 'teleport':
+        return this._useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData);
       default:
         return false;
     }
@@ -1053,8 +1104,10 @@ class GameLoop {
       player.energy -= abilityDef.energyCost;
     }
 
-    // Cone always fires in the direction the player is facing
-    const dirAngle = player.facing || 0;
+    // Use aim angle if provided, otherwise fall back to player facing direction
+    const dirAngle = (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle))
+      ? aimAngle
+      : (player.facing || 0);
 
     const coneRange = (abilityDef.coneRange || 3) * CONSTANTS.TILE_SIZE;
     const halfAngle = ((abilityDef.coneAngle || 60) / 2) * (Math.PI / 180);
@@ -1242,11 +1295,16 @@ class GameLoop {
   _useHeal(room, player, abilityDef, slotIdx) {
     if (player.health >= player.maxHealth) return false;
 
-    // Check if ability requires a consumable item
+    // Check if ability requires a consumable item (medical_supplies use medipac charges)
     if (abilityDef.consumesItem) {
-      const idx = player.inventory.findIndex(i => i.type === abilityDef.consumesItem);
-      if (idx === -1) return false;
-      player.inventory.splice(idx, 1);
+      if (abilityDef.consumesItem === 'medical_supplies') {
+        if (!player.medipacCharges || player.medipacCharges <= 0) return false;
+        player.medipacCharges--;
+      } else {
+        const idx = player.inventory.findIndex(i => i.type === abilityDef.consumesItem);
+        if (idx === -1) return false;
+        player.inventory.splice(idx, 1);
+      }
     }
 
     // Check energy cost
@@ -1264,6 +1322,97 @@ class GameLoop {
     room.events.push({
       type: 'heal', targetId: player.id,
       amount: healAmount, x: player.x, y: player.y,
+    });
+
+    return 'heal';
+  }
+
+  _useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData) {
+    // Check energy cost
+    if (abilityDef.energyCost) {
+      if (player.energy < abilityDef.energyCost) return false;
+    }
+
+    const ts = CONSTANTS.TILE_SIZE;
+    let targetX, targetY;
+
+    if (extraData && extraData.targetX !== undefined && extraData.targetY !== undefined) {
+      // Mouse click: teleport to click position, capped at max range
+      const maxRange = (abilityDef.maxRange || 20) * ts;
+      const dx = extraData.targetX - player.x;
+      const dy = extraData.targetY - player.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > maxRange) {
+        targetX = player.x + (dx / dist) * maxRange;
+        targetY = player.y + (dy / dist) * maxRange;
+      } else {
+        targetX = extraData.targetX;
+        targetY = extraData.targetY;
+      }
+    } else if (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle)) {
+      // Stick/shift: teleport in direction by fixed distance (~3/4 screen)
+      const fixedDist = (abilityDef.stickDistance || 12) * ts;
+      targetX = player.x + Math.cos(aimAngle) * fixedDist;
+      targetY = player.y + Math.sin(aimAngle) * fixedDist;
+    } else {
+      return false; // No direction provided
+    }
+
+    // Clamp to map bounds
+    const dungeon = room.dungeon;
+    targetX = Math.max(ts * 0.5, Math.min(targetX, (dungeon.width - 0.5) * ts));
+    targetY = Math.max(ts * 0.5, Math.min(targetY, (dungeon.height - 0.5) * ts));
+
+    // If target is inside a solid tile, walk back along the line to find a valid spot
+    const tileX = Math.floor(targetX / ts);
+    const tileY = Math.floor(targetY / ts);
+    if (this.content.isSolid(dungeon, tileX, tileY)) {
+      const dx = targetX - player.x;
+      const dy = targetY - player.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 1) return false;
+      // Step backward along the line in half-tile increments
+      const stepSize = ts * 0.5;
+      const steps = Math.floor(dist / stepSize);
+      let found = false;
+      for (let i = steps - 1; i >= 0; i--) {
+        const ratio = (i * stepSize) / dist;
+        const cx = player.x + dx * ratio;
+        const cy = player.y + dy * ratio;
+        const ctx = Math.floor(cx / ts);
+        const cty = Math.floor(cy / ts);
+        if (!this.content.isSolid(dungeon, ctx, cty)) {
+          targetX = cx;
+          targetY = cy;
+          found = true;
+          break;
+        }
+      }
+      if (!found) return false; // No valid position along the line
+    }
+
+    // Deduct energy
+    player.energy -= abilityDef.energyCost;
+
+    const fromX = player.x;
+    const fromY = player.y;
+
+    // Teleport
+    player.x = targetX;
+    player.y = targetY;
+
+    // Resolve any remaining wall overlaps at the destination
+    this.physics.resolveCollisions(player, dungeon);
+
+    // Set cooldown
+    player.cooldowns[slotIdx] = abilityDef.cooldown || 3.0;
+
+    // Send teleport effect event for client rendering
+    room.events.push({
+      type: 'teleport',
+      targetId: player.id,
+      fromX, fromY,
+      toX: player.x, toY: player.y,
     });
 
     return true;
@@ -1287,10 +1436,10 @@ class GameLoop {
             player.cooldowns[i] = Math.max(0, player.cooldowns[i] - dt);
           }
         }
-        // No passive energy regeneration — sol units must be charged at stations
-        // ...except solar panel energy regen on the dayside
+        // Energy regeneration: solar panels (dayside) + sol grid generators
         if (player.maxEnergy > 0) {
-          const regenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
+          let regenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
+          if (player.solGridEnergyRegen > 0) regenRate += player.solGridEnergyRegen;
           if (regenRate > 0) {
             player.energy = Math.min(player.maxEnergy, player.energy + regenRate * dt);
           }
@@ -1690,6 +1839,9 @@ class GameLoop {
       // Silicon goes to automation resources instead of inventory
       if (closestItem.type === 'silicon') {
         this.automation.addResource(playerId, 'silicon', 1);
+      } else if (closestItem.type === 'medical_supplies') {
+        // Medical supplies go to medipac charges, not inventory
+        player.medipacCharges = (player.medipacCharges || 0) + 1;
       } else {
         player.inventory.push({
           type: closestItem.type,

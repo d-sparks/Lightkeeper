@@ -17,6 +17,7 @@
 //   { type: "setEnergy",    value: 100 }  // or percent: 100
 //   { type: "grantXp",      amount: 50 }
 //   { type: "toggleTile",   x: 5, y: 3 }
+//   { type: "setTile",      x: 5, y: 3, tileId: 3 }
 //   { type: "showChoice",  choiceId: "weapon_choice", prompt: "Choose:", options: [{label, description, value}] }
 //   { type: "giveStructure", structureId: "solar_panel" }
 //   { type: "openAutomation" }
@@ -85,6 +86,9 @@ class ActionExecutor {
         break;
       case 'toggleTile':
         this.doToggleTile(action, context);
+        break;
+      case 'setTile':
+        this.doSetTile(action, context);
         break;
       case 'setQuestObjective':
         this.doSetQuestObjective(action, context);
@@ -240,6 +244,20 @@ class ActionExecutor {
       return;
     }
 
+    // Medical supplies go to medipac charges, not inventory
+    if (action.itemType === 'medical_supplies') {
+      player.medipacCharges = (player.medipacCharges || 0) + count;
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.INVENTORY,
+          items: player.inventory,
+          equipment: player.equipment,
+          medipacCharges: player.medipacCharges,
+        });
+      }
+      return;
+    }
+
     for (let i = 0; i < count; i++) {
       player.inventory.push({
         type: action.itemType,
@@ -255,6 +273,7 @@ class ActionExecutor {
         type: CONSTANTS.MSG.INVENTORY,
         items: player.inventory,
         equipment: player.equipment,
+        medipacCharges: player.medipacCharges,
       });
     }
   }
@@ -263,9 +282,14 @@ class ActionExecutor {
     const player = context.player;
     if (!player) return;
 
-    const idx = player.inventory.findIndex(item => item.type === action.itemType);
-    if (idx !== -1) {
-      player.inventory.splice(idx, 1);
+    // Medical supplies use the charge counter
+    if (action.itemType === 'medical_supplies') {
+      if (player.medipacCharges > 0) player.medipacCharges--;
+    } else {
+      const idx = player.inventory.findIndex(item => item.type === action.itemType);
+      if (idx !== -1) {
+        player.inventory.splice(idx, 1);
+      }
     }
 
     // Notify client of inventory change
@@ -274,6 +298,7 @@ class ActionExecutor {
         type: CONSTANTS.MSG.INVENTORY,
         items: player.inventory,
         equipment: player.equipment,
+        medipacCharges: player.medipacCharges,
       });
     }
   }
@@ -321,6 +346,7 @@ class ActionExecutor {
         type: CONSTANTS.MSG.INVENTORY,
         items: player.inventory,
         equipment: player.equipment,
+        medipacCharges: player.medipacCharges,
       });
       this.sendToPlayer(context.playerId, {
         type: CONSTANTS.MSG.ABILITY_STATE,
@@ -426,6 +452,21 @@ class ActionExecutor {
       auto: this.automation.getStateForClient(context.playerId),
       openScreen: true,
     });
+  }
+
+  doSetTile(action, context) {
+    const room = context.room;
+    if (!room) return;
+    const idx = action.y * room.dungeon.width + action.x;
+    room.dungeon.data[idx] = action.tileId;
+    if (this.broadcastToRoom) {
+      this.broadcastToRoom(context.roomId, {
+        type: CONSTANTS.MSG.DOOR_TOGGLE,
+        x: action.x,
+        y: action.y,
+        tileId: action.tileId,
+      });
+    }
   }
 
   doToggleTile(action, context) {

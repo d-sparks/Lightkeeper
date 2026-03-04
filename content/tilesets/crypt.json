@@ -146,6 +146,22 @@
       "solid": true,
       "interactable": "door",
       "togglesTo": 27
+    },
+    "28": {
+      "name": "sealed_gate_briefing",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "engineer_briefing_complete" }],
+      "failMessage": "Slot the Damage Booster in your Sol Grid first, then talk to the engineer."
+    },
+    "29": {
+      "name": "sealed_gate_training",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "engineer_briefing_complete" }],
+      "failMessage": "The gate is sealed. Talk to the Sol Engineer first."
     }
   }
 }

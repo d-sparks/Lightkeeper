@@ -88,6 +88,13 @@
         { "speaker": "Warden Holt", "text": "Check the mess hall — Surveyor Kade has maps of the route ahead. And if Tannis is conscious, get his report on the perimeter." },
         { "speaker": "Warden Holt", "text": "The notice board in the mess hall has bounty postings too. Every bit of intel helps." }
       ],
+      "sol_unit_charged": [
+        { "speaker": "Warden Holt", "text": "Sol Unit's charged and ready. Good. You've done everything you can here." },
+        { "speaker": "Warden Holt", "text": "The perimeter gate is to the north. Beyond it, you're on your own — no more outpost walls, no more patrols." },
+        { "speaker": "Warden Holt", "text": "The dark perimeter is dangerous ground. Creatures out there are drawn to light, and your Sol Unit will be the brightest thing for kilometers." },
+        { "speaker": "Warden Holt", "text": "Follow the path to the train station. It's the only way to reach Meridian City — and from there, Lighthouse Mara." },
+        { "speaker": "Warden Holt", "text": "Good luck. We're all counting on you." }
+      ],
       "ready_to_leave": [
         { "speaker": "Warden Holt", "text": "You've talked to the right people. You're as ready as anyone can be." },
         { "speaker": "Warden Holt", "text": "Lighthouse Mara is waiting. Don't let us down." }
@@ -139,6 +146,10 @@
       {
         "conditions": [{ "hasFlag": "ready_for_perimeter" }],
         "use": "ready_to_leave"
+      },
+      {
+        "conditions": [{ "hasFlag": "sol_unit_charged" }],
+        "use": "sol_unit_charged"
       },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
@@ -899,22 +910,26 @@
         { "speaker": "Apprentice Sol Engineer", "text": "Be careful. Those luddites don't take kindly to anyone carrying tech." }
       ],
       "has_cylinders": [
-        { "speaker": "Apprentice Sol Engineer", "text": "You found them! Let me see... yes, these are perfect. Undamaged." },
+        { "speaker": "Apprentice Sol Engineer", "text": "You found them! Let me see... yes, perfect. Undamaged." },
         { "speaker": "Apprentice Sol Engineer", "text": "Give me just a moment..." },
-        { "speaker": "Apprentice Sol Engineer", "text": "There. Your Sol Unit is ready. She's not pretty, but she'll keep you alive out there." },
-        { "speaker": "Apprentice Sol Engineer", "text": "It channels concentrated solar energy. Effective against pretty much anything on this rock." },
-        { "speaker": "Apprentice Sol Engineer", "text": "The Sol Unit has a grid inside it. That's where you slot components — abilities and modifiers." },
-        { "speaker": "Apprentice Sol Engineer", "text": "I've already mounted a Sol Beam emitter in the center. That's your main attack. You'll feel it working automatically." },
-        { "speaker": "Apprentice Sol Engineer", "text": "I'm also giving you a Damage Booster chip I had lying around. It's a modifier — it boosts whatever it's placed next to." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Press [I] to open your Inventory, then click OPEN on your weapon slot to see the Sol Grid." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Drag the Damage Booster from your inventory and place it next to the Sol Beam. Adjacent modifiers power up nearby abilities." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Grid placement matters. As you find more components out there, think about what goes next to what. That's the key to a good build." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Fair warning — the unit's running on about five percent charge. There wasn't enough power to fully charge it." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Head through the south door to the training range and put a few rounds downrange. Then go see Tech Maren at the Power Station for a full charge." }
+        { "speaker": "Apprentice Sol Engineer", "text": "There — your Sol Unit's ready. Channels concentrated solar energy. She'll keep you alive out there." },
+        { "speaker": "Apprentice Sol Engineer", "text": "I've mounted a Sol Cone emitter in the center — that's your main attack." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Here, take this Damage Booster chip too. It's a modifier — slot it next to the Sol Cone to power it up." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Press [I] to open your Inventory, click OPEN on your weapon slot, and drag the booster next to the Sol Cone. Talk to me when you're done." }
+      ],
+      "slot_booster_reminder": [
+        { "speaker": "Apprentice Sol Engineer", "text": "Open your Inventory with [I], click OPEN on your weapon slot, and drag the Damage Booster next to the Sol Cone." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Come talk to me once it's in place." }
+      ],
+      "after_booster": [
+        { "speaker": "Apprentice Sol Engineer", "text": "Feel the difference? Adjacent modifiers power up nearby abilities — that's how you build." },
+        { "speaker": "Apprentice Sol Engineer", "text": "As you find more components, think about what goes next to what. Grid placement is everything." },
+        { "speaker": "Apprentice Sol Engineer", "text": "One more thing — energy is precious out here. Every shot costs power, and recharging isn't easy." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Head south to the training range. Put a few rounds downrange, then see Tech Maren at the Power Station to recharge." }
       ],
       "go_train": [
         { "speaker": "Apprentice Sol Engineer", "text": "The training range is through the south door. Go put a few rounds downrange — get a feel for the Sol Beam." },
-        { "speaker": "Apprentice Sol Engineer", "text": "That unit's running on about five percent charge. It's enough to train, but you'll want to hit the Power Station afterward." }
+        { "speaker": "Apprentice Sol Engineer", "text": "Energy's hard to come by, so don't waste it. But you've got enough for some training — hit the Power Station afterward to recharge." }
       ],
       "training_done": [
         { "speaker": "Apprentice Sol Engineer", "text": "Nice shooting. The Sol Beam packs a punch, doesn't it?" },
@@ -940,8 +955,16 @@
         "use": "training_done"
       },
       {
-        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "conditions": [{ "hasFlag": "engineer_briefing_complete" }],
         "use": "go_train"
+      },
+      {
+        "conditions": [{ "hasFlag": "damage_booster_equipped" }],
+        "use": "after_booster"
+      },
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "slot_booster_reminder"
       },
       {
         "conditions": [{ "hasItem": "titanium_cylinders" }],

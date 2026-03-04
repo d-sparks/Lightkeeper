@@ -39,7 +39,7 @@
     "name": "Sol Cone",
     "type": "cone",
     "damageMultiplier": 1.5,
-    "coneRange": 3.0,
+    "coneRange": 4.5,
     "coneAngle": 70,
     "knockback": 96,
     "cooldown": 8.0,
@@ -80,5 +80,14 @@
     "cooldown": 12.0,
     "energyCost": 15,
     "defaultSlot": 3
+  },
+  "sol_teleport": {
+    "name": "Sol Teleport",
+    "type": "teleport",
+    "cooldown": 3.0,
+    "energyCost": 200,
+    "maxRange": 20,
+    "stickDistance": 12,
+    "defaultSlot": 4
   }
 }

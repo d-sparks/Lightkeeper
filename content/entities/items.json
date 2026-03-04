@@ -463,5 +463,26 @@
     "description": "A dark, viscous substance produced by the Gloomvine — the transformed Umbral Seed. It pulses faintly with bioluminescence. A rare material for advanced crafting.",
     "type": "key",
     "rarity": "epic"
+  },
+  "sol_teleport_chip": {
+    "name": "Sol Teleport Emitter",
+    "description": "An advanced Sol component that bends local spacetime. Click to teleport to a target location, or use with a directional input to blink forward. Extremely energy-hungry.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "sol_teleport_emitter"
+  },
+  "uranium_generator_chip": {
+    "name": "Uranium Generator",
+    "description": "A miniaturized fission cell that provides massive passive energy regeneration. Restores 75 energy per second. The pinnacle of pre-Collapse power engineering.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "uranium_generator"
+  },
+  "advanced_rechargeable_battery_chip": {
+    "name": "Advanced Rechargeable Battery",
+    "description": "A military-grade supercapacitor array that adds 5000 energy capacity to your Sol Unit. Endgame power storage for sustained operations deep in the Nightside.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "advanced_rechargeable_battery"
   }
 }

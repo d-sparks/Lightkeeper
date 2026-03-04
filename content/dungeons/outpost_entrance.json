@@ -50,10 +50,10 @@
   "exits": [
     { "x": 39, "y": 11, "leadsTo": "outpost_workshop", "type": "stairs_down", "spawnX": 2, "spawnY": 4 },
     { "x": 19, "y": 23, "leadsTo": "outpost_charging_station", "type": "stairs_down", "spawnX": 12, "spawnY": 1 },
-    { "x": 30, "y": 23, "leadsTo": "outpost_munitions", "type": "stairs_down", "spawnX": 4, "spawnY": 7 },
+    { "x": 30, "y": 23, "leadsTo": "outpost_munitions", "type": "stairs_down", "spawnX": 12, "spawnY": 1 },
     { "x": 10, "y": 0, "leadsTo": "outpost_perimeter", "type": "stairs_up", "spawnX": 14, "spawnY": 17 },
     { "x": 0, "y": 5, "leadsTo": "outpost_comms", "type": "stairs_down", "spawnX": 9, "spawnY": 5 },
-    { "x": 0, "y": 18, "leadsTo": "outpost_mess_hall", "type": "stairs_down", "spawnX": 2, "spawnY": 7 }
+    { "x": 0, "y": 18, "leadsTo": "outpost_mess_hall", "type": "stairs_down", "spawnX": 17, "spawnY": 7 }
   ],
   "triggers": [
     {
@@ -106,11 +106,25 @@
       "event": "room_entered",
       "conditions": [
         { "hasFlag": "warlord_defeated" },
+        { "not": { "hasFlag": "sol_unit_charged" } },
         { "not": { "hasFlag": "arrived_meridian" } }
       ],
       "actions": [
         { "type": "removeEntity", "entityType": "npc", "npcType": "outpost_warden" }
       ]
+    },
+    {
+      "id": "report_charged_to_warden",
+      "event": "npc_interacted",
+      "filter": { "npcType": "outpost_warden" },
+      "conditions": [
+        { "hasFlag": "sol_unit_charged" },
+        { "not": { "hasFlag": "ready_for_perimeter" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "ready_for_perimeter" }
+      ],
+      "once": true
     },
     {
       "id": "fen_letter_delivery",
