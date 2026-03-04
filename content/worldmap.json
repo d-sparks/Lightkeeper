@@ -48,13 +48,13 @@
     },
     {
       "id": "homestead",
-      "name": "Homestead",
+      "name": "Salvage Yard",
       "zone": "habitable",
       "x": 0.42,
       "y": 0.58,
       "icon": "settlement",
-      "description": "A frontier settlement on the edge of the habitable zone.",
-      "rooms": ["homestead_plot", "homestead_interior"]
+      "description": "Your decommissioned relay station on the East Terrace. Build solar collector infrastructure here.",
+      "rooms": ["salvage_yard", "homestead_interior"]
     },
     {
       "id": "outpost_balor",

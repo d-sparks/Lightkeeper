@@ -1095,7 +1095,7 @@
       "default": [
         { "speaker": "Station Master Calloway", "text": "Welcome to Meridian City, traveler. You've come from the frontier, I can tell. That look in your eyes — everyone who crosses the dark has it." },
         { "speaker": "Station Master Calloway", "text": "The city's divided into districts. Head north through the main concourse for the Market Quarter — supplies, weapons, components, everything you need." },
-        { "speaker": "Station Master Calloway", "text": "East corridor leads to the Civic Center — land registration, government offices. If you're claiming a homestead, that's where you go." },
+        { "speaker": "Station Master Calloway", "text": "East corridor leads to the Civic Center — land registration, government offices. If you're claiming a salvage lot, that's where you go." },
         { "speaker": "Station Master Calloway", "text": "West takes you to the Workshop District. Crafters, engineers, practical folk." },
         { "speaker": "Station Master Calloway", "text": "The directory board on the wall has a full listing if you need it. Safe travels." }
       ],
@@ -1210,24 +1210,24 @@
     ],
     "dialogues": {
       "default": [
-        { "speaker": "Land Registrar Hollis", "text": "Meridian City Land Registry. I handle homestead claims, plot transfers, and boundary disputes." },
-        { "speaker": "Land Registrar Hollis", "text": "You're here for a plot? Let me check... You'll need a Frontier Service Certification. Standard requirement — confirms you've completed your tour at a frontier outpost." },
+        { "speaker": "Land Registrar Hollis", "text": "Meridian City Land Registry. I handle salvage lot claims, site transfers, and boundary disputes." },
+        { "speaker": "Land Registrar Hollis", "text": "You're here for a lot? Let me check... You'll need a Frontier Service Certification. Standard requirement — confirms you've completed your tour at a frontier outpost." },
         { "speaker": "Land Registrar Hollis", "text": "Come back once you've got the proper clearance from your commanding officer. Warden Holt at Balor would have filed it, if you've completed your assigned tasks." }
       ],
       "has_certification": [
-        { "speaker": "Land Registrar Hollis", "text": "Frontier Service Certification confirmed. Let me pull up the available plots..." },
-        { "speaker": "Land Registrar Hollis", "text": "Here we are: Plot 7, East Terrace. Good location — morning light, sheltered from the wind, close to the water main." },
-        { "speaker": "Land Registrar Hollis", "text": "I'm filing the deed now. Congratulations — you're officially a Meridian City landholder." },
-        { "speaker": "Land Registrar Hollis", "text": "Head to the Workshop District and talk to Master Crafter Yun. He'll get you started on the essentials — power, water, battery storage. A homestead's only as good as its infrastructure." }
+        { "speaker": "Land Registrar Hollis", "text": "Frontier Service Certification confirmed. Let me pull up the available lots..." },
+        { "speaker": "Land Registrar Hollis", "text": "Here we are: Lot 7, East Terrace. Decommissioned relay station — good location, steady light exposure, close to the water main. Build pads are still intact." },
+        { "speaker": "Land Registrar Hollis", "text": "I'm filing the deed now. Congratulations — you're officially a Meridian City lot holder. That salvage yard is yours to build on." },
+        { "speaker": "Land Registrar Hollis", "text": "Half the game is what you do out there in the dark. The other half is what you build back here — your own solar infrastructure, independent from the Array. Head to the Workshop District and talk to Master Crafter Yun. He'll get you started on the essentials." }
       ],
       "has_deed": [
-        { "speaker": "Land Registrar Hollis", "text": "Your plot's all registered. Plot 7, East Terrace. The deed is in your inventory." },
-        { "speaker": "Land Registrar Hollis", "text": "Talk to Master Crafter Yun in the Workshop District if you haven't already. He'll help you get set up." }
+        { "speaker": "Land Registrar Hollis", "text": "Your lot's all registered. Lot 7, East Terrace. The deed is in your inventory." },
+        { "speaker": "Land Registrar Hollis", "text": "Talk to Master Crafter Yun in the Workshop District if you haven't already. He'll help you get your array infrastructure set up." }
       ]
     },
     "dialogueRules": [
       {
-        "conditions": [{ "hasFlag": "has_homestead_deed" }],
+        "conditions": [{ "hasFlag": "has_yard_deed" }],
         "use": "has_deed"
       },
       {
@@ -1530,7 +1530,7 @@
       ],
       "gloomvine_grown": [
         { "speaker": "Sable", "text": "...What is that?" },
-        { "speaker": "Sable", "text": "Sable moves closer, her eyes wide. The Gloomvine in your homestead pulses with a deep, warm bioluminescence." },
+        { "speaker": "Sable", "text": "Sable moves closer, her eyes wide. The Gloomvine in your shelter pulses with a deep, warm bioluminescence." },
         { "speaker": "Sable", "text": "'That's not just a plant. It's a bridge. Between this world and the deep dark. Between the Dayside and the Nightside.'" },
         { "speaker": "Sable", "text": "'My grandmother talked about these. Gloomvines. They grow where the planet's memory is strongest. Where it wants to be remembered.'" },
         { "speaker": "Sable", "text": "'The Umbral Extract it produces — that's liquid memory. The planet's own substance. It has... properties. Healing. Protection. Things the Array can't replicate.'" },
@@ -1589,15 +1589,15 @@
     "dialogues": {
       "default": [
         { "speaker": "Master Crafter Yun", "text": "Yun's Workshop. I build things that work. No flash, no nonsense." },
-        { "speaker": "Master Crafter Yun", "text": "You're the new homesteader? Good. The city needs people who can work with their hands, not just push papers at the Civic Center." },
+        { "speaker": "Master Crafter Yun", "text": "You're the one who claimed the salvage yard? Good. The city needs people who can work with their hands, not just push papers at the Civic Center." },
         { "speaker": "Master Crafter Yun", "text": "First thing you'll need is power. Rechargeable batteries. I can teach you the process." },
-        { "speaker": "Master Crafter Yun", "text": "You'll need three things: Umbracite from the Nightside, Copper Coils from Reva's shop in the market, and Stabilizing Resin from your homestead plants." },
+        { "speaker": "Master Crafter Yun", "text": "You'll need three things: Umbracite from the Nightside, Copper Coils from Reva's shop in the market, and Stabilizing Compound from your solar collectors." },
         { "speaker": "Master Crafter Yun", "text": "Get the materials, come back, and I'll walk you through the first one." }
       ],
       "has_deed": [
-        { "speaker": "Master Crafter Yun", "text": "You've got your homestead deed. Good. Now the real work begins." },
-        { "speaker": "Master Crafter Yun", "text": "Rechargeable batteries — that's your priority. Without them, your homestead is just a patch of dirt." },
-        { "speaker": "Master Crafter Yun", "text": "Here's what you need: Umbracite, Copper Coils, and Stabilizing Resin. The resin comes from homestead plants — you'll need to grow them." },
+        { "speaker": "Master Crafter Yun", "text": "You've got your salvage yard deed. Good. Now the real work begins." },
+        { "speaker": "Master Crafter Yun", "text": "Rechargeable batteries — that's your priority. Without them, your yard is just a pile of junk." },
+        { "speaker": "Master Crafter Yun", "text": "Here's what you need: Umbracite, Copper Coils, and Stabilizing Compound. The compound comes from your solar collectors — get them installed and producing." },
         { "speaker": "Master Crafter Yun", "text": "And before you ask — yes, the Array could make batteries. They choose not to. Ask yourself why an all-powerful automated system wants humanity dependent on them for power." }
       ],
       "crafting_tutorial": [
@@ -1606,12 +1606,12 @@
         { "speaker": "Master Crafter Yun", "text": "Now you know. Every battery you make from here on is a step toward independence from the Array." }
       ],
       "post_tutorial": [
-        { "speaker": "Master Crafter Yun", "text": "You've got the theory. Now get some Stabilizing Resin from your homestead garden and we'll build your first battery." },
+        { "speaker": "Master Crafter Yun", "text": "You've got the theory. Now get some Stabilizing Compound from your solar collectors and we'll build your first battery." },
         { "speaker": "Master Crafter Yun", "text": "If you need more Copper Coils, Reva's shop has them. Umbracite you'll have to find or trade for." }
       ],
       "post_battery": [
         { "speaker": "Master Crafter Yun", "text": "You're self-sufficient now. That changes everything." },
-        { "speaker": "Master Crafter Yun", "text": "Bring me more materials and I'll help you craft additional batteries. You know the recipe: Umbracite, Copper Coils, and Stabilizing Resin." },
+        { "speaker": "Master Crafter Yun", "text": "Bring me more materials and I'll help you craft additional batteries. You know the recipe: Umbracite, Copper Coils, and Stabilizing Compound." },
         { "speaker": "Master Crafter Yun", "text": "And think about what I said. The Array hoards this knowledge. Every battery you make is a statement." }
       ],
       "challenge_offered": [
@@ -1647,7 +1647,7 @@
         "use": "crafting_tutorial"
       },
       {
-        "conditions": [{ "hasFlag": "has_homestead_deed" }],
+        "conditions": [{ "hasFlag": "has_yard_deed" }],
         "use": "has_deed"
       }
     ]
@@ -1747,29 +1747,29 @@
   "neighbor_sera": {
     "name": "Neighbor Sera",
     "dialogue": [
-      { "speaker": "Neighbor Sera", "text": "Oh, hello! You must be the new owner of Plot 7." }
+      { "speaker": "Neighbor Sera", "text": "Oh, hello! You must be the new owner of Lot 7." }
     ],
     "dialogues": {
       "default": [
-        { "speaker": "Neighbor Sera", "text": "Welcome to the East Terrace! I'm Sera — I've got the plot next door. Plot 6." },
-        { "speaker": "Neighbor Sera", "text": "Fifteen years I've been growing things in this soil. Stabilizing resin bushes, mostly. The twilight zone's got its own rhythms — you learn to work with them." },
-        { "speaker": "Neighbor Sera", "text": "The soil here is good — not too hot, not too cold. That's the whole point of the Ring, isn't it?" },
+        { "speaker": "Neighbor Sera", "text": "Welcome to the East Terrace! I'm Sera — I've got the lot next door. Lot 6." },
+        { "speaker": "Neighbor Sera", "text": "Fifteen years I've been building and maintaining collector arrays on this terrace. The twilight zone's got steady light — you learn to harness it." },
+        { "speaker": "Neighbor Sera", "text": "The light here is reliable — not too bright, not too dim. That's the whole point of the Ring, isn't it?" },
         { "speaker": "Neighbor Sera", "text": "My husband Dorin was a Lightkeeper. Retired after an injury on the perimeter. So I understand your life — the coming and going, the dark out there, the relief of coming home." },
-        { "speaker": "Neighbor Sera", "text": "Here — take this growing guide. And come talk to me when you're ready for seeds." }
+        { "speaker": "Neighbor Sera", "text": "Here — take this handbook. And come talk to me when you're ready for collector kits." }
       ],
-      "seed_shop": [
-        { "speaker": "Neighbor Sera", "text": "Need more seeds? I've always got stock. The resin bushes practically grow themselves once they get started." },
-        { "speaker": "Neighbor Sera", "text": "Plant them in the garden plots, give them time, and they'll produce stabilizing resin. It's the key ingredient for rechargeable batteries." }
+      "parts_shop": [
+        { "speaker": "Neighbor Sera", "text": "Need more collector kits? I've always got stock. Standard issue, but they work." },
+        { "speaker": "Neighbor Sera", "text": "Install them on the build pads, give them time to calibrate, and they'll produce stabilizing compound. It's the key ingredient for rechargeable batteries." }
       ],
       "pest_problem": [
-        { "speaker": "Neighbor Sera", "text": "Those garden mites are back. Tiny little things, but they eat through resin bush roots like nothing." },
-        { "speaker": "Neighbor Sera", "text": "I need a Sonic Repeller to drive them off. Component Dealer Mira in the market might have one, or Master Yun could probably build one at the workshop." },
-        { "speaker": "Neighbor Sera", "text": "If you could help me out, I'd make it worth your while. I've got some Enriched Soil that'll double your next resin harvest." }
+        { "speaker": "Neighbor Sera", "text": "Those scrap drones are back. Old Array maintenance units gone haywire — they keep stripping wire from my collectors." },
+        { "speaker": "Neighbor Sera", "text": "I need an EMP Charge to fry their circuits. Component Dealer Mira in the market might have one, or Master Yun could probably rig one up at the workshop." },
+        { "speaker": "Neighbor Sera", "text": "If you could help me out, I'd make it worth your while. I've got a Power Coupler that'll double the output of your next collector." }
       ],
       "pest_quest_complete": [
-        { "speaker": "Neighbor Sera", "text": "The mites are gone! That repeller works like a charm. My resin bushes are already bouncing back." },
+        { "speaker": "Neighbor Sera", "text": "The drones are scrap! That EMP did the trick. My collectors are running clean again." },
         { "speaker": "Neighbor Sera", "text": "The terrace community looks after each other. That's how we've survived fifteen years on the edge of habitable space." },
-        { "speaker": "Neighbor Sera", "text": "You ever need advice about growing, you come to me. I've forgotten more about Terminator Zone soil than most people ever learn." }
+        { "speaker": "Neighbor Sera", "text": "You ever need advice about array maintenance, you come to me. I've forgotten more about solar collection than most people ever learn." }
       ]
     },
     "dialogueRules": [
@@ -1783,7 +1783,7 @@
       },
       {
         "conditions": [{ "hasFlag": "sera_first_meeting" }],
-        "use": "seed_shop"
+        "use": "parts_shop"
       }
     ]
   },
@@ -1806,7 +1806,7 @@
       ],
       "post_quest": [
         { "speaker": "Vell", "text": "Ember's back home and sleeping on the warm spot by the heater. All's right with the world." },
-        { "speaker": "Vell", "text": "You know, this terrace used to be farmland. Before the city expanded, before the Ring was established. Just open soil and sky." },
+        { "speaker": "Vell", "text": "You know, this terrace used to be a relay station. Before the city expanded, before they decommissioned the old network. Just pylons and open sky." },
         { "speaker": "Vell", "text": "Sometimes I miss those days. Simpler times. But then I remember the dark was closer then, too." }
       ]
     },

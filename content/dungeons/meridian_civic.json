@@ -44,7 +44,7 @@
     { "x": 12, "y": 0, "leadsTo": "meridian_market", "type": "stairs_down", "spawnX": 12, "spawnY": 17 },
     { "x": 24, "y": 16, "leadsTo": "meridian_residential", "type": "stairs_down", "spawnX": 1, "spawnY": 8 },
     { "x": 12, "y": 17, "leadsTo": "meridian_station", "type": "stairs_up", "spawnX": 28, "spawnY": 9 },
-    { "x": 24, "y": 2, "leadsTo": "homestead_plot", "type": "stairs_down", "spawnX": 20, "spawnY": 14 }
+    { "x": 24, "y": 2, "leadsTo": "salvage_yard", "type": "stairs_down", "spawnX": 20, "spawnY": 14 }
   ],
   "triggers": [
     {
@@ -64,13 +64,13 @@
       "filter": { "npcType": "registrar_hollis" },
       "conditions": [
         { "hasFlag": "has_transit_pass" },
-        { "not": { "hasFlag": "has_homestead_deed" } }
+        { "not": { "hasFlag": "has_yard_deed" } }
       ],
       "actions": [
-        { "type": "giveItem", "itemType": "homestead_deed" },
-        { "type": "setFlag", "flag": "has_homestead_deed" },
+        { "type": "giveItem", "itemType": "yard_deed" },
+        { "type": "setFlag", "flag": "has_yard_deed" },
         { "type": "grantXp", "amount": 30 },
-        { "type": "showMessage", "text": "Hollis stamps the deed with a heavy seal. 'Plot 7, East Terrace. It's yours. Don't let it go to waste.'" }
+        { "type": "showMessage", "text": "Hollis stamps the deed with a heavy seal. 'Lot 7, East Terrace — the old relay station salvage yard. It's yours. Clear it out, build it up.'" }
       ],
       "once": true
     },
@@ -112,14 +112,14 @@
       ]
     },
     {
-      "id": "homestead_hint",
+      "id": "yard_hint",
       "event": "room_entered",
       "conditions": [
-        { "hasFlag": "has_homestead_deed" },
+        { "hasFlag": "has_yard_deed" },
         { "not": { "hasFlag": "visited_homestead" } }
       ],
       "actions": [
-        { "type": "showMessage", "text": "You have the Homestead Deed for Plot 7. The East Terrace is accessible through the gate in the northeast wall." }
+        { "type": "showMessage", "text": "You have the Salvage Yard Deed for Lot 7. The East Terrace is accessible through the gate in the northeast wall. Time to start building your solar infrastructure." }
       ],
       "once": true
     },

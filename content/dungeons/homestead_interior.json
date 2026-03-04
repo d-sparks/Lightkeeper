@@ -28,7 +28,7 @@
   "npcSpawns": [],
   "itemSpawns": [],
   "exits": [
-    { "x": 11, "y": 8, "leadsTo": "homestead_plot", "type": "stairs_up", "spawnX": 16, "spawnY": 4 }
+    { "x": 11, "y": 8, "leadsTo": "salvage_yard", "type": "stairs_up", "spawnX": 16, "spawnY": 4 }
   ],
   "triggers": [
     {
@@ -56,8 +56,8 @@
           "You flip through the pages. Notes from your journey so far:",
           "Arrived at Outpost Balor. Received weapon and Sol Unit. Cleared the occupied wing of luddite forces.",
           "Traversed the dark perimeter. Encountered shade stalkers, nest mothers, and the remnants of old relay stations.",
-          "Reached Meridian City via the rail line. Secured a homestead on the East Terrace.",
-          "Current objective: Craft a rechargeable battery. Need Umbracite, Copper Coils, and Stabilizing Resin."
+          "Reached Meridian City via the rail line. Claimed a salvage yard on the East Terrace — started building solar collector infrastructure.",
+          "Current objective: Craft a rechargeable battery. Need Umbracite, Copper Coils, and Stabilizing Compound from the collectors."
         ]}
       ]
     },
@@ -72,7 +72,7 @@
         { "type": "showMessage", "lines": [
           "— PERSONAL LOG —",
           "Crafted first rechargeable battery at Yun's workshop. Self-sufficient power — no longer dependent on Array energy supply.",
-          "The homestead garden is producing stabilizing resin. The terrace community has been welcoming.",
+          "The solar collectors are producing stabilizing compound. The terrace community has been welcoming.",
           "Multiple contacts have asked me to return to the dark perimeter: biological samples for Councillor Denn, survey markers for Archivist Solen, a letter for Warden Holt.",
           "Something is stirring on the Nightside. The planet remembers."
         ]}

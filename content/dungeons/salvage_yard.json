@@ -1,6 +1,6 @@
 {
-  "id": "homestead_plot",
-  "name": "East Terrace — Plot 7",
+  "id": "salvage_yard",
+  "name": "East Terrace — Lot 7, Salvage Yard",
   "depth": 0,
   "tileset": "crypt",
   "tileSize": 32,
@@ -31,8 +31,8 @@
     { "x": 19, "y": 13, "type": "player_start" }
   ],
   "monsterSpawns": [
-    { "type": "garden_mite", "x": 8, "y": 3 },
-    { "type": "garden_mite", "x": 9, "y": 5 }
+    { "type": "scrap_drone", "x": 8, "y": 3 },
+    { "type": "scrap_drone", "x": 9, "y": 5 }
   ],
   "npcSpawns": [
     { "type": "neighbor_sera", "x": 3, "y": 8 },
@@ -46,7 +46,7 @@
   ],
   "triggers": [
     {
-      "id": "remove_mites_no_watch",
+      "id": "remove_drones_no_watch",
       "event": "room_entered",
       "conditions": [
         { "or": [
@@ -55,17 +55,18 @@
         ]}
       ],
       "actions": [
-        { "type": "removeEntity", "entityType": "monster", "monsterType": "garden_mite" }
+        { "type": "removeEntity", "entityType": "monster", "monsterType": "scrap_drone" }
       ]
     },
     {
-      "id": "enter_homestead",
+      "id": "enter_salvage_yard",
       "event": "room_entered",
       "actions": [
         { "type": "setFlag", "flag": "visited_homestead" },
         { "type": "showMessage", "lines": [
-          "Plot 7, East Terrace. It's not much — a patch of soil, a lean-to, and a view of the twilight line. But it's yours.",
-          "Three garden plots sit ready in the northwest corner. A small shelter stands nearby. A community notice board is posted along the path."
+          "Lot 7, East Terrace. A decommissioned relay station — stripped to the foundations. Scrap metal, dead wiring, and cracked solar panels litter the ground. But the mounting pads are intact.",
+          "Three build pads sit in the northwest corner, ready for new collector installations. A small shelter stands nearby. A community notice board is posted along the path.",
+          "This is where you build your own solar infrastructure. Install collectors, generate resources, and start producing the materials the Array won't give you for free."
         ]}
       ],
       "once": true
@@ -80,20 +81,20 @@
       ],
       "actions": [
         { "type": "setFlag", "flag": "sera_first_meeting" },
-        { "type": "giveItem", "itemType": "resin_growing_guide" },
-        { "type": "giveItem", "itemType": "resin_bush_seeds", "count": 2 },
+        { "type": "giveItem", "itemType": "array_handbook" },
+        { "type": "giveItem", "itemType": "collector_kit", "count": 2 },
         { "type": "grantXp", "amount": 15 },
         { "type": "showMessage", "lines": [
-          "Sera hands you a worn notebook and two small seed packets.",
-          "'Resin Bush Seeds. Plant them in the garden plots and they'll grow stabilizing resin — the stuff Master Yun uses for batteries.'",
-          "'Give them a bit of time. Do some exploring, talk to people, and when you come back, they'll be ready for harvest.'"
+          "Sera hands you a technical manual and two collector kits.",
+          "'Solar Collector Kits. Install them on the build pads and they'll process ambient light into stabilizing compound — the stuff Master Yun uses for batteries.'",
+          "'They take a while to calibrate and start producing. Go explore, do some work, and when you come back they'll have output ready for collection.'"
         ]}
       ],
       "once": true
     },
 
     {
-      "id": "sera_seed_shop",
+      "id": "sera_parts_shop",
       "event": "npc_interacted",
       "filter": { "npcType": "neighbor_sera" },
       "conditions": [
@@ -101,19 +102,19 @@
         { "not": { "hasFlag": "pest_quest_started" } }
       ],
       "actions": [
-        { "type": "showChoice", "choiceId": "sera_seeds", "prompt": "Sera's got seeds available. What would you like?", "options": [
-          { "label": "Resin Bush Seeds (x2)", "description": "Seeds for growing stabilizing resin in your garden plots.", "value": "buy_seeds" },
+        { "type": "showChoice", "choiceId": "sera_parts", "prompt": "Sera's got spare collector kits. What would you like?", "options": [
+          { "label": "Collector Kits (x2)", "description": "Kits for building solar collectors on your build pads.", "value": "buy_kits" },
           { "label": "Just chatting", "description": "No purchase needed.", "value": "nothing" }
         ]}
       ]
     },
     {
-      "id": "sera_buy_seeds",
+      "id": "sera_buy_kits",
       "event": "choice_made",
-      "filter": { "choiceId": "sera_seeds", "value": "buy_seeds" },
+      "filter": { "choiceId": "sera_parts", "value": "buy_kits" },
       "actions": [
-        { "type": "giveItem", "itemType": "resin_bush_seeds", "count": 2 },
-        { "type": "showMessage", "text": "Sera hands over two seed packets. 'Plant them, forget about them, come back later. They practically grow themselves.'" }
+        { "type": "giveItem", "itemType": "collector_kit", "count": 2 },
+        { "type": "showMessage", "text": "Sera hands over two collector kits. 'Standard issue, but reliable. Mount them on the pads and they'll do the rest.'" }
       ]
     },
 
@@ -122,15 +123,15 @@
       "event": "npc_interacted",
       "filter": { "npcType": "neighbor_sera" },
       "conditions": [
-        { "hasFlag": "garden_slot_1_planted" },
+        { "hasFlag": "build_pad_1_installed" },
         { "not": { "hasFlag": "pest_quest_started" } }
       ],
       "actions": [
         { "type": "setFlag", "flag": "pest_quest_started" },
         { "type": "showMessage", "lines": [
-          "Sera frowns at her garden next door. 'Those garden mites are back. Tiny little terrors — they chew through resin bush roots.'",
-          "'I need a Sonic Repeller to drive them off. Component Dealer Mira in the market might sell one. Or Master Yun at the workshop could probably build one.'",
-          "'Help me out and I'll give you some Enriched Soil — doubles the resin yield from your next harvest.'"
+          "Sera scowls at her equipment next door. 'Those scrap drones are back. Old Array maintenance units gone haywire — they keep stripping wire from my collectors.'",
+          "'I need an EMP Charge to fry their circuits. Component Dealer Mira in the market might sell one. Or Master Yun at the workshop could probably rig one up.'",
+          "'Help me out and I'll give you a Power Coupler — boosts the output of your next collector installation.'"
         ]}
       ],
       "once": true
@@ -141,284 +142,284 @@
       "filter": { "npcType": "neighbor_sera" },
       "conditions": [
         { "hasFlag": "pest_quest_started" },
-        { "hasItem": "sonic_repeller" },
+        { "hasItem": "emp_charge" },
         { "not": { "hasFlag": "pest_quest_complete" } }
       ],
       "actions": [
-        { "type": "removeItem", "itemType": "sonic_repeller" },
-        { "type": "giveItem", "itemType": "enriched_soil" },
+        { "type": "removeItem", "itemType": "emp_charge" },
+        { "type": "giveItem", "itemType": "power_coupler" },
         { "type": "setFlag", "flag": "pest_quest_complete" },
         { "type": "grantXp", "amount": 30 },
         { "type": "showMessage", "lines": [
-          "Sera activates the Sonic Repeller and places it near her garden bed. A low hum fills the air.",
-          "'There — listen. They're already scattering. Won't come back as long as this thing's running.'",
-          "'Here — Enriched Soil, as promised. Spread it on one of your garden plots before you plant. You'll get double the resin from that harvest.'"
+          "Sera activates the EMP Charge and tosses it into the scrap pile. A sharp crack of static, then silence.",
+          "'There — dead as doornails. They won't be stripping wire anymore.'",
+          "'Here — a Power Coupler, as promised. Wire it into one of your build pads before you install a collector. You'll get double the output from that unit.'"
         ]}
       ],
       "once": true
     },
 
     {
-      "id": "sera_seed_shop_post_pest",
+      "id": "sera_parts_shop_post_pest",
       "event": "npc_interacted",
       "filter": { "npcType": "neighbor_sera" },
       "conditions": [
         { "hasFlag": "pest_quest_complete" }
       ],
       "actions": [
-        { "type": "showChoice", "choiceId": "sera_seeds_post", "prompt": "Sera's got seeds available. What would you like?", "options": [
-          { "label": "Resin Bush Seeds (x2)", "description": "Seeds for growing stabilizing resin in your garden plots.", "value": "buy_seeds" },
+        { "type": "showChoice", "choiceId": "sera_parts_post", "prompt": "Sera's got spare collector kits. What would you like?", "options": [
+          { "label": "Collector Kits (x2)", "description": "Kits for building solar collectors on your build pads.", "value": "buy_kits" },
           { "label": "Just chatting", "description": "No purchase needed.", "value": "nothing" }
         ]}
       ]
     },
     {
-      "id": "sera_buy_seeds_post",
+      "id": "sera_buy_kits_post",
       "event": "choice_made",
-      "filter": { "choiceId": "sera_seeds_post", "value": "buy_seeds" },
+      "filter": { "choiceId": "sera_parts_post", "value": "buy_kits" },
       "actions": [
-        { "type": "giveItem", "itemType": "resin_bush_seeds", "count": 2 },
-        { "type": "showMessage", "text": "Sera hands over two seed packets. 'My best stock. The mites haven't touched these.'" }
+        { "type": "giveItem", "itemType": "collector_kit", "count": 2 },
+        { "type": "showMessage", "text": "Sera hands over two collector kits. 'My best stock. Calibrated them myself.'" }
       ]
     },
 
     {
-      "id": "garden_slot_1_interact_empty",
+      "id": "build_pad_1_interact_empty",
       "event": "door_interacted",
       "filter": { "tileX": 4, "tileY": 4 },
       "conditions": [
-        { "not": { "hasFlag": "garden_slot_1_planted" } },
-        { "hasItem": "resin_bush_seeds" }
+        { "not": { "hasFlag": "build_pad_1_installed" } },
+        { "hasItem": "collector_kit" }
       ],
       "actions": [
-        { "type": "showChoice", "choiceId": "plant_slot_1", "prompt": "An empty garden plot. The soil looks ready for planting.", "options": [
-          { "label": "Plant Seeds", "description": "Plant Resin Bush Seeds in this plot.", "value": "plant" },
-          { "label": "Leave it", "description": "Don't plant anything right now.", "value": "leave" }
+        { "type": "showChoice", "choiceId": "install_pad_1", "prompt": "An empty build pad. The mounting brackets are intact — ready for a collector installation.", "options": [
+          { "label": "Install Collector", "description": "Install a Solar Collector Kit on this pad.", "value": "install" },
+          { "label": "Leave it", "description": "Don't install anything right now.", "value": "leave" }
         ]}
       ]
     },
     {
-      "id": "garden_slot_1_no_seeds",
+      "id": "build_pad_1_no_kits",
       "event": "door_interacted",
       "filter": { "tileX": 4, "tileY": 4 },
       "conditions": [
-        { "not": { "hasFlag": "garden_slot_1_planted" } },
-        { "not": { "hasItem": "resin_bush_seeds" } }
+        { "not": { "hasFlag": "build_pad_1_installed" } },
+        { "not": { "hasItem": "collector_kit" } }
       ],
       "actions": [
-        { "type": "showMessage", "text": "An empty garden plot. You'd need Resin Bush Seeds to plant something here. Neighbor Sera sells them." }
+        { "type": "showMessage", "text": "An empty build pad. You'd need a Solar Collector Kit to install something here. Neighbor Sera has spare kits." }
       ]
     },
     {
-      "id": "garden_slot_1_plant",
+      "id": "build_pad_1_install",
       "event": "choice_made",
-      "filter": { "choiceId": "plant_slot_1", "value": "plant" },
+      "filter": { "choiceId": "install_pad_1", "value": "install" },
       "actions": [
-        { "type": "removeItem", "itemType": "resin_bush_seeds" },
-        { "type": "setFlag", "flag": "garden_slot_1_planted" },
+        { "type": "removeItem", "itemType": "collector_kit" },
+        { "type": "setFlag", "flag": "build_pad_1_installed" },
         { "type": "grantXp", "amount": 5 },
-        { "type": "showMessage", "text": "You kneel and press the seeds into the warm soil. Sera watches approvingly from her plot. 'Good. Give it time — explore the city, do some work, and when you come back, they'll be ready.'" }
+        { "type": "showMessage", "text": "You bolt the collector frame to the mounting pad and wire in the photovoltaic array. Sera watches approvingly from her lot. 'Good. Give it time to calibrate — explore the city, do some work, and when you come back it'll be producing.'" }
       ]
     },
     {
-      "id": "garden_slot_1_growing",
+      "id": "build_pad_1_calibrating",
       "event": "door_interacted",
       "filter": { "tileX": 4, "tileY": 4 },
       "conditions": [
-        { "hasFlag": "garden_slot_1_planted" },
-        { "not": { "hasFlag": "garden_slot_1_ready" } }
+        { "hasFlag": "build_pad_1_installed" },
+        { "not": { "hasFlag": "build_pad_1_producing" } }
       ],
       "actions": [
-        { "type": "showMessage", "text": "The resin bush is growing. Small green shoots push up through the soil. It needs more time — go explore the city or complete some tasks, and it'll be ready when you return." }
+        { "type": "showMessage", "text": "The solar collector hums quietly, panels angled toward the twilight sky. Still calibrating — go explore the city or complete some tasks, and it'll be producing when you return." }
       ]
     },
     {
-      "id": "garden_slot_1_harvest",
+      "id": "build_pad_1_collect",
       "event": "door_interacted",
       "filter": { "tileX": 4, "tileY": 4 },
       "conditions": [
-        { "hasFlag": "garden_slot_1_planted" },
-        { "hasFlag": "garden_slot_1_ready" }
+        { "hasFlag": "build_pad_1_installed" },
+        { "hasFlag": "build_pad_1_producing" }
       ],
       "actions": [
-        { "type": "showChoice", "choiceId": "harvest_slot_1", "prompt": "The resin bush is mature — thick amber resin glistens on its stems.", "options": [
-          { "label": "Harvest", "description": "Collect stabilizing resin from this plant.", "value": "harvest" },
-          { "label": "Leave it", "description": "Let it keep growing.", "value": "leave" }
+        { "type": "showChoice", "choiceId": "collect_pad_1", "prompt": "The solar collector's output reservoir is full — stabilizing compound has crystallized in the collection tray.", "options": [
+          { "label": "Collect Output", "description": "Collect stabilizing compound from this collector.", "value": "collect" },
+          { "label": "Leave it", "description": "Let it keep accumulating.", "value": "leave" }
         ]}
       ]
     },
     {
-      "id": "garden_slot_1_do_harvest",
+      "id": "build_pad_1_do_collect",
       "event": "choice_made",
-      "filter": { "choiceId": "harvest_slot_1", "value": "harvest" },
+      "filter": { "choiceId": "collect_pad_1", "value": "collect" },
       "actions": [
         { "type": "giveItem", "itemType": "stabilizing_resin" },
-        { "type": "removeFlag", "flag": "garden_slot_1_ready" },
+        { "type": "removeFlag", "flag": "build_pad_1_producing" },
         { "type": "grantXp", "amount": 10 },
-        { "type": "showMessage", "text": "You carefully peel a clump of stabilizing resin from the bush's stems. The plant is already starting to produce more — it'll be ready again after you've been out and about." }
+        { "type": "showMessage", "text": "You scrape the crystallized stabilizing compound from the collection tray. The collector is already processing more — it'll have another batch ready after you've been out and about." }
       ]
     },
 
     {
-      "id": "garden_slot_2_interact_empty",
+      "id": "build_pad_2_interact_empty",
       "event": "door_interacted",
       "filter": { "tileX": 6, "tileY": 4 },
       "conditions": [
-        { "not": { "hasFlag": "garden_slot_2_planted" } },
-        { "hasItem": "resin_bush_seeds" }
+        { "not": { "hasFlag": "build_pad_2_installed" } },
+        { "hasItem": "collector_kit" }
       ],
       "actions": [
-        { "type": "showChoice", "choiceId": "plant_slot_2", "prompt": "An empty garden plot. The soil looks ready for planting.", "options": [
-          { "label": "Plant Seeds", "description": "Plant Resin Bush Seeds in this plot.", "value": "plant" },
-          { "label": "Leave it", "description": "Don't plant anything right now.", "value": "leave" }
+        { "type": "showChoice", "choiceId": "install_pad_2", "prompt": "An empty build pad. The mounting brackets are intact — ready for a collector installation.", "options": [
+          { "label": "Install Collector", "description": "Install a Solar Collector Kit on this pad.", "value": "install" },
+          { "label": "Leave it", "description": "Don't install anything right now.", "value": "leave" }
         ]}
       ]
     },
     {
-      "id": "garden_slot_2_no_seeds",
+      "id": "build_pad_2_no_kits",
       "event": "door_interacted",
       "filter": { "tileX": 6, "tileY": 4 },
       "conditions": [
-        { "not": { "hasFlag": "garden_slot_2_planted" } },
-        { "not": { "hasItem": "resin_bush_seeds" } }
+        { "not": { "hasFlag": "build_pad_2_installed" } },
+        { "not": { "hasItem": "collector_kit" } }
       ],
       "actions": [
-        { "type": "showMessage", "text": "An empty garden plot. You'd need Resin Bush Seeds to plant something here." }
+        { "type": "showMessage", "text": "An empty build pad. You'd need a Solar Collector Kit to install something here." }
       ]
     },
     {
-      "id": "garden_slot_2_plant",
+      "id": "build_pad_2_install",
       "event": "choice_made",
-      "filter": { "choiceId": "plant_slot_2", "value": "plant" },
+      "filter": { "choiceId": "install_pad_2", "value": "install" },
       "actions": [
-        { "type": "removeItem", "itemType": "resin_bush_seeds" },
-        { "type": "setFlag", "flag": "garden_slot_2_planted" },
+        { "type": "removeItem", "itemType": "collector_kit" },
+        { "type": "setFlag", "flag": "build_pad_2_installed" },
         { "type": "grantXp", "amount": 5 },
-        { "type": "showMessage", "text": "Seeds planted. Another patch of soil put to work." }
+        { "type": "showMessage", "text": "Another collector mounted and wired. Your array is expanding." }
       ]
     },
     {
-      "id": "garden_slot_2_growing",
+      "id": "build_pad_2_calibrating",
       "event": "door_interacted",
       "filter": { "tileX": 6, "tileY": 4 },
       "conditions": [
-        { "hasFlag": "garden_slot_2_planted" },
-        { "not": { "hasFlag": "garden_slot_2_ready" } }
+        { "hasFlag": "build_pad_2_installed" },
+        { "not": { "hasFlag": "build_pad_2_producing" } }
       ],
       "actions": [
-        { "type": "showMessage", "text": "The resin bush is growing. Thin green tendrils curl upward. Give it time." }
+        { "type": "showMessage", "text": "The solar collector hums quietly, tracking the diffuse light. Still calibrating. Give it more time." }
       ]
     },
     {
-      "id": "garden_slot_2_harvest",
+      "id": "build_pad_2_collect",
       "event": "door_interacted",
       "filter": { "tileX": 6, "tileY": 4 },
       "conditions": [
-        { "hasFlag": "garden_slot_2_planted" },
-        { "hasFlag": "garden_slot_2_ready" }
+        { "hasFlag": "build_pad_2_installed" },
+        { "hasFlag": "build_pad_2_producing" }
       ],
       "actions": [
-        { "type": "showChoice", "choiceId": "harvest_slot_2", "prompt": "The resin bush is mature — thick amber resin glistens on its stems.", "options": [
-          { "label": "Harvest", "description": "Collect stabilizing resin from this plant.", "value": "harvest" },
-          { "label": "Leave it", "description": "Let it keep growing.", "value": "leave" }
+        { "type": "showChoice", "choiceId": "collect_pad_2", "prompt": "The solar collector's output reservoir is full — stabilizing compound has crystallized in the collection tray.", "options": [
+          { "label": "Collect Output", "description": "Collect stabilizing compound from this collector.", "value": "collect" },
+          { "label": "Leave it", "description": "Let it keep accumulating.", "value": "leave" }
         ]}
       ]
     },
     {
-      "id": "garden_slot_2_do_harvest",
+      "id": "build_pad_2_do_collect",
       "event": "choice_made",
-      "filter": { "choiceId": "harvest_slot_2", "value": "harvest" },
+      "filter": { "choiceId": "collect_pad_2", "value": "collect" },
       "actions": [
         { "type": "giveItem", "itemType": "stabilizing_resin" },
-        { "type": "removeFlag", "flag": "garden_slot_2_ready" },
+        { "type": "removeFlag", "flag": "build_pad_2_producing" },
         { "type": "grantXp", "amount": 10 },
-        { "type": "showMessage", "text": "You harvest another clump of stabilizing resin. The amber substance is warm to the touch." }
+        { "type": "showMessage", "text": "You collect another batch of stabilizing compound. The amber substance is warm from the solar processing." }
       ]
     },
 
     {
-      "id": "garden_slot_3_interact_empty",
+      "id": "build_pad_3_interact_empty",
       "event": "door_interacted",
       "filter": { "tileX": 5, "tileY": 5 },
       "conditions": [
-        { "not": { "hasFlag": "garden_slot_3_planted" } },
-        { "hasItem": "resin_bush_seeds" }
+        { "not": { "hasFlag": "build_pad_3_installed" } },
+        { "hasItem": "collector_kit" }
       ],
       "actions": [
-        { "type": "showChoice", "choiceId": "plant_slot_3", "prompt": "An empty garden plot. The soil looks ready for planting.", "options": [
-          { "label": "Plant Seeds", "description": "Plant Resin Bush Seeds in this plot.", "value": "plant" },
-          { "label": "Leave it", "description": "Don't plant anything right now.", "value": "leave" }
+        { "type": "showChoice", "choiceId": "install_pad_3", "prompt": "An empty build pad. The mounting brackets are intact — ready for a collector installation.", "options": [
+          { "label": "Install Collector", "description": "Install a Solar Collector Kit on this pad.", "value": "install" },
+          { "label": "Leave it", "description": "Don't install anything right now.", "value": "leave" }
         ]}
       ]
     },
     {
-      "id": "garden_slot_3_no_seeds",
+      "id": "build_pad_3_no_kits",
       "event": "door_interacted",
       "filter": { "tileX": 5, "tileY": 5 },
       "conditions": [
-        { "not": { "hasFlag": "garden_slot_3_planted" } },
-        { "not": { "hasItem": "resin_bush_seeds" } }
+        { "not": { "hasFlag": "build_pad_3_installed" } },
+        { "not": { "hasItem": "collector_kit" } }
       ],
       "actions": [
-        { "type": "showMessage", "text": "An empty garden plot. You'd need Resin Bush Seeds to plant something here." }
+        { "type": "showMessage", "text": "An empty build pad. You'd need a Solar Collector Kit to install something here." }
       ]
     },
     {
-      "id": "garden_slot_3_plant",
+      "id": "build_pad_3_install",
       "event": "choice_made",
-      "filter": { "choiceId": "plant_slot_3", "value": "plant" },
+      "filter": { "choiceId": "install_pad_3", "value": "install" },
       "actions": [
-        { "type": "removeItem", "itemType": "resin_bush_seeds" },
-        { "type": "setFlag", "flag": "garden_slot_3_planted" },
+        { "type": "removeItem", "itemType": "collector_kit" },
+        { "type": "setFlag", "flag": "build_pad_3_installed" },
         { "type": "grantXp", "amount": 5 },
-        { "type": "showMessage", "text": "Seeds planted. The garden is starting to look productive." }
+        { "type": "showMessage", "text": "Third collector installed. Your salvage yard is starting to look like a proper solar array." }
       ]
     },
     {
-      "id": "garden_slot_3_growing",
+      "id": "build_pad_3_calibrating",
       "event": "door_interacted",
       "filter": { "tileX": 5, "tileY": 5 },
       "conditions": [
-        { "hasFlag": "garden_slot_3_planted" },
-        { "not": { "hasFlag": "garden_slot_3_ready" } }
+        { "hasFlag": "build_pad_3_installed" },
+        { "not": { "hasFlag": "build_pad_3_producing" } }
       ],
       "actions": [
-        { "type": "showMessage", "text": "The resin bush is growing. Sturdy leaves spread outward. Give it more time." }
+        { "type": "showMessage", "text": "The collector's panels rotate slowly, seeking optimal angle. Still calibrating. Give it more time." }
       ]
     },
     {
-      "id": "garden_slot_3_harvest",
+      "id": "build_pad_3_collect",
       "event": "door_interacted",
       "filter": { "tileX": 5, "tileY": 5 },
       "conditions": [
-        { "hasFlag": "garden_slot_3_planted" },
-        { "hasFlag": "garden_slot_3_ready" }
+        { "hasFlag": "build_pad_3_installed" },
+        { "hasFlag": "build_pad_3_producing" }
       ],
       "actions": [
-        { "type": "showChoice", "choiceId": "harvest_slot_3", "prompt": "The resin bush is mature — thick amber resin glistens on its stems.", "options": [
-          { "label": "Harvest", "description": "Collect stabilizing resin from this plant.", "value": "harvest" },
-          { "label": "Leave it", "description": "Let it keep growing.", "value": "leave" }
+        { "type": "showChoice", "choiceId": "collect_pad_3", "prompt": "The solar collector's output reservoir is full — stabilizing compound has crystallized in the collection tray.", "options": [
+          { "label": "Collect Output", "description": "Collect stabilizing compound from this collector.", "value": "collect" },
+          { "label": "Leave it", "description": "Let it keep accumulating.", "value": "leave" }
         ]}
       ]
     },
     {
-      "id": "garden_slot_3_do_harvest",
+      "id": "build_pad_3_do_collect",
       "event": "choice_made",
-      "filter": { "choiceId": "harvest_slot_3", "value": "harvest" },
+      "filter": { "choiceId": "collect_pad_3", "value": "collect" },
       "actions": [
         { "type": "giveItem", "itemType": "stabilizing_resin" },
-        { "type": "removeFlag", "flag": "garden_slot_3_ready" },
+        { "type": "removeFlag", "flag": "build_pad_3_producing" },
         { "type": "grantXp", "amount": 10 },
-        { "type": "showMessage", "text": "You harvest the last of the ripe resin. Your garden is producing well." }
+        { "type": "showMessage", "text": "You collect the last of the output. Your array is producing well." }
       ]
     },
 
     {
-      "id": "garden_growth_check_1",
+      "id": "production_check_1",
       "event": "room_entered",
       "conditions": [
-        { "hasFlag": "garden_slot_1_planted" },
-        { "not": { "hasFlag": "garden_slot_1_ready" } },
+        { "hasFlag": "build_pad_1_installed" },
+        { "not": { "hasFlag": "build_pad_1_producing" } },
         { "or": [
           { "hasFlag": "yun_tutorial_complete" },
           { "hasFlag": "crafted_first_battery" },
@@ -430,15 +431,15 @@
         ]}
       ],
       "actions": [
-        { "type": "setFlag", "flag": "garden_slot_1_ready" }
+        { "type": "setFlag", "flag": "build_pad_1_producing" }
       ]
     },
     {
-      "id": "garden_growth_check_2",
+      "id": "production_check_2",
       "event": "room_entered",
       "conditions": [
-        { "hasFlag": "garden_slot_2_planted" },
-        { "not": { "hasFlag": "garden_slot_2_ready" } },
+        { "hasFlag": "build_pad_2_installed" },
+        { "not": { "hasFlag": "build_pad_2_producing" } },
         { "or": [
           { "hasFlag": "yun_tutorial_complete" },
           { "hasFlag": "crafted_first_battery" },
@@ -450,15 +451,15 @@
         ]}
       ],
       "actions": [
-        { "type": "setFlag", "flag": "garden_slot_2_ready" }
+        { "type": "setFlag", "flag": "build_pad_2_producing" }
       ]
     },
     {
-      "id": "garden_growth_check_3",
+      "id": "production_check_3",
       "event": "room_entered",
       "conditions": [
-        { "hasFlag": "garden_slot_3_planted" },
-        { "not": { "hasFlag": "garden_slot_3_ready" } },
+        { "hasFlag": "build_pad_3_installed" },
+        { "not": { "hasFlag": "build_pad_3_producing" } },
         { "or": [
           { "hasFlag": "yun_tutorial_complete" },
           { "hasFlag": "crafted_first_battery" },
@@ -470,21 +471,21 @@
         ]}
       ],
       "actions": [
-        { "type": "setFlag", "flag": "garden_slot_3_ready" }
+        { "type": "setFlag", "flag": "build_pad_3_producing" }
       ]
     },
     {
-      "id": "garden_mature_message",
+      "id": "collectors_producing_message",
       "event": "room_entered",
       "conditions": [
         { "or": [
-          { "hasFlag": "garden_slot_1_ready" },
-          { "hasFlag": "garden_slot_2_ready" },
-          { "hasFlag": "garden_slot_3_ready" }
+          { "hasFlag": "build_pad_1_producing" },
+          { "hasFlag": "build_pad_2_producing" },
+          { "hasFlag": "build_pad_3_producing" }
         ]}
       ],
       "actions": [
-        { "type": "showMessage", "text": "Your resin bushes have matured. Thick amber resin glistens on their stems — ready for harvesting." }
+        { "type": "showMessage", "text": "Your solar collectors have finished calibrating. Amber stabilizing compound has crystallized in the collection trays — ready for pickup." }
       ],
       "once": true
     },
@@ -516,7 +517,7 @@
       "actions": [
         { "type": "showMessage", "lines": [
           "— EAST TERRACE COMMUNITY BOARD —",
-          "LOST CAT: Orange tabby, name 'Ember.' Contact Vell, Plot 3.",
+          "LOST CAT: Orange tabby, name 'Ember.' Contact Vell, Lot 3.",
           "TERRACE WATCH: Volunteer needed for nightly perimeter rotation. See Jorrit."
         ]}
       ]
@@ -529,7 +530,7 @@
         { "type": "setFlag", "flag": "lost_cat_quest_started" },
         { "type": "showMessage", "lines": [
           "'LOST: Orange tabby, answers to Ember (usually). Last seen heading toward the market district two days ago.'",
-          "'If found, please contact Vell at Plot 3, East Terrace. Reward offered.'",
+          "'If found, please contact Vell at Lot 3, East Terrace. Reward offered.'",
           "Vell is standing right here on the terrace. The cat likes warm places and people who smell like books..."
         ]}
       ]
@@ -567,7 +568,7 @@
         { "type": "setFlag", "flag": "terrace_watch_ambush_done" },
         { "type": "showMessage", "lines": [
           "You take your terrace watch shift. For hours, nothing. The fence hums quietly in the twilight.",
-          "Then — movement. Two garden mites skitter through a gap in the fence, heading for the garden plots."
+          "Then — movement. Two scrap drones skitter through a gap in the fence, drawn to the solar collectors' energy signatures."
         ]}
       ],
       "once": true
@@ -575,7 +576,7 @@
     {
       "id": "terrace_watch_complete",
       "event": "monster_killed",
-      "filter": { "monsterType": "garden_mite" },
+      "filter": { "monsterType": "scrap_drone" },
       "conditions": [
         { "hasFlag": "terrace_watch_ambush_done" },
         { "not": { "hasFlag": "terrace_watch_complete" } }
@@ -585,8 +586,8 @@
         { "type": "giveItem", "itemType": "silicon", "count": 3 },
         { "type": "grantXp", "amount": 15 },
         { "type": "showMessage", "lines": [
-          "The mites are dealt with. Jorrit jogs over from the water station.",
-          "'Nice work! The neighbors will sleep easier tonight. Here — your share of the watch fund.'"
+          "The drones are scrap. Jorrit jogs over from the water station.",
+          "'Nice work! Those rogue units have been raiding collector arrays all along the terrace. Here — your share of the watch fund.'"
         ]}
       ],
       "once": true
