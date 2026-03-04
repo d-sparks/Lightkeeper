@@ -712,8 +712,10 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
       const { playerId, itemType, count } = body;
       if (!playerId || !itemType) return json(res, 400, { error: 'Missing playerId or itemType' });
 
-      const itemDef = content.getItem(itemType);
-      if (!itemDef) return json(res, 404, { error: 'Item type not found' });
+      const found = content.findItem(itemType);
+      if (!found) return json(res, 404, { error: `Item type not found: "${itemType}"` });
+      const resolvedType = found.id;
+      const itemDef = found.def;
 
       // Find player
       let ws = null;
@@ -730,7 +732,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
       const giveCount = Math.max(1, Math.floor(count || 1));
 
       // Silicon goes to automation resources
-      if (itemType === 'silicon' && gameLoop.automation) {
+      if (resolvedType === 'silicon' && gameLoop.automation) {
         gameLoop.automation.addResource(playerId, 'silicon', giveCount);
         ws.send(JSON.stringify({
           type: 'auto_state',
@@ -741,7 +743,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
 
       for (let i = 0; i < giveCount; i++) {
         player.inventory.push({
-          type: itemType,
+          type: resolvedType,
           name: itemDef.name,
           rarity: itemDef.rarity || 'common',
           category: itemDef.type || 'misc',

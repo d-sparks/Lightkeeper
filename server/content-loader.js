@@ -135,6 +135,16 @@ class ContentLoader {
     return this.items[id] || null;
   }
 
+  // Look up item by ID first, then by name (case-insensitive)
+  findItem(query) {
+    if (this.items[query]) return { id: query, def: this.items[query] };
+    const lower = query.toLowerCase();
+    for (const [id, item] of Object.entries(this.items)) {
+      if (item.name && item.name.toLowerCase() === lower) return { id, def: item };
+    }
+    return null;
+  }
+
   loadAbilities() {
     const filePath = path.join(this.contentDir, 'entities', 'abilities.json');
     if (!fs.existsSync(filePath)) {
