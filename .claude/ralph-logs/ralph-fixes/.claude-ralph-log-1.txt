@@ -1,0 +1,5 @@
+Done. Two changes committed:
+
+1. **Subtler NPC dialogue sound** — Lowered `dialogue_open` volume from 0.2 to 0.08, dropped frequency from 800 Hz to 500 Hz, and tightened the envelope. Should be a soft, barely-noticeable blip now instead of a prominent ping.
+
+2. **Room entry sound** — The `floor_change` sound was already defined in `content/audio/sounds.json` (a gentle sine sweep with pink noise) but was never actually triggered. Added `audio.play('floor_change')` to the `FLOOR_CHANGE` handler in `client/main.js`.

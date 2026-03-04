@@ -1,0 +1,5 @@
+Done. The fix is a one-line change in `client/main.js:467`:
+
+**Problem:** The gamepad cursor in the quests tab only navigated `.quest-step` elements, making the TRACK/TRACKING buttons unreachable via gamepad.
+
+**Fix:** Added `.quest-track-btn` to the `querySelectorAll` selector so the cursor now includes track buttons in its navigation order. Players can D-pad/stick to a track button and press A to toggle tracking. The existing `cursor-selected` highlight (orange outline) applies automatically.

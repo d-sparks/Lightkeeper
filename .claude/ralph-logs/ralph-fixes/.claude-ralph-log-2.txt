@@ -1,0 +1,10 @@
+Done. Here's what was implemented:
+
+### 1. Flag creation/autocomplete
+- **Action fields** (`setFlag`, `removeFlag`, `incrementFlag`): Flag name inputs now have a `<datalist>` autocomplete that shows all flags found across the dungeon's triggers. You can still type any new flag name freely.
+- **Conditions helper**: Added a row above the conditions JSON textarea with a text input (with the same datalist autocomplete) and two buttons — `+ hasFlag` and `+ not hasFlag`. Type or select a flag name, click the button, and the condition snippet gets inserted into the JSON array automatically.
+
+### 2. Clickable/editable spawns & exits in sidebar
+- **All items** in the SpawnList (player starts, monsters, NPCs, items, exits) are now clickable. Clicking any item selects it and switches to the **Move tool**, which shows the editable property panel for that spawn/exit in the sidebar.
+- Selected items get a highlight outline (`spawn-item-selected` CSS class).
+- The remove button (`×`) uses `stopPropagation()` so it doesn't accidentally select the spawn when you're trying to delete it.

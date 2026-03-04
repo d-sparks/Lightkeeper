@@ -1,0 +1,19 @@
+Done. Here's a summary of all changes:
+
+**Dialogue split** (`content/entities/npcs.json`):
+- **Part 1** (`has_cylinders`, 6 lines): Cylinders handoff, sol unit ready, sol cone explanation, damage booster given, instruction to slot it and talk again
+- **Part 2** (`after_booster`, 4 lines): Build strategy advice, energy warning, send to training range
+- Added `slot_booster_reminder` dialogue for if they talk before slotting
+- Updated dialogue rules to route through the new states
+
+**Room gating** (`content/dungeons/outpost_workshop.json` + `content/tilesets/crypt.json`):
+- Workshop door at (17,4) locks to tile 28 (sealed gate) when sol unit is received, keeping the player in the engineer's room
+- Training gates changed from tile 14 to tile 29, now requiring `engineer_briefing_complete` instead of `received_sol_unit`
+- New `engineer_briefing` trigger: when player talks to engineer after slotting booster, unlocks the door and opens training gates
+- `auto_open_training_gates` room re-entry trigger updated to check `engineer_briefing_complete`
+
+**Quest progression** (`content/quests/main_quest.json`):
+- Added `engineer_briefing` step ("Talk to the Engineer") between `equip_damage_booster` and `training_range`
+
+**Engine** (`server/scripting/actions.js`):
+- Added `setTile` action type for directly setting a tile to a specific ID (needed for the door lock/unlock since `toggleTile` only follows the tile's predefined toggle chain)

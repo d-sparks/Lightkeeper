@@ -1,0 +1,7 @@
+Done. Updated the Apprentice Sol Engineer's dialogue in `content/entities/npcs.json` across 3 lines:
+
+1. **Main dialogue** (line 912): "Fair warning — energy is a precious resource out here. Every shot costs power, and recharging isn't easy."
+2. **Follow-up** (line 913): Changed "for a full charge" → "to top off your charge" (less absolute)
+3. **go_train variant** (line 917): "Energy's hard to come by, so don't waste it. But you've got enough for some training — hit the Power Station afterward to recharge."
+
+The "running on fumes" lines in `training_done` and `outpost_training_range.json` were left as-is since they describe post-training energy depletion rather than claiming a specific charge level.

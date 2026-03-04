@@ -1,7 +1,13 @@
 Fix conflicts
 
-Extend current arc
-- The current story arc involves arriving at outpost balor, retrieving cylinders, getting your sol unit, then you can safely go outside to head to the train station. Instead of having an interface there, we just want to be able to take the train to a city in the habitable zone where we will get our plot and be able to harvest materials and craft rechargeable batteries. Then we'll head back to outpost balor's dark perimeter. However, I want to significantly extend the scope and arc that this arises, and enrich the areas. Can you write a plan out in a sequence of files for each step of this, so we can extend the quests and areas in a fun way, add new quest lines and side quests, NPCs and items? Each file should have a high level overview of what should be implemented there. Name the files CONTENT_001.md, CONTENT_002.md, .... There should be no more than 5 of these total.
-- TEMPLATE[CONTENT_*.md]: Read the content of %T , then carefully implement it. Look at the previous commit to see the end state where we can expect players to have reached. Make sure we won't get stuck and can reliably progress forward from the last piece of content to this one. Feel free to add NPCs, music, iso sprites, story beats, new types of monsters, XP, items, etc. Come up with a compelling bit of content, plan it out carefully, and implement it. When you're done, rename %T to DONE_%T.
-- Design a worldmap feature, it should show dayside, habitable zone, and nightside. Output balor and lighthouse mara should be on there. This is a big feature so do it carefully. Consider UI elements for mobile, desktop with mouse/kb and gamepad.
-- Make sure the existing content integrates with the worldmap seamlessly.
+Fixes
+- Picking up crumbled note should immediately show something in the quest tracker. This should be true of all quest items.
+- Shift + click isn't doing skill 1 on kb/mouse. Things are messed up in general. Seems like if I select melee strike I can shift + click it, and if I select sol cone I can shift + right click it. But remember - shift + click should always do skill 1 and shift + right click should always do the selected skill (Like diablo 2).
+- I was trying to give myself items through the checkpoint UI and keep getting "Item type not found" e.g. for Warden's gear.
+- Make the "give item" in checkpoint easier to use. I also want an option to give all sol components to a player.
+- "Return to Warden Holt" after charging sol unit isn't working.
+- On the worldmap, dark permiter should have an edge to station junction, no? In general, can we make the worldmap a function of the content such that if there's an actual room link between two named areas, they'll show up in the world map graph?
+- For the "plot" we recieve, I want to make sure that this is not a planting growing things type plot. I'm not sure how to weave the lore, but this should be the place you build your solar arrays etc. Two things: (1) find a very canonical way of integrating this into the mainline of the game EARLY so it is clear the game is 50% your lightkeeper dungeon crawl and 50% this automation loop, and (2) remove all flavor of planting things and make it clear that it is building out the array infrastructure e.g. call it a junkyard or something, clear it out, then you can build on it, and get rewards.
+
+Experimental
+- Run the headless sim and, if it gets stuck, either fix the headless sim or fix the game to make further progress in the headless sim.

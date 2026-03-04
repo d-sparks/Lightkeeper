@@ -1,0 +1,5 @@
+Done. Here's what was happening and what I fixed:
+
+**Root cause:** The slot 1 interact override (which turns skill1 into "Pick up" when near an item) was gated behind a monster-proximity check — if any alive monster was within 8 tiles (aggro range), the override was disabled. So pressing skill1 near a dropped item would fire your ability instead of picking it up. Near walls this is especially painful since items are harder to reach with the separate interact key (E/Enter).
+
+**Fix** (`client/main.js:1860-1888`): Item pickup now **always** overrides slot 1 when an item is within range, regardless of nearby enemies. The monster-proximity gate still applies for doors and NPCs (where you'd rather attack than interact in combat).

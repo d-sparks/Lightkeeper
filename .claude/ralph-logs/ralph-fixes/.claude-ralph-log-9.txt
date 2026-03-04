@@ -1,0 +1,9 @@
+Done. Here's a summary of the four changes:
+
+**Gamepad** (`client/input.js`): When the right stick is idle, the left stick direction is now used as the aim angle for abilities. This means pushing left stick in a direction and pressing an ability button fires in that direction instead of relying on auto-aim.
+
+**Mobile** (`client/input.js`): Tapping an ability button (without dragging) now uses the virtual joystick direction if the joystick is actively held. Previously taps always auto-aimed.
+
+**KB/mouse** (`client/input.js`): Shift+left-click now fires the **selected** ability at the cursor position, not hardcoded ability slot 1. Players can select an ability with number keys then shift+click to aim it.
+
+**Server cone ability** (`server/game-loop.js`): Cone abilities (like Sol Cone) now respect the `aimAngle` parameter when provided, instead of always using `player.facing`. This makes cone attacks directable on all input methods.

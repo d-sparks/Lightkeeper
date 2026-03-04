@@ -1,0 +1,5 @@
+Done. Here's what changed:
+
+**Gamepad full map toggle** — Back/Select button (8) now toggles the full map. Previously both Back(8) and Start(9) opened the quest panel (redundant). Now Back(8) → full map, Start(9) → quest panel. R3 (right stick click) still also toggles the full map as before.
+
+**Room name on full map** — When the full map overlay is open, the dungeon's name (e.g. "Outpost Balor") is displayed centered above the map. It's hidden when the full map is closed.

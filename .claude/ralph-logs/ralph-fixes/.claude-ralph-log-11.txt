@@ -1,0 +1,17 @@
+Done. Here's a summary of what I found and fixed:
+
+**Investigation results:**
+- All 37 dungeon rooms are correctly mapped to worldmap locations (no missing rooms)
+- Server correctly sends worldmap location updates on floor transitions
+- Procedural dungeons (proc_quarantine) gracefully degrade - player keeps their previous worldmap location, which is the correct behavior
+- Client rendering handles any number of connections
+
+**The fix (content/worldmap.json):**
+The worldmap connections were largely disconnected from the actual dungeon exit graph. 11 out of 15 connections referenced locations with no dungeon exit between them. I replaced them with 16 connections that exactly match every cross-location dungeon exit in `content/dungeons/`. Key corrections:
+
+- **homestead** connects to **meridian_city** (not station_junction) — via meridian_civic ↔ homestead_plot
+- **frost_crypts** connects to **outpost_balor** (not lighthouse_mara) — via outpost_basement ↔ crypt_01
+- **dayside_solar_fields** connects to **station_junction** (not meridian_city) — via train_station ↔ dayside_solar_fields
+- **perimeter** is now the frontier hub it actually is with 5 connections (outpost_balor, lighthouse_mara, old_watchtower, dead_road, deep_perimeter, underlumen_approach)
+- **dead_road** correctly connects to station_junction (via station_approach) and old_watchtower
+- **deep_perimeter** correctly connects to signal_cave and fen_cache

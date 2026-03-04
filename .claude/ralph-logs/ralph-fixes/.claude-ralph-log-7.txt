@@ -1,0 +1,5 @@
+Done. The fix was a one-line content change in `outpost_entrance.json`:
+
+**Problem:** The exit at (30, 23) leading to `outpost_munitions` had `spawnX: 4, spawnY: 7` — the default player_start area in the middle-left of the munitions room, far from the door.
+
+**Fix:** Changed to `spawnX: 12, spawnY: 1` — the walkable tile directly below the door at (12, 0), which is also where the reverse exit back to the entrance is defined. Now players spawn right at the doorway they came through.

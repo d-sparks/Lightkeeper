@@ -1,0 +1,30 @@
+Committed as `2358a3f`. Here's a summary of what was implemented:
+
+## Worldmap Feature Summary
+
+### Content (`content/worldmap.json`)
+- **3 zones**: Dayside (orange), Habitable/Terminator Zone (blue), Nightside (purple)
+- **14 locations** mapped to actual dungeon rooms:
+  - Dayside: Solar Fields
+  - Habitable: Meridian City, Homestead, **Outpost Balor**, The Perimeter, Station Junction
+  - Nightside: **Lighthouse Mara**, Old Watchtower, Frost Crypts, Signal Cave, Dead Road, Fen Cache, Deep Perimeter, Underlumen Approach
+- **15 connections** showing travel routes between locations
+
+### Server Changes
+- `content-loader.js`: Loads worldmap.json, provides `getWorldmap()` and `getWorldmapLocation(roomId)` to find which worldmap location a dungeon room belongs to
+- `constants.js`: New `WORLDMAP` message type
+- `index.js`: Sends worldmap data + current location on join; sends updated location on floor change
+
+### Client Rendering
+- Full-screen canvas overlay with zone backgrounds as colored vertical bands
+- Location markers with icons (house, flag, lighthouse, skull, etc.), connection lines between linked locations
+- Pulsing "YOU ARE HERE" indicator on current location
+- Hover tooltips showing location name, zone, and description
+- Animated render loop for smooth pulse effects
+
+### Input Support (all 3 platforms)
+| Platform | Open | Close | Interact |
+|----------|------|-------|----------|
+| **Desktop** | N key, MAP button | ESC, N, Tab | Mouse hover/click for tooltips |
+| **Gamepad** | Back button | B button, Back | D-pad/stick navigates locations directionally |
+| **Mobile** | MAP button in HUD | Tap empty area, ESC | Tap location for tooltip |
