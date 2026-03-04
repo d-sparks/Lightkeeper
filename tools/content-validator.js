@@ -361,14 +361,8 @@ function addToMap(map, key, value) {
 
 // ─── 2.4 Item Flow Validation ────────────────────────────────────────
 
-function validateItemFlow() {
-  const quests = content.getAllQuests();
-  const dungeons = content.getAllDungeons();
-
-  // Build set of obtainable items (spawned on ground or given by triggers)
-  const obtainableItems = new Set();
-
-  for (const [id, dungeon] of Object.entries(dungeons)) {
+function scanObtainableItems(dungeonEntries, obtainableItems) {
+  for (const [id, dungeon] of dungeonEntries) {
     // Ground spawns
     if (dungeon.itemSpawns) {
       for (const spawn of dungeon.itemSpawns) {
@@ -387,6 +381,18 @@ function validateItemFlow() {
       }
     }
   }
+}
+
+function validateItemFlow() {
+  const quests = content.getAllQuests();
+  const dungeons = content.getAllDungeons();
+
+  // Build set of obtainable items (spawned on ground or given by triggers)
+  const obtainableItems = new Set();
+
+  // Scan static dungeons and templates
+  scanObtainableItems(Object.entries(dungeons), obtainableItems);
+  scanObtainableItems(Object.entries(content.templates), obtainableItems);
 
   // Check quest step conditions that reference items
   for (const [questId, quest] of Object.entries(quests)) {
