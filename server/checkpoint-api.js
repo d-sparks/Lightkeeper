@@ -761,6 +761,47 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
     }).catch(() => json(res, 400, { error: 'Invalid request' }));
   }
 
+  // --- Give all sol components to a player ---
+  if (url === '/api/checkpoint/give-all-sol' && method === 'POST') {
+    return parseBody(req).then(body => {
+      const { playerId } = body;
+      if (!playerId) return json(res, 400, { error: 'Missing playerId' });
+
+      let ws = null;
+      wss.clients.forEach((client) => {
+        if (client.playerId === playerId && client.readyState === 1) ws = client;
+      });
+      if (!ws || !ws.playerRoom) return json(res, 404, { error: 'Player not found or not in a room' });
+
+      const room = gameLoop.getRoom(ws.playerRoom);
+      if (!room) return json(res, 404, { error: 'Room not found' });
+      const player = room.players.get(playerId);
+      if (!player) return json(res, 404, { error: 'Player not in room' });
+
+      const allItems = content.getAllItems();
+      const given = [];
+      for (const [id, itemDef] of Object.entries(allItems)) {
+        if (itemDef.type === 'sol_component') {
+          player.inventory.push({
+            type: id,
+            name: itemDef.name,
+            rarity: itemDef.rarity || 'common',
+            category: itemDef.type,
+          });
+          given.push(itemDef.name);
+        }
+      }
+
+      ws.send(JSON.stringify({
+        type: 'inventory',
+        items: player.inventory,
+        equipment: player.equipment,
+      }));
+
+      return json(res, 200, { ok: true, count: given.length, items: given });
+    }).catch(() => json(res, 400, { error: 'Invalid request' }));
+  }
+
   return false;
 }
 
