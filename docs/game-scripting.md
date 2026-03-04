@@ -267,6 +267,14 @@ Note: This overrides `dialogueRules` evaluation. Use this for trigger-driven cha
 
 You can target by `entityId` (specific instance) or by type (first match is removed).
 
+#### `spawnNpc` — Spawn an NPC at a tile position
+
+```json
+{ "type": "spawnNpc", "npcType": "outpost_warden", "x": 4, "y": 10 }
+```
+
+Spawns an NPC of the given type at the specified tile coordinates. If an NPC of that type already exists in the room, the action is skipped (no duplicates).
+
 #### `spawnItem` — Spawn a ground item
 
 ```json
