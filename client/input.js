@@ -806,10 +806,10 @@ class InputHandler {
         return;
       }
 
-      // Shift+left-click: cast selected ability at cursor (stand still)
+      // Shift+left-click: always cast slot 1 at cursor (stand still, Diablo 2 style)
       if (this.shiftHeld) {
         const aimAngle = this.getMouseAimAngle();
-        if (this.onAbility) this.onAbility(this.selectedAbility, aimAngle, true);
+        if (this.onAbility) this.onAbility(1, aimAngle, true);
         return;
       }
 
