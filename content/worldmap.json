@@ -167,22 +167,5 @@
       "rooms": ["underlumen_approach"]
     }
   ],
-  "connections": [
-    ["meridian_city", "station_junction"],
-    ["meridian_city", "homestead"],
-    ["station_junction", "dayside_solar_fields"],
-    ["station_junction", "dead_road"],
-    ["outpost_balor", "perimeter"],
-    ["outpost_balor", "frost_crypts"],
-    ["perimeter", "lighthouse_mara"],
-    ["perimeter", "old_watchtower"],
-    ["perimeter", "dead_road"],
-    ["perimeter", "deep_perimeter"],
-    ["perimeter", "underlumen_approach"],
-    ["dead_road", "old_watchtower"],
-    ["dead_road", "deep_perimeter"],
-    ["deep_perimeter", "signal_cave"],
-    ["deep_perimeter", "fen_cache"],
-    ["signal_cave", "underlumen_approach"]
-  ]
+  "_connections_note": "Connections are auto-generated from dungeon exits at server startup"
 }

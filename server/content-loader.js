@@ -254,7 +254,45 @@ class ContentLoader {
       return;
     }
     this.worldmap = this.loadJSON(filePath);
-    console.log(`[Content]   Worldmap: ${(this.worldmap.locations || []).length} locations, ${(this.worldmap.connections || []).length} connections`);
+
+    // Auto-generate connections from actual dungeon exits
+    this.worldmap.connections = this._buildWorldmapConnections();
+
+    console.log(`[Content]   Worldmap: ${(this.worldmap.locations || []).length} locations, ${this.worldmap.connections.length} connections`);
+  }
+
+  // Build worldmap connections by scanning all dungeon exits for cross-location links
+  _buildWorldmapConnections() {
+    if (!this.worldmap || !this.worldmap.locations) return [];
+
+    // Build room → location ID map
+    const roomToLocation = {};
+    for (const loc of this.worldmap.locations) {
+      if (loc.rooms) {
+        for (const roomId of loc.rooms) {
+          roomToLocation[roomId] = loc.id;
+        }
+      }
+    }
+
+    // Find all cross-location connections from dungeon exits
+    const connectionSet = new Set();
+    for (const [dungeonId, dungeon] of Object.entries(this.dungeons)) {
+      if (!dungeon.exits) continue;
+      const srcLocation = roomToLocation[dungeonId];
+      if (!srcLocation) continue;
+
+      for (const exit of dungeon.exits) {
+        const dstLocation = roomToLocation[exit.leadsTo];
+        if (!dstLocation || dstLocation === srcLocation) continue;
+
+        // Store as sorted pair to deduplicate bidirectional links
+        const pair = [srcLocation, dstLocation].sort();
+        connectionSet.add(pair.join('|'));
+      }
+    }
+
+    return Array.from(connectionSet).map(key => key.split('|'));
   }
 
   getWorldmap() {
