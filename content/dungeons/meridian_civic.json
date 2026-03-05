@@ -42,7 +42,7 @@
   "exits": [
     { "x": 0, "y": 1, "leadsTo": "meridian_station", "type": "stairs_down", "spawnX": 28, "spawnY": 9 },
     { "x": 12, "y": 0, "leadsTo": "meridian_market", "type": "stairs_down", "spawnX": 12, "spawnY": 17 },
-    { "x": 24, "y": 16, "leadsTo": "meridian_residential", "type": "stairs_down", "spawnX": 1, "spawnY": 8 },
+    { "x": 24, "y": 16, "leadsTo": "meridian_residential", "type": "stairs_down", "spawnX": 1, "spawnY": 2 },
     { "x": 12, "y": 17, "leadsTo": "meridian_station", "type": "stairs_up", "spawnX": 28, "spawnY": 9 },
     { "x": 24, "y": 2, "leadsTo": "salvage_yard", "type": "stairs_down", "spawnX": 20, "spawnY": 14 }
   ],
