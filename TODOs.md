@@ -1,13 +1,12 @@
 Fix conflicts
 
-Fixes
-- Picking up crumbled note should immediately show something in the quest tracker. This should be true of all quest items.
-- Shift + click isn't doing skill 1 on kb/mouse. Things are messed up in general. Seems like if I select melee strike I can shift + click it, and if I select sol cone I can shift + right click it. But remember - shift + click should always do skill 1 and shift + right click should always do the selected skill (Like diablo 2).
-- I was trying to give myself items through the checkpoint UI and keep getting "Item type not found" e.g. for Warden's gear.
-- Make the "give item" in checkpoint easier to use. I also want an option to give all sol components to a player.
-- "Return to Warden Holt" after charging sol unit isn't working.
-- On the worldmap, dark permiter should have an edge to station junction, no? In general, can we make the worldmap a function of the content such that if there's an actual room link between two named areas, they'll show up in the world map graph?
-- For the "plot" we recieve, I want to make sure that this is not a planting growing things type plot. I'm not sure how to weave the lore, but this should be the place you build your solar arrays etc. Two things: (1) find a very canonical way of integrating this into the mainline of the game EARLY so it is clear the game is 50% your lightkeeper dungeon crawl and 50% this automation loop, and (2) remove all flavor of planting things and make it clear that it is building out the array infrastructure e.g. call it a junkyard or something, clear it out, then you can build on it, and get rewards.
+Fixes March 5 2026
+- Disable click on screen to move on mobile, it interferes with the joystick.
+- We aren't seeing cooldown info on mobile, can those be on the buttons just like on web?
+- After teleport, or when first entering a room, sometimes the previous "click to move" (x, y) is in effect. We should clear that so we don't get unintended movement.
+- Going from Meridian station to Meridian civic isn't smooth, it dumps us in a random place in the room. Make sure the doorways connect in a realistic way. (Take a look to see if this is happening in other places, too, and fix those if possible.)
+- Create sub folders in the isometric sprites folder, and put in each one two files: one is a copy of our main ground tile shape, and the second is a prompt that describes the theme of that sub folder in great detail. Then attach to each room/dungeon a field in its JSON simply saying which theme it should eventually have. Later we'll use an AI to generate ISO sprites for that theme, and use them as the graphics in those rooms/dungeons.
 
 Experimental
+- Run the headless sim and, if it gets stuck, either fix the headless sim or fix the game to make further progress in the headless sim.
 - Run the headless sim and, if it gets stuck, either fix the headless sim or fix the game to make further progress in the headless sim.
