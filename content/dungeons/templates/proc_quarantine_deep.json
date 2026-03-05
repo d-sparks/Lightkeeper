@@ -3,6 +3,7 @@
   "type": "procedural",
   "namePattern": "Quarantine Depth {depth}",
   "tileset": "crypt",
+  "theme": "quarantine_zone",
   "tileSize": 32,
   "depth": { "min": 4, "max": 10 },
 

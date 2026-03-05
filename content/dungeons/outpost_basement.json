@@ -3,6 +3,7 @@
   "name": "Outpost Balor - Lower Level",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "outpost_military",
   "tileSize": 32,
   "ambientLight": 0.3,
   "width": 18,

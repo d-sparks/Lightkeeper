@@ -3,6 +3,7 @@
   "name": "MERIDIAN-7 Hub",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "meridian_city",
   "tileSize": 32,
   "width": 20,
   "height": 14,

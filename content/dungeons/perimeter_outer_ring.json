@@ -3,6 +3,7 @@
   "name": "The Outer Ring",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "dark_perimeter",
   "tileSize": 32,
   "ambientLight": 0.06,
   "width": 30,

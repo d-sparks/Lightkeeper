@@ -3,6 +3,7 @@
   "name": "East Terrace — Lot 7, Salvage Yard",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "abandoned_frontier",
   "tileSize": 32,
   "width": 22,
   "height": 16,

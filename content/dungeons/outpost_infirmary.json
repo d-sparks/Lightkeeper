@@ -3,6 +3,7 @@
   "name": "Outpost Balor - Infirmary",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "outpost_military",
   "tileSize": 32,
   "width": 15,
   "height": 10,

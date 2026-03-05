@@ -3,6 +3,7 @@
   "name": "Dayside - Solar Fields",
   "depth": 0,
   "tileset": "dayside",
+  "theme": "dayside_solar",
   "tileSize": 32,
   "ambientLight": 1.0,
   "width": 30,

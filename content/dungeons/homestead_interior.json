@@ -3,6 +3,7 @@
   "name": "Homestead Interior",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "homestead_residential",
   "tileSize": 32,
   "width": 12,
   "height": 10,
