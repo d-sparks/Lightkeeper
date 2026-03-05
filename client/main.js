@@ -2161,7 +2161,9 @@
     if (msg.events) {
       renderer.processEvents(msg.events);
       for (const ev of msg.events) {
-        if (ev.type === 'death' && ev.targetId === renderer.myId) {
+        if (ev.type === 'teleport' && ev.targetId === renderer.myId) {
+          input.clearMoveTarget();
+        } else if (ev.type === 'death' && ev.targetId === renderer.myId) {
           input.clearMoveTarget();
           audio.play('death_player');
         } else if (ev.type === 'death') {
