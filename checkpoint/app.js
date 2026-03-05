@@ -1,5 +1,5 @@
 import { h, render } from 'https://esm.sh/preact@10.19.3';
-import { useState, useEffect, useRef, useCallback } from 'https://esm.sh/preact@10.19.3/hooks';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'https://esm.sh/preact@10.19.3/hooks';
 import htm from 'https://esm.sh/htm@3.1.1';
 
 const html = htm.bind(h);
@@ -98,6 +98,13 @@ const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ playerId, itemType, count }),
+    })).json();
+  },
+  async giveAllSol(playerId) {
+    return (await checkedFetch('/api/checkpoint/give-all-sol', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId }),
     })).json();
   },
 };
@@ -505,6 +512,23 @@ function GiveItem({ sessions, items }) {
   const [selectedPlayer, setSelectedPlayer] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
   const [count, setCount] = useState('1');
+  const [filter, setFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+
+  const itemTypes = useMemo(() => {
+    const types = new Set(items.map(it => it.type));
+    return [...types].sort();
+  }, [items]);
+
+  const filteredItems = useMemo(() => {
+    let result = items;
+    if (typeFilter) result = result.filter(it => it.type === typeFilter);
+    if (filter) {
+      const lower = filter.toLowerCase();
+      result = result.filter(it => it.name.toLowerCase().includes(lower) || it.id.toLowerCase().includes(lower));
+    }
+    return result;
+  }, [items, filter, typeFilter]);
 
   const handleGive = async () => {
     if (!selectedPlayer) { showToast('Select a player first', 'err'); return; }
@@ -520,21 +544,45 @@ function GiveItem({ sessions, items }) {
     } catch { showToast('Failed to give item', 'err'); }
   };
 
+  const handleGiveAllSol = async () => {
+    if (!selectedPlayer) { showToast('Select a player first', 'err'); return; }
+    try {
+      const result = await api.giveAllSol(selectedPlayer);
+      if (result.ok) {
+        showToast(`Gave ${result.count} sol components`);
+      } else {
+        showToast(result.error || 'Failed', 'err');
+      }
+    } catch { showToast('Failed to give sol components', 'err'); }
+  };
+
   return html`
     <div class="quest-jump-row">
       <select value=${selectedPlayer} onChange=${e => setSelectedPlayer(e.target.value)}>
         <option value="">-- player --</option>
         ${sessions.map(p => html`<option value=${p.playerId}>${p.name} (${p.playerId})</option>`)}
       </select>
+    </div>
+    <div class="quest-jump-row" style="margin-top:4px">
+      <input type="text" class="flag-input" placeholder="Search items..." value=${filter}
+        onInput=${e => setFilter(e.target.value)} style="width:140px" />
+      <select value=${typeFilter} onChange=${e => setTypeFilter(e.target.value)}>
+        <option value="">-- all types --</option>
+        ${itemTypes.map(t => html`<option value=${t}>${t}</option>`)}
+      </select>
       <select value=${selectedItem} onChange=${e => setSelectedItem(e.target.value)}>
-        <option value="">-- item --</option>
-        ${items.map(it => html`<option value=${it.id}>${it.name} (${it.type})</option>`)}
+        <option value="">-- item (${filteredItems.length}) --</option>
+        ${filteredItems.map(it => html`<option value=${it.id}>${it.name}</option>`)}
       </select>
       <input type="number" class="flag-input" style="width:60px" min="1" value=${count}
         onInput=${e => setCount(e.target.value)}
         onKeyDown=${e => { if (e.key === 'Enter') handleGive(); }} />
       <button class="btn btn-save" disabled=${!selectedPlayer || !selectedItem}
         onClick=${handleGive}>Give</button>
+    </div>
+    <div style="margin-top:6px">
+      <button class="btn btn-save" disabled=${!selectedPlayer}
+        onClick=${handleGiveAllSol}>Give All Sol Components</button>
     </div>
   `;
 }

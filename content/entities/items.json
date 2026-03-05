@@ -287,9 +287,9 @@
     "rarity": "rare",
     "solComponentId": "sol_shield_emitter"
   },
-  "homestead_deed": {
-    "name": "Homestead Deed",
-    "description": "Official documentation granting you Plot 7, East Terrace in the Meridian City homestead district. Signed by Land Registrar Hollis.",
+  "yard_deed": {
+    "name": "Salvage Yard Deed",
+    "description": "Official documentation granting you Lot 7, East Terrace — a decommissioned relay station in the Meridian City salvage district. Signed by Land Registrar Hollis.",
     "type": "key",
     "rarity": "rare"
   },
@@ -317,27 +317,27 @@
     "type": "key",
     "rarity": "common"
   },
-  "resin_bush_seeds": {
-    "name": "Resin Bush Seeds",
-    "description": "Hardy seeds engineered for Terminator Zone soil. Plant in a garden plot and they'll grow stabilizing resin — the key ingredient for rechargeable batteries.",
+  "collector_kit": {
+    "name": "Solar Collector Kit",
+    "description": "A compact photovoltaic assembly with mounting hardware. Install on a build pad to process ambient light into stabilizing compound — the key ingredient for rechargeable batteries.",
     "type": "key",
     "rarity": "common"
   },
   "stabilizing_resin": {
-    "name": "Stabilizing Resin",
-    "description": "A thick, amber-colored resin harvested from homestead plants. Prevents battery cores from overheating during charge cycles. Essential for rechargeable battery construction.",
+    "name": "Stabilizing Compound",
+    "description": "A thick, amber-colored compound produced by solar collectors through thermal refinement. Prevents battery cores from overheating during charge cycles. Essential for rechargeable battery construction.",
     "type": "key",
     "rarity": "uncommon"
   },
-  "enriched_soil": {
-    "name": "Enriched Soil",
-    "description": "Nutrient-dense soil blend prepared by an experienced gardener. Apply to a garden plot to double the next resin harvest.",
+  "power_coupler": {
+    "name": "Power Coupler",
+    "description": "A high-efficiency wiring harness that doubles the output of a solar collector. Wire it into a build pad before installing a collector kit.",
     "type": "consumable",
     "rarity": "uncommon"
   },
-  "sonic_repeller": {
-    "name": "Sonic Repeller",
-    "description": "A small ultrasonic device that drives away garden pests. Neighbor Sera could use one of these for her mite problem.",
+  "emp_charge": {
+    "name": "EMP Charge",
+    "description": "A single-use electromagnetic pulse device that fries nearby electronics. Neighbor Sera could use one of these for her scrap drone problem.",
     "type": "key",
     "rarity": "common"
   },
@@ -348,9 +348,9 @@
     "rarity": "rare",
     "effect": { "energy": 30 }
   },
-  "resin_growing_guide": {
-    "name": "Resin Growing Guide",
-    "description": "A hand-written guide to growing stabilizing resin bushes in the Terminator Zone. Notes from Neighbor Sera: 'The soil here is good — not too hot, not too cold. That's the whole point of the Ring.'",
+  "array_handbook": {
+    "name": "Solar Array Handbook",
+    "description": "A technical manual for building and maintaining small-scale solar collector arrays. Notes from Neighbor Sera: 'The light here is steady — not too bright, not too dim. That's the whole point of the Ring.'",
     "type": "key",
     "rarity": "common"
   },

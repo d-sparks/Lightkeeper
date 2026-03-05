@@ -124,8 +124,8 @@
       "solid": true,
       "interactable": "door",
       "togglesTo": 5,
-      "conditions": [{ "hasFlag": "has_homestead_deed" }],
-      "failMessage": "This path leads to the East Terrace homesteads. You need a Homestead Deed from the Land Registry."
+      "conditions": [{ "hasFlag": "has_yard_deed" }],
+      "failMessage": "This path leads to the East Terrace salvage lots. You need a Salvage Yard Deed from the Land Registry."
     },
     "25": {
       "name": "cache_entrance",

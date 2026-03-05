@@ -123,11 +123,11 @@
       "completionActions": [{ "type": "grantXp", "amount": 25 }]
     },
     "visit_civic_center": {
-      "label": "Visit the Civic Center",
-      "description": "Head east from the station to the Civic Center and meet Land Registrar Hollis.",
+      "label": "Claim Your Salvage Yard",
+      "description": "Head east from the station to the Civic Center and claim a salvage lot from Land Registrar Hollis. This is where you'll build your own solar infrastructure — half the game is dungeon crawling, the other half is building your array.",
       "prerequisiteSteps": ["arrive_meridian"],
       "objective": { "roomId": "meridian_civic", "tileX": 6, "tileY": 5 },
-      "completionConditions": [{ "hasFlag": "has_homestead_deed" }],
+      "completionConditions": [{ "hasFlag": "has_yard_deed" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
     },
     "visit_workshop": {

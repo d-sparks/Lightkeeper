@@ -122,8 +122,8 @@
     "ai": "melee_chase",
     "xp": 30
   },
-  "garden_mite": {
-    "name": "Garden Mite",
+  "scrap_drone": {
+    "name": "Scrap Drone",
     "sprite": "sprites/garden_mite.png",
     "size": [16, 16],
     "health": 8,

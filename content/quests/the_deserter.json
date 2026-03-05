@@ -1,13 +1,21 @@
 {
   "id": "the_deserter",
   "name": "The Deserter",
-  "description": "Fen Maro, the person hiding in Outpost Balor's basement, wants you to deliver a letter to Warden Holt and find their squad's supply cache.",
-  "startConditions": [{ "hasFlag": "fen_letter_accepted" }],
+  "description": "A crumpled note in Outpost Balor's basement hints at someone in hiding. Find out who wrote it.",
+  "startConditions": [{ "hasFlag": "found_basement_note" }],
   "steps": {
+    "find_author": {
+      "label": "Find the Note's Author",
+      "description": "Someone was hiding in Outpost Balor's basement. They mentioned catching 'the next train' — try Meridian City.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "meridian_residential" },
+      "completionConditions": [{ "hasFlag": "fen_letter_accepted" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
     "deliver_letter": {
       "label": "Deliver Fen's Letter to Warden Holt",
       "description": "Return to Outpost Balor and give Fen's letter to Warden Holt.",
-      "prerequisiteSteps": [],
+      "prerequisiteSteps": ["find_author"],
       "objective": { "roomId": "outpost_entrance", "tileX": 4, "tileY": 10 },
       "completionConditions": [{ "hasFlag": "fen_letter_delivered" }],
       "completionActions": [{ "type": "grantXp", "amount": 25 }]
@@ -15,7 +23,7 @@
     "find_cache": {
       "label": "Find the Squad's Supply Cache",
       "description": "Search the deep perimeter east for Fen's squad's collapsed supply bunker, northeast of the main passage.",
-      "prerequisiteSteps": [],
+      "prerequisiteSteps": ["find_author"],
       "objective": { "roomId": "fen_cache" },
       "completionConditions": [{ "hasFlag": "found_fen_cache" }],
       "completionActions": [
@@ -35,5 +43,5 @@
       ]
     }
   },
-  "startStep": "deliver_letter"
+  "startStep": "find_author"
 }

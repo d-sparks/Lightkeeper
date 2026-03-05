@@ -114,6 +114,17 @@
       ]
     },
     {
+      "id": "respawn_warden_after_charging",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "sol_unit_charged" },
+        { "not": { "hasFlag": "arrived_meridian" } }
+      ],
+      "actions": [
+        { "type": "spawnNpc", "npcType": "outpost_warden", "x": 4, "y": 10 }
+      ]
+    },
+    {
       "id": "report_charged_to_warden",
       "event": "npc_interacted",
       "filter": { "npcType": "outpost_warden" },

@@ -21,6 +21,7 @@
 //   { type: "showChoice",  choiceId: "weapon_choice", prompt: "Choose:", options: [{label, description, value}] }
 //   { type: "giveStructure", structureId: "solar_panel" }
 //   { type: "openAutomation" }
+//   { type: "spawnNpc",    npcType: "outpost_warden", x: 4, y: 10 }  // spawns NPC at tile coords if not already present
 
 const CONSTANTS = require('../../shared/constants');
 
@@ -105,6 +106,9 @@ class ActionExecutor {
       case 'openAutomation':
         this.doOpenAutomation(action, context);
         break;
+      case 'spawnNpc':
+        this.doSpawnNpc(action, context);
+        break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
     }
@@ -188,6 +192,31 @@ class ActionExecutor {
         }
         break;
     }
+  }
+
+  doSpawnNpc(action, context) {
+    const room = context.room;
+    if (!room) return;
+    const npcDef = this.content.getNPC(action.npcType);
+    if (!npcDef) return;
+
+    // Don't spawn if an NPC of this type already exists in the room
+    for (const [, npc] of room.npcs) {
+      if (npc.type === action.npcType) return;
+    }
+
+    const npcId = `npc_${action.npcType}_spawned_${Date.now()}`;
+    room.npcs.set(npcId, {
+      id: npcId,
+      type: action.npcType,
+      name: npcDef.name,
+      x: (action.x + 0.5) * CONSTANTS.TILE_SIZE,
+      y: (action.y + 0.5) * CONSTANTS.TILE_SIZE,
+      dialogue: npcDef.dialogue,
+      dialogues: npcDef.dialogues || null,
+      dialogueRules: npcDef.dialogueRules || null,
+      activeDialogueId: null,
+    });
   }
 
   doSpawnItem(action, context) {
