@@ -1473,22 +1473,40 @@
   function updateCooldownOverlays() {
     for (let i = 0; i < 6; i++) {
       const slotNum = i + 1;
-      const desktopSlot = document.querySelector(`.action-slot[data-slot="${slotNum}"]`);
-      if (!desktopSlot) continue;
-
-      let overlay = desktopSlot.querySelector('.cooldown-overlay');
       const cd = cooldownState[i] || 0;
 
-      if (cd > 0) {
-        if (!overlay) {
-          overlay = document.createElement('div');
-          overlay.className = 'cooldown-overlay';
-          desktopSlot.appendChild(overlay);
+      // Desktop cooldown overlay
+      const desktopSlot = document.querySelector(`.action-slot[data-slot="${slotNum}"]`);
+      if (desktopSlot) {
+        let overlay = desktopSlot.querySelector('.cooldown-overlay');
+        if (cd > 0) {
+          if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'cooldown-overlay';
+            desktopSlot.appendChild(overlay);
+          }
+          overlay.textContent = cd.toFixed(1);
+          overlay.style.display = 'flex';
+        } else if (overlay) {
+          overlay.style.display = 'none';
         }
-        overlay.textContent = cd.toFixed(1);
-        overlay.style.display = 'flex';
-      } else if (overlay) {
-        overlay.style.display = 'none';
+      }
+
+      // Mobile cooldown overlay
+      const mobileSlot = document.querySelector(`.ability-btn[data-slot="${slotNum}"]`);
+      if (mobileSlot) {
+        let overlay = mobileSlot.querySelector('.cooldown-overlay');
+        if (cd > 0) {
+          if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'cooldown-overlay';
+            mobileSlot.appendChild(overlay);
+          }
+          overlay.textContent = cd.toFixed(1);
+          overlay.style.display = 'flex';
+        } else if (overlay) {
+          overlay.style.display = 'none';
+        }
       }
     }
   }
