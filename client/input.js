@@ -773,6 +773,8 @@ class InputHandler {
 
     canvas.addEventListener('mousedown', (e) => {
       if (!this.active) return;
+      // Disable click-to-move on mobile — it interferes with the joystick
+      if ('ontouchstart' in window) return;
 
       // Right-click: cast selected ability at cursor
       if (e.button === 2) {
@@ -818,7 +820,7 @@ class InputHandler {
     });
 
     canvas.addEventListener('mousemove', (e) => {
-      if (!this.renderer) return;
+      if (!this.renderer || ('ontouchstart' in window)) return;
       const world = this.renderer.screenToWorld(e.clientX, e.clientY);
       this.mouseWorldX = world.x;
       this.mouseWorldY = world.y;
