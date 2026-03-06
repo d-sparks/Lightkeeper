@@ -36,6 +36,8 @@
 
   const soundBtn = document.getElementById('sound-btn');
   const worldmapBtn = document.getElementById('worldmap-btn');
+  const onboardMove = document.getElementById('onboard-move');
+  const onboardInteract = document.getElementById('onboard-interact');
 
   // --- Instances ---
   const net = new NetClient();
@@ -75,6 +77,20 @@
 
   // --- State ---
   let joined = false;
+
+  // --- Onboarding state ---
+  let onboardMoveShown = false;
+  let onboardMoveDismissed = false;
+  let onboardInteractDismissed = false;
+
+  function dismissOnboardHint(el, onDone) {
+    if (!el || el.style.display === 'none') return;
+    el.classList.add('fade-out');
+    el.addEventListener('animationend', () => {
+      el.style.display = 'none';
+      if (onDone) onDone();
+    }, { once: true });
+  }
 
   // --- Dialogue state ---
   let dialogueActive = false;
@@ -2035,6 +2051,17 @@
     audio.play('ability_cast');
   };
 
+  // --- Onboarding callbacks ---
+  input.onFirstMove = function () {
+    if (onboardMoveDismissed) return;
+    onboardMoveDismissed = true;
+    dismissOnboardHint(onboardMove, () => {
+      if (!onboardInteractDismissed) {
+        onboardInteract.style.display = '';
+      }
+    });
+  };
+
   // --- Interact dispatch ---
   input.onInteract = function () {
     if (choiceActive) { confirmChoice(); return; }
@@ -2144,6 +2171,12 @@
 
     hudName.textContent = msg.playerId;
 
+    // Show onboarding move hint
+    if (!onboardMoveShown) {
+      onboardMoveShown = true;
+      onboardMove.style.display = '';
+    }
+
     // Start background music
     audio.resume();
     const roomName = (msg.map && msg.map.name || '').toLowerCase();
@@ -2252,6 +2285,11 @@
     if (msg.dialogue && msg.dialogue.length > 0) {
       showDialogue(msg.dialogue, msg.npcId);
       audio.play('dialogue_open');
+      // Dismiss interact onboarding hint on first NPC dialogue
+      if (!onboardInteractDismissed) {
+        onboardInteractDismissed = true;
+        dismissOnboardHint(onboardInteract);
+      }
     }
   });
 

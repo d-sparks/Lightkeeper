@@ -299,6 +299,62 @@
       color: #555;
     }
 
+    /* Onboarding hints */
+    .onboard-hint {
+      position: fixed;
+      bottom: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      pointer-events: none;
+      z-index: 800;
+      animation: onboard-fade-in 0.5s ease-out;
+    }
+    .onboard-hint.fade-out {
+      animation: onboard-fade-out 0.4s ease-in forwards;
+    }
+    .onboard-keys {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .onboard-key-row {
+      display: flex;
+      gap: 4px;
+    }
+    .onboard-key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: rgba(20, 20, 40, 0.85);
+      border: 1px solid rgba(255, 167, 38, 0.6);
+      border-radius: 5px;
+      color: #ffa726;
+      font-size: 16px;
+      font-weight: bold;
+      font-family: monospace;
+    }
+    .onboard-key-wide {
+      width: 48px;
+    }
+    .onboard-label {
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+    @keyframes onboard-fade-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes onboard-fade-out {
+      from { opacity: 1; transform: translateX(-50%) translateY(0); }
+      to   { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    }
+
     /* System message overlay */
     #dialogue-overlay {
       display: none;
@@ -1931,6 +1987,23 @@
   </div>
 
   <div id="quest-toast"></div>
+
+  <!-- Onboarding hints (dismissed on first input/interaction) -->
+  <div id="onboard-move" class="onboard-hint" style="display:none">
+    <div class="onboard-keys">
+      <span class="onboard-key">W</span>
+      <div class="onboard-key-row">
+        <span class="onboard-key">A</span>
+        <span class="onboard-key">S</span>
+        <span class="onboard-key">D</span>
+      </div>
+    </div>
+    <div class="onboard-label">Move</div>
+  </div>
+  <div id="onboard-interact" class="onboard-hint" style="display:none">
+    <span class="onboard-key onboard-key-wide">E</span>
+    <div class="onboard-label">Talk to NPCs</div>
+  </div>
 
 
   <!-- Portrait orientation warning (touch only) -->
