@@ -1962,7 +1962,7 @@
       msg.targetY = Math.round(input.mouseWorldY);
     }
     net.send(msg);
-    audio.play('ability_cast');
+    audio.play(slot === 0 ? 'weapon_swing' : 'ability_cast');
   };
 
   // --- Onboarding callbacks ---
