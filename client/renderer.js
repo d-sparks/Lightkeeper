@@ -41,6 +41,9 @@ class Renderer {
     // Death animations: array of { x, y, type, age, maxAge, sprite container }
     this.deathAnims = [];
 
+    // Ambush reveal fade-in: map of mobId -> remaining fade time
+    this.ambushFadeIns = new Map();
+
     // Tile color fallbacks
     this.tileColors = {};
 
@@ -937,6 +940,7 @@ class Renderer {
     // Tick combat juice timers
     const dt = 1 / 60;
     this._tickHitFlashes(dt);
+    this._tickAmbushFadeIns(dt);
     this._tickScreenShake(dt);
 
     // Position world container (camera offset + screen shake)
@@ -1594,6 +1598,15 @@ class Renderer {
       const barColor = hp > 0.5 ? 0xe53935 : 0xff6f00;
       this._drawHealthBar(healthBg, healthFill, 0, this.isoMode ? -40 : -r - 4, 26, 3, hp, barColor);
 
+      // Ambush fade-in: override alpha if this mob is fading in
+      if (this.ambushFadeIns.has(mob.id)) {
+        const remaining = this.ambushFadeIns.get(mob.id);
+        const fadeTotal = 0.5;
+        container.alpha = Math.max(0, 1 - remaining / fadeTotal);
+      } else {
+        container.alpha = 1;
+      }
+
       promptText.visible = false;
     }
 
@@ -1619,7 +1632,14 @@ class Renderer {
         sprite.anchor.set(0.5, 0.5);
         sprite.width = r * 2;
         sprite.height = r * 2;
-        sprite.tint = 0x4fc3f7; // Light blue projectile color
+        // Tint by projectile type
+        const projColors = {
+          arrow_bone: 0xbcaaa4,    // bone/tan
+          shadow_bolt: 0x7c4dff,   // dark purple
+          magma_glob: 0xff6e40,    // fiery orange
+          spore_cloud: 0x69f0ae,   // sickly green
+        };
+        sprite.tint = projColors[proj.projectileType] || 0x4fc3f7;
         container.addChild(sprite);
         this.entityContainer.addChild(container);
         entry = { container, sprite };
@@ -1936,6 +1956,17 @@ class Renderer {
     }
   }
 
+  _tickAmbushFadeIns(dt) {
+    for (const [id, remaining] of this.ambushFadeIns) {
+      const next = remaining - dt;
+      if (next <= 0) {
+        this.ambushFadeIns.delete(id);
+      } else {
+        this.ambushFadeIns.set(id, next);
+      }
+    }
+  }
+
   _tickScreenShake(dt) {
     if (this.screenShake.duration > 0) {
       this.screenShake.elapsed += dt;
@@ -1956,16 +1987,28 @@ class Renderer {
     };
   }
 
-  _spawnDeathAnim(x, y, mobId) {
+  _getDeathStyle(monsterType) {
+    // Categorize monsters into death animation styles
+    const styleMap = {
+      // Shadow/wraith types: dissolve (fade + expand)
+      shadow_ambusher: 'dissolve', gloom_wraith: 'dissolve',
+      shade_stalker: 'dissolve', shade_stalker_alpha: 'dissolve',
+      // Heavy/brute types: crumble (shake + collapse)
+      magma_brute: 'crumble', crystal_guardian: 'crumble',
+      frost_warden: 'crumble', luddite_warlord: 'crumble',
+      elder_sporecap: 'crumble', nest_mother: 'crumble',
+      // Fungal types: pop (scale up then vanish)
+      sporecap_shambler: 'pop', mycelium_lurker: 'pop',
+      fungal_sprayer: 'pop',
+    };
+    return styleMap[monsterType] || 'collapse'; // default: original collapse
+  }
+
+  _spawnDeathAnim(x, y, mobId, monsterType) {
     // Try to capture the monster's sprite texture from pool before it's cleaned up
     const entry = this.monsterSprites.get(mobId);
-    let spritePath = null;
     let tint = 0xe53935;
     if (entry && entry.sprite) {
-      // If the sprite has a loaded texture, we'll recreate it
-      if (entry.sprite.texture !== PIXI.Texture.WHITE) {
-        spritePath = entry.sprite._texturePath || null;
-      }
       tint = entry.sprite.tint;
     }
 
@@ -1982,9 +2025,12 @@ class Renderer {
     this._positionEntity(container, x, y);
     this.entityContainer.addChild(container);
 
+    const style = this._getDeathStyle(monsterType);
+    const maxAge = style === 'crumble' ? 0.5 : 0.4;
+
     this.deathAnims.push({
-      container, sprite, x, y,
-      age: 0, maxAge: 0.4,
+      container, sprite, x, y, style,
+      age: 0, maxAge,
     });
   }
 
@@ -1998,9 +2044,39 @@ class Renderer {
         return false;
       }
       const progress = da.age / da.maxAge;
-      // Fade out and collapse vertically
-      da.container.alpha = 1 - progress;
-      da.sprite.scale.y *= (1 - dt * 4); // shrink Y each frame
+
+      switch (da.style) {
+        case 'dissolve':
+          // Expand outward and fade, ghostly dissolution
+          da.container.alpha = 1 - progress * progress;
+          da.sprite.scale.x = 1 + progress * 0.8;
+          da.sprite.scale.y = 1 + progress * 0.8;
+          da.sprite.tint = 0x7c4dff; // purple tint as it dissolves
+          break;
+        case 'crumble':
+          // Shake then collapse downward
+          da.container.alpha = 1 - progress;
+          da.sprite.scale.y *= (1 - dt * 5);
+          da.container.x += (Math.random() - 0.5) * 3 * (1 - progress);
+          break;
+        case 'pop':
+          // Quick scale up then vanish
+          if (progress < 0.3) {
+            const expand = 1 + (progress / 0.3) * 0.6;
+            da.sprite.scale.x = expand;
+            da.sprite.scale.y = expand;
+          } else {
+            const shrink = 1 - ((progress - 0.3) / 0.7);
+            da.sprite.scale.x = 1.6 * shrink;
+            da.sprite.scale.y = 1.6 * shrink;
+          }
+          da.container.alpha = progress < 0.3 ? 1 : 1 - ((progress - 0.3) / 0.7);
+          break;
+        default: // 'collapse' — original behavior
+          da.container.alpha = 1 - progress;
+          da.sprite.scale.y *= (1 - dt * 4);
+          break;
+      }
       return true;
     });
   }
@@ -2054,9 +2130,12 @@ class Renderer {
           age: 0, maxAge: 2.0,
           color: '#ffa726',
         });
+      } else if (ev.type === 'ambush_reveal' && ev.targetId) {
+        this.ambushFadeIns.set(ev.targetId, 0.5); // 0.5s fade-in
       } else if (ev.type === 'death' && ev.targetId && ev.targetId.startsWith('mob_')) {
+        this.ambushFadeIns.delete(ev.targetId);
         // Spawn death animation for monster
-        this._spawnDeathAnim(ev.x, ev.y, ev.targetId);
+        this._spawnDeathAnim(ev.x, ev.y, ev.targetId, ev.monsterType);
       } else if (ev.type === 'cone_effect') {
         this.coneEffects.push({
           x: ev.x, y: ev.y,

@@ -1224,6 +1224,7 @@ class GameLoop {
         room.events.push({
           type: 'death',
           targetId: mid,
+          monsterType: mob.type,
           x: mob.x,
           y: mob.y,
         });
@@ -1341,6 +1342,7 @@ class GameLoop {
     if (nearestMob.health <= 0) {
       room.events.push({
         type: 'death', targetId: nearestMob.id,
+        monsterType: nearestMob.type,
         x: nearestMob.x, y: nearestMob.y,
       });
       room.monsters.delete(nearestMob.id);
@@ -1643,6 +1645,11 @@ class GameLoop {
         if (nearestDist <= revealRange || mob.aggroTarget) {
           mob.hidden = false;
           mob.ambushRevealed = true;
+          room.events.push({
+            type: 'ambush_reveal',
+            targetId: mid,
+            x: mob.x, y: mob.y,
+          });
         } else {
           continue; // Stay dormant
         }
@@ -1740,6 +1747,7 @@ class GameLoop {
               id: projId,
               ownerId: mob.id,
               isMonsterProjectile: true,
+              projectileType: mob.projectile || null,
               x: mob.x,
               y: mob.y,
               vx: (dx / len) * CONSTANTS.PROJECTILE_SPEED * 0.7,
@@ -1931,6 +1939,7 @@ class GameLoop {
             room.events.push({
               type: 'death',
               targetId: mid,
+              monsterType: mob.type,
               x: mob.x,
               y: mob.y,
             });
@@ -2554,6 +2563,9 @@ class GameLoop {
       };
       if (proj.radius && proj.radius !== CONSTANTS.PROJECTILE_RADIUS) {
         pData.radius = proj.radius;
+      }
+      if (proj.projectileType) {
+        pData.projectileType = proj.projectileType;
       }
       projectiles.push(pData);
     }
