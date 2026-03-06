@@ -2272,6 +2272,17 @@
   });
 
   net.on(CONSTANTS.MSG.SOL_GRID, (msg) => {
+    // Handle placement error feedback
+    if (msg.error) {
+      solGridSelectedComponent = null;
+      if (menuOpen && menuTab === 'solgrid') {
+        solGridInfo.textContent = msg.error;
+        solGridInfo.style.color = '#ef5350';
+        renderSolGrid();
+        setTimeout(() => { solGridInfo.style.color = ''; }, 2500);
+      }
+      return;
+    }
     solGridState = msg.grid || null;
     // Update sol tab disabled state
     const solTab = document.querySelector('#character-menu .inv-tab[data-tab="solgrid"]');

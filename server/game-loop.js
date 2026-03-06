@@ -908,8 +908,12 @@ class GameLoop {
         if (!shape[sy][sx]) continue;
         const cx = gridX + sx;
         const cy = gridY + sy;
-        if (cx < 0 || cy < 0 || cx >= size || cy >= size) return false;
-        if (player.solGrid.cells[cy * size + cx] !== null) return false;
+        if (cx < 0 || cy < 0 || cx >= size || cy >= size) {
+          return { ok: false, reason: 'Component does not fit — too close to the grid edge.' };
+        }
+        if (player.solGrid.cells[cy * size + cx] !== null) {
+          return { ok: false, reason: 'Cell is already occupied by another component.' };
+        }
       }
     }
 

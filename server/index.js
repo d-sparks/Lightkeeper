@@ -705,6 +705,13 @@ wss.on('connection', (ws) => {
         const placeResult = gameLoop.trySolGridPlace(
           ws.playerRoom, playerId, msg.inventoryIndex, msg.gridX, msg.gridY
         );
+        if (placeResult && !placeResult.ok && placeResult.reason) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.SOL_GRID,
+            error: placeResult.reason,
+          }));
+          break;
+        }
         if (placeResult && placeResult.ok) {
           // Set flag when damage booster chip is placed (for quest tracking)
           if (placeResult.itemType === 'damage_booster_chip') {
