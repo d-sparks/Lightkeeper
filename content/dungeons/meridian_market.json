@@ -41,7 +41,9 @@
     { "type": "weaponsmith_garro", "x": 24, "y": 5 },
     { "type": "component_dealer_mira", "x": 15, "y": 13 }
   ],
-  "itemSpawns": [],
+  "itemSpawns": [
+    { "type": "courier_logbook", "x": 15, "y": 10 }
+  ],
   "exits": [
     { "x": 12, "y": 19, "leadsTo": "meridian_civic", "type": "stairs_up", "spawnX": 12, "spawnY": 1 },
     { "x": 0, "y": 16, "leadsTo": "meridian_archives", "type": "stairs_down", "spawnX": 18, "spawnY": 7 },
@@ -264,6 +266,44 @@
       ]
     },
 
+    {
+      "id": "remove_logbook_no_quest",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "courier_clue_found" } }
+      ],
+      "actions": [
+        { "type": "removeEntity", "entityType": "item", "itemType": "courier_logbook" }
+      ]
+    },
+    {
+      "id": "remove_logbook_already_found",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "courier_logbook_picked_up" }
+      ],
+      "actions": [
+        { "type": "removeEntity", "entityType": "item", "itemType": "courier_logbook" }
+      ]
+    },
+    {
+      "id": "courier_logbook_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "courier_logbook" },
+      "conditions": [
+        { "hasFlag": "courier_clue_found" }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "courier_logbook_picked_up" },
+        { "type": "grantXp", "amount": 10 },
+        { "type": "showMessage", "lines": [
+          "A battered logbook, wedged behind a market stall. The cover reads 'HALDEN — TRANSIT COURIER, EVENING SHIFT.'",
+          "Several pages have been torn out, but the remaining entries show a clear pattern: cargo manifests marked 'rerouted' with coordinates outside the city walls.",
+          "The Records Clerk will want to see this."
+        ]}
+      ],
+      "once": true
+    },
     {
       "id": "mira_repeller_shop",
       "event": "npc_interacted",

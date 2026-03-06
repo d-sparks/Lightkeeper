@@ -107,6 +107,47 @@
       ]
     },
     {
+      "id": "clerk_courier_quest_start",
+      "event": "npc_interacted",
+      "filter": { "npcType": "records_clerk" },
+      "conditions": [
+        { "hasFlag": "visited_meridian_station" },
+        { "not": { "hasFlag": "courier_quest_started" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "courier_quest_started" },
+        { "type": "grantXp", "amount": 10 },
+        { "type": "showMessage", "lines": [
+          "The Records Clerk looks up from a stack of transit logs. 'Actually — since you're here. I've been cross-referencing transit logs and something doesn't add up.'",
+          "'One of the station couriers, Halden, hasn't filed a cargo manifest in four days. That's not just late — that's unprecedented.'",
+          "'Would you ask Station Master Calloway if he's seen Halden? The station is south through the Market Quarter.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "clerk_courier_logbook_return",
+      "event": "npc_interacted",
+      "filter": { "npcType": "records_clerk" },
+      "conditions": [
+        { "hasItem": "courier_logbook" },
+        { "hasFlag": "courier_quest_started" },
+        { "not": { "hasFlag": "courier_quest_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "courier_logbook" },
+        { "type": "setFlag", "flag": "courier_quest_complete" },
+        { "type": "giveItem", "itemType": "shadow_conduit_chip" },
+        { "type": "grantXp", "amount": 40 },
+        { "type": "showMessage", "lines": [
+          "The Records Clerk examines the logbook carefully. 'Torn pages... rerouted shipments... these route codes don't match any authorized transit paths.'",
+          "'He was diverting cargo to coordinates outside the city walls. Medical supplies, copper stock, power cells — things the Unbounded traders pay a premium for.'",
+          "'I'll file a report with the Civic Center. Here — for your trouble. I found this in the restricted archives last week. It's wasted on a filing clerk.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "solen_marker_delivery",
       "event": "npc_interacted",
       "filter": { "npcType": "archivist_solen" },

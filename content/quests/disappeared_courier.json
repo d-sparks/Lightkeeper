@@ -1,0 +1,42 @@
+{
+  "id": "disappeared_courier",
+  "name": "The Disappeared Courier",
+  "description": "A transit courier named Halden has stopped filing cargo manifests. The Records Clerk in the Archives wants answers.",
+  "startConditions": [{ "hasFlag": "courier_quest_started" }],
+  "steps": {
+    "ask_calloway": {
+      "label": "Ask Calloway About Halden",
+      "description": "Talk to Station Master Calloway at Meridian Station about the missing courier.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "meridian_station" },
+      "completionConditions": [{ "hasFlag": "courier_clue_found" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 10 },
+        { "type": "showMessage", "text": "Calloway says Halden left his logbook behind. It might have ended up in the Market Quarter." }
+      ]
+    },
+    "find_logbook": {
+      "label": "Find Halden's Logbook",
+      "description": "Search the Market Quarter for the courier's dropped logbook.",
+      "prerequisiteSteps": ["ask_calloway"],
+      "objective": { "roomId": "meridian_market" },
+      "completionConditions": [{ "hasFlag": "courier_logbook_picked_up" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 10 },
+        { "type": "showMessage", "text": "The logbook shows rerouted shipments. The Records Clerk needs to see this." }
+      ]
+    },
+    "return_to_clerk": {
+      "label": "Return the Logbook to the Records Clerk",
+      "description": "Bring Halden's logbook back to the Records Clerk in the Archives.",
+      "prerequisiteSteps": ["find_logbook"],
+      "objective": { "roomId": "meridian_archives" },
+      "completionConditions": [{ "hasFlag": "courier_quest_complete" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "text": "Quest complete: The Disappeared Courier. The smuggling operation has been exposed." }
+      ]
+    }
+  },
+  "startStep": "ask_calloway"
+}

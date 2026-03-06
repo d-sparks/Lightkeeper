@@ -1161,9 +1161,26 @@
       "returning": [
         { "speaker": "Station Master Calloway", "text": "Back again? The trains run on schedule now, thanks to the Array's timetable systems." },
         { "speaker": "Station Master Calloway", "text": "Need directions? Market north, Civic east, Workshop west. Same as always." }
+      ],
+      "courier_asked": [
+        { "speaker": "Station Master Calloway", "text": "Halden? Yeah, I know him. Transit courier, ran the evening manifests. Quiet kid, kept his head down." },
+        { "speaker": "Station Master Calloway", "text": "Hasn't been at his post in days, though. Last time I saw him, he was in the Market Quarter — acting jumpy, looking over his shoulder. Left his logbook on the platform bench, if you can believe it." },
+        { "speaker": "Station Master Calloway", "text": "I put it aside for him, but he never came back for it. Might've ended up in the market — things get swept that way during the evening rush." }
+      ],
+      "courier_done": [
+        { "speaker": "Station Master Calloway", "text": "Heard they found out what Halden was up to. Smuggling, of all things. In my station." },
+        { "speaker": "Station Master Calloway", "text": "Good riddance, I say. I run a clean operation here." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "courier_quest_complete" }],
+        "use": "courier_done"
+      },
+      {
+        "conditions": [{ "hasFlag": "courier_quest_started" }, { "not": { "hasFlag": "courier_quest_complete" } }],
+        "use": "courier_asked"
+      },
       {
         "conditions": [{ "hasFlag": "visited_meridian_station" }],
         "use": "returning"
@@ -1481,9 +1498,40 @@
         { "speaker": "Records Clerk", "text": "The original Lightkeepers established the perimeter relay network — the Lighthouse system. It kept the dark at bay for decades." },
         { "speaker": "Records Clerk", "text": "When the relays started failing... well. That's when the outposts went from supply stations to fortresses." },
         { "speaker": "Records Clerk", "text": "The Archives hold records going back to first contact with this planet. If you need historical data, I can point you in the right direction." }
+      ],
+      "courier_concern": [
+        { "speaker": "Records Clerk", "text": "Actually — since you're here. I've been cross-referencing transit logs and something doesn't add up." },
+        { "speaker": "Records Clerk", "text": "One of the station couriers, Halden, hasn't filed a cargo manifest in four days. That's not just late — that's unprecedented. These logs are supposed to be daily." },
+        { "speaker": "Records Clerk", "text": "I'd go check myself, but I'm neck-deep in filing season. Would you ask Station Master Calloway if he's seen Halden? The station is south through the Market Quarter." }
+      ],
+      "courier_investigating": [
+        { "speaker": "Records Clerk", "text": "Any luck finding Halden? Station Master Calloway at the Terminus should know something. He tracks everyone who comes through." }
+      ],
+      "has_logbook": [
+        { "speaker": "Records Clerk", "text": "You found Halden's logbook? Let me see..." },
+        { "speaker": "Records Clerk", "text": "Torn pages... rerouted shipments... these route codes don't match any authorized transit paths. He was diverting cargo to coordinates outside the city walls." },
+        { "speaker": "Records Clerk", "text": "This is smuggling. Small-scale, but deliberate. Medical supplies, copper stock, power cells — things the Unbounded traders pay a premium for." },
+        { "speaker": "Records Clerk", "text": "I'll file a report with the Civic Center. Councillor Asha will want to see this. Here — for your trouble. I found this in the restricted archives last week. It's wasted on a filing clerk." }
+      ],
+      "courier_complete": [
+        { "speaker": "Records Clerk", "text": "The report on Halden has been filed. Registrar Hollis wasn't surprised — apparently they'd noticed inventory discrepancies for weeks but couldn't pin down the source." },
+        { "speaker": "Records Clerk", "text": "You did good work. The Archives are always here if you need anything." }
       ]
     },
-    "dialogueRules": []
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "courier_quest_complete" }],
+        "use": "courier_complete"
+      },
+      {
+        "conditions": [{ "hasItem": "courier_logbook" }, { "hasFlag": "courier_quest_started" }],
+        "use": "has_logbook"
+      },
+      {
+        "conditions": [{ "hasFlag": "courier_quest_started" }, { "not": { "hasFlag": "courier_quest_complete" } }],
+        "use": "courier_investigating"
+      }
+    ]
   },
 
   "fen_maro": {

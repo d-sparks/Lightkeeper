@@ -530,6 +530,12 @@
     "rarity": "rare",
     "solComponentId": "umbral_amplifier"
   },
+  "courier_logbook": {
+    "name": "Courier's Logbook",
+    "description": "A battered logbook dropped by a transit courier. The entries list cargo manifests, delivery times, and route codes — but several pages have been torn out. The remaining entries show a pattern of 'rerouted' shipments.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
   "lore_array_transmission": {
     "name": "Faded Transmission Log",
     "description": "A printed log of early Array communications, dated years before the current outpost was built. Most entries are routine trade confirmations, but one is circled in red ink: 'REQUEST: Subsurface mineral survey data, Nightside quadrant 7-North. PRIORITY: Maximum. REASON: [FIELD EXCEEDS PROTOCOL LENGTH].' Someone has written in the margin: 'They never did explain why.'",
