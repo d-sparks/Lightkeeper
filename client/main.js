@@ -1616,6 +1616,12 @@
                 if (mod.bonus.cooldownReduction) {
                   html += '<div class="sol-mod-tag">-' + Math.round(mod.bonus.cooldownReduction * 100) + '% cd</div>';
                 }
+                if (mod.bonus.healOnHit) {
+                  html += '<div class="sol-mod-tag">+' + mod.bonus.healOnHit + ' heal</div>';
+                }
+                if (mod.bonus.energyCostReduction) {
+                  html += '<div class="sol-mod-tag">-' + Math.round(mod.bonus.energyCostReduction * 100) + '% cost</div>';
+                }
               }
             }
             cell.innerHTML = html;
@@ -1624,13 +1630,22 @@
           cell.classList.add('has-modifier');
           if (!comp.isExtension) {
             const modLabel = comp.modifierId.replace(/_/g, ' ');
-            cell.innerHTML = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + modLabel + '</div>';
+            let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + modLabel + '</div>';
+            if (comp.bonus) {
+              if (comp.bonus.damageMultiplier) html += '<div class="sol-mod-tag">+' + Math.round(comp.bonus.damageMultiplier * 100) + '% dmg</div>';
+              if (comp.bonus.cooldownReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.cooldownReduction * 100) + '% cd</div>';
+              if (comp.bonus.healOnHit) html += '<div class="sol-mod-tag">+' + comp.bonus.healOnHit + ' heal</div>';
+              if (comp.bonus.energyCostReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.energyCostReduction * 100) + '% cost</div>';
+            }
+            cell.innerHTML = html;
           }
         } else if (comp.generatorId) {
           cell.classList.add('has-generator');
           if (!comp.isExtension) {
             let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + (comp.componentName || comp.generatorId.replace(/_/g, ' ')) + '</div>';
-            if (comp.energyRegen) {
+            if (comp.boostedEnergyRegen) {
+              html += '<div class="sol-mod-tag">+' + comp.boostedEnergyRegen.toFixed(1) + '/s</div>';
+            } else if (comp.energyRegen) {
               html += '<div class="sol-mod-tag">+' + comp.energyRegen + '/s</div>';
             }
             cell.innerHTML = html;

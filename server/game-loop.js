@@ -745,6 +745,13 @@ class GameLoop {
             };
           }
         }
+        // For modifier cells, include bonus info for tooltip display
+        if (cell.modifierId) {
+          const compDef = this.content.getSolComponent(cell.modifierId);
+          if (compDef && compDef.bonus) {
+            clientCell.bonus = compDef.bonus;
+          }
+        }
         // For generator cells, include regen info with adjacency boost
         if (cell.generatorId) {
           const compDef = this.content.getSolComponent(cell.generatorId);
