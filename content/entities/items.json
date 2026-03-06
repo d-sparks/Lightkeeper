@@ -516,5 +516,18 @@
     "description": "Tough, fibrous strands harvested from deep-rooted fungal networks. Surprisingly strong — an armorer could weave this into something useful.",
     "type": "key",
     "rarity": "uncommon"
+  },
+  "refined_umbrasite": {
+    "name": "Refined Umbrasite",
+    "description": "A perfectly crystallized specimen of umbrasite, formed under immense pressure deep in the Nightside. Unlike raw shards, this crystal has a geometric lattice structure that pulses with inner light. MERIDIAN-7 specifically requested this grade of material.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "umbral_amplifier_chip": {
+    "name": "Umbral Amplifier",
+    "description": "An Array-manufactured Sol component forged from refined umbrasite. Dark-tuned circuitry that massively boosts damage output and reduces cooldowns of adjacent abilities. Place in a Sol Grid.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "umbral_amplifier"
   }
 }

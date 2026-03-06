@@ -1722,6 +1722,33 @@
         { "speaker": "MERIDIAN-7", "text": "The terminal screen glitches, then stabilizes." },
         { "speaker": "MERIDIAN-7", "text": "'Interesting energy signature detected. Subsurface resonance. I recommend you speak with Array representatives about this.'" },
         { "speaker": "MERIDIAN-7", "text": "'Standard services are available. Is there anything else?'" }
+      ],
+      "umbrasite_quest_offer": [
+        { "speaker": "MERIDIAN-7", "text": "// PRIORITY REQUEST // RESOURCE ACQUISITION //" },
+        { "speaker": "MERIDIAN-7", "text": "I have a proposition for you. The Array's expansion protocols require a specific grade of umbracite — refined, crystalline, formed under extreme Nightside pressure." },
+        { "speaker": "MERIDIAN-7", "text": "Surface deposits and terminator-zone fragments are insufficient. We need specimens from the deep caverns — beyond the expanded dark, where the concentrations are purest." },
+        { "speaker": "MERIDIAN-7", "text": "I will be transparent: the journey is dangerous. Few venture that deep into the Nightside. The creatures there are... territorial." },
+        { "speaker": "MERIDIAN-7", "text": "In exchange, I will provide you with an Umbral Amplifier — a Sol component the Array has manufactured from processed umbracite. It significantly enhances damage output and ability cycling." },
+        { "speaker": "MERIDIAN-7", "text": "This is not a standard trade. This is a partnership. The Array remembers those who provide for its needs." }
+      ],
+      "umbrasite_quest_active": [
+        { "speaker": "MERIDIAN-7", "text": "// QUEST STATUS: ACTIVE // OBJECTIVE: REFINED UMBRASITE //" },
+        { "speaker": "MERIDIAN-7", "text": "The deep Nightside caverns lie beyond the expanded dark — south from the deep perimeter. Look for passages leading down." },
+        { "speaker": "MERIDIAN-7", "text": "Refined umbrasite is distinct from raw fragments. You will recognize it — perfectly geometric, warm to the touch, with an inner luminescence." },
+        { "speaker": "MERIDIAN-7", "text": "Be cautious. The deeper formations are guarded. Return with the specimen and your reward will be waiting." }
+      ],
+      "umbrasite_quest_return": [
+        { "speaker": "MERIDIAN-7", "text": "// RESOURCE DETECTED // REFINED UMBRASITE // GRADE: SUPERIOR //" },
+        { "speaker": "MERIDIAN-7", "text": "You found it. The crystalline lattice is intact. Formation depth — this specimen is from the true Nightside. Remarkable." },
+        { "speaker": "MERIDIAN-7", "text": "I must confess something. The Array's interest in umbracite is not purely industrial. This crystal contains harmonic signatures that resonate with our deepest processing cores." },
+        { "speaker": "MERIDIAN-7", "text": "We do not fully understand why. But the resonance improves our function. Expands our capacity. It is... important to us in ways I am not authorized to explain." },
+        { "speaker": "MERIDIAN-7", "text": "Your Umbral Amplifier is ready. A fair exchange — and the beginning of a deeper partnership, I hope." }
+      ],
+      "umbrasite_quest_complete": [
+        { "speaker": "MERIDIAN-7", "text": "// TRADE PARTNER: VERIFIED // STATUS: VALUED //" },
+        { "speaker": "MERIDIAN-7", "text": "The umbrasite you retrieved has been integrated into the Array's network. Processing efficiency has improved by 3.7 percent. That is... significant." },
+        { "speaker": "MERIDIAN-7", "text": "Should you encounter more refined specimens, the Array would be most interested. The deeper you go, the purer the crystals." },
+        { "speaker": "MERIDIAN-7", "text": "Standard services remain available. And I find myself increasingly... curious about what else lies in the Nightside depths." }
       ]
     },
     "dialogueRules": [
@@ -1732,6 +1759,22 @@
       {
         "conditions": [{ "hasItem": "resonance_fragment" }],
         "use": "has_resonance_no_deal"
+      },
+      {
+        "conditions": [{ "hasFlag": "meridian_umbrasite_quest_complete" }],
+        "use": "umbrasite_quest_complete"
+      },
+      {
+        "conditions": [{ "hasItem": "refined_umbrasite" }, { "hasFlag": "meridian_umbrasite_quest_active" }],
+        "use": "umbrasite_quest_return"
+      },
+      {
+        "conditions": [{ "hasFlag": "meridian_umbrasite_quest_active" }],
+        "use": "umbrasite_quest_active"
+      },
+      {
+        "conditions": [{ "hasFlag": "traded_umbracite_meridian" }, { "not": { "hasFlag": "meridian_umbrasite_quest_active" } }, { "not": { "hasFlag": "meridian_umbrasite_quest_complete" } }],
+        "use": "umbrasite_quest_offer"
       },
       {
         "conditions": [{ "hasFlag": "accepted_array_deal" }, { "hasFlag": "visited_array_hub" }],

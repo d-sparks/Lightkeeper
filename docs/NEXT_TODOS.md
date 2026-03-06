@@ -24,3 +24,14 @@
 - Flag "damage_booster_equipped" checked in outpost_workshop but never set anywhere
 - Flag "has_traded_meridian" checked in NPC meridian_7 dialogue but never set anywhere
 - Quest lost_supplies step "find_manifest" requires item "supply_manifest" but it's not spawned or given anywhere
+
+## Act II Quest Follow-ups
+
+- Add placeholder sprites for Nightside Caverns and Depths tilesets (currently using frost_crypt)
+- Consider adding a dedicated "nightside" tileset with umbracite-vein wall tiles and darker aesthetics
+- The Crystal Guardian in nightside_depths serves as the floor boss — consider adding a unique boss monster (e.g. "Umbral Warden") with custom AI for this area
+- Add loot drops for nightside_depths monsters (currently using existing nightside loot tables)
+- MERIDIAN-7's umbrasite quest is repeatable conceptually (dialogue hints at wanting more) — implement repeatable quest mechanic or additional tiers of umbrasite exchange
+- The quest currently gates on `traded_umbracite_meridian` — make sure the initial MERIDIAN-7 trade at train station properly flows into the Array Hub quest
+- Add map/minimap markers or quest waypoints for the Nightside Caverns entrance
+- Consider environmental hazards in nightside_depths (cold damage, darkness debuff) once those systems exist
