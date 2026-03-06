@@ -1,12 +1,3 @@
-Fix conflicts
-
-Fixes March 5 2026
-- Disable click on screen to move on mobile, it interferes with the joystick.
-- We aren't seeing cooldown info on mobile, can those be on the buttons just like on web?
-- After teleport, or when first entering a room, sometimes the previous "click to move" (x, y) is in effect. We should clear that so we don't get unintended movement.
-- Going from Meridian station to Meridian civic isn't smooth, it dumps us in a random place in the room. Make sure the doorways connect in a realistic way. (Take a look to see if this is happening in other places, too, and fix those if possible.)
-- Create sub folders in the isometric sprites folder, and put in each one two files: one is a copy of our main ground tile shape, and the second is a prompt that describes the theme of that sub folder in great detail. Then attach to each room/dungeon a field in its JSON simply saying which theme it should eventually have. Later we'll use an AI to generate ISO sprites for that theme, and use them as the graphics in those rooms/dungeons.
-
-Experimental
-- Run the headless sim and, if it gets stuck, either fix the headless sim or fix the game to make further progress in the headless sim.
-- Run the headless sim and, if it gets stuck, either fix the headless sim or fix the game to make further progress in the headless sim.
+TODOs
+- Hitting an issue where I can't slot some sol componenets into my grid. Is there a reason why not? If so, provide a feedback in the game to the player to explain why they can't slot in. Otherwise, fix the bug.
+- Take a look at any outstanding items or ongoing projects in the docs folder. Think carefully about the big picture. We want to make this game as fun and complete as possible. What are the best short and long term investments we can make to improve the game and add to it? If we need to spin up a new big project store a roadmap in the docs folder. If a project is done, mark it as done in its documentation so we know to stop thinking about it. This should cover testing, game quality, fun, content, theme, design, graphics, etc. Then, come up with 10-20 next tasks. Then, replace all tasks in TODOS.md (except the last one!) with those tasks.
