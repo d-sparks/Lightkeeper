@@ -686,6 +686,11 @@ class GameLoop {
       if (mod.bonus.energyCostReduction) energyCostReduce += mod.bonus.energyCostReduction;
       if (mod.bonus.healOnHit) healOnHit += mod.bonus.healOnHit;
     }
+    // Apply stacking caps
+    cdReduce = Math.min(cdReduce, 0.75);
+    energyCostReduce = Math.min(energyCostReduce, 0.75);
+    healOnHit = Math.min(healOnHit, 15);
+
     if (dmgMult > 0) {
       modified.damageMultiplier = (baseAbilityDef.damageMultiplier || 1.0) + dmgMult;
     }
@@ -732,12 +737,26 @@ class GameLoop {
             };
           }
         }
-        // For generator cells, include regen info
+        // For generator cells, include regen info with adjacency boost
         if (cell.generatorId) {
           const compDef = this.content.getSolComponent(cell.generatorId);
           if (compDef) {
             clientCell.componentName = compDef.name;
             clientCell.energyRegen = compDef.energyRegen;
+            const x = i % size;
+            const y = Math.floor(i / size);
+            const mods = this._getAdjacentModifiers(grid, x, y);
+            let regenBoost = 0;
+            for (const mod of mods) {
+              if (mod.bonus.energyCostReduction) regenBoost += mod.bonus.energyCostReduction;
+            }
+            if (regenBoost > 0) {
+              clientCell.boostedEnergyRegen = compDef.energyRegen * (1 + regenBoost);
+              clientCell.modifiers = mods.filter(m => m.bonus.energyCostReduction).map(m => ({
+                name: m.name,
+                bonus: m.bonus,
+              }));
+            }
           }
         }
         // For battery cells, include capacity info
@@ -833,11 +852,18 @@ class GameLoop {
             }
           }
 
-          // Generators — passive energy regen per second
+          // Generators — passive energy regen per second, boosted by adjacent modifiers
           if (cell.generatorId) {
             const compDef = this.content.getSolComponent(cell.generatorId);
             if (compDef && compDef.energyRegen) {
-              player.solGridEnergyRegen += compDef.energyRegen;
+              let regen = compDef.energyRegen;
+              const mods = this._getAdjacentModifiers(player.solGrid, x, y);
+              for (const mod of mods) {
+                if (mod.bonus.energyCostReduction) {
+                  regen *= (1 + mod.bonus.energyCostReduction);
+                }
+              }
+              player.solGridEnergyRegen += regen;
             }
           }
 

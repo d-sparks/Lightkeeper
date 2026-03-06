@@ -14,7 +14,11 @@
 - Nightside "dark" mods currently give flat damage bonuses — when a lighting/visibility system is added, implement conditional bonuses (e.g. extra damage in unlit tiles)
 - Add loot table entries so faction mods actually drop from the correct biomes/factions
 - Client UI does not yet display healOnHit or energyCostReduction modifier effects — add tooltip support
+- Client UI should display generator adjacency boost info (boostedEnergyRegen field is now sent from server)
 - Consider adding more rarity tiers (legendary) for each faction once balance is tested
+- Design and implement extended-adjacency modifiers (radius 2, entire row/column) for rare/legendary tier
+- Define modifier stat ranges per rarity tier (common → legendary number values)
+- Define the 5-6 sol unit variants (grid dimensions, innate perks, where found)
 
 ## Content Validation Errors (pre-existing)
 

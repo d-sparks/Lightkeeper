@@ -92,7 +92,7 @@ A sol unit with a good power generator can sustain ability use in the field long
 
 Power generators slot into the grid like any other component, meaning they take up a slot that could otherwise be an ability or modifier. This is a real tradeoff: a power generator makes you more self-sufficient but costs you a grid slot.
 
-> **Open question:** Do modifiers boost adjacent power generators? (e.g. +Efficiency mod next to a power generator = more regen?) If yes, this creates another layer of optimization. If no, power generators are simpler but less interesting to place.
+**Decision: Yes, modifiers boost adjacent power generators.** An +Efficiency mod next to a power generator increases its regen rate. This creates another layer of grid optimization — generators aren't just "park anywhere" components, they benefit from strategic placement near modifiers.
 
 ---
 
@@ -199,13 +199,40 @@ The player is now making interesting decisions every time they return from a run
 
 ---
 
+## Resolved Design Decisions
+
+### Adjacency: Modifiers boost generators (Decided)
+
+**Yes.** Modifiers adjacent to power generators boost their energy regen rate. Specifically:
+- `damageMultiplier` bonuses do NOT apply to generators (damage is irrelevant to regen).
+- `cooldownReduction` bonuses do NOT apply to generators (no cooldown to reduce).
+- `energyCostReduction` bonuses boost generator efficiency: the reduction percentage is applied as a regen multiplier (e.g. +20% energyCostReduction → +20% regen).
+- `healOnHit` does NOT apply to generators.
+
+This means efficiency-type modifiers have dual use: they reduce ability energy costs AND boost generator output when adjacent. Placement matters.
+
+### Adjacency: Modifiers do NOT boost other modifiers (Decided)
+
+**No modifier-modifier chaining.** Modifiers only boost abilities and generators. This prevents exponential stacking and keeps the system understandable. A modifier's bonus is fixed by its rarity/stats — its value comes from how many abilities/generators it touches, not from being boosted by other modifiers.
+
+### Grid component limits (Decided)
+
+- **Duplicate modifiers: Allowed.** You can slot multiple copies of the same modifier. Grid space is the natural limiter.
+- **No ability/modifier ratio limits.** The grid size constrains total components. Players are free to go all-offense, all-utility, or any mix.
+- **Stacking caps per ability** (to prevent degenerate builds):
+  - Cooldown reduction: caps at **75%** (minimum 25% of base cooldown)
+  - Energy cost reduction: caps at **75%** (minimum 25% of base cost)
+  - Damage multiplier: stacks additively, no hard cap (grid space limits it naturally)
+  - Heal on hit: caps at **15 HP per hit** per ability
+
+---
+
 ## Open Questions
 
 1. **Sol unit variants** — Define the 5-6 specific units: grid dimensions, innate perks, where they're found, and how they feel different to play.
-2. **Adjacency details** — Base adjacency is **4-directional** (up/down/left/right). Some rare/powerful modifiers have extended reach: "radius 2", "entire row", "entire column", etc. These break the normal adjacency constraint and are valuable because of it. Still open: do modifiers boost other modifiers? Do power generators benefit from adjacent modifiers?
-3. **Grid component limits** — Can you stack multiple copies of the same modifier? Is there a max number of abilities vs modifiers per grid?
-4. **Modifier stat ranges** — What are the actual numbers? How much does a common +Damage mod give vs a legendary one?
-5. **Battery math** — Capacity per tier, energy costs per ability, how many casts does a full charge sustain at each game phase?
-6. **Harvester scaling** — Silicon collection rate, how many harvesters can you deploy, do better harvesters become available later?
-7. **Ability list** — Full catalog of abilities available from MERIDIAN-7, organized by unlock order.
-8. **Multiplayer implications** — Do players in a party see each others' grid builds? Does this encourage specialization?
+2. **Extended adjacency modifiers** — Base adjacency is **4-directional** (up/down/left/right). Some rare/powerful modifiers could have extended reach: "radius 2", "entire row", "entire column". Design and implement these when the modifier pool expands.
+3. **Modifier stat ranges** — What are the actual numbers? How much does a common +Damage mod give vs a legendary one?
+4. **Battery math** — Capacity per tier, energy costs per ability, how many casts does a full charge sustain at each game phase?
+5. **Harvester scaling** — Silicon collection rate, how many harvesters can you deploy, do better harvesters become available later?
+6. **Ability list** — Full catalog of abilities available from MERIDIAN-7, organized by unlock order.
+7. **Multiplayer implications** — Do players in a party see each others' grid builds? Does this encourage specialization?
