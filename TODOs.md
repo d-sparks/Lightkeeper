@@ -1,33 +1,34 @@
 TODOs
 
-## Polish & Game Feel
-- Add combat juice: floating damage numbers, hit flash on monsters, brief screen shake on player damage, death animations for monsters (fade/collapse instead of instant despawn). Combat is the core loop and needs to feel satisfying.
-- Add more monster AI behaviors beyond melee_chase and ranged_kite. Implement "ambush" (hidden until player is close), "patrol" (follows a waypoint path), and "pack" (group coordination where nearby monsters converge). Wire these as new ai keywords in game-loop.js.
-- Improve player onboarding: the first 2 minutes of gameplay should teach movement, interaction, and combat without walls of text. Add a brief "press WASD to move" overlay that dismisses on first input, and a "press E near NPCs to talk" prompt that dismisses after first interaction.
+## Bugs & Broken Content
+- Fix all 6 content validation errors listed in docs/NEXT_TODOS.md: add missing "sol_cone" component to sol_components.json, add triggers that set the 4 unchecked flags (warlord_defeated, damage_booster_equipped, has_traded_meridian, umbral_seed_dark_exposed), and spawn or give the missing supply_manifest item for the lost_supplies quest.
+- Wire lootTable references onto all monster definitions in monsters.json. Most monster types exist but have no lootTable field, so killing them drops nothing. Map each monster to an appropriate loot table (common, nightside, or a new biome-specific one).
 
-## Content & Variety
-- Add 3-4 new monster types for the Nightside biome (frost crypts / geothermal vents themes from storyboard). Each should have distinct sprites, stats, and AI behaviors. Define in monsters.json.
-- Add 5+ new sol grid modifiers at various rarity tiers (uncommon through epic). Include faction-flavored mods from the progression doc: Dark mods (bonus in unlit areas), Bio mods (heal on hit), Light mods (energy efficiency). Define in sol_components.json.
-- Create 2 new procedural dungeon templates: one for "frost_crypt" biome and one for "fungal_forest" biome, each with distinct monster pools, tile aesthetics, and item drops. Add to content/dungeons/templates/.
-- Add loot drops to monsters. Currently monsters don't drop items on death. Implement a loot table system: each monster type can reference a loot table (JSON in content/loot/) with weighted item rolls and drop chance. The engine picks from the table on kill.
+## Loot & Rewards
+- Create biome-specific loot tables in content/loot/: frost.json, geothermal.json, fungal.json, outpost.json. Each should drop biome-appropriate items and faction-flavored sol modifiers. The loot engine already handles weighted rolls and drop chances.
+- Add sol modifier drops to loot tables. Currently modifiers are only obtainable through scripted events. Players should find them as dungeon loot — common mods frequently, rare/epic mods rarely. This is the endgame chase.
 
-## Systems & Features
-- Build the automation grid UI per docs/automation_screen.md. Replace the current list-based auto panel with the full-screen top-down grid placement screen opened by interacting with MERIDIAN-7. Phase 1: server-side grid state with x,y placements. Phase 2: client CSS grid UI with build palette.
-- Hook content-validator.js into npm test so content regressions are caught. Add "test" script to package.json that runs `node tools/content-validator.js` and fails on errors. Optionally also run the headless sim mainline quest.
-- Implement item rarity visual distinction. Items and sol components have rarity tiers but the UI doesn't reflect this. Add colored borders/text (white=common, green=uncommon, blue=rare, purple=epic, gold=legendary) to inventory items and sol grid components.
+## Monster Deployment
+- Deploy the newer monster types (shadow_ambusher, tunnel_creeper, feral_hound, rime_stalker, frostfang_hunter, vent_spewer, sporecap_shambler, mycelium_lurker, fungal_sprayer) into actual dungeon monsterSpawns. They're defined in monsters.json with cool AI but aren't placed in any dungeon floors. Place them in thematically appropriate locations.
+- Generate placeholder sprites for all monster types that currently lack them. Run tools/generate-sprites.js to create sprites and update PLACEHOLDER_ASSETS.md.
 
-## Story & World
-- Begin Act II quest content: create a quest where MERIDIAN-7 asks the player to retrieve umbrasite from a new Nightside dungeon in exchange for an advanced sol component. This introduces the Array's interest in umbrasite and the deeper trade relationship. Requires 1-2 new dungeon floors + quest JSON.
-- Add environmental storytelling to existing dungeons: place 3-5 readable lore items (journals, inscriptions, terminal logs) across Outpost Balor and Perimeter dungeons that hint at the world's history, the Unbounded, and the Array's nature. These are item pickups with flavor text.
-- Expand Sable's presence: add dialogue branches to the existing Sable NPCs that react to player quest progress (post-train arrival, post-dayside visit). Use dialogueRules conditions to gate deeper lore reveals.
+## Audio & Game Feel
+- Add placeholder sound effects for core game actions and wire them into client/audio.js. Target actions: weapon_attack, ability_fire, monster_hit, monster_death, item_pickup, door_open, floor_transition, player_hurt. Even simple synthesized tones will dramatically improve the feel. The audio system already exists in client/audio.js.
+- Add a combat juice polish pass: ensure ambush monsters have a fade-in reveal effect on client, tint monster projectiles by monster type (not all blue), and add variety to monster death animations.
 
-## Audio & Art
-- Add placeholder sound effects for core actions: weapon attack, ability fire, monster hit, monster death, item pickup, door open, level transition. Even simple synthesized beeps/clicks will dramatically improve game feel. Wire into client/audio.js.
-- Create a consistent color palette and sprite style guide document. The current placeholder sprites are generated but inconsistent. Define a target aesthetic (16x16, limited palette, specific style reference) to guide future art replacement.
+## Automation & Progression
+- Build the automation grid UI (Phase 1 — server-side grid state). Update automation.js to track structure placements with {x, y} coordinates instead of just counts. Update build() to accept and validate gridX, gridY. Update getStateForClient() to include grid data. See docs/automation_screen.md Phase 1 for full spec.
+- Build the automation grid UI (Phase 2 — client CSS grid). Replace the list-based auto panel with a full-screen 12x12 top-down grid placement screen. Build palette at bottom, resource/stats sidebar, progress bar. Opened by interacting with MERIDIAN-7. See docs/automation_screen.md Phase 2 for full spec.
+- Design and define the 5-6 sol unit variants in sol_units.json. Each needs distinct grid dimensions, innate perks, and a location where it's found. See progression-system.md open question #1. This is key to making progression feel meaningful.
 
-## Testing & Quality
-- Run the headless sim (tools/headless-sim.js --mainline) and fix any soft locks or quest progression failures it finds. Document the results. If the sim passes cleanly, note that in docs/ROADMAP.md.
-- Review and answer the open questions in docs/progression-system.md: decide on modifier-boosts-generator adjacency, grid component limits, and modifier stacking rules. Update the doc with decisions and implement any engine changes needed.
+## Content & World
+- Add environmental hazards to biome dungeons: cold damage in nightside/frost zones, heat damage in geothermal zones, poison spore damage in fungal zones. Use the existing darkness damage mechanic as a pattern — hazards should tick damage on players in affected tiles unless they have appropriate protection.
+- Extend Act II content: add 1-2 new dungeon floors inside the Array complex that the player can explore after the umbrasite retrieval quest. These should hint at the Array's true nature (manufacturing bio-catalyst substitutes) per the storyboard. Include environmental lore items and a new NPC or terminal interaction.
+- Add a new side quest in the Meridian City area. Meridian has 12 dungeon rooms and 6+ NPCs but only a few quests active there. A city-based quest (investigation, fetch, or social) would make the city feel more alive.
+
+## Quality & Testing
+- Fix the client sol grid UI to display healOnHit, energyCostReduction, and boostedEnergyRegen modifier effects in tooltips. These values are sent from the server but not shown to the player, making modifier placement feel opaque.
+- Add a world map or zone overview screen. The player currently has no way to see the bigger picture of connected dungeons. Even a simple text-based list of visited locations with navigation would help orientation.
 
 ## Meta
 - Take a look at any outstanding items or ongoing projects in the docs folder. Think carefully about the big picture. We want to make this game as fun and complete as possible. What are the best short and long term investments we can make to improve the game and add to it? If we need to spin up a new big project store a roadmap in the docs folder. If a project is done, mark it as done in its documentation so we know to stop thinking about it. This should cover testing, game quality, fun, content, theme, design, graphics, etc. Then, come up with 10-20 next tasks. Then, replace all tasks in TODOS.md (except the last one!) with those tasks.
