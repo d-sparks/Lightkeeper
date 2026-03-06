@@ -131,7 +131,7 @@
   },
   "scrap_drone": {
     "name": "Scrap Drone",
-    "sprite": "sprites/garden_mite.png",
+    "sprite": "sprites/scrap_drone.png",
     "size": [16, 16],
     "health": 8,
     "speed": 2.0,
@@ -184,7 +184,7 @@
   },
   "shadow_ambusher": {
     "name": "Shadow Ambusher",
-    "sprite": "sprites/shade_stalker.png",
+    "sprite": "sprites/shadow_ambusher.png",
     "size": [16, 16],
     "health": 35,
     "speed": 3.0,
@@ -197,7 +197,7 @@
   },
   "tunnel_creeper": {
     "name": "Tunnel Creeper",
-    "sprite": "sprites/dusk_crawler.png",
+    "sprite": "sprites/tunnel_creeper.png",
     "size": [16, 16],
     "health": 25,
     "speed": 1.2,
@@ -210,7 +210,7 @@
   },
   "feral_hound": {
     "name": "Feral Hound",
-    "sprite": "sprites/dusk_crawler.png",
+    "sprite": "sprites/feral_hound.png",
     "size": [16, 16],
     "health": 20,
     "speed": 2.8,
@@ -339,5 +339,32 @@
     "ai": "melee_chase",
     "lootTable": "elder_sporecap",
     "xp": 65
+  },
+  "array_sentinel": {
+    "name": "Array Sentinel",
+    "sprite": "sprites/array_sentinel.png",
+    "size": [16, 16],
+    "health": 65,
+    "speed": 2.2,
+    "damage": 12,
+    "attackRange": 6,
+    "attackSpeed": 0.8,
+    "projectile": "energy_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "array_sentinel",
+    "xp": 25
+  },
+  "array_fabricator": {
+    "name": "Array Fabricator",
+    "sprite": "sprites/array_fabricator.png",
+    "size": [16, 16],
+    "health": 90,
+    "speed": 1.0,
+    "damage": 8,
+    "attackRange": 1.5,
+    "attackSpeed": 1.0,
+    "ai": "melee_chase",
+    "lootTable": "array_fabricator",
+    "xp": 30
   }
 }

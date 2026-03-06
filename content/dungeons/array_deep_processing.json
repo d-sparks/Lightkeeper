@@ -1,0 +1,121 @@
+{
+  "id": "array_deep_processing",
+  "name": "Array Deep Processing",
+  "depth": 0,
+  "tileset": "dayside",
+  "theme": "dayside_solar",
+  "tileSize": 32,
+  "ambientLight": 0.5,
+  "environmentalHazard": { "type": "heat", "damage": 4, "interval": 1.8 },
+  "width": 22,
+  "height": 20,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,1,1,1,1,3,1,2,1,1,1,1,1,1,2,1,3,1,1,1,1,3,
+    3,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,3,
+    3,1,1,1,1,3,1,2,1,1,1,1,1,1,2,1,3,1,1,1,1,3,
+    3,3,3,4,3,3,1,1,1,1,1,1,1,1,1,1,3,3,4,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,2,7,7,7,7,2,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,2,7,7,7,7,2,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,2,7,7,7,7,2,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,4,3,3,1,1,1,1,1,1,1,1,1,1,3,3,4,3,3,3,
+    3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,1,1,2,1,3,1,2,1,1,1,1,1,1,2,1,3,1,2,1,1,3,
+    3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,6,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "array_sentinel", "x": 10, "y": 6, "count": 1, "patrol": "wander" },
+    { "type": "array_sentinel", "x": 4, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "array_fabricator", "x": 17, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "array_fabricator", "x": 10, "y": 13, "count": 1, "patrol": "guard" },
+    { "type": "array_sentinel", "x": 2, "y": 15, "count": 1, "patrol": "wander" },
+    { "type": "array_sentinel", "x": 19, "y": 15, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "lore_vat_readings", "x": 19, "y": 2 },
+    { "type": "lore_array_directive", "x": 2, "y": 16 },
+    { "type": "health_potion", "x": 19, "y": 16 },
+    { "type": "field_medkit", "x": 8, "y": 15 }
+  ],
+  "exits": [
+    { "x": 1, "y": 18, "leadsTo": "array_synthesis_lab", "type": "stairs_up", "spawnX": 21, "spawnY": 15 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_deep_processing",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Deeper. The ceiling is lower here, the heat more oppressive. The hum of machinery is constant — felt in your bones.",
+          "The central chamber dominates the space: a massive containment pool filled with a murky green-brown fluid. Pipes feed into it from all directions. Monitoring equipment lines the perimeter.",
+          "This isn't a factory. It's a laboratory. The Array is trying to grow something organic."
+        ]},
+        { "type": "setFlag", "flag": "visited_array_deep_processing" }
+      ],
+      "once": true
+    },
+    {
+      "id": "central_vat_examine",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "visited_array_deep_processing" },
+        { "not": { "hasFlag": "examined_central_vat" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The central pool is warm. Bubbles rise to its surface at irregular intervals. The fluid smells faintly of soil and ammonia — organic, unmistakably organic.",
+          "A monitoring readout nearby displays: 'CULTURE MEDIUM 7-SIGMA-4. COMPOSITION: Synthetic amino acid substrate. TARGET: Chloroplast-analog enzyme. STATUS: Generation 847, Iteration 4,291,006.'",
+          "Four million iterations. The Array has been trying to synthesize plant biology for longer than the outpost has existed."
+        ]},
+        { "type": "setFlag", "flag": "examined_central_vat" }
+      ],
+      "once": true
+    },
+    {
+      "id": "deep_processing_realization",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "examined_central_vat" },
+        { "not": { "hasFlag": "array_secret_discovered" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The pieces connect. The Array trades for biological catalysts from the Ring — compounds it cannot manufacture. That trade is humanity's leverage. The reason the Array negotiates instead of dictates.",
+          "But this facility exists to change that equation. If the Array can synthesize its own biological compounds, it won't need the Ring anymore.",
+          "The Array isn't just an ally optimizing trade routes. It's a patient intelligence working to make humanity redundant. Not today. Not this century. But eventually.",
+          "MERIDIAN-7 never mentioned this place. It was never going to."
+        ]},
+        { "type": "setFlag", "flag": "array_secret_discovered" },
+        { "type": "grantXp", "amount": 50 }
+      ],
+      "once": true
+    },
+    {
+      "id": "deep_processing_sable_context",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "hasFlag": "helped_sable" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Sable warned you. The Unbounded have been watching the Array expand for generations. They saw the pattern: dependence becomes control. Now you see it too." }
+      ],
+      "once": true
+    }
+  ]
+}

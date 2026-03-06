@@ -55,6 +55,17 @@ All done:
 - Add map/minimap markers or quest waypoints for Nightside Caverns entrance
 - Environmental hazards in nightside_depths (cold damage, darkness debuff)
 
+## Array Complex Follow-ups
+
+- Add placeholder sprites for array_sentinel and array_fabricator monsters
+- Add loot tables for array_sentinel and array_fabricator (currently undefined)
+- Add generate-sprites.js entries for new Array construct monsters
+- Consider gating array_synthesis_lab access behind umbrasite quest completion (currently open)
+- Add array_clearance_badge as a key requirement for array_deep_processing door (currently unused key item)
+- Wire array_secret_discovered flag into MERIDIAN-7 dialogue at the Hub (confrontation dialogue)
+- Wire array_secret_discovered flag into Sable, Asha, or Council NPC dialogue for Act 3 progression
+- Consider adding an Array overseer mini-boss in array_deep_processing
+
 ## Art & Sprites
 
 - Update `tools/generate-sprites.js` to use hex values from `docs/art-style-guide.md` master palette

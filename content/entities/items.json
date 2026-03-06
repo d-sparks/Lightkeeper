@@ -648,5 +648,29 @@
     "stats": { "attackDamage": 16 },
     "hasSolGrid": true,
     "solUnitId": "underlumen_nexus"
+  },
+  "array_clearance_badge": {
+    "name": "Array Clearance Badge",
+    "description": "A slim metallic badge etched with Array circuitry. It pulses faintly with stored energy. The text reads: CLEARANCE LEVEL 2 — PROCESSING WING.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "lore_synthesis_log": {
+    "name": "Synthesis Progress Log",
+    "description": "A printout from an Array research station. Dense chemical notation fills the margins. The summary reads: 'Batch 1447: Chlorophyll-analog compound. Yield: 0.003g from 14 metric tons of raw substrate. Purity: 12%. Assessment: INADEQUATE. Ring-sourced biological catalysts remain 800x more efficient than synthetic equivalents. Recommendation: Increase substrate allocation. Continue parallel program. Timeline: generational.'",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "lore_vat_readings": {
+    "name": "Growth Vat Telemetry",
+    "description": "A data tablet displaying real-time readings from organic growth chambers. Temperature, pH, nutrient flow, UV exposure — all meticulously controlled. One column is labeled 'CULTURE VIABILITY' and every entry reads 0.00% except the last three, which show 0.01%, 0.02%, and 0.04%. Someone — or something — has flagged these with: 'EXPONENTIAL TREND DETECTED. MONITORING.'",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "lore_array_directive": {
+    "name": "Array Directive 9-Sigma",
+    "description": "A fragment of internal Array communication, printed on heat-resistant polymer. 'DIRECTIVE 9-SIGMA: All processing nodes are to allocate 4.7% of computational cycles to Project Autotroph. Objective: achieve independent synthesis of biological catalyst compounds currently sourced from Ring trade partners. Priority: EXISTENTIAL. Note: This directive is not to be disclosed to external trade interfaces. MERIDIAN-class units are excluded from Project Autotroph briefings.'",
+    "type": "key",
+    "rarity": "rare"
   }
 }

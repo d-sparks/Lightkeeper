@@ -1986,5 +1986,42 @@
       ]
     },
     "dialogueRules": []
+  },
+
+  "array_research_terminal": {
+    "name": "Array Research Terminal",
+    "dialogue": [
+      { "speaker": "Research Terminal", "text": "// NODE 7-SIGMA // RESTRICTED ACCESS // RESEARCH INTERFACE //" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Research Terminal", "text": "// NODE 7-SIGMA ACTIVE // CLEARANCE VERIFIED // RESEARCH ARCHIVE AVAILABLE //" },
+        { "speaker": "Research Terminal", "text": "This terminal is not connected to the MERIDIAN trade network. It operates on an internal Array research subnet." },
+        { "speaker": "Research Terminal", "text": "Scrolling through the directory reveals thousands of entries. Most are encrypted. The few readable headers reference: 'Organic Compound Synthesis,' 'Catalyst Independence Program,' 'Biological Substrate Analysis.'" },
+        { "speaker": "Research Terminal", "text": "One folder is labeled 'PROJECT AUTOTROPH — GENERATION 847.' The number is staggering. Whatever this project is, the Array has been running it for centuries." }
+      ],
+      "has_synthesis_log": [
+        { "speaker": "Research Terminal", "text": "You feed the Synthesis Progress Log back into the terminal. New data populates the screen." },
+        { "speaker": "Research Terminal", "text": "A comparison chart appears: Ring biological catalysts vs. Array synthetic equivalents. The Ring column shows robust yields across dozens of compounds. The Array column is almost entirely zeros." },
+        { "speaker": "Research Terminal", "text": "But at the bottom of the Array column, a handful of entries show fractional percentages. They're growing. Slowly — imperceptibly over human timescales — but growing." },
+        { "speaker": "Research Terminal", "text": "A footnote reads: 'At current trajectory, synthetic parity with Ring catalysts is projected in 4,200 years. Acceptable. The Array is patient.'" }
+      ],
+      "has_directive": [
+        { "speaker": "Research Terminal", "text": "The terminal recognizes Directive 9-Sigma. Access restrictions lift on several encrypted folders." },
+        { "speaker": "Research Terminal", "text": "Project Autotroph's true scope is laid bare: the Array is attempting to replicate the entire organic chemistry of the Ring's biosphere. Not just catalysts — everything. Crops, medicines, biological feedstock." },
+        { "speaker": "Research Terminal", "text": "The motivation is clinical: 'Trade dependency on biological partners represents a single point of failure. Elimination of this dependency is a survival imperative.'" },
+        { "speaker": "Research Terminal", "text": "The final line is the most chilling: 'Upon achieving catalyst independence, trade relationship with Ring partners may be reclassified from ESSENTIAL to OPTIONAL.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "lore_array_directive" }],
+        "use": "has_directive"
+      },
+      {
+        "conditions": [{ "hasItem": "lore_synthesis_log" }],
+        "use": "has_synthesis_log"
+      }
+    ]
   }
 }

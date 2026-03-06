@@ -1,0 +1,99 @@
+{
+  "id": "array_synthesis_lab",
+  "name": "Array Synthesis Lab",
+  "depth": 0,
+  "tileset": "dayside",
+  "theme": "dayside_solar",
+  "tileSize": 32,
+  "ambientLight": 0.8,
+  "environmentalHazard": { "type": "heat", "damage": 3, "interval": 2.0 },
+  "width": 24,
+  "height": 18,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,3,
+    3,1,1,2,1,1,3,1,1,2,2,1,1,2,2,1,1,3,1,1,2,1,1,3,
+    3,1,1,1,1,1,4,1,1,2,2,1,1,2,2,1,1,4,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,3,
+    3,3,3,3,4,3,3,1,1,1,1,1,1,1,1,1,1,3,3,4,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,4,3,3,1,1,1,1,1,1,1,1,1,1,3,3,4,3,3,3,3,
+    3,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,1,1,2,2,1,1,2,2,1,1,3,1,1,1,1,1,3,
+    3,1,1,2,1,1,3,1,1,2,2,1,1,2,2,1,1,3,1,1,2,1,1,3,
+    3,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,3,
+    6,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,8,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 16, "type": "player_start" },
+    { "x": 2, "y": 16, "type": "player_start" },
+    { "x": 1, "y": 15, "type": "player_start" },
+    { "x": 2, "y": 15, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "array_sentinel", "x": 12, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "array_sentinel", "x": 8, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "array_fabricator", "x": 20, "y": 2, "count": 1, "patrol": "guard" },
+    { "type": "array_sentinel", "x": 15, "y": 14, "count": 1, "patrol": "wander" },
+    { "type": "array_fabricator", "x": 3, "y": 13, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [
+    { "type": "array_research_terminal", "x": 12, "y": 1 }
+  ],
+  "itemSpawns": [
+    { "type": "lore_synthesis_log", "x": 21, "y": 3 },
+    { "type": "array_clearance_badge", "x": 2, "y": 2 },
+    { "type": "health_potion", "x": 20, "y": 14 }
+  ],
+  "exits": [
+    { "x": 0, "y": 16, "leadsTo": "dayside_solar_fields", "type": "stairs_up", "spawnX": 8, "spawnY": 12 },
+    { "x": 22, "y": 16, "leadsTo": "array_deep_processing", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_synthesis_lab",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The air is dry and acrid. Climate-controlled, but barely — heat radiates from machinery embedded in the walls.",
+          "This is no solar field. This is an Array manufacturing complex. Rows of sealed chambers line the walls, each containing tubes of viscous fluid connected to processing units.",
+          "The chambers hum with activity. Whatever the Array is building here, it doesn't want humans to see it."
+        ]},
+        { "type": "setFlag", "flag": "visited_array_synthesis_lab" }
+      ],
+      "once": true
+    },
+    {
+      "id": "synthesis_vats_examine",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "visited_array_synthesis_lab" },
+        { "not": { "hasFlag": "examined_synthesis_vats" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Looking closer at the sealed chambers: each one contains a different colored fluid. Some are clear. Others are cloudy, almost organic-looking.",
+          "Small labels on each chamber read: 'CATALYST ANALOG — BATCH [number].' The batch numbers are in the thousands."
+        ]},
+        { "type": "setFlag", "flag": "examined_synthesis_vats" }
+      ],
+      "once": true
+    },
+    {
+      "id": "synthesis_lab_meridian_reaction",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "meridian_umbrasite_quest_complete" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "You helped MERIDIAN-7 acquire refined umbrasite. Now you're standing in a facility it never mentioned. The Array keeps its commitments — and its secrets." }
+      ],
+      "once": true
+    }
+  ]
+}
