@@ -1465,6 +1465,7 @@
       const displayName = SLOT_DISPLAY_NAMES[slot] || slot;
 
       if (equipped) {
+        div.classList.add('rarity-' + (equipped.rarity || 'common'));
         const rarityColor = CONSTANTS.RARITY_COLORS[equipped.rarity] || CONSTANTS.RARITY_COLORS.common;
         const statParts = formatItemStats(equipped);
         let html = '<span class="slot-label-name">' + displayName + '</span>' +
@@ -1518,7 +1519,7 @@
     for (let i = 0; i < inventoryItems.length; i++) {
       const item = inventoryItems[i];
       const cell = document.createElement('div');
-      cell.className = 'inv-grid-cell';
+      cell.className = 'inv-grid-cell rarity-' + (item.rarity || 'common');
       const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
 
       let html = '<span class="cell-dot" style="background:' + rarityColor + '"></span>' +
@@ -1563,7 +1564,8 @@
       return;
     }
     const def = itemCatalog[item.type];
-    let html = '<span class="detail-name">' + item.name + '</span>';
+    const detailRarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
+    let html = '<span class="detail-name" style="color:' + detailRarityColor + '">' + item.name + '</span>';
     if (def && def.description) {
       html += '<span class="detail-desc">' + def.description + '</span>';
     }
@@ -1599,11 +1601,12 @@
       const gy = Math.floor(i / size);
 
       if (comp) {
+        const compRarityColor = CONSTANTS.RARITY_COLORS[comp.componentRarity] || CONSTANTS.RARITY_COLORS.common;
         if (comp.abilityId) {
           cell.classList.add('has-ability');
           if (!comp.isExtension) {
             const label = comp.abilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-            let html = '<div class="sol-cell-name">' + label + '</div>';
+            let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + label + '</div>';
             // Show modifier bonuses if present
             if (comp.modifiers && comp.modifiers.length > 0) {
               for (const mod of comp.modifiers) {
@@ -1620,12 +1623,13 @@
         } else if (comp.modifierId) {
           cell.classList.add('has-modifier');
           if (!comp.isExtension) {
-            cell.textContent = comp.modifierId.replace(/_/g, ' ');
+            const modLabel = comp.modifierId.replace(/_/g, ' ');
+            cell.innerHTML = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + modLabel + '</div>';
           }
         } else if (comp.generatorId) {
           cell.classList.add('has-generator');
           if (!comp.isExtension) {
-            let html = '<div class="sol-cell-name">' + (comp.componentName || comp.generatorId.replace(/_/g, ' ')) + '</div>';
+            let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + (comp.componentName || comp.generatorId.replace(/_/g, ' ')) + '</div>';
             if (comp.energyRegen) {
               html += '<div class="sol-mod-tag">+' + comp.energyRegen + '/s</div>';
             }
@@ -1634,7 +1638,7 @@
         } else if (comp.batteryId) {
           cell.classList.add('has-battery');
           if (!comp.isExtension) {
-            let html = '<div class="sol-cell-name">' + (comp.componentName || comp.batteryId.replace(/_/g, ' ')) + '</div>';
+            let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + (comp.componentName || comp.batteryId.replace(/_/g, ' ')) + '</div>';
             if (comp.energyCapacity) {
               html += '<div class="sol-mod-tag">+' + comp.energyCapacity + ' cap</div>';
             }
@@ -1727,10 +1731,11 @@
 
       for (const { item, idx } of solComponents) {
         const compCell = document.createElement('div');
-        compCell.className = 'sol-cell has-modifier';
+        compCell.className = 'sol-cell rarity-' + (item.rarity || 'common');
         compCell.style.width = '80px';
         compCell.style.height = '80px';
-        compCell.textContent = item.name.replace(' Chip', '');
+        const compRarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
+        compCell.innerHTML = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + item.name.replace(' Chip', '') + '</div>';
         if (solGridSelectedComponent === idx) {
           compCell.classList.add('selected');
         }

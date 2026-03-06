@@ -964,6 +964,7 @@ class GameLoop {
         if (compDef.type === 'modifier') cell.modifierId = itemDef.solComponentId;
         if (compDef.type === 'generator') cell.generatorId = itemDef.solComponentId;
         if (compDef.type === 'battery') cell.batteryId = itemDef.solComponentId;
+        cell.componentRarity = item.rarity || compDef.rarity || 'common';
         if (sx !== 0 || sy !== 0) cell.isExtension = true;
         player.solGrid.cells[cy * size + cx] = cell;
       }
