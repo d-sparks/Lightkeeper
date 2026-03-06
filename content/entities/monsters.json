@@ -206,5 +206,54 @@
     "attackSpeed": 1.2,
     "ai": "pack",
     "xp": 7
+  },
+  "rime_stalker": {
+    "name": "Rime Stalker",
+    "sprite": "sprites/rime_stalker.png",
+    "size": [16, 16],
+    "health": 40,
+    "speed": 2.8,
+    "damage": 16,
+    "attackRange": 1.5,
+    "attackSpeed": 1.0,
+    "ai": "ambush",
+    "xp": 22
+  },
+  "frostfang_hunter": {
+    "name": "Frostfang Hunter",
+    "sprite": "sprites/frostfang_hunter.png",
+    "size": [16, 16],
+    "health": 28,
+    "speed": 2.6,
+    "damage": 8,
+    "attackRange": 1,
+    "attackSpeed": 1.3,
+    "ai": "pack",
+    "xp": 12
+  },
+  "vent_spewer": {
+    "name": "Vent Spewer",
+    "sprite": "sprites/vent_spewer.png",
+    "size": [16, 16],
+    "health": 35,
+    "speed": 1.2,
+    "damage": 14,
+    "attackRange": 7,
+    "attackSpeed": 0.6,
+    "projectile": "magma_glob",
+    "ai": "ranged_kite",
+    "xp": 20
+  },
+  "magma_brute": {
+    "name": "Magma Brute",
+    "sprite": "sprites/magma_brute.png",
+    "size": [16, 16],
+    "health": 120,
+    "speed": 0.8,
+    "damage": 20,
+    "attackRange": 1.5,
+    "attackSpeed": 0.6,
+    "ai": "melee_chase",
+    "xp": 55
   }
 }
