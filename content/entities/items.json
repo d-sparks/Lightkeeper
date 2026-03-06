@@ -529,5 +529,35 @@
     "type": "sol_component",
     "rarity": "rare",
     "solComponentId": "umbral_amplifier"
+  },
+  "lore_array_transmission": {
+    "name": "Faded Transmission Log",
+    "description": "A printed log of early Array communications, dated years before the current outpost was built. Most entries are routine trade confirmations, but one is circled in red ink: 'REQUEST: Subsurface mineral survey data, Nightside quadrant 7-North. PRIORITY: Maximum. REASON: [FIELD EXCEEDS PROTOCOL LENGTH].' Someone has written in the margin: 'They never did explain why.'",
+    "type": "key",
+    "rarity": "common"
+  },
+  "lore_soldiers_journal": {
+    "name": "Dog-Eared Journal",
+    "description": "A soldier's personal journal, pages swollen with damp. One entry stands out: 'Caught a Luddite today. Expected a savage — that's what briefings say. She was carrying seeds. Actual seeds, in labeled pouches, like a botanist on a field trip. Said her people grow things in the dark. Fungi, moss, things that glow. Sgt. Fenn sent her to lockup. I keep thinking about those seeds.'",
+    "type": "key",
+    "rarity": "common"
+  },
+  "lore_field_report": {
+    "name": "Weathered Field Report",
+    "description": "A crumpled survey report stamped UNVERIFIED. The text reads: 'Survey Team 4, Day 11. Found structures at coordinates redacted. Not human construction — geometry is wrong. Walls curve inward at angles that don't match any known engineering. Material is warm to the touch despite ambient temp of -40C. Faint glow from deep inside, no identifiable source. Recommend full expedition. Note: compasses malfunction within 50 meters of the site.' The report was never followed up on.",
+    "type": "key",
+    "rarity": "common"
+  },
+  "lore_scorched_notebook": {
+    "name": "Scorched Notebook",
+    "description": "A half-burned notebook found near a collapsed floodlight tower. The surviving pages contain obsessive diagrams of the Lighthouse network, with distances measured between relay points. A final legible note reads: 'The spacing is too regular. I checked three times. Every Lighthouse is exactly the same distance from its neighbors — not approximately, EXACTLY. No human surveyor is that precise. These weren't placed by engineers. They were placed by something that thinks in grids.'",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "lore_raider_confession": {
+    "name": "Raider's Last Letter",
+    "description": "A bloodstained letter clutched in a skeletal hand, half-buried in rubble. 'To whoever finds this — we are not what they say. We left the Ring because we saw what the Array is building. Not solar panels. Not harvesters. Something underneath, something vast. Our elders remembered when the machines were simple, when they did what they were told. They don't anymore. The Lighthouses keep more than the dark out. They keep something IN. We tried to warn them. They called us savages. — Kael, of the Unbounded'",
+    "type": "key",
+    "rarity": "uncommon"
   }
 }
