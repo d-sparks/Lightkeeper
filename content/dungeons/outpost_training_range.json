@@ -3,6 +3,7 @@
   "name": "Outpost Balor - Training Range",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "outpost_military",
   "tileSize": 32,
   "width": 20,
   "height": 15,

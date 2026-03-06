@@ -3,6 +3,7 @@
   "name": "East Terrace — Lot 7, Salvage Yard",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "abandoned_frontier",
   "tileSize": 32,
   "width": 22,
   "height": 16,
@@ -42,7 +43,7 @@
   "itemSpawns": [],
   "exits": [
     { "x": 21, "y": 14, "leadsTo": "meridian_civic", "type": "stairs_down", "spawnX": 23, "spawnY": 2 },
-    { "x": 16, "y": 3, "leadsTo": "homestead_interior", "type": "stairs_down", "spawnX": 5, "spawnY": 8 }
+    { "x": 16, "y": 3, "leadsTo": "homestead_interior", "type": "stairs_down", "spawnX": 10, "spawnY": 8 }
   ],
   "triggers": [
     {

@@ -3,6 +3,7 @@
   "name": "Market Quarter",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "meridian_city",
   "tileSize": 32,
   "width": 30,
   "height": 20,
@@ -44,7 +45,7 @@
   "exits": [
     { "x": 12, "y": 19, "leadsTo": "meridian_civic", "type": "stairs_up", "spawnX": 12, "spawnY": 1 },
     { "x": 0, "y": 16, "leadsTo": "meridian_archives", "type": "stairs_down", "spawnX": 18, "spawnY": 7 },
-    { "x": 28, "y": 16, "leadsTo": "meridian_array_hub", "type": "stairs_down", "spawnX": 1, "spawnY": 7 }
+    { "x": 28, "y": 16, "leadsTo": "meridian_array_hub", "type": "stairs_down", "spawnX": 1, "spawnY": 2 }
   ],
   "triggers": [
     {

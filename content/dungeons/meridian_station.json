@@ -3,6 +3,7 @@
   "name": "Meridian Station",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "meridian_city",
   "tileSize": 32,
   "width": 30,
   "height": 20,
@@ -43,7 +44,7 @@
     { "x": 14, "y": 19, "leadsTo": "train_station", "type": "stairs_up", "spawnX": 12, "spawnY": 2 },
     { "x": 16, "y": 19, "leadsTo": "train_station", "type": "stairs_up", "spawnX": 12, "spawnY": 2 },
     { "x": 0, "y": 9, "leadsTo": "meridian_workshop", "type": "stairs_down", "spawnX": 18, "spawnY": 7 },
-    { "x": 29, "y": 9, "leadsTo": "meridian_civic", "type": "stairs_down", "spawnX": 1, "spawnY": 8 }
+    { "x": 29, "y": 9, "leadsTo": "meridian_civic", "type": "stairs_down", "spawnX": 1, "spawnY": 2 }
   ],
   "triggers": [
     {

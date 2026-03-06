@@ -3,6 +3,7 @@
   "name": "The Expanded Dark",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "dark_perimeter",
   "tileSize": 32,
   "ambientLight": 0.03,
   "width": 30,

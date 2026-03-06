@@ -3,6 +3,7 @@
   "name": "Station Approach",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "transit_infrastructure",
   "tileSize": 32,
   "ambientLight": 0.40,
   "width": 20,

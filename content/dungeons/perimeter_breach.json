@@ -3,6 +3,7 @@
   "name": "The Breach",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "dark_perimeter",
   "tileSize": 32,
   "ambientLight": 0.05,
   "width": 25,

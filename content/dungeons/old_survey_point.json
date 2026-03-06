@@ -3,6 +3,7 @@
   "name": "Old Survey Point",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "abandoned_frontier",
   "tileSize": 32,
   "ambientLight": 0.06,
   "width": 14,

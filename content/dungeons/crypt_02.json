@@ -3,6 +3,7 @@
   "name": "The Bone Chamber",
   "depth": 2,
   "tileset": "crypt",
+  "theme": "stone_crypt",
   "tileSize": 32,
   "width": 25,
   "height": 16,

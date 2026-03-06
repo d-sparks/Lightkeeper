@@ -3,6 +3,7 @@
   "name": "Fen's Squad Cache",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "natural_cave",
   "tileSize": 32,
   "ambientLight": 0.15,
   "width": 14,

@@ -3,6 +3,7 @@
   "name": "Train Station",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "transit_infrastructure",
   "tileSize": 32,
   "width": 25,
   "height": 16,

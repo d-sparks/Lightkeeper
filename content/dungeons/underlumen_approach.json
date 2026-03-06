@@ -3,6 +3,7 @@
   "name": "The Hum",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "underlumen_depths",
   "tileSize": 32,
   "ambientLight": 0.02,
   "width": 20,

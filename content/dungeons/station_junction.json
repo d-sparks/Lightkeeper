@@ -3,6 +3,7 @@
   "name": "Junction Box 7",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "transit_infrastructure",
   "tileSize": 32,
   "ambientLight": 0.20,
   "width": 15,

@@ -3,6 +3,7 @@
   "name": "Collapsed Relay Station",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "transit_infrastructure",
   "tileSize": 32,
   "ambientLight": 0.10,
   "width": 18,

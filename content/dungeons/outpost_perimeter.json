@@ -3,6 +3,7 @@
   "name": "The Dark Perimeter",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "dark_perimeter",
   "tileSize": 32,
   "ambientLight": 0.08,
   "width": 30,

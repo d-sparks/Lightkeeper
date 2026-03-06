@@ -3,6 +3,7 @@
   "name": "The Signal Source",
   "depth": 0,
   "tileset": "crypt",
+  "theme": "natural_cave",
   "tileSize": 32,
   "ambientLight": 0.02,
   "width": 15,
