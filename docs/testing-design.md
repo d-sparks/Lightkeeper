@@ -1,5 +1,7 @@
 # Automated Content Testing — Design Document
 
+> **STATUS: IMPLEMENTED.** Both the static content analyzer (`tools/content-validator.js`) and the headless game simulator (`tools/headless-sim.js`) are built and functional. See `tools/` directory.
+
 ## 1. Overview & Goals
 
 Lightkeeper is entirely data-driven: quests, dialogue, monster spawns, exits, and triggers are all defined in JSON under `content/`. This makes content the most likely source of bugs — broken references, unreachable rooms, impossible quests, soft locks. Manual testing catches obvious issues but can't exhaustively validate the combinatorial space of flags, items, and room transitions.
