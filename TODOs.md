@@ -28,7 +28,7 @@ TODOs
 
 ## Quality & Testing
 - Fix the client sol grid UI to display healOnHit, energyCostReduction, and boostedEnergyRegen modifier effects in tooltips. These values are sent from the server but not shown to the player, making modifier placement feel opaque.
-- Add a world map or zone overview screen. The player currently has no way to see the bigger picture of connected dungeons. Even a simple text-based list of visited locations with navigation would help orientation.
+- ~~Add a world map or zone overview screen.~~ DONE — full canvas-based world map with 14 locations across 3 zones, mouse/touch/gamepad support, tooltips, and current location tracking. Toggle with N key or MAP button.
 
 ## Meta
 - Take a look at any outstanding items or ongoing projects in the docs folder. Think carefully about the big picture. We want to make this game as fun and complete as possible. What are the best short and long term investments we can make to improve the game and add to it? If we need to spin up a new big project store a roadmap in the docs folder. If a project is done, mark it as done in its documentation so we know to stop thinking about it. This should cover testing, game quality, fun, content, theme, design, graphics, etc. Then, come up with 10-20 next tasks. Then, replace all tasks in TODOS.md (except the last one!) with those tasks.
