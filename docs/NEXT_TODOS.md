@@ -22,8 +22,10 @@ All 6 errors resolved:
 
 All done:
 - [x] All 25 combat monsters have lootTable references (training_target intentionally excluded)
-- [x] 22 biome-specific loot tables exist across common.json (10) and nightside.json (12)
-- [ ] Add modifier drops to loot tables so faction-flavored mods drop from correct biomes (moved to TODOs.md)
+- [x] 22 monster-specific loot tables exist across common.json (10) and nightside.json (12)
+- [x] Biome loot tables with faction sol modifier drops: frost.json, geothermal.json, fungal.json, outpost.json (3 tiers each: common/uncommon/rare)
+- [ ] Wire biome loot tables to dungeon chests/crates via triggers (e.g. lootTable action on interactable tiles)
+- [ ] Add biome loot table references to procedural dungeon templates (proc_frost_crypt, proc_fungal_forest, proc_quarantine)
 
 ## Combat & AI Polish
 

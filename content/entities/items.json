@@ -559,5 +559,54 @@
     "description": "A bloodstained letter clutched in a skeletal hand, half-buried in rubble. 'To whoever finds this — we are not what they say. We left the Ring because we saw what the Array is building. Not solar panels. Not harvesters. Something underneath, something vast. Our elders remembered when the machines were simple, when they did what they were told. They don't anymore. The Lighthouses keep more than the dark out. They keep something IN. We tried to warn them. They called us savages. — Kael, of the Unbounded'",
     "type": "key",
     "rarity": "uncommon"
+  },
+  "shadow_conduit_chip": {
+    "name": "Shadow Conduit",
+    "description": "A Nightside-forged circuit that channels umbral energy into raw damage. Place in a Sol Grid to boost adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "shadow_conduit"
+  },
+  "void_resonator_chip": {
+    "name": "Void Resonator",
+    "description": "A rare Nightside component that hums with void-frequency energy. Massively boosts damage and cooldowns of adjacent Sol abilities.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "void_resonator"
+  },
+  "bio_leech_node_chip": {
+    "name": "Bio-Leech Node",
+    "description": "Greenway bio-tech that siphons life force from struck targets. Place in a Sol Grid for heal-on-hit.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "bio_leech_node"
+  },
+  "symbiotic_core_chip": {
+    "name": "Symbiotic Core",
+    "description": "A living symbiote from the Greenway that feeds on combat energy, healing its host with each strike. Place in a Sol Grid.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "symbiotic_core"
+  },
+  "mycelial_matrix_chip": {
+    "name": "Mycelial Matrix",
+    "description": "Dense fungal network from the deep Greenway that rapidly regenerates tissue on contact damage. Place in a Sol Grid.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "mycelial_matrix"
+  },
+  "photon_regulator_chip": {
+    "name": "Photon Regulator",
+    "description": "An Array-calibrated regulator that optimizes energy flow to adjacent Sol abilities. Place in a Sol Grid.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "photon_regulator"
+  },
+  "solar_capacitor_chip": {
+    "name": "Solar Capacitor",
+    "description": "A Dayside-charged capacitor that stores solar energy for efficient ability cycling. Place in a Sol Grid.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "solar_capacitor"
   }
 }
