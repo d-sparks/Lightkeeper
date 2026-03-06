@@ -31,7 +31,10 @@
     { "x": 11, "y": 11, "type": "player_start" }
   ],
   "monsterSpawns": [
-    { "type": "crystal_guardian", "x": 9, "y": 4, "count": 1, "patrol": "guard" }
+    { "type": "crystal_guardian", "x": 9, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "sporecap_shambler", "x": 4, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "mycelium_lurker", "x": 14, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "fungal_sprayer", "x": 7, "y": 11, "count": 1, "patrol": "guard" }
   ],
   "npcSpawns": [],
   "itemSpawns": [],

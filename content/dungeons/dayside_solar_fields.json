@@ -46,7 +46,11 @@
     { "x": 16, "y": 27, "type": "player_start" },
     { "x": 15, "y": 26, "type": "player_start" }
   ],
-  "monsterSpawns": [],
+  "monsterSpawns": [
+    { "type": "vent_spewer", "x": 5, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "vent_spewer", "x": 20, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "vent_spewer", "x": 12, "y": 20, "count": 1, "patrol": "guard" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "silicon", "x": 7, "y": 12 },

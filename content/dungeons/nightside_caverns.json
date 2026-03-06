@@ -42,7 +42,9 @@
     { "type": "dusk_crawler", "x": 8, "y": 7, "count": 2, "patrol": "wander" },
     { "type": "dusk_crawler", "x": 18, "y": 14, "count": 2, "patrol": "wander" },
     { "type": "shadow_ambusher", "x": 12, "y": 13, "count": 1, "patrol": "guard" },
-    { "type": "shade_stalker_alpha", "x": 21, "y": 8, "count": 1, "patrol": "guard" }
+    { "type": "shade_stalker_alpha", "x": 21, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "frostfang_hunter", "x": 14, "y": 6, "count": 2, "patrol": "wander" },
+    { "type": "frostfang_hunter", "x": 3, "y": 15, "count": 2, "patrol": "wander" }
   ],
   "npcSpawns": [],
   "itemSpawns": [

@@ -44,7 +44,9 @@
     { "type": "shade_stalker", "x": 4, "y": 14, "count": 1, "patrol": "guard" },
     { "type": "shadow_ambusher", "x": 10, "y": 13, "count": 2, "patrol": "wander" },
     { "type": "dusk_crawler", "x": 17, "y": 17, "count": 3, "patrol": "wander" },
-    { "type": "crystal_guardian", "x": 10, "y": 17, "count": 1, "patrol": "guard" }
+    { "type": "crystal_guardian", "x": 10, "y": 17, "count": 1, "patrol": "guard" },
+    { "type": "rime_stalker", "x": 14, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "rime_stalker", "x": 5, "y": 17, "count": 1, "patrol": "guard" }
   ],
   "npcSpawns": [],
   "itemSpawns": [
