@@ -20,9 +20,10 @@ All 6 errors resolved:
 
 ## Monster Loot Wiring
 
-- Most monster types lack lootTable references — add lootTable field to monster definitions
-- Create biome-specific loot tables (frost, geothermal, fungal, outpost, perimeter)
-- Add modifier drops to loot tables so faction-flavored mods drop from correct biomes
+All done:
+- [x] All 25 combat monsters have lootTable references (training_target intentionally excluded)
+- [x] 22 biome-specific loot tables exist across common.json (10) and nightside.json (12)
+- [ ] Add modifier drops to loot tables so faction-flavored mods drop from correct biomes (moved to TODOs.md)
 
 ## Combat & AI Polish
 

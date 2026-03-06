@@ -2,7 +2,7 @@ TODOs
 
 ## Bugs & Broken Content
 - Fix all 6 content validation errors listed in docs/NEXT_TODOS.md: add missing "sol_cone" component to sol_components.json, add triggers that set the 4 unchecked flags (warlord_defeated, damage_booster_equipped, has_traded_meridian, umbral_seed_dark_exposed), and spawn or give the missing supply_manifest item for the lost_supplies quest.
-- Wire lootTable references onto all monster definitions in monsters.json. Most monster types exist but have no lootTable field, so killing them drops nothing. Map each monster to an appropriate loot table (common, nightside, or a new biome-specific one).
+- ~~Wire lootTable references onto all monster definitions in monsters.json.~~ DONE — all 25 combat monsters have lootTable refs, 22 biome-specific loot tables exist.
 
 ## Loot & Rewards
 - Create biome-specific loot tables in content/loot/: frost.json, geothermal.json, fungal.json, outpost.json. Each should drop biome-appropriate items and faction-flavored sol modifiers. The loot engine already handles weighted rolls and drop chances.

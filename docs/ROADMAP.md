@@ -13,7 +13,7 @@ Last updated: 2026-03-06
 | Scripting System | Done | Trigger-Condition-Action fully implemented, quest DAG system working |
 | Testing Tools | Done | Content validator + headless simulator both functional. Wired into `npm test` |
 | Sol Grid / Progression | Done | Grid placement + adjacency modifiers + 25 components. Design decisions resolved (stacking caps, modifier-generator adjacency, component limits) |
-| Loot System | Done | Engine supports loot tables with weighted drops. 2 loot tables (common, nightside). Needs more tables and monster lootTable refs |
+| Loot System | Done | Engine supports loot tables with weighted drops. 22 loot tables across common.json and nightside.json. All combat monsters wired |
 | Item Rarity UI | Done | Rarity colors (common→legendary) displayed in inventory and sol grid |
 | Art Style Guide | Done | Master palette, sprite conventions, zone color identity documented (docs/art-style-guide.md) |
 | Content Validation CI | Done | `npm test` runs content-validator.js + headless-sim.js --mainline |
@@ -24,7 +24,7 @@ Last updated: 2026-03-06
 | Game Balance | Needs Work | Combat functional but untuned. Energy economy untested at scale |
 | Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
 | Content Validation Errors | Needs Work | 6 known broken refs/flags (see docs/NEXT_TODOS.md) |
-| Monster Loot Wiring | Needs Work | Loot engine works but most monsters lack lootTable references |
+| Monster Loot Wiring | Done | All 25 combat monsters have lootTable refs. 22 biome-specific tables across 2 files |
 
 ---
 
