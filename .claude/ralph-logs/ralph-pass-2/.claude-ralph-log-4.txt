@@ -1,0 +1,10 @@
+Done. Here's a summary of the 4 new Nightside monsters:
+
+| Monster | Biome | AI | HP | Speed | Damage | Role |
+|---------|-------|----|----|-------|--------|------|
+| **Rime Stalker** | Frost Crypts | ambush | 40 | 2.8 | 16 | Hidden predator, bursts from ice to strike hard |
+| **Frostfang Hunter** | Frost Crypts | pack | 28 | 2.6 | 8 | Fast pack hunter, dangerous in groups |
+| **Vent Spewer** | Geothermal Vents | ranged_kite | 35 | 1.2 | 14 | Slow ranged attacker, fires magma_glob projectiles |
+| **Magma Brute** | Geothermal Vents | melee_chase | 120 | 0.8 | 20 | Tanky brawler, slow but devastating |
+
+All 4 use existing AI behaviors (no engine changes needed). Sprites are placeholder copies pending art replacement. The `magma_glob` projectile referenced by the Vent Spewer will need to be defined when projectile types are implemented — it follows the same pattern as the existing `arrow_bone` and `shadow_bolt` references.

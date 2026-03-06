@@ -6,6 +6,7 @@
   "theme": "underlumen_depths",
   "tileSize": 32,
   "ambientLight": 0.02,
+  "environmentalHazard": { "type": "poison", "damage": 2, "interval": 3.0 },
   "width": 20,
   "height": 14,
   "data": [
@@ -31,7 +32,10 @@
     { "x": 11, "y": 11, "type": "player_start" }
   ],
   "monsterSpawns": [
-    { "type": "crystal_guardian", "x": 9, "y": 4, "count": 1, "patrol": "guard" }
+    { "type": "crystal_guardian", "x": 9, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "sporecap_shambler", "x": 4, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "mycelium_lurker", "x": 14, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "fungal_sprayer", "x": 7, "y": 11, "count": 1, "patrol": "guard" }
   ],
   "npcSpawns": [],
   "itemSpawns": [],
@@ -112,7 +116,7 @@
       "id": "umbral_seed_hum_reaction",
       "event": "room_entered",
       "conditions": [
-        { "hasFlag": "seed_exposed_to_dark" },
+        { "hasFlag": "umbral_seed_dark_exposed" },
         { "not": { "hasFlag": "seed_hum_resonance" } }
       ],
       "actions": [

@@ -1,0 +1,9 @@
+Done. Here's what was added:
+
+**3 files changed** (`client/index.html`, `client/input.js`, `client/main.js`):
+
+1. **"WASD Move" hint** — appears as styled key caps (W/A/S/D layout) when the player joins. Fades out on first movement input (keyboard, joystick, or gamepad).
+
+2. **"E Talk to NPCs" hint** — appears after the move hint dismisses. Fades out when the player receives their first NPC dialogue.
+
+Both hints are non-intrusive (no text walls), use `pointer-events: none` so they don't block gameplay, and fade in/out with CSS animations. The `onFirstMove` callback in `InputHandler` fires once and self-clears.

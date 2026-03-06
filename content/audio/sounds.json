@@ -144,6 +144,15 @@
     ]
   },
 
+  "weapon_swing": {
+    "volume": 0.3,
+    "duration": 0.1,
+    "layers": [
+      { "wave": "noise", "color": "white", "volume": 0.35, "attack": 0.005, "release": 0.08, "filterFreq": 1800, "filterQ": 1.5 },
+      { "wave": "sawtooth", "freq": 250, "freqEnd": 150, "attack": 0.005, "decay": 0.03, "sustain": 0.15, "release": 0.04 }
+    ]
+  },
+
   "ability_cast": {
     "volume": 0.3,
     "duration": 0.15,

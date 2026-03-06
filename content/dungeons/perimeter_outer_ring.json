@@ -43,13 +43,16 @@
     { "type": "dusk_crawler", "x": 24, "y": 6, "count": 3, "patrol": "wander" },
     { "type": "shade_stalker", "x": 14, "y": 10, "count": 1, "patrol": "wander" },
     { "type": "shade_stalker", "x": 4, "y": 14, "count": 1, "patrol": "wander" },
-    { "type": "dusk_crawler", "x": 20, "y": 16, "count": 2, "patrol": "wander" }
+    { "type": "dusk_crawler", "x": 20, "y": 16, "count": 2, "patrol": "wander" },
+    { "type": "feral_hound", "x": 10, "y": 5, "count": 3, "patrol": "wander" },
+    { "type": "feral_hound", "x": 18, "y": 18, "count": 2, "patrol": "wander" }
   ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "bandage", "x": 8, "y": 3 },
     { "type": "ration_pack", "x": 13, "y": 6 },
-    { "type": "medical_supplies", "x": 26, "y": 13 }
+    { "type": "medical_supplies", "x": 26, "y": 13 },
+    { "type": "lore_scorched_notebook", "x": 2, "y": 13 }
   ],
   "exits": [
     { "x": 15, "y": 21, "leadsTo": "perimeter_gate", "type": "stairs_up", "spawnX": 9, "spawnY": 2 },
@@ -74,6 +77,19 @@
       "conditions": [{ "hasFlag": "kade_intel_received" }],
       "actions": [
         { "type": "showMessage", "text": "Kade's map data highlights a faint path to the west. According to her notes, there's an old relay station that way — might be worth investigating." }
+      ],
+      "once": true
+    },
+    {
+      "id": "lore_scorched_notebook_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "lore_scorched_notebook" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A half-burned notebook found near a collapsed floodlight tower. The surviving pages contain obsessive diagrams of the Lighthouse network.",
+          "'The spacing is too regular. I checked three times. Every Lighthouse is exactly the same distance from its neighbors — not approximately, EXACTLY.'",
+          "'No human surveyor is that precise. These weren't placed by engineers. They were placed by something that thinks in grids.'"
+        ]}
       ],
       "once": true
     },

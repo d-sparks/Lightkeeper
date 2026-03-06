@@ -13,6 +13,7 @@ class InputHandler {
     this.active = false;
 
     // Callbacks — set by main.js
+    this.onFirstMove = null;     // () => void — fires once on first movement input
     this.onAbility = null;       // (slot, aimAngle) => void
     this.onInteract = null;      // () => void
     this.onInventory = null;     // () => void
@@ -1058,6 +1059,13 @@ class InputHandler {
     const json = JSON.stringify({ k: merged, dx, dy });
     if (json === this.lastSent) return;
     this.lastSent = json;
+
+    // Fire onFirstMove callback once when player starts moving
+    if (this.onFirstMove && (merged.up || merged.down || merged.left || merged.right)) {
+      const cb = this.onFirstMove;
+      this.onFirstMove = null;
+      cb();
+    }
 
     this.net.send({
       type: CONSTANTS.MSG.INPUT,

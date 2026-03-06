@@ -1,5 +1,7 @@
 # Procedural Dungeon Generation
 
+> **STATUS: IMPLEMENTED.** The dungeon generator (`server/dungeon-generator.js`) and template system are fully functional. Two templates exist (`proc_quarantine`, `proc_quarantine_deep`). New biome templates can be added by creating JSON files in `content/dungeons/templates/`.
+
 ## Overview
 
 Lightkeeper supports procedural dungeon generation alongside hand-authored dungeons. Procedural dungeons are defined by **templates** (JSON files in `content/dungeons/templates/`) that specify constraints — room counts, monster pools, item distributions, corridor properties — and the server generates playable layouts at runtime.

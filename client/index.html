@@ -299,6 +299,62 @@
       color: #555;
     }
 
+    /* Onboarding hints */
+    .onboard-hint {
+      position: fixed;
+      bottom: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      pointer-events: none;
+      z-index: 800;
+      animation: onboard-fade-in 0.5s ease-out;
+    }
+    .onboard-hint.fade-out {
+      animation: onboard-fade-out 0.4s ease-in forwards;
+    }
+    .onboard-keys {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .onboard-key-row {
+      display: flex;
+      gap: 4px;
+    }
+    .onboard-key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: rgba(20, 20, 40, 0.85);
+      border: 1px solid rgba(255, 167, 38, 0.6);
+      border-radius: 5px;
+      color: #ffa726;
+      font-size: 16px;
+      font-weight: bold;
+      font-family: monospace;
+    }
+    .onboard-key-wide {
+      width: 48px;
+    }
+    .onboard-label {
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+    @keyframes onboard-fade-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @keyframes onboard-fade-out {
+      from { opacity: 1; transform: translateX(-50%) translateY(0); }
+      to   { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    }
+
     /* System message overlay */
     #dialogue-overlay {
       display: none;
@@ -584,6 +640,18 @@
     }
 
     .inv-grid-cell:hover { background: rgba(255,255,255,0.06); }
+
+    /* Rarity border colors */
+    .rarity-common { border-color: rgba(255,255,255,0.15); }
+    .rarity-uncommon { border-color: rgba(76,175,80,0.5); }
+    .rarity-rare { border-color: rgba(33,150,243,0.5); }
+    .rarity-epic { border-color: rgba(156,39,176,0.5); }
+    .rarity-legendary { border-color: rgba(255,152,0,0.6); box-shadow: 0 0 6px rgba(255,152,0,0.2); }
+
+    .equip-slot-box.rarity-uncommon { border-color: rgba(76,175,80,0.4); }
+    .equip-slot-box.rarity-rare { border-color: rgba(33,150,243,0.4); }
+    .equip-slot-box.rarity-epic { border-color: rgba(156,39,176,0.4); }
+    .equip-slot-box.rarity-legendary { border-color: rgba(255,152,0,0.5); box-shadow: 0 0 6px rgba(255,152,0,0.15); }
 
     .inv-grid-cell .cell-dot {
       width: 14px;
@@ -1143,88 +1211,6 @@
 
     #character-menu .quest-step.active .step-desc {
       color: #999;
-    }
-
-    /* Auto tab styles */
-    .auto-resources {
-      text-align: center;
-      margin-bottom: 16px;
-      padding: 10px;
-      background: rgba(255,200,60,0.06);
-      border: 1px solid rgba(255,200,60,0.15);
-      border-radius: 6px;
-    }
-
-    .auto-resources .resource-label {
-      font-size: 11px;
-      color: #888;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .auto-resources .resource-value {
-      font-size: 22px;
-      color: #e8c060;
-      font-weight: bold;
-    }
-
-    .auto-section-title {
-      font-size: 12px;
-      color: #ffa726;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-      border-bottom: 1px solid rgba(255,167,38,0.2);
-      padding-bottom: 4px;
-    }
-
-    .auto-card {
-      padding: 10px 14px;
-      margin-bottom: 6px;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .auto-card:hover {
-      background: rgba(255,255,255,0.05);
-    }
-
-    .auto-card .auto-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-
-    .auto-card .auto-card-name {
-      font-size: 15px;
-      color: #ccc;
-    }
-
-    .auto-card .auto-card-cost {
-      font-size: 13px;
-      color: #e8c060;
-    }
-
-    .auto-card .auto-card-cost.cant-afford {
-      color: #666;
-    }
-
-    .auto-card .auto-card-desc {
-      font-size: 12px;
-      color: #777;
-    }
-
-    .auto-card .auto-card-count {
-      font-size: 12px;
-      color: #4fc3f7;
-      margin-top: 2px;
-    }
-
-    .auto-card.maxed {
-      opacity: 0.5;
-      pointer-events: none;
     }
 
     /* Automation full-screen overlay */
@@ -1893,9 +1879,6 @@
       <div id="sol-grid-container"></div>
       <div id="sol-grid-info"></div>
     </div>
-    <div id="inv-tab-auto" class="inv-tab-content" style="display:none">
-      <div id="auto-panel-content"></div>
-    </div>
     <div id="inv-tab-quests" class="inv-tab-content" style="display:none">
       <div id="quest-panel-content"></div>
     </div>
@@ -1931,6 +1914,23 @@
   </div>
 
   <div id="quest-toast"></div>
+
+  <!-- Onboarding hints (dismissed on first input/interaction) -->
+  <div id="onboard-move" class="onboard-hint" style="display:none">
+    <div class="onboard-keys">
+      <span class="onboard-key">W</span>
+      <div class="onboard-key-row">
+        <span class="onboard-key">A</span>
+        <span class="onboard-key">S</span>
+        <span class="onboard-key">D</span>
+      </div>
+    </div>
+    <div class="onboard-label">Move</div>
+  </div>
+  <div id="onboard-interact" class="onboard-hint" style="display:none">
+    <span class="onboard-key onboard-key-wide">E</span>
+    <div class="onboard-label">Talk to NPCs</div>
+  </div>
 
 
   <!-- Portrait orientation warning (touch only) -->

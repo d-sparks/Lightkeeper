@@ -29,7 +29,9 @@
   "npcSpawns": [
     { "type": "comms_officer_daley", "x": 3, "y": 3 }
   ],
-  "itemSpawns": [],
+  "itemSpawns": [
+    { "type": "lore_array_transmission", "x": 2, "y": 7 }
+  ],
   "exits": [
     { "x": 10, "y": 5, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 2, "spawnY": 5 }
   ],
@@ -85,6 +87,19 @@
       "actions": [
         { "type": "setFlag", "flag": "daley_gave_coordinates" },
         { "type": "giveItem", "itemType": "daley_coordinates" }
+      ],
+      "once": true
+    },
+    {
+      "id": "lore_array_transmission_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "lore_array_transmission" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A printed log of early Array communications, dated years before this outpost was built.",
+          "One entry is circled in red ink: 'REQUEST: Subsurface mineral survey data, Nightside quadrant 7-North. PRIORITY: Maximum. REASON: [FIELD EXCEEDS PROTOCOL LENGTH].'",
+          "Someone has written in the margin: 'They never did explain why.'"
+        ]}
       ],
       "once": true
     },

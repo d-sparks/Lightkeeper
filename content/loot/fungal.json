@@ -1,0 +1,33 @@
+{
+  "fungal_biome_common": {
+    "dropChance": 0.5,
+    "rolls": [
+      { "item": "fungal_tonic", "weight": 10 },
+      { "item": "bandage", "weight": 6 },
+      { "item": "ration_pack", "weight": 5 },
+      { "item": "spore_sample", "weight": 3 }
+    ]
+  },
+  "fungal_biome_uncommon": {
+    "dropChance": 0.7,
+    "rolls": [
+      { "item": "fungal_tonic", "weight": 6 },
+      { "item": "field_medkit", "weight": 3 },
+      { "item": "spore_sample", "weight": 4 },
+      { "item": "mycelium_fiber", "weight": 4 },
+      { "item": "bio_leech_node_chip", "weight": 3 },
+      { "item": "reinforced_battery_chip", "weight": 2 }
+    ]
+  },
+  "fungal_biome_rare": {
+    "dropChance": 0.9,
+    "rolls": [
+      { "item": "field_medkit", "weight": 4 },
+      { "item": "mycelium_fiber", "weight": 4 },
+      { "item": "deep_fungus", "weight": 3 },
+      { "item": "bio_leech_node_chip", "weight": 3 },
+      { "item": "symbiotic_core_chip", "weight": 2 },
+      { "item": "mycelial_matrix_chip", "weight": 1 }
+    ]
+  }
+}

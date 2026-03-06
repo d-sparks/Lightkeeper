@@ -1,0 +1,107 @@
+{
+  "id": "nightside_depths",
+  "name": "Nightside Depths",
+  "depth": 0,
+  "tileset": "frost_crypt",
+  "theme": "nightside",
+  "tileSize": 32,
+  "ambientLight": 0.01,
+  "environmentalHazard": { "type": "cold", "damage": 4, "interval": 2.0 },
+  "width": 22,
+  "height": 20,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,2,1,1,1,1,1,1,3,3,3,3,3,3,1,1,1,1,1,3,
+    3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,3,
+    3,3,3,1,1,1,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,1,1,1,3,3,1,1,1,2,1,1,1,1,1,3,3,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,3,
+    3,1,1,1,1,1,1,1,1,3,3,3,3,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,3,7,7,3,1,1,1,1,1,1,2,1,3,
+    3,1,1,1,1,1,1,1,1,3,7,7,3,1,1,1,1,1,1,1,1,3,
+    3,3,1,1,1,1,1,1,1,3,3,3,3,1,1,1,1,1,1,1,1,3,
+    3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
+    3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
+    3,1,1,1,1,3,3,1,1,1,1,2,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,3,
+    3,8,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,2,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 2, "y": 2, "type": "player_start" },
+    { "x": 3, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 3, "type": "player_start" },
+    { "x": 3, "y": 3, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "gloom_wraith", "x": 10, "y": 5, "count": 1, "patrol": "wander" },
+    { "type": "gloom_wraith", "x": 18, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "shade_stalker_alpha", "x": 7, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 15, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 4, "y": 14, "count": 1, "patrol": "guard" },
+    { "type": "shadow_ambusher", "x": 10, "y": 13, "count": 2, "patrol": "wander" },
+    { "type": "dusk_crawler", "x": 17, "y": 17, "count": 3, "patrol": "wander" },
+    { "type": "crystal_guardian", "x": 10, "y": 17, "count": 1, "patrol": "guard" },
+    { "type": "rime_stalker", "x": 14, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "rime_stalker", "x": 5, "y": 17, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "refined_umbrasite", "x": 19, "y": 18 },
+    { "type": "umbracite", "x": 3, "y": 9 },
+    { "type": "umbracite", "x": 11, "y": 14 },
+    { "type": "field_medkit", "x": 18, "y": 9 },
+    { "type": "health_potion", "x": 3, "y": 16 },
+    { "type": "flare", "x": 15, "y": 4 }
+  ],
+  "exits": [
+    { "x": 1, "y": 18, "leadsTo": "nightside_caverns", "type": "stairs_up", "spawnX": 21, "spawnY": 15 }
+  ],
+  "triggers": [
+    {
+      "id": "nightside_depths_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The air here is different. Heavier. Warmer than the caverns above, despite the ice on every surface.",
+          "The umbracite deposits are massive — entire walls of dark crystal that pulse with a faint inner light. You've never seen concentrations like this.",
+          "Something guards this place. You can feel it watching."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "refined_umbrasite_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "refined_umbrasite" },
+      "actions": [
+        { "type": "setFlag", "flag": "found_refined_umbrasite" },
+        { "type": "showMessage", "lines": [
+          "This isn't like the rough umbracite you've found before. This crystal is perfectly formed — geometric facets that catch even the faintest light and split it into impossible colors.",
+          "It's warm in your hands. Almost alive. You understand now why MERIDIAN-7 wants this so badly.",
+          "The Array's interest in umbracite isn't just commercial. There's something deeper at work here."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "depths_crystal_guardian_warning",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "depths_guardian_warned" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "depths_guardian_warned" },
+        { "type": "showMessage", "lines": [
+          "A deep vibration shakes the floor. Somewhere in the darkness ahead, something massive shifts.",
+          "The umbracite veins in the walls pulse brighter for a moment, as if responding to the movement."
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

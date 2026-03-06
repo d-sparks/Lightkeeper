@@ -1,0 +1,19 @@
+Done. Here's a summary of the new quest:
+
+**"The Disappeared Courier"** — a 3-step investigation side quest in Meridian City.
+
+**Flow:**
+1. **Archives** — Records Clerk notices courier Halden hasn't filed manifests in 4 days, asks player to investigate (triggers after `visited_meridian_station`)
+2. **Station** — Calloway confirms Halden was acting suspicious and left his logbook behind, points to Market Quarter
+3. **Market** — Player finds the `courier_logbook` on the ground (only visible after Calloway's clue)
+4. **Archives** — Return logbook to Records Clerk, who discovers it's evidence of a smuggling operation
+
+**Reward:** 75 total XP across steps + Shadow Conduit sol component chip
+
+**Files changed:**
+- `content/quests/disappeared_courier.json` — new quest definition
+- `content/entities/items.json` — new `courier_logbook` item
+- `content/entities/npcs.json` — dialogue variants for Records Clerk (5 states) and Calloway (4 states)
+- `content/dungeons/meridian_archives.json` — quest start + completion triggers
+- `content/dungeons/meridian_station.json` — Calloway clue trigger
+- `content/dungeons/meridian_market.json` — logbook spawn, conditional visibility, pickup trigger

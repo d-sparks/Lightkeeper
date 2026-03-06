@@ -1,0 +1,18 @@
+Done. Here's a summary of the changes:
+
+**CSS** (`client/index.html`):
+- Added `.rarity-common/uncommon/rare/epic/legendary` classes with colored borders matching `RARITY_COLORS` (white, green, blue, purple, orange)
+- Legendary items get a subtle glow via `box-shadow`
+- Separate specificity for `.equip-slot-box` rarity borders
+
+**Inventory** (`client/main.js`):
+- Inventory grid cells now get `rarity-{tier}` class for colored borders
+- Detail panel item name is colored by rarity instead of static `#ccc`
+
+**Equipment slots** (`client/main.js`):
+- Equipped item slots get `rarity-{tier}` class for colored borders
+
+**Sol grid** (`client/main.js` + `server/game-loop.js`):
+- Server stores `componentRarity` on placed grid cells
+- Placed component names are colored by rarity
+- Component inventory section uses rarity borders instead of hardcoded `has-modifier` class, with rarity-colored text

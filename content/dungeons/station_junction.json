@@ -29,7 +29,9 @@
   "monsterSpawns": [
     { "type": "dusk_crawler", "x": 4, "y": 5, "count": 2, "patrol": "guard" },
     { "type": "dusk_crawler", "x": 10, "y": 5, "count": 2, "patrol": "guard" },
-    { "type": "dusk_crawler", "x": 7, "y": 7, "count": 2, "patrol": "guard" }
+    { "type": "dusk_crawler", "x": 7, "y": 7, "count": 2, "patrol": "guard" },
+    { "type": "tunnel_creeper", "x": 7, "y": 3, "count": 1, "patrol": "patrol" },
+    { "type": "tunnel_creeper", "x": 12, "y": 8, "count": 1, "patrol": "patrol" }
   ],
   "npcSpawns": [],
   "itemSpawns": [

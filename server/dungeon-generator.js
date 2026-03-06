@@ -110,6 +110,10 @@ class DungeonGenerator {
       triggers: this._buildTriggers(template, context, rooms, depth),
     };
 
+    if (template.environmentalHazard) {
+      dungeon.environmentalHazard = template.environmentalHazard;
+    }
+
     // Place required room item spawns, monster spawns, and center tiles
     for (const room of rooms) {
       if (!room.def) continue;

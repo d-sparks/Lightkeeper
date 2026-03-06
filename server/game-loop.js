@@ -207,13 +207,17 @@ class GameLoop {
           console.warn(`[GameLoop] No valid spawn tile for ${spawn.type} near (${targetTileX}, ${targetTileY}), skipping`);
           continue;
         }
-        room.monsters.set(id, {
+        const spawnX = (validTile.x + 0.5) * CONSTANTS.TILE_SIZE;
+        const spawnY = (validTile.y + 0.5) * CONSTANTS.TILE_SIZE;
+        const mob = {
           id,
           spawnKey,
           type: spawn.type,
           name: def.name,
-          x: (validTile.x + 0.5) * CONSTANTS.TILE_SIZE,
-          y: (validTile.y + 0.5) * CONSTANTS.TILE_SIZE,
+          x: spawnX,
+          y: spawnY,
+          spawnX,
+          spawnY,
           health: def.health,
           maxHealth: def.health,
           speed: def.speed,
@@ -223,7 +227,24 @@ class GameLoop {
           attackTimer: 0,
           ai: def.ai,
           facing: 0,
-        });
+        };
+        // Ambush: start hidden until player is close
+        if (def.ai === 'ambush') {
+          mob.hidden = true;
+          mob.ambushRevealed = false;
+        }
+        // Patrol: set up waypoint walking state
+        if (def.ai === 'patrol') {
+          mob.patrolAngle = Math.random() * Math.PI * 2;
+          mob.patrolTimer = 0;
+          mob.patrolState = 'walking'; // 'walking' or 'waiting'
+          mob.patrolWaitTime = 1.5 + Math.random();
+        }
+        // Ranged kite: store projectile type from definition
+        if (def.ai === 'ranged_kite' && def.projectile) {
+          mob.projectile = def.projectile;
+        }
+        room.monsters.set(id, mob);
       }
     }
   }
@@ -652,20 +673,43 @@ class GameLoop {
   // Compute modified ability stats based on adjacent modifiers
   _computeModifiedAbility(solGrid, x, y, baseAbilityDef) {
     const mods = this._getAdjacentModifiers(solGrid, x, y);
-    if (mods.length === 0) return null; // no modifications
+    const innate = solGrid.innateBonus;
+    if (mods.length === 0 && !innate) return null; // no modifications
 
     const modified = {};
     let dmgMult = 0;
     let cdReduce = 0;
+    let energyCostReduce = 0;
+    let healOnHit = 0;
     for (const mod of mods) {
       if (mod.bonus.damageMultiplier) dmgMult += mod.bonus.damageMultiplier;
       if (mod.bonus.cooldownReduction) cdReduce += mod.bonus.cooldownReduction;
+      if (mod.bonus.energyCostReduction) energyCostReduce += mod.bonus.energyCostReduction;
+      if (mod.bonus.healOnHit) healOnHit += mod.bonus.healOnHit;
     }
+    // Apply sol unit innate bonus to all abilities
+    if (innate) {
+      if (innate.damageMultiplier) dmgMult += innate.damageMultiplier;
+      if (innate.cooldownReduction) cdReduce += innate.cooldownReduction;
+      if (innate.energyCostReduction) energyCostReduce += innate.energyCostReduction;
+      if (innate.healOnHit) healOnHit += innate.healOnHit;
+    }
+    // Apply stacking caps
+    cdReduce = Math.min(cdReduce, 0.75);
+    energyCostReduce = Math.min(energyCostReduce, 0.75);
+    healOnHit = Math.min(healOnHit, 15);
+
     if (dmgMult > 0) {
       modified.damageMultiplier = (baseAbilityDef.damageMultiplier || 1.0) + dmgMult;
     }
     if (cdReduce > 0) {
       modified.cooldown = Math.max(0.1, (baseAbilityDef.cooldown || 0.5) * (1 - cdReduce));
+    }
+    if (energyCostReduce > 0 && baseAbilityDef.energyCost) {
+      modified.energyCost = Math.max(1, Math.round(baseAbilityDef.energyCost * (1 - energyCostReduce)));
+    }
+    if (healOnHit > 0) {
+      modified.healOnHit = healOnHit;
     }
     return modified;
   }
@@ -701,12 +745,33 @@ class GameLoop {
             };
           }
         }
-        // For generator cells, include regen info
+        // For modifier cells, include bonus info for tooltip display
+        if (cell.modifierId) {
+          const compDef = this.content.getSolComponent(cell.modifierId);
+          if (compDef && compDef.bonus) {
+            clientCell.bonus = compDef.bonus;
+          }
+        }
+        // For generator cells, include regen info with adjacency boost
         if (cell.generatorId) {
           const compDef = this.content.getSolComponent(cell.generatorId);
           if (compDef) {
             clientCell.componentName = compDef.name;
             clientCell.energyRegen = compDef.energyRegen;
+            const x = i % size;
+            const y = Math.floor(i / size);
+            const mods = this._getAdjacentModifiers(grid, x, y);
+            let regenBoost = 0;
+            for (const mod of mods) {
+              if (mod.bonus.energyCostReduction) regenBoost += mod.bonus.energyCostReduction;
+            }
+            if (regenBoost > 0) {
+              clientCell.boostedEnergyRegen = compDef.energyRegen * (1 + regenBoost);
+              clientCell.modifiers = mods.filter(m => m.bonus.energyCostReduction).map(m => ({
+                name: m.name,
+                bonus: m.bonus,
+              }));
+            }
           }
         }
         // For battery cells, include capacity info
@@ -720,7 +785,9 @@ class GameLoop {
       }
       clientCells.push(clientCell);
     }
-    return { size: grid.size, cells: clientCells, nextPlacementId: grid.nextPlacementId };
+    const result = { size: grid.size, cells: clientCells, nextPlacementId: grid.nextPlacementId };
+    if (grid.innateBonus) result.innateBonus = grid.innateBonus;
+    return result;
   }
 
   // Rebuild the abilities array from equipped items
@@ -802,11 +869,23 @@ class GameLoop {
             }
           }
 
-          // Generators — passive energy regen per second
+          // Generators — passive energy regen per second, boosted by adjacent modifiers + innate bonus
           if (cell.generatorId) {
             const compDef = this.content.getSolComponent(cell.generatorId);
             if (compDef && compDef.energyRegen) {
-              player.solGridEnergyRegen += compDef.energyRegen;
+              let regen = compDef.energyRegen;
+              const mods = this._getAdjacentModifiers(player.solGrid, x, y);
+              for (const mod of mods) {
+                if (mod.bonus.energyCostReduction) {
+                  regen *= (1 + mod.bonus.energyCostReduction);
+                }
+              }
+              // Apply sol unit innate energyCostReduction to generators
+              const innate = player.solGrid.innateBonus;
+              if (innate && innate.energyCostReduction) {
+                regen *= (1 + innate.energyCostReduction);
+              }
+              player.solGridEnergyRegen += regen;
             }
           }
 
@@ -857,7 +936,7 @@ class GameLoop {
       }
     }
 
-    player.solGrid = { size, cells, nextPlacementId };
+    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null };
     // Set charge capacity from sol unit definition
     player.maxEnergy = solUnitDef.maxCharge || 100;
     player.energy = solUnitDef.initialEnergy !== undefined
@@ -908,8 +987,12 @@ class GameLoop {
         if (!shape[sy][sx]) continue;
         const cx = gridX + sx;
         const cy = gridY + sy;
-        if (cx < 0 || cy < 0 || cx >= size || cy >= size) return false;
-        if (player.solGrid.cells[cy * size + cx] !== null) return false;
+        if (cx < 0 || cy < 0 || cx >= size || cy >= size) {
+          return { ok: false, reason: 'Component does not fit — too close to the grid edge.' };
+        }
+        if (player.solGrid.cells[cy * size + cx] !== null) {
+          return { ok: false, reason: 'Cell is already occupied by another component.' };
+        }
       }
     }
 
@@ -929,6 +1012,7 @@ class GameLoop {
         if (compDef.type === 'modifier') cell.modifierId = itemDef.solComponentId;
         if (compDef.type === 'generator') cell.generatorId = itemDef.solComponentId;
         if (compDef.type === 'battery') cell.batteryId = itemDef.solComponentId;
+        cell.componentRarity = item.rarity || compDef.rarity || 'common';
         if (sx !== 0 || sy !== 0) cell.isExtension = true;
         player.solGrid.cells[cy * size + cx] = cell;
       }
@@ -1056,6 +1140,7 @@ class GameLoop {
       let nearestMob = null;
       let nearestDist = Infinity;
       for (const [mid, mob] of room.monsters) {
+        if (mob.hidden) continue;
         const dx = mob.x - player.x;
         const dy = mob.y - player.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1091,6 +1176,7 @@ class GameLoop {
       damage: damage,
       radius: radius,
       lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+      healOnHit: abilityDef.healOnHit || 0,
     });
 
     player.cooldowns[slotIdx] = abilityDef.cooldown || CONSTANTS.PLAYER_ATTACK_COOLDOWN;
@@ -1116,6 +1202,7 @@ class GameLoop {
 
     // Hit all monsters within cone
     for (const [mid, mob] of room.monsters) {
+      if (mob.hidden) continue;
       const dx = mob.x - player.x;
       const dy = mob.y - player.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1142,6 +1229,11 @@ class GameLoop {
         y: mob.y,
       });
 
+      // Heal on hit
+      if (abilityDef.healOnHit > 0) {
+        player.health = Math.min(player.maxHealth, player.health + abilityDef.healOnHit);
+      }
+
       // Apply knockback
       if (knockbackDist > 0 && dist > 0) {
         mob.knockbackVx = (dx / dist) * knockbackDist;
@@ -1154,6 +1246,7 @@ class GameLoop {
         room.events.push({
           type: 'death',
           targetId: mid,
+          monsterType: mob.type,
           x: mob.x,
           y: mob.y,
         });
@@ -1171,6 +1264,8 @@ class GameLoop {
         if (monsterDef && monsterDef.xp) {
           this.grantXp(player, monsterDef.xp, room);
         }
+
+        this._rollLoot(room, mob);
 
         const ctx = this._scriptContext(player.id, room.id);
         this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
@@ -1204,6 +1299,7 @@ class GameLoop {
     let nearestMob = null;
     let nearestDist = Infinity;
     for (const [mid, mob] of room.monsters) {
+      if (mob.hidden) continue;
       const dx = mob.x - player.x;
       const dy = mob.y - player.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1234,6 +1330,11 @@ class GameLoop {
       amount: damage, x: nearestMob.x, y: nearestMob.y,
     });
 
+    // Heal on hit
+    if (abilityDef.healOnHit > 0) {
+      player.health = Math.min(player.maxHealth, player.health + abilityDef.healOnHit);
+    }
+
     // Apply knockback
     const knockback = abilityDef.knockback || 0;
     if (knockback > 0 && nearestDist > 0) {
@@ -1263,6 +1364,7 @@ class GameLoop {
     if (nearestMob.health <= 0) {
       room.events.push({
         type: 'death', targetId: nearestMob.id,
+        monsterType: nearestMob.type,
         x: nearestMob.x, y: nearestMob.y,
       });
       room.monsters.delete(nearestMob.id);
@@ -1279,6 +1381,8 @@ class GameLoop {
       if (monsterDef && monsterDef.xp) {
         this.grantXp(player, monsterDef.xp, room);
       }
+
+      this._rollLoot(room, nearestMob);
 
       const ctx = this._scriptContext(player.id, room.id);
       this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
@@ -1458,6 +1562,9 @@ class GameLoop {
       // Apply darkness damage to players without sol unit in dark rooms
       this.updateDarkness(room, dt);
 
+      // Apply environmental hazard damage (cold, heat, poison)
+      this.updateEnvironmentalHazards(room, dt);
+
       // Check for floor transitions
       this.checkExits(room);
     }
@@ -1502,6 +1609,73 @@ class GameLoop {
         }
       }
     }
+  }
+
+  updateEnvironmentalHazards(room, dt) {
+    const hazard = room.dungeon.environmentalHazard;
+    if (!hazard) return;
+
+    const damage = hazard.damage || 3;
+    const interval = hazard.interval || 2.0;
+    const hazardType = hazard.type || 'environmental';
+
+    for (const [pid, player] of room.players) {
+      // Check if player has resistance to this hazard type
+      if (this._playerResistsHazard(player, hazardType)) continue;
+
+      if (!player.hazardDamageTimer) player.hazardDamageTimer = 0;
+      player.hazardDamageTimer += dt;
+
+      if (player.hazardDamageTimer >= interval) {
+        player.hazardDamageTimer -= interval;
+        player.health -= damage;
+        room.events.push({
+          type: 'hazard_damage', hazardType, targetId: pid,
+          amount: damage, x: player.x, y: player.y,
+        });
+
+        if (player.health <= 0) {
+          player.health = player.maxHealth;
+          const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
+          player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
+          player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
+          room.events.push({
+            type: 'death', targetId: pid,
+            x: player.x, y: player.y,
+          });
+
+          const deathCtx = this._scriptContext(pid, room.id);
+          this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
+            playerId: pid, roomId: room.id,
+          }, deathCtx);
+        }
+      }
+    }
+  }
+
+  _playerResistsHazard(player, hazardType) {
+    // Players with a sol unit that has matching hazardResist are immune
+    if (player.solGrid && player.solGrid.innateBonus) {
+      const resists = player.solGrid.innateBonus.hazardResist;
+      if (resists && resists.includes(hazardType)) return true;
+    }
+    // Check inventory for items with hazardResist
+    if (player.inventory) {
+      for (const slot of player.inventory) {
+        if (!slot) continue;
+        const itemDef = this.content.getItem(slot.itemId);
+        if (itemDef && itemDef.hazardResist && itemDef.hazardResist.includes(hazardType)) return true;
+      }
+    }
+    // Check equipment for items with hazardResist
+    if (player.equipment) {
+      for (const slot of Object.values(player.equipment)) {
+        if (!slot) continue;
+        const itemDef = this.content.getItem(slot.itemId);
+        if (itemDef && itemDef.hazardResist && itemDef.hazardResist.includes(hazardType)) return true;
+      }
+    }
+    return false;
   }
 
   updateMonsters(room, dt) {
@@ -1556,9 +1730,47 @@ class GameLoop {
       if (!nearest) continue;
 
       const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
-      if (!mob.aggroTarget && nearestDist > aggroRange) continue;
 
-      if (mob.ai === 'melee_chase') {
+      // Ambush: stay hidden until player is very close
+      if (mob.ai === 'ambush' && mob.hidden) {
+        const revealRange = 3 * CONSTANTS.TILE_SIZE;
+        if (nearestDist <= revealRange || mob.aggroTarget) {
+          mob.hidden = false;
+          mob.ambushRevealed = true;
+          room.events.push({
+            type: 'ambush_reveal',
+            targetId: mid,
+            x: mob.x, y: mob.y,
+          });
+        } else {
+          continue; // Stay dormant
+        }
+      }
+
+      if (!mob.aggroTarget && nearestDist > aggroRange) {
+        // Patrol: wander near spawn when no player in aggro range
+        if (mob.ai === 'patrol') {
+          this._updatePatrol(mob, room.dungeon, dt);
+        }
+        continue;
+      }
+
+      if (mob.ai === 'melee_chase' || mob.ai === 'ambush' || mob.ai === 'patrol' || mob.ai === 'pack') {
+        // Pack: when aggroing, alert nearby pack monsters
+        if (mob.ai === 'pack' && nearest && !mob._packAlerted) {
+          mob._packAlerted = true;
+          const packRange = 8 * CONSTANTS.TILE_SIZE;
+          for (const [otherId, other] of room.monsters) {
+            if (otherId === mid || other.ai !== 'pack') continue;
+            const pdx = other.x - mob.x;
+            const pdy = other.y - mob.y;
+            if (Math.sqrt(pdx * pdx + pdy * pdy) <= packRange) {
+              other.aggroTarget = nearest.id;
+              other._packAlerted = true;
+            }
+          }
+        }
+
         if (nearestDist > mob.attackRange) {
           // Chase player
           const dx = nearest.x - mob.x;
@@ -1574,33 +1786,130 @@ class GameLoop {
             mob.facing = Math.atan2(dy, dx);
           }
         } else if (mob.attackTimer <= 0) {
-          // Attack player
-          nearest.health -= mob.damage;
+          // Ambush bonus: 1.5x damage on first strike
+          let damage = mob.damage;
+          if (mob.ai === 'ambush' && mob.ambushRevealed) {
+            damage = Math.round(damage * 1.5);
+            mob.ambushRevealed = false;
+          }
+          nearest.health -= damage;
           mob.attackTimer = mob.attackCooldown;
           room.events.push({
             type: 'damage', targetId: nearest.id,
-            amount: mob.damage, x: nearest.x, y: nearest.y,
+            amount: damage, x: nearest.x, y: nearest.y,
           });
 
-          // Player death -> respawn at floor spawn
-          if (nearest.health <= 0) {
-            nearest.health = nearest.maxHealth;
-            const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
-            nearest.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
-            nearest.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
-            room.events.push({
-              type: 'death', targetId: nearest.id,
-              x: nearest.x, y: nearest.y,
-            });
+          this._checkPlayerDeath(nearest, room);
+        }
+      } else if (mob.ai === 'ranged_kite') {
+        const preferredRange = mob.attackRange * 0.6;
+        const dx = nearest.x - mob.x;
+        const dy = nearest.y - mob.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        mob.facing = Math.atan2(dy, dx);
 
-            // Emit player_death scripting event
-            const deathCtx = this._scriptContext(nearest.id, room.id);
-            this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
-              playerId: nearest.id, roomId: room.id,
-            }, deathCtx);
+        if (nearestDist < preferredRange) {
+          // Too close — kite away
+          if (len > 0) {
+            const speed = mob.speed * CONSTANTS.TILE_SIZE * dt;
+            const nx = mob.x - (dx / len) * speed;
+            const ny = mob.y - (dy / len) * speed;
+            const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
+            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+          }
+        } else if (nearestDist > mob.attackRange) {
+          // Too far — close distance
+          if (len > 0) {
+            const speed = mob.speed * CONSTANTS.TILE_SIZE * dt;
+            const nx = mob.x + (dx / len) * speed;
+            const ny = mob.y + (dy / len) * speed;
+            const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
+            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+          }
+        }
+
+        // Shoot when in range and off cooldown
+        if (nearestDist <= mob.attackRange && mob.attackTimer <= 0) {
+          mob.attackTimer = mob.attackCooldown;
+          if (len > 0) {
+            const projId = `proj_${room.nextProjectileId++}`;
+            room.projectiles.push({
+              id: projId,
+              ownerId: mob.id,
+              isMonsterProjectile: true,
+              projectileType: mob.projectile || null,
+              x: mob.x,
+              y: mob.y,
+              vx: (dx / len) * CONSTANTS.PROJECTILE_SPEED * 0.7,
+              vy: (dy / len) * CONSTANTS.PROJECTILE_SPEED * 0.7,
+              damage: mob.damage,
+              lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+            });
           }
         }
       }
+    }
+  }
+
+  _updatePatrol(mob, dungeon, dt) {
+    if (mob.patrolState === 'waiting') {
+      mob.patrolTimer -= dt;
+      if (mob.patrolTimer <= 0) {
+        mob.patrolState = 'walking';
+        mob.patrolTimer = 0;
+        mob.patrolAngle += Math.PI * (0.5 + Math.random());
+      }
+      return;
+    }
+
+    // Walk in current direction
+    const speed = mob.speed * CONSTANTS.TILE_SIZE * dt * 0.4;
+    const nx = mob.x + Math.cos(mob.patrolAngle) * speed;
+    const ny = mob.y + Math.sin(mob.patrolAngle) * speed;
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+
+    let moved = false;
+    if (!this.physics.collidesAt(nx, mob.y, dungeon, mr)) { mob.x = nx; moved = true; }
+    if (!this.physics.collidesAt(mob.x, ny, dungeon, mr)) { mob.y = ny; moved = true; }
+    mob.facing = mob.patrolAngle;
+
+    // If hit a wall or wandered too far from spawn, stop and turn
+    const dxSpawn = mob.x - mob.spawnX;
+    const dySpawn = mob.y - mob.spawnY;
+    const distFromSpawn = Math.sqrt(dxSpawn * dxSpawn + dySpawn * dySpawn);
+    const maxPatrolDist = 4 * CONSTANTS.TILE_SIZE;
+
+    if (!moved || distFromSpawn > maxPatrolDist) {
+      // Turn back toward spawn
+      mob.patrolAngle = Math.atan2(mob.spawnY - mob.y, mob.spawnX - mob.x) + (Math.random() - 0.5) * 0.5;
+      mob.patrolState = 'waiting';
+      mob.patrolTimer = 1.0 + Math.random() * 2.0;
+    }
+
+    mob.patrolTimer += dt;
+    if (mob.patrolTimer > 3.0) {
+      mob.patrolState = 'waiting';
+      mob.patrolTimer = 1.0 + Math.random() * 1.5;
+    }
+  }
+
+  _checkPlayerDeath(player, room) {
+    if (player.health <= 0) {
+      player.health = player.maxHealth;
+      const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
+      player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
+      player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
+      room.events.push({
+        type: 'death', targetId: player.id,
+        x: player.x, y: player.y,
+      });
+
+      const deathCtx = this._scriptContext(player.id, room.id);
+      this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
+        playerId: player.id, roomId: room.id,
+      }, deathCtx);
     }
   }
 
@@ -1629,6 +1938,7 @@ class GameLoop {
       let nearestMob = null;
       let nearestDist = Infinity;
       for (const [mid, mob] of room.monsters) {
+        if (mob.hidden) continue;
         const dx = mob.x - player.x;
         const dy = mob.y - player.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1695,9 +2005,10 @@ class GameLoop {
         continue;
       }
 
-      // Check monster collision
+      // Check monster collision (only for player-fired projectiles)
       let hitMonster = false;
-      for (const [mid, mob] of room.monsters) {
+      if (!proj.isMonsterProjectile) for (const [mid, mob] of room.monsters) {
+        if (mob.hidden) continue;
         const dx = mob.x - proj.x;
         const dy = mob.y - proj.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1720,6 +2031,7 @@ class GameLoop {
             room.events.push({
               type: 'death',
               targetId: mid,
+              monsterType: mob.type,
               x: mob.x,
               y: mob.y,
             });
@@ -1742,6 +2054,8 @@ class GameLoop {
               }
             }
 
+            this._rollLoot(room, mob);
+
             // Emit monster_killed scripting event
             const ctx = this._scriptContext(proj.ownerId, room.id);
             this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
@@ -1753,6 +2067,14 @@ class GameLoop {
             }, ctx);
           }
 
+          // Heal on hit
+          if (proj.healOnHit > 0) {
+            const attacker = room.players.get(proj.ownerId);
+            if (attacker) {
+              attacker.health = Math.min(attacker.maxHealth, attacker.health + proj.healOnHit);
+            }
+          }
+
           hitMonster = true;
           toRemove.push(i);
           break;
@@ -1760,6 +2082,29 @@ class GameLoop {
       }
 
       if (hitMonster) continue;
+
+      // Check player collision (for monster-fired projectiles)
+      if (proj.isMonsterProjectile) {
+        let hitPlayer = false;
+        for (const [pid, player] of room.players) {
+          const dx = player.x - proj.x;
+          const dy = player.y - proj.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius;
+          if (dist < hitRadius) {
+            player.health -= proj.damage;
+            room.events.push({
+              type: 'damage', targetId: pid,
+              amount: proj.damage, x: player.x, y: player.y,
+            });
+            this._checkPlayerDeath(player, room);
+            hitPlayer = true;
+            toRemove.push(i);
+            break;
+          }
+        }
+        if (hitPlayer) continue;
+      }
     }
 
     // Remove projectiles that hit something or expired (in reverse order to preserve indices)
@@ -2149,6 +2494,40 @@ class GameLoop {
     return Math.floor(base * Math.pow(scale, level - 1));
   }
 
+  // Roll loot from a monster's loot table and spawn ground items at its death position
+  _rollLoot(room, mob) {
+    const monsterDef = this.content.getMonster(mob.type);
+    if (!monsterDef || !monsterDef.lootTable) return;
+    const table = this.content.getLootTable(monsterDef.lootTable);
+    if (!table || !table.rolls || table.rolls.length === 0) return;
+
+    if (Math.random() >= (table.dropChance || 0)) return;
+
+    // Weighted random selection
+    const totalWeight = table.rolls.reduce((sum, r) => sum + (r.weight || 1), 0);
+    let roll = Math.random() * totalWeight;
+    let chosen = null;
+    for (const entry of table.rolls) {
+      roll -= (entry.weight || 1);
+      if (roll <= 0) { chosen = entry; break; }
+    }
+    if (!chosen) return;
+
+    const itemDef = this.content.getItem(chosen.item);
+    if (!itemDef) return;
+
+    const itemId = `item_${room.nextItemId++}`;
+    room.items.set(itemId, {
+      id: itemId,
+      type: chosen.item,
+      name: itemDef.name,
+      rarity: itemDef.rarity || 'common',
+      category: itemDef.type,
+      x: mob.x,
+      y: mob.y,
+    });
+  }
+
   // Grant XP to a player, handling level-ups and HP increases.
   // Returns the number of levels gained.
   grantXp(player, amount, room) {
@@ -2246,6 +2625,7 @@ class GameLoop {
 
     const monsters = [];
     for (const [mid, m] of room.monsters) {
+      if (m.hidden) continue; // Ambush monsters are invisible to clients
       monsters.push({
         id: m.id, type: m.type, name: m.name,
         x: Math.round(m.x * 10) / 10,
@@ -2275,6 +2655,9 @@ class GameLoop {
       };
       if (proj.radius && proj.radius !== CONSTANTS.PROJECTILE_RADIUS) {
         pData.radius = proj.radius;
+      }
+      if (proj.projectileType) {
+        pData.projectileType = proj.projectileType;
       }
       projectiles.push(pData);
     }

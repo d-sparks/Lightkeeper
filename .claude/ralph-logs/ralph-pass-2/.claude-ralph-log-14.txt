@@ -1,0 +1,19 @@
+This task is already fully implemented. The codebase has:
+
+1. **`client/audio.js`** - A complete `AudioManager` class with Web Audio API procedural synthesis (oscillators, noise, ADSR envelopes, multi-layer sounds, music playback)
+
+2. **`content/audio/sounds.json`** - All requested sound effects defined as synthesized sounds:
+   - `hit_deal` - weapon attack hit
+   - `ability_cast` - ability fire
+   - `hit_take` - monster hit (on player)
+   - `death_monster` - monster death
+   - `pickup` - item pickup
+   - `door_open` / `door_close` - door interactions
+   - `floor_change` - level transition
+   - Plus many more: `heal`, `level_up`, `equip`, `dialogue_*`, `quest_*`, `darkness_damage`, `choice_*`, `menu_*`
+
+3. **`content/audio/music.json`** - Three procedural music tracks (`dungeon`, `outpost`, `combat`)
+
+4. **`client/main.js`** - All sounds are wired into the appropriate message handlers (combat events, floor changes, door toggles, item pickups, dialogue, quests, etc.)
+
+No changes needed - the audio system is already complete with synthesized placeholder sounds for all the requested core actions.

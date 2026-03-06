@@ -37,7 +37,8 @@
     { "type": "shade_stalker", "x": 11, "y": 8, "count": 1, "patrol": "guard" },
     { "type": "shade_stalker", "x": 17, "y": 7, "count": 1, "patrol": "guard" },
     { "type": "dusk_crawler", "x": 5, "y": 2, "count": 2, "patrol": "wander" },
-    { "type": "dusk_crawler", "x": 22, "y": 12, "count": 2, "patrol": "wander" }
+    { "type": "dusk_crawler", "x": 22, "y": 12, "count": 2, "patrol": "wander" },
+    { "type": "feral_hound", "x": 8, "y": 12, "count": 2, "patrol": "wander" }
   ],
   "npcSpawns": [
     { "type": "sable_dead_road", "x": 14, "y": 8 }

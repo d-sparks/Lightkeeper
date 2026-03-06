@@ -1,0 +1,15 @@
+The world map feature is **already fully implemented**. Here's what exists:
+
+**Content**: `content/worldmap.json` — 14 locations across 3 zones (Dayside, Terminator Zone, Nightside) with auto-generated connections from dungeon exits.
+
+**Server**: `content-loader.js` loads worldmap data, builds connections, provides `getWorldmap()` and `getWorldmapLocation(roomId)`. `index.js` sends worldmap on player join and location updates on every floor change.
+
+**Client**: Full canvas-based map in `main.js` with:
+- Mouse hover tooltips showing location name, zone, and description
+- Touch support for mobile
+- Gamepad D-pad navigation
+- Current location indicator with pulsing highlight
+- Zone background colors and connection lines
+- Toggle via **N** key or **MAP** button in HUD
+
+I marked the TODO as done and committed (`c917f9f`). No new code needed.

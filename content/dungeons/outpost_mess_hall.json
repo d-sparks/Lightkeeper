@@ -38,7 +38,8 @@
   ],
   "itemSpawns": [
     { "type": "ration_pack", "x": 12, "y": 2 },
-    { "type": "ration_pack", "x": 8, "y": 6 }
+    { "type": "ration_pack", "x": 8, "y": 6 },
+    { "type": "lore_soldiers_journal", "x": 17, "y": 12 }
   ],
   "exits": [
     { "x": 19, "y": 7, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 2, "spawnY": 18 },
@@ -105,6 +106,19 @@
       ],
       "actions": [
         { "type": "setFlag", "flag": "vasik_asked_for_moss" }
+      ],
+      "once": true
+    },
+    {
+      "id": "lore_soldiers_journal_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "lore_soldiers_journal" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A soldier's personal journal left on a bench. One entry stands out:",
+          "'Caught a Luddite today. Expected a savage — that's what briefings say. She was carrying seeds. Actual seeds, in labeled pouches, like a botanist on a field trip.'",
+          "'Said her people grow things in the dark. Fungi, moss, things that glow. Sgt. Fenn sent her to lockup. I keep thinking about those seeds.'"
+        ]}
       ],
       "once": true
     },

@@ -33,7 +33,8 @@
   ],
   "monsterSpawns": [
     { "type": "skeleton", "x": 10, "y": 7, "count": 2, "patrol": "wander" },
-    { "type": "skeleton", "x": 17, "y": 12, "count": 1, "patrol": "guard" }
+    { "type": "skeleton", "x": 17, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "tunnel_creeper", "x": 14, "y": 10, "count": 1, "patrol": "patrol" }
   ],
   "npcSpawns": [
     { "type": "old_keeper", "x": 5, "y": 3 },

@@ -1,0 +1,91 @@
+{
+  "skeleton_common": {
+    "dropChance": 0.4,
+    "rolls": [
+      { "item": "bandage", "weight": 10 },
+      { "item": "ration_pack", "weight": 8 },
+      { "item": "rusty_sword", "weight": 2 },
+      { "item": "damage_booster_chip", "weight": 1 }
+    ]
+  },
+  "luddite_common": {
+    "dropChance": 0.35,
+    "rolls": [
+      { "item": "bandage", "weight": 10 },
+      { "item": "ration_pack", "weight": 8 },
+      { "item": "health_potion", "weight": 4 },
+      { "item": "reinforced_battery_chip", "weight": 1 }
+    ]
+  },
+  "luddite_warlord": {
+    "dropChance": 0.8,
+    "rolls": [
+      { "item": "health_potion", "weight": 6 },
+      { "item": "supply_crate_key", "weight": 2 },
+      { "item": "tempered_blade", "weight": 1 },
+      { "item": "efficiency_core_chip", "weight": 2 },
+      { "item": "signal_booster_chip", "weight": 1 }
+    ]
+  },
+  "dusk_crawler": {
+    "dropChance": 0.2,
+    "rolls": [
+      { "item": "bandage", "weight": 10 },
+      { "item": "ration_pack", "weight": 5 },
+      { "item": "damage_booster_chip", "weight": 1 }
+    ]
+  },
+  "shade_stalker": {
+    "dropChance": 0.35,
+    "rolls": [
+      { "item": "health_potion", "weight": 8 },
+      { "item": "bandage", "weight": 10 },
+      { "item": "umbracite_shard", "weight": 2 },
+      { "item": "shadow_conduit_chip", "weight": 1 }
+    ]
+  },
+  "nest_mother": {
+    "dropChance": 0.75,
+    "rolls": [
+      { "item": "health_potion", "weight": 6 },
+      { "item": "chitin_plate", "weight": 3 },
+      { "item": "field_medkit", "weight": 2 },
+      { "item": "area_expander_chip", "weight": 2 },
+      { "item": "cooldown_reducer_mk2_chip", "weight": 1 }
+    ]
+  },
+  "scrap_drone": {
+    "dropChance": 0.15,
+    "rolls": [
+      { "item": "bandage", "weight": 10 },
+      { "item": "reinforced_battery_chip", "weight": 1 }
+    ]
+  },
+  "gloom_wraith": {
+    "dropChance": 0.4,
+    "rolls": [
+      { "item": "health_potion", "weight": 8 },
+      { "item": "umbracite_shard", "weight": 3 },
+      { "item": "flare", "weight": 5 },
+      { "item": "shadow_conduit_chip", "weight": 1 }
+    ]
+  },
+  "ravine_lurker": {
+    "dropChance": 0.5,
+    "rolls": [
+      { "item": "health_potion", "weight": 6 },
+      { "item": "lurker_hide", "weight": 3 },
+      { "item": "field_medkit", "weight": 2 },
+      { "item": "reinforced_battery_chip", "weight": 1 }
+    ]
+  },
+  "crystal_guardian": {
+    "dropChance": 0.7,
+    "rolls": [
+      { "item": "field_medkit", "weight": 5 },
+      { "item": "frozen_core", "weight": 3 },
+      { "item": "guardian_core_chip", "weight": 1 },
+      { "item": "efficiency_core_chip", "weight": 2 }
+    ]
+  }
+}

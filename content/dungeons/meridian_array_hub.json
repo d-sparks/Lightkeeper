@@ -118,6 +118,65 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "umbrasite_quest_offer",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "traded_umbracite_meridian" },
+        { "not": { "hasFlag": "meridian_umbrasite_quest_active" } },
+        { "not": { "hasFlag": "meridian_umbrasite_quest_complete" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "umbrasite_quest", "prompt": "MERIDIAN-7 has a special request. It needs refined umbrasite from the deep Nightside.", "options": [
+          { "label": "Accept", "description": "Venture into the Nightside Depths and retrieve refined umbrasite for the Array.", "value": "accept" },
+          { "label": "Decline", "description": "Not right now.", "value": "decline" }
+        ]}
+      ]
+    },
+    {
+      "id": "umbrasite_quest_accept",
+      "event": "choice_made",
+      "filter": { "choiceId": "umbrasite_quest", "value": "accept" },
+      "actions": [
+        { "type": "setFlag", "flag": "meridian_umbrasite_quest_active" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'Excellent. I have marked the general direction on your HUD. The deep Nightside caverns lie beyond the expanded dark — south from the deep perimeter.'",
+          "'The refined specimens are found in the deepest formations. You will know them when you see them.'",
+          "'Return with the crystal and the Umbral Amplifier is yours. The Array keeps its commitments.'"
+        ]}
+      ]
+    },
+    {
+      "id": "umbrasite_quest_decline",
+      "event": "choice_made",
+      "filter": { "choiceId": "umbrasite_quest", "value": "decline" },
+      "actions": [
+        { "type": "showMessage", "text": "MERIDIAN-7: 'Understood. The offer remains open. Return when you are prepared.'" }
+      ]
+    },
+    {
+      "id": "umbrasite_quest_turn_in",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "meridian_umbrasite_quest_active" },
+        { "hasItem": "refined_umbrasite" },
+        { "not": { "hasFlag": "meridian_umbrasite_quest_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "refined_umbrasite" },
+        { "type": "giveItem", "itemType": "umbral_amplifier_chip" },
+        { "type": "setFlag", "flag": "meridian_umbrasite_quest_complete" },
+        { "type": "grantXp", "amount": 60 },
+        { "type": "showMessage", "lines": [
+          "The terminal hums with a new intensity. A compartment slides open, revealing the Umbral Amplifier — dark circuitry that shimmers with captured Nightside energy.",
+          "MERIDIAN-7: 'The crystal has been integrated. Processing efficiency is already improving. You have the Array's gratitude — and its attention.'",
+          "'The Umbral Amplifier will serve you well. Place it in your Sol Grid adjacent to an ability emitter for maximum effect.'",
+          "'And Lightkeeper — if you find more refined specimens in your travels, the Array's appetite is... considerable.'"
+        ]}
+      ]
     }
   ]
 }

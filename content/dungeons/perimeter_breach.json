@@ -36,12 +36,14 @@
     { "type": "shade_stalker", "x": 6, "y": 4, "count": 1, "patrol": "wander" },
     { "type": "shade_stalker", "x": 18, "y": 7, "count": 1, "patrol": "wander" },
     { "type": "dusk_crawler", "x": 10, "y": 6, "count": 2, "patrol": "wander" },
-    { "type": "dusk_crawler", "x": 16, "y": 11, "count": 2, "patrol": "wander" }
+    { "type": "dusk_crawler", "x": 16, "y": 11, "count": 2, "patrol": "wander" },
+    { "type": "feral_hound", "x": 12, "y": 9, "count": 2, "patrol": "wander" }
   ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "tannis_dog_tags", "x": 11, "y": 5 },
-    { "type": "bandage", "x": 20, "y": 11 }
+    { "type": "bandage", "x": 20, "y": 11 },
+    { "type": "lore_raider_confession", "x": 4, "y": 13 }
   ],
   "exits": [
     { "x": 12, "y": 0, "leadsTo": "dead_road", "type": "stairs_down", "spawnX": 14, "spawnY": 14 },
@@ -55,6 +57,19 @@
         { "type": "showMessage", "lines": [
           "The old perimeter wall is torn apart here. Massive claw marks score the concrete. Emergency lights flicker erratically.",
           "This is where the Nightside creatures have been getting through. This is where Tannis was attacked."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "lore_raider_confession_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "lore_raider_confession" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A bloodstained letter clutched in a skeletal hand, half-buried in rubble:",
+          "'To whoever finds this — we are not what they say. We left the Ring because we saw what the Array is building. Not solar panels. Not harvesters. Something underneath, something vast.'",
+          "'The Lighthouses keep more than the dark out. They keep something IN. We tried to warn them. They called us savages. — Kael, of the Unbounded'"
         ]}
       ],
       "once": true

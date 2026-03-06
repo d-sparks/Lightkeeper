@@ -32,6 +32,18 @@ class Renderer {
     // Floating damage numbers
     this.damageNumbers = [];
 
+    // Hit flash: map of entityId -> remaining flash time (seconds)
+    this.hitFlashes = new Map();
+
+    // Screen shake state
+    this.screenShake = { intensity: 0, duration: 0, elapsed: 0 };
+
+    // Death animations: array of { x, y, type, age, maxAge, sprite container }
+    this.deathAnims = [];
+
+    // Ambush reveal fade-in: map of mobId -> remaining fade time
+    this.ambushFadeIns = new Map();
+
     // Tile color fallbacks
     this.tileColors = {};
 
@@ -925,9 +937,16 @@ class Renderer {
 
     this.updateCamera();
 
-    // Position world container (camera offset)
-    this.worldContainer.x = -Math.round(this.camX);
-    this.worldContainer.y = -Math.round(this.camY);
+    // Tick combat juice timers
+    const dt = 1 / 60;
+    this._tickHitFlashes(dt);
+    this._tickAmbushFadeIns(dt);
+    this._tickScreenShake(dt);
+
+    // Position world container (camera offset + screen shake)
+    const shake = this._getShakeOffset();
+    this.worldContainer.x = -Math.round(this.camX) + shake.x;
+    this.worldContainer.y = -Math.round(this.camY) + shake.y;
 
     this.renderMap();
     this.renderSpawns();
@@ -942,6 +961,7 @@ class Renderer {
     this.renderMeleeEffects();
     this.renderPlayers();
     this.renderDoorPrompts();
+    this.renderDeathAnims();
     this.renderDamageNumbers();
     this.renderMinimap();
     this.renderQuestArrow();
@@ -1562,6 +1582,11 @@ class Renderer {
         sprite.y = this.isoMode ? -r : 0;
       }
 
+      // Hit flash: override tint to white briefly
+      if (this.hitFlashes.has(mob.id)) {
+        sprite.tint = 0xffffff;
+      }
+
       // Name tag (above sprite top)
       nameTag.text = mob.name;
       nameTag.style.fill = '#e57373';
@@ -1572,6 +1597,15 @@ class Renderer {
       const hp = mob.health / mob.maxHealth;
       const barColor = hp > 0.5 ? 0xe53935 : 0xff6f00;
       this._drawHealthBar(healthBg, healthFill, 0, this.isoMode ? -40 : -r - 4, 26, 3, hp, barColor);
+
+      // Ambush fade-in: override alpha if this mob is fading in
+      if (this.ambushFadeIns.has(mob.id)) {
+        const remaining = this.ambushFadeIns.get(mob.id);
+        const fadeTotal = 0.5;
+        container.alpha = Math.max(0, 1 - remaining / fadeTotal);
+      } else {
+        container.alpha = 1;
+      }
 
       promptText.visible = false;
     }
@@ -1598,7 +1632,14 @@ class Renderer {
         sprite.anchor.set(0.5, 0.5);
         sprite.width = r * 2;
         sprite.height = r * 2;
-        sprite.tint = 0x4fc3f7; // Light blue projectile color
+        // Tint by projectile type
+        const projColors = {
+          arrow_bone: 0xbcaaa4,    // bone/tan
+          shadow_bolt: 0x7c4dff,   // dark purple
+          magma_glob: 0xff6e40,    // fiery orange
+          spore_cloud: 0x69f0ae,   // sickly green
+        };
+        sprite.tint = projColors[proj.projectileType] || 0x4fc3f7;
         container.addChild(sprite);
         this.entityContainer.addChild(container);
         entry = { container, sprite };
@@ -1636,6 +1677,11 @@ class Renderer {
       if (!loaded) {
         const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
         sprite.tint = playerColors[player.colorIndex] || 0xffffff;
+      }
+
+      // Hit flash: override tint to white briefly
+      if (this.hitFlashes.has(player.id)) {
+        sprite.tint = 0xffffff;
       }
 
       // Name tag (above sprite top)
@@ -1897,6 +1943,144 @@ class Renderer {
     });
   }
 
+  // --- Combat juice helpers ---
+
+  _tickHitFlashes(dt) {
+    for (const [id, remaining] of this.hitFlashes) {
+      const next = remaining - dt;
+      if (next <= 0) {
+        this.hitFlashes.delete(id);
+      } else {
+        this.hitFlashes.set(id, next);
+      }
+    }
+  }
+
+  _tickAmbushFadeIns(dt) {
+    for (const [id, remaining] of this.ambushFadeIns) {
+      const next = remaining - dt;
+      if (next <= 0) {
+        this.ambushFadeIns.delete(id);
+      } else {
+        this.ambushFadeIns.set(id, next);
+      }
+    }
+  }
+
+  _tickScreenShake(dt) {
+    if (this.screenShake.duration > 0) {
+      this.screenShake.elapsed += dt;
+      if (this.screenShake.elapsed >= this.screenShake.duration) {
+        this.screenShake.duration = 0;
+      }
+    }
+  }
+
+  _getShakeOffset() {
+    if (this.screenShake.duration <= 0) return { x: 0, y: 0 };
+    const progress = this.screenShake.elapsed / this.screenShake.duration;
+    const decay = 1 - progress;
+    const intensity = this.screenShake.intensity * decay;
+    return {
+      x: Math.round((Math.random() * 2 - 1) * intensity),
+      y: Math.round((Math.random() * 2 - 1) * intensity),
+    };
+  }
+
+  _getDeathStyle(monsterType) {
+    // Categorize monsters into death animation styles
+    const styleMap = {
+      // Shadow/wraith types: dissolve (fade + expand)
+      shadow_ambusher: 'dissolve', gloom_wraith: 'dissolve',
+      shade_stalker: 'dissolve', shade_stalker_alpha: 'dissolve',
+      // Heavy/brute types: crumble (shake + collapse)
+      magma_brute: 'crumble', crystal_guardian: 'crumble',
+      frost_warden: 'crumble', luddite_warlord: 'crumble',
+      elder_sporecap: 'crumble', nest_mother: 'crumble',
+      // Fungal types: pop (scale up then vanish)
+      sporecap_shambler: 'pop', mycelium_lurker: 'pop',
+      fungal_sprayer: 'pop',
+    };
+    return styleMap[monsterType] || 'collapse'; // default: original collapse
+  }
+
+  _spawnDeathAnim(x, y, mobId, monsterType) {
+    // Try to capture the monster's sprite texture from pool before it's cleaned up
+    const entry = this.monsterSprites.get(mobId);
+    let tint = 0xe53935;
+    if (entry && entry.sprite) {
+      tint = entry.sprite.tint;
+    }
+
+    const r = CONSTANTS.MONSTER_COLLISION_RADIUS || 10;
+    const container = new PIXI.Container();
+    const sprite = new PIXI.Sprite(entry ? entry.sprite.texture : PIXI.Texture.WHITE);
+    sprite.anchor.set(0.5);
+    sprite.width = r * 2;
+    sprite.height = r * 2;
+    sprite.tint = tint;
+    if (this.isoMode) sprite.y = -r;
+    container.addChild(sprite);
+
+    this._positionEntity(container, x, y);
+    this.entityContainer.addChild(container);
+
+    const style = this._getDeathStyle(monsterType);
+    const maxAge = style === 'crumble' ? 0.5 : 0.4;
+
+    this.deathAnims.push({
+      container, sprite, x, y, style,
+      age: 0, maxAge,
+    });
+  }
+
+  renderDeathAnims() {
+    const dt = 1 / 60;
+    this.deathAnims = this.deathAnims.filter(da => {
+      da.age += dt;
+      if (da.age >= da.maxAge) {
+        this.entityContainer.removeChild(da.container);
+        da.container.destroy({ children: true });
+        return false;
+      }
+      const progress = da.age / da.maxAge;
+
+      switch (da.style) {
+        case 'dissolve':
+          // Expand outward and fade, ghostly dissolution
+          da.container.alpha = 1 - progress * progress;
+          da.sprite.scale.x = 1 + progress * 0.8;
+          da.sprite.scale.y = 1 + progress * 0.8;
+          da.sprite.tint = 0x7c4dff; // purple tint as it dissolves
+          break;
+        case 'crumble':
+          // Shake then collapse downward
+          da.container.alpha = 1 - progress;
+          da.sprite.scale.y *= (1 - dt * 5);
+          da.container.x += (Math.random() - 0.5) * 3 * (1 - progress);
+          break;
+        case 'pop':
+          // Quick scale up then vanish
+          if (progress < 0.3) {
+            const expand = 1 + (progress / 0.3) * 0.6;
+            da.sprite.scale.x = expand;
+            da.sprite.scale.y = expand;
+          } else {
+            const shrink = 1 - ((progress - 0.3) / 0.7);
+            da.sprite.scale.x = 1.6 * shrink;
+            da.sprite.scale.y = 1.6 * shrink;
+          }
+          da.container.alpha = progress < 0.3 ? 1 : 1 - ((progress - 0.3) / 0.7);
+          break;
+        default: // 'collapse' — original behavior
+          da.container.alpha = 1 - progress;
+          da.sprite.scale.y *= (1 - dt * 4);
+          break;
+      }
+      return true;
+    });
+  }
+
   // --- Damage numbers ---
 
   processEvents(events) {
@@ -1909,6 +2093,12 @@ class Renderer {
           age: 0, maxAge: 1.0,
           color: ev.targetId.startsWith('mob_') ? '#ffa726' : '#e53935',
         });
+        // Hit flash on the damaged entity
+        this.hitFlashes.set(ev.targetId, 0.12);
+        // Screen shake when player takes damage
+        if (ev.targetId === this.myId) {
+          this.screenShake = { intensity: 4, duration: 0.15, elapsed: 0 };
+        }
       } else if (ev.type === 'darkness_damage') {
         this.damageNumbers.push({
           text: `-${ev.amount}`,
@@ -1916,6 +2106,20 @@ class Renderer {
           age: 0, maxAge: 1.0,
           color: '#7c4dff',
         });
+        if (ev.targetId === this.myId) {
+          this.screenShake = { intensity: 3, duration: 0.1, elapsed: 0 };
+        }
+      } else if (ev.type === 'hazard_damage') {
+        const hazardColors = { cold: '#4fc3f7', heat: '#ff7043', poison: '#66bb6a' };
+        this.damageNumbers.push({
+          text: `-${ev.amount}`,
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.0,
+          color: hazardColors[ev.hazardType] || '#ff9800',
+        });
+        if (ev.targetId === this.myId) {
+          this.screenShake = { intensity: 3, duration: 0.1, elapsed: 0 };
+        }
       } else if (ev.type === 'heal') {
         this.damageNumbers.push({
           text: `+${ev.amount}`,
@@ -1937,6 +2141,12 @@ class Renderer {
           age: 0, maxAge: 2.0,
           color: '#ffa726',
         });
+      } else if (ev.type === 'ambush_reveal' && ev.targetId) {
+        this.ambushFadeIns.set(ev.targetId, 0.5); // 0.5s fade-in
+      } else if (ev.type === 'death' && ev.targetId && ev.targetId.startsWith('mob_')) {
+        this.ambushFadeIns.delete(ev.targetId);
+        // Spawn death animation for monster
+        this._spawnDeathAnim(ev.x, ev.y, ev.targetId, ev.monsterType);
       } else if (ev.type === 'cone_effect') {
         this.coneEffects.push({
           x: ev.x, y: ev.y,

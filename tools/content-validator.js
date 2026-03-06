@@ -247,10 +247,19 @@ function validateFlags() {
   const dungeons = content.getAllDungeons();
   const quests = content.getAllQuests();
 
-  // Scan dungeon triggers for flags set and checked
-  for (const [id, dungeon] of Object.entries(dungeons)) {
+  // Engine-set flags: these are set in server code, not JSON triggers
+  const engineSetFlags = ['damage_booster_equipped', 'has_traded_meridian'];
+  for (const flag of engineSetFlags) {
+    addToMap(flagsSet, flag, { source: 'engine (server/index.js)', file: 'server/index.js' });
+  }
+
+  // Scan dungeon and template triggers for flags set and checked
+  const allEntries = [
+    ...Object.entries(dungeons).map(([id, d]) => [id, d, dungeonFile(id)]),
+    ...Object.entries(content.templates).map(([id, t]) => [id, t, `templates/${id}.json`]),
+  ];
+  for (const [id, dungeon, file] of allEntries) {
     if (!dungeon.triggers) continue;
-    const file = dungeonFile(id);
 
     for (const trigger of dungeon.triggers) {
       // Flags set by actions
@@ -272,6 +281,9 @@ function validateFlags() {
       }
     }
   }
+
+  // Scan template required room triggers for flags (template triggers may be depth-scoped)
+  // Note: template-level triggers are already scanned above via allEntries
 
   // Scan NPC dialogue rules for flag checks
   for (const [npcId, npc] of Object.entries(content.npcs)) {
@@ -376,6 +388,16 @@ function scanObtainableItems(dungeonEntries, obtainableItems) {
         for (const action of trigger.actions) {
           if ((action.type === 'giveItem' || action.type === 'spawnItem') && action.itemType) {
             obtainableItems.add(action.itemType);
+          }
+        }
+      }
+    }
+    // Template requiredRooms itemSpawns
+    if (dungeon.requiredRooms) {
+      for (const room of dungeon.requiredRooms) {
+        if (room.itemSpawns) {
+          for (const spawn of room.itemSpawns) {
+            obtainableItems.add(spawn.type);
           }
         }
       }

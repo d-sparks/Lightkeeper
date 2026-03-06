@@ -1,5 +1,7 @@
 # Automated Testing Plan
 
+> **STATUS: IMPLEMENTED.** The static content validator (`tools/content-validator.js`) and headless game simulator (`tools/headless-sim.js`) described in this plan and in `testing-design.md` are both built and functional. The unit test suite (`tests/`) described below has not been created yet — the headless sim covers integration testing more effectively for now.
+
 ## Framework
 
 **Node's built-in test runner** (`node --test`) — no new dependencies needed. Use `assert` from stdlib. Alternatively, add `vitest` or `mocha` if richer assertions are wanted later.

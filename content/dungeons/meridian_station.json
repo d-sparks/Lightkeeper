@@ -103,6 +103,25 @@
       ]
     },
     {
+      "id": "calloway_courier_clue",
+      "event": "npc_interacted",
+      "filter": { "npcType": "station_master_calloway" },
+      "conditions": [
+        { "hasFlag": "courier_quest_started" },
+        { "not": { "hasFlag": "courier_clue_found" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "courier_clue_found" },
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "lines": [
+          "Calloway frowns. 'Halden? Yeah, I know him. Transit courier, ran the evening manifests. Quiet kid, kept his head down.'",
+          "'Hasn't been at his post in days. Last time I saw him, he was in the Market Quarter — acting jumpy, looking over his shoulder.'",
+          "'Left his logbook on the platform bench. I put it aside, but he never came back. It probably got swept into the market during the evening rush.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "holographic_ad_1",
       "event": "room_entered",
       "conditions": [{ "hasFlag": "arrived_meridian" }],

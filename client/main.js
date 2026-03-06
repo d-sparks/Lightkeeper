@@ -31,11 +31,12 @@
   const choiceOverlay = document.getElementById('choice-overlay');
   const choicePrompt = document.getElementById('choice-prompt');
   const choiceOptions = document.getElementById('choice-options');
-  const autoPanelContent = document.getElementById('auto-panel-content');
   const automationOverlay = document.getElementById('automation-overlay');
 
   const soundBtn = document.getElementById('sound-btn');
   const worldmapBtn = document.getElementById('worldmap-btn');
+  const onboardMove = document.getElementById('onboard-move');
+  const onboardInteract = document.getElementById('onboard-interact');
 
   // --- Instances ---
   const net = new NetClient();
@@ -75,6 +76,20 @@
 
   // --- State ---
   let joined = false;
+
+  // --- Onboarding state ---
+  let onboardMoveShown = false;
+  let onboardMoveDismissed = false;
+  let onboardInteractDismissed = false;
+
+  function dismissOnboardHint(el, onDone) {
+    if (!el || el.style.display === 'none') return;
+    el.classList.add('fade-out');
+    el.addEventListener('animationend', () => {
+      el.style.display = 'none';
+      if (onDone) onDone();
+    }, { once: true });
+  }
 
   // --- Dialogue state ---
   let dialogueActive = false;
@@ -135,12 +150,6 @@
     if (dialogueMode === 'bubble') {
       renderer.closeSpeechBubble();
     }
-    // Check if we were talking to MERIDIAN-7 to open auto panel
-    let wasMeridian = false;
-    if (dialogueNpcId && renderer.state && renderer.state.npcs) {
-      const npc = renderer.state.npcs.find(n => n.id === dialogueNpcId);
-      if (npc && npc.type === 'meridian_7') wasMeridian = true;
-    }
     dialogueActive = false;
     input.dialogueActive = false;
     dialogueLines = [];
@@ -148,7 +157,6 @@
     dialogueMode = null;
     dialogueNpcId = null;
     dialogueOverlay.style.display = 'none';
-    if (wasMeridian) openMenu('auto');
   }
 
   function updateDialogueDisplay() {
@@ -763,7 +771,7 @@
   let menuOpen = false;
   let menuTab = 'equipment';
   const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'quests'];
-  const ALL_CONTENT_TABS = ['equipment', 'inventory', 'solgrid', 'auto', 'quests'];
+  const ALL_CONTENT_TABS = ['equipment', 'inventory', 'solgrid', 'quests'];
   let cursorIndex = 0;
 
   function openMenu(tab) {
@@ -808,7 +816,7 @@
     document.querySelectorAll('#character-menu .inv-tab').forEach(t => {
       t.classList.toggle('active', t.dataset.tab === tab);
     });
-    // Show/hide content divs (includes auto which is only opened via NPC)
+    // Show/hide content divs
     for (const t of ALL_CONTENT_TABS) {
       const el = document.getElementById('inv-tab-' + t);
       if (el) el.style.display = t === tab ? '' : 'none';
@@ -821,7 +829,7 @@
     if (tab === 'equipment') renderEquipmentSlots();
     if (tab === 'inventory') renderInventoryGrid();
     if (tab === 'solgrid') renderSolGrid();
-    if (tab === 'auto') renderAutoTab();
+    if (tab === 'auto') return; // auto tab replaced by full-screen automation overlay
     if (tab === 'quests') renderQuestPanel();
 
     // Advance tutorial: menu opened → show SOL tab arrow; SOL tab clicked → show component arrow
@@ -857,7 +865,6 @@
     if (menuTab === 'equipment') return characterMenu.querySelectorAll('.equip-slot-box');
     if (menuTab === 'inventory') return characterMenu.querySelectorAll('.inv-grid-cell');
     if (menuTab === 'solgrid') return characterMenu.querySelectorAll('.sol-cell');
-    if (menuTab === 'auto') return characterMenu.querySelectorAll('.auto-card');
     if (menuTab === 'quests') return characterMenu.querySelectorAll('.quest-track-btn, .quest-step');
     return [];
   }
@@ -866,7 +873,6 @@
     if (menuTab === 'equipment') return 1;
     if (menuTab === 'inventory') return 5;
     if (menuTab === 'solgrid') return solGridState ? solGridState.size || 5 : 5;
-    if (menuTab === 'auto') return 1;
     if (menuTab === 'quests') return 1;
     return 1;
   }
@@ -910,87 +916,6 @@
     if (cursorIndex >= 0 && cursorIndex < items.length) {
       items[cursorIndex].click();
     }
-  }
-
-  // --- Auto (automation) panel ---
-  function renderAutoTab() {
-    autoPanelContent.innerHTML = '';
-    if (!autoState) {
-      autoPanelContent.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:12px 0;">No automation data</div>';
-      return;
-    }
-
-    // Resources display
-    const resDiv = document.createElement('div');
-    resDiv.className = 'auto-resources';
-    resDiv.innerHTML = '<div class="resource-label">Silicon</div>' +
-      '<div class="resource-value">' + (autoState.resources.silicon || 0) + '</div>';
-    autoPanelContent.appendChild(resDiv);
-
-    // Structures section
-    if (autoState.structures && autoState.structures.length > 0) {
-      const sTitle = document.createElement('div');
-      sTitle.className = 'auto-section-title';
-      sTitle.textContent = 'Structures';
-      autoPanelContent.appendChild(sTitle);
-
-      for (const s of autoState.structures) {
-        const card = document.createElement('div');
-        card.className = 'auto-card';
-        const isMaxed = s.maxCount > 0 && s.count >= s.maxCount;
-        if (isMaxed) card.classList.add('maxed');
-
-        const costStr = Object.entries(s.cost).map(([r, amt]) => amt + ' ' + r).join(', ');
-        const canAfford = Object.entries(s.cost).every(([r, amt]) => (autoState.resources[r] || 0) >= amt);
-
-        card.innerHTML = '<div class="auto-card-header">' +
-          '<span class="auto-card-name">' + s.name + '</span>' +
-          '<span class="auto-card-cost' + (canAfford ? '' : ' cant-afford') + '">' + costStr + '</span>' +
-          '</div>' +
-          '<div class="auto-card-desc">' + s.description + '</div>' +
-          '<div class="auto-card-count">Built: ' + s.count + (s.maxCount > 0 ? '/' + s.maxCount : '') + '</div>';
-
-        if (!isMaxed && canAfford) {
-          card.addEventListener('click', () => {
-            net.send({ type: CONSTANTS.MSG.AUTO_BUILD, structureId: s.id });
-          });
-        }
-
-        autoPanelContent.appendChild(card);
-      }
-    }
-
-    // Trades section
-    if (autoState.trades && autoState.trades.length > 0) {
-      const tTitle = document.createElement('div');
-      tTitle.className = 'auto-section-title';
-      tTitle.style.marginTop = '16px';
-      tTitle.textContent = 'Trade with MERIDIAN-7';
-      autoPanelContent.appendChild(tTitle);
-
-      for (const t of autoState.trades) {
-        const card = document.createElement('div');
-        card.className = 'auto-card';
-
-        const costStr = Object.entries(t.cost).map(([r, amt]) => amt + ' ' + r).join(', ');
-        const canAfford = Object.entries(t.cost).every(([r, amt]) => (autoState.resources[r] || 0) >= amt);
-
-        card.innerHTML = '<div class="auto-card-header">' +
-          '<span class="auto-card-name">' + t.name + '</span>' +
-          '<span class="auto-card-cost' + (canAfford ? '' : ' cant-afford') + '">' + costStr + '</span>' +
-          '</div>';
-
-        if (canAfford) {
-          card.addEventListener('click', () => {
-            net.send({ type: CONSTANTS.MSG.AUTO_TRADE, tradeId: t.id });
-          });
-        }
-
-        autoPanelContent.appendChild(card);
-      }
-    }
-
-    updateCursorHighlight();
   }
 
   // --- Automation full-screen overlay ---
@@ -1540,6 +1465,7 @@
       const displayName = SLOT_DISPLAY_NAMES[slot] || slot;
 
       if (equipped) {
+        div.classList.add('rarity-' + (equipped.rarity || 'common'));
         const rarityColor = CONSTANTS.RARITY_COLORS[equipped.rarity] || CONSTANTS.RARITY_COLORS.common;
         const statParts = formatItemStats(equipped);
         let html = '<span class="slot-label-name">' + displayName + '</span>' +
@@ -1593,7 +1519,7 @@
     for (let i = 0; i < inventoryItems.length; i++) {
       const item = inventoryItems[i];
       const cell = document.createElement('div');
-      cell.className = 'inv-grid-cell';
+      cell.className = 'inv-grid-cell rarity-' + (item.rarity || 'common');
       const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
 
       let html = '<span class="cell-dot" style="background:' + rarityColor + '"></span>' +
@@ -1638,7 +1564,8 @@
       return;
     }
     const def = itemCatalog[item.type];
-    let html = '<span class="detail-name">' + item.name + '</span>';
+    const detailRarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
+    let html = '<span class="detail-name" style="color:' + detailRarityColor + '">' + item.name + '</span>';
     if (def && def.description) {
       html += '<span class="detail-desc">' + def.description + '</span>';
     }
@@ -1674,11 +1601,12 @@
       const gy = Math.floor(i / size);
 
       if (comp) {
+        const compRarityColor = CONSTANTS.RARITY_COLORS[comp.componentRarity] || CONSTANTS.RARITY_COLORS.common;
         if (comp.abilityId) {
           cell.classList.add('has-ability');
           if (!comp.isExtension) {
             const label = comp.abilityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-            let html = '<div class="sol-cell-name">' + label + '</div>';
+            let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + label + '</div>';
             // Show modifier bonuses if present
             if (comp.modifiers && comp.modifiers.length > 0) {
               for (const mod of comp.modifiers) {
@@ -1688,6 +1616,12 @@
                 if (mod.bonus.cooldownReduction) {
                   html += '<div class="sol-mod-tag">-' + Math.round(mod.bonus.cooldownReduction * 100) + '% cd</div>';
                 }
+                if (mod.bonus.healOnHit) {
+                  html += '<div class="sol-mod-tag">+' + mod.bonus.healOnHit + ' heal</div>';
+                }
+                if (mod.bonus.energyCostReduction) {
+                  html += '<div class="sol-mod-tag">-' + Math.round(mod.bonus.energyCostReduction * 100) + '% cost</div>';
+                }
               }
             }
             cell.innerHTML = html;
@@ -1695,13 +1629,23 @@
         } else if (comp.modifierId) {
           cell.classList.add('has-modifier');
           if (!comp.isExtension) {
-            cell.textContent = comp.modifierId.replace(/_/g, ' ');
+            const modLabel = comp.modifierId.replace(/_/g, ' ');
+            let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + modLabel + '</div>';
+            if (comp.bonus) {
+              if (comp.bonus.damageMultiplier) html += '<div class="sol-mod-tag">+' + Math.round(comp.bonus.damageMultiplier * 100) + '% dmg</div>';
+              if (comp.bonus.cooldownReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.cooldownReduction * 100) + '% cd</div>';
+              if (comp.bonus.healOnHit) html += '<div class="sol-mod-tag">+' + comp.bonus.healOnHit + ' heal</div>';
+              if (comp.bonus.energyCostReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.energyCostReduction * 100) + '% cost</div>';
+            }
+            cell.innerHTML = html;
           }
         } else if (comp.generatorId) {
           cell.classList.add('has-generator');
           if (!comp.isExtension) {
-            let html = '<div class="sol-cell-name">' + (comp.componentName || comp.generatorId.replace(/_/g, ' ')) + '</div>';
-            if (comp.energyRegen) {
+            let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + (comp.componentName || comp.generatorId.replace(/_/g, ' ')) + '</div>';
+            if (comp.boostedEnergyRegen) {
+              html += '<div class="sol-mod-tag">+' + comp.boostedEnergyRegen.toFixed(1) + '/s</div>';
+            } else if (comp.energyRegen) {
               html += '<div class="sol-mod-tag">+' + comp.energyRegen + '/s</div>';
             }
             cell.innerHTML = html;
@@ -1709,7 +1653,7 @@
         } else if (comp.batteryId) {
           cell.classList.add('has-battery');
           if (!comp.isExtension) {
-            let html = '<div class="sol-cell-name">' + (comp.componentName || comp.batteryId.replace(/_/g, ' ')) + '</div>';
+            let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + (comp.componentName || comp.batteryId.replace(/_/g, ' ')) + '</div>';
             if (comp.energyCapacity) {
               html += '<div class="sol-mod-tag">+' + comp.energyCapacity + ' cap</div>';
             }
@@ -1802,10 +1746,11 @@
 
       for (const { item, idx } of solComponents) {
         const compCell = document.createElement('div');
-        compCell.className = 'sol-cell has-modifier';
+        compCell.className = 'sol-cell rarity-' + (item.rarity || 'common');
         compCell.style.width = '80px';
         compCell.style.height = '80px';
-        compCell.textContent = item.name.replace(' Chip', '');
+        const compRarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
+        compCell.innerHTML = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + item.name.replace(' Chip', '') + '</div>';
         if (solGridSelectedComponent === idx) {
           compCell.classList.add('selected');
         }
@@ -2032,7 +1977,18 @@
       msg.targetY = Math.round(input.mouseWorldY);
     }
     net.send(msg);
-    audio.play('ability_cast');
+    audio.play(slot === 0 ? 'weapon_swing' : 'ability_cast');
+  };
+
+  // --- Onboarding callbacks ---
+  input.onFirstMove = function () {
+    if (onboardMoveDismissed) return;
+    onboardMoveDismissed = true;
+    dismissOnboardHint(onboardMove, () => {
+      if (!onboardInteractDismissed) {
+        onboardInteract.style.display = '';
+      }
+    });
   };
 
   // --- Interact dispatch ---
@@ -2144,6 +2100,12 @@
 
     hudName.textContent = msg.playerId;
 
+    // Show onboarding move hint
+    if (!onboardMoveShown) {
+      onboardMoveShown = true;
+      onboardMove.style.display = '';
+    }
+
     // Start background music
     audio.resume();
     const roomName = (msg.map && msg.map.name || '').toLowerCase();
@@ -2171,6 +2133,8 @@
         } else if (ev.type === 'damage') {
           audio.play(ev.targetId === renderer.myId ? 'hit_take' : 'hit_deal');
         } else if (ev.type === 'darkness_damage') {
+          audio.play('darkness_damage');
+        } else if (ev.type === 'hazard_damage') {
           audio.play('darkness_damage');
         } else if (ev.type === 'heal') {
           audio.play('heal');
@@ -2252,6 +2216,11 @@
     if (msg.dialogue && msg.dialogue.length > 0) {
       showDialogue(msg.dialogue, msg.npcId);
       audio.play('dialogue_open');
+      // Dismiss interact onboarding hint on first NPC dialogue
+      if (!onboardInteractDismissed) {
+        onboardInteractDismissed = true;
+        dismissOnboardHint(onboardInteract);
+      }
     }
   });
 
@@ -2272,6 +2241,17 @@
   });
 
   net.on(CONSTANTS.MSG.SOL_GRID, (msg) => {
+    // Handle placement error feedback
+    if (msg.error) {
+      solGridSelectedComponent = null;
+      if (menuOpen && menuTab === 'solgrid') {
+        solGridInfo.textContent = msg.error;
+        solGridInfo.style.color = '#ef5350';
+        renderSolGrid();
+        setTimeout(() => { solGridInfo.style.color = ''; }, 2500);
+      }
+      return;
+    }
     solGridState = msg.grid || null;
     // Update sol tab disabled state
     const solTab = document.querySelector('#character-menu .inv-tab[data-tab="solgrid"]');
@@ -2364,7 +2344,6 @@
       renderAutomationScreen();
     }
 
-    if (menuOpen && menuTab === 'auto') renderAutoTab();
   });
 
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {
