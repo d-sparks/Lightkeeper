@@ -112,7 +112,7 @@
       "id": "umbral_seed_hum_reaction",
       "event": "room_entered",
       "conditions": [
-        { "hasFlag": "seed_exposed_to_dark" },
+        { "hasFlag": "umbral_seed_dark_exposed" },
         { "not": { "hasFlag": "seed_hum_resonance" } }
       ],
       "actions": [

@@ -5,7 +5,7 @@
     "name": "Sol Beam Emitter",
     "shape": [[1]]
   },
-  "sol_cone_emitter": {
+  "sol_cone": {
     "type": "ability",
     "abilityId": "sol_cone",
     "name": "Sol Cone Emitter",

@@ -4,12 +4,13 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Content Validation Errors (must fix)
 
-- `sol_components.json` missing "sol_cone" — referenced by sol_unit_mk1 and sol_unit_mk1_plus in sol_units.json
-- Flag "umbral_seed_dark_exposed" checked in homestead_interior but never set anywhere
-- Flag "warlord_defeated" checked in outpost_entrance but never set anywhere
-- Flag "damage_booster_equipped" checked in outpost_workshop but never set anywhere
-- Flag "has_traded_meridian" checked in NPC meridian_7 dialogue but never set anywhere
-- Quest lost_supplies step "find_manifest" requires item "supply_manifest" but it's not spawned or given anywhere
+All 6 errors resolved:
+- [x] `sol_cone` component: renamed key from `sol_cone_emitter` to `sol_cone` in sol_components.json
+- [x] `umbral_seed_dark_exposed`: fixed flag name mismatch — deep_perimeter_east.json and underlumen_approach.json were using `seed_exposed_to_dark` instead
+- [x] `warlord_defeated`: already set in proc_quarantine.json template — fixed validator to scan template triggers
+- [x] `damage_booster_equipped`: already set in server/index.js engine code — added engine-set flags allowlist to validator
+- [x] `has_traded_meridian`: already set in server/index.js engine code — added to engine-set flags allowlist
+- [x] `supply_manifest`: already spawned in proc_quarantine.json requiredRooms — fixed validator scanObtainableItems to check nested requiredRooms[].itemSpawns
 
 ## Monster Deployment
 

@@ -95,10 +95,10 @@
       "event": "room_entered",
       "conditions": [
         { "hasFlag": "umbral_seed_planted" },
-        { "not": { "hasFlag": "seed_exposed_to_dark" } }
+        { "not": { "hasFlag": "umbral_seed_dark_exposed" } }
       ],
       "actions": [
-        { "type": "setFlag", "flag": "seed_exposed_to_dark" },
+        { "type": "setFlag", "flag": "umbral_seed_dark_exposed" },
         { "type": "showMessage", "lines": [
           "Something stirs in your pack. The Umbral Seed — you brought it from the homestead pot for dark exposure.",
           "Out here, in the true Nightside, the seed is responding. Its bioluminescent pulse quickens, matching a rhythm you can't hear but can feel in your bones.",
