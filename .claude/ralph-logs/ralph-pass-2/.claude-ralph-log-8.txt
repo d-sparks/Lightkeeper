@@ -1,0 +1,18 @@
+Done. Here's what was already implemented and what I changed:
+
+**Already implemented (Phase 1 + 2 + 3):**
+- Server-side grid state with x,y placements in `automation.js`
+- Grid config computed from `dayside_solar_fields` dungeon tiles
+- `build()` validates grid coordinates (bounds, blocked, occupied)
+- `getStateForClient()` sends full grid data, stats, automation levels
+- Full-screen CSS grid UI: 12x12 grid, build palette, resource sidebar, progress bar, placement animations
+- `openAutomation` scripting action sends `AUTO_STATE` with `openScreen: true`
+- MERIDIAN-7 trigger in `train_station.json` fires `openAutomation` after umbracite trade
+
+**What I cleaned up:**
+- Removed the old `renderAutoTab()` list-based panel (was dead code)
+- Removed old auto tab HTML div and CSS styles (~180 lines deleted)
+- Removed `openMenu('auto')` fallback in MERIDIAN-7 dialogue close handler (the scripting system's `openAutomation` action handles this properly now)
+- Removed 'auto' from `ALL_CONTENT_TABS` and cursor/column helpers
+
+No outstanding TODOs needed — the spec's Phase 4 (dungeon sync) and Phase 5 (polish) are separate future work, and dungeon sync via `getOverlayedMapData()` is already implemented too.

@@ -1,0 +1,15 @@
+All done. Here's a summary of what was implemented:
+
+### Server changes (`server/game-loop.js`)
+- **Ambush reveal event**: When an ambush monster is revealed, an `ambush_reveal` event is emitted with the mob's position
+- **Projectile type forwarding**: Monster projectiles now carry `projectileType` (e.g., `arrow_bone`, `shadow_bolt`) through to the client broadcast data
+- **Monster type in death events**: All 3 monster death event locations now include `monsterType` for the client
+
+### Client changes (`client/renderer.js`)
+- **Ambush fade-in**: New `ambushFadeIns` map tracks revealed ambush monsters, rendering them with alpha 0→1 over 0.5 seconds
+- **Projectile tinting**: Each projectile type gets a distinct color — bone arrows (tan), shadow bolts (purple), magma globs (fiery orange), spore clouds (sickly green). Player/untyped projectiles remain light blue
+- **4 death animation styles**:
+  - **collapse** (default) — original fade + vertical shrink
+  - **dissolve** — shadow/wraith types expand outward with purple tint
+  - **crumble** — heavy/boss types shake and collapse faster
+  - **pop** — fungal types scale up then burst away

@@ -1,0 +1,12 @@
+Done. Here's what was created:
+
+**`docs/art-style-guide.md`** — A comprehensive sprite and tileset style guide covering:
+
+- **Technical specs**: 16x16 native, 2x nearest-neighbor upscale, PNG with alpha, no smoothing
+- **Target aesthetic**: Dark sci-fi pixel art (Caves of Qud / Cogmind tone), readable silhouettes, top-left lighting
+- **Master palette**: ~40 named colors organized by family (grays, warm, cool, purple/nightside, greens, special) with hex, RGB, and usage notes
+- **Per-category conventions**: Players (color-accented engineer look), monsters (silhouette-first, warm eyes), NPCs (no helmet, relaxed posture), items (diagonal weapons, centered consumables), tilesets (lower contrast than entities)
+- **Zone color identity table**: Maps each of the 12 zone themes to dominant colors and mood
+- **Anti-patterns**: Pure black/white fills, too many colors per sprite, off-palette colors, dark-on-dark readability issues
+
+**`docs/NEXT_TODOS.md`** — Added art follow-up section noting 12 monsters missing from `PLACEHOLDER_ASSETS.md`, the need to update `generate-sprites.js` to use palette values, and future animation work.

@@ -1,0 +1,18 @@
+Done. Here's what was added:
+
+**New flag:** `visited_dayside` — set when the player enters `dayside_solar_fields`.
+
+**New dialogue branches across 3 Sable NPCs:**
+
+| NPC | Branch | Gate | Content |
+|-----|--------|------|---------|
+| `sable_dead_road` | `post_dayside` | helped + visited_dayside | Unbounded watchers on the border, the Array's relentless expansion, "have you asked what it's building?" |
+| `sable_dead_road` | `post_meridian` | helped + arrived_meridian | Ring propaganda vs Unbounded truth — "we left because we understood too well" |
+| `sable_station` | `post_dayside_helped` | helped + visited_dayside | "The Lattice" — structures the Array won't discuss, the saying about the longest shadow |
+| `sable_station` | `post_dayside_not_helped` | not helped + visited_dayside | Guarded hints about Array growth, trust withheld |
+| `sable_station` | `post_meridian_helped` | helped + arrived_meridian | Sable already in Meridian, directs player to her garden |
+| `sable_station` | `post_meridian_not_helped` | not helped + arrived_meridian | Cold acknowledgment, open invitation if player changes mind |
+| `sable_meridian` | `post_dayside_high_trust` | helped + visited_dayside + !sable_gave_seed | Deep lore: the Lattice, Array expansion measured in generations, grandmother's theory about a new mind being built |
+| `sable_meridian` | `post_dayside_low_trust` | not helped + visited_dayside | Partial revelations, trust barrier maintained |
+
+DialogueRules are ordered so dayside > meridian > base, and existing high-priority rules (resonance_fragment, gloomvine, seed states) still take precedence in `sable_meridian`.

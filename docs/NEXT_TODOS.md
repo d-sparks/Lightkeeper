@@ -37,11 +37,10 @@ All done:
 
 ## Sol Grid Follow-ups
 
-- Client UI does not display healOnHit or energyCostReduction modifier effects — add tooltip support
-- Client UI should display generator adjacency boost info (boostedEnergyRegen field is sent from server)
+- [x] Client UI displays healOnHit, energyCostReduction, and boostedEnergyRegen in sol grid
+- [x] Define the 5-6 sol unit variants (grid dimensions, innate perks, where found) — 6 variants in sol_units.json with innateBonus engine support
 - Design and implement extended-adjacency modifiers (radius 2, entire row/column) for rare/legendary tier
 - Define modifier stat ranges per rarity tier (common -> legendary number values)
-- [x] Define the 5-6 sol unit variants (grid dimensions, innate perks, where found) — 6 variants in sol_units.json with innateBonus engine support
 - Client UI should display sol unit innateBonus info (name, perk description) on the sol grid screen
 - Add dungeon triggers/loot for acquiring new sol units (nightcaster_frame, array_precision_core, greenway_bioframe, underlumen_nexus)
 
@@ -53,7 +52,7 @@ All done:
 - MERIDIAN-7's umbrasite quest could become repeatable with escalating tiers
 - Make sure initial MERIDIAN-7 trade at train station flows into Array Hub quest
 - Add map/minimap markers or quest waypoints for Nightside Caverns entrance
-- Environmental hazards in nightside_depths (cold damage, darkness debuff)
+- [x] Environmental hazards in biome dungeons (cold, heat, poison damage implemented)
 
 ## Array Complex Follow-ups
 

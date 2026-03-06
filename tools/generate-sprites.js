@@ -413,6 +413,255 @@ function generateMonsterSprites() {
     [_, _, _, _,Ad,Ad, _, _, _, _,Ad,Ad, _, _, _, _],
   ]);
   savePNG(warlord, path.join(CONTENT_DIR, 'sprites', 'luddite_warlord.png'));
+
+  // --- Training Target: wooden practice dummy ---
+  const target = createPNG(16, 16);
+  const Tw = rgba(160, 130, 80);  // warm wood
+  const Tk = rgba(120, 95, 55);   // dark wood
+  drawPixelArt(target, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, R, R, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Tw,Tw,Tw,Tw, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Tw,Tw,Tw,Tw, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,Tw,Tw, _, _, _, _, _, _, _],
+    [_, _, _, _,Tw,Tw,Tw,Tw,Tw,Tw,Tw,Tw, _, _, _, _],
+    [_, _, _, _,Tw, R,Tw,Tw,Tw,Tw, R,Tw, _, _, _, _],
+    [_, _, _, _,Tw,Tw,Tw, R, R,Tw,Tw,Tw, _, _, _, _],
+    [_, _, _, _,Tw,Tw,Tw,Tw,Tw,Tw,Tw,Tw, _, _, _, _],
+    [_, _, _, _,Tw,Tw,Tw,Tw,Tw,Tw,Tw,Tw, _, _, _, _],
+    [_, _, _, _, _,Tk,Tw,Tw,Tw,Tw,Tk, _, _, _, _, _],
+    [_, _, _, _, _, _, _,Tk,Tk, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,Tk,Tk, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,Tk,Tk, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Tk,Tk,Tk,Tk, _, _, _, _, _, _],
+    [_, _, _, _, _,Tk,Tk,Tk,Tk,Tk,Tk, _, _, _, _, _],
+  ]);
+  savePNG(target, path.join(CONTENT_DIR, 'sprites', 'training_target.png'));
+
+  // --- Scrap Drone: small metallic flying bot ---
+  const drone = createPNG(16, 16);
+  const Mt = rgba(150, 155, 165);  // metal
+  const Md = rgba(100, 105, 115);  // dark metal
+  const Yl = rgba(240, 200, 50);   // yellow eye
+  drawPixelArt(drone, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,Mt,Mt, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Mt,Mt,Mt,Mt, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Mt,Yl,Yl,Mt, _, _, _, _, _, _],
+    [_, _, _,Md,Mt,Mt,Mt,Mt,Mt,Mt,Mt,Mt,Md, _, _, _],
+    [_, _, _,Md,Mt,Mt,Mt,Mt,Mt,Mt,Mt,Mt,Md, _, _, _],
+    [_, _, _, _,Md,Mt,Mt,Mt,Mt,Mt,Mt,Md, _, _, _, _],
+    [_, _, _, _, _,Md,Mt,Mt,Mt,Mt,Md, _, _, _, _, _],
+    [_, _, _, _, _, _,Md,Md,Md,Md, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(drone, path.join(CONTENT_DIR, 'sprites', 'scrap_drone.png'));
+
+  // --- Shadow Ambusher: dark cloaked figure with glowing eyes ---
+  const ambusher = createPNG(16, 16);
+  const Sh = rgba(30, 25, 40);   // shadow cloak
+  const Sd2 = rgba(20, 15, 30);  // deep shadow
+  const Ey = rgba(200, 50, 200); // purple eyes
+  drawPixelArt(ambusher, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Sh,Sh,Sh,Sh, _, _, _, _, _, _],
+    [_, _, _, _, _,Sh,Sh,Sh,Sh,Sh,Sh, _, _, _, _, _],
+    [_, _, _, _, _,Sh,Ey,Sh,Sh,Ey,Sh, _, _, _, _, _],
+    [_, _, _, _, _, _,Sh,Sh,Sh,Sh, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Sh,Sh,Sh,Sh, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,Sh,Sh, _, _, _, _, _, _, _],
+    [_, _, _,Sh,Sh,Sh,Sh,Sh,Sh,Sh,Sh,Sh,Sh, _, _, _],
+    [_, _, _, _,Sh,Sh,Sh,Sh,Sh,Sh,Sh,Sh, _, _, _, _],
+    [_, _, _, _, _,Sh,Sh,Sh,Sh,Sh,Sh, _, _, _, _, _],
+    [_, _, _, _, _,Sd2,Sh,Sh,Sh,Sh,Sd2, _, _, _, _],
+    [_, _, _, _, _, _,Sd2,Sh,Sh,Sd2, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Sd2,Sd2,Sd2,Sd2, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Sd2, _, _,Sd2, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Sd2, _, _,Sd2, _, _, _, _, _, _],
+    [_, _, _, _, _,Sd2,Sd2, _, _,Sd2,Sd2, _, _, _, _],
+  ]);
+  savePNG(ambusher, path.join(CONTENT_DIR, 'sprites', 'shadow_ambusher.png'));
+
+  // --- Tunnel Creeper: pale insectoid crawler ---
+  const creeper = createPNG(16, 16);
+  const Tn = rgba(140, 120, 100);  // tan shell
+  const Td2 = rgba(100, 85, 70);   // dark shell
+  drawPixelArt(creeper, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _,Td2, _, _, _, _,Td2, _, _, _, _, _],
+    [_, _, _, _,Td2,Tn, _, _, _, _,Tn,Td2, _, _, _, _],
+    [_, _, _, _, _,Tn,Tn,Tn,Tn,Tn,Tn, _, _, _, _, _],
+    [_, _, _,Td2, _,Tn, R,Tn,Tn, R,Tn, _,Td2, _, _, _],
+    [_, _, _, _,Tn,Tn,Tn,Tn,Tn,Tn,Tn,Tn, _, _, _, _],
+    [_, _, Td2,Tn,Tn,Tn,Tn,Tn,Tn,Tn,Tn,Tn,Tn,Td2, _, _],
+    [_, _, _, _,Tn,Tn,Tn,Tn,Tn,Tn,Tn,Tn, _, _, _, _],
+    [_, _, _,Td2, _,Td2,Tn,Tn,Tn,Tn,Td2, _,Td2, _, _, _],
+    [_, _, _, _, _, _,Td2,Tn,Tn,Td2, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(creeper, path.join(CONTENT_DIR, 'sprites', 'tunnel_creeper.png'));
+
+  // --- Feral Hound: dark wolf-like creature ---
+  const hound = createPNG(16, 16);
+  const Fur = rgba(80, 65, 55);   // dark fur
+  const Frl = rgba(110, 90, 75);  // lighter fur
+  drawPixelArt(hound, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _,Fur,Fur, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, Fur,Frl,Frl,Fur, _, _, _, _, _, _, _, _, _, _],
+    [_, _, Fur, R,Frl, R,Fur, _, _, _, _, _, _, _, _, _],
+    [_, _, _,Fur,Frl,Fur,Fur,Fur, _, _, _, _, _, _, _, _],
+    [_, _, _, _,Fur,Frl,Frl,Frl,Fur,Fur,Fur,Fur, _, _, _, _],
+    [_, _, _, _,Fur,Frl,Frl,Frl,Frl,Frl,Frl,Fur, _, _, _, _],
+    [_, _, _, _, _,Fur,Frl,Frl,Frl,Frl,Fur,Fur,Fur, _, _, _],
+    [_, _, _, _, _,Fur, _,Fur,Fur, _,Fur, _, _, _, _, _],
+    [_, _, _, _, _,Fur, _,Fur,Fur, _,Fur, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(hound, path.join(CONTENT_DIR, 'sprites', 'feral_hound.png'));
+
+  // --- Frost Warden: icy blue armored boss ---
+  const fwarden = createPNG(16, 16);
+  const Ic = rgba(160, 200, 230);  // ice bright
+  const Id = rgba(100, 140, 180);  // ice dark
+  const Ik = rgba(60, 90, 130);    // ice deep
+  drawPixelArt(fwarden, 0, 0, [
+    [_, _, _, _, _,Ic,Id,Id,Id,Id,Ic, _, _, _, _, _],
+    [_, _, _, _, _,Id,Id,Id,Id,Id,Id, _, _, _, _, _],
+    [_, _, _, _, _,Id, W,Id,Id, W,Id, _, _, _, _, _],
+    [_, _, _, _, _,Id,Ic,Ik,Ik,Ic,Id, _, _, _, _, _],
+    [_, _, _, _, _, _,Id,Id,Id,Id, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,Id,Id, _, _, _, _, _, _, _],
+    [_, _,Id,Id,Id,Id,Id,Id,Id,Id,Id,Id,Id,Id, _, _],
+    [_, _,Id,Id,Id,Id,Id,Id,Id,Id,Id,Id,Id,Id, _, _],
+    [_, _, W,Ik, _,Id,Ic,Id,Id,Ic,Id, _,Ik, W, _, _],
+    [_, _, W, _, _,Ik,Id,Id,Id,Id,Ik, _, _, W, _, _],
+    [_, _, _, _, _,Ik,Id,Id,Id,Id,Ik, _, _, _, _, _],
+    [_, _, _, _, _,Ik,Ik,Id,Id,Ik,Ik, _, _, _, _, _],
+    [_, _, _, _, _,Ik,Ik,Ik,Ik,Ik,Ik, _, _, _, _, _],
+    [_, _, _, _, _,Ik, _, _, _, _,Ik, _, _, _, _, _],
+    [_, _, _, _, _,Ik, _, _, _, _,Ik, _, _, _, _, _],
+    [_, _, _, _,Ik,Ik, _, _, _, _,Ik,Ik, _, _, _, _],
+  ]);
+  savePNG(fwarden, path.join(CONTENT_DIR, 'sprites', 'frost_warden.png'));
+
+  // --- Sporecap Shambler: mushroom-headed creature ---
+  const shambler = createPNG(16, 16);
+  const Sp = rgba(120, 140, 80);   // spore green
+  const Sk = rgba(80, 100, 55);    // dark spore
+  const Cap = rgba(160, 100, 70);  // mushroom cap
+  const Cd = rgba(120, 70, 45);    // dark cap
+  drawPixelArt(shambler, 0, 0, [
+    [_, _, _, _, _, _,Cd,Cap,Cap,Cd, _, _, _, _, _, _],
+    [_, _, _, _, _,Cd,Cap,Cap,Cap,Cap,Cd, _, _, _, _, _],
+    [_, _, _, _,Cd,Cap,Cap,Cap,Cap,Cap,Cap,Cd, _, _, _, _],
+    [_, _, _, _,Cap,Cap, W,Cap,Cap, W,Cap,Cap, _, _, _, _],
+    [_, _, _, _, _,Cd,Cap,Cap,Cap,Cap,Cd, _, _, _, _, _],
+    [_, _, _, _, _, _,Sp,Sp,Sp,Sp, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,Sp,Sp, _, _, _, _, _, _, _],
+    [_, _, _, _,Sp,Sp,Sp,Sp,Sp,Sp,Sp,Sp, _, _, _, _],
+    [_, _, _, _, _,Sp,Sp,Sp,Sp,Sp,Sp, _, _, _, _, _],
+    [_, _, _, _, _,Sk,Sp,Sp,Sp,Sp,Sk, _, _, _, _, _],
+    [_, _, _, _, _, _,Sk,Sp,Sp,Sk, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Sk,Sp,Sp,Sk, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Sk,Sk,Sk,Sk, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Sk, _, _,Sk, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Sk, _, _,Sk, _, _, _, _, _, _],
+    [_, _, _, _, _,Sk,Sk, _, _,Sk,Sk, _, _, _, _, _],
+  ]);
+  savePNG(shambler, path.join(CONTENT_DIR, 'sprites', 'sporecap_shambler.png'));
+
+  // --- Mycelium Lurker: pale fungal ambusher ---
+  const mycelium = createPNG(16, 16);
+  const My = rgba(180, 190, 170);  // pale mycelium
+  const Mk = rgba(130, 140, 120);  // dark mycelium
+  const Mg = rgba(100, 160, 80);   // green accent
+  drawPixelArt(mycelium, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _,My,My,My,My, _, _, _, _, _, _],
+    [_, _, _, _, _,My,My,My,My,My,My, _, _, _, _, _],
+    [_, _, _, _, _,My,Mg,My,My,Mg,My, _, _, _, _, _],
+    [_, _, _, _, _, _,My,Mk,Mk,My, _, _, _, _, _, _],
+    [_, _, _, _, _, _,My,My,My,My, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,Mk,Mk, _, _, _, _, _, _, _],
+    [_, _, _,My,My,My,My,My,My,My,My,My,My, _, _, _],
+    [_, _, _, _,Mk,My,My,My,My,My,My,Mk, _, _, _, _],
+    [_, _, _, _, _,Mk,My,My,My,My,Mk, _, _, _, _, _],
+    [_, _, _, _, _,Mk,Mk,My,My,Mk,Mk, _, _, _, _, _],
+    [_, _, _, _, _, _,Mk,My,My,Mk, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Mk,Mk,Mk,Mk, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Mk, _, _,Mk, _, _, _, _, _, _],
+    [_, _, _, _, _, Mk,Mk, _, _,Mk,Mk, _, _, _, _, _],
+    [_, _, _, _, Mk,Mk, _, _, _, _,Mk,Mk, _, _, _, _],
+  ]);
+  savePNG(mycelium, path.join(CONTENT_DIR, 'sprites', 'mycelium_lurker.png'));
+
+  // --- Fungal Sprayer: squat mushroom with spore nozzle ---
+  const sprayer = createPNG(16, 16);
+  const Fg = rgba(90, 150, 60);    // fungal green
+  const Fk = rgba(60, 110, 40);    // dark fungal
+  const Yw = rgba(200, 190, 50);   // yellow spore
+  drawPixelArt(sprayer, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _,Yw, _, _],
+    [_, _, _, _, _, _,Fg,Fg,Fg,Fg, _, _,Yw, _, _, _],
+    [_, _, _, _, _,Fg,Fg,Fg,Fg,Fg,Fg,Yw, _, _, _, _],
+    [_, _, _, _,Fg,Fg,Fg,Fg,Fg,Fg,Fg,Fg, _, _, _, _],
+    [_, _, _, _,Fg, W,Fg,Fg,Fg, W,Fg,Fg, _, _, _, _],
+    [_, _, _, _,Fk,Fg,Fg,Fg,Fg,Fg,Fg,Fk, _, _, _, _],
+    [_, _, _, _, _,Fk,Fg,Fg,Fg,Fg,Fk, _, _, _, _, _],
+    [_, _, _, _, _, _,Fk,Fk,Fk,Fk, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Fk,Fg,Fg,Fk, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Fk,Fg,Fg,Fk, _, _, _, _, _, _],
+    [_, _, _, _, _, Fk,Fk,Fg,Fg,Fk,Fk, _, _, _, _, _],
+    [_, _, _, _, _, Fk,Fk,Fk,Fk,Fk,Fk, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(sprayer, path.join(CONTENT_DIR, 'sprites', 'fungal_sprayer.png'));
+
+  // --- Elder Sporecap: large fungal boss ---
+  const elder = createPNG(16, 16);
+  const Ec = rgba(100, 60, 45);    // elder cap
+  const Ed = rgba(70, 40, 30);     // dark cap
+  const Es = rgba(80, 120, 50);    // elder stem
+  const Ek = rgba(55, 85, 35);     // dark stem
+  drawPixelArt(elder, 0, 0, [
+    [_, _, _, _,Ed,Ec,Ec,Ec,Ec,Ec,Ec,Ed, _, _, _, _],
+    [_, _, _,Ed,Ec,Ec,Ec,Ec,Ec,Ec,Ec,Ec,Ed, _, _, _],
+    [_, _,Ed,Ec,Ec, W,Ec,Ec,Ec,Ec, W,Ec,Ec,Ed, _, _],
+    [_, _,Ed,Ec,Ec,Ec,Ec,Ec,Ec,Ec,Ec,Ec,Ec,Ed, _, _],
+    [_, _, _,Ed,Ec,Ec,Ec,Ec,Ec,Ec,Ec,Ec,Ed, _, _, _],
+    [_, _, _, _,Ed,Ed,Ec,Ec,Ec,Ec,Ed,Ed, _, _, _, _],
+    [_, _, _, _, _, _,Es,Es,Es,Es, _, _, _, _, _, _],
+    [_, _,Es,Es,Es,Es,Es,Es,Es,Es,Es,Es,Es,Es, _, _],
+    [_, _,Es,Es,Es,Es,Es,Es,Es,Es,Es,Es,Es,Es, _, _],
+    [_, _, _,Ek,Es,Es,Es,Es,Es,Es,Es,Es,Ek, _, _, _],
+    [_, _, _, _,Ek,Es,Es,Es,Es,Es,Es,Ek, _, _, _, _],
+    [_, _, _, _, _,Ek,Es,Es,Es,Es,Ek, _, _, _, _, _],
+    [_, _, _, _, _,Ek,Ek,Es,Es,Ek,Ek, _, _, _, _, _],
+    [_, _, _, _, _,Ek, _, _, _, _,Ek, _, _, _, _, _],
+    [_, _, _, _, _,Ek, _, _, _, _,Ek, _, _, _, _, _],
+    [_, _, _, _,Ek,Ek, _, _, _, _,Ek,Ek, _, _, _, _],
+  ]);
+  savePNG(elder, path.join(CONTENT_DIR, 'sprites', 'elder_sporecap.png'));
 }
 
 // ============================================================================

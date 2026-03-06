@@ -161,6 +161,12 @@ function processTransitions(gameLoop, botState) {
 
     botState.currentRoom = targetRoomId;
     botState.transitionCooldownTicks = Math.ceil(1.5 * TICK_RATE);
+
+    // Clear stale move_to_position goal left over from old room's exit tile
+    if (botState.currentGoal && botState.currentGoal() && botState.currentGoal().type === 'move_to_position') {
+      botState.popGoal();
+    }
+    botState.currentPath = null;
   }
 }
 
@@ -312,7 +318,14 @@ function astarPath(dungeon, startTX, startTY, goalTX, goalTY) {
 
 function isTileSolid(dungeon, tx, ty) {
   if (tx < 0 || ty < 0 || tx >= dungeon.width || ty >= dungeon.height) return true;
-  return content.isSolid(dungeon, tx, ty);
+  const tileId = dungeon.data[ty * dungeon.width + tx];
+  const tileset = content.getTileset(dungeon.tileset);
+  if (!tileset) return true;
+  const tileDef = tileset.tiles[String(tileId)];
+  if (!tileDef) return true;
+  // Treat interactable doors as passable for pathfinding (bot can open them)
+  if (tileDef.solid && tileDef.interactable && tileDef.togglesTo != null) return false;
+  return tileDef.solid === true;
 }
 
 // Convert pixel position to tile position
@@ -611,7 +624,23 @@ class Bot {
     const room = this.getRoom();
     if (!room) return;
 
+    // If goal tile is out of bounds (e.g. stale goal from before a room transition), abandon it
+    if (goal.tileX < 0 || goal.tileY < 0 || goal.tileX >= room.dungeon.width || goal.tileY >= room.dungeon.height) {
+      this.popGoal();
+      this.currentPath = null;
+      return;
+    }
+
+    // Stuck timeout: abandon if target is unreachable after too long
     const { tx: currentTX, ty: currentTY } = pixelToTile(player.x, player.y);
+    if (!goal._totalTicks) goal._totalTicks = 0;
+    goal._totalTicks++;
+    // Allow generous time (500 ticks = ~33s game time) but not infinite
+    if (goal._totalTicks > 500) {
+      this.popGoal();
+      this.currentPath = null;
+      return;
+    }
     const tolerance = goal.tolerance || 0;
 
     if (Math.abs(currentTX - goal.tileX) <= tolerance && Math.abs(currentTY - goal.tileY) <= tolerance) {
@@ -655,8 +684,27 @@ class Bot {
       }
     }
 
-    // Set input toward next path node
+    // Check if the next path tile is a closed door — if so, interact to open it
     const nextTarget = this.currentPath[Math.min(this.pathIndex, this.currentPath.length - 1)];
+    const curRoom = this.getRoom();
+    if (curRoom) {
+      const tileId = curRoom.dungeon.data[nextTarget.y * curRoom.dungeon.width + nextTarget.x];
+      const tileset = content.getTileset(curRoom.dungeon.tileset);
+      if (tileset) {
+        const tileDef = tileset.tiles[String(tileId)];
+        if (tileDef && tileDef.solid && tileDef.interactable && tileDef.togglesTo != null) {
+          // Move toward the door, then interact
+          const doorDist = Math.abs(currentTX - nextTarget.x) + Math.abs(currentTY - nextTarget.y);
+          if (doorDist <= 2) {
+            this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
+            this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+            return;
+          }
+        }
+      }
+    }
+
+    // Set input toward next path node
     this.moveTowardTile(player, nextTarget.x, nextTarget.y);
   }
 
@@ -697,7 +745,9 @@ class Bot {
     } else {
       // Close enough — interact
       this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
-      this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+      const result = this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+      // If we picked up an item instead of talking to the NPC, retry next tick
+      if (result && result.interactType === 'pickup') return;
       this.stats.exploration.npcsInteracted.add(targetNpc.type);
       this.popGoal();
     }
@@ -774,6 +824,16 @@ class Bot {
     // Actively try to pick up the item if it's on the ground in current room
     const room = this.getRoom();
     if (!room) return;
+
+    // If there are monsters in the room, kill them first (they might drop the item)
+    if (room.monsters.size > 0 && !goal._killingMonsters) {
+      goal._killingMonsters = true;
+      this.pushGoal({ type: 'kill_monsters' });
+      return;
+    }
+    if (room.monsters.size === 0) {
+      goal._killingMonsters = false;
+    }
     for (const [, item] of room.items) {
       if (item.type === goal.itemType) {
         this.pushGoal({ type: 'pick_up_item', itemType: goal.itemType });
@@ -876,8 +936,49 @@ class Bot {
       this.popGoal();
       return;
     }
-    // Combat will be handled by the main think() combat check
-    // Just stay in this goal until monsters are dead
+
+    // Timeout: if no monster killed in 150 ticks (~10s), give up on remaining
+    if (!goal._lastMonsterCount) goal._lastMonsterCount = room.monsters.size;
+    if (!goal._stuckTicks) goal._stuckTicks = 0;
+    if (room.monsters.size < goal._lastMonsterCount) {
+      goal._lastMonsterCount = room.monsters.size;
+      goal._stuckTicks = 0;
+    } else {
+      goal._stuckTicks++;
+      if (goal._stuckTicks > 150) {
+        this.popGoal(); // Can't reach remaining monsters
+        return;
+      }
+    }
+
+    // Find nearest monster and move toward it
+    let nearest = null;
+    let nearestDist = Infinity;
+    for (const [, mob] of room.monsters) {
+      const dx = mob.x - player.x;
+      const dy = mob.y - player.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < nearestDist) {
+        nearest = mob;
+        nearestDist = dist;
+      }
+    }
+    if (nearest) {
+      const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * TILE_SIZE;
+      if (nearestDist > aggroRange) {
+        // Use A* pathfinding to navigate to monster
+        const mobTile = pixelToTile(nearest.x, nearest.y);
+        const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
+        const path = astarPath(room.dungeon, ptx, pty, mobTile.tx, mobTile.ty);
+        if (path && path.length > 0) {
+          this.moveTowardTile(player, path[0].x, path[0].y);
+        } else {
+          // Can't pathfind to this monster — try direct movement
+          this.moveTowardTile(player, mobTile.tx, mobTile.ty);
+        }
+      }
+      // Combat will be handled by the main think() combat check
+    }
   }
 
   doExploreRoom(goal, player, room) {
@@ -963,6 +1064,14 @@ class Bot {
   // ── Procedural Dungeon Traversal ────────────────────────────────────
 
   doTraverseProcedural(goal, player, room) {
+    // Timeout: give up traversal after 3000 ticks (~200s game time)
+    if (!goal._totalTicks) goal._totalTicks = 0;
+    goal._totalTicks++;
+    if (goal._totalTicks > 3000) {
+      this.popGoal();
+      return;
+    }
+
     // Phase 1: If we're not yet in a proc room for this template, navigate to entry
     const isInProcRoom = this.currentRoom.startsWith('proc:' + goal.templateId + ':');
     if (!isInProcRoom) {

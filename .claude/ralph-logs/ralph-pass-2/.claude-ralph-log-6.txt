@@ -1,0 +1,17 @@
+Done. Here's what was added:
+
+**Frost Crypt** (`proc_frost_crypt`) — 4 levels
+- Tileset: `frost_crypt` with frozen stone, ice patches, frost walls, frozen pools
+- Monsters: frostfang hunters (pack), rime stalkers (ambush), skeletons, skeleton archers
+- Boss: **Frost Warden** (140 HP, melee) on level 4 — drops a Frozen Core
+- Items: frost salve (heal 20), frozen core (key)
+- Higher alt floor chance (12%) for ice patch variety
+
+**Fungal Forest** (`proc_fungal_forest`) — 4 levels
+- Tileset: `fungal_forest` with mossy ground, mycelium floor, fungal walls, spore pools
+- Monsters: sporecap shamblers (melee tank), mycelium lurkers (ambush), fungal sprayers (ranged)
+- Boss: **Elder Sporecap** (160 HP, melee) on level 4 — drops mycelium fiber
+- Items: fungal tonic (heal 20), spore samples, mycelium fiber
+- Wider corridors (2-4), more rooms, higher extra connection chance for an organic feel
+
+Both templates follow the existing `proc_quarantine` conventions with depth-gated triggers, entrance/exit rooms, boss rooms, and item caches. Server loads all content cleanly. Note: tileset PNGs (`tilesets/frost_crypt.png`, `tilesets/fungal_forest.png`) and monster sprites will need placeholder art created.

@@ -1,0 +1,16 @@
+Done. Here's a summary of what was implemented:
+
+**4 AI behaviors added to `server/game-loop.js`:**
+
+| AI | Behavior |
+|---|---|
+| **ambush** | Monster is completely hidden from clients (not serialized) until a player comes within 3 tiles. On reveal, first melee hit deals 1.5x damage. Then behaves like melee_chase. |
+| **patrol** | Wanders slowly near spawn point (within 4 tiles), picking random directions and pausing. When a player enters aggro range, switches to chase. |
+| **pack** | When one pack monster aggros a player, all other pack monsters within 8 tiles also aggro that player. Otherwise fights like melee_chase. |
+| **ranged_kite** | Maintains ~60% of attack range as preferred distance. Retreats if player gets too close, advances if too far. Fires monster projectiles (slower than player projectiles) that damage players on hit. |
+
+**Also fixed:** `ranged_kite` was already referenced in monster data (skeleton_archer, gloom_wraith, etc.) but had no AI implementation — it now works.
+
+**3 new monsters in `content/entities/monsters.json`:** shadow_ambusher (ambush), tunnel_creeper (patrol), feral_hound (pack).
+
+**Follow-ups** noted in `docs/NEXT_TODOS.md` — sprites, dungeon placement, visual effects.

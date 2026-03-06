@@ -1,0 +1,427 @@
+{
+  "label": "Daniel - 3/6/2026, 10:16:29 AM",
+  "playerName": "Daniel",
+  "room": "meridian_station",
+  "timestamp": "2026-03-06T15:16:29.161Z",
+  "x": 190.42026166948878,
+  "y": 361.47505418772283,
+  "health": 28,
+  "maxHealth": 140,
+  "energy": 100,
+  "maxEnergy": 100,
+  "inventory": [
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "supply_manifest",
+      "name": "Supply Manifest",
+      "rarity": "common",
+      "category": "key"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "ration_pack",
+      "name": "Ration Pack",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "backup_power_cell",
+      "name": "Backup Power Cell",
+      "rarity": "uncommon",
+      "category": "key"
+    },
+    {
+      "type": "flare",
+      "name": "Flare",
+      "rarity": "uncommon",
+      "category": "consumable"
+    },
+    {
+      "type": "lore_scorched_notebook",
+      "name": "Scorched Notebook",
+      "rarity": "uncommon",
+      "category": "key"
+    },
+    {
+      "type": "ration_pack",
+      "name": "Ration Pack",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "lore_raider_confession",
+      "name": "Raider's Last Letter",
+      "rarity": "uncommon",
+      "category": "key"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "tannis_dog_tags",
+      "name": "Tannis's Dog Tags",
+      "rarity": "uncommon",
+      "category": "key"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "ration_pack",
+      "name": "Ration Pack",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "ration_pack",
+      "name": "Ration Pack",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "ration_pack",
+      "name": "Ration Pack",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "ration_pack",
+      "name": "Ration Pack",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "bandage",
+      "name": "Bandage",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "ration_pack",
+      "name": "Ration Pack",
+      "rarity": "common",
+      "category": "consumable"
+    },
+    {
+      "type": "transit_pass",
+      "name": "Transit Pass",
+      "rarity": "uncommon",
+      "category": "key"
+    },
+    {
+      "type": "yard_deed",
+      "name": "Salvage Yard Deed",
+      "rarity": "rare",
+      "category": "key"
+    }
+  ],
+  "equipment": {
+    "arms": {
+      "type": "blaster",
+      "name": "Standard Blaster",
+      "rarity": "common",
+      "category": "weapon",
+      "slot": "arms",
+      "stats": {
+        "attackDamage": 3,
+        "projectile": true
+      }
+    },
+    "sol_unit": {
+      "type": "sol_unit",
+      "name": "Sol Unit",
+      "rarity": "rare",
+      "category": "equipment",
+      "slot": "sol_unit",
+      "stats": {
+        "attackDamage": 12
+      }
+    },
+    "medipac": {
+      "type": "medipac",
+      "name": "Medipac",
+      "rarity": "common",
+      "category": "equipment",
+      "slot": "medipac",
+      "stats": {}
+    },
+    "accessory": null
+  },
+  "solGrid": {
+    "size": 5,
+    "cells": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "placementId": 2,
+        "originX": 2,
+        "originY": 1,
+        "modifierId": "damage_booster",
+        "componentRarity": "uncommon"
+      },
+      null,
+      null,
+      null,
+      null,
+      {
+        "placementId": 1,
+        "originX": 2,
+        "originY": 2,
+        "abilityId": "sol_cone"
+      },
+      {
+        "placementId": 3,
+        "originX": 3,
+        "originY": 2,
+        "modifierId": "reinforced_battery",
+        "componentRarity": "uncommon"
+      },
+      null,
+      null,
+      null,
+      {
+        "placementId": 4,
+        "originX": 2,
+        "originY": 3,
+        "modifierId": "efficiency_core",
+        "componentRarity": "uncommon"
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "nextPlacementId": 5,
+    "innateBonus": null
+  },
+  "flags": {
+    "__trigger_welcome_to_outpost_fired": true,
+    "__trigger_receive_medipac_fired": true,
+    "received_medipac": true,
+    "__trigger_talked_to_warden_entrance_fired": true,
+    "talked_to_warden": true,
+    "__trigger_enter_munitions_fired": true,
+    "received_weapon": true,
+    "__trigger_outside_warning_no_sol_fired": true,
+    "__trigger_engineer_quest_start_fired": true,
+    "met_engineer": true,
+    "quest_cylinders_active": true,
+    "__trigger_enter_proc_quarantine_1_fired": true,
+    "__trigger_enter_proc_quarantine_2_fired": true,
+    "__trigger_enter_proc_quarantine_3_fired": true,
+    "__trigger_warlord_killed_proc_quarantine_3_fired": true,
+    "warlord_defeated": true,
+    "__trigger_key_pickup_proc_quarantine_3_fired": true,
+    "__trigger_chest_opened_proc_quarantine_2_fired": true,
+    "__trigger_cylinder_pickup_proc_quarantine_2_fired": true,
+    "__trigger_receive_sol_unit_fired": true,
+    "received_sol_unit": true,
+    "damage_booster_equipped": true,
+    "__trigger_engineer_briefing_fired": true,
+    "engineer_briefing_complete": true,
+    "__trigger_enter_training_range_fired": true,
+    "__trigger_training_first_kill_fired": true,
+    "training_targets_killed": 3,
+    "__trigger_training_second_kill_fired": true,
+    "__trigger_training_complete_fired": true,
+    "sol_training_complete": true,
+    "__trigger_sol_grid_tutorial_reminder_fired": true,
+    "sol_tutorial_shown": true,
+    "__trigger_enter_power_station_fired": true,
+    "__trigger_enter_power_station_needs_charge_fired": true,
+    "__trigger_charge_sol_unit_fired": true,
+    "sol_unit_charged": true,
+    "__trigger_report_charged_to_warden_fired": true,
+    "ready_for_perimeter": true,
+    "__trigger_darkness_warning_has_sol_fired": true,
+    "__trigger_power_cell_pickup_fired": true,
+    "__trigger_perimeter_gate_enter_fired": true,
+    "__trigger_fenn_opens_gate_fired": true,
+    "fenn_opened_gate": true,
+    "__trigger_outer_ring_enter_fired": true,
+    "__trigger_lore_scorched_notebook_pickup_fired": true,
+    "__trigger_breach_enter_fired": true,
+    "__trigger_lore_raider_confession_pickup_fired": true,
+    "__trigger_dog_tags_pickup_fired": true,
+    "found_tannis_tags": true,
+    "__trigger_dead_road_enter_fired": true,
+    "__trigger_watchtower_hint_fired": true,
+    "__trigger_sable_encounter_fired": true,
+    "helped_sable": true,
+    "sable_trust": 1,
+    "__trigger_station_approach_enter_fired": true,
+    "__trigger_graffiti_with_sable_fired": true,
+    "__trigger_reached_station_approach_fired": true,
+    "reached_station_approach": true,
+    "__trigger_enter_train_station_fired": true,
+    "__trigger_yara_quest_start_fired": true,
+    "yara_junction_quest": true,
+    "charged_at_station": true,
+    "__trigger_meridian_umbracite_trade_fired": true,
+    "traded_umbracite_meridian": true,
+    "__trigger_junction_enter_fired": true,
+    "junction_crawler_kills": 6,
+    "__trigger_crawlers_cleared_check_fired": true,
+    "junction_crawlers_cleared": true,
+    "__trigger_junction_box_interact_fired": true,
+    "junction_cleared": true,
+    "__trigger_yara_gives_transit_pass_fired": true,
+    "has_transit_pass": true,
+    "__trigger_arrive_meridian_fired": true,
+    "boarded_train": true,
+    "arrived_meridian": true,
+    "visited_meridian_station": true,
+    "__trigger_holographic_ad_1_fired": true,
+    "__trigger_enter_civic_fired": true,
+    "__trigger_hollis_gives_deed_fired": true,
+    "has_yard_deed": true
+  },
+  "questState": {
+    "_trackedQuestId": "main_quest",
+    "array_access": {
+      "activeSteps": [
+        "meet_thorne"
+      ],
+      "completedSteps": []
+    },
+    "broken_signal": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "councillors_request": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "disappeared_courier": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "lost_supplies": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "lost_tool": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "main_quest": {
+      "activeSteps": [
+        "visit_workshop"
+      ],
+      "completedSteps": [
+        "talk_to_warden",
+        "get_weapon",
+        "talk_to_engineer",
+        "find_warlord_key",
+        "open_supply_crate",
+        "return_to_engineer",
+        "equip_damage_booster",
+        "engineer_briefing",
+        "training_range",
+        "charge_sol_unit",
+        "report_to_warden",
+        "cross_perimeter",
+        "get_transit_pass",
+        "board_train",
+        "arrive_meridian",
+        "visit_civic_center"
+      ]
+    },
+    "relay_recovery": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "tannis_tags": {
+      "activeSteps": [
+        "return_to_tannis"
+      ],
+      "completedSteps": [
+        "find_tags"
+      ]
+    },
+    "the_collector": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "the_deserter": {
+      "activeSteps": [],
+      "completedSteps": []
+    },
+    "umbrasite_retrieval": {
+      "activeSteps": [],
+      "completedSteps": []
+    }
+  }
+}

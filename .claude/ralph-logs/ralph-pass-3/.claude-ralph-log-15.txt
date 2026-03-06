@@ -1,0 +1,8 @@
+Done. Here's a summary of the changes:
+
+**Server** (`server/game-loop.js`): Added `bonus` data to modifier cells in the client-facing sol grid payload so the client knows what each modifier does.
+
+**Client** (`client/main.js`): Three fixes:
+1. **Ability cells** — Now show `+N heal` and `-N% cost` tags from adjacent modifiers (previously only showed `dmg` and `cd`)
+2. **Modifier cells** — Now display their own bonus values (all 4 types) so players can see what a modifier does at a glance
+3. **Generator cells** — Show the boosted regen rate when adjacent modifiers enhance it, instead of always showing the base rate

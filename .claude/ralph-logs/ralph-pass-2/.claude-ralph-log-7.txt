@@ -1,0 +1,11 @@
+Done. Here's what was implemented:
+
+**Loot table system** — 3 layers of changes:
+
+1. **Content** (`content/loot/`): 22 loot tables across 2 files (`common.json`, `nightside.json`). Each table has a `dropChance` (0.0–1.0) and weighted `rolls` array. Drop rates range from 15% (scrap drones) to 80% (warlord/bosses), with rarer items having lower weights.
+
+2. **Content** (`content/entities/monsters.json`): Added `lootTable` references to all 25 combat monsters. Training target has no loot table.
+
+3. **Engine**: 
+   - `content-loader.js` — loads all JSON files from `content/loot/`, merges into flat lookup
+   - `game-loop.js` — `_rollLoot(room, mob)` method does the drop chance check, weighted random selection, and spawns the item as a ground pickup at the monster's death position. Called at all 3 kill code paths (cone ability, melee strike, projectile).

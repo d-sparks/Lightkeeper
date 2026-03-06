@@ -97,9 +97,9 @@
       "event": "room_entered",
       "conditions": [{ "hasFlag": "talked_to_warden" }],
       "actions": [
-        { "type": "toggleTile", "x": 38, "y": 11 },
-        { "type": "toggleTile", "x": 19, "y": 22 },
-        { "type": "toggleTile", "x": 30, "y": 22 }
+        { "type": "setTile", "x": 38, "y": 11, "tileId": 5 },
+        { "type": "setTile", "x": 19, "y": 22, "tileId": 5 },
+        { "type": "setTile", "x": 30, "y": 22, "tileId": 5 }
       ]
     },
     {
