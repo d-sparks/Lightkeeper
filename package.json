@@ -4,7 +4,8 @@
   "description": "Multiplayer browser dungeon crawler with permadeath item loss",
   "main": "server/index.js",
   "scripts": {
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "test": "node tools/content-validator.js && node tools/headless-sim.js --mainline"
   },
   "dependencies": {
     "ws": "^8.16.0"

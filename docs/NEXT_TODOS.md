@@ -15,3 +15,12 @@
 - Add loot table entries so faction mods actually drop from the correct biomes/factions
 - Client UI does not yet display healOnHit or energyCostReduction modifier effects — add tooltip support
 - Consider adding more rarity tiers (legendary) for each faction once balance is tested
+
+## Content Validation Errors (pre-existing)
+
+- `sol_components.json` missing "sol_cone" — referenced by sol_unit_mk1 and sol_unit_mk1_plus in sol_units.json
+- Flag "umbral_seed_dark_exposed" checked in homestead_interior but never set anywhere
+- Flag "warlord_defeated" checked in outpost_entrance but never set anywhere
+- Flag "damage_booster_equipped" checked in outpost_workshop but never set anywhere
+- Flag "has_traded_meridian" checked in NPC meridian_7 dialogue but never set anywhere
+- Quest lost_supplies step "find_manifest" requires item "supply_manifest" but it's not spawned or given anywhere
