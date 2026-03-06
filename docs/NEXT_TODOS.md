@@ -35,3 +35,11 @@
 - The quest currently gates on `traded_umbracite_meridian` — make sure the initial MERIDIAN-7 trade at train station properly flows into the Array Hub quest
 - Add map/minimap markers or quest waypoints for the Nightside Caverns entrance
 - Consider environmental hazards in nightside_depths (cold damage, darkness debuff) once those systems exist
+
+## Art & Sprites
+
+- Update `tools/generate-sprites.js` to use hex values from `docs/art-style-guide.md` master palette (current colors are ad-hoc)
+- Add placeholder sprites for newer monsters missing from `PLACEHOLDER_ASSETS.md` (dusk_crawler, crystal_guardian, garden_mite, nest_mother, shade_stalker, shade_stalker_alpha, ravine_lurker, gloom_wraith, rime_stalker, frostfang_hunter, vent_spewer, magma_brute)
+- Replace all placeholder sprites with final art following the style guide
+- Create tileset strips for each zone theme (currently only stone_crypt has a tileset; iso ground templates exist for all zones but no full tilesets)
+- Add animation frames (idle, attack, hit) once the engine supports sprite animation
