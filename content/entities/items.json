@@ -608,5 +608,45 @@
     "type": "sol_component",
     "rarity": "rare",
     "solComponentId": "solar_capacitor"
+  },
+  "nightcaster_frame": {
+    "name": "Nightcaster Frame",
+    "description": "A sol unit modified by Unbounded engineers for deep-dark raids. Compact 5x5 grid with reduced energy reserves, but dark-tuned emitters amplify all damage by 20%. Hit hard, move fast.",
+    "type": "equipment",
+    "rarity": "epic",
+    "slot": "sol_unit",
+    "stats": { "attackDamage": 18 },
+    "hasSolGrid": true,
+    "solUnitId": "nightcaster_frame"
+  },
+  "array_precision_core": {
+    "name": "Array Precision Core",
+    "description": "Manufactured by the Array to exacting tolerances. 6x6 grid with a massive 200-charge reservoir and innate 20% energy cost reduction on all abilities. What MERIDIAN-7 builds, MERIDIAN-7 builds well.",
+    "type": "equipment",
+    "rarity": "epic",
+    "slot": "sol_unit",
+    "stats": { "attackDamage": 14 },
+    "hasSolGrid": true,
+    "solUnitId": "array_precision_core"
+  },
+  "greenway_bioframe": {
+    "name": "Greenway Bioframe",
+    "description": "A sol unit integrated with Ring bio-tech. 7x7 grid with living tissue that heals you on every hit. The largest standard grid available, enabling complex component arrangements.",
+    "type": "equipment",
+    "rarity": "legendary",
+    "slot": "sol_unit",
+    "stats": { "attackDamage": 14 },
+    "hasSolGrid": true,
+    "solUnitId": "greenway_bioframe"
+  },
+  "underlumen_nexus": {
+    "name": "Underlumen Nexus",
+    "description": "Recovered from pre-human ruins in the deep Nightside. 8x8 grid of crystalline substrate that resonates with the planetary network, cycling all abilities 15% faster. Endgame power.",
+    "type": "equipment",
+    "rarity": "legendary",
+    "slot": "sol_unit",
+    "stats": { "attackDamage": 16 },
+    "hasSolGrid": true,
+    "solUnitId": "underlumen_nexus"
   }
 }

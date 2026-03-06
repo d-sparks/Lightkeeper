@@ -673,7 +673,8 @@ class GameLoop {
   // Compute modified ability stats based on adjacent modifiers
   _computeModifiedAbility(solGrid, x, y, baseAbilityDef) {
     const mods = this._getAdjacentModifiers(solGrid, x, y);
-    if (mods.length === 0) return null; // no modifications
+    const innate = solGrid.innateBonus;
+    if (mods.length === 0 && !innate) return null; // no modifications
 
     const modified = {};
     let dmgMult = 0;
@@ -685,6 +686,13 @@ class GameLoop {
       if (mod.bonus.cooldownReduction) cdReduce += mod.bonus.cooldownReduction;
       if (mod.bonus.energyCostReduction) energyCostReduce += mod.bonus.energyCostReduction;
       if (mod.bonus.healOnHit) healOnHit += mod.bonus.healOnHit;
+    }
+    // Apply sol unit innate bonus to all abilities
+    if (innate) {
+      if (innate.damageMultiplier) dmgMult += innate.damageMultiplier;
+      if (innate.cooldownReduction) cdReduce += innate.cooldownReduction;
+      if (innate.energyCostReduction) energyCostReduce += innate.energyCostReduction;
+      if (innate.healOnHit) healOnHit += innate.healOnHit;
     }
     // Apply stacking caps
     cdReduce = Math.min(cdReduce, 0.75);
@@ -770,7 +778,9 @@ class GameLoop {
       }
       clientCells.push(clientCell);
     }
-    return { size: grid.size, cells: clientCells, nextPlacementId: grid.nextPlacementId };
+    const result = { size: grid.size, cells: clientCells, nextPlacementId: grid.nextPlacementId };
+    if (grid.innateBonus) result.innateBonus = grid.innateBonus;
+    return result;
   }
 
   // Rebuild the abilities array from equipped items
@@ -852,7 +862,7 @@ class GameLoop {
             }
           }
 
-          // Generators — passive energy regen per second, boosted by adjacent modifiers
+          // Generators — passive energy regen per second, boosted by adjacent modifiers + innate bonus
           if (cell.generatorId) {
             const compDef = this.content.getSolComponent(cell.generatorId);
             if (compDef && compDef.energyRegen) {
@@ -862,6 +872,11 @@ class GameLoop {
                 if (mod.bonus.energyCostReduction) {
                   regen *= (1 + mod.bonus.energyCostReduction);
                 }
+              }
+              // Apply sol unit innate energyCostReduction to generators
+              const innate = player.solGrid.innateBonus;
+              if (innate && innate.energyCostReduction) {
+                regen *= (1 + innate.energyCostReduction);
               }
               player.solGridEnergyRegen += regen;
             }
@@ -914,7 +929,7 @@ class GameLoop {
       }
     }
 
-    player.solGrid = { size, cells, nextPlacementId };
+    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null };
     // Set charge capacity from sol unit definition
     player.maxEnergy = solUnitDef.maxCharge || 100;
     player.energy = solUnitDef.initialEnergy !== undefined

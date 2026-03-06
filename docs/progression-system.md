@@ -229,7 +229,14 @@ This means efficiency-type modifiers have dual use: they reduce ability energy c
 
 ## Open Questions
 
-1. **Sol unit variants** — Define the 5-6 specific units: grid dimensions, innate perks, where they're found, and how they feel different to play.
+1. ~~**Sol unit variants**~~ — **Resolved.** Six sol units defined in `content/entities/sol_units.json`:
+   - **Mk1** (5×5, 100 charge, no perk) — Tutorial starter from the outpost.
+   - **Mk1+** (6×6, 120 charge, no perk) — Military-grade upgrade found in Act 1 cache.
+   - **Nightcaster Frame** (5×5, 80 charge, +20% damage) — Unbounded glass cannon from Frost Crypts.
+   - **Array Precision Core** (6×6, 200 charge, -20% energy cost) — Array-built efficiency frame from MERIDIAN-7 trade.
+   - **Greenway Bioframe** (7×7, 140 charge, +3 heal on hit) — Bio-tech sustain frame from Fungal Forests.
+   - **Underlumen Nexus** (8×8, 160 charge, -15% cooldown) — Endgame frame from deep ruins.
+   Engine supports `innateBonus` field on sol unit defs, applied globally to all grid abilities and generators.
 2. **Extended adjacency modifiers** — Base adjacency is **4-directional** (up/down/left/right). Some rare/powerful modifiers could have extended reach: "radius 2", "entire row", "entire column". Design and implement these when the modifier pool expands.
 3. **Modifier stat ranges** — What are the actual numbers? How much does a common +Damage mod give vs a legendary one?
 4. **Battery math** — Capacity per tier, energy costs per ability, how many casts does a full charge sustain at each game phase?

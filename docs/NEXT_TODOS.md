@@ -41,7 +41,9 @@ All done:
 - Client UI should display generator adjacency boost info (boostedEnergyRegen field is sent from server)
 - Design and implement extended-adjacency modifiers (radius 2, entire row/column) for rare/legendary tier
 - Define modifier stat ranges per rarity tier (common -> legendary number values)
-- Define the 5-6 sol unit variants (grid dimensions, innate perks, where found)
+- [x] Define the 5-6 sol unit variants (grid dimensions, innate perks, where found) — 6 variants in sol_units.json with innateBonus engine support
+- Client UI should display sol unit innateBonus info (name, perk description) on the sol grid screen
+- Add dungeon triggers/loot for acquiring new sol units (nightcaster_frame, array_precision_core, greenway_bioframe, underlumen_nexus)
 
 ## Act II Quest Follow-ups
 
