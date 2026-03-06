@@ -62,6 +62,7 @@
       "id": "enter_dayside",
       "event": "room_entered",
       "actions": [
+        { "type": "setFlag", "flag": "visited_dayside" },
         { "type": "showMessage", "lines": [
           "Blinding light floods your visor. The temperature readings spike — 180 degrees and rising.",
           "This is the dayside. An endless expanse of superheated rock and molten glass. Solar energy here is limitless.",

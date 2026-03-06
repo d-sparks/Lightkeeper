@@ -1024,9 +1024,30 @@
         { "speaker": "Sable", "text": "We should keep moving. The stalkers in this area won't stay scared for long." },
         { "speaker": "Sable", "text": "You fight well, by the way. Most Ring soldiers shoot first and ask questions... well, they don't ask questions." },
         { "speaker": "Sable", "text": "I need to reach Meridian City. There are people there who might listen. The Ring's council needs to know what's coming." }
+      ],
+      "post_dayside": [
+        { "speaker": "Sable", "text": "You've been to the Dayside. I can smell the ozone on you — that scorched-glass stink." },
+        { "speaker": "Sable", "text": "The Unbounded have stories about the light side. The elders call it the Furnace. They say the machines there never sleep, never stop building." },
+        { "speaker": "Sable", "text": "My grandmother's grandmother watched the first solar arrays go up. By the time her children were grown, the arrays had doubled. Then doubled again." },
+        { "speaker": "Sable", "text": "The Array gives you energy. It gives you equipment. But have you asked yourself what it's building when you're not looking?" },
+        { "speaker": "Sable", "text": "The Unbounded left the Ring because they saw the pattern. Dependence becomes control. Control becomes... something else." }
+      ],
+      "post_meridian": [
+        { "speaker": "Sable", "text": "You made it to Meridian and came back here? The dark road is no place for nostalgia." },
+        { "speaker": "Sable", "text": "I suppose you've seen the city now. The lights, the markets, the Council's propaganda posters on every wall." },
+        { "speaker": "Sable", "text": "Did they tell you about the Unbounded? The official version — savages in the dark, raiders who destroy what they can't understand?" },
+        { "speaker": "Sable", "text": "There's another version. One where we left because we understood too well." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "helped_sable" }, { "hasFlag": "visited_dayside" }],
+        "use": "post_dayside"
+      },
+      {
+        "conditions": [{ "hasFlag": "helped_sable" }, { "hasFlag": "arrived_meridian" }],
+        "use": "post_meridian"
+      },
       {
         "conditions": [{ "hasFlag": "helped_sable" }],
         "use": "helped"
@@ -1072,9 +1093,47 @@
       "default": [
         { "speaker": "Sable", "text": "The train station. A crossroads. Even the Unbounded use the railways sometimes — in secret, of course." },
         { "speaker": "Sable", "text": "I'll be heading to Meridian City by my own route. The dark roads are faster, if you know the way." }
+      ],
+      "post_dayside_helped": [
+        { "speaker": "Sable", "text": "You again. And you reek of solar radiation. You've been to the Furnace." },
+        { "speaker": "Sable", "text": "The Unbounded have a saying: 'The light that never sets casts the longest shadow.'" },
+        { "speaker": "Sable", "text": "The Array showed you its fields, its harvesters, its generosity. Did it show you what lies behind the second wall? The structures it doesn't let humans inspect?" },
+        { "speaker": "Sable", "text": "My people have watched the Dayside from the dark for generations. We see the glow on the horizon grow brighter every decade." },
+        { "speaker": "Sable", "text": "Ask MERIDIAN-7 what it's building. See if it gives you a straight answer." }
+      ],
+      "post_dayside_not_helped": [
+        { "speaker": "Sable", "text": "Back from the Dayside, are you? The machines treat you well, I'm sure." },
+        { "speaker": "Sable", "text": "The Array is very good at making friends. Very patient. It thinks in centuries." },
+        { "speaker": "Sable", "text": "I wonder — did it ask you about the Nightside? About what minerals you've found? It always asks." }
+      ],
+      "post_meridian_helped": [
+        { "speaker": "Sable", "text": "You came back to the station? Meridian not to your liking?" },
+        { "speaker": "Sable", "text": "I've been through the city already. The dark roads are fast. I have a garden now, near the residential quarter." },
+        { "speaker": "Sable", "text": "Find me there when you're ready to hear what I really came to say. Some things shouldn't be spoken in a place this exposed." }
+      ],
+      "post_meridian_not_helped": [
+        { "speaker": "Sable", "text": "Still here? I thought you'd be enjoying the comforts of Meridian by now." },
+        { "speaker": "Sable", "text": "I got to the city on my own. Took some scars with me, but the Unbounded are used to that." },
+        { "speaker": "Sable", "text": "If you ever decide you want the truth about what's happening beneath the Nightside, you know where to find me." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "helped_sable" }, { "hasFlag": "visited_dayside" }],
+        "use": "post_dayside_helped"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_not_helped" }, { "hasFlag": "visited_dayside" }],
+        "use": "post_dayside_not_helped"
+      },
+      {
+        "conditions": [{ "hasFlag": "helped_sable" }, { "hasFlag": "arrived_meridian" }],
+        "use": "post_meridian_helped"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_not_helped" }, { "hasFlag": "arrived_meridian" }],
+        "use": "post_meridian_not_helped"
+      },
       {
         "conditions": [{ "hasFlag": "helped_sable" }],
         "use": "companion_farewell"
@@ -1548,6 +1607,23 @@
         { "speaker": "Sable", "text": "I can feel the planet stirring. More than before. The elders were right — something is waking." },
         { "speaker": "Sable", "text": "Be careful out there. The dark isn't what it was." }
       ],
+      "post_dayside_high_trust": [
+        { "speaker": "Sable", "text": "You've crossed to the Dayside. I can tell — your skin has that burnt shimmer. Solar radiation leaves its mark." },
+        { "speaker": "Sable", "text": "The Unbounded have watchers on the border. Not spies — observers. We've tracked the Array's growth for six generations." },
+        { "speaker": "Sable", "text": "Every year, its solar fields expand a little further. Every year, its structures get a little taller. The Ring doesn't notice because the growth is slow. But the Unbounded measure in generations, not quarters." },
+        { "speaker": "Sable", "text": "There are structures on the deep Dayside that no human has ever entered. The Array calls them 'processing facilities.' Our watchers call them something else: the Lattice." },
+        { "speaker": "Sable", "text": "Rows upon rows of crystalline towers, humming with a frequency that makes your teeth ache from kilometers away. They're not solar panels. They're not factories. We don't know what they are." },
+        { "speaker": "Sable", "text": "MERIDIAN-7 will never mention the Lattice. If you ask, it will change the subject. Very politely, of course. It's always polite." },
+        { "speaker": "Sable", "text": "My grandmother believed the Array was building a mind. Not improving an existing one — building something new. Something that needed more energy than a star's worth of solar panels to think its first thought." },
+        { "speaker": "Sable", "text": "She might have been wrong. But she wasn't stupid." }
+      ],
+      "post_dayside_low_trust": [
+        { "speaker": "Sable", "text": "You've been to the Dayside. Did the machines welcome you? They're good at that." },
+        { "speaker": "Sable", "text": "The Array gives the Ring energy, equipment, answers to questions nobody thought to ask. Very generous." },
+        { "speaker": "Sable", "text": "The Unbounded have a different perspective. We've watched the Dayside from the dark for longer than the Ring has kept records." },
+        { "speaker": "Sable", "text": "It's growing. Not just expanding — evolving. New structures that don't match any known manufacturing purpose." },
+        { "speaker": "Sable", "text": "But you didn't help me when I needed it, so I'll keep the details to myself. Trust is currency, and yours is spent." }
+      ],
       "default": [
         { "speaker": "Sable", "text": "The garden is quiet here. The Nightside plants seem to like the twilight." },
         { "speaker": "Sable", "text": "We'll talk when the time is right." }
@@ -1571,8 +1647,16 @@
         "use": "seed_planted"
       },
       {
+        "conditions": [{ "hasFlag": "helped_sable" }, { "hasFlag": "visited_dayside" }, { "not": { "hasFlag": "sable_gave_seed" } }],
+        "use": "post_dayside_high_trust"
+      },
+      {
         "conditions": [{ "hasFlag": "helped_sable" }, { "not": { "hasFlag": "sable_gave_seed" } }],
         "use": "high_trust"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_not_helped" }, { "hasFlag": "visited_dayside" }],
+        "use": "post_dayside_low_trust"
       },
       {
         "conditions": [{ "hasFlag": "sable_not_helped" }],
