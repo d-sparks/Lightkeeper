@@ -207,13 +207,17 @@ class GameLoop {
           console.warn(`[GameLoop] No valid spawn tile for ${spawn.type} near (${targetTileX}, ${targetTileY}), skipping`);
           continue;
         }
-        room.monsters.set(id, {
+        const spawnX = (validTile.x + 0.5) * CONSTANTS.TILE_SIZE;
+        const spawnY = (validTile.y + 0.5) * CONSTANTS.TILE_SIZE;
+        const mob = {
           id,
           spawnKey,
           type: spawn.type,
           name: def.name,
-          x: (validTile.x + 0.5) * CONSTANTS.TILE_SIZE,
-          y: (validTile.y + 0.5) * CONSTANTS.TILE_SIZE,
+          x: spawnX,
+          y: spawnY,
+          spawnX,
+          spawnY,
           health: def.health,
           maxHealth: def.health,
           speed: def.speed,
@@ -223,7 +227,24 @@ class GameLoop {
           attackTimer: 0,
           ai: def.ai,
           facing: 0,
-        });
+        };
+        // Ambush: start hidden until player is close
+        if (def.ai === 'ambush') {
+          mob.hidden = true;
+          mob.ambushRevealed = false;
+        }
+        // Patrol: set up waypoint walking state
+        if (def.ai === 'patrol') {
+          mob.patrolAngle = Math.random() * Math.PI * 2;
+          mob.patrolTimer = 0;
+          mob.patrolState = 'walking'; // 'walking' or 'waiting'
+          mob.patrolWaitTime = 1.5 + Math.random();
+        }
+        // Ranged kite: store projectile type from definition
+        if (def.ai === 'ranged_kite' && def.projectile) {
+          mob.projectile = def.projectile;
+        }
+        room.monsters.set(id, mob);
       }
     }
   }
@@ -1060,6 +1081,7 @@ class GameLoop {
       let nearestMob = null;
       let nearestDist = Infinity;
       for (const [mid, mob] of room.monsters) {
+        if (mob.hidden) continue;
         const dx = mob.x - player.x;
         const dy = mob.y - player.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1120,6 +1142,7 @@ class GameLoop {
 
     // Hit all monsters within cone
     for (const [mid, mob] of room.monsters) {
+      if (mob.hidden) continue;
       const dx = mob.x - player.x;
       const dy = mob.y - player.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1208,6 +1231,7 @@ class GameLoop {
     let nearestMob = null;
     let nearestDist = Infinity;
     for (const [mid, mob] of room.monsters) {
+      if (mob.hidden) continue;
       const dx = mob.x - player.x;
       const dy = mob.y - player.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1560,9 +1584,42 @@ class GameLoop {
       if (!nearest) continue;
 
       const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
-      if (!mob.aggroTarget && nearestDist > aggroRange) continue;
 
-      if (mob.ai === 'melee_chase') {
+      // Ambush: stay hidden until player is very close
+      if (mob.ai === 'ambush' && mob.hidden) {
+        const revealRange = 3 * CONSTANTS.TILE_SIZE;
+        if (nearestDist <= revealRange || mob.aggroTarget) {
+          mob.hidden = false;
+          mob.ambushRevealed = true;
+        } else {
+          continue; // Stay dormant
+        }
+      }
+
+      if (!mob.aggroTarget && nearestDist > aggroRange) {
+        // Patrol: wander near spawn when no player in aggro range
+        if (mob.ai === 'patrol') {
+          this._updatePatrol(mob, room.dungeon, dt);
+        }
+        continue;
+      }
+
+      if (mob.ai === 'melee_chase' || mob.ai === 'ambush' || mob.ai === 'patrol' || mob.ai === 'pack') {
+        // Pack: when aggroing, alert nearby pack monsters
+        if (mob.ai === 'pack' && nearest && !mob._packAlerted) {
+          mob._packAlerted = true;
+          const packRange = 8 * CONSTANTS.TILE_SIZE;
+          for (const [otherId, other] of room.monsters) {
+            if (otherId === mid || other.ai !== 'pack') continue;
+            const pdx = other.x - mob.x;
+            const pdy = other.y - mob.y;
+            if (Math.sqrt(pdx * pdx + pdy * pdy) <= packRange) {
+              other.aggroTarget = nearest.id;
+              other._packAlerted = true;
+            }
+          }
+        }
+
         if (nearestDist > mob.attackRange) {
           // Chase player
           const dx = nearest.x - mob.x;
@@ -1578,33 +1635,129 @@ class GameLoop {
             mob.facing = Math.atan2(dy, dx);
           }
         } else if (mob.attackTimer <= 0) {
-          // Attack player
-          nearest.health -= mob.damage;
+          // Ambush bonus: 1.5x damage on first strike
+          let damage = mob.damage;
+          if (mob.ai === 'ambush' && mob.ambushRevealed) {
+            damage = Math.round(damage * 1.5);
+            mob.ambushRevealed = false;
+          }
+          nearest.health -= damage;
           mob.attackTimer = mob.attackCooldown;
           room.events.push({
             type: 'damage', targetId: nearest.id,
-            amount: mob.damage, x: nearest.x, y: nearest.y,
+            amount: damage, x: nearest.x, y: nearest.y,
           });
 
-          // Player death -> respawn at floor spawn
-          if (nearest.health <= 0) {
-            nearest.health = nearest.maxHealth;
-            const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
-            nearest.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
-            nearest.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
-            room.events.push({
-              type: 'death', targetId: nearest.id,
-              x: nearest.x, y: nearest.y,
-            });
+          this._checkPlayerDeath(nearest, room);
+        }
+      } else if (mob.ai === 'ranged_kite') {
+        const preferredRange = mob.attackRange * 0.6;
+        const dx = nearest.x - mob.x;
+        const dy = nearest.y - mob.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        mob.facing = Math.atan2(dy, dx);
 
-            // Emit player_death scripting event
-            const deathCtx = this._scriptContext(nearest.id, room.id);
-            this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
-              playerId: nearest.id, roomId: room.id,
-            }, deathCtx);
+        if (nearestDist < preferredRange) {
+          // Too close — kite away
+          if (len > 0) {
+            const speed = mob.speed * CONSTANTS.TILE_SIZE * dt;
+            const nx = mob.x - (dx / len) * speed;
+            const ny = mob.y - (dy / len) * speed;
+            const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
+            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+          }
+        } else if (nearestDist > mob.attackRange) {
+          // Too far — close distance
+          if (len > 0) {
+            const speed = mob.speed * CONSTANTS.TILE_SIZE * dt;
+            const nx = mob.x + (dx / len) * speed;
+            const ny = mob.y + (dy / len) * speed;
+            const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
+            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+          }
+        }
+
+        // Shoot when in range and off cooldown
+        if (nearestDist <= mob.attackRange && mob.attackTimer <= 0) {
+          mob.attackTimer = mob.attackCooldown;
+          if (len > 0) {
+            const projId = `proj_${room.nextProjectileId++}`;
+            room.projectiles.push({
+              id: projId,
+              ownerId: mob.id,
+              isMonsterProjectile: true,
+              x: mob.x,
+              y: mob.y,
+              vx: (dx / len) * CONSTANTS.PROJECTILE_SPEED * 0.7,
+              vy: (dy / len) * CONSTANTS.PROJECTILE_SPEED * 0.7,
+              damage: mob.damage,
+              lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+            });
           }
         }
       }
+    }
+  }
+
+  _updatePatrol(mob, dungeon, dt) {
+    if (mob.patrolState === 'waiting') {
+      mob.patrolTimer -= dt;
+      if (mob.patrolTimer <= 0) {
+        mob.patrolState = 'walking';
+        mob.patrolTimer = 0;
+        mob.patrolAngle += Math.PI * (0.5 + Math.random());
+      }
+      return;
+    }
+
+    // Walk in current direction
+    const speed = mob.speed * CONSTANTS.TILE_SIZE * dt * 0.4;
+    const nx = mob.x + Math.cos(mob.patrolAngle) * speed;
+    const ny = mob.y + Math.sin(mob.patrolAngle) * speed;
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+
+    let moved = false;
+    if (!this.physics.collidesAt(nx, mob.y, dungeon, mr)) { mob.x = nx; moved = true; }
+    if (!this.physics.collidesAt(mob.x, ny, dungeon, mr)) { mob.y = ny; moved = true; }
+    mob.facing = mob.patrolAngle;
+
+    // If hit a wall or wandered too far from spawn, stop and turn
+    const dxSpawn = mob.x - mob.spawnX;
+    const dySpawn = mob.y - mob.spawnY;
+    const distFromSpawn = Math.sqrt(dxSpawn * dxSpawn + dySpawn * dySpawn);
+    const maxPatrolDist = 4 * CONSTANTS.TILE_SIZE;
+
+    if (!moved || distFromSpawn > maxPatrolDist) {
+      // Turn back toward spawn
+      mob.patrolAngle = Math.atan2(mob.spawnY - mob.y, mob.spawnX - mob.x) + (Math.random() - 0.5) * 0.5;
+      mob.patrolState = 'waiting';
+      mob.patrolTimer = 1.0 + Math.random() * 2.0;
+    }
+
+    mob.patrolTimer += dt;
+    if (mob.patrolTimer > 3.0) {
+      mob.patrolState = 'waiting';
+      mob.patrolTimer = 1.0 + Math.random() * 1.5;
+    }
+  }
+
+  _checkPlayerDeath(player, room) {
+    if (player.health <= 0) {
+      player.health = player.maxHealth;
+      const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
+      player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
+      player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
+      room.events.push({
+        type: 'death', targetId: player.id,
+        x: player.x, y: player.y,
+      });
+
+      const deathCtx = this._scriptContext(player.id, room.id);
+      this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
+        playerId: player.id, roomId: room.id,
+      }, deathCtx);
     }
   }
 
@@ -1633,6 +1786,7 @@ class GameLoop {
       let nearestMob = null;
       let nearestDist = Infinity;
       for (const [mid, mob] of room.monsters) {
+        if (mob.hidden) continue;
         const dx = mob.x - player.x;
         const dy = mob.y - player.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1699,9 +1853,10 @@ class GameLoop {
         continue;
       }
 
-      // Check monster collision
+      // Check monster collision (only for player-fired projectiles)
       let hitMonster = false;
-      for (const [mid, mob] of room.monsters) {
+      if (!proj.isMonsterProjectile) for (const [mid, mob] of room.monsters) {
+        if (mob.hidden) continue;
         const dx = mob.x - proj.x;
         const dy = mob.y - proj.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1764,6 +1919,29 @@ class GameLoop {
       }
 
       if (hitMonster) continue;
+
+      // Check player collision (for monster-fired projectiles)
+      if (proj.isMonsterProjectile) {
+        let hitPlayer = false;
+        for (const [pid, player] of room.players) {
+          const dx = player.x - proj.x;
+          const dy = player.y - proj.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius;
+          if (dist < hitRadius) {
+            player.health -= proj.damage;
+            room.events.push({
+              type: 'damage', targetId: pid,
+              amount: proj.damage, x: player.x, y: player.y,
+            });
+            this._checkPlayerDeath(player, room);
+            hitPlayer = true;
+            toRemove.push(i);
+            break;
+          }
+        }
+        if (hitPlayer) continue;
+      }
     }
 
     // Remove projectiles that hit something or expired (in reverse order to preserve indices)
@@ -2250,6 +2428,7 @@ class GameLoop {
 
     const monsters = [];
     for (const [mid, m] of room.monsters) {
+      if (m.hidden) continue; // Ambush monsters are invisible to clients
       monsters.push({
         id: m.id, type: m.type, name: m.name,
         x: Math.round(m.x * 10) / 10,
