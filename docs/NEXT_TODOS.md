@@ -8,3 +8,10 @@
 - Monster projectiles (from ranged_kite) use a generic blue color on client — consider tinting them red or adding a distinct sprite
 - The existing dungeon `patrol` field on monsterSpawns (e.g. "guard", "wander") is still unused by the engine — could be wired into the patrol AI to control behavior style
 - Pack AI could be extended with a "pack leader" variant that buffs nearby pack members
+
+## Sol Grid Modifier Follow-ups
+
+- Nightside "dark" mods currently give flat damage bonuses — when a lighting/visibility system is added, implement conditional bonuses (e.g. extra damage in unlit tiles)
+- Add loot table entries so faction mods actually drop from the correct biomes/factions
+- Client UI does not yet display healOnHit or energyCostReduction modifier effects — add tooltip support
+- Consider adding more rarity tiers (legendary) for each faction once balance is tested

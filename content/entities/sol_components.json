@@ -106,5 +106,77 @@
     "name": "Advanced Rechargeable Battery",
     "energyCapacity": 5000,
     "shape": [[1]]
+  },
+  "shadow_conduit": {
+    "type": "modifier",
+    "name": "Shadow Conduit",
+    "rarity": "uncommon",
+    "faction": "nightside",
+    "bonus": { "damageMultiplier": 0.30 },
+    "description": "Nightside-forged circuit that channels umbral energy into raw damage.",
+    "shape": [[1]]
+  },
+  "umbral_amplifier": {
+    "type": "modifier",
+    "name": "Umbral Amplifier",
+    "rarity": "rare",
+    "faction": "nightside",
+    "bonus": { "damageMultiplier": 0.45, "cooldownReduction": 0.10 },
+    "description": "Dark-tuned amplifier that surges with power in low-light conditions.",
+    "shape": [[1, 1]]
+  },
+  "void_resonator": {
+    "type": "modifier",
+    "name": "Void Resonator",
+    "rarity": "epic",
+    "faction": "nightside",
+    "bonus": { "damageMultiplier": 0.55, "cooldownReduction": 0.20 },
+    "description": "Rare Nightside component that hums with void-frequency energy, massively boosting adjacent abilities.",
+    "shape": [[1, 1]]
+  },
+  "bio_leech_node": {
+    "type": "modifier",
+    "name": "Bio-Leech Node",
+    "rarity": "uncommon",
+    "faction": "greenway",
+    "bonus": { "healOnHit": 3 },
+    "description": "Greenway bio-tech that siphons life force from struck targets.",
+    "shape": [[1]]
+  },
+  "symbiotic_core": {
+    "type": "modifier",
+    "name": "Symbiotic Core",
+    "rarity": "rare",
+    "faction": "greenway",
+    "bonus": { "healOnHit": 5, "damageMultiplier": 0.10 },
+    "description": "Living symbiote that feeds on combat energy, healing its host with each strike.",
+    "shape": [[1, 1]]
+  },
+  "mycelial_matrix": {
+    "type": "modifier",
+    "name": "Mycelial Matrix",
+    "rarity": "epic",
+    "faction": "greenway",
+    "bonus": { "healOnHit": 8, "damageMultiplier": 0.15 },
+    "description": "Dense fungal network from the deep Greenway that rapidly regenerates tissue on contact damage.",
+    "shape": [[1, 1]]
+  },
+  "photon_regulator": {
+    "type": "modifier",
+    "name": "Photon Regulator",
+    "rarity": "uncommon",
+    "faction": "dayside",
+    "bonus": { "energyCostReduction": 0.20 },
+    "description": "Array-calibrated regulator that optimizes energy flow to adjacent abilities.",
+    "shape": [[1]]
+  },
+  "solar_capacitor": {
+    "type": "modifier",
+    "name": "Solar Capacitor",
+    "rarity": "rare",
+    "faction": "dayside",
+    "bonus": { "energyCostReduction": 0.30, "cooldownReduction": 0.10 },
+    "description": "Dayside-charged capacitor that stores solar energy for efficient ability cycling.",
+    "shape": [[1, 1]]
   }
 }

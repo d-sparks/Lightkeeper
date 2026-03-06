@@ -678,15 +678,25 @@ class GameLoop {
     const modified = {};
     let dmgMult = 0;
     let cdReduce = 0;
+    let energyCostReduce = 0;
+    let healOnHit = 0;
     for (const mod of mods) {
       if (mod.bonus.damageMultiplier) dmgMult += mod.bonus.damageMultiplier;
       if (mod.bonus.cooldownReduction) cdReduce += mod.bonus.cooldownReduction;
+      if (mod.bonus.energyCostReduction) energyCostReduce += mod.bonus.energyCostReduction;
+      if (mod.bonus.healOnHit) healOnHit += mod.bonus.healOnHit;
     }
     if (dmgMult > 0) {
       modified.damageMultiplier = (baseAbilityDef.damageMultiplier || 1.0) + dmgMult;
     }
     if (cdReduce > 0) {
       modified.cooldown = Math.max(0.1, (baseAbilityDef.cooldown || 0.5) * (1 - cdReduce));
+    }
+    if (energyCostReduce > 0 && baseAbilityDef.energyCost) {
+      modified.energyCost = Math.max(1, Math.round(baseAbilityDef.energyCost * (1 - energyCostReduce)));
+    }
+    if (healOnHit > 0) {
+      modified.healOnHit = healOnHit;
     }
     return modified;
   }
@@ -1117,6 +1127,7 @@ class GameLoop {
       damage: damage,
       radius: radius,
       lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+      healOnHit: abilityDef.healOnHit || 0,
     });
 
     player.cooldowns[slotIdx] = abilityDef.cooldown || CONSTANTS.PLAYER_ATTACK_COOLDOWN;
@@ -1168,6 +1179,11 @@ class GameLoop {
         x: mob.x,
         y: mob.y,
       });
+
+      // Heal on hit
+      if (abilityDef.healOnHit > 0) {
+        player.health = Math.min(player.maxHealth, player.health + abilityDef.healOnHit);
+      }
 
       // Apply knockback
       if (knockbackDist > 0 && dist > 0) {
@@ -1261,6 +1277,11 @@ class GameLoop {
       type: 'damage', targetId: nearestMob.id,
       amount: damage, x: nearestMob.x, y: nearestMob.y,
     });
+
+    // Heal on hit
+    if (abilityDef.healOnHit > 0) {
+      player.health = Math.min(player.maxHealth, player.health + abilityDef.healOnHit);
+    }
 
     // Apply knockback
     const knockback = abilityDef.knockback || 0;
@@ -1910,6 +1931,14 @@ class GameLoop {
               monsterId: mid,
               monsterX: mob.x, monsterY: mob.y,
             }, ctx);
+          }
+
+          // Heal on hit
+          if (proj.healOnHit > 0) {
+            const attacker = room.players.get(proj.ownerId);
+            if (attacker) {
+              attacker.health = Math.min(attacker.maxHealth, attacker.health + proj.healOnHit);
+            }
           }
 
           hitMonster = true;
