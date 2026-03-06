@@ -32,6 +32,15 @@ class Renderer {
     // Floating damage numbers
     this.damageNumbers = [];
 
+    // Hit flash: map of entityId -> remaining flash time (seconds)
+    this.hitFlashes = new Map();
+
+    // Screen shake state
+    this.screenShake = { intensity: 0, duration: 0, elapsed: 0 };
+
+    // Death animations: array of { x, y, type, age, maxAge, sprite container }
+    this.deathAnims = [];
+
     // Tile color fallbacks
     this.tileColors = {};
 
@@ -925,9 +934,15 @@ class Renderer {
 
     this.updateCamera();
 
-    // Position world container (camera offset)
-    this.worldContainer.x = -Math.round(this.camX);
-    this.worldContainer.y = -Math.round(this.camY);
+    // Tick combat juice timers
+    const dt = 1 / 60;
+    this._tickHitFlashes(dt);
+    this._tickScreenShake(dt);
+
+    // Position world container (camera offset + screen shake)
+    const shake = this._getShakeOffset();
+    this.worldContainer.x = -Math.round(this.camX) + shake.x;
+    this.worldContainer.y = -Math.round(this.camY) + shake.y;
 
     this.renderMap();
     this.renderSpawns();
@@ -942,6 +957,7 @@ class Renderer {
     this.renderMeleeEffects();
     this.renderPlayers();
     this.renderDoorPrompts();
+    this.renderDeathAnims();
     this.renderDamageNumbers();
     this.renderMinimap();
     this.renderQuestArrow();
@@ -1562,6 +1578,11 @@ class Renderer {
         sprite.y = this.isoMode ? -r : 0;
       }
 
+      // Hit flash: override tint to white briefly
+      if (this.hitFlashes.has(mob.id)) {
+        sprite.tint = 0xffffff;
+      }
+
       // Name tag (above sprite top)
       nameTag.text = mob.name;
       nameTag.style.fill = '#e57373';
@@ -1636,6 +1657,11 @@ class Renderer {
       if (!loaded) {
         const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
         sprite.tint = playerColors[player.colorIndex] || 0xffffff;
+      }
+
+      // Hit flash: override tint to white briefly
+      if (this.hitFlashes.has(player.id)) {
+        sprite.tint = 0xffffff;
       }
 
       // Name tag (above sprite top)
@@ -1897,6 +1923,88 @@ class Renderer {
     });
   }
 
+  // --- Combat juice helpers ---
+
+  _tickHitFlashes(dt) {
+    for (const [id, remaining] of this.hitFlashes) {
+      const next = remaining - dt;
+      if (next <= 0) {
+        this.hitFlashes.delete(id);
+      } else {
+        this.hitFlashes.set(id, next);
+      }
+    }
+  }
+
+  _tickScreenShake(dt) {
+    if (this.screenShake.duration > 0) {
+      this.screenShake.elapsed += dt;
+      if (this.screenShake.elapsed >= this.screenShake.duration) {
+        this.screenShake.duration = 0;
+      }
+    }
+  }
+
+  _getShakeOffset() {
+    if (this.screenShake.duration <= 0) return { x: 0, y: 0 };
+    const progress = this.screenShake.elapsed / this.screenShake.duration;
+    const decay = 1 - progress;
+    const intensity = this.screenShake.intensity * decay;
+    return {
+      x: Math.round((Math.random() * 2 - 1) * intensity),
+      y: Math.round((Math.random() * 2 - 1) * intensity),
+    };
+  }
+
+  _spawnDeathAnim(x, y, mobId) {
+    // Try to capture the monster's sprite texture from pool before it's cleaned up
+    const entry = this.monsterSprites.get(mobId);
+    let spritePath = null;
+    let tint = 0xe53935;
+    if (entry && entry.sprite) {
+      // If the sprite has a loaded texture, we'll recreate it
+      if (entry.sprite.texture !== PIXI.Texture.WHITE) {
+        spritePath = entry.sprite._texturePath || null;
+      }
+      tint = entry.sprite.tint;
+    }
+
+    const r = CONSTANTS.MONSTER_COLLISION_RADIUS || 10;
+    const container = new PIXI.Container();
+    const sprite = new PIXI.Sprite(entry ? entry.sprite.texture : PIXI.Texture.WHITE);
+    sprite.anchor.set(0.5);
+    sprite.width = r * 2;
+    sprite.height = r * 2;
+    sprite.tint = tint;
+    if (this.isoMode) sprite.y = -r;
+    container.addChild(sprite);
+
+    this._positionEntity(container, x, y);
+    this.entityContainer.addChild(container);
+
+    this.deathAnims.push({
+      container, sprite, x, y,
+      age: 0, maxAge: 0.4,
+    });
+  }
+
+  renderDeathAnims() {
+    const dt = 1 / 60;
+    this.deathAnims = this.deathAnims.filter(da => {
+      da.age += dt;
+      if (da.age >= da.maxAge) {
+        this.entityContainer.removeChild(da.container);
+        da.container.destroy({ children: true });
+        return false;
+      }
+      const progress = da.age / da.maxAge;
+      // Fade out and collapse vertically
+      da.container.alpha = 1 - progress;
+      da.sprite.scale.y *= (1 - dt * 4); // shrink Y each frame
+      return true;
+    });
+  }
+
   // --- Damage numbers ---
 
   processEvents(events) {
@@ -1909,6 +2017,12 @@ class Renderer {
           age: 0, maxAge: 1.0,
           color: ev.targetId.startsWith('mob_') ? '#ffa726' : '#e53935',
         });
+        // Hit flash on the damaged entity
+        this.hitFlashes.set(ev.targetId, 0.12);
+        // Screen shake when player takes damage
+        if (ev.targetId === this.myId) {
+          this.screenShake = { intensity: 4, duration: 0.15, elapsed: 0 };
+        }
       } else if (ev.type === 'darkness_damage') {
         this.damageNumbers.push({
           text: `-${ev.amount}`,
@@ -1916,6 +2030,9 @@ class Renderer {
           age: 0, maxAge: 1.0,
           color: '#7c4dff',
         });
+        if (ev.targetId === this.myId) {
+          this.screenShake = { intensity: 3, duration: 0.1, elapsed: 0 };
+        }
       } else if (ev.type === 'heal') {
         this.damageNumbers.push({
           text: `+${ev.amount}`,
@@ -1937,6 +2054,9 @@ class Renderer {
           age: 0, maxAge: 2.0,
           color: '#ffa726',
         });
+      } else if (ev.type === 'death' && ev.targetId && ev.targetId.startsWith('mob_')) {
+        // Spawn death animation for monster
+        this._spawnDeathAnim(ev.x, ev.y, ev.targetId);
       } else if (ev.type === 'cone_effect') {
         this.coneEffects.push({
           x: ev.x, y: ev.y,
