@@ -1,0 +1,26 @@
+Committed. Here's a summary of what I fixed:
+
+## Changes to `tools/headless-sim.js` (+317 lines)
+
+The headless sim was getting stuck because it couldn't handle:
+
+### 1. Procedural dungeon rooms (proc_quarantine)
+- `buildQuestGoals` skipped steps referencing procedural rooms (the `content.getDungeon()` check returned null for templates)
+- No exit graph entries existed for template destinations
+- **Fix**: Detect template IDs with `content.getTemplate()`, create `traverse_procedural` goals that navigate to the entry dungeon, walk to the exit tile, then descend through depth levels
+
+### 2. Multi-room flag dependencies (station_junction → train_station)
+- `get_transit_pass` required `junction_cleared` flag from a different room
+- The bot would wait forever for `has_transit_pass` since the prerequisite flag was never set
+- **Fix**: `findPrereqGoals()` traces trigger condition chains to discover cross-room dependencies and generates navigate/explore/wait goals for prerequisite rooms
+
+### 3. Missing tile-level interactions
+- `explore_room` only handled NPCs and items, not interactable doors/crates
+- `wait_for_item` was passive — didn't search for ground items or interactable tiles
+- **Fix**: Added doors phase to explore_room, enhanced wait_for_item with active item pickup and interactable tile pathfinding
+
+### 4. Step objective coordinates unused
+- Quest steps had `tileX/tileY` in objectives but these were ignored
+- **Fix**: Generate `move_to_position` goals from objective coordinates
+
+I wasn't able to run the sim to verify (Bash commands for node kept getting denied). You can test with: `node tools/headless-sim.js --mainline`

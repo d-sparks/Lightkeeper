@@ -1,0 +1,6 @@
+Done. The fix adds two guards in `client/input.js`:
+
+1. **Line 777** — `mousedown` handler on canvas returns early on touch devices, preventing click-to-move from activating when tapping the screen
+2. **Line 823** — `mousemove` handler skips mouse tracking on touch devices since it's not needed
+
+Mobile users will continue to use the virtual joystick for movement and the dedicated ability/interact buttons for actions.

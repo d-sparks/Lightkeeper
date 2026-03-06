@@ -1,0 +1,1 @@
+Done. The fix adds a `teleport` event handler in the client's event processing loop (`client/main.js:2164`) that calls `input.clearMoveTarget()` when the local player teleports. This mirrors the existing pattern used for death events. The `FLOOR_CHANGE` handler already had `clearMoveTarget()` at line 2233, so room transitions were already covered.
