@@ -15,6 +15,7 @@ class ContentLoader {
     this.quests = {};
     this.templates = {};
     this.structures = {};
+    this.lootTables = {};
     this.worldmap = null;
     this.settings = {};
   }
@@ -32,6 +33,7 @@ class ContentLoader {
     this.loadQuests();
     this.loadTemplates();
     this.loadStructures();
+    this.loadLootTables();
     this.loadWorldmap();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
@@ -41,7 +43,8 @@ class ContentLoader {
                 `${Object.keys(this.abilities).length} ability(s), ` +
                 `${Object.keys(this.quests).length} quest(s), ` +
                 `${Object.keys(this.templates).length} template(s), ` +
-                `${Object.keys(this.structures).length} structure(s)`);
+                `${Object.keys(this.structures).length} structure(s), ` +
+                `${Object.keys(this.lootTables).length} loot table(s)`);
   }
 
   loadJSON(filePath) {
@@ -245,6 +248,21 @@ class ContentLoader {
 
   getStructures() {
     return this.structures;
+  }
+
+  loadLootTables() {
+    const dir = path.join(this.contentDir, 'loot');
+    if (!fs.existsSync(dir)) return;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.json')) continue;
+      const data = this.loadJSON(path.join(dir, file));
+      Object.assign(this.lootTables, data);
+    }
+    console.log(`[Content]   Loot Tables: ${Object.keys(this.lootTables).length} tables`);
+  }
+
+  getLootTable(id) {
+    return this.lootTables[id] || null;
   }
 
   loadWorldmap() {

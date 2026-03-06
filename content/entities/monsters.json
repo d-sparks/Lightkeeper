@@ -36,6 +36,7 @@
     "attackRange": 1,
     "attackSpeed": 1.2,
     "ai": "melee_chase",
+    "lootTable": "luddite_common",
     "xp": 8
   },
   "luddite_scrapper": {
@@ -48,6 +49,7 @@
     "attackRange": 6,
     "attackSpeed": 0.8,
     "ai": "ranged_kite",
+    "lootTable": "luddite_common",
     "xp": 12
   },
   "luddite_warlord": {
@@ -60,6 +62,7 @@
     "attackRange": 1.5,
     "attackSpeed": 0.8,
     "ai": "melee_chase",
+    "lootTable": "luddite_warlord",
     "xp": 50
   },
   "training_target": {
@@ -84,6 +87,7 @@
     "attackRange": 1,
     "attackSpeed": 1.2,
     "ai": "melee_chase",
+    "lootTable": "dusk_crawler",
     "xp": 5
   },
   "shade_stalker": {
@@ -96,6 +100,7 @@
     "attackRange": 1.5,
     "attackSpeed": 1.0,
     "ai": "melee_chase",
+    "lootTable": "shade_stalker",
     "xp": 18
   },
   "nest_mother": {
@@ -108,6 +113,7 @@
     "attackRange": 1.5,
     "attackSpeed": 0.8,
     "ai": "melee_chase",
+    "lootTable": "nest_mother",
     "xp": 45
   },
   "shade_stalker_alpha": {
@@ -120,6 +126,7 @@
     "attackRange": 1.5,
     "attackSpeed": 0.9,
     "ai": "melee_chase",
+    "lootTable": "shade_stalker",
     "xp": 30
   },
   "scrap_drone": {
@@ -132,6 +139,7 @@
     "attackRange": 1,
     "attackSpeed": 1.5,
     "ai": "melee_chase",
+    "lootTable": "scrap_drone",
     "xp": 3
   },
   "gloom_wraith": {
@@ -145,6 +153,7 @@
     "attackSpeed": 0.8,
     "projectile": "shadow_bolt",
     "ai": "ranged_kite",
+    "lootTable": "gloom_wraith",
     "xp": 25
   },
   "ravine_lurker": {
@@ -157,6 +166,7 @@
     "attackRange": 1.5,
     "attackSpeed": 0.9,
     "ai": "melee_chase",
+    "lootTable": "ravine_lurker",
     "xp": 35
   },
   "crystal_guardian": {
@@ -169,6 +179,7 @@
     "attackRange": 2,
     "attackSpeed": 0.7,
     "ai": "melee_chase",
+    "lootTable": "crystal_guardian",
     "xp": 60
   },
   "shadow_ambusher": {
@@ -181,6 +192,7 @@
     "attackRange": 1.5,
     "attackSpeed": 1.0,
     "ai": "ambush",
+    "lootTable": "shadow_ambusher",
     "xp": 20
   },
   "tunnel_creeper": {
@@ -193,6 +205,7 @@
     "attackRange": 1,
     "attackSpeed": 1.0,
     "ai": "patrol",
+    "lootTable": "tunnel_creeper",
     "xp": 8
   },
   "feral_hound": {
@@ -205,6 +218,7 @@
     "attackRange": 1,
     "attackSpeed": 1.2,
     "ai": "pack",
+    "lootTable": "feral_hound",
     "xp": 7
   },
   "rime_stalker": {
@@ -217,6 +231,7 @@
     "attackRange": 1.5,
     "attackSpeed": 1.0,
     "ai": "ambush",
+    "lootTable": "rime_stalker",
     "xp": 22
   },
   "frostfang_hunter": {
@@ -229,6 +244,7 @@
     "attackRange": 1,
     "attackSpeed": 1.3,
     "ai": "pack",
+    "lootTable": "frostfang_hunter",
     "xp": 12
   },
   "vent_spewer": {
@@ -242,6 +258,7 @@
     "attackSpeed": 0.6,
     "projectile": "magma_glob",
     "ai": "ranged_kite",
+    "lootTable": "vent_spewer",
     "xp": 20
   },
   "magma_brute": {
@@ -254,6 +271,7 @@
     "attackRange": 1.5,
     "attackSpeed": 0.6,
     "ai": "melee_chase",
+    "lootTable": "magma_brute",
     "xp": 55
   },
   "frost_warden": {
@@ -266,6 +284,7 @@
     "attackRange": 2,
     "attackSpeed": 0.7,
     "ai": "melee_chase",
+    "lootTable": "frost_warden",
     "xp": 60
   },
   "sporecap_shambler": {
@@ -278,6 +297,7 @@
     "attackRange": 1.5,
     "attackSpeed": 0.8,
     "ai": "melee_chase",
+    "lootTable": "sporecap_shambler",
     "xp": 12
   },
   "mycelium_lurker": {
@@ -290,6 +310,7 @@
     "attackRange": 1.5,
     "attackSpeed": 1.0,
     "ai": "ambush",
+    "lootTable": "mycelium_lurker",
     "xp": 18
   },
   "fungal_sprayer": {
@@ -303,6 +324,7 @@
     "attackSpeed": 0.7,
     "projectile": "spore_cloud",
     "ai": "ranged_kite",
+    "lootTable": "fungal_sprayer",
     "xp": 16
   },
   "elder_sporecap": {
@@ -315,6 +337,7 @@
     "attackRange": 2,
     "attackSpeed": 0.6,
     "ai": "melee_chase",
+    "lootTable": "elder_sporecap",
     "xp": 65
   }
 }

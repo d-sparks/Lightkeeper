@@ -1215,6 +1215,8 @@ class GameLoop {
           this.grantXp(player, monsterDef.xp, room);
         }
 
+        this._rollLoot(room, mob);
+
         const ctx = this._scriptContext(player.id, room.id);
         this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
           playerId: player.id,
@@ -1328,6 +1330,8 @@ class GameLoop {
       if (monsterDef && monsterDef.xp) {
         this.grantXp(player, monsterDef.xp, room);
       }
+
+      this._rollLoot(room, nearestMob);
 
       const ctx = this._scriptContext(player.id, room.id);
       this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
@@ -1922,6 +1926,8 @@ class GameLoop {
               }
             }
 
+            this._rollLoot(room, mob);
+
             // Emit monster_killed scripting event
             const ctx = this._scriptContext(proj.ownerId, room.id);
             this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
@@ -2358,6 +2364,40 @@ class GameLoop {
     const base = xpSys.baseXpToLevel || 100;
     const scale = xpSys.xpScalingFactor || 1.5;
     return Math.floor(base * Math.pow(scale, level - 1));
+  }
+
+  // Roll loot from a monster's loot table and spawn ground items at its death position
+  _rollLoot(room, mob) {
+    const monsterDef = this.content.getMonster(mob.type);
+    if (!monsterDef || !monsterDef.lootTable) return;
+    const table = this.content.getLootTable(monsterDef.lootTable);
+    if (!table || !table.rolls || table.rolls.length === 0) return;
+
+    if (Math.random() >= (table.dropChance || 0)) return;
+
+    // Weighted random selection
+    const totalWeight = table.rolls.reduce((sum, r) => sum + (r.weight || 1), 0);
+    let roll = Math.random() * totalWeight;
+    let chosen = null;
+    for (const entry of table.rolls) {
+      roll -= (entry.weight || 1);
+      if (roll <= 0) { chosen = entry; break; }
+    }
+    if (!chosen) return;
+
+    const itemDef = this.content.getItem(chosen.item);
+    if (!itemDef) return;
+
+    const itemId = `item_${room.nextItemId++}`;
+    room.items.set(itemId, {
+      id: itemId,
+      type: chosen.item,
+      name: itemDef.name,
+      rarity: itemDef.rarity || 'common',
+      category: itemDef.type,
+      x: mob.x,
+      y: mob.y,
+    });
   }
 
   // Grant XP to a player, handling level-ups and HP increases.
