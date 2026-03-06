@@ -21,29 +21,29 @@
   },
   "nightcaster_frame": {
     "name": "Nightcaster Frame",
-    "description": "A sol unit modified by Unbounded engineers for deep-dark raids. Compact grid and reduced energy reserves, but its dark-tuned emitters amplify all damage output. Favored by Lightkeepers who hit hard and move fast.",
+    "description": "A sol unit modified by Unbounded engineers for deep-dark raids. Compact grid and reduced energy reserves, but its dark-tuned emitters amplify all damage output. Insulated circuitry provides cold resistance. Favored by Lightkeepers who hit hard and move fast.",
     "gridSize": 5,
     "maxCharge": 80,
     "initialEnergy": 80,
-    "innateBonus": { "damageMultiplier": 0.20 },
+    "innateBonus": { "damageMultiplier": 0.20, "hazardResist": ["cold"] },
     "initialComponents": []
   },
   "array_precision_core": {
     "name": "Array Precision Core",
-    "description": "Manufactured by the Array to exacting tolerances. Its energy management systems are unmatched — every ability draws less power, and the deep charge reservoir keeps you in the field longer. What MERIDIAN-7 builds, MERIDIAN-7 builds well.",
+    "description": "Manufactured by the Array to exacting tolerances. Its energy management systems are unmatched — every ability draws less power, and the deep charge reservoir keeps you in the field longer. Thermal shielding rated for dayside conditions. What MERIDIAN-7 builds, MERIDIAN-7 builds well.",
     "gridSize": 6,
     "maxCharge": 200,
     "initialEnergy": 200,
-    "innateBonus": { "energyCostReduction": 0.20 },
+    "innateBonus": { "energyCostReduction": 0.20, "hazardResist": ["heat"] },
     "initialComponents": []
   },
   "greenway_bioframe": {
     "name": "Greenway Bioframe",
-    "description": "A sol unit integrated with Ring bio-tech — living tissue woven through its circuitry. Symbiotic organisms siphon energy from combat impacts and convert it to healing. The largest standard grid available, enabling complex component arrangements.",
+    "description": "A sol unit integrated with Ring bio-tech — living tissue woven through its circuitry. Symbiotic organisms siphon energy from combat impacts and convert it to healing. Bio-filters neutralize airborne toxins. The largest standard grid available, enabling complex component arrangements.",
     "gridSize": 7,
     "maxCharge": 140,
     "initialEnergy": 140,
-    "innateBonus": { "healOnHit": 3 },
+    "innateBonus": { "healOnHit": 3, "hazardResist": ["poison"] },
     "initialComponents": []
   },
   "underlumen_nexus": {

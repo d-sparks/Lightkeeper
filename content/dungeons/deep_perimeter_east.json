@@ -6,6 +6,7 @@
   "theme": "dark_perimeter",
   "tileSize": 32,
   "ambientLight": 0.03,
+  "environmentalHazard": { "type": "cold", "damage": 2, "interval": 3.0 },
   "width": 30,
   "height": 20,
   "data": [

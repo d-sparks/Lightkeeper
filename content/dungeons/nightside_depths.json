@@ -6,6 +6,7 @@
   "theme": "nightside",
   "tileSize": 32,
   "ambientLight": 0.01,
+  "environmentalHazard": { "type": "cold", "damage": 4, "interval": 2.0 },
   "width": 22,
   "height": 20,
   "data": [

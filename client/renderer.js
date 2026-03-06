@@ -2109,6 +2109,17 @@ class Renderer {
         if (ev.targetId === this.myId) {
           this.screenShake = { intensity: 3, duration: 0.1, elapsed: 0 };
         }
+      } else if (ev.type === 'hazard_damage') {
+        const hazardColors = { cold: '#4fc3f7', heat: '#ff7043', poison: '#66bb6a' };
+        this.damageNumbers.push({
+          text: `-${ev.amount}`,
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.0,
+          color: hazardColors[ev.hazardType] || '#ff9800',
+        });
+        if (ev.targetId === this.myId) {
+          this.screenShake = { intensity: 3, duration: 0.1, elapsed: 0 };
+        }
       } else if (ev.type === 'heal') {
         this.damageNumbers.push({
           text: `+${ev.amount}`,

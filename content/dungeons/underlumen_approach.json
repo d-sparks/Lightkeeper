@@ -6,6 +6,7 @@
   "theme": "underlumen_depths",
   "tileSize": 32,
   "ambientLight": 0.02,
+  "environmentalHazard": { "type": "poison", "damage": 2, "interval": 3.0 },
   "width": 20,
   "height": 14,
   "data": [

@@ -5,6 +5,7 @@
   "tileset": "fungal_forest",
   "theme": "fungal_forest",
   "tileSize": 32,
+  "environmentalHazard": { "type": "poison", "damage": 2, "interval": 3.0 },
   "depth": { "min": 1, "max": 4 },
 
   "grid": {

@@ -1555,6 +1555,9 @@ class GameLoop {
       // Apply darkness damage to players without sol unit in dark rooms
       this.updateDarkness(room, dt);
 
+      // Apply environmental hazard damage (cold, heat, poison)
+      this.updateEnvironmentalHazards(room, dt);
+
       // Check for floor transitions
       this.checkExits(room);
     }
@@ -1599,6 +1602,73 @@ class GameLoop {
         }
       }
     }
+  }
+
+  updateEnvironmentalHazards(room, dt) {
+    const hazard = room.dungeon.environmentalHazard;
+    if (!hazard) return;
+
+    const damage = hazard.damage || 3;
+    const interval = hazard.interval || 2.0;
+    const hazardType = hazard.type || 'environmental';
+
+    for (const [pid, player] of room.players) {
+      // Check if player has resistance to this hazard type
+      if (this._playerResistsHazard(player, hazardType)) continue;
+
+      if (!player.hazardDamageTimer) player.hazardDamageTimer = 0;
+      player.hazardDamageTimer += dt;
+
+      if (player.hazardDamageTimer >= interval) {
+        player.hazardDamageTimer -= interval;
+        player.health -= damage;
+        room.events.push({
+          type: 'hazard_damage', hazardType, targetId: pid,
+          amount: damage, x: player.x, y: player.y,
+        });
+
+        if (player.health <= 0) {
+          player.health = player.maxHealth;
+          const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
+          player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
+          player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
+          room.events.push({
+            type: 'death', targetId: pid,
+            x: player.x, y: player.y,
+          });
+
+          const deathCtx = this._scriptContext(pid, room.id);
+          this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
+            playerId: pid, roomId: room.id,
+          }, deathCtx);
+        }
+      }
+    }
+  }
+
+  _playerResistsHazard(player, hazardType) {
+    // Players with a sol unit that has matching hazardResist are immune
+    if (player.solGrid && player.solGrid.innateBonus) {
+      const resists = player.solGrid.innateBonus.hazardResist;
+      if (resists && resists.includes(hazardType)) return true;
+    }
+    // Check inventory for items with hazardResist
+    if (player.inventory) {
+      for (const slot of player.inventory) {
+        if (!slot) continue;
+        const itemDef = this.content.getItem(slot.itemId);
+        if (itemDef && itemDef.hazardResist && itemDef.hazardResist.includes(hazardType)) return true;
+      }
+    }
+    // Check equipment for items with hazardResist
+    if (player.equipment) {
+      for (const slot of Object.values(player.equipment)) {
+        if (!slot) continue;
+        const itemDef = this.content.getItem(slot.itemId);
+        if (itemDef && itemDef.hazardResist && itemDef.hazardResist.includes(hazardType)) return true;
+      }
+    }
+    return false;
   }
 
   updateMonsters(room, dt) {

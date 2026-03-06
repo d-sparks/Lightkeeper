@@ -6,6 +6,7 @@
   "theme": "dayside_solar",
   "tileSize": 32,
   "ambientLight": 1.0,
+  "environmentalHazard": { "type": "heat", "damage": 5, "interval": 1.5 },
   "width": 30,
   "height": 30,
   "data": [

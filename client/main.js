@@ -2119,6 +2119,8 @@
           audio.play(ev.targetId === renderer.myId ? 'hit_take' : 'hit_deal');
         } else if (ev.type === 'darkness_damage') {
           audio.play('darkness_damage');
+        } else if (ev.type === 'hazard_damage') {
+          audio.play('darkness_damage');
         } else if (ev.type === 'heal') {
           audio.play('heal');
         } else if (ev.type === 'pickup') {
