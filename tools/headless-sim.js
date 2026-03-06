@@ -188,6 +188,20 @@ function buildExitGraph() {
   return graph;
 }
 
+// Find which static dungeon has an exit leading to a given template ID
+function findEntryToTemplate(templateId) {
+  const dungeons = content.getAllDungeons();
+  for (const [id, dungeon] of Object.entries(dungeons)) {
+    if (!dungeon.exits) continue;
+    for (const exit of dungeon.exits) {
+      if (exit.leadsTo === templateId) {
+        return { dungeonId: id, exitX: exit.x, exitY: exit.y };
+      }
+    }
+  }
+  return null;
+}
+
 // BFS shortest path between two dungeons in the exit graph
 function findRoomPath(exitGraph, from, to) {
   if (from === to) return [];
@@ -434,6 +448,12 @@ class Bot {
       case 'explore_room':
         this.doExploreRoom(goal, player, room);
         break;
+      case 'traverse_procedural':
+        this.doTraverseProcedural(goal, player, room);
+        break;
+      case 'find_exit_in_room':
+        this.doFindExitInRoom(goal, player, room);
+        break;
       default:
         this.popGoal(); // Unknown goal, skip
     }
@@ -556,6 +576,12 @@ class Bot {
   doNavigateToRoom(goal, player) {
     if (this.currentRoom === goal.room) {
       this.popGoal();
+      return;
+    }
+
+    // If we're in a procedural room, first escape by finding stairs_up
+    if (this.currentRoom.startsWith('proc:')) {
+      this.pushGoal({ type: 'find_exit_in_room', exitType: 'stairs_up' });
       return;
     }
 
@@ -742,7 +768,64 @@ class Bot {
   doWaitForItem(goal, player) {
     if (player.inventory.some(i => i.type === goal.itemType)) {
       this.popGoal();
+      return;
     }
+
+    // Actively try to pick up the item if it's on the ground in current room
+    const room = this.getRoom();
+    if (!room) return;
+    for (const [, item] of room.items) {
+      if (item.type === goal.itemType) {
+        this.pushGoal({ type: 'pick_up_item', itemType: goal.itemType });
+        return;
+      }
+    }
+
+    // If in a procedural room, find interactable tiles and explore toward them
+    if (this.currentRoom.startsWith('proc:')) {
+      // Look for interactable tiles (locked crates, etc.) and move toward them
+      if (!goal._searchedTiles) {
+        goal._searchedTiles = true;
+        const interactableTile = this._findInteractableTile(room);
+        if (interactableTile) {
+          goal._targetTileX = interactableTile.tx;
+          goal._targetTileY = interactableTile.ty;
+        }
+      }
+
+      if (goal._targetTileX != null) {
+        const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
+        const dist = Math.abs(ptx - goal._targetTileX) + Math.abs(pty - goal._targetTileY);
+        if (dist > 2) {
+          // Use A* pathfinding to reach interactable tile (adjacent non-solid tile)
+          this.pushGoal({ type: 'move_to_position', tileX: goal._targetTileX, tileY: goal._targetTileY, tolerance: 1 });
+          return;
+        }
+      }
+
+      // Try interacting periodically
+      if (!goal._interactCooldown) goal._interactCooldown = 0;
+      goal._interactCooldown--;
+      if (goal._interactCooldown <= 0) {
+        goal._interactCooldown = 15;
+        this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+      }
+    }
+  }
+
+  _findInteractableTile(room) {
+    const tileset = content.getTileset(room.dungeon.tileset);
+    if (!tileset) return null;
+    for (let y = 0; y < room.dungeon.height; y++) {
+      for (let x = 0; x < room.dungeon.width; x++) {
+        const tileId = room.dungeon.data[y * room.dungeon.width + x];
+        const tileDef = tileset.tiles[String(tileId)];
+        if (tileDef && tileDef.interactable) {
+          return { tx: x, ty: y };
+        }
+      }
+    }
+    return null;
   }
 
   doEquipItem(goal, player) {
@@ -802,13 +885,26 @@ class Bot {
 
     // Explore: interact with all NPCs, pick up all items, open all doors
     if (!goal._explored) {
-      goal._explored = { npcs: [], items: [], phase: 'npcs', idx: 0 };
+      goal._explored = { npcs: [], items: [], doors: [], phase: 'npcs', idx: 0 };
       // Collect all NPCs and items in this room
       for (const [npcId, npc] of room.npcs) {
         goal._explored.npcs.push(npc);
       }
       for (const [itemId, item] of room.items) {
         goal._explored.items.push(item);
+      }
+      // Find interactable tiles (doors, crates, etc.)
+      const tileset = content.getTileset(room.dungeon.tileset);
+      if (tileset) {
+        for (let y = 0; y < room.dungeon.height; y++) {
+          for (let x = 0; x < room.dungeon.width; x++) {
+            const tileId = room.dungeon.data[y * room.dungeon.width + x];
+            const tileDef = tileset.tiles[String(tileId)];
+            if (tileDef && tileDef.interactable && tileDef.togglesTo != null) {
+              goal._explored.doors.push({ tx: x, ty: y });
+            }
+          }
+        }
       }
     }
 
@@ -842,12 +938,132 @@ class Bot {
         this.pushGoal({ type: 'pick_up_item', room: this.currentRoom });
         return;
       }
-      exp.phase = 'done';
+      exp.phase = 'doors';
+      exp.idx = 0;
+    }
+
+    if (exp.phase === 'doors') {
+      if (exp.idx >= exp.doors.length) {
+        exp.phase = 'done';
+      } else {
+        const door = exp.doors[exp.idx];
+        exp.idx++;
+        // Move near the door, then interact
+        this.pushGoal({ type: 'interact_nearest' });
+        this.pushGoal({ type: 'move_to_position', tileX: door.tx, tileY: door.ty, tolerance: 1 });
+        return;
+      }
     }
 
     if (exp.phase === 'done') {
       this.popGoal();
     }
+  }
+
+  // ── Procedural Dungeon Traversal ────────────────────────────────────
+
+  doTraverseProcedural(goal, player, room) {
+    // Phase 1: If we're not yet in a proc room for this template, navigate to entry
+    const isInProcRoom = this.currentRoom.startsWith('proc:' + goal.templateId + ':');
+    if (!isInProcRoom) {
+      // Check if we've already completed this (have the required items/flags)
+      // If not, navigate to the entry dungeon and walk to the exit
+      const entry = findEntryToTemplate(goal.templateId);
+      if (!entry) {
+        this.popGoal(); // Can't find entry point
+        return;
+      }
+
+      if (this.currentRoom !== entry.dungeonId) {
+        // Navigate to the entry dungeon first
+        this.pushGoal({ type: 'navigate_to_room', room: entry.dungeonId });
+        return;
+      }
+
+      // We're in the entry dungeon — walk to the exit tile
+      this.pushGoal({ type: 'move_to_position', tileX: entry.exitX, tileY: entry.exitY, tolerance: 0 });
+      return;
+    }
+
+    // Phase 2: We're inside a proc room — determine current depth
+    const currentDepth = this._getProcDepth(room);
+
+    if (currentDepth < goal.targetDepth) {
+      // Need to go deeper — find the descent exit (stairs_down)
+      this.pushGoal({ type: 'find_exit_in_room', exitType: 'stairs_down' });
+      return;
+    }
+
+    if (currentDepth > goal.targetDepth) {
+      // Need to go back up — find the entrance exit (stairs_up)
+      this.pushGoal({ type: 'find_exit_in_room', exitType: 'stairs_up' });
+      return;
+    }
+
+    // Phase 3: We're at the target depth — explore (kill monsters, pick up items, interact)
+    // Remove this goal and let subsequent goals handle specifics
+    this.popGoal();
+  }
+
+  doFindExitInRoom(goal, player, room) {
+    if (!room || !room.dungeon.exits) {
+      this.popGoal();
+      return;
+    }
+
+    // Find exit of the requested type
+    let targetExit = null;
+    for (const exit of room.dungeon.exits) {
+      if (exit.type === goal.exitType) {
+        targetExit = exit;
+        break;
+      }
+    }
+
+    if (!targetExit) {
+      // No exit of this type found — try any exit
+      this.popGoal();
+      return;
+    }
+
+    const { tx: currentTX, ty: currentTY } = pixelToTile(player.x, player.y);
+    if (currentTX === targetExit.x && currentTY === targetExit.y) {
+      // Standing on exit — transition should happen automatically
+      this.popGoal();
+      return;
+    }
+
+    // Move to the exit tile
+    this.popGoal();
+    this.pushGoal({ type: 'move_to_position', tileX: targetExit.x, tileY: targetExit.y, tolerance: 0 });
+  }
+
+  _getProcDepth(room) {
+    // Determine depth from room's dungeon data or from exits
+    if (room.dungeon.depth != null) return room.dungeon.depth;
+    // Fallback: look at the descent exit's depth minus 1
+    if (room.dungeon.exits) {
+      for (const exit of room.dungeon.exits) {
+        if (exit.type === 'stairs_down' && exit.depth != null) {
+          return exit.depth - 1;
+        }
+      }
+      // If only stairs_up exists, we're at max depth
+      const hasDown = room.dungeon.exits.some(e => e.type === 'stairs_down');
+      if (!hasDown) {
+        // At deepest level — determine from template
+        const hasUp = room.dungeon.exits.some(e => e.type === 'stairs_up');
+        if (hasUp) {
+          // Try to find template max depth
+          for (const exit of room.dungeon.exits) {
+            if (exit.type === 'stairs_up' && exit.depth != null) {
+              return exit.depth + 1;
+            }
+          }
+        }
+      }
+    }
+    return 1; // Default fallback
   }
 
   // ── Movement Helpers ───────────────────────────────────────────────
@@ -913,9 +1129,18 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
     // Navigate to the step's room if specified
     if (step.objective && step.objective.roomId) {
       const roomId = step.objective.roomId;
-      // Skip procedural rooms — they require special handling
-      if (content.getDungeon(roomId)) {
+      const isTemplate = !!content.getTemplate(roomId);
+
+      if (isTemplate) {
+        // Procedural room: navigate to entry dungeon, then traverse depths
+        const targetDepth = step.objective.depth || 1;
+        goals.push({ type: 'traverse_procedural', templateId: roomId, targetDepth, stepId, questId });
+      } else if (content.getDungeon(roomId)) {
         goals.push({ type: 'navigate_to_room', room: roomId, stepId, questId });
+        // If the objective has specific tile coordinates, move there
+        if (step.objective.tileX != null && step.objective.tileY != null) {
+          goals.push({ type: 'move_to_position', tileX: step.objective.tileX, tileY: step.objective.tileY, tolerance: 0, stepId, questId });
+        }
       }
     }
 
@@ -925,11 +1150,18 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
       if (cond.hasFlag) {
         // Find which NPC or trigger sets this flag in the target room
         const roomId = step.objective ? step.objective.roomId : null;
-        const npcType = roomId ? findNpcThatSetsFlag(cond.hasFlag, roomId) : null;
+        const isTemplate = roomId && !!content.getTemplate(roomId);
+        const npcType = (roomId && !isTemplate) ? findNpcThatSetsFlag(cond.hasFlag, roomId) : null;
+
+        // Check for prerequisite flags needed before this flag can be set
+        if (roomId && !isTemplate) {
+          const prereqs = findPrereqGoals(cond.hasFlag, roomId);
+          goals.push(...prereqs.map(g => ({ ...g, stepId, questId })));
+        }
 
         if (npcType) {
           goals.push({ type: 'interact_with_npc', npcType, room: roomId, stepId, questId });
-        } else if (roomId) {
+        } else if (roomId && !isTemplate) {
           // Try general interaction in the room
           goals.push({ type: 'interact_nearest', room: roomId, stepId, questId });
         }
@@ -944,9 +1176,11 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
       if (cond.hasItem) {
         // Check if item is a ground pickup or given by trigger
         const roomId = step.objective ? step.objective.roomId : null;
-        if (roomId) {
+        const isTemplate = roomId && !!content.getTemplate(roomId);
+        if (roomId && !isTemplate) {
           goals.push({ type: 'pick_up_item', itemType: cond.hasItem, room: roomId, stepId, questId });
         }
+        // For procedural rooms, item will be picked up during traversal via kill_monsters/explore
         goals.push({ type: 'wait_for_item', itemType: cond.hasItem, stepId, questId });
       }
     }
@@ -992,6 +1226,82 @@ function findNpcThatSetsFlag(flagName, roomId) {
     }
   }
 
+  return null;
+}
+
+// Find prerequisite goals needed to set a flag (traces trigger condition chains)
+function findPrereqGoals(flagName, roomId) {
+  const goals = [];
+  const dungeon = content.getDungeon(roomId);
+  if (!dungeon || !dungeon.triggers) return goals;
+
+  // Find the trigger that sets this flag
+  for (const trigger of dungeon.triggers) {
+    if (!trigger.actions) continue;
+    const setsFlag = trigger.actions.some(a =>
+      (a.type === 'setFlag' && a.flag === flagName) ||
+      (a.type === 'giveItem' && a.itemType === flagName)
+    );
+    if (!setsFlag) continue;
+
+    // Extract only the positive (non-negated) flag conditions
+    if (trigger.conditions) {
+      const positiveFlags = extractPositiveFlags(trigger.conditions);
+      for (const reqFlag of positiveFlags) {
+        // Skip self-reference
+        if (reqFlag === flagName) continue;
+        // Find which room/trigger sets this prerequisite flag
+        const prereqRoom = findRoomThatSetsFlag(reqFlag);
+        if (prereqRoom && prereqRoom.roomId !== roomId) {
+          goals.push({ type: 'navigate_to_room', room: prereqRoom.roomId });
+          if (prereqRoom.npcType) {
+            goals.push({ type: 'interact_with_npc', npcType: prereqRoom.npcType, room: prereqRoom.roomId });
+          }
+          goals.push({ type: 'kill_monsters' });
+          // Also try interacting after killing monsters (for door-based triggers)
+          goals.push({ type: 'explore_room' });
+          goals.push({ type: 'wait_for_flag', flag: reqFlag, retryInteract: true, retryTicks: 15 });
+          goals.push({ type: 'navigate_to_room', room: roomId });
+        }
+      }
+    }
+  }
+  return goals;
+}
+
+// Extract positive (non-negated) hasFlag values from conditions
+function extractPositiveFlags(conditions) {
+  const flags = [];
+  if (!conditions) return flags;
+  if (Array.isArray(conditions)) {
+    for (const c of conditions) flags.push(...extractPositiveFlags(c));
+    return flags;
+  }
+  // Direct hasFlag at this level (not inside a not)
+  if (conditions.hasFlag) flags.push(conditions.hasFlag);
+  // Recurse into and/or but NOT into not
+  if (conditions.and) flags.push(...extractPositiveFlags(conditions.and));
+  if (conditions.or) flags.push(...extractPositiveFlags(conditions.or));
+  // Deliberately skip conditions.not — those are negated
+  return flags;
+}
+
+// Find which room contains a trigger that sets a given flag
+function findRoomThatSetsFlag(flagName) {
+  const dungeons = content.getAllDungeons();
+  for (const [roomId, dungeon] of Object.entries(dungeons)) {
+    if (!dungeon.triggers) continue;
+    for (const trigger of dungeon.triggers) {
+      if (!trigger.actions) continue;
+      for (const action of trigger.actions) {
+        if ((action.type === 'setFlag' && action.flag === flagName) ||
+            (action.type === 'incrementFlag' && action.flag === flagName)) {
+          const npcType = trigger.filter && trigger.filter.npcType ? trigger.filter.npcType : null;
+          return { roomId, npcType, trigger };
+        }
+      }
+    }
+  }
   return null;
 }
 
