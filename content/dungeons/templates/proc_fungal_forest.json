@@ -1,0 +1,155 @@
+{
+  "id": "proc_fungal_forest",
+  "type": "procedural",
+  "namePattern": "Fungal Forest - Level {depth}",
+  "tileset": "fungal_forest",
+  "theme": "fungal_forest",
+  "tileSize": 32,
+  "depth": { "min": 1, "max": 4 },
+
+  "grid": {
+    "width": 55,
+    "height": 40,
+    "wallTile": 3,
+    "floorTile": 1,
+    "altFloorTile": 2,
+    "altFloorChance": 0.18
+  },
+
+  "rooms": {
+    "count": { "min": 6, "max": 10 },
+    "width": { "min": 5, "max": 12 },
+    "height": { "min": 5, "max": 10 },
+    "padding": 2,
+    "maxPlacementAttempts": 200
+  },
+
+  "corridors": {
+    "width": { "min": 2, "max": 4 },
+    "doorChance": 0.2,
+    "doorTile": 4,
+    "extraConnectionChance": 0.3
+  },
+
+  "requiredRooms": [
+    {
+      "tag": "entrance",
+      "isEntrance": true,
+      "width": { "min": 5, "max": 7 },
+      "height": { "min": 5, "max": 7 }
+    },
+    {
+      "tag": "exit_room",
+      "isExit": true,
+      "maxDepth": 3,
+      "width": { "min": 4, "max": 6 },
+      "height": { "min": 4, "max": 6 }
+    },
+    {
+      "tag": "spore_grove",
+      "depth": 2,
+      "width": { "min": 5, "max": 7 },
+      "height": { "min": 5, "max": 7 },
+      "itemSpawns": [
+        { "type": "spore_sample", "position": "center" }
+      ]
+    },
+    {
+      "tag": "mycelium_nexus",
+      "depth": 3,
+      "width": { "min": 6, "max": 8 },
+      "height": { "min": 6, "max": 8 },
+      "centerTile": 7
+    },
+    {
+      "tag": "boss",
+      "depth": 4,
+      "width": { "min": 9, "max": 12 },
+      "height": { "min": 8, "max": 10 },
+      "monsterSpawns": [
+        { "type": "elder_sporecap", "position": "center" }
+      ]
+    }
+  ],
+
+  "exits": {
+    "entrance": { "tile": 8, "position": "entrance_room", "leadsTo": "$source" },
+    "descent": { "tile": 6, "position": "exit_room", "leadsTo": "$next", "hideDescentOnLast": true }
+  },
+
+  "monsters": {
+    "budget": { "base": 4, "perDepth": 3 },
+    "pool": [
+      { "type": "sporecap_shambler", "weight": 3, "cost": 1, "minDepth": 0 },
+      { "type": "mycelium_lurker", "weight": 2, "cost": 2, "minDepth": 1 },
+      { "type": "fungal_sprayer", "weight": 2, "cost": 2, "minDepth": 2 }
+    ],
+    "maxPerRoom": 4,
+    "avoidEntranceRoom": true
+  },
+
+  "items": {
+    "pool": [
+      { "type": "fungal_tonic", "weight": 4, "max": 3 },
+      { "type": "spore_sample", "weight": 2, "max": 2 },
+      { "type": "mycelium_fiber", "weight": 1, "max": 1 }
+    ],
+    "countRange": { "min": 1, "max": 4 }
+  },
+
+  "triggers": [
+    {
+      "id": "enter_{instanceId}",
+      "event": "room_entered",
+      "depth": 1,
+      "actions": [
+        { "type": "showMessage", "text": "Enormous mushrooms tower overhead, their caps glowing with soft bioluminescence. The air is thick with spores." }
+      ],
+      "once": true
+    },
+    {
+      "id": "enter_{instanceId}",
+      "event": "room_entered",
+      "depth": 2,
+      "actions": [
+        { "type": "showMessage", "text": "The fungal growth intensifies. Mycelium threads carpet the ground, pulsing faintly underfoot." }
+      ],
+      "once": true
+    },
+    {
+      "id": "enter_{instanceId}",
+      "event": "room_entered",
+      "depth": 3,
+      "actions": [
+        { "type": "showMessage", "text": "A deep hum resonates through the mycelium network. The fungi here seem... aware." }
+      ],
+      "once": true
+    },
+    {
+      "id": "enter_{instanceId}",
+      "event": "room_entered",
+      "depth": 4,
+      "actions": [
+        { "type": "showMessage", "text": "The Elder Sporecap's domain. The entire chamber pulses with bioluminescent light." }
+      ],
+      "once": true
+    },
+    {
+      "id": "elder_sporecap_killed_{instanceId}",
+      "event": "monster_killed",
+      "depth": 4,
+      "filter": { "monsterType": "elder_sporecap" },
+      "actions": [
+        { "type": "setFlag", "flag": "elder_sporecap_defeated" },
+        { "type": "spawnItem", "itemType": "mycelium_fiber" },
+        { "type": "showMessage", "text": "The Elder Sporecap collapses, releasing a final cloud of luminescent spores. Tough fibers remain." }
+      ],
+      "once": true
+    }
+  ],
+
+  "spawns": {
+    "count": 4,
+    "position": "entrance_room"
+  }
+}

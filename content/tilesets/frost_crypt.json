@@ -1,0 +1,16 @@
+{
+  "id": "frost_crypt",
+  "image": "tilesets/frost_crypt.png",
+  "tileSize": 16,
+  "tiles": {
+    "0": { "name": "void",              "solid": true  },
+    "1": { "name": "frozen_stone",      "solid": false },
+    "2": { "name": "ice_patch",         "solid": false },
+    "3": { "name": "frost_wall",        "solid": true  },
+    "4": { "name": "frozen_door_closed","solid": true,  "interactable": "door", "togglesTo": 5 },
+    "5": { "name": "frozen_door_open",  "solid": false, "interactable": "door", "togglesTo": 4 },
+    "6": { "name": "ice_stairs_down",   "solid": false, "exit": true },
+    "7": { "name": "frozen_pool",       "solid": true  },
+    "8": { "name": "ice_stairs_up",     "solid": false, "exit": true }
+  }
+}

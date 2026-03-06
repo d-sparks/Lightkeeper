@@ -255,5 +255,66 @@
     "attackSpeed": 0.6,
     "ai": "melee_chase",
     "xp": 55
+  },
+  "frost_warden": {
+    "name": "Frost Warden",
+    "sprite": "sprites/frost_warden.png",
+    "size": [16, 16],
+    "health": 140,
+    "speed": 1.2,
+    "damage": 18,
+    "attackRange": 2,
+    "attackSpeed": 0.7,
+    "ai": "melee_chase",
+    "xp": 60
+  },
+  "sporecap_shambler": {
+    "name": "Sporecap Shambler",
+    "sprite": "sprites/sporecap_shambler.png",
+    "size": [16, 16],
+    "health": 50,
+    "speed": 1.0,
+    "damage": 8,
+    "attackRange": 1.5,
+    "attackSpeed": 0.8,
+    "ai": "melee_chase",
+    "xp": 12
+  },
+  "mycelium_lurker": {
+    "name": "Mycelium Lurker",
+    "sprite": "sprites/mycelium_lurker.png",
+    "size": [16, 16],
+    "health": 30,
+    "speed": 2.5,
+    "damage": 14,
+    "attackRange": 1.5,
+    "attackSpeed": 1.0,
+    "ai": "ambush",
+    "xp": 18
+  },
+  "fungal_sprayer": {
+    "name": "Fungal Sprayer",
+    "sprite": "sprites/fungal_sprayer.png",
+    "size": [16, 16],
+    "health": 25,
+    "speed": 1.0,
+    "damage": 10,
+    "attackRange": 7,
+    "attackSpeed": 0.7,
+    "projectile": "spore_cloud",
+    "ai": "ranged_kite",
+    "xp": 16
+  },
+  "elder_sporecap": {
+    "name": "Elder Sporecap",
+    "sprite": "sprites/elder_sporecap.png",
+    "size": [16, 16],
+    "health": 160,
+    "speed": 0.8,
+    "damage": 16,
+    "attackRange": 2,
+    "attackSpeed": 0.6,
+    "ai": "melee_chase",
+    "xp": 65
   }
 }

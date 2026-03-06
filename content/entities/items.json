@@ -484,5 +484,37 @@
     "type": "sol_component",
     "rarity": "legendary",
     "solComponentId": "advanced_rechargeable_battery"
+  },
+  "frost_salve": {
+    "name": "Frost Salve",
+    "description": "A numbing salve brewed from frost lichen. Dulls pain and closes wounds. Restores 20 health.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": { "heal": 20 }
+  },
+  "frozen_core": {
+    "name": "Frozen Core",
+    "description": "A crystalline ice core that never melts. Pulses with cold energy. Could be useful to an engineer or researcher.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "fungal_tonic": {
+    "name": "Fungal Tonic",
+    "description": "A bitter draught brewed from bioluminescent mushrooms. Restores 20 health.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": { "heal": 20 }
+  },
+  "spore_sample": {
+    "name": "Spore Sample",
+    "description": "A sealed vial of luminescent spores collected from the fungal forest. Highly valued by researchers studying Nightside biology.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "mycelium_fiber": {
+    "name": "Mycelium Fiber",
+    "description": "Tough, fibrous strands harvested from deep-rooted fungal networks. Surprisingly strong — an armorer could weave this into something useful.",
+    "type": "key",
+    "rarity": "uncommon"
   }
 }

@@ -1,0 +1,155 @@
+{
+  "id": "proc_frost_crypt",
+  "type": "procedural",
+  "namePattern": "Frost Crypt - Level {depth}",
+  "tileset": "frost_crypt",
+  "theme": "frost_crypt",
+  "tileSize": 32,
+  "depth": { "min": 1, "max": 4 },
+
+  "grid": {
+    "width": 55,
+    "height": 38,
+    "wallTile": 3,
+    "floorTile": 1,
+    "altFloorTile": 2,
+    "altFloorChance": 0.12
+  },
+
+  "rooms": {
+    "count": { "min": 5, "max": 9 },
+    "width": { "min": 5, "max": 11 },
+    "height": { "min": 5, "max": 9 },
+    "padding": 2,
+    "maxPlacementAttempts": 200
+  },
+
+  "corridors": {
+    "width": { "min": 2, "max": 3 },
+    "doorChance": 0.25,
+    "doorTile": 4,
+    "extraConnectionChance": 0.15
+  },
+
+  "requiredRooms": [
+    {
+      "tag": "entrance",
+      "isEntrance": true,
+      "width": { "min": 5, "max": 7 },
+      "height": { "min": 5, "max": 7 }
+    },
+    {
+      "tag": "exit_room",
+      "isExit": true,
+      "maxDepth": 3,
+      "width": { "min": 4, "max": 6 },
+      "height": { "min": 4, "max": 6 }
+    },
+    {
+      "tag": "frozen_cache",
+      "depth": 2,
+      "width": { "min": 4, "max": 5 },
+      "height": { "min": 4, "max": 5 },
+      "itemSpawns": [
+        { "type": "frost_salve", "position": "center" }
+      ]
+    },
+    {
+      "tag": "ice_chamber",
+      "depth": 3,
+      "width": { "min": 6, "max": 8 },
+      "height": { "min": 6, "max": 8 },
+      "centerTile": 7
+    },
+    {
+      "tag": "boss",
+      "depth": 4,
+      "width": { "min": 8, "max": 11 },
+      "height": { "min": 7, "max": 9 },
+      "monsterSpawns": [
+        { "type": "frost_warden", "position": "center" }
+      ]
+    }
+  ],
+
+  "exits": {
+    "entrance": { "tile": 8, "position": "entrance_room", "leadsTo": "$source" },
+    "descent": { "tile": 6, "position": "exit_room", "leadsTo": "$next", "hideDescentOnLast": true }
+  },
+
+  "monsters": {
+    "budget": { "base": 3, "perDepth": 2 },
+    "pool": [
+      { "type": "frostfang_hunter", "weight": 3, "cost": 1, "minDepth": 0 },
+      { "type": "rime_stalker", "weight": 2, "cost": 2, "minDepth": 2 },
+      { "type": "skeleton", "weight": 2, "cost": 1, "minDepth": 0 },
+      { "type": "skeleton_archer", "weight": 1, "cost": 2, "minDepth": 3 }
+    ],
+    "maxPerRoom": 3,
+    "avoidEntranceRoom": true
+  },
+
+  "items": {
+    "pool": [
+      { "type": "frost_salve", "weight": 4, "max": 3 },
+      { "type": "frozen_core", "weight": 1, "max": 1 }
+    ],
+    "countRange": { "min": 1, "max": 3 }
+  },
+
+  "triggers": [
+    {
+      "id": "enter_{instanceId}",
+      "event": "room_entered",
+      "depth": 1,
+      "actions": [
+        { "type": "showMessage", "text": "A bitter cold seeps from the walls. Ice crusts every surface of this ancient crypt." }
+      ],
+      "once": true
+    },
+    {
+      "id": "enter_{instanceId}",
+      "event": "room_entered",
+      "depth": 2,
+      "actions": [
+        { "type": "showMessage", "text": "The frost deepens. Your breath hangs in the air like smoke." }
+      ],
+      "once": true
+    },
+    {
+      "id": "enter_{instanceId}",
+      "event": "room_entered",
+      "depth": 3,
+      "actions": [
+        { "type": "showMessage", "text": "The ice here is ancient — walls of solid frost that glow faintly from within." }
+      ],
+      "once": true
+    },
+    {
+      "id": "enter_{instanceId}",
+      "event": "room_entered",
+      "depth": 4,
+      "actions": [
+        { "type": "showMessage", "text": "The Frost Warden's sanctum. The temperature plummets. Something stirs in the frozen dark." }
+      ],
+      "once": true
+    },
+    {
+      "id": "frost_warden_killed_{instanceId}",
+      "event": "monster_killed",
+      "depth": 4,
+      "filter": { "monsterType": "frost_warden" },
+      "actions": [
+        { "type": "setFlag", "flag": "frost_warden_defeated" },
+        { "type": "spawnItem", "itemType": "frozen_core" },
+        { "type": "showMessage", "text": "The Frost Warden shatters. A frozen core clatters across the ice." }
+      ],
+      "once": true
+    }
+  ],
+
+  "spawns": {
+    "count": 4,
+    "position": "entrance_room"
+  }
+}
