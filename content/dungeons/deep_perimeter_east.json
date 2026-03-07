@@ -51,7 +51,9 @@
     { "type": "frostfang_hunter", "x": 10, "y": 17, "count": 2, "patrol": "wander" },
     { "type": "shadow_ambusher", "x": 24, "y": 13, "count": 1, "patrol": "guard" },
     { "type": "shadow_ambusher", "x": 8, "y": 8, "count": 1, "patrol": "guard" },
-    { "type": "tunnel_creeper", "x": 20, "y": 16, "count": 1, "patrol": "patrol" }
+    { "type": "tunnel_creeper", "x": 20, "y": 16, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 18, "y": 15}, {"x": 25, "y": 15}, {"x": 25, "y": 18}, {"x": 18, "y": 18}
+    ] }
   ],
   "npcSpawns": [],
   "itemSpawns": [

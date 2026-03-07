@@ -49,7 +49,9 @@
     { "type": "rime_stalker", "x": 14, "y": 11, "count": 1, "patrol": "guard" },
     { "type": "rime_stalker", "x": 5, "y": 17, "count": 1, "patrol": "guard" },
     { "type": "frostfang_hunter", "x": 16, "y": 14, "count": 2, "patrol": "wander" },
-    { "type": "tunnel_creeper", "x": 8, "y": 12, "count": 1, "patrol": "patrol" }
+    { "type": "tunnel_creeper", "x": 8, "y": 12, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 5, "y": 12}, {"x": 8, "y": 12}, {"x": 8, "y": 16}, {"x": 5, "y": 16}
+    ] }
   ],
   "npcSpawns": [],
   "itemSpawns": [

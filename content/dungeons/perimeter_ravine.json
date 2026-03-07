@@ -45,7 +45,9 @@
     { "type": "sporecap_shambler", "x": 14, "y": 12, "count": 1, "patrol": "wander" },
     { "type": "mycelium_lurker", "x": 12, "y": 7, "count": 1, "patrol": "guard" },
     { "type": "fungal_sprayer", "x": 22, "y": 10, "count": 1, "patrol": "guard" },
-    { "type": "tunnel_creeper", "x": 10, "y": 3, "count": 1, "patrol": "patrol" },
+    { "type": "tunnel_creeper", "x": 10, "y": 3, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 7, "y": 3}, {"x": 15, "y": 3}, {"x": 15, "y": 5}, {"x": 7, "y": 5}
+    ] },
     { "type": "sporecap_shambler", "x": 18, "y": 15, "count": 1, "patrol": "wander" }
   ],
   "npcSpawns": [],

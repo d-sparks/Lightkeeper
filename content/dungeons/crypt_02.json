@@ -34,7 +34,9 @@
   "monsterSpawns": [
     { "type": "skeleton", "x": 8, "y": 7, "count": 2, "patrol": "wander" },
     { "type": "skeleton", "x": 11, "y": 9, "count": 1, "patrol": "guard" },
-    { "type": "tunnel_creeper", "x": 18, "y": 11, "count": 2, "patrol": "patrol" }
+    { "type": "tunnel_creeper", "x": 18, "y": 11, "count": 2, "patrol": "patrol", "patrolPath": [
+      {"x": 6, "y": 6}, {"x": 12, "y": 6}, {"x": 12, "y": 10}, {"x": 6, "y": 10}
+    ] }
   ],
   "npcSpawns": [],
   "itemSpawns": [
