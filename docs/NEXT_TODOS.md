@@ -15,7 +15,7 @@ All 6 errors resolved:
 ## Monster Deployment
 
 - [x] Add dungeon monsterSpawns entries using the new AI types (ambush, patrol, pack) in actual dungeon floors — deployed across nightside, frost, geothermal, and fungal dungeons plus procedural templates
-- Add placeholder sprites for new monsters (shadow_ambusher, tunnel_creeper, feral_hound) — currently reusing existing sprites
+- [x] Add placeholder sprites for new monsters (shadow_ambusher, tunnel_creeper, feral_hound) — added in monster sprite batch
 - [x] Add placeholder sprites for newer monsters missing from PLACEHOLDER_ASSETS.md (dusk_crawler, crystal_guardian, garden_mite, nest_mother, shade_stalker, shade_stalker_alpha, ravine_lurker, gloom_wraith, rime_stalker, frostfang_hunter, vent_spewer, magma_brute)
 - [x] Add a proc_geothermal procedural template (vent_spewer, magma_brute pool) — proc_geothermal.json added
 
@@ -79,7 +79,7 @@ All done:
 - [x] Crystal Guardian boss has unique multi-phase AI (boss_crystal): phase 1 melee, phase 2 crystal shard projectiles, phase 3 summons crystal shard minions
 - [x] Crystal Guardian boss: client-side visual effects for phase transitions (boss_phase event), summon bursts (boss_summon event) — screen shake, floating phase text, CSS flash
 - [x] Crystal Guardian boss: boss health bar UI (client receives boss=true, bossPhase in monster data) — HUD bar at top-center + enhanced in-world bar
-- Crystal Guardian boss: consider adding boss intro animation/cutscene when entering boss room
+- [x] Crystal Guardian boss: boss intro presentation enhanced (recent commit)
 - Crystal Guardian boss: add dedicated boss music track (currently uses dungeon music)
 - [x] MERIDIAN-7's umbrasite quest now has an escalating tier (Resonant Umbracite Core) post-secret-discovery
 - Make sure initial MERIDIAN-7 trade at train station flows into Array Hub quest
@@ -137,4 +137,4 @@ All done:
 
 - Add placeholder sound effects for core actions: weapon attack, ability fire, monster hit, monster death, item pickup, door open, level transition
 - Wire audio events into client/audio.js
-- Add per-biome ambient sound/music definitions
+- [x] Add per-biome ambient sound/music definitions — tileset-based track selection wired

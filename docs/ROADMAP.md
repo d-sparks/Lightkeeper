@@ -21,15 +21,18 @@ Last updated: 2026-03-07
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons. Engine support in game-loop.js |
 | Act II Content | Partial | Dayside locations, Array complex floors, Crystal Guardian boss (3-phase AI), MERIDIAN-7 umbrasite quest, Disappeared Courier. Deeper Array questlines needed |
 | Act III Content | Stub | Underlumen approach + crypts exist. array_secret_discovered flag partially wired. Story revelation content not built |
-| Art / Audio | Placeholder | Generated placeholder sprites. Art style guide exists. Audio system wired but no real assets |
-| Game Balance | Needs Work | Combat functional but untuned. Energy economy untested at scale |
+| Art / Audio | Partial | Generated placeholder sprites (12 newer monsters added). Art style guide exists. Per-biome ambient music wired. Sound effects still placeholder |
+| Game Balance | Partial | Balance pass completed Mar 2026: monster HP scaled 1.8-2.3x, ability costs/CDs tuned, generator output increased. Further playtesting needed at scale |
 | Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
 | Content Validation Errors | Done | All broken refs/flags resolved (resonant_umbracite_core + array_harmonic_stabilizer_chip added) |
 | Monster Loot Wiring | Done | All 25 combat monsters have lootTable refs. 22 biome-specific tables across 6 files |
 | Sol Grid UI | Done | healOnHit, energyCostReduction, boostedEnergyRegen, innateBonus name/perks displayed |
 | Unit Tests (Tier 1) | Done | flag-store, event-bus, automation tests written with Node built-in test runner |
 | Unit Tests (Tier 2) | Done | conditions, actions, trigger-registry tests written (178 tests passing) |
-| Crystal Guardian Boss | Done | 3-phase boss_crystal AI: melee, projectiles, summons. Needs client VFX and health bar |
+| Unit Tests (Tier 3) | Done | Physics collision detection + wall sliding tests added |
+| Per-Biome Music | Done | Ambient music definitions and tileset-based track selection wired |
+| Monster Sprites | Done | Placeholder sprites for 12 newer monsters added, palette aligned to art style guide |
+| Crystal Guardian Boss | Done | 3-phase boss_crystal AI: melee, projectiles, summons. Boss health bar + phase transition VFX + intro presentation added |
 | Array Complex Gating | Done | Exit conditions gate synthesis lab and deep processing behind quest/item progression |
 
 ---
@@ -41,8 +44,8 @@ Focus: **Game feel, missing content wiring, and the core death/reward loop**
 1. **Sound effects** — Even placeholder synthesized tones dramatically improve game feel. Wire basic sounds for attacks, hits, deaths, pickups, doors, and transitions. Audio system exists — it just needs content.
 2. **Combat juice pass** — Screen shake on player hit, monster death fade-out, ambush monster fade-in reveal, monster projectile tinting by type. Small visual improvements that compound.
 3. **Death penalty** — When the player dies, drain energy and drop a non-quest item. Respawn at room entrance. This completes the risk/reward loop that makes dungeon runs meaningful.
-4. **Deploy new monsters to dungeons** — ambush/patrol/pack AI monsters are defined but not placed in actual dungeon floors. Place them in thematically appropriate biome dungeons.
-5. **Boss health bar UI** — Crystal Guardian has 3-phase AI but no client-side boss health bar or phase transition effects. Add these for the game's first real boss encounter.
+4. ~~**Deploy new monsters to dungeons**~~ Done — ambush/patrol/pack AI monsters deployed across nightside, frost, geothermal, and fungal dungeons.
+5. ~~**Boss health bar UI**~~ Done — Crystal Guardian has boss health bar, phase transition VFX, and intro presentation.
 6. **Sol unit acquisition paths** — The 4 non-starter sol units need actual in-game acquisition (chest drops, NPC rewards, quest completions). Currently defined but unobtainable.
 
 ## Medium-Term Priorities (Next 1-3 Months)
@@ -62,12 +65,13 @@ Focus: **Complete the story, real art, audio, and endgame**
 
 13. **Act III content** — Underlumen revelation, three ending paths, faction choice system. Requires significant quest/dialogue/dungeon work.
 14. **Real art assets** — Replace all placeholder sprites with proper pixel art following docs/art-style-guide.md.
-15. **Music and ambient audio** — Per-biome music, combat music, ambient sounds.
+15. ~~**Per-biome ambient music**~~ Done — tileset-based track selection wired. Still need: combat music, sound effects, real audio assets.
 16. **Additional boss encounters** — Crystal Guardian sets the pattern. Add bosses for Nightside, Array, and Underlumen arcs.
 17. **Endgame loop** — Post-story sandbox with escalating procedural dungeons, legendary modifier chase, automation scaling.
-18. ~~**Tier 2 unit tests**~~ Done — conditions.js, actions.js, trigger-registry.js all tested (178 tests passing). quest-tracker.js remains for Tier 3.
+18. ~~**Tier 2 unit tests**~~ Done — conditions.js, actions.js, trigger-registry.js all tested (178 tests passing).
+18b. ~~**Tier 3 physics tests**~~ Done — collision detection, wall sliding, diagonal normalization tests added.
 19. **Mobile/touch optimization** — Touch controls exist but need polish for real mobile play.
-20. **Game balance pass** — Tune combat numbers, energy economy, loot drop rates across full playthrough.
+20. ~~**Game balance pass (initial)**~~ Done — Monster HP scaled, ability costs/CDs tuned, generator output increased. Further playtesting needed at scale.
 
 ---
 
@@ -115,6 +119,12 @@ These are done and don't need further investment:
 - **Sol modifier stat ranges** — Rarity tiers defined (common->legendary) in progression-system.md and sol_components.json
 - **Nightside tileset** — Dedicated nightside tileset with umbracite-vein walls and dark accents
 - **Content validation fixes (round 2)** — resonant_umbracite_core and array_harmonic_stabilizer_chip items added
+- **Monster deployment** — ambush/patrol/pack AI monsters placed in thematic biome dungeons and proc templates
+- **Boss health bar + VFX** — Crystal Guardian boss health bar, phase transition effects, intro presentation
+- **Tier 3 physics tests** — Collision detection, wall sliding, diagonal normalization tests
+- **Per-biome ambient music** — Tileset-based track selection, boss music support
+- **Monster placeholder sprites (round 2)** — 12 newer monsters (dusk_crawler, crystal_guardian, shade_stalker variants, etc.)
+- **Combat balance pass** — Monster HP 1.8-2.3x, ability CD/cost tuning, generator output increases
 
 ## Active Design Docs
 
@@ -125,5 +135,5 @@ These are done and don't need further investment:
 | docs/storyboard.md | Active | Act I implemented, Act II started, Acts II-III need more content |
 | docs/testing-design.md | Done | Both tools built and functional, wired into npm test |
 | docs/procedural-generation.md | Done | Engine + 4 templates implemented |
-| docs/TESTING.md | Done | Tier 1 + Tier 2 complete. Tier 3 (physics) and Tier 4 (integration) remain for future |
+| docs/TESTING.md | Done | Tiers 1-3 complete (scripting + physics). Tier 4 (integration) remains for future |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |

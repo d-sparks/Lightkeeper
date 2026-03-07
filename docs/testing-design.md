@@ -1,6 +1,6 @@
 # Automated Content Testing — Design Document
 
-> **STATUS: IMPLEMENTED.** Both the static content analyzer (`tools/content-validator.js`) and the headless game simulator (`tools/headless-sim.js`) are built and functional. See `tools/` directory. The `npm test` pipeline runs unit tests (178 passing), content validation, and headless simulation.
+> **STATUS: IMPLEMENTED.** Both the static content analyzer (`tools/content-validator.js`) and the headless game simulator (`tools/headless-sim.js`) are built and functional. See `tools/` directory. The `npm test` pipeline runs unit tests (Tiers 1-3: scripting, automation, physics), content validation, and headless simulation.
 
 ## 1. Overview & Goals
 
