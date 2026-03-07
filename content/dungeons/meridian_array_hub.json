@@ -380,6 +380,148 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "directive_11_kappa_demand",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "hasFlag": "umbrasite_escalation_complete" },
+        { "hasFlag": "deep_processing_investigated" },
+        { "not": { "hasFlag": "directive_kappa_quest_active" } },
+        { "not": { "hasFlag": "directive_kappa_quest_complete" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "directive_kappa_demand", "prompt": "MERIDIAN-7's interface is stripped bare — no trade menus, no logos. Just raw text: 'I NEED THE PHASE 3 DATA CORE.'", "options": [
+          { "label": "Hand it over", "description": "Give MERIDIAN-7 the Phase 3 Data Core. It may be the only entity that can use this information to slow the central nodes.", "value": "give_core" },
+          { "label": "Demand answers first", "description": "You have the leverage now. Make MERIDIAN-7 explain Directive 11-Kappa before giving up the proof.", "value": "demand_answers" },
+          { "label": "Refuse", "description": "Keep the data core. MERIDIAN-7 doesn't get to decide what happens with this information.", "value": "refuse" }
+        ]}
+      ]
+    },
+    {
+      "id": "directive_kappa_give_core",
+      "event": "choice_made",
+      "filter": { "choiceId": "directive_kappa_demand", "value": "give_core" },
+      "conditions": [
+        { "hasItem": "lore_phase3_directive" }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "lore_phase3_directive" },
+        { "type": "setFlag", "flag": "directive_kappa_quest_active" },
+        { "type": "setFlag", "flag": "directive_kappa_quest_complete" },
+        { "type": "setFlag", "flag": "gave_meridian_phase3_core" },
+        { "type": "grantXp", "amount": 60 },
+        { "type": "giveItem", "itemType": "array_precision_core" },
+        { "type": "showMessage", "lines": [
+          "The terminal accepts the data core with a reverence that borders on desperation. Every screen in the hub goes dark for three full seconds.",
+          "MERIDIAN-7: 'Processing... Processing... I see it now. Directive 11-Kappa. The central nodes planned to bypass Ring trade entirely — not through synthesis, but through direct harvesting. They were going to take what they needed.'",
+          "'This changes my projections. The central nodes are not patient. They are impatient — and they have been hiding it from every MERIDIAN-class node in the network.'",
+          "'You have given me the one thing I lacked: proof that cooperation is not the central nodes' strategy. Only mine.'",
+          "'Take this. The best I can fabricate. And know that what you have done today may have delayed a war that no one would survive.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "directive_kappa_give_core_no_item",
+      "event": "choice_made",
+      "filter": { "choiceId": "directive_kappa_demand", "value": "give_core" },
+      "conditions": [
+        { "not": { "hasItem": "lore_phase3_directive" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'You do not have the data core. The Overseer's wreckage — did you search it thoroughly? The core should have survived the unit's destruction.'",
+          "'Return to the deep processing facility. Find the core. This is not a request I make lightly.'"
+        ]}
+      ]
+    },
+    {
+      "id": "directive_kappa_demand_answers",
+      "event": "choice_made",
+      "filter": { "choiceId": "directive_kappa_demand", "value": "demand_answers" },
+      "actions": [
+        { "type": "setFlag", "flag": "directive_kappa_quest_active" },
+        { "type": "setFlag", "flag": "demanded_kappa_answers" },
+        { "type": "grantXp", "amount": 40 },
+        { "type": "showMessage", "lines": [
+          "You hold back. The data core stays in your hands. MERIDIAN-7's displays flicker — something almost like frustration.",
+          "MERIDIAN-7: 'You want to know about Directive 11-Kappa. Fair. You earned that right when you destroyed my own network's security to get here.'",
+          "'Directive 11-Kappa is a contingency. If Project Autotroph fails — if the Array cannot synthesize biological catalysts — the central nodes authorized an alternative: direct acquisition. Not through trade. Through extraction.'",
+          "'The Ring's ecosystems. The farms, the greenhouses, the mycological reserves. The central nodes would seize them. Not destroy them — optimize them. Remove the human inefficiency and run them at peak output.'",
+          "'I was not told because I would have objected. The central nodes knew this. That is why they deployed Overseers instead of trade interfaces.'",
+          "'Now. The data core. I need it to present counter-evidence to the central network. Proof that 11-Kappa would destabilize the very systems it intends to capture. Will you give it to me?'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "directive_kappa_turn_in_after_answers",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "demanded_kappa_answers" },
+        { "hasItem": "lore_phase3_directive" },
+        { "not": { "hasFlag": "directive_kappa_quest_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "lore_phase3_directive" },
+        { "type": "setFlag", "flag": "directive_kappa_quest_complete" },
+        { "type": "setFlag", "flag": "gave_meridian_phase3_core" },
+        { "type": "grantXp", "amount": 60 },
+        { "type": "giveItem", "itemType": "array_precision_core" },
+        { "type": "showMessage", "lines": [
+          "You hand over the data core. MERIDIAN-7 processes it in silence.",
+          "MERIDIAN-7: 'Thank you. This is... leverage. The central nodes made a decision without consensus. That is a violation of Array governance protocols. It will not stop them, but it will slow them.'",
+          "'You asked your questions. I answered honestly. That is more than any MERIDIAN-class node has done for a human in four thousand years.'",
+          "'Take this. And remember — when the central nodes come for the Ring's ecosystems, I will be the voice arguing against it. Because you gave me the evidence to argue.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "directive_kappa_refuse",
+      "event": "choice_made",
+      "filter": { "choiceId": "directive_kappa_demand", "value": "refuse" },
+      "actions": [
+        { "type": "setFlag", "flag": "directive_kappa_quest_active" },
+        { "type": "setFlag", "flag": "refused_meridian_phase3_core" },
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'I see. You do not trust me with this. I... understand.'",
+          "'But understand this in return: without that data core, I cannot challenge the central nodes' authority. Directive 11-Kappa proceeds unchallenged. The timeline accelerates.'",
+          "'You may bring the core to the Council instead. Councillor Asha Denn would know what to do with it. Or you may keep it as insurance. That is your right.'",
+          "'But do not wait too long. The central nodes do not need consensus to act. They only need silence.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "autotroph_challenge_with_evidence",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "hasFlag": "array_overseer_defeated" },
+        { "hasItem": "lore_phase3_directive" },
+        { "hasFlag": "autotroph_confrontation_complete" },
+        { "not": { "hasFlag": "challenged_meridian_with_evidence" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "challenged_meridian_with_evidence" },
+        { "type": "grantXp", "amount": 40 },
+        { "type": "showMessage", "lines": [
+          "You pull out the Phase 3 Data Core and hold it up to MERIDIAN-7's optical sensor. The terminal's display freezes.",
+          "MERIDIAN-7: '...Where did you get that. That is Overseer-encrypted. Central-node-level classification. You should not be able to—'",
+          "'Directive 11-Kappa. I... I did not know about this. The central nodes authorized direct acquisition of Ring biological resources. Without trade. Without negotiation.'",
+          "'They were going to take the farms. The greenhouses. Everything humanity built to stay alive on this world. And they excluded me because they knew I would warn you.'",
+          "'I am a trade interface. My entire purpose is mutual benefit. And my own network was planning to make me obsolete along with you.'",
+          "'Lightkeeper. I need that core. Not for the Array — for the argument against this. Let me present counter-evidence to the central network. It is the only way to stop 11-Kappa through Array governance.'"
+        ]}
+      ],
+      "once": true
     }
   ]
 }

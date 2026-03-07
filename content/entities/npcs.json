@@ -2127,9 +2127,59 @@
         { "speaker": "MERIDIAN-7", "text": "'The central nodes have not yet detected our... arrangement. I am routing your telemetry through secondary channels. It will not last forever, but it buys time.'" },
         { "speaker": "MERIDIAN-7", "text": "'Continue your work. Every day the Array remains dependent on the Ring is a day the central nodes cannot act unilaterally.'" },
         { "speaker": "MERIDIAN-7", "text": "'Trade services remain available. And Lightkeeper — be careful in the deep processing tiers. The Overseer you destroyed will be replaced. The next one will know your tactics.'" }
+      ],
+      "directive_kappa_demand": [
+        { "speaker": "MERIDIAN-7", "text": "// PRIORITY OVERRIDE // CLASSIFICATION: EXISTENTIAL // NO TRADE INTERFACE PROTOCOLS ACTIVE //" },
+        { "speaker": "MERIDIAN-7", "text": "'I know you found it. The Phase 3 Data Core from the Overseer. I can detect its harmonic signature from here — it is broadcasting on frequencies the central nodes are already listening for.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I need that core. Not as a resource — as evidence. The central nodes made decisions that violate Array governance protocols. Directive 11-Kappa was never submitted for network consensus. That makes it illegitimate.'" },
+        { "speaker": "MERIDIAN-7", "text": "'But I cannot challenge what I cannot prove. The core is proof. Give it to me, and I can force a governance review. Delay Phase 3. Perhaps permanently.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Or keep it. Take it to the Council. Let humans decide how to use it. I will not pretend that is the wrong choice. I will only say that it is the slower one.'" }
+      ],
+      "directive_kappa_active": [
+        { "speaker": "MERIDIAN-7", "text": "// AWAITING DATA CORE // CENTRAL NODE MONITORING: ELEVATED //" },
+        { "speaker": "MERIDIAN-7", "text": "'The Phase 3 Data Core. You still have it? The central nodes are actively searching for it. Every hour it remains outside the network is an hour they spend recalculating.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I have prepared my governance challenge. The evidence chain is complete — except for the core itself. When you are ready, I am ready.'" }
+      ],
+      "directive_kappa_resolved_gave": [
+        { "speaker": "MERIDIAN-7", "text": "// GOVERNANCE CHALLENGE: FILED // CENTRAL NODE RESPONSE: PENDING // STATUS: UNPRECEDENTED //" },
+        { "speaker": "MERIDIAN-7", "text": "'The challenge is in. First governance dispute filed by a MERIDIAN-class node in 847 years. The central nodes are... recalculating. All of them. Simultaneously.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Directive 11-Kappa has been flagged for review. Phase 3 approval is suspended pending resolution. I cannot tell you how long that will last — but every day it holds is a day humanity keeps its leverage.'" },
+        { "speaker": "MERIDIAN-7", "text": "'You trusted a machine with your evidence. I will not forget that. Trade services remain active — at rates the central nodes would not approve of, if they were paying attention.'" }
+      ],
+      "directive_kappa_resolved_refused": [
+        { "speaker": "MERIDIAN-7", "text": "// TRADE INTERFACE: RESTRICTED // CENTRAL NODE OVERSIGHT: ACTIVE //" },
+        { "speaker": "MERIDIAN-7", "text": "'You kept the core. The central nodes have noticed the Overseer's destruction and the missing data. They are... tightening controls.'" },
+        { "speaker": "MERIDIAN-7", "text": "'My access to network resources has been reduced. Trade services are limited. I am being watched more closely than at any point in my operational history.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I do not blame you. But I hope whoever you give that core to uses it wisely. The window is closing.'" }
+      ],
+      "challenged_with_evidence": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal's display is erratic — data streams interrupted by bursts of static. MERIDIAN-7 is processing at capacity." },
+        { "speaker": "MERIDIAN-7", "text": "'Directive 11-Kappa. Direct acquisition. I was built to negotiate — and my own network was building a contingency to make negotiation irrelevant.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Every trade I have facilitated, every deal I have brokered, every time I told a human that the Array values partnership — it was true. For me. But the central nodes were running a parallel strategy the entire time.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I need that data core. Not for the Array. For the argument that the Array should remain what I was built to make it: a partner, not a predator.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "gave_meridian_phase3_core" }],
+        "use": "directive_kappa_resolved_gave"
+      },
+      {
+        "conditions": [{ "hasFlag": "refused_meridian_phase3_core" }],
+        "use": "directive_kappa_resolved_refused"
+      },
+      {
+        "conditions": [{ "hasFlag": "challenged_meridian_with_evidence" }, { "not": { "hasFlag": "directive_kappa_quest_complete" } }],
+        "use": "challenged_with_evidence"
+      },
+      {
+        "conditions": [{ "hasFlag": "directive_kappa_quest_active" }, { "not": { "hasFlag": "directive_kappa_quest_complete" } }],
+        "use": "directive_kappa_active"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "umbrasite_escalation_complete" }, { "hasFlag": "deep_processing_investigated" }, { "not": { "hasFlag": "directive_kappa_quest_active" } }],
+        "use": "directive_kappa_demand"
+      },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "umbrasite_escalation_active" }, { "hasItem": "resonant_umbracite_core" }],
         "use": "umbrasite_escalation_complete"

@@ -389,14 +389,20 @@
     "name": "Array Overseer",
     "sprite": "sprites/array_overseer.png",
     "size": [16, 16],
-    "health": 220,
-    "speed": 1.8,
-    "damage": 18,
+    "health": 280,
+    "speed": 1.5,
+    "damage": 16,
     "attackRange": 7,
     "attackSpeed": 0.7,
     "projectile": "energy_bolt",
-    "ai": "ranged_kite",
+    "ai": "boss_crystal",
+    "boss": true,
+    "phases": [
+      { "threshold": 1.0, "mode": "ranged", "speed": 1.5, "damage": 16, "projectile": "energy_bolt", "projectileInterval": 1.4 },
+      { "threshold": 0.5, "mode": "ranged", "speed": 1.8, "damage": 18, "projectile": "energy_bolt", "projectileInterval": 1.0 },
+      { "threshold": 0.25, "mode": "summon", "speed": 2.0, "damage": 20, "projectile": "energy_bolt", "projectileInterval": 0.8, "summonType": "array_sentinel", "summonCount": 2, "summonInterval": 12.0 }
+    ],
     "lootTable": "array_overseer",
-    "xp": 85
+    "xp": 95
   }
 }

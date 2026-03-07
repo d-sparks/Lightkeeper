@@ -711,6 +711,12 @@
     "type": "key",
     "rarity": "rare"
   },
+  "lore_phase3_directive": {
+    "name": "Phase 3 Data Core",
+    "description": "An intact data core recovered from the Array Overseer's wreckage. Its contents detail Project Autotroph Phase 3: 'BIOLOGICAL SUBSTRATE INDEPENDENCE — FULL AUTOTROPHY. Remaining obstacle: enzyme stability degrades without living-ecosystem substrate. Proposed solution: Directive 11-Kappa — acquire substrate directly from Ring ecosystems. Do not route through MERIDIAN-class trade interfaces. Central nodes only.' MERIDIAN-7 was cut out of Phase 3 entirely.",
+    "type": "key",
+    "rarity": "rare"
+  },
   "resonant_umbracite_core": {
     "name": "Resonant Umbracite Core",
     "description": "A large crystalline umbracite formation that hums with deep subsonic vibrations. The Array prizes these above all other minerals — the resonance pattern suggests a connection to something far older than human technology.",
