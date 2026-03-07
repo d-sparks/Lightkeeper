@@ -2255,7 +2255,10 @@
       fungal_forest: 'ambient_fungal',
       frost_crypt: 'ambient_frost',
       crypt: 'ambient_crypt',
-      geothermal: 'ambient_geothermal'
+      geothermal: 'ambient_geothermal',
+      quarantine: 'ambient_quarantine',
+      dark_city: 'ambient_dark_city',
+      outpost: 'ambient_outpost'
     };
     if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
       audio.playMusic('outpost');

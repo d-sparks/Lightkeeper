@@ -314,6 +314,86 @@
     ]
   },
 
+  "ambient_quarantine": {
+    "_comment": "Quarantine biome — tense, sterile, unsettling hum. Placeholder.",
+    "bpm": 44,
+    "wave": "sawtooth",
+    "volume": 0.05,
+    "pattern": [
+      { "freq": 110, "bass": 55, "len": 3 },
+      null,
+      null,
+      null,
+      { "freq": 117, "len": 2 },
+      null,
+      null,
+      { "freq": 104, "bass": 52, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      { "freq": 110, "len": 2 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_dark_city": {
+    "_comment": "Dark city biome — eerie urban decay, hollow echoes. Placeholder.",
+    "bpm": 52,
+    "wave": "triangle",
+    "volume": 0.07,
+    "pattern": [
+      { "freq": 165, "bass": 82, "len": 2 },
+      null,
+      null,
+      { "freq": 147, "len": 1 },
+      null,
+      null,
+      null,
+      { "freq": 131, "bass": 65, "len": 2 },
+      null,
+      null,
+      null,
+      { "freq": 147, "len": 1 },
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_outpost": {
+    "_comment": "Outpost biome — calm shelter, gentle warmth. Placeholder (used when tileset is outpost).",
+    "bpm": 55,
+    "wave": "sine",
+    "volume": 0.10,
+    "pattern": [
+      { "freq": 262, "bass": 131, "len": 3 },
+      null,
+      { "freq": 330, "len": 2 },
+      null,
+      { "freq": 294, "bass": 147, "len": 2 },
+      null,
+      { "freq": 262, "len": 2 },
+      null,
+      null,
+      { "freq": 247, "bass": 123, "len": 3 },
+      null,
+      { "freq": 262, "len": 2 },
+      null,
+      { "freq": 294, "bass": 147, "len": 2 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
   "boss_crystal": {
     "_comment": "Crystal Guardian boss theme — higher register, triangle wave for crystalline resonance, driving tempo",
     "bpm": 140,
