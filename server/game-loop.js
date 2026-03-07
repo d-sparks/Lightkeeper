@@ -247,6 +247,14 @@ class GameLoop {
         if (def.ai === 'ranged_kite' && def.projectile) {
           mob.projectile = def.projectile;
         }
+        // Boss: initialize phase tracking
+        if (def.ai === 'boss_crystal' && def.phases) {
+          mob.bossPhase = 0;
+          mob.bossPhases = def.phases;
+          mob.bossProjectileTimer = 0;
+          mob.bossSummonTimer = 0;
+          mob.bossSummonCount = 0;
+        }
         room.monsters.set(id, mob);
       }
     }
@@ -1830,6 +1838,8 @@ class GameLoop {
             });
           }
         }
+      } else if (mob.ai === 'boss_crystal') {
+        this._updateBossCrystal(mob, nearest, nearestDist, room, dt);
       }
     }
   }
@@ -1873,6 +1883,144 @@ class GameLoop {
     if (mob.patrolTimer > 3.0) {
       mob.patrolState = 'waiting';
       mob.patrolTimer = 1.0 + Math.random() * 1.5;
+    }
+  }
+
+  _updateBossCrystal(mob, nearest, nearestDist, room, dt) {
+    const phases = mob.bossPhases;
+    if (!phases || !phases.length) return;
+
+    // Determine current phase based on HP percentage
+    const hpPct = mob.health / mob.maxHealth;
+    let newPhase = 0;
+    for (let i = phases.length - 1; i >= 0; i--) {
+      if (hpPct <= phases[i].threshold) {
+        newPhase = i;
+        break;
+      }
+    }
+
+    // Phase transition
+    if (newPhase !== mob.bossPhase) {
+      mob.bossPhase = newPhase;
+      mob.bossSummonCount = 0;
+      room.events.push({
+        type: 'boss_phase',
+        targetId: mob.id,
+        phase: newPhase + 1,
+        x: mob.x, y: mob.y,
+      });
+    }
+
+    const phase = phases[mob.bossPhase];
+    const effectiveSpeed = (phase.speed || mob.speed) * CONSTANTS.TILE_SIZE * dt;
+    const dx = nearest.x - mob.x;
+    const dy = nearest.y - mob.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    mob.facing = Math.atan2(dy, dx);
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+    const effectiveDamage = phase.damage || mob.damage;
+
+    // Movement: chase in melee/summon modes, kite in ranged mode
+    if (phase.mode === 'ranged' && nearestDist < mob.attackRange * 0.5) {
+      // Kite away when too close
+      if (len > 0) {
+        const nx = mob.x - (dx / len) * effectiveSpeed;
+        const ny = mob.y - (dy / len) * effectiveSpeed;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+      }
+    } else if (nearestDist > mob.attackRange) {
+      // Chase
+      if (len > 0) {
+        const nx = mob.x + (dx / len) * effectiveSpeed;
+        const ny = mob.y + (dy / len) * effectiveSpeed;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+      }
+    }
+
+    // Melee attack (all phases can melee when in range)
+    if (nearestDist <= mob.attackRange && mob.attackTimer <= 0) {
+      nearest.health -= effectiveDamage;
+      mob.attackTimer = mob.attackCooldown;
+      room.events.push({
+        type: 'damage', targetId: nearest.id,
+        amount: effectiveDamage, x: nearest.x, y: nearest.y,
+      });
+      this._checkPlayerDeath(nearest, room);
+    }
+
+    // Projectile attack (phase 2+)
+    if (phase.projectile && len > 0) {
+      mob.bossProjectileTimer -= dt;
+      if (mob.bossProjectileTimer <= 0) {
+        mob.bossProjectileTimer = phase.projectileInterval || 1.5;
+        // Fire a spread of crystal shards
+        const spreadCount = phase.mode === 'summon' ? 3 : 2;
+        const spreadAngle = Math.PI / 8;
+        const baseAngle = Math.atan2(dy, dx);
+        for (let s = 0; s < spreadCount; s++) {
+          const angle = baseAngle + (s - (spreadCount - 1) / 2) * spreadAngle;
+          const projId = `proj_${room.nextProjectileId++}`;
+          room.projectiles.push({
+            id: projId,
+            ownerId: mob.id,
+            isMonsterProjectile: true,
+            projectileType: phase.projectile,
+            x: mob.x,
+            y: mob.y,
+            vx: Math.cos(angle) * CONSTANTS.PROJECTILE_SPEED * 0.6,
+            vy: Math.sin(angle) * CONSTANTS.PROJECTILE_SPEED * 0.6,
+            damage: Math.round(effectiveDamage * 0.6),
+            lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+          });
+        }
+      }
+    }
+
+    // Summon minions (phase 3)
+    if (phase.summonType && phase.summonCount) {
+      mob.bossSummonTimer -= dt;
+      if (mob.bossSummonTimer <= 0 && mob.bossSummonCount < phase.summonCount) {
+        mob.bossSummonTimer = phase.summonInterval || 8.0;
+        const minionDef = this.content.getMonster(phase.summonType);
+        if (minionDef) {
+          const summonCount = Math.min(2, phase.summonCount - mob.bossSummonCount);
+          for (let s = 0; s < summonCount; s++) {
+            const angle = (Math.PI * 2 * s) / summonCount + Math.random() * 0.5;
+            const dist = 2 * CONSTANTS.TILE_SIZE;
+            const sx = mob.x + Math.cos(angle) * dist;
+            const sy = mob.y + Math.sin(angle) * dist;
+            if (this.physics.collidesAt(sx, sy, room.dungeon, mr)) continue;
+            const minionId = `mob_${room.nextMonsterId++}`;
+            room.monsters.set(minionId, {
+              id: minionId,
+              type: phase.summonType,
+              name: minionDef.name,
+              x: sx, y: sy,
+              spawnX: sx, spawnY: sy,
+              health: minionDef.health,
+              maxHealth: minionDef.health,
+              speed: minionDef.speed,
+              damage: minionDef.damage,
+              attackRange: (minionDef.attackRange || 1) * CONSTANTS.TILE_SIZE,
+              attackCooldown: 1 / (minionDef.attackSpeed || 1),
+              attackTimer: 0,
+              ai: minionDef.ai,
+              facing: angle,
+              idleMode: 'stationary',
+              isSummon: true,
+            });
+            mob.bossSummonCount++;
+          }
+          room.events.push({
+            type: 'boss_summon',
+            targetId: mob.id,
+            x: mob.x, y: mob.y,
+          });
+        }
+      }
     }
   }
 
@@ -2657,13 +2805,18 @@ class GameLoop {
     const monsters = [];
     for (const [mid, m] of room.monsters) {
       if (m.hidden) continue; // Ambush monsters are invisible to clients
-      monsters.push({
+      const mData = {
         id: m.id, type: m.type, name: m.name,
         x: Math.round(m.x * 10) / 10,
         y: Math.round(m.y * 10) / 10,
         facing: Math.round(m.facing * 100) / 100,
         health: m.health, maxHealth: m.maxHealth,
-      });
+      };
+      if (m.bossPhases) {
+        mData.boss = true;
+        mData.bossPhase = m.bossPhase + 1;
+      }
+      monsters.push(mData);
     }
 
     const items = [];

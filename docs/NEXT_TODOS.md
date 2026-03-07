@@ -50,7 +50,9 @@ All done:
 
 - Add placeholder sprites for Nightside Caverns and Depths tilesets (currently using frost_crypt)
 - Consider a dedicated "nightside" tileset with umbracite-vein wall tiles
-- Crystal Guardian boss could have unique AI instead of generic melee_chase
+- [x] Crystal Guardian boss has unique multi-phase AI (boss_crystal): phase 1 melee, phase 2 crystal shard projectiles, phase 3 summons crystal shard minions
+- Crystal Guardian boss: client-side visual effects for phase transitions (boss_phase event), summon bursts (boss_summon event)
+- Crystal Guardian boss: boss health bar UI (client receives boss=true, bossPhase in monster data)
 - MERIDIAN-7's umbrasite quest could become repeatable with escalating tiers
 - Make sure initial MERIDIAN-7 trade at train station flows into Array Hub quest
 - Add map/minimap markers or quest waypoints for Nightside Caverns entrance

@@ -173,14 +173,32 @@
     "name": "Crystal Guardian",
     "sprite": "sprites/crystal_guardian.png",
     "size": [16, 16],
-    "health": 100,
+    "health": 300,
     "speed": 1.0,
     "damage": 18,
     "attackRange": 2,
     "attackSpeed": 0.7,
-    "ai": "melee_chase",
+    "ai": "boss_crystal",
+    "boss": true,
+    "phases": [
+      { "threshold": 1.0, "mode": "melee", "speed": 1.0, "damage": 18 },
+      { "threshold": 0.6, "mode": "ranged", "speed": 1.2, "damage": 14, "projectile": "crystal_shard_bolt", "projectileInterval": 1.2 },
+      { "threshold": 0.3, "mode": "summon", "speed": 1.5, "damage": 22, "projectile": "crystal_shard_bolt", "projectileInterval": 0.8, "summonType": "crystal_shard_minion", "summonCount": 3, "summonInterval": 8.0 }
+    ],
     "lootTable": "crystal_guardian",
-    "xp": 60
+    "xp": 120
+  },
+  "crystal_shard_minion": {
+    "name": "Crystal Shard",
+    "sprite": "sprites/crystal_guardian.png",
+    "size": [16, 16],
+    "health": 25,
+    "speed": 2.5,
+    "damage": 6,
+    "attackRange": 1,
+    "attackSpeed": 1.2,
+    "ai": "melee_chase",
+    "xp": 5
   },
   "shadow_ambusher": {
     "name": "Shadow Ambusher",
