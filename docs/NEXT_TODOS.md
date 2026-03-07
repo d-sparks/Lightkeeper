@@ -84,13 +84,17 @@ All done:
 
 - [x] Add `resonant_umbracite_core` item definition to items.json — added (spawn location TBD in deep Nightside dungeon)
 - [x] Add `array_harmonic_stabilizer_chip` sol component to sol_components.json (energy waste reduction) — added as epic dual-stat modifier
-- Create `nightside_passage` dungeon for Sable's Act III guide sequence
-- Add Nightside expedition quest JSON (joint Ring/Unbounded/Array exploration)
-- Add symbiotic compound items for Asha's Act III research line
+- [x] Create `nightside_passage` dungeon for Sable's Act III guide sequence — nightside_passage.json added (28x22, Sable guide NPC, symbiotic compound chest, exit to underlumen_threshold)
+- [x] Add Nightside expedition quest JSON (joint Ring/Unbounded/Array exploration) — nightside_expedition.json with 5 steps leading to three-path choice
+- [x] Add symbiotic compound items for Asha's Act III research line — symbiotic_compound and expedition_field_notes added to items.json
+- [x] Wire `act3_asha_alliance` flag-set trigger in meridian_civic.json when player sees alliance dialogue — trigger sets act3_asha_alliance_activated, plus asha_receives_compound trigger for post-expedition
 - Consider further umbrasite escalation tiers (repeatable with diminishing returns)
 - Add Unbounded elder NPC for deep Nightside encounters (referenced by Sable)
 - Add Council faction NPCs (Steward representative, Compact representative, Root representative) for political branching
-- Wire `act3_asha_alliance` flag-set trigger in meridian_civic.json when player sees alliance dialogue
+- Create `underlumen_threshold` dungeon (nightside_passage exit leads here — currently a dead-end reference)
+- Add three ending path dungeons/sequences (shutdown, merge, control) referenced by nightside_expedition quest
+- Add Asha `act3_compound_received` dialogue with three-path choice trigger (showChoice for chose_path_shutdown/merge/control)
+- Add sable_nightside_guide sprite placeholder
 
 ## Art & Sprites
 

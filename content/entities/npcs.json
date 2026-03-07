@@ -1396,9 +1396,23 @@
         { "speaker": "Councillor Asha Denn", "text": "'I'm assembling a joint expedition. Ring scientists, Unbounded guides, and — if we're careful — even Array observers. A mission to the deep Nightside to document what the Underlumen actually is.'" },
         { "speaker": "Councillor Asha Denn", "text": "'Sable has agreed to guide us. But we need someone who can move between all three factions without being shot on sight. That's you, Lightkeeper.'" },
         { "speaker": "Councillor Asha Denn", "text": "'Prepare yourself. Gather symbiotic compounds from the Nightside — the deeper the better. When the expedition launches, we'll need every advantage we can find.'" }
+      ],
+      "act3_compound_received": [
+        { "speaker": "Councillor Asha Denn", "text": "Asha's lab is transformed. The symbiotic compound sits in a containment field, pulsing with warm bioluminescence. Readouts scroll across every screen." },
+        { "speaker": "Councillor Asha Denn", "text": "'The compound's molecular structure is extraordinary. It's not chemistry — it's a conversation. Crystalline lattice and organic substrate, co-evolving in real time.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'I've shared the analysis with the Council. Even the Compact can't deny it now. This proves that some biological systems require living communion — something no synthesis lab can replicate.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'The question is: what do we do with this knowledge? Three paths are open to us now.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Shut down the Array. Restore the Underlumen. Accept a harder world, but a free one.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Merge the systems. Broker symbiosis between Array, Underlumen, and humanity. The hardest path — but the most hopeful.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Or seize the Array. Take its infrastructure for humanity. Suppress both the Underlumen and the Array's autonomy. Power, at a cost.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'The choice is yours, Lightkeeper. You've earned the right to make it. When you're ready, the Council will hear your recommendation.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "asha_received_compound" }],
+        "use": "act3_compound_received"
+      },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "sable_warned_about_array" }, { "hasFlag": "confronted_meridian_7" }],
         "use": "act3_asha_alliance"
@@ -1822,6 +1836,51 @@
       {
         "conditions": [{ "hasFlag": "sable_not_helped" }],
         "use": "low_trust"
+      }
+    ]
+  },
+
+  "sable_nightside_guide": {
+    "name": "Sable",
+    "dialogue": [
+      { "speaker": "Sable", "text": "You're here. The deep dark awaits." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Sable", "text": "The passage ahead is mapped in my grandmother's charts. Unbounded deep-travel routes, passed down through generations." },
+        { "speaker": "Sable", "text": "The creatures here are different. Older. They've lived alongside the Underlumen for so long they've become part of it." },
+        { "speaker": "Sable", "text": "Look for symbiotic compounds — crystalline-organic formations that grow where the planet's heartbeat is strongest. Asha will need them." },
+        { "speaker": "Sable", "text": "And stay close. The deep dark doesn't forgive carelessness." }
+      ],
+      "expedition_started": [
+        { "speaker": "Sable", "text": "Keep moving. The deeper we go, the stronger the Underlumen's pulse becomes." },
+        { "speaker": "Sable", "text": "My grandmother walked this path once. She said the planet spoke to her here — not in words. In feelings. Memory." },
+        { "speaker": "Sable", "text": "The exit below leads to the Underlumen Threshold. The edge of the planet's living core. No Ring citizen has ever gone that deep." },
+        { "speaker": "Sable", "text": "Whatever we find there will decide whether the Array, the Ring, and the Unbounded can coexist — or whether one must fall." }
+      ],
+      "has_symbiotic_compound": [
+        { "speaker": "Sable", "text": "You found one. A symbiotic compound — living crystal fused with organic matter." },
+        { "speaker": "Sable", "text": "This is what the Array cannot replicate. Not because the chemistry is complex — because it requires a relationship. A living ecosystem talking to itself across geological time." },
+        { "speaker": "Sable", "text": "Bring it to Asha. She'll understand what it means. The Array can synthesize amino acids, but it can't synthesize communion." }
+      ],
+      "low_trust_guide": [
+        { "speaker": "Sable", "text": "I'm here for the mission, not for you. The elders were clear." },
+        { "speaker": "Sable", "text": "Follow the trail markers. Collect what Asha needs. Don't slow me down." },
+        { "speaker": "Sable", "text": "The Underlumen Threshold is ahead. Whatever happens there happens to all of us — Ring, Unbounded, Array." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "symbiotic_compound" }],
+        "use": "has_symbiotic_compound"
+      },
+      {
+        "conditions": [{ "hasFlag": "nightside_expedition_started" }, { "hasFlag": "sable_not_helped" }],
+        "use": "low_trust_guide"
+      },
+      {
+        "conditions": [{ "hasFlag": "nightside_expedition_started" }],
+        "use": "expedition_started"
       }
     ]
   },

@@ -184,6 +184,50 @@
         { "type": "grantXp", "amount": 20 }
       ],
       "once": true
+    },
+    {
+      "id": "act3_asha_alliance_trigger",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "hasFlag": "sable_warned_about_array" },
+        { "hasFlag": "confronted_meridian_7" },
+        { "not": { "hasFlag": "act3_asha_alliance_activated" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "act3_asha_alliance_activated" },
+        { "type": "grantXp", "amount": 75 },
+        { "type": "showMessage", "lines": [
+          "The alliance is forged. Ring, Unbounded, and Array — three factions, one expedition.",
+          "Councillor Asha Denn has authorized the joint Nightside expedition. Sable will guide. The Array will observe. And you will lead.",
+          "Meet Sable at the Nightside Passage, beyond the Nightside Depths. The path to the three endings begins here."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "asha_receives_compound",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "symbiotic_compound" },
+        { "hasFlag": "nightside_expedition_started" },
+        { "not": { "hasFlag": "asha_received_compound" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "symbiotic_compound" },
+        { "type": "setFlag", "flag": "asha_received_compound" },
+        { "type": "grantXp", "amount": 75 },
+        { "type": "showMessage", "lines": [
+          "Asha takes the compound with trembling hands. She holds it up to the light, watching the crystalline-organic matrix shift and pulse.",
+          "'This is it. The proof we needed. A compound that exists only through symbiosis — a living relationship that no synthesis lab can replicate.'",
+          "'The Array's Autotroph project will never reproduce this. Biology isn't just chemistry. It's communion.'",
+          "'The Council will hear this. All of them. And then... then we decide what comes next. For all three factions.'",
+          "'Three paths lie ahead, Lightkeeper. The choice will be yours.'"
+        ]}
+      ],
+      "once": true
     }
   ]
 }

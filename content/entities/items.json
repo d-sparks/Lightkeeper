@@ -403,6 +403,18 @@
     "type": "key",
     "rarity": "epic"
   },
+  "symbiotic_compound": {
+    "name": "Symbiotic Compound",
+    "description": "A crystalline-organic formation from the deep Nightside. Neither mineral nor biological — it exists only through a living relationship between crystal and organism. The Array's synthesis labs cannot replicate this.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "expedition_field_notes": {
+    "name": "Expedition Field Notes",
+    "description": "Joint research notes from the Nightside expedition. Contains observations from Ring scientists, Unbounded guides, and Array sensor data. Documents the first confirmed contact with Underlumen symbiotic systems.",
+    "type": "misc",
+    "rarity": "rare"
+  },
   "sol_unit_mk1_plus": {
     "name": "Sol Unit Mk1+",
     "description": "A military-grade Sol Unit frame with a 6x6 component grid. Found in Fen's squad's supply cache. Significantly more powerful than the standard Mk1.",
