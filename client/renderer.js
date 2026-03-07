@@ -1688,6 +1688,8 @@ class Renderer {
           shadow_bolt: 0x7c4dff,   // dark purple
           magma_glob: 0xff6e40,    // fiery orange
           spore_cloud: 0x69f0ae,   // sickly green
+          crystal_shard_bolt: 0x80deea, // icy cyan
+          energy_bolt: 0xffab40,   // amber/orange
         };
         sprite.tint = projColors[proj.projectileType] || 0x4fc3f7;
         container.addChild(sprite);
@@ -2043,13 +2045,17 @@ class Renderer {
       // Shadow/wraith types: dissolve (fade + expand)
       shadow_ambusher: 'dissolve', gloom_wraith: 'dissolve',
       shade_stalker: 'dissolve', shade_stalker_alpha: 'dissolve',
+      rime_stalker: 'dissolve',
       // Heavy/brute types: crumble (shake + collapse)
       magma_brute: 'crumble', crystal_guardian: 'crumble',
       frost_warden: 'crumble', luddite_warlord: 'crumble',
       elder_sporecap: 'crumble', nest_mother: 'crumble',
       // Fungal types: pop (scale up then vanish)
       sporecap_shambler: 'pop', mycelium_lurker: 'pop',
-      fungal_sprayer: 'pop',
+      fungal_sprayer: 'pop', scrap_drone: 'pop',
+      // Crystal/array types: shatter (flash + scatter)
+      crystal_shard_minion: 'shatter',
+      array_sentinel: 'shatter', array_fabricator: 'shatter',
     };
     return styleMap[monsterType] || 'collapse'; // default: original collapse
   }
@@ -2076,7 +2082,7 @@ class Renderer {
     this.entityContainer.addChild(container);
 
     const style = this._getDeathStyle(monsterType);
-    const maxAge = style === 'crumble' ? 0.5 : 0.4;
+    const maxAge = style === 'crumble' ? 0.5 : style === 'shatter' ? 0.3 : 0.4;
 
     this.deathAnims.push({
       container, sprite, x, y, style,
@@ -2121,6 +2127,20 @@ class Renderer {
             da.sprite.scale.y = 1.6 * shrink;
           }
           da.container.alpha = progress < 0.3 ? 1 : 1 - ((progress - 0.3) / 0.7);
+          break;
+        case 'shatter':
+          // Brief white flash then rapid fade with scale burst
+          if (progress < 0.15) {
+            da.sprite.tint = 0xffffff;
+            da.sprite.scale.x = 1 + progress * 3;
+            da.sprite.scale.y = 1 + progress * 3;
+          } else {
+            da.sprite.tint = 0x80deea;
+            const fade = 1 - ((progress - 0.15) / 0.85);
+            da.container.alpha = fade * fade;
+            da.sprite.scale.x = 1.5 * (1 + (progress - 0.15) * 0.5);
+            da.sprite.scale.y = 1.5 * (1 - (progress - 0.15) * 0.8);
+          }
           break;
         default: // 'collapse' — original behavior
           da.container.alpha = 1 - progress;
@@ -2216,6 +2236,10 @@ class Renderer {
           range: ev.range,
           age: 0, maxAge: 0.2,
         });
+        // Screen shake on player's own melee strike
+        if (ev.ownerId === this.myId) {
+          this.screenShake = { intensity: 2, duration: 0.08, elapsed: 0 };
+        }
       } else if (ev.type === 'boss_phase') {
         // Phase transition: screen shake + floating text + flash
         this.screenShake = { intensity: 8, duration: 0.5, elapsed: 0 };

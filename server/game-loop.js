@@ -1354,6 +1354,7 @@ class GameLoop {
       x: player.x, y: player.y,
       angle: slashAngle,
       range: range,
+      ownerId: player.id,
     });
 
     room.events.push({
