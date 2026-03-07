@@ -57,7 +57,7 @@ All done:
 - [x] Crystal Guardian boss: boss health bar UI (client receives boss=true, bossPhase in monster data) — HUD bar at top-center + enhanced in-world bar
 - Crystal Guardian boss: consider adding boss intro animation/cutscene when entering boss room
 - Crystal Guardian boss: add dedicated boss music track (currently uses dungeon music)
-- MERIDIAN-7's umbrasite quest could become repeatable with escalating tiers
+- [x] MERIDIAN-7's umbrasite quest now has an escalating tier (Resonant Umbracite Core) post-secret-discovery
 - Make sure initial MERIDIAN-7 trade at train station flows into Array Hub quest
 - Add map/minimap markers or quest waypoints for Nightside Caverns entrance
 - [x] Environmental hazards in biome dungeons (cold, heat, poison damage implemented)
@@ -70,8 +70,23 @@ All done:
 - [x] Gate array_synthesis_lab access behind umbrasite quest completion — exit conditions added
 - [x] Add array_clearance_badge as key requirement for array_deep_processing door — exit requires hasItem check
 - [x] Wire array_secret_discovered flag into MERIDIAN-7 dialogue at the Hub (confrontation dialogue)
-- Wire array_secret_discovered flag into Sable, Asha, or Council NPC dialogue for Act 3 progression
+- [x] Wire array_secret_discovered flag into Sable, Asha, and Council NPC dialogue for Act 3 progression hooks
+- [x] Add MERIDIAN-7 post-confrontation Act III dialogue (reveals Project Autotroph's flaw, internal conflict)
+- [x] Add Asha act3_alliance dialogue (joint expedition to deep Nightside, tri-faction cooperation)
+- [x] Add Sable Act III dialogues with high/low trust variants (Unbounded elder maps, Nightside guidance)
 - Consider adding an Array overseer mini-boss in array_deep_processing
+
+## Act III Follow-ups
+
+- Add `resonant_umbracite_core` item definition to items.json and spawn in deep Nightside dungeon
+- Add `array_harmonic_stabilizer_chip` sol component to sol_components.json (energy waste reduction)
+- Create `nightside_passage` dungeon for Sable's Act III guide sequence
+- Add Nightside expedition quest JSON (joint Ring/Unbounded/Array exploration)
+- Add symbiotic compound items for Asha's Act III research line
+- Consider further umbrasite escalation tiers (repeatable with diminishing returns)
+- Add Unbounded elder NPC for deep Nightside encounters (referenced by Sable)
+- Add Council faction NPCs (Steward representative, Compact representative, Root representative) for political branching
+- Wire `act3_asha_alliance` flag-set trigger in meridian_civic.json when player sees alliance dialogue
 
 ## Art & Sprites
 

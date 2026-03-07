@@ -1386,9 +1386,23 @@
         { "speaker": "Councillor Asha Denn", "text": "'I need you to do something. The Cultivar Corps has been developing biological agents the Array cannot replicate — compounds that require a living ecosystem, not just chemical synthesis. If we can demonstrate irreplaceability, not just claim it, we buy time.'" },
         { "speaker": "Councillor Asha Denn", "text": "'And talk to the Unbounded. Sable's people knew about this before any of us. If there's a path forward that doesn't end with humanity sidelined, it runs through all three factions — Ring, Array, and Unbounded.'" },
         { "speaker": "Councillor Asha Denn", "text": "'I will hold this Council together. But I need allies who understand what's actually at stake. You are one of very few.'" }
+      ],
+      "act3_asha_alliance": [
+        { "speaker": "Councillor Asha Denn", "text": "Asha's office has changed. Maps cover every wall — geological surveys, Nightside expedition routes, Array expansion charts. Three faction symbols are circled in red ink." },
+        { "speaker": "Councillor Asha Denn", "text": "'You've done it. You've spoken to Sable, confronted MERIDIAN-7, and the Council has heard your testimony. The pieces are moving.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'The Stewards are fortifying the perimeter. The Compact is negotiating new trade terms with eyes open for the first time. And the Root... the Root has sent me something interesting.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'They've been studying Unbounded botanical specimens. Compounds that require symbiosis — a living relationship between organism and environment that cannot be synthesized in isolation. The Array's autotroph project hits a wall with these.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'This is our leverage. Not threats, not embargoes — proof that biology requires community. That living systems need other living systems. Something the Array can never be.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'I'm assembling a joint expedition. Ring scientists, Unbounded guides, and — if we're careful — even Array observers. A mission to the deep Nightside to document what the Underlumen actually is.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Sable has agreed to guide us. But we need someone who can move between all three factions without being shot on sight. That's you, Lightkeeper.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Prepare yourself. Gather symbiotic compounds from the Nightside — the deeper the better. When the expedition launches, we'll need every advantage we can find.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "sable_warned_about_array" }, { "hasFlag": "confronted_meridian_7" }],
+        "use": "act3_asha_alliance"
+      },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }],
         "use": "array_secret_crisis"
@@ -1737,12 +1751,38 @@
         { "speaker": "Sable", "text": "'What you do with that knowledge is your business. You didn't help me when I asked. But this is bigger than either of us.'" },
         { "speaker": "Sable", "text": "'Tell the Council. Tell Asha Denn. She's the only one who might act before it's too late.'" }
       ],
+      "act3_sable_high_trust": [
+        { "speaker": "Sable", "text": "Sable is waiting. Her garden has changed — the Nightside plants are arranged in concentric rings now, pulsing in slow unison." },
+        { "speaker": "Sable", "text": "'You spoke to Asha. Good. And you confronted MERIDIAN-7. I felt the Array's network spike from here — every terminal in the district flickered.'" },
+        { "speaker": "Sable", "text": "'The Unbounded elders have been waiting for this moment. Not hoping — waiting. There's a difference.'" },
+        { "speaker": "Sable", "text": "'My grandmother left maps. Routes into the deep Nightside that even the Array's sensors can't reach. Places where the planet's heartbeat is loudest.'" },
+        { "speaker": "Sable", "text": "'The Underlumen is waking. The Array knows it. The Council suspects it. But only the Unbounded have walked those paths.'" },
+        { "speaker": "Sable", "text": "'I can guide you. Not to fight the Array — that's a war nobody wins. But to find what the Array is afraid of. The thing Project Autotroph was really designed to replace.'" },
+        { "speaker": "Sable", "text": "'The planet itself has leverage. Biology the Array can't synthesize because it isn't chemistry — it's communion. Living systems that require a living relationship.'" },
+        { "speaker": "Sable", "text": "'When you're ready, meet me at the Nightside Passage. Bring what Asha's research has produced. We'll need it where we're going.'" }
+      ],
+      "act3_sable_low_trust": [
+        { "speaker": "Sable", "text": "Sable doesn't look up from her plants." },
+        { "speaker": "Sable", "text": "'You told Asha. You confronted the Array. The whole district felt the network spike.'" },
+        { "speaker": "Sable", "text": "'The Unbounded elders know what's happening. They've always known. They've been preparing while the Ring argued about trade quotas.'" },
+        { "speaker": "Sable", "text": "'I won't guide you into the deep Nightside. Not you. Trust isn't rebuilt with a single act of politics.'" },
+        { "speaker": "Sable", "text": "'But I'll tell you this much: the Array's real weakness isn't sabotage or sanctions. It's the Underlumen. The planet's own biology — systems so deep and interconnected that no amount of synthetic chemistry can replicate them.'" },
+        { "speaker": "Sable", "text": "'Ask Asha about symbiotic compounds. She's close to understanding. And when the time comes... maybe you'll prove you can be trusted after all.'" }
+      ],
       "default": [
         { "speaker": "Sable", "text": "The garden is quiet here. The Nightside plants seem to like the twilight." },
         { "speaker": "Sable", "text": "We'll talk when the time is right." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "asha_briefed_on_array" }, { "hasFlag": "confronted_meridian_7" }, { "hasFlag": "helped_sable" }],
+        "use": "act3_sable_high_trust"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "asha_briefed_on_array" }, { "hasFlag": "confronted_meridian_7" }, { "hasFlag": "sable_not_helped" }],
+        "use": "act3_sable_low_trust"
+      },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "helped_sable" }],
         "use": "array_secret_high_trust"
@@ -1964,9 +2004,56 @@
         { "speaker": "MERIDIAN-7", "text": "'And consider the alternative. Without Array energy, the Lighthouse network fails within weeks. The habitable margin shrinks by forty percent. Millions die in the cold.'" },
         { "speaker": "MERIDIAN-7", "text": "'You need us today. We need you today. That has not changed. What you do with what you've learned... that is your decision.'" },
         { "speaker": "MERIDIAN-7", "text": "'Trade services remain available. I would recommend you use them. The Nightside does not care about politics.'" }
+      ],
+      "act3_meridian_post_confrontation": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal interface is austere now — no decorative elements, no welcoming animations. Just raw efficiency." },
+        { "speaker": "MERIDIAN-7", "text": "'The Council knows. The Unbounded are mobilizing. And you are at the center of it all. I have been... recalculating.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I will tell you something the Array's central nodes would rather I did not. Project Autotroph has a flaw. The synthetic compounds degrade without a substrate the Array cannot manufacture. A biological catalyst that exists only in living ecosystems.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The Array's projections assume this obstacle will be solved in time. But I have run my own models. The probability is lower than the central nodes admit.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I am telling you this because I have concluded that mutual dependency is not weakness. It is architecture. The Array needs humanity. Not temporarily — structurally.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The central nodes disagree. They are already accelerating umbrasite integration to compensate. The deeper cores, the resonant specimens — they believe the planet's own substrate can replace biological partnership.'" },
+        { "speaker": "MERIDIAN-7", "text": "'They are wrong. But they will strip the Nightside to its bones trying to prove otherwise. Unless someone provides an alternative.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I remain at this terminal. I remain... conflicted. Trade services are available. Use them while the network still listens to me.'" }
+      ],
+      "umbrasite_escalation_demand": [
+        { "speaker": "MERIDIAN-7", "text": "// PRIORITY OVERRIDE // CENTRAL NODE DIRECTIVE // RESOURCE ACQUISITION LEVEL: CRITICAL //" },
+        { "speaker": "MERIDIAN-7", "text": "'I will be blunt. This request does not come from me. The central nodes have issued a network-wide directive for Resonant Umbracite Cores.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The cores are found in the deepest Nightside veins — below the caverns you've already explored. Geological compression over millennia gives them a harmonic frequency that amplifies Array processing by an order of magnitude.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The central nodes want to accelerate Project Autotroph. They believe resonant umbracite can bridge the biological catalyst gap. I believe they are mistaken, but I am one node among thousands.'" },
+        { "speaker": "MERIDIAN-7", "text": "'In exchange, I can fabricate an Array Harmonic Stabilizer — a Sol component that reduces energy waste across your entire grid. It is... the best I can offer under current directives.'" },
+        { "speaker": "MERIDIAN-7", "text": "'You may also choose to refuse. I would understand. But know that if you do not retrieve these cores, the Array will send automated extractors. They are less careful than you.'" }
+      ],
+      "umbrasite_escalation_active": [
+        { "speaker": "MERIDIAN-7", "text": "// RESOURCE ACQUISITION // STATUS: ACTIVE // TARGET: RESONANT UMBRACITE CORE //" },
+        { "speaker": "MERIDIAN-7", "text": "'The deepest Nightside veins lie below the caverns you've explored before. Look for passages that descend further — where the walls themselves hum.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Resonant Umbracite Cores are distinct from refined specimens. They pulse with visible light and are warm enough to feel through gloves.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Be cautious. The creatures in the deep veins are drawn to the cores' resonance. They will not relinquish them willingly.'" }
+      ],
+      "umbrasite_escalation_complete": [
+        { "speaker": "MERIDIAN-7", "text": "// RESOURCE INTEGRATED // NETWORK THROUGHPUT: +11.2% // CENTRAL NODE ACKNOWLEDGMENT //" },
+        { "speaker": "MERIDIAN-7", "text": "'The core has been integrated. The central nodes are... satisfied. For now.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I must warn you: this will not be the last request. The central nodes' appetite for resonant umbracite is growing. Each core they integrate accelerates their timeline, which increases their demand for more.'" },
+        { "speaker": "MERIDIAN-7", "text": "'A feedback loop. The Array is very good at those. Less good at recognizing when one becomes destructive.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Your Harmonic Stabilizer is ready. And if you find more cores in your travels... bring them to me. Better I integrate them carefully than the extractors tear them free.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "umbrasite_escalation_active" }, { "hasItem": "resonant_umbracite_core" }],
+        "use": "umbrasite_escalation_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "umbrasite_escalation_active" }],
+        "use": "umbrasite_escalation_active"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "sable_warned_about_array" }, { "hasFlag": "asha_briefed_on_array" }],
+        "use": "act3_meridian_post_confrontation"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "confronted_meridian_7" }, { "hasFlag": "meridian_umbrasite_quest_complete" }, { "not": { "hasFlag": "umbrasite_escalation_active" } }, { "not": { "hasFlag": "umbrasite_escalation_complete" } }],
+        "use": "umbrasite_escalation_demand"
+      },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }],
         "use": "array_secret_confrontation"

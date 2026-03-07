@@ -155,6 +155,35 @@
         { "type": "grantXp", "amount": 60 }
       ],
       "once": true
+    },
+    {
+      "id": "asha_briefed_on_secret",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "not": { "hasFlag": "asha_briefed_on_array" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_briefed_on_array" },
+        { "type": "grantXp", "amount": 35 },
+        { "type": "showMessage", "text": "Councillor Asha Denn receives your report with grim composure. The Council will never be the same." }
+      ],
+      "once": true
+    },
+    {
+      "id": "thorne_post_secret",
+      "event": "npc_interacted",
+      "filter": { "npcType": "liaison_thorne" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "not": { "hasFlag": "thorne_confronted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "thorne_confronted" },
+        { "type": "grantXp", "amount": 20 }
+      ],
+      "once": true
     }
   ]
 }

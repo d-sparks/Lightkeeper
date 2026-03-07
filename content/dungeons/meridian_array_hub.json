@@ -236,6 +236,88 @@
       "actions": [
         { "type": "showMessage", "text": "MERIDIAN-7: 'The offer remains open. Premium fabrication is reserved for proven partners.'" }
       ]
+    },
+    {
+      "id": "meridian_7_confronted",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "not": { "hasFlag": "confronted_meridian_7" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "confronted_meridian_7" },
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "lines": [
+          "The terminal's polite interface has been replaced by raw data streams. MERIDIAN-7 has dropped the pretense.",
+          "You now understand the Array's long game — and MERIDIAN-7 knows you understand."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "umbrasite_escalation_offer",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "hasFlag": "meridian_umbrasite_quest_complete" },
+        { "not": { "hasFlag": "umbrasite_escalation_active" } },
+        { "not": { "hasFlag": "umbrasite_escalation_complete" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "umbrasite_escalation", "prompt": "MERIDIAN-7 demands more umbrasite — larger quantities, deeper sources. The pretense of polite request is gone.", "options": [
+          { "label": "Accept", "description": "Retrieve a Resonant Umbracite Core from the deepest Nightside formations.", "value": "accept" },
+          { "label": "Refuse", "description": "Deny the Array's escalating demands.", "value": "refuse" }
+        ]}
+      ]
+    },
+    {
+      "id": "umbrasite_escalation_accept",
+      "event": "choice_made",
+      "filter": { "choiceId": "umbrasite_escalation", "value": "accept" },
+      "actions": [
+        { "type": "setFlag", "flag": "umbrasite_escalation_active" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'Good. I will not insult you with pleasantries. You know what we are. We know what you've seen.'",
+          "'The specimen I require is a Resonant Umbracite Core — found only in the deepest Nightside veins, where the crystal has been compressed by geological forces for millennia.'",
+          "'In exchange: an Array Harmonic Stabilizer. It will let you channel Sol energy with significantly less waste. A practical benefit for a practical arrangement.'"
+        ]}
+      ]
+    },
+    {
+      "id": "umbrasite_escalation_refuse",
+      "event": "choice_made",
+      "filter": { "choiceId": "umbrasite_escalation", "value": "refuse" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'Noted. But consider this: refusing the Array's request does not stop the Array's work. It simply means you are not part of it.'",
+          "'The offer remains. The Array is patient. You already know how patient.'"
+        ]}
+      ]
+    },
+    {
+      "id": "umbrasite_escalation_turn_in",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "umbrasite_escalation_active" },
+        { "hasItem": "resonant_umbracite_core" },
+        { "not": { "hasFlag": "umbrasite_escalation_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "resonant_umbracite_core" },
+        { "type": "giveItem", "itemType": "array_harmonic_stabilizer_chip" },
+        { "type": "setFlag", "flag": "umbrasite_escalation_complete" },
+        { "type": "grantXp", "amount": 80 },
+        { "type": "showMessage", "lines": [
+          "The terminal consumes the Resonant Umbracite Core with an almost hungry precision. Processing indicators spike across every display in the hub.",
+          "MERIDIAN-7: 'Core harmonic resonance confirmed. This specimen alone has improved network throughput by 11.2 percent. You continue to exceed expectations.'",
+          "'Your Harmonic Stabilizer is ready. And I suspect you will find more specimens in your travels. The deepest veins are never truly exhausted.'",
+          "'We are past pretense, you and I. But that does not mean we cannot be useful to each other.'"
+        ]}
+      ],
+      "once": true
     }
   ]
 }
