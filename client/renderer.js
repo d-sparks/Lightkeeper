@@ -206,6 +206,19 @@ class Renderer {
     this.overlayContainer.addChild(this.questArrowGfx);
     this.questObjective = null; // { label, tileX, tileY, sameRoom }
 
+    // Quest waypoint label on minimap
+    this.questWaypointText = new PIXI.Text('', {
+      fontFamily: 'monospace',
+      fontSize: 10,
+      fill: 0xffa726,
+      align: 'center',
+      strokeThickness: 2,
+      stroke: 0x000000,
+    });
+    this.questWaypointText.anchor.set(0.5, 1);
+    this.questWaypointText.visible = false;
+    this.overlayContainer.addChild(this.questWaypointText);
+
     // Lighting system (darkness overlay with light holes)
     this.ambientLight = 1.0;
     this._lightRT = null;
@@ -2325,16 +2338,15 @@ class Renderer {
         this.minimapGfx.endFill();
       }
 
-      // Quest objective pulsing dot
-      if (this.questObjective) {
-        const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+      // Quest objective waypoint marker
+      if (this.questObjective && this.questObjective.tileX != null) {
         const qp = isoPx(
           (this.questObjective.tileX + 0.5) * ts,
           (this.questObjective.tileY + 0.5) * ts
         );
-        this.minimapGfx.beginFill(0xffa726, pulse);
-        this.minimapGfx.drawCircle(qp.x, qp.y, questDotR);
-        this.minimapGfx.endFill();
+        this._drawQuestWaypoint(qp.x, qp.y, questDotR, this.questObjective, mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2, full);
+      } else {
+        this.questWaypointText.visible = false;
       }
 
       // Viewport circle at player position
@@ -2423,14 +2435,13 @@ class Renderer {
         this.minimapGfx.endFill();
       }
 
-      // Quest objective pulsing dot
-      if (this.questObjective) {
-        const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+      // Quest objective waypoint marker
+      if (this.questObjective && this.questObjective.tileX != null) {
         const qx = Math.round(mmX + this.questObjective.tileX * scale);
         const qy = Math.round(mmY + this.questObjective.tileY * scale);
-        this.minimapGfx.beginFill(0xffa726, pulse);
-        this.minimapGfx.drawCircle(qx, qy, questDotR);
-        this.minimapGfx.endFill();
+        this._drawQuestWaypoint(qx, qy, questDotR, this.questObjective, mmX - 2, mmY - 2, mmW + 4, mmH + 4, full);
+      } else {
+        this.questWaypointText.visible = false;
       }
 
       // Viewport rect
@@ -2451,6 +2462,93 @@ class Renderer {
       this.roomNameText.visible = true;
     } else {
       this.roomNameText.visible = false;
+    }
+  }
+
+  // --- Quest waypoint drawing helper (used by both iso and top-down minimap) ---
+
+  _drawQuestWaypoint(qx, qy, baseR, objective, mmLeft, mmTop, mmWidth, mmHeight, full) {
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+    const sameRoom = objective.sameRoom !== false;
+    const r = baseR;
+
+    // Check if the marker is inside the minimap bounds
+    const inside = qx >= mmLeft && qx <= mmLeft + mmWidth &&
+                   qy >= mmTop && qy <= mmTop + mmHeight;
+
+    if (inside) {
+      if (sameRoom) {
+        // Diamond marker for actual objective
+        this.minimapGfx.beginFill(0xffa726, 0.9);
+        this.minimapGfx.moveTo(qx, qy - r);
+        this.minimapGfx.lineTo(qx + r, qy);
+        this.minimapGfx.lineTo(qx, qy + r);
+        this.minimapGfx.lineTo(qx - r, qy);
+        this.minimapGfx.closePath();
+        this.minimapGfx.endFill();
+
+        // Pulsing outer ring
+        this.minimapGfx.lineStyle(1, 0xffa726, pulse);
+        this.minimapGfx.drawCircle(qx, qy, r + 3);
+        this.minimapGfx.lineStyle(0);
+      } else {
+        // Chevron/arrow marker for exit-toward-objective
+        const s = r + 1;
+        this.minimapGfx.beginFill(0xffa726, pulse);
+        // Right-pointing chevron
+        this.minimapGfx.moveTo(qx + s, qy);
+        this.minimapGfx.lineTo(qx - s * 0.3, qy - s);
+        this.minimapGfx.lineTo(qx, qy);
+        this.minimapGfx.lineTo(qx - s * 0.3, qy + s);
+        this.minimapGfx.closePath();
+        this.minimapGfx.endFill();
+
+        // Pulsing outer ring
+        this.minimapGfx.lineStyle(1, 0xffa726, pulse * 0.7);
+        this.minimapGfx.drawCircle(qx, qy, r + 3);
+        this.minimapGfx.lineStyle(0);
+      }
+    } else if (!full) {
+      // Edge indicator: clamp to minimap border and draw a small arrow
+      const cx = mmLeft + mmWidth / 2;
+      const cy = mmTop + mmHeight / 2;
+      const dx = qx - cx;
+      const dy = qy - cy;
+      const halfW = mmWidth / 2 - 4;
+      const halfH = mmHeight / 2 - 4;
+      const scale = Math.min(
+        Math.abs(halfW / (dx || 0.001)),
+        Math.abs(halfH / (dy || 0.001))
+      );
+      const edgeX = cx + dx * scale;
+      const edgeY = cy + dy * scale;
+
+      // Draw pulsing triangle pointing outward
+      const angle = Math.atan2(dy, dx);
+      const s = 4;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      this.minimapGfx.beginFill(0xffa726, pulse);
+      this.minimapGfx.moveTo(edgeX + cos * s, edgeY + sin * s);
+      this.minimapGfx.lineTo(edgeX + (-sin * s * 0.7 - cos * s * 0.5), edgeY + (cos * s * 0.7 - sin * s * 0.5));
+      this.minimapGfx.lineTo(edgeX + (sin * s * 0.7 - cos * s * 0.5), edgeY + (-cos * s * 0.7 - sin * s * 0.5));
+      this.minimapGfx.closePath();
+      this.minimapGfx.endFill();
+
+      qx = edgeX;
+      qy = edgeY;
+    }
+
+    // Show label in full map mode or when marker is inside compact minimap
+    if (objective.label && (full || inside)) {
+      const label = sameRoom ? objective.label : objective.label + ' \u2192';
+      this.questWaypointText.text = label;
+      this.questWaypointText.x = Math.round(qx);
+      this.questWaypointText.y = Math.round(qy - r - 4);
+      this.questWaypointText.visible = true;
+      this.questWaypointText.style.fontSize = full ? 12 : 9;
+    } else {
+      this.questWaypointText.visible = false;
     }
   }
 
