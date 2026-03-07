@@ -56,6 +56,12 @@
       ]
     },
     {
+      "tag": "treasure",
+      "width": { "min": 4, "max": 5 },
+      "height": { "min": 4, "max": 5 },
+      "centerTile": 10
+    },
+    {
       "tag": "ice_chamber",
       "depth": 3,
       "width": { "min": 6, "max": 8 },
@@ -132,6 +138,42 @@
       "depth": 4,
       "actions": [
         { "type": "showMessage", "text": "The Frost Warden's sanctum. The temperature plummets. Something stirs in the frozen dark." }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_{instanceId}",
+      "event": "door_interacted",
+      "maxDepth": 2,
+      "requiresRoom": "treasure",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_common", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "showMessage", "text": "You find supplies in the frozen crate." }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_{instanceId}",
+      "event": "door_interacted",
+      "depth": 3,
+      "requiresRoom": "treasure",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_uncommon", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "showMessage", "text": "The crate contains something valuable." }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_{instanceId}",
+      "event": "door_interacted",
+      "depth": 4,
+      "requiresRoom": "treasure",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_rare", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "showMessage", "text": "A rare find, preserved in ancient ice." }
       ],
       "once": true
     },

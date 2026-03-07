@@ -27,7 +27,7 @@
     3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
     3,1,1,2,1,3,1,2,1,1,1,1,1,1,2,1,3,1,2,1,1,3,
     3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
-    3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,10,1,1,3,
     3,6,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
   ],
@@ -102,6 +102,16 @@
         ]},
         { "type": "setFlag", "flag": "array_secret_discovered" },
         { "type": "grantXp", "amount": 50 }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_deep_processing",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "geothermal_biome_uncommon", "x": 18, "y": 17 },
+        { "type": "showMessage", "text": "A heat-shielded supply crate. Still sealed." }
       ],
       "once": true
     },

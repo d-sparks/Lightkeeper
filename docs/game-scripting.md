@@ -139,7 +139,7 @@ Events are emitted automatically by the game loop. You don't create them — you
 | `item_picked_up` | Player picks up a ground item | `itemType`, `itemName` |
 | `monster_killed` | Player kills a monster | `monsterType`, `monsterId` |
 | `npc_interacted` | Player talks to an NPC | `npcType`, `npcId` |
-| `door_interacted` | Player opens/closes a door | `tileX`, `tileY` |
+| `door_interacted` | Player opens/closes a door | `tileX`, `tileY`, `tileName` |
 | `room_entered` | Player enters a room | `dungeonId` |
 | `player_death` | Player dies | — |
 | `flag_changed` | A flag was set/changed | `flag`, `value`, `scope` |
@@ -288,6 +288,14 @@ Coordinates are in tile units.
 ```json
 { "type": "giveItem", "itemType": "iron_key" }
 ```
+
+#### `rollLootTable` — Roll from a loot table and spawn the result
+
+```json
+{ "type": "rollLootTable", "lootTable": "frost_biome_common", "x": 5, "y": 3 }
+```
+
+Picks a random item from the named loot table (weighted selection, ignores `dropChance`) and spawns it as a ground item. Coordinates are in tile units. If `x`/`y` are omitted, falls back to the `door_interacted` event's tile position, then the player's position.
 
 #### `removeItem` — Remove from player inventory
 

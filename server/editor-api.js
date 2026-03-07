@@ -288,7 +288,7 @@ function handleEditorAPI(req, res) {
         { id: 'item_picked_up', description: 'Player picks up a ground item', payloadFields: ['itemType', 'itemName'] },
         { id: 'monster_killed', description: 'Player kills a monster', payloadFields: ['monsterType', 'monsterId'] },
         { id: 'npc_interacted', description: 'Player talks to an NPC', payloadFields: ['npcType', 'npcId'] },
-        { id: 'door_interacted', description: 'Player opens/closes a door', payloadFields: ['tileX', 'tileY'] },
+        { id: 'door_interacted', description: 'Player opens/closes a door', payloadFields: ['tileX', 'tileY', 'tileName'] },
         { id: 'room_entered', description: 'Player enters a room', payloadFields: ['dungeonId'] },
         { id: 'player_death', description: 'Player dies', payloadFields: [] },
         { id: 'flag_changed', description: 'A flag value changed', payloadFields: ['flag', 'value', 'scope'] },

@@ -162,6 +162,16 @@
       "togglesTo": 5,
       "conditions": [{ "hasFlag": "engineer_briefing_complete" }],
       "failMessage": "The gate is sealed. Talk to the Sol Engineer first."
+    },
+    "30": {
+      "name": "crate_closed",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 31
+    },
+    "31": {
+      "name": "crate_opened",
+      "solid": false
     }
   }
 }

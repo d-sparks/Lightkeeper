@@ -24,7 +24,7 @@
     3,3,3,3,4,3,3,1,1,1,1,1,1,1,1,1,1,3,3,4,3,3,3,3,
     3,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,3,
     3,1,1,1,1,1,3,1,1,2,2,1,1,2,2,1,1,3,1,1,1,1,1,3,
-    3,1,1,2,1,1,3,1,1,2,2,1,1,2,2,1,1,3,1,1,2,1,1,3,
+    3,1,10,2,1,1,3,1,1,2,2,1,1,2,2,1,1,3,1,1,2,1,1,3,
     3,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,3,
     6,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,8,3,
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
@@ -81,6 +81,16 @@
           "Small labels on each chamber read: 'CATALYST ANALOG — BATCH [number].' The batch numbers are in the thousands."
         ]},
         { "type": "setFlag", "flag": "examined_synthesis_vats" }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_synthesis_lab",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "geothermal_biome_common", "x": 2, "y": 14 },
+        { "type": "showMessage", "text": "A supply crate, warped by heat but intact." }
       ],
       "once": true
     },

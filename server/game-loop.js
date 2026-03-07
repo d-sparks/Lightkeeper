@@ -2298,6 +2298,7 @@ class GameLoop {
         // Emit door_interacted scripting event
         this._emitGameEvent(EventBus.Events.DOOR_INTERACTED, {
           playerId, roomId, tileX: closestDoor.tx, tileY: closestDoor.ty,
+          tileName: closestDoor.tileDef.name,
         }, ctx);
 
         return {

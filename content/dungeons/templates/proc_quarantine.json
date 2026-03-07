@@ -166,7 +166,8 @@
       "requiresRoom": "treasure",
       "filter": { "tileX": "{treasure.cx}", "tileY": "{treasure.cy}" },
       "actions": [
-        { "type": "spawnItem", "itemType": "titanium_cylinders", "x": "{treasure.cx}", "y": "{treasure.cy}" }
+        { "type": "spawnItem", "itemType": "titanium_cylinders", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "rollLootTable", "lootTable": "outpost_biome_uncommon", "x": "{treasure.cx}", "y": "{treasure.cy}" }
       ],
       "once": true
     }
