@@ -2245,11 +2245,24 @@
       onboardMove.style.display = '';
     }
 
-    // Start background music
+    // Start background music — prefer biome-specific ambient track, fall back to generic
     audio.resume();
     const roomName = (msg.map && msg.map.name || '').toLowerCase();
+    const tileset = (msg.map && msg.map.tileset || '');
+    const biomeTrackMap = {
+      nightside: 'ambient_nightside',
+      dayside: 'ambient_dayside',
+      fungal_forest: 'ambient_fungal',
+      frost_crypt: 'ambient_frost',
+      crypt: 'ambient_crypt',
+      geothermal: 'ambient_geothermal'
+    };
     if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
       audio.playMusic('outpost');
+    } else if (roomName.includes('meridian')) {
+      audio.playMusic(audio.hasMusic('ambient_meridian') ? 'ambient_meridian' : 'outpost');
+    } else if (biomeTrackMap[tileset] && audio.hasMusic(biomeTrackMap[tileset])) {
+      audio.playMusic(biomeTrackMap[tileset]);
     } else {
       audio.playMusic('dungeon');
     }

@@ -137,6 +137,183 @@
     ]
   },
 
+  "ambient_crypt": {
+    "_comment": "Default crypt/underground biome ambient — sparse, echoey. Placeholder for real assets.",
+    "bpm": 50,
+    "wave": "sine",
+    "volume": 0.08,
+    "pattern": [
+      { "freq": 98, "bass": 49, "len": 3 },
+      null,
+      null,
+      { "freq": 110, "len": 2 },
+      null,
+      null,
+      null,
+      { "freq": 87, "bass": 44, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      { "freq": 98, "len": 2 },
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_nightside": {
+    "_comment": "Nightside biome — deep, oppressive darkness. Very low register, slow.",
+    "bpm": 40,
+    "wave": "sine",
+    "volume": 0.06,
+    "pattern": [
+      { "freq": 55, "bass": 28, "len": 4 },
+      null,
+      null,
+      null,
+      null,
+      { "freq": 65, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      { "freq": 49, "bass": 25, "len": 4 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_dayside": {
+    "_comment": "Dayside/solar fields biome — brighter, warmer tones. Placeholder.",
+    "bpm": 60,
+    "wave": "triangle",
+    "volume": 0.10,
+    "pattern": [
+      { "freq": 220, "bass": 110, "len": 2 },
+      null,
+      { "freq": 262, "len": 2 },
+      null,
+      { "freq": 247, "bass": 123, "len": 2 },
+      null,
+      null,
+      { "freq": 220, "len": 2 },
+      null,
+      null,
+      { "freq": 196, "bass": 98, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_fungal": {
+    "_comment": "Fungal forest biome — organic, damp, strange harmonics. Placeholder.",
+    "bpm": 45,
+    "wave": "triangle",
+    "volume": 0.07,
+    "pattern": [
+      { "freq": 147, "bass": 73, "len": 2 },
+      null,
+      { "freq": 175, "len": 1 },
+      null,
+      null,
+      { "freq": 131, "bass": 65, "len": 2 },
+      null,
+      null,
+      { "freq": 165, "len": 1 },
+      null,
+      { "freq": 147, "bass": 73, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_frost": {
+    "_comment": "Frost crypt biome — cold, crystalline, high sparse notes. Placeholder.",
+    "bpm": 42,
+    "wave": "sine",
+    "volume": 0.07,
+    "pattern": [
+      { "freq": 330, "bass": 82, "len": 3 },
+      null,
+      null,
+      null,
+      { "freq": 392, "len": 2 },
+      null,
+      null,
+      null,
+      null,
+      { "freq": 294, "bass": 73, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_meridian": {
+    "_comment": "Meridian city biome — urban, slightly busier than outpost. Placeholder.",
+    "bpm": 58,
+    "wave": "sine",
+    "volume": 0.09,
+    "pattern": [
+      { "freq": 247, "bass": 123, "len": 2 },
+      null,
+      { "freq": 262, "len": 1 },
+      null,
+      { "freq": 294, "bass": 147, "len": 2 },
+      null,
+      { "freq": 262, "len": 1 },
+      null,
+      null,
+      { "freq": 247, "bass": 123, "len": 2 },
+      null,
+      null,
+      { "freq": 220, "len": 2 },
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_geothermal": {
+    "_comment": "Geothermal biome — rumbling, warm, low-mid frequencies. Placeholder.",
+    "bpm": 48,
+    "wave": "sawtooth",
+    "volume": 0.06,
+    "pattern": [
+      { "freq": 82, "bass": 41, "len": 3 },
+      null,
+      null,
+      { "freq": 98, "len": 2 },
+      null,
+      null,
+      { "freq": 73, "bass": 37, "len": 3 },
+      null,
+      null,
+      null,
+      { "freq": 87, "len": 2 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
   "boss_crystal": {
     "_comment": "Crystal Guardian boss theme — higher register, triangle wave for crystalline resonance, driving tempo",
     "bpm": 140,

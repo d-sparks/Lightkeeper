@@ -68,6 +68,11 @@ class AudioManager {
     }
   }
 
+  // Check if a music track is defined
+  hasMusic(id) {
+    return !!this.musicDefs[id];
+  }
+
   // Play a sound effect by id
   play(id, opts) {
     if (!this.ctx || this.muted) return;
