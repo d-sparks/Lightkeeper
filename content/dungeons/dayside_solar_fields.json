@@ -61,7 +61,9 @@
   ],
   "exits": [
     { "x": 15, "y": 28, "leadsTo": "train_station", "type": "stairs_up", "spawnX": 12, "spawnY": 2 },
-    { "x": 27, "y": 1, "leadsTo": "array_synthesis_lab", "type": "stairs_down", "spawnX": 1, "spawnY": 15 }
+    { "x": 27, "y": 1, "leadsTo": "array_synthesis_lab", "type": "stairs_down", "spawnX": 1, "spawnY": 15,
+      "conditions": [{ "hasFlag": "meridian_umbrasite_quest_complete" }],
+      "failMessage": "A reinforced hatch sealed with Array security protocols. Whatever lies beyond, the Array isn't letting anyone in uninvited." }
   ],
   "triggers": [
     {

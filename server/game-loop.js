@@ -2301,7 +2301,24 @@ class GameLoop {
       const playerTY = Math.floor(player.y / CONSTANTS.TILE_SIZE);
 
       for (const exit of room.dungeon.exits) {
+        const cooldownFlag = `_exit_blocked_${exit.x}_${exit.y}`;
         if (playerTX === exit.x && playerTY === exit.y) {
+          // Check conditions on exit (e.g. quest completion, key items)
+          if (exit.conditions) {
+            const ctx = this._scriptContext(pid, room.id);
+            if (!this.conditions.evaluate(exit.conditions, ctx)) {
+              // Show fail message and block transition (once per approach)
+              if (!player[cooldownFlag]) {
+                player[cooldownFlag] = true;
+                const failMsg = exit.failMessage || 'You can\'t go there yet.';
+                this.actions.sendToPlayer(pid, {
+                  type: CONSTANTS.MSG.DIALOGUE,
+                  dialogue: [{ speaker: '', text: failMsg }],
+                });
+              }
+              continue;
+            }
+          }
           this.pendingTransitions.push({
             playerId: pid,
             fromRoom: room.id,
@@ -2314,6 +2331,9 @@ class GameLoop {
             depth: exit.depth,
           });
           break;
+        } else if (player[cooldownFlag]) {
+          // Player stepped off — reset so message shows again on next approach
+          delete player[cooldownFlag];
         }
       }
     }

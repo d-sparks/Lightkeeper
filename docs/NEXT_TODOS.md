@@ -63,8 +63,8 @@ All done:
 - Add placeholder sprites for array_sentinel and array_fabricator monsters
 - Add loot tables for array_sentinel and array_fabricator (currently undefined)
 - Add generate-sprites.js entries for new Array construct monsters
-- Consider gating array_synthesis_lab access behind umbrasite quest completion (currently open)
-- Add array_clearance_badge as a key requirement for array_deep_processing door (currently unused key item)
+- ~~Consider gating array_synthesis_lab access behind umbrasite quest completion~~ DONE: exit conditions added
+- ~~Add array_clearance_badge as a key requirement for array_deep_processing door~~ DONE: exit requires hasItem check
 - Wire array_secret_discovered flag into MERIDIAN-7 dialogue at the Hub (confrontation dialogue)
 - Wire array_secret_discovered flag into Sable, Asha, or Council NPC dialogue for Act 3 progression
 - Consider adding an Array overseer mini-boss in array_deep_processing

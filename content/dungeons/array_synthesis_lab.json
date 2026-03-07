@@ -52,7 +52,9 @@
   ],
   "exits": [
     { "x": 0, "y": 16, "leadsTo": "dayside_solar_fields", "type": "stairs_up", "spawnX": 8, "spawnY": 12 },
-    { "x": 22, "y": 16, "leadsTo": "array_deep_processing", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 22, "y": 16, "leadsTo": "array_deep_processing", "type": "stairs_down", "spawnX": 1, "spawnY": 1,
+      "conditions": [{ "hasItem": "array_clearance_badge" }],
+      "failMessage": "A security checkpoint. The scanner flashes red — CLEARANCE LEVEL 2 REQUIRED. You need an Array Clearance Badge to proceed." }
   ],
   "triggers": [
     {
