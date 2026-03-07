@@ -1,1 +1,0 @@
-Done. Removed the `damage_booster_chip` drop from the warlord kill trigger in `content/dungeons/templates/proc_quarantine.json` and updated the message text accordingly. The player already receives a Damage Booster Chip from the engineer quest in the workshop, so the duplicate drop was unnecessary.

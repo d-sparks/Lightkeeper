@@ -1,9 +1,0 @@
-Done. Here's what was changed across 4 JSON files:
-
-**Quest flow** (`main_quest.json`): Added a new `report_to_warden` step between `charge_sol_unit` and `cross_perimeter`. The quest arrow points players back to Holt at the outpost entrance.
-
-**Warden Holt dialogue** (`npcs.json`): Added a `sol_unit_charged` dialogue set where Holt acknowledges the charged unit, tells the player about the perimeter gate to the north, warns about the dark perimeter, and directs them toward the train station and Meridian City. After talking, the existing `ready_to_leave` dialogue kicks in for repeat visits.
-
-**Outpost entrance** (`outpost_entrance.json`): Modified the `remove_warden_after_warlord` trigger so Holt is no longer removed once `sol_unit_charged` is set — he returns to his post at the entrance. Added a `report_charged_to_warden` trigger that sets the `ready_for_perimeter` flag when the player talks to him.
-
-**Workshop** (`outpost_workshop.json`): Added a trigger to remove workshop-Holt when `sol_unit_charged` is set, so he only appears at the entrance after charging (not in both places).

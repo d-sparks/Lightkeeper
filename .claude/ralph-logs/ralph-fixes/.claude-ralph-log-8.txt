@@ -1,9 +1,0 @@
-Done. Here's what was wrong and what I changed:
-
-**Root cause**: When the player reaches depth 3 of the quarantine wing, `_sendQuestObjective` in `game-loop.js:591` iterated `room.monsters.values()` and grabbed the **first** monster it found as the arrow target. Since the procedural dungeon has ~10 random monsters scattered across the level, the first one was typically a luddite_brawler near the entrance — not the warlord in the boss room.
-
-**Fix** (2 files):
-1. **`content/quests/main_quest.json`** — Added `"targetMonster": "luddite_warlord"` to the `find_warlord_key` objective
-2. **`server/game-loop.js`** — When `obj.targetMonster` is set, skip monsters that don't match the type before selecting an arrow target
-
-The `targetMonster` field is generic so it can be reused for any future quest that needs to point at a specific monster type.

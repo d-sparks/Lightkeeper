@@ -1,6 +1,0 @@
-The plan covers:
-
-- **Content**: `content/world/worldmap.json` with zones, ~12 locations (Outpost Balor always visible, Lighthouse Mara as "???"), and connection paths
-- **Server**: Load worldmap data, compute discovery from existing flag store, send on join + floor changes
-- **Client**: HTML/CSS overlay (same pattern as automation screen), zone color bands, location markers with fog-of-war edges, SVG connection lines
-- **Input**: `N` key, gamepad Back button, mobile HUD button — all close with Escape/B/toggle

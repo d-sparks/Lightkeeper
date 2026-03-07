@@ -1,6 +1,0 @@
-Done. The fix:
-
-- **`client/main.js`**: Extended `updateCooldownOverlays()` to also create/update `.cooldown-overlay` divs on mobile `.ability-btn` elements, not just desktop `.action-slot` elements.
-- **`client/index.html`**: Added a `.ability-btn .cooldown-overlay` CSS rule with larger font (16px) and matching border-radius for the mobile buttons.
-
-The cooldown overlay appears as a semi-transparent dark overlay with the remaining seconds, identical behavior to desktop.
