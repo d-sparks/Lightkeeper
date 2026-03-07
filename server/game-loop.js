@@ -228,14 +228,16 @@ class GameLoop {
           attackTimer: 0,
           ai: def.ai,
           facing: 0,
+          idleMode: spawn.patrol || 'stationary',
         };
         // Ambush: start hidden until player is close
         if (def.ai === 'ambush') {
           mob.hidden = true;
           mob.ambushRevealed = false;
         }
-        // Patrol: set up waypoint walking state
-        if (def.ai === 'patrol') {
+        // Wander/patrol idle: set up wandering state
+        const idleWanders = mob.idleMode === 'wander' || mob.idleMode === 'patrol' || def.ai === 'patrol';
+        if (idleWanders) {
           mob.patrolAngle = Math.random() * Math.PI * 2;
           mob.patrolTimer = 0;
           mob.patrolState = 'walking'; // 'walking' or 'waiting'
@@ -1721,9 +1723,15 @@ class GameLoop {
       }
 
       if (!mob.aggroTarget && nearestDist > aggroRange) {
-        // Patrol: wander near spawn when no player in aggro range
-        if (mob.ai === 'patrol') {
+        // Idle behavior based on spawn patrol mode
+        const idleWanders = mob.idleMode === 'wander' || mob.idleMode === 'patrol' || mob.ai === 'patrol';
+        if (idleWanders) {
           this._updatePatrol(mob, room.dungeon, dt);
+        } else if (mob.idleMode === 'guard') {
+          // Guard: face nearest player but don't move
+          if (nearest) {
+            mob.facing = Math.atan2(nearest.y - mob.y, nearest.x - mob.x);
+          }
         }
         continue;
       }
