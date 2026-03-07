@@ -128,6 +128,42 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "underlumen_nexus_manifest",
+      "event": "door_interacted",
+      "filter": { "tileX": 9, "tileY": 6 },
+      "conditions": [
+        { "hasFlag": "underlumen_contact" },
+        { "hasFlag": "crystal_guardian_defeated" },
+        { "not": { "hasFlag": "underlumen_nexus_acquired" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_nexus_acquired", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "You touch the resonance point again. This time, the response is different.",
+          "The crystal veins in the walls blaze with light. The hum rises to a tone — almost a voice. The Underlumen is offering something.",
+          "The stone splits open beneath your hand. Inside, embedded in crystalline substrate older than human civilization: a Sol Unit frame. Not manufactured. Grown. Crystallized over millennia by the planetary network itself.",
+          "The Underlumen Nexus. 8x8 grid of pure crystalline substrate. It resonates with the planet's own frequency, cycling abilities 15% faster than anything human-built.",
+          "The hum fades. The light dims. But the Nexus pulses steadily in your hands — a heartbeat synchronized with the world beneath your feet."
+        ]},
+        { "type": "spawnItem", "itemType": "underlumen_nexus", "x": 9, "y": 5 },
+        { "type": "grantXp", "amount": 100 }
+      ],
+      "once": true
+    },
+    {
+      "id": "underlumen_nexus_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "underlumen_nexus" },
+      "actions": [
+        { "type": "setFlag", "flag": "has_underlumen_nexus", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "The Nexus integrates seamlessly with your equipment. Its crystalline substrate is warm — alive in a way that defies explanation.",
+          "8x8 grid. 15% cooldown reduction on all abilities. The largest, most powerful Sol Unit frame in existence. A gift from something vast and patient."
+        ]}
+      ],
+      "once": true
     }
   ]
 }

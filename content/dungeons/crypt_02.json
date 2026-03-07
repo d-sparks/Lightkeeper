@@ -74,6 +74,48 @@
         { "type": "showMessage", "text": "You carefully harvest the bioluminescent moss. Dr. Vasik can use this to make the healing salve." }
       ],
       "once": true
+    },
+    {
+      "id": "crypt_02_track_kills",
+      "event": "monster_killed",
+      "conditions": [
+        { "not": { "hasFlag": "crypt_02_cleared" } }
+      ],
+      "actions": [
+        { "type": "incrementFlag", "flag": "crypt_02_kills", "scope": "player" }
+      ]
+    },
+    {
+      "id": "crypt_02_clear_reward",
+      "event": "monster_killed",
+      "conditions": [
+        { "flagGreaterThan": { "flag": "crypt_02_kills", "value": 4 } },
+        { "not": { "hasFlag": "crypt_02_cleared" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "crypt_02_cleared", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "As the last creature falls, you hear a grinding sound from the far wall. A section of stone slides aside, revealing a hidden alcove.",
+          "Inside: a Sol Unit frame unlike anything you've seen at the outpost. Dark-tuned circuitry, Unbounded markings scratched into the casing. Someone stashed this here — an engineer who knew the crypts.",
+          "The Nightcaster Frame. Built for hitting hard in the deep dark."
+        ]},
+        { "type": "spawnItem", "itemType": "nightcaster_frame", "x": 12, "y": 6 },
+        { "type": "grantXp", "amount": 40 }
+      ],
+      "once": true
+    },
+    {
+      "id": "nightcaster_frame_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "nightcaster_frame" },
+      "actions": [
+        { "type": "setFlag", "flag": "has_nightcaster_frame", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "The Nightcaster Frame hums as you pick it up. Its dark-tuned emitters are already calibrated — ready to amplify damage by 20%.",
+          "Compact 5x5 grid with cold resistance. An Unbounded raider's weapon of choice."
+        ]}
+      ],
+      "once": true
     }
   ]
 }

@@ -177,6 +177,65 @@
           "'And Lightkeeper — if you find more refined specimens in your travels, the Array's appetite is... considerable.'"
         ]}
       ]
+    },
+    {
+      "id": "precision_core_offer",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "meridian_umbrasite_quest_complete" },
+        { "not": { "hasFlag": "precision_core_acquired" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "precision_core_trade", "prompt": "MERIDIAN-7: 'Your contributions have earned you access to our premium fabrication line. I can offer you something... special.'", "options": [
+          { "label": "Array Precision Core", "description": "A 6x6 Sol Unit with 200 charge and 20% energy cost reduction. Requires: Crystallized Umbracite.", "value": "trade" },
+          { "label": "Not now", "description": "Decline for now.", "value": "decline" }
+        ]}
+      ]
+    },
+    {
+      "id": "precision_core_trade_accept",
+      "event": "choice_made",
+      "filter": { "choiceId": "precision_core_trade", "value": "trade" },
+      "conditions": [
+        { "hasItem": "crystallized_umbracite" }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "crystallized_umbracite" },
+        { "type": "giveItem", "itemType": "array_precision_core" },
+        { "type": "setFlag", "flag": "precision_core_acquired" },
+        { "type": "grantXp", "amount": 75 },
+        { "type": "showMessage", "lines": [
+          "The terminal processes the crystallized umbracite with visible reverence. Robotic arms draw it into the fabrication chamber.",
+          "Minutes pass. Then a compartment opens, releasing a wave of warm, sterile air. Inside: the Array Precision Core — polished to a mirror finish, every circuit etched with mathematical precision.",
+          "MERIDIAN-7: 'The Precision Core represents the pinnacle of Array engineering. 6x6 grid, 200-charge reservoir, 20% energy cost reduction on all abilities. Heat-shielded for dayside operations.'",
+          "'What MERIDIAN-7 builds, MERIDIAN-7 builds well. Use it wisely, Lightkeeper.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "precision_core_trade_no_crystal",
+      "event": "choice_made",
+      "filter": { "choiceId": "precision_core_trade", "value": "trade" },
+      "conditions": [
+        { "not": { "hasItem": "crystallized_umbracite" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'The fabrication process requires a Crystallized Umbracite specimen — a perfectly formed crystal from the deepest Nightside formations.'",
+          "'Raw umbracite will not suffice. The crystal lattice structure is essential for calibrating the Precision Core's energy management systems.'",
+          "'Return when you have acquired one. The Array is patient.'"
+        ]}
+      ]
+    },
+    {
+      "id": "precision_core_trade_decline",
+      "event": "choice_made",
+      "filter": { "choiceId": "precision_core_trade", "value": "decline" },
+      "actions": [
+        { "type": "showMessage", "text": "MERIDIAN-7: 'The offer remains open. Premium fabrication is reserved for proven partners.'" }
+      ]
     }
   ]
 }
