@@ -604,6 +604,48 @@
         ctx.fillText('YOU ARE HERE', px, py - 14);
       }
     }
+
+    // Quest objective marker
+    const qObj = renderer.questObjective;
+    if (qObj && qObj.targetLocationId && qObj.targetLocationId !== worldmapCurrentLocation) {
+      const targetLoc = locMap[qObj.targetLocationId];
+      if (targetLoc) {
+        const px = locX(targetLoc.x);
+        const py = locY(targetLoc.y);
+        const pulse = 0.4 + 0.6 * Math.sin(now / 300);
+
+        // Pulsing outer ring
+        ctx.beginPath();
+        ctx.arc(px, py, 14, 0, Math.PI * 2);
+        ctx.strokeStyle = '#ffa726';
+        ctx.globalAlpha = pulse * 0.6;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // Diamond marker above the location dot
+        const dy = -16;
+        const s = 5;
+        ctx.beginPath();
+        ctx.moveTo(px, py + dy - s);
+        ctx.lineTo(px + s, py + dy);
+        ctx.lineTo(px, py + dy + s);
+        ctx.lineTo(px - s, py + dy);
+        ctx.closePath();
+        ctx.fillStyle = '#ffa726';
+        ctx.globalAlpha = 0.9;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Label
+        const label = qObj.questName || qObj.label || 'Objective';
+        ctx.fillStyle = '#ffa726';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(label, px, py - 22);
+      }
+    }
   }
 
   function getLocationIcon(iconType) {

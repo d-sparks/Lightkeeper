@@ -654,6 +654,11 @@ class GameLoop {
       }
     }
 
+    // Resolve worldmap location for the target room (for worldmap markers)
+    const targetLocationId = targetRoomId
+      ? this.content.getWorldmapLocation(targetRoomId)
+      : null;
+
     if (this.actions.sendToPlayer) {
       this.actions.sendToPlayer(playerId, {
         type: CONSTANTS.MSG.QUEST_OBJECTIVE,
@@ -664,6 +669,7 @@ class GameLoop {
           tileX,
           tileY,
           sameRoom,
+          targetLocationId,
         },
       });
     }
