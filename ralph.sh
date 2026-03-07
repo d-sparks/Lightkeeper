@@ -22,6 +22,53 @@ ONLY=""
 MAX_TURNS=100
 YOLO=false
 LOG_DIR="$REPO_ROOT/.claude/ralph-logs"
+FIVE_HOUR_LIMIT=80
+SEVEN_DAY_DAILY_RESERVE=14  # Reserve 14% of 7-day capacity per remaining day
+
+# ─── Rate limit check ────────────────────────────────────────
+# Runs cclimits and blocks until:
+#   - 5h window is under 80%
+#   - 7d window has enough headroom (reserves 14% per remaining day)
+wait_for_capacity() {
+  while true; do
+    local output
+    output="$(cclimits 2>/dev/null)" || { echo "  cclimits failed, waiting 60s..."; sleep 60; continue; }
+
+    local five_hour seven_day reset_time
+    five_hour="$(echo "$output" | grep -A1 '5-Hour Window' | grep 'Used:' | grep -oP '[\d.]+')"
+    seven_day="$(echo "$output" | grep -A1 '7-Day Window' | grep 'Used:' | grep -oP '[\d.]+')"
+    # Parse "Resets in: 153h 28m" for 7-day window
+    reset_time="$(echo "$output" | grep -A3 '7-Day Window' | grep 'Resets in:' | grep -oP '[\d]+(?=h)')"
+
+    if [[ -z "$five_hour" || -z "$seven_day" || -z "$reset_time" ]]; then
+      echo "  Could not parse cclimits output, waiting 60s..."
+      sleep 60
+      continue
+    fi
+
+    local five_int="${five_hour%%.*}"
+    local seven_int="${seven_day%%.*}"
+
+    # Dynamic 7-day limit: reserve 14% per remaining day
+    local days_remaining=$(( (reset_time + 23) / 24 ))  # round up
+    local reserved=$(( days_remaining * SEVEN_DAY_DAILY_RESERVE ))
+    local seven_day_limit=$(( 100 - reserved ))
+    # Clamp to at least 0
+    if [[ "$seven_day_limit" -lt 0 ]]; then seven_day_limit=0; fi
+
+    local ok=true
+    if [[ "$five_int" -ge "$FIVE_HOUR_LIMIT" ]]; then ok=false; fi
+    if [[ "$seven_int" -ge "$seven_day_limit" ]]; then ok=false; fi
+
+    if $ok; then
+      echo "  Usage OK (5h: ${five_hour}%, 7d: ${seven_day}% / limit ${seven_day_limit}%, ${reset_time}h to reset)"
+      return 0
+    fi
+
+    echo "  Usage too high (5h: ${five_hour}%/${FIVE_HOUR_LIMIT}%, 7d: ${seven_day}%/${seven_day_limit}%) — waiting 5m..."
+    sleep 300
+  done
+}
 
 # ─── Parse args ───────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -111,7 +158,15 @@ while true; do
   # ─── Run each task ──────────────────────────────────────────
   for i in "${!TASKS[@]}"; do
     num=$((i + 1))
-    task="${TASKS[$i]}"
+    raw_task="${TASKS[$i]}"
+
+    # Parse optional [model] prefix, e.g. "[sonnet] Do something"
+    task_model=""
+    task="$raw_task"
+    if [[ "$raw_task" =~ ^\[([a-zA-Z0-9._-]+)\]\ (.+) ]]; then
+      task_model="${BASH_REMATCH[1]}"
+      task="${BASH_REMATCH[2]}"
+    fi
 
     # Apply --start filter (first pass only)
     if [[ "$PASS" -eq 1 && "$num" -lt "$START_AT" ]]; then continue; fi
@@ -121,14 +176,23 @@ while true; do
     echo ""
     echo "  ───────────────────────────────────────────────────"
     echo "  TODO #${num}: ${task:0:80}$([ ${#task} -gt 80 ] && echo '...')"
+    if [[ -n "$task_model" ]]; then
+      echo "  Model: ${task_model}"
+    fi
     echo "  ───────────────────────────────────────────────────"
+
+    # Wait until usage is under the limit before starting
+    wait_for_capacity
 
     prompt="$(build_prompt "$task")"
 
-    echo "  Running Claude (max ${MAX_TURNS} turns)..."
+    echo "  Running Claude (max ${MAX_TURNS} turns, model: ${task_model:-default})..."
     echo ""
 
     CLAUDE_ARGS=(--max-turns "$MAX_TURNS" --verbose)
+    if [[ -n "$task_model" ]]; then
+      CLAUDE_ARGS+=(--model "$task_model")
+    fi
     if $YOLO; then
       CLAUDE_ARGS+=(--dangerously-skip-permissions)
     fi
