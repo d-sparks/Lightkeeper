@@ -188,6 +188,38 @@
         { "type": "showMessage", "text": "The Elder Sporecap collapses, releasing a final cloud of luminescent spores. Tough fibers remain." }
       ],
       "once": true
+    },
+    {
+      "id": "greenway_bioframe_drop_{instanceId}",
+      "event": "monster_killed",
+      "depth": 4,
+      "filter": { "monsterType": "elder_sporecap" },
+      "conditions": [
+        { "not": { "hasFlag": "has_greenway_bioframe" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "As the Elder Sporecap dies, the mycelium network beneath your feet flares bright. Tendrils rise from the ground, weaving together with deliberate purpose.",
+          "They form around something buried in the chamber wall. A Sol Unit frame integrated with living tissue — grown by the fungal network itself. The Greenway Bioframe."
+        ]},
+        { "type": "spawnItem", "itemType": "greenway_bioframe" },
+        { "type": "grantXp", "amount": 60 }
+      ],
+      "once": true
+    },
+    {
+      "id": "greenway_bioframe_pickup_{instanceId}",
+      "event": "item_picked_up",
+      "depth": 4,
+      "filter": { "itemType": "greenway_bioframe" },
+      "actions": [
+        { "type": "setFlag", "flag": "has_greenway_bioframe", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "The Bioframe is warm and slightly yielding — living tissue woven through its circuitry. You can feel it adapting to your grip.",
+          "7x7 grid with symbiotic healing. Every strike feeds the bio-tech, and it feeds you back. Poison resistance built into its biology."
+        ]}
+      ],
+      "once": true
     }
   ],
 

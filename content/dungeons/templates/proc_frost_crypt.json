@@ -190,6 +190,38 @@
         { "type": "showMessage", "text": "The Frost Warden shatters. A frozen core clatters across the ice." }
       ],
       "once": true
+    },
+    {
+      "id": "nightcaster_frame_drop_{instanceId}",
+      "event": "monster_killed",
+      "depth": 4,
+      "filter": { "monsterType": "frost_warden" },
+      "conditions": [
+        { "not": { "hasFlag": "has_nightcaster_frame" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Among the Warden's shattered remains, something glints in the ice — a Sol Unit frame wedged into the frozen wall behind its throne.",
+          "Dark-tuned circuitry, Unbounded markings scratched into the casing. The Nightcaster Frame. Built for hitting hard in the deep dark."
+        ]},
+        { "type": "spawnItem", "itemType": "nightcaster_frame" },
+        { "type": "grantXp", "amount": 40 }
+      ],
+      "once": true
+    },
+    {
+      "id": "nightcaster_frame_pickup_{instanceId}",
+      "event": "item_picked_up",
+      "depth": 4,
+      "filter": { "itemType": "nightcaster_frame" },
+      "actions": [
+        { "type": "setFlag", "flag": "has_nightcaster_frame", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "The Nightcaster Frame hums as you pick it up. Its dark-tuned emitters are already calibrated — ready to amplify damage by 20%.",
+          "Compact 5x5 grid with cold resistance. An Unbounded raider's weapon of choice."
+        ]}
+      ],
+      "once": true
     }
   ],
 
