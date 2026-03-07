@@ -238,7 +238,26 @@ This means efficiency-type modifiers have dual use: they reduce ability energy c
    - **Underlumen Nexus** (8×8, 160 charge, -15% cooldown) — Endgame frame from deep ruins.
    Engine supports `innateBonus` field on sol unit defs, applied globally to all grid abilities and generators.
 2. **Extended adjacency modifiers** — Base adjacency is **4-directional** (up/down/left/right). Some rare/powerful modifiers could have extended reach: "radius 2", "entire row", "entire column". Design and implement these when the modifier pool expands.
-3. **Modifier stat ranges** — What are the actual numbers? How much does a common +Damage mod give vs a legendary one?
+3. ~~**Modifier stat ranges**~~ — **Resolved.** See below.
+
+### Modifier Stat Ranges by Rarity (Decided)
+
+Single-stat reference values per rarity tier:
+
+| Stat | Common | Uncommon | Rare | Epic | Legendary |
+|------|--------|----------|------|------|-----------|
+| damageMultiplier | 0.10 | 0.20 | 0.35 | 0.50 | 0.70 |
+| cooldownReduction | 0.08 | 0.15 | 0.22 | 0.30 | 0.40 |
+| energyCostReduction | 0.10 | 0.20 | 0.30 | 0.40 | 0.50 |
+| healOnHit | 2 | 3 | 5 | 8 | 12 |
+
+**Dual-stat modifiers** split their power budget across two stats, each at roughly 60-75% of the single-stat reference for that rarity. Example: a rare dual-stat mod might have damageMultiplier 0.20 + cooldownReduction 0.15 instead of a single stat at full rare value.
+
+**Faction modifiers** follow the same tiers but can skew toward their faction specialty (e.g. Nightside mods lean heavier on damage, Greenway on healOnHit, Dayside on energyCostReduction). The total power budget stays within tier bounds.
+
+**Legendary tier** is reserved for endgame chase items not yet defined in `sol_components.json`. These should feel like build-defining upgrades.
+
+Each modifier in `sol_components.json` has a `rarity` field. The engine reads bonuses directly from the JSON — no runtime scaling is applied. All rarity-based stat differentiation is baked into the content data.
 4. **Battery math** — Capacity per tier, energy costs per ability, how many casts does a full charge sustain at each game phase?
 5. **Harvester scaling** — Silicon collection rate, how many harvesters can you deploy, do better harvesters become available later?
 6. **Ability list** — Full catalog of abilities available from MERIDIAN-7, organized by unlock order.
