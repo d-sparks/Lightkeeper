@@ -1,7 +1,0 @@
-Done. Here's the summary:
-
-**Changes:**
-- **`package.json`**: Added `"test": "node tools/content-validator.js && node tools/headless-sim.js --mainline"` — content validator runs first, and if it passes (exit 0), the headless sim mainline quest follows
-- **`docs/NEXT_TODOS.md`**: Documented the 7 pre-existing content validation errors that need fixing before `npm test` will pass clean
-
-**Note:** `npm test` currently fails due to pre-existing content errors (missing `sol_cone` component, unset flags, unobtainable `supply_manifest` item). The errors are listed in NEXT_TODOS.md — once those are fixed, the full pipeline including the headless sim will run.

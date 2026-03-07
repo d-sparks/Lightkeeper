@@ -191,6 +191,42 @@ class QuestTracker {
     return null;
   }
 
+  // Returns objectives for all active quests (excluding the tracked one, which is handled separately).
+  // Used to show secondary waypoints on the minimap.
+  getAllActiveObjectives(playerId) {
+    const questMap = this.playerStates.get(playerId);
+    if (!questMap) return [];
+
+    const quests = this.content.getAllQuests();
+    const trackedId = this.trackedQuests.get(playerId);
+    const results = [];
+
+    for (const [questId, state] of questMap) {
+      if (questId === trackedId) continue; // skip tracked — it's the primary objective
+      const quest = quests[questId];
+      if (!state || !quest) continue;
+      for (const stepId of state.activeSteps) {
+        const stepDef = quest.steps[stepId];
+        if (stepDef && (stepDef.objective || stepDef.objectiveItem)) {
+          const obj = {
+            questId,
+            questName: quest.name,
+            label: stepDef.label,
+            roomId: stepDef.objective ? stepDef.objective.roomId : null,
+            tileX: stepDef.objective ? stepDef.objective.tileX : 0,
+            tileY: stepDef.objective ? stepDef.objective.tileY : 0,
+            depth: stepDef.objective ? stepDef.objective.depth : null,
+            targetTile: stepDef.objective ? stepDef.objective.targetTile : null,
+          };
+          if (stepDef.objectiveItem) obj.objectiveItem = stepDef.objectiveItem;
+          results.push(obj);
+          break; // one objective per quest
+        }
+      }
+    }
+    return results;
+  }
+
   // Build quest state for client display
   getQuestStateForClient(playerId) {
     const questMap = this.playerStates.get(playerId);

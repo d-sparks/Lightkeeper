@@ -56,6 +56,12 @@
       ]
     },
     {
+      "tag": "treasure",
+      "width": { "min": 4, "max": 5 },
+      "height": { "min": 4, "max": 5 },
+      "centerTile": 10
+    },
+    {
       "tag": "ice_chamber",
       "depth": 3,
       "width": { "min": 6, "max": 8 },
@@ -84,7 +90,9 @@
       { "type": "frostfang_hunter", "weight": 3, "cost": 1, "minDepth": 0 },
       { "type": "rime_stalker", "weight": 2, "cost": 2, "minDepth": 2 },
       { "type": "skeleton", "weight": 2, "cost": 1, "minDepth": 0 },
-      { "type": "skeleton_archer", "weight": 1, "cost": 2, "minDepth": 3 }
+      { "type": "skeleton_archer", "weight": 1, "cost": 2, "minDepth": 3 },
+      { "type": "shadow_ambusher", "weight": 1, "cost": 2, "minDepth": 2 },
+      { "type": "tunnel_creeper", "weight": 2, "cost": 1, "minDepth": 0 }
     ],
     "maxPerRoom": 3,
     "avoidEntranceRoom": true
@@ -136,6 +144,42 @@
       "once": true
     },
     {
+      "id": "chest_loot_{instanceId}",
+      "event": "door_interacted",
+      "maxDepth": 2,
+      "requiresRoom": "treasure",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_common", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "showMessage", "text": "You find supplies in the frozen crate." }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_{instanceId}",
+      "event": "door_interacted",
+      "depth": 3,
+      "requiresRoom": "treasure",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_uncommon", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "showMessage", "text": "The crate contains something valuable." }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_{instanceId}",
+      "event": "door_interacted",
+      "depth": 4,
+      "requiresRoom": "treasure",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_rare", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "showMessage", "text": "A rare find, preserved in ancient ice." }
+      ],
+      "once": true
+    },
+    {
       "id": "frost_warden_killed_{instanceId}",
       "event": "monster_killed",
       "depth": 4,
@@ -144,6 +188,38 @@
         { "type": "setFlag", "flag": "frost_warden_defeated" },
         { "type": "spawnItem", "itemType": "frozen_core" },
         { "type": "showMessage", "text": "The Frost Warden shatters. A frozen core clatters across the ice." }
+      ],
+      "once": true
+    },
+    {
+      "id": "nightcaster_frame_drop_{instanceId}",
+      "event": "monster_killed",
+      "depth": 4,
+      "filter": { "monsterType": "frost_warden" },
+      "conditions": [
+        { "not": { "hasFlag": "has_nightcaster_frame" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Among the Warden's shattered remains, something glints in the ice — a Sol Unit frame wedged into the frozen wall behind its throne.",
+          "Dark-tuned circuitry, Unbounded markings scratched into the casing. The Nightcaster Frame. Built for hitting hard in the deep dark."
+        ]},
+        { "type": "spawnItem", "itemType": "nightcaster_frame" },
+        { "type": "grantXp", "amount": 40 }
+      ],
+      "once": true
+    },
+    {
+      "id": "nightcaster_frame_pickup_{instanceId}",
+      "event": "item_picked_up",
+      "depth": 4,
+      "filter": { "itemType": "nightcaster_frame" },
+      "actions": [
+        { "type": "setFlag", "flag": "has_nightcaster_frame", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "The Nightcaster Frame hums as you pick it up. Its dark-tuned emitters are already calibrated — ready to amplify damage by 20%.",
+          "Compact 5x5 grid with cold resistance. An Unbounded raider's weapon of choice."
+        ]}
       ],
       "once": true
     }

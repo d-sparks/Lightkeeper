@@ -1,1 +1,0 @@
-Done. The monster loot wiring task was already complete — all 25 combat monsters have `lootTable` references, and all 22 referenced tables exist across `common.json` and `nightside.json`. The only remaining loot-related work item is adding sol modifier drops to loot tables (tracked in TODOs.md under "Loot & Rewards").

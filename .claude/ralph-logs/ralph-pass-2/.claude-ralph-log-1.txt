@@ -1,9 +1,0 @@
-All done. Here's what was added to `client/renderer.js`:
-
-**Hit flash** — When any entity takes damage, its sprite tint flashes white for 120ms. Works for both monsters and players via the `hitFlashes` Map.
-
-**Screen shake** — When the local player takes damage, the camera randomly offsets by up to 4px with decay over 150ms. Darkness damage triggers a lighter shake (3px, 100ms).
-
-**Death animations** — When a monster dies, instead of instantly disappearing, the renderer captures its sprite texture and creates a standalone death animation container that fades out (alpha 1→0) and collapses vertically (squishes Y scale) over 400ms.
-
-Floating damage numbers were already implemented, so no changes needed there. No new files created — all changes are client-side rendering in `renderer.js`.

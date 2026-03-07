@@ -1,8 +1,0 @@
-Done. Fixed 4 mismatched exit connections across the Meridian city area:
-
-1. **Meridian Station → Meridian Civic** (the reported issue): spawn moved from y=8 to y=2, placing the player next to the return door at (0,1) instead of in the middle of the room
-2. **Meridian Civic → Meridian Residential**: same pattern — spawn moved from y=8 to y=2 to match the door at (0,1)
-3. **Meridian Market → MERIDIAN-7 Hub**: spawn moved from y=7 to y=2 to match the door at (0,1)
-4. **Salvage Yard → Homestead Interior**: spawn moved from x=5 to x=10 to place the player near the exit door at (11,8) instead of across the room
-
-All four had the same root cause: spawn coordinates were set to a generic center-of-room position instead of adjacent to the connecting doorway.

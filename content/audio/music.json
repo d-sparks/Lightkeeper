@@ -1,6 +1,31 @@
 {
   "_comment": "Music track definitions for procedural synthesis. Pattern is an array of note objects played sequentially at the given BPM. null entries are rests.",
 
+  "biome_map": {
+    "_comment": "Maps tileset names to ambient music track IDs. The client uses this to pick the right track per room.",
+    "crypt": "ambient_crypt",
+    "nightside": "ambient_nightside",
+    "dayside": "ambient_dayside",
+    "fungal_forest": "ambient_fungal",
+    "frost_crypt": "ambient_frost",
+    "geothermal": "ambient_geothermal",
+    "quarantine": "ambient_quarantine",
+    "dark_city": "ambient_dark_city",
+    "outpost": "ambient_outpost",
+    "perimeter": "ambient_perimeter",
+    "underlumen": "ambient_underlumen",
+    "array": "ambient_array",
+    "station": "ambient_station"
+  },
+
+  "name_overrides": {
+    "_comment": "Room name substring matches that override the tileset-based lookup. Checked in order.",
+    "outpost": "outpost",
+    "town": "outpost",
+    "hub": "outpost",
+    "meridian": "ambient_meridian"
+  },
+
   "dungeon": {
     "bpm": 70,
     "wave": "triangle",
@@ -101,6 +126,438 @@
       null,
       { "freq": 156, "len": 1 },
       { "freq": 175, "bass": 87, "len": 1 },
+      null
+    ]
+  },
+
+  "boss_combat": {
+    "bpm": 130,
+    "wave": "sawtooth",
+    "volume": 0.13,
+    "pattern": [
+      { "freq": 87, "bass": 44, "len": 1 },
+      { "freq": 87, "len": 1 },
+      { "freq": 104, "bass": 52, "len": 1 },
+      null,
+      { "freq": 117, "bass": 58, "len": 1 },
+      { "freq": 117, "len": 1 },
+      null,
+      { "freq": 131, "bass": 65, "len": 1 },
+      { "freq": 104, "len": 1 },
+      null,
+      { "freq": 87, "bass": 44, "len": 1 },
+      { "freq": 87, "len": 1 },
+      { "freq": 117, "bass": 58, "len": 1 },
+      null,
+      { "freq": 131, "bass": 65, "len": 1 },
+      { "freq": 156, "len": 1 },
+      { "freq": 131, "bass": 65, "len": 1 },
+      null,
+      { "freq": 104, "bass": 52, "len": 1 },
+      { "freq": 87, "len": 1 },
+      null,
+      { "freq": 117, "bass": 58, "len": 1 },
+      { "freq": 131, "len": 1 },
+      null
+    ]
+  },
+
+  "ambient_crypt": {
+    "_comment": "Default crypt/underground biome ambient — sparse, echoey. Placeholder for real assets.",
+    "bpm": 50,
+    "wave": "sine",
+    "volume": 0.08,
+    "pattern": [
+      { "freq": 98, "bass": 49, "len": 3 },
+      null,
+      null,
+      { "freq": 110, "len": 2 },
+      null,
+      null,
+      null,
+      { "freq": 87, "bass": 44, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      { "freq": 98, "len": 2 },
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_nightside": {
+    "_comment": "Nightside biome — deep, oppressive darkness. Very low register, slow.",
+    "bpm": 40,
+    "wave": "sine",
+    "volume": 0.06,
+    "pattern": [
+      { "freq": 55, "bass": 28, "len": 4 },
+      null,
+      null,
+      null,
+      null,
+      { "freq": 65, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      { "freq": 49, "bass": 25, "len": 4 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_dayside": {
+    "_comment": "Dayside/solar fields biome — brighter, warmer tones. Placeholder.",
+    "bpm": 60,
+    "wave": "triangle",
+    "volume": 0.10,
+    "pattern": [
+      { "freq": 220, "bass": 110, "len": 2 },
+      null,
+      { "freq": 262, "len": 2 },
+      null,
+      { "freq": 247, "bass": 123, "len": 2 },
+      null,
+      null,
+      { "freq": 220, "len": 2 },
+      null,
+      null,
+      { "freq": 196, "bass": 98, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_fungal": {
+    "_comment": "Fungal forest biome — organic, damp, strange harmonics. Placeholder.",
+    "bpm": 45,
+    "wave": "triangle",
+    "volume": 0.07,
+    "pattern": [
+      { "freq": 147, "bass": 73, "len": 2 },
+      null,
+      { "freq": 175, "len": 1 },
+      null,
+      null,
+      { "freq": 131, "bass": 65, "len": 2 },
+      null,
+      null,
+      { "freq": 165, "len": 1 },
+      null,
+      { "freq": 147, "bass": 73, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_frost": {
+    "_comment": "Frost crypt biome — cold, crystalline, high sparse notes. Placeholder.",
+    "bpm": 42,
+    "wave": "sine",
+    "volume": 0.07,
+    "pattern": [
+      { "freq": 330, "bass": 82, "len": 3 },
+      null,
+      null,
+      null,
+      { "freq": 392, "len": 2 },
+      null,
+      null,
+      null,
+      null,
+      { "freq": 294, "bass": 73, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_meridian": {
+    "_comment": "Meridian city biome — urban, slightly busier than outpost. Placeholder.",
+    "bpm": 58,
+    "wave": "sine",
+    "volume": 0.09,
+    "pattern": [
+      { "freq": 247, "bass": 123, "len": 2 },
+      null,
+      { "freq": 262, "len": 1 },
+      null,
+      { "freq": 294, "bass": 147, "len": 2 },
+      null,
+      { "freq": 262, "len": 1 },
+      null,
+      null,
+      { "freq": 247, "bass": 123, "len": 2 },
+      null,
+      null,
+      { "freq": 220, "len": 2 },
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_geothermal": {
+    "_comment": "Geothermal biome — rumbling, warm, low-mid frequencies. Placeholder.",
+    "bpm": 48,
+    "wave": "sawtooth",
+    "volume": 0.06,
+    "pattern": [
+      { "freq": 82, "bass": 41, "len": 3 },
+      null,
+      null,
+      { "freq": 98, "len": 2 },
+      null,
+      null,
+      { "freq": 73, "bass": 37, "len": 3 },
+      null,
+      null,
+      null,
+      { "freq": 87, "len": 2 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_quarantine": {
+    "_comment": "Quarantine biome — tense, sterile, unsettling hum. Placeholder.",
+    "bpm": 44,
+    "wave": "sawtooth",
+    "volume": 0.05,
+    "pattern": [
+      { "freq": 110, "bass": 55, "len": 3 },
+      null,
+      null,
+      null,
+      { "freq": 117, "len": 2 },
+      null,
+      null,
+      { "freq": 104, "bass": 52, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      { "freq": 110, "len": 2 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_dark_city": {
+    "_comment": "Dark city biome — eerie urban decay, hollow echoes. Placeholder.",
+    "bpm": 52,
+    "wave": "triangle",
+    "volume": 0.07,
+    "pattern": [
+      { "freq": 165, "bass": 82, "len": 2 },
+      null,
+      null,
+      { "freq": 147, "len": 1 },
+      null,
+      null,
+      null,
+      { "freq": 131, "bass": 65, "len": 2 },
+      null,
+      null,
+      null,
+      { "freq": 147, "len": 1 },
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_outpost": {
+    "_comment": "Outpost biome — calm shelter, gentle warmth. Placeholder (used when tileset is outpost).",
+    "bpm": 55,
+    "wave": "sine",
+    "volume": 0.10,
+    "pattern": [
+      { "freq": 262, "bass": 131, "len": 3 },
+      null,
+      { "freq": 330, "len": 2 },
+      null,
+      { "freq": 294, "bass": 147, "len": 2 },
+      null,
+      { "freq": 262, "len": 2 },
+      null,
+      null,
+      { "freq": 247, "bass": 123, "len": 3 },
+      null,
+      { "freq": 262, "len": 2 },
+      null,
+      { "freq": 294, "bass": 147, "len": 2 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_perimeter": {
+    "_comment": "Perimeter biome — exposed, windswept frontier. Silent placeholder.",
+    "bpm": 46,
+    "wave": "sine",
+    "volume": 0.07,
+    "pattern": [
+      { "freq": 131, "bass": 65, "len": 3 },
+      null,
+      null,
+      null,
+      { "freq": 147, "len": 2 },
+      null,
+      null,
+      null,
+      { "freq": 117, "bass": 58, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_underlumen": {
+    "_comment": "Underlumen biome — deep subterranean, bioluminescent. Silent placeholder.",
+    "bpm": 38,
+    "wave": "sine",
+    "volume": 0.05,
+    "pattern": [
+      { "freq": 65, "bass": 33, "len": 4 },
+      null,
+      null,
+      null,
+      null,
+      { "freq": 73, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      { "freq": 55, "bass": 28, "len": 4 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_array": {
+    "_comment": "Array biome — technological, humming machinery. Silent placeholder.",
+    "bpm": 54,
+    "wave": "triangle",
+    "volume": 0.06,
+    "pattern": [
+      { "freq": 196, "bass": 98, "len": 2 },
+      null,
+      { "freq": 220, "len": 1 },
+      null,
+      null,
+      { "freq": 185, "bass": 92, "len": 2 },
+      null,
+      null,
+      { "freq": 196, "len": 1 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_station": {
+    "_comment": "Station biome — transit corridors, metallic echoes. Silent placeholder.",
+    "bpm": 50,
+    "wave": "triangle",
+    "volume": 0.06,
+    "pattern": [
+      { "freq": 175, "bass": 87, "len": 2 },
+      null,
+      null,
+      { "freq": 196, "len": 1 },
+      null,
+      null,
+      { "freq": 165, "bass": 82, "len": 2 },
+      null,
+      null,
+      null,
+      { "freq": 175, "len": 1 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "boss_crystal": {
+    "_comment": "Crystal Guardian boss theme — higher register, triangle wave for crystalline resonance, driving tempo",
+    "bpm": 140,
+    "wave": "triangle",
+    "volume": 0.15,
+    "pattern": [
+      { "freq": 165, "bass": 55, "len": 1 },
+      { "freq": 165, "len": 1 },
+      { "freq": 196, "bass": 65, "len": 1 },
+      { "freq": 220, "len": 1 },
+      null,
+      { "freq": 262, "bass": 87, "len": 1 },
+      { "freq": 220, "len": 1 },
+      { "freq": 196, "bass": 65, "len": 1 },
+      null,
+      { "freq": 165, "bass": 55, "len": 1 },
+      { "freq": 196, "len": 1 },
+      { "freq": 220, "bass": 73, "len": 1 },
+      null,
+      { "freq": 247, "bass": 82, "len": 1 },
+      { "freq": 262, "len": 1 },
+      { "freq": 247, "len": 1 },
+      { "freq": 220, "bass": 73, "len": 1 },
+      null,
+      { "freq": 196, "bass": 65, "len": 1 },
+      { "freq": 165, "len": 1 },
+      null,
+      { "freq": 147, "bass": 49, "len": 1 },
+      { "freq": 165, "len": 1 },
+      { "freq": 196, "bass": 65, "len": 1 },
+      { "freq": 220, "len": 1 },
+      null,
+      { "freq": 262, "bass": 87, "len": 2 },
+      null,
+      { "freq": 220, "bass": 73, "len": 1 },
+      { "freq": 196, "len": 1 },
+      null,
       null
     ]
   }

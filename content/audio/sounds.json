@@ -205,5 +205,15 @@
     "layers": [
       { "wave": "square", "freq": 500, "freqEnd": 700, "attack": 0.005, "decay": 0.03, "sustain": 0.2, "release": 0.04 }
     ]
+  },
+
+  "boss_intro": {
+    "volume": 0.5,
+    "duration": 1.2,
+    "layers": [
+      { "wave": "sine", "freq": 55, "freqEnd": 40, "sweepTime": 1.0, "attack": 0.05, "decay": 0.3, "sustain": 0.4, "release": 0.4 },
+      { "wave": "sawtooth", "freq": 110, "freqEnd": 65, "sweepTime": 0.8, "volume": 0.3, "attack": 0.1, "decay": 0.2, "sustain": 0.3, "release": 0.5 },
+      { "wave": "noise", "color": "pink", "volume": 0.25, "attack": 0.05, "release": 1.0, "filterFreq": 400, "filterQ": 1.5 }
+    ]
   }
 }

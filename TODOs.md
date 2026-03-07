@@ -1,12 +1,16 @@
 TODOs
 
+## Human feedback / inputs
+- If we're going to advertise WASD as working, it should at least be orthogonal to the screen - but it ends up being diagonal/isometric.
+- Major new feature: I want to have multiple floor levels (z coordinates), with ramps, which is standard in isometric games. We'll need 4 orientations of ramp isometric sprite and then game logic to detect walls/levels. We also need a taller "full wall" sprite. (Much later in the game I want to add "hover" ability so we can move up and down levels, so keep that in mind, but no need to implement it just yet.)
+- The right arrow after a quest name in the minimap is misleading. The arrow that points to the exit on the minimap is nice, but, let's not make it a right arrow. Just make it a circle or dot?
+- There's too much dialogue when entering random rooms. Let's prune most of that, unless it's good hint for a quest or exceptionally impactful for flavor/feel.
+
 ## Game Feel & Polish
 
 - [sonnet] Add placeholder sound effects for remaining core actions (monster_hit, monster_death, item_pickup, door_open, floor_transition, player_hurt) and wire them into client/audio.js. Weapon swing audio exists — fill in the rest.
 - [opus] Implement death penalty: when the player dies, drain 25-50% of current energy and drop one random non-quest item. Respawn at the room entrance. This gives risk to dungeon runs without being punishing enough to frustrate. Tune carefully — dying should sting, not enrage.
 - [opus] Add minimap quest waypoints / markers for active quest objectives. The quest panel shows text but the player has no spatial guidance toward their next goal. Even a simple colored dot on the minimap for the target room would help enormously.
-
-## Loot & Content Wiring
 
 - [sonnet] Wire biome loot tables (frost.json, geothermal.json, fungal.json, outpost.json) to dungeon chests/crates via triggers. The loot tables and engine exist — interactable containers just don't use them. Add lootTable-based item drops when players interact with chest/crate tiles in each biome.
 - [sonnet] Add biome loot table references to procedural dungeon templates (proc_frost_crypt, proc_fungal_forest, proc_quarantine, proc_quarantine_deep). Procedural floors should drop biome-appropriate loot from chests.

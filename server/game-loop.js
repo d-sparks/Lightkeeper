@@ -16,6 +16,7 @@ class GameLoop {
     this.rooms = new Map();  // roomId -> Room
     this.interval = null;
     this.pendingTransitions = [];
+    this.pendingDeathPenalties = [];
 
     // Track killed monsters per dungeon so they stay dead across room destruction/recreation
     // Map<dungeonId, Set<spawnKey>>  where spawnKey = "spawnIdx:subIdx"
@@ -227,22 +228,48 @@ class GameLoop {
           attackTimer: 0,
           ai: def.ai,
           facing: 0,
+          idleMode: spawn.patrol || 'stationary',
         };
         // Ambush: start hidden until player is close
         if (def.ai === 'ambush') {
           mob.hidden = true;
           mob.ambushRevealed = false;
         }
-        // Patrol: set up waypoint walking state
-        if (def.ai === 'patrol') {
-          mob.patrolAngle = Math.random() * Math.PI * 2;
+        // Wander/patrol idle: set up wandering state
+        const idleWanders = mob.idleMode === 'wander' || mob.idleMode === 'patrol' || def.ai === 'patrol';
+        if (idleWanders) {
           mob.patrolTimer = 0;
           mob.patrolState = 'walking'; // 'walking' or 'waiting'
           mob.patrolWaitTime = 1.5 + Math.random();
+          // Waypoint patrol: use explicit path or generate default back-and-forth
+          if (mob.idleMode === 'patrol' || def.ai === 'patrol') {
+            const waypoints = spawn.patrolPath && spawn.patrolPath.length >= 2
+              ? spawn.patrolPath.map(p => ({
+                  x: (p.x + 0.5) * CONSTANTS.TILE_SIZE,
+                  y: (p.y + 0.5) * CONSTANTS.TILE_SIZE,
+                }))
+              : this._generateDefaultPatrolPath(mob, room.dungeon);
+            mob.patrolWaypoints = waypoints;
+            mob.patrolWaypointIndex = 0;
+          } else {
+            mob.patrolAngle = Math.random() * Math.PI * 2;
+          }
         }
         // Ranged kite: store projectile type from definition
         if (def.ai === 'ranged_kite' && def.projectile) {
           mob.projectile = def.projectile;
+        }
+        // Boss: initialize phase tracking
+        if (def.ai === 'boss_crystal' && def.phases) {
+          mob.bossPhase = 0;
+          mob.bossPhases = def.phases;
+          mob.bossProjectileTimer = 0;
+          mob.bossSummonTimer = 0;
+          mob.bossSummonCount = 0;
+        }
+        if (def.boss) {
+          if (def.bossTitle) mob.bossTitle = def.bossTitle;
+          if (def.bossMusic) mob.bossMusic = def.bossMusic;
         }
         room.monsters.set(id, mob);
       }
@@ -447,6 +474,25 @@ class GameLoop {
     this._emitGameEvent(EventBus.Events.ROOM_ENTERED, {
       playerId, roomId, dungeonId: room.dungeonId,
     }, ctx);
+
+    // Check for boss monsters and emit boss_intro event (once per player per boss type)
+    for (const mob of room.monsters.values()) {
+      if (!mob.bossPhases) continue;
+      const introFlag = `boss_intro_seen_${mob.type}`;
+      if (this.flagStore.getPlayerFlag(playerId, introFlag)) continue;
+      this.flagStore.setPlayerFlag(playerId, introFlag, true);
+      room.events.push({
+        type: 'boss_intro',
+        playerId,
+        bossId: mob.id,
+        bossName: mob.name,
+        bossTitle: mob.bossTitle || null,
+        bossMusic: mob.bossMusic || null,
+        bossType: mob.type,
+        x: mob.x,
+        y: mob.y,
+      });
+    }
   }
 
   removePlayer(roomId, playerId) {
@@ -543,38 +589,14 @@ class GameLoop {
   }
 
   // Send quest objective to a player, resolving exit coordinates if needed
-  _sendQuestObjective(playerId, currentRoomId) {
-    const room = this.rooms.get(currentRoomId);
-    if (!room) return;
-    const player = room.players.get(playerId);
-    if (!player) return;
-
-    if (!player.questObjective) {
-      // Send null objective to clear client display
-      if (this.actions.sendToPlayer) {
-        this.actions.sendToPlayer(playerId, {
-          type: CONSTANTS.MSG.QUEST_OBJECTIVE,
-          objective: null,
-        });
-      }
-      return;
-    }
-
-    const obj = player.questObjective;
+  // Resolve a raw quest objective to screen-ready coordinates for the client.
+  // Returns { label, questName, uiHint, tileX, tileY, sameRoom, targetLocationId } or null.
+  _resolveObjective(obj, currentRoomId, room) {
+    if (!obj) return null;
 
     // UI-hint-only objectives (no world-space arrow needed)
     if (obj.uiHint && !obj.roomId) {
-      if (this.actions.sendToPlayer) {
-        this.actions.sendToPlayer(playerId, {
-          type: CONSTANTS.MSG.QUEST_OBJECTIVE,
-          objective: {
-            label: obj.label,
-            questName: obj.questName || null,
-            uiHint: obj.uiHint,
-          },
-        });
-      }
-      return;
+      return { label: obj.label, questName: obj.questName || null, uiHint: obj.uiHint };
     }
 
     let targetRoomId = obj.roomId;
@@ -631,18 +653,58 @@ class GameLoop {
       }
     }
 
+    // Resolve worldmap location for the target room (for worldmap markers)
+    const targetLocationId = targetRoomId
+      ? this.content.getWorldmapLocation(targetRoomId)
+      : null;
+
+    return {
+      label: obj.label,
+      questName: obj.questName || null,
+      uiHint: obj.uiHint || null,
+      tileX,
+      tileY,
+      sameRoom,
+      targetLocationId,
+    };
+  }
+
+  _sendQuestObjective(playerId, currentRoomId) {
+    const room = this.rooms.get(currentRoomId);
+    if (!room) return;
+    const player = room.players.get(playerId);
+    if (!player) return;
+
+    if (!player.questObjective) {
+      if (this.actions.sendToPlayer) {
+        this.actions.sendToPlayer(playerId, {
+          type: CONSTANTS.MSG.QUEST_OBJECTIVE,
+          objective: null,
+        });
+      }
+      return;
+    }
+
+    const objective = this._resolveObjective(player.questObjective, currentRoomId, room);
+
+    // Resolve secondary objectives (other active quests)
+    const secondaryRaw = this.questTracker.getAllActiveObjectives(playerId);
+    let secondaryObjectives = null;
+    if (secondaryRaw.length > 0) {
+      secondaryObjectives = [];
+      for (const secObj of secondaryRaw) {
+        const resolved = this._resolveObjective(secObj, currentRoomId, room);
+        if (resolved && resolved.tileX != null) {
+          secondaryObjectives.push(resolved);
+        }
+      }
+      if (secondaryObjectives.length === 0) secondaryObjectives = null;
+    }
+
     if (this.actions.sendToPlayer) {
-      this.actions.sendToPlayer(playerId, {
-        type: CONSTANTS.MSG.QUEST_OBJECTIVE,
-        objective: {
-          label: obj.label,
-          questName: obj.questName || null,
-          uiHint: obj.uiHint || null,
-          tileX,
-          tileY,
-          sameRoom,
-        },
-      });
+      const msg = { type: CONSTANTS.MSG.QUEST_OBJECTIVE, objective };
+      if (secondaryObjectives) msg.secondaryObjectives = secondaryObjectives;
+      this.actions.sendToPlayer(playerId, msg);
     }
   }
 
@@ -787,6 +849,7 @@ class GameLoop {
     }
     const result = { size: grid.size, cells: clientCells, nextPlacementId: grid.nextPlacementId };
     if (grid.innateBonus) result.innateBonus = grid.innateBonus;
+    if (grid.unitName) result.unitName = grid.unitName;
     return result;
   }
 
@@ -936,7 +999,7 @@ class GameLoop {
       }
     }
 
-    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null };
+    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null, unitName: solUnitDef.name || null };
     // Set charge capacity from sol unit definition
     player.maxEnergy = solUnitDef.maxCharge || 100;
     player.energy = solUnitDef.initialEnergy !== undefined
@@ -1281,6 +1344,7 @@ class GameLoop {
     // Send cone effect event for client rendering
     room.events.push({
       type: 'cone_effect',
+      ownerId: player.id,
       x: player.x,
       y: player.y,
       angle: dirAngle,
@@ -1323,6 +1387,7 @@ class GameLoop {
       x: player.x, y: player.y,
       angle: slashAngle,
       range: range,
+      ownerId: player.id,
     });
 
     room.events.push({
@@ -1542,10 +1607,14 @@ class GameLoop {
         }
         // Energy regeneration: solar panels (dayside) + sol grid generators
         if (player.maxEnergy > 0) {
-          let regenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
+          const autoRegenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
+          let regenRate = autoRegenRate;
           if (player.solGridEnergyRegen > 0) regenRate += player.solGridEnergyRegen;
           if (regenRate > 0) {
             player.energy = Math.min(player.maxEnergy, player.energy + regenRate * dt);
+          }
+          if (autoRegenRate > 0) {
+            this.automation.trackEnergyGenerated(pid, autoRegenRate * dt);
           }
         }
 
@@ -1591,22 +1660,7 @@ class GameLoop {
           amount: damage, x: player.x, y: player.y,
         });
 
-        // Player death -> respawn at floor spawn
-        if (player.health <= 0) {
-          player.health = player.maxHealth;
-          const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
-          player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
-          player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
-          room.events.push({
-            type: 'death', targetId: pid,
-            x: player.x, y: player.y,
-          });
-
-          const deathCtx = this._scriptContext(pid, room.id);
-          this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
-            playerId: pid, roomId: room.id,
-          }, deathCtx);
-        }
+        this._checkPlayerDeath(player, room);
       }
     }
   }
@@ -1634,21 +1688,7 @@ class GameLoop {
           amount: damage, x: player.x, y: player.y,
         });
 
-        if (player.health <= 0) {
-          player.health = player.maxHealth;
-          const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
-          player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
-          player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
-          room.events.push({
-            type: 'death', targetId: pid,
-            x: player.x, y: player.y,
-          });
-
-          const deathCtx = this._scriptContext(pid, room.id);
-          this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
-            playerId: pid, roomId: room.id,
-          }, deathCtx);
-        }
+        this._checkPlayerDeath(player, room);
       }
     }
   }
@@ -1748,9 +1788,17 @@ class GameLoop {
       }
 
       if (!mob.aggroTarget && nearestDist > aggroRange) {
-        // Patrol: wander near spawn when no player in aggro range
-        if (mob.ai === 'patrol') {
+        // Idle behavior based on spawn patrol mode
+        const idleWanders = mob.idleMode === 'wander' || mob.idleMode === 'patrol' || mob.ai === 'patrol';
+        if (mob.patrolWaypoints) {
+          this._updateWaypointPatrol(mob, room.dungeon, dt);
+        } else if (idleWanders) {
           this._updatePatrol(mob, room.dungeon, dt);
+        } else if (mob.idleMode === 'guard') {
+          // Guard: face nearest player but don't move
+          if (nearest) {
+            mob.facing = Math.atan2(nearest.y - mob.y, nearest.x - mob.x);
+          }
         }
         continue;
       }
@@ -1849,6 +1897,8 @@ class GameLoop {
             });
           }
         }
+      } else if (mob.ai === 'boss_crystal') {
+        this._updateBossCrystal(mob, nearest, nearestDist, room, dt);
       }
     }
   }
@@ -1895,8 +1945,266 @@ class GameLoop {
     }
   }
 
+  _updateWaypointPatrol(mob, dungeon, dt) {
+    const waypoints = mob.patrolWaypoints;
+    if (!waypoints || waypoints.length < 2) return;
+
+    if (mob.patrolState === 'waiting') {
+      mob.patrolTimer -= dt;
+      if (mob.patrolTimer <= 0) {
+        mob.patrolState = 'walking';
+        mob.patrolTimer = 0;
+      }
+      return;
+    }
+
+    const target = waypoints[mob.patrolWaypointIndex];
+    const dx = target.x - mob.x;
+    const dy = target.y - mob.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const arrivalThreshold = CONSTANTS.TILE_SIZE * 0.3;
+
+    if (dist < arrivalThreshold) {
+      // Arrived at waypoint — advance to next
+      mob.patrolWaypointIndex = (mob.patrolWaypointIndex + 1) % waypoints.length;
+      mob.patrolState = 'waiting';
+      mob.patrolTimer = 1.0 + Math.random() * 1.0;
+      return;
+    }
+
+    // Move toward current waypoint
+    const speed = mob.speed * CONSTANTS.TILE_SIZE * dt * 0.4;
+    const nx = mob.x + (dx / dist) * speed;
+    const ny = mob.y + (dy / dist) * speed;
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+
+    if (!this.physics.collidesAt(nx, mob.y, dungeon, mr)) mob.x = nx;
+    if (!this.physics.collidesAt(mob.x, ny, dungeon, mr)) mob.y = ny;
+    mob.facing = Math.atan2(dy, dx);
+  }
+
+  _generateDefaultPatrolPath(mob, dungeon) {
+    // Generate a back-and-forth path ±3 tiles from spawn along whichever axis is clear
+    const spawnTileX = Math.floor(mob.spawnX / CONSTANTS.TILE_SIZE);
+    const spawnTileY = Math.floor(mob.spawnY / CONSTANTS.TILE_SIZE);
+    const reach = 3;
+
+    // Try horizontal patrol first
+    let leftX = spawnTileX, rightX = spawnTileX;
+    for (let d = 1; d <= reach; d++) {
+      if (this.content.isSpawnable(dungeon, spawnTileX - d, spawnTileY)) leftX = spawnTileX - d;
+      else break;
+    }
+    for (let d = 1; d <= reach; d++) {
+      if (this.content.isSpawnable(dungeon, spawnTileX + d, spawnTileY)) rightX = spawnTileX + d;
+      else break;
+    }
+
+    if (rightX - leftX >= 2) {
+      return [
+        { x: (leftX + 0.5) * CONSTANTS.TILE_SIZE, y: mob.spawnY },
+        { x: (rightX + 0.5) * CONSTANTS.TILE_SIZE, y: mob.spawnY },
+      ];
+    }
+
+    // Try vertical patrol
+    let topY = spawnTileY, bottomY = spawnTileY;
+    for (let d = 1; d <= reach; d++) {
+      if (this.content.isSpawnable(dungeon, spawnTileX, spawnTileY - d)) topY = spawnTileY - d;
+      else break;
+    }
+    for (let d = 1; d <= reach; d++) {
+      if (this.content.isSpawnable(dungeon, spawnTileX, spawnTileY + d)) bottomY = spawnTileY + d;
+      else break;
+    }
+
+    if (bottomY - topY >= 2) {
+      return [
+        { x: mob.spawnX, y: (topY + 0.5) * CONSTANTS.TILE_SIZE },
+        { x: mob.spawnX, y: (bottomY + 0.5) * CONSTANTS.TILE_SIZE },
+      ];
+    }
+
+    // Fallback: patrol in a small area around spawn
+    return [
+      { x: mob.spawnX - CONSTANTS.TILE_SIZE, y: mob.spawnY },
+      { x: mob.spawnX + CONSTANTS.TILE_SIZE, y: mob.spawnY },
+    ];
+  }
+
+  _updateBossCrystal(mob, nearest, nearestDist, room, dt) {
+    const phases = mob.bossPhases;
+    if (!phases || !phases.length) return;
+
+    // Determine current phase based on HP percentage
+    const hpPct = mob.health / mob.maxHealth;
+    let newPhase = 0;
+    for (let i = phases.length - 1; i >= 0; i--) {
+      if (hpPct <= phases[i].threshold) {
+        newPhase = i;
+        break;
+      }
+    }
+
+    // Phase transition
+    if (newPhase !== mob.bossPhase) {
+      mob.bossPhase = newPhase;
+      mob.bossSummonCount = 0;
+      room.events.push({
+        type: 'boss_phase',
+        targetId: mob.id,
+        phase: newPhase + 1,
+        x: mob.x, y: mob.y,
+      });
+    }
+
+    const phase = phases[mob.bossPhase];
+    const effectiveSpeed = (phase.speed || mob.speed) * CONSTANTS.TILE_SIZE * dt;
+    const dx = nearest.x - mob.x;
+    const dy = nearest.y - mob.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    mob.facing = Math.atan2(dy, dx);
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+    const effectiveDamage = phase.damage || mob.damage;
+
+    // Movement: chase in melee/summon modes, kite in ranged mode
+    if (phase.mode === 'ranged' && nearestDist < mob.attackRange * 0.5) {
+      // Kite away when too close
+      if (len > 0) {
+        const nx = mob.x - (dx / len) * effectiveSpeed;
+        const ny = mob.y - (dy / len) * effectiveSpeed;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+      }
+    } else if (nearestDist > mob.attackRange) {
+      // Chase
+      if (len > 0) {
+        const nx = mob.x + (dx / len) * effectiveSpeed;
+        const ny = mob.y + (dy / len) * effectiveSpeed;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+      }
+    }
+
+    // Melee attack (all phases can melee when in range)
+    if (nearestDist <= mob.attackRange && mob.attackTimer <= 0) {
+      nearest.health -= effectiveDamage;
+      mob.attackTimer = mob.attackCooldown;
+      room.events.push({
+        type: 'damage', targetId: nearest.id,
+        amount: effectiveDamage, x: nearest.x, y: nearest.y,
+      });
+      this._checkPlayerDeath(nearest, room);
+    }
+
+    // Projectile attack (phase 2+)
+    if (phase.projectile && len > 0) {
+      mob.bossProjectileTimer -= dt;
+      if (mob.bossProjectileTimer <= 0) {
+        mob.bossProjectileTimer = phase.projectileInterval || 1.5;
+        // Fire a spread of crystal shards
+        const spreadCount = phase.mode === 'summon' ? 3 : 2;
+        const spreadAngle = Math.PI / 8;
+        const baseAngle = Math.atan2(dy, dx);
+        for (let s = 0; s < spreadCount; s++) {
+          const angle = baseAngle + (s - (spreadCount - 1) / 2) * spreadAngle;
+          const projId = `proj_${room.nextProjectileId++}`;
+          room.projectiles.push({
+            id: projId,
+            ownerId: mob.id,
+            isMonsterProjectile: true,
+            projectileType: phase.projectile,
+            x: mob.x,
+            y: mob.y,
+            vx: Math.cos(angle) * CONSTANTS.PROJECTILE_SPEED * 0.6,
+            vy: Math.sin(angle) * CONSTANTS.PROJECTILE_SPEED * 0.6,
+            damage: Math.round(effectiveDamage * 0.6),
+            lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+          });
+        }
+      }
+    }
+
+    // Summon minions (phase 3)
+    if (phase.summonType && phase.summonCount) {
+      mob.bossSummonTimer -= dt;
+      if (mob.bossSummonTimer <= 0 && mob.bossSummonCount < phase.summonCount) {
+        mob.bossSummonTimer = phase.summonInterval || 8.0;
+        const minionDef = this.content.getMonster(phase.summonType);
+        if (minionDef) {
+          const summonCount = Math.min(2, phase.summonCount - mob.bossSummonCount);
+          for (let s = 0; s < summonCount; s++) {
+            const angle = (Math.PI * 2 * s) / summonCount + Math.random() * 0.5;
+            const dist = 2 * CONSTANTS.TILE_SIZE;
+            const sx = mob.x + Math.cos(angle) * dist;
+            const sy = mob.y + Math.sin(angle) * dist;
+            if (this.physics.collidesAt(sx, sy, room.dungeon, mr)) continue;
+            const minionId = `mob_${room.nextMonsterId++}`;
+            room.monsters.set(minionId, {
+              id: minionId,
+              type: phase.summonType,
+              name: minionDef.name,
+              x: sx, y: sy,
+              spawnX: sx, spawnY: sy,
+              health: minionDef.health,
+              maxHealth: minionDef.health,
+              speed: minionDef.speed,
+              damage: minionDef.damage,
+              attackRange: (minionDef.attackRange || 1) * CONSTANTS.TILE_SIZE,
+              attackCooldown: 1 / (minionDef.attackSpeed || 1),
+              attackTimer: 0,
+              ai: minionDef.ai,
+              facing: angle,
+              idleMode: 'stationary',
+              isSummon: true,
+            });
+            mob.bossSummonCount++;
+          }
+          room.events.push({
+            type: 'boss_summon',
+            targetId: mob.id,
+            x: mob.x, y: mob.y,
+          });
+        }
+      }
+    }
+  }
+
   _checkPlayerDeath(player, room) {
     if (player.health <= 0) {
+      // Death penalty: drain 25-50% of current energy
+      const drainPct = 0.25 + Math.random() * 0.25;
+      const energyLost = Math.floor(player.energy * drainPct);
+      player.energy = Math.max(0, player.energy - energyLost);
+
+      // Death penalty: drop one random non-quest item on the ground
+      // Quest items = keys and sol_components (progression-critical)
+      const droppableItems = [];
+      for (let i = 0; i < player.inventory.length; i++) {
+        const item = player.inventory[i];
+        if (item.category !== 'key' && item.category !== 'sol_component') {
+          droppableItems.push(i);
+        }
+      }
+      let droppedItem = null;
+      if (droppableItems.length > 0) {
+        const dropIdx = droppableItems[Math.floor(Math.random() * droppableItems.length)];
+        droppedItem = player.inventory[dropIdx];
+        player.inventory.splice(dropIdx, 1);
+        // Spawn item on the ground at the player's death position
+        const itemId = `item_${room.nextItemId++}`;
+        room.items.set(itemId, {
+          id: itemId,
+          type: droppedItem.type,
+          name: droppedItem.name,
+          rarity: droppedItem.rarity || 'common',
+          category: droppedItem.category || 'misc',
+          x: player.x,
+          y: player.y,
+        });
+      }
+
+      // Respawn at floor spawn
       player.health = player.maxHealth;
       const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
       player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
@@ -1906,11 +2214,27 @@ class GameLoop {
         x: player.x, y: player.y,
       });
 
+      // Queue inventory update for the client
+      this.pendingDeathPenalties.push({
+        playerId: player.id,
+        inventory: player.inventory,
+        equipment: player.equipment,
+        medipacCharges: player.medipacCharges || 0,
+        energyLost,
+        droppedItem: droppedItem ? droppedItem.name : null,
+      });
+
       const deathCtx = this._scriptContext(player.id, room.id);
       this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
         playerId: player.id, roomId: room.id,
       }, deathCtx);
     }
+  }
+
+  consumeDeathPenalties() {
+    const penalties = this.pendingDeathPenalties;
+    this.pendingDeathPenalties = [];
+    return penalties;
   }
 
   // Spawn a projectile from player attack
@@ -2123,7 +2447,24 @@ class GameLoop {
       const playerTY = Math.floor(player.y / CONSTANTS.TILE_SIZE);
 
       for (const exit of room.dungeon.exits) {
+        const cooldownFlag = `_exit_blocked_${exit.x}_${exit.y}`;
         if (playerTX === exit.x && playerTY === exit.y) {
+          // Check conditions on exit (e.g. quest completion, key items)
+          if (exit.conditions) {
+            const ctx = this._scriptContext(pid, room.id);
+            if (!this.conditions.evaluate(exit.conditions, ctx)) {
+              // Show fail message and block transition (once per approach)
+              if (!player[cooldownFlag]) {
+                player[cooldownFlag] = true;
+                const failMsg = exit.failMessage || 'You can\'t go there yet.';
+                this.actions.sendToPlayer(pid, {
+                  type: CONSTANTS.MSG.DIALOGUE,
+                  dialogue: [{ speaker: '', text: failMsg }],
+                });
+              }
+              continue;
+            }
+          }
           this.pendingTransitions.push({
             playerId: pid,
             fromRoom: room.id,
@@ -2136,6 +2477,9 @@ class GameLoop {
             depth: exit.depth,
           });
           break;
+        } else if (player[cooldownFlag]) {
+          // Player stepped off — reset so message shows again on next approach
+          delete player[cooldownFlag];
         }
       }
     }
@@ -2276,6 +2620,7 @@ class GameLoop {
         // Emit door_interacted scripting event
         this._emitGameEvent(EventBus.Events.DOOR_INTERACTED, {
           playerId, roomId, tileX: closestDoor.tx, tileY: closestDoor.ty,
+          tileName: closestDoor.tileDef.name,
         }, ctx);
 
         return {
@@ -2626,13 +2971,18 @@ class GameLoop {
     const monsters = [];
     for (const [mid, m] of room.monsters) {
       if (m.hidden) continue; // Ambush monsters are invisible to clients
-      monsters.push({
+      const mData = {
         id: m.id, type: m.type, name: m.name,
         x: Math.round(m.x * 10) / 10,
         y: Math.round(m.y * 10) / 10,
         facing: Math.round(m.facing * 100) / 100,
         health: m.health, maxHealth: m.maxHealth,
-      });
+      };
+      if (m.bossPhases) {
+        mData.boss = true;
+        mData.bossPhase = m.bossPhase + 1;
+      }
+      monsters.push(mData);
     }
 
     const items = [];
@@ -2662,13 +3012,28 @@ class GameLoop {
       projectiles.push(pData);
     }
 
+    // Party quest progress summaries (name, color, active step labels)
+    const partyQuests = [];
+    for (const [pid, p] of room.players) {
+      const obj = this.questTracker.getActiveObjective(pid);
+      if (obj) {
+        partyQuests.push({
+          playerId: pid,
+          name: p.name,
+          colorIndex: p.colorIndex,
+          questName: obj.questName,
+          stepLabel: obj.label,
+        });
+      }
+    }
+
     const events = room.events || [];
     room.events = [];
 
     return {
       type: CONSTANTS.MSG.STATE,
       tick: room.tick,
-      players, npcs, monsters, items, projectiles, events,
+      players, npcs, monsters, items, projectiles, events, partyQuests,
     };
   }
 }

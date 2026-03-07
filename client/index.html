@@ -135,6 +135,96 @@
       color: #aaa;
     }
 
+    /* Party member health frames */
+    #party-frames {
+      margin-top: 6px;
+    }
+    .party-frame {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 3px;
+    }
+    .party-frame-name {
+      font-size: 9px;
+      min-width: 40px;
+      max-width: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .party-frame-bar {
+      width: 80px;
+      height: 8px;
+      background: #333;
+      border: 1px solid #555;
+      position: relative;
+    }
+    .party-frame-fill {
+      height: 100%;
+      transition: width 0.2s;
+    }
+
+    /* Boss health bar - top center */
+    #boss-bar {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 280px;
+      text-align: center;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .boss-bar-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #ff6f6f;
+      text-shadow: 0 0 6px rgba(255,60,60,0.5), 0 1px 2px #000;
+      margin-bottom: 3px;
+      letter-spacing: 1px;
+    }
+    .boss-bar-track {
+      width: 100%;
+      height: 16px;
+      background: #1a1a2e;
+      border: 1px solid #c44;
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 8px rgba(200,60,60,0.3);
+    }
+    .boss-bar-fill {
+      height: 100%;
+      background: linear-gradient(180deg, #e53935, #b71c1c);
+      transition: width 0.25s ease-out;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+    .boss-bar-text {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #fff;
+      text-shadow: 0 0 3px #000, 0 0 3px #000;
+    }
+    .boss-bar-phase {
+      font-size: 10px;
+      color: #ffab91;
+      margin-top: 2px;
+      text-shadow: 0 0 4px rgba(255,100,50,0.4);
+    }
+    /* Phase transition flash */
+    .boss-bar-track.phase-flash {
+      animation: bossPhaseFlash 0.6s ease-out;
+    }
+    @keyframes bossPhaseFlash {
+      0% { box-shadow: 0 0 20px rgba(255,200,60,0.9); border-color: #ffa726; }
+      100% { box-shadow: 0 0 8px rgba(200,60,60,0.3); border-color: #c44; }
+    }
+
     /* Inventory HUD button (top-right, all platforms) */
     #inventory-btn {
       position: absolute;
@@ -810,6 +900,36 @@
       text-align: center;
       min-height: 20px;
       margin-top: 8px;
+    }
+
+    .sol-innate-banner {
+      text-align: center;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+    }
+    .sol-innate-banner .sol-unit-name {
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .sol-innate-banner .sol-innate-perks {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .sol-innate-perk {
+      font-size: 12px;
+      color: #4fc3f7;
+      background: rgba(79,195,247,0.08);
+      border: 1px solid rgba(79,195,247,0.2);
+      border-radius: 3px;
+      padding: 2px 8px;
     }
 
     #character-menu .inv-hint {
@@ -1798,6 +1918,16 @@
       <div class="xp-bar" id="xp-bar"><div class="xp-bar-fill" id="xp-fill"></div><div class="xp-bar-text" id="xp-text"></div></div>
       <div class="player-name" id="hud-name"></div>
       <div id="quest-label"></div>
+      <div id="party-frames"></div>
+    </div>
+    <!-- Boss health bar (top-center, hidden by default) -->
+    <div id="boss-bar" style="display:none;">
+      <div class="boss-bar-name" id="boss-bar-name"></div>
+      <div class="boss-bar-track">
+        <div class="boss-bar-fill" id="boss-bar-fill"></div>
+        <div class="boss-bar-text" id="boss-bar-text"></div>
+      </div>
+      <div class="boss-bar-phase" id="boss-bar-phase"></div>
     </div>
     <div id="worldmap-btn" title="World Map [N]">MAP</div>
     <div id="quest-btn">LOG</div>

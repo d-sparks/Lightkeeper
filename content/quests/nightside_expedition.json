@@ -1,0 +1,57 @@
+{
+  "id": "nightside_expedition",
+  "name": "The Deep Dark Expedition",
+  "description": "A joint Ring, Unbounded, and Array expedition into the deep Nightside to document the Underlumen and find proof that biological symbiosis cannot be synthesized.",
+  "startConditions": [{ "hasFlag": "act3_asha_alliance_activated" }],
+  "steps": {
+    "meet_sable_passage": {
+      "label": "Meet Sable at the Nightside Passage",
+      "description": "Sable is waiting at the Nightside Passage beyond the Nightside Depths. She will guide the expedition into the deep dark.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "nightside_passage", "tileX": 5, "tileY": 4 },
+      "completionConditions": [{ "hasFlag": "nightside_expedition_started" }],
+      "completionActions": [{ "type": "grantXp", "amount": 50 }]
+    },
+    "collect_symbiotic_compound": {
+      "label": "Collect a Symbiotic Compound",
+      "description": "Search the Nightside Passage for symbiotic compounds — crystalline-organic formations that prove biology requires communion, not just chemistry.",
+      "prerequisiteSteps": ["meet_sable_passage"],
+      "objective": { "roomId": "nightside_passage", "tileX": 23, "tileY": 16 },
+      "completionConditions": [{ "hasFlag": "collected_symbiotic_sample" }],
+      "completionActions": [{ "type": "grantXp", "amount": 40 }]
+    },
+    "reach_underlumen_threshold": {
+      "label": "Reach the Underlumen Threshold",
+      "description": "Descend through the Nightside Passage to the Underlumen Threshold — the edge of the planet's living core.",
+      "prerequisiteSteps": ["collect_symbiotic_compound"],
+      "objective": { "roomId": "nightside_passage", "tileX": 25, "tileY": 19 },
+      "completionConditions": [{ "hasFlag": "reached_underlumen_threshold" }],
+      "completionActions": [{ "type": "grantXp", "amount": 60 }]
+    },
+    "return_compound_to_asha": {
+      "label": "Bring the Symbiotic Compound to Asha",
+      "description": "Return the symbiotic compound to Councillor Asha Denn at the Civic Center. This evidence could change the balance of power between all three factions.",
+      "prerequisiteSteps": ["reach_underlumen_threshold"],
+      "objective": { "roomId": "meridian_civic", "tileX": 17, "tileY": 5 },
+      "completionConditions": [{ "hasFlag": "asha_received_compound" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 75 },
+        { "type": "giveItem", "itemType": "expedition_field_notes" }
+      ]
+    },
+    "choose_path": {
+      "label": "Choose Your Path",
+      "description": "The evidence is in. The factions are aligned. Three paths lie ahead: shut down the Array, broker a symbiosis, or seize control. The choice is yours.",
+      "prerequisiteSteps": ["return_compound_to_asha"],
+      "completionConditions": [
+        { "or": [
+          { "hasFlag": "chose_path_shutdown" },
+          { "hasFlag": "chose_path_merge" },
+          { "hasFlag": "chose_path_control" }
+        ]}
+      ],
+      "completionActions": [{ "type": "grantXp", "amount": 100 }]
+    }
+  },
+  "startStep": "meet_sable_passage"
+}

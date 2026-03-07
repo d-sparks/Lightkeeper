@@ -18,6 +18,34 @@ any public release:
 - `content/sprites/luddite_brawler.png`
 - `content/sprites/luddite_scrapper.png`
 - `content/sprites/luddite_warlord.png`
+- `content/sprites/training_target.png`
+- `content/sprites/dusk_crawler.png`
+- `content/sprites/crystal_guardian.png`
+- `content/sprites/garden_mite.png`
+- `content/sprites/nest_mother.png`
+- `content/sprites/shade_stalker.png`
+- `content/sprites/shade_stalker_alpha.png`
+- `content/sprites/ravine_lurker.png`
+- `content/sprites/gloom_wraith.png`
+- `content/sprites/scrap_drone.png`
+- `content/sprites/shadow_ambusher.png`
+- `content/sprites/tunnel_creeper.png`
+- `content/sprites/feral_hound.png`
+- `content/sprites/rime_stalker.png`
+- `content/sprites/frostfang_hunter.png`
+- `content/sprites/vent_spewer.png`
+- `content/sprites/magma_brute.png`
+- `content/sprites/frost_warden.png`
+- `content/sprites/sporecap_shambler.png`
+- `content/sprites/mycelium_lurker.png`
+- `content/sprites/fungal_sprayer.png`
+- `content/sprites/elder_sporecap.png`
+- `content/sprites/array_sentinel.png`
+- `content/sprites/array_fabricator.png`
+- `content/sprites/array_overseer.png`
+- `content/sprites/threshold_watcher.png`
+- `content/sprites/abyssal_tendril.png`
+- `content/sprites/threshold_keeper.png`
 
 ### Player Sprites (16x16 each, 4 color variants)
 - `content/sprites/player_blue.png`

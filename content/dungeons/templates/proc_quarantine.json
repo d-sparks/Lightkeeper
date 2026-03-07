@@ -56,8 +56,6 @@
     },
     {
       "tag": "treasure",
-      "depth": 2,
-      "placeNear": "entrance",
       "width": { "min": 5, "max": 6 },
       "height": { "min": 5, "max": 6 },
       "centerTile": 10
@@ -160,13 +158,38 @@
       "once": true
     },
     {
+      "id": "chest_loot_{instanceId}",
+      "event": "door_interacted",
+      "depth": 1,
+      "requiresRoom": "treasure",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "outpost_biome_common", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "showMessage", "text": "Old supplies stashed by the quarantine crew." }
+      ],
+      "once": true
+    },
+    {
       "id": "chest_opened_{instanceId}",
       "event": "door_interacted",
       "depth": 2,
       "requiresRoom": "treasure",
       "filter": { "tileX": "{treasure.cx}", "tileY": "{treasure.cy}" },
       "actions": [
-        { "type": "spawnItem", "itemType": "titanium_cylinders", "x": "{treasure.cx}", "y": "{treasure.cy}" }
+        { "type": "spawnItem", "itemType": "titanium_cylinders", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "rollLootTable", "lootTable": "outpost_biome_uncommon", "x": "{treasure.cx}", "y": "{treasure.cy}" }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_{instanceId}",
+      "event": "door_interacted",
+      "depth": 3,
+      "requiresRoom": "treasure",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "outpost_biome_rare", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "showMessage", "text": "A well-sealed cache. The warlord was hoarding the good stuff." }
       ],
       "once": true
     }

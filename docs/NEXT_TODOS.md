@@ -1,78 +1,73 @@
 # Next TODOs
 
-Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
+Outstanding follow-up items organized by area. These feed into the next batch of TODOS.md tasks.
 
-## Content Validation Errors (must fix)
+## Game Feel (Critical Gap)
 
-All 6 errors resolved:
-- [x] `sol_cone` component: renamed key from `sol_cone_emitter` to `sol_cone` in sol_components.json
-- [x] `umbral_seed_dark_exposed`: fixed flag name mismatch — deep_perimeter_east.json and underlumen_approach.json were using `seed_exposed_to_dark` instead
-- [x] `warlord_defeated`: already set in proc_quarantine.json template — fixed validator to scan template triggers
-- [x] `damage_booster_equipped`: already set in server/index.js engine code — added engine-set flags allowlist to validator
-- [x] `has_traded_meridian`: already set in server/index.js engine code — added to engine-set flags allowlist
-- [x] `supply_manifest`: already spawned in proc_quarantine.json requiredRooms — fixed validator scanObtainableItems to check nested requiredRooms[].itemSpawns
+- Death penalty: when the player dies, drain energy, drop non-quest items (per dropBehavior rules in architecture-plan.md), respawn at room entrance. Completes the core risk/reward loop.
+- Placeholder sound effects for core actions: weapon attack, ability fire, monster hit, monster death, item pickup, door open, level transition. Audio system and per-biome music are wired — needs sound effect content.
+- Combat juice pass: screen shake on player hit, monster death fade-out animation, ambush monster fade-in reveal, projectile tinting by monster type (fire=orange, ice=blue, acid=green).
 
-## Monster Deployment
+## Progression Wiring
 
-- Add dungeon monsterSpawns entries using the new AI types (ambush, patrol, pack) in actual dungeon floors — these monsters are defined but not placed
-- Add placeholder sprites for new monsters (shadow_ambusher, tunnel_creeper, feral_hound) — currently reusing existing sprites
-- Add placeholder sprites for newer monsters missing from PLACEHOLDER_ASSETS.md (dusk_crawler, crystal_guardian, garden_mite, nest_mother, shade_stalker, shade_stalker_alpha, ravine_lurker, gloom_wraith, rime_stalker, frostfang_hunter, vent_spewer, magma_brute)
+- Sol unit acquisition paths: 4 non-starter sol units (nightcaster_frame, array_precision_core, greenway_bioframe, underlumen_nexus) are defined but unobtainable. Wire as chest drops, NPC rewards, or quest completions in thematic locations.
+- Wire generators into loot/rewards: basic_generator and improved_generator items exist but aren't obtainable via any loot table or quest reward.
+- Consider adding a "basic_battery" sol component (uncommon, +30-50 capacity) as a mid-tier bridge.
 
-## Monster Loot Wiring
+## Content Completion
 
-All done:
-- [x] All 25 combat monsters have lootTable references (training_target intentionally excluded)
-- [x] 22 monster-specific loot tables exist across common.json (10) and nightside.json (12)
-- [x] Biome loot tables with faction sol modifier drops: frost.json, geothermal.json, fungal.json, outpost.json (3 tiers each: common/uncommon/rare)
-- [x] Monster-specific loot tables now include sol modifier chip drops — faction-aligned, weighted by monster difficulty and mod rarity
-- [ ] Wire biome loot tables to dungeon chests/crates via triggers (e.g. lootTable action on interactable tiles)
-- [ ] Add biome loot table references to procedural dungeon templates (proc_frost_crypt, proc_fungal_forest, proc_quarantine)
+- Loot tables for Act III monsters: threshold_watcher, abyssal_tendril, threshold_keeper have no loot tables. Create nightside/underlumen loot tables with thematic drops.
+- Three ending path dungeons: array_control_center (shutdown), underlumen_nexus_chamber (merge), array_command_core (control). Each needs a final boss encounter and resolution triggers.
+- Post-choice NPC dialogue: Asha, Sable, and MERIDIAN-7 dialogue variants reacting to the player's chosen ending path (chose_path_shutdown/merge/control flags).
+- Unbounded elder NPC for deep Nightside (referenced by Sable). Provides Underlumen lore, gates merge path.
+- Council faction NPCs (Steward, Compact, Root representatives) for political branching.
 
 ## Combat & AI Polish
 
-- Consider adding a "reveal" visual effect on client when ambush monsters appear (fade-in animation)
-- Monster projectiles (from ranged_kite) use generic blue color — tint by monster type or add distinct sprite
-- The existing dungeon `patrol` field on monsterSpawns is unused by the engine — wire into patrol AI
-- Pack AI could be extended with a "pack leader" variant that buffs nearby pack members
+- Monster projectiles use generic blue color — tint by monster type or add distinct sprite.
+- Add explicit patrolPath waypoints to remaining patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
+- Pack AI "pack leader" variant that buffs nearby pack members.
 
-## Sol Grid Follow-ups
+## Balance
 
-- [x] Client UI displays healOnHit, energyCostReduction, and boostedEnergyRegen in sol grid
-- [x] Define the 5-6 sol unit variants (grid dimensions, innate perks, where found) — 6 variants in sol_units.json with innateBonus engine support
-- Design and implement extended-adjacency modifiers (radius 2, entire row/column) for rare/legendary tier
-- Define modifier stat ranges per rarity tier (common -> legendary number values)
-- Client UI should display sol unit innateBonus info (name, perk description) on the sol grid screen
-- Add dungeon triggers/loot for acquiring new sol units (nightcaster_frame, array_precision_core, greenway_bioframe, underlumen_nexus)
-
-## Act II Quest Follow-ups
-
-- Add placeholder sprites for Nightside Caverns and Depths tilesets (currently using frost_crypt)
-- Consider a dedicated "nightside" tileset with umbracite-vein wall tiles
-- Crystal Guardian boss could have unique AI instead of generic melee_chase
-- MERIDIAN-7's umbrasite quest could become repeatable with escalating tiers
-- Make sure initial MERIDIAN-7 trade at train station flows into Array Hub quest
-- Add map/minimap markers or quest waypoints for Nightside Caverns entrance
-- [x] Environmental hazards in biome dungeons (cold, heat, poison damage implemented)
-
-## Array Complex Follow-ups
-
-- Add placeholder sprites for array_sentinel and array_fabricator monsters
-- Add loot tables for array_sentinel and array_fabricator (currently undefined)
-- Add generate-sprites.js entries for new Array construct monsters
-- Consider gating array_synthesis_lab access behind umbrasite quest completion (currently open)
-- Add array_clearance_badge as a key requirement for array_deep_processing door (currently unused key item)
-- Wire array_secret_discovered flag into MERIDIAN-7 dialogue at the Hub (confrontation dialogue)
-- Wire array_secret_discovered flag into Sable, Asha, or Council NPC dialogue for Act 3 progression
-- Consider adding an Array overseer mini-boss in array_deep_processing
-
-## Art & Sprites
-
-- Update `tools/generate-sprites.js` to use hex values from `docs/art-style-guide.md` master palette
-- Create tileset strips for each zone theme (currently only stone_crypt has a full tileset)
-- Add animation frames (idle, attack, hit) once the engine supports sprite animation
+- Late-game monsters (magma_brute 240 HP, frost_warden 280 HP, elder_sporecap 320 HP) may need XP increases to match their post-balance-pass durability.
+- Playtest energy pacing at mid-game (improved_generator @ 5/s) to confirm Sol Beam spam isn't trivial.
+- Crystal Guardian at 700 HP — verify this feels epic, not grindy.
+- Pulse Rifle DPS (60) close to Sol Beam DPS (~84) — monitor whether rare weapon feels unrewarding.
+- Rechargeable Battery L1 (30 energy) may need bump to 40 given higher ability usage.
 
 ## Audio
 
-- Add placeholder sound effects for core actions: weapon attack, ability fire, monster hit, monster death, item pickup, door open, level transition
-- Wire audio events into client/audio.js
-- Add per-biome ambient sound/music definitions
+- Assign biome-appropriate tilesets to dungeons still using generic "crypt" (outpost_* should use "outpost", station_* should use "station", meridian_* should use "meridian"). Activates per-biome music automatically.
+- Wire `boss_crystal` music track into Crystal Guardian encounter triggers (track exists but isn't triggered).
+
+## Testing
+
+- Integration tests (Tier 4): combat flow, equipment system, sol grid adjacency, room lifecycle.
+- Headless sim bot stuck at ~4/43 rooms — needs pathfinding/NPC interaction improvements for useful sim-based testing.
+
+## Automation Grid (Phases 3-5)
+
+Phase 3: Add `openAutomation` scripting action, MERIDIAN-7 trigger, client handler for AUTO_STATE with openScreen.
+Phase 4: Dungeon sync — merge automation placements into tile data for dayside_solar_fields.
+Phase 5: Tooltips, sound effects, mobile/touch, controller support.
+
+## Sol Grid
+
+- Extended-adjacency modifiers (radius 2, row/column) for rare/legendary tier.
+- Battery math: capacity per tier, energy costs per ability, casts per full charge.
+- Harvester scaling: silicon rate, max harvesters, late-game upgrades.
+- Multiplayer implications: shared grid builds? Specialization?
+
+## Art & Sprites
+
+- Replace all placeholder sprites with proper pixel art per art-style-guide.md (long-term).
+- Placeholder sprites needed: array_overseer (unique), sable_nightside_guide, sable_threshold.
+- Tileset strips for each zone theme.
+- Animation frames (idle, attack, hit) when engine supports sprite animation.
+
+## Act II Quest Follow-ups
+
+- Wire autotroph_path_defiant / autotroph_path_cooperative flags into Act III branching.
+- Phase 3 investigation quest after Autotroph confrontation.
+- Map markers for Nightside Caverns entrance.

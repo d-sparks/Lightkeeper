@@ -119,6 +119,14 @@ class Renderer {
     this.aimIndicator = null;  // reference to input.aimIndicator { active, angle }
     this.aimLineGfx = null;
 
+    // Boss phase transition effects (screen-space particle bursts)
+    this.bossPhaseEffects = [];
+    // Track last known boss phase to detect transitions
+    this.lastBossPhase = null;
+
+    // Boss intro cinematic state
+    this.bossIntro = null; // { bossName, x, y, elapsed, duration, phase }
+
     this._initPixi();
   }
 
@@ -205,6 +213,58 @@ class Renderer {
     this.questArrowGfx = new PIXI.Graphics();
     this.overlayContainer.addChild(this.questArrowGfx);
     this.questObjective = null; // { label, tileX, tileY, sameRoom }
+    this.secondaryQuestObjectives = null; // array of { label, tileX, tileY, sameRoom, targetLocationId }
+
+    // Boss intro cinematic overlays
+    this.bossIntroContainer = new PIXI.Container();
+    this.bossIntroContainer.visible = false;
+    this.overlayContainer.addChild(this.bossIntroContainer);
+
+    this.bossIntroBarTop = new PIXI.Graphics();
+    this.bossIntroContainer.addChild(this.bossIntroBarTop);
+    this.bossIntroBarBottom = new PIXI.Graphics();
+    this.bossIntroContainer.addChild(this.bossIntroBarBottom);
+
+    this.bossIntroVignette = new PIXI.Graphics();
+    this.bossIntroContainer.addChild(this.bossIntroVignette);
+
+    this.bossIntroText = new PIXI.Text('', {
+      fontFamily: 'Courier New',
+      fontSize: 18,
+      fontWeight: 'bold',
+      fill: '#ffa726',
+      align: 'center',
+      dropShadow: true,
+      dropShadowColor: '#000000',
+      dropShadowDistance: 2,
+    });
+    this.bossIntroText.anchor.set(0.5);
+    this.bossIntroContainer.addChild(this.bossIntroText);
+
+    this.bossIntroSubtitle = new PIXI.Text('', {
+      fontFamily: 'Courier New',
+      fontSize: 11,
+      fill: '#b0bec5',
+      align: 'center',
+      dropShadow: true,
+      dropShadowColor: '#000000',
+      dropShadowDistance: 1,
+    });
+    this.bossIntroSubtitle.anchor.set(0.5);
+    this.bossIntroContainer.addChild(this.bossIntroSubtitle);
+
+    // Quest waypoint label on minimap
+    this.questWaypointText = new PIXI.Text('', {
+      fontFamily: 'monospace',
+      fontSize: 10,
+      fill: 0xffa726,
+      align: 'center',
+      strokeThickness: 2,
+      stroke: 0x000000,
+    });
+    this.questWaypointText.anchor.set(0.5, 1);
+    this.questWaypointText.visible = false;
+    this.overlayContainer.addChild(this.questWaypointText);
 
     // Lighting system (darkness overlay with light holes)
     this.ambientLight = 1.0;
@@ -414,6 +474,26 @@ class Renderer {
         door_closed: 0xc0a070, door_open: 0xb09870, stairs_down: 0xa08060,
         stairs_up: 0x80a060, water: 0xe8c060, void: 0x8a7050,
         chest_closed: 0xb0a080, chest_opened: 0xa09070,
+      },
+    },
+    nightside: {
+      wallRise: 32,
+      floor:      { fill: '#1a1528', edge: 'rgba(140,100,220,0.05)' },
+      floor2:     { fill: '#1e1830', crack: 'rgba(120,60,200,0.25)', edge: 'rgba(140,100,220,0.06)' },
+      water:      { fill: '#0e0a1e', wave: 'rgba(100,60,180,0.3)' },
+      stairsDown: { fill: '#2a1a3e', step: 'rgba(180,140,255,0.15)', chevron: 'rgba(180,140,255,0.4)' },
+      stairsUp:   { fill: '#1a2e3a', step: 'rgba(140,200,220,0.15)', chevron: 'rgba(140,200,220,0.4)' },
+      doorOpen:   { fill: '#1e1528', frame: 'rgba(140,80,220,0.35)' },
+      wall:       { top: '#3a2a5a', left: '#2e2050', right: '#221840', edge: 'rgba(160,100,255,0.1)' },
+      doorClosed: { top: '#4a3070', left: '#3e2660', right: '#321e50', arch: 'rgba(180,120,255,0.2)', edge: 'rgba(160,100,255,0.12)' },
+      lockedDoor: { top: '#3a2660', left: '#2e1e50', right: '#221640', arch: 'rgba(180,120,255,0.15)', lock: 'rgba(180,100,255,0.6)', lockEdge: 'rgba(200,140,255,0.4)', edge: 'rgba(160,100,255,0.08)' },
+      chest:      { top: '#2e2848', left: '#242040', right: '#1a1830', band: 'rgba(140,100,180,0.4)', lock: 'rgba(180,100,255,0.7)', lockEdge: 'rgba(200,140,255,0.5)', edge: 'rgba(160,100,255,0.1)' },
+      chestOpen:  { fill: '#1a1830', edge: 'rgba(140,100,180,0.5)', inner: 'rgba(0,0,0,0.4)' },
+      minimap: {
+        dark_stone_floor: 0x1a1528, umbracite_floor: 0x241a3a, umbracite_vein_wall: 0x3a2a5a,
+        crystal_door_closed: 0x4a3070, crystal_door_open: 0x1e1528, deep_stairs_down: 0x2a1a3e,
+        deep_stairs_up: 0x1a2e3a, dark_pool: 0x0e0a1e, void: 0x08060e,
+        chest_closed: 0x2e2848, chest_opened: 0x1a1830,
       },
     },
   };
@@ -942,6 +1022,7 @@ class Renderer {
     this._tickHitFlashes(dt);
     this._tickAmbushFadeIns(dt);
     this._tickScreenShake(dt);
+    this._updateBossIntro(dt);
 
     // Position world container (camera offset + screen shake)
     const shake = this._getShakeOffset();
@@ -982,8 +1063,21 @@ class Renderer {
     const me = this.state.players.find(p => p.id === this.myId);
     if (!me) return;
 
+    // During boss intro, lerp camera toward boss position
+    let focusX = me.x, focusY = me.y;
+    if (this.bossIntro) {
+      const t = this.bossIntro.elapsed / this.bossIntro.duration;
+      // Pan toward boss during 10%-60%, pan back during 65%-95%
+      let blend = 0;
+      if (t >= 0.1 && t < 0.6) blend = Math.min(1, (t - 0.1) / 0.15);
+      else if (t >= 0.6 && t < 0.65) blend = 1;
+      else if (t >= 0.65 && t < 0.95) blend = 1 - (t - 0.65) / 0.3;
+      focusX = me.x + (this.bossIntro.x - me.x) * blend;
+      focusY = me.y + (this.bossIntro.y - me.y) * blend;
+    }
+
     if (this.isoMode) {
-      const iso = this.worldToIso(me.x, me.y);
+      const iso = this.worldToIso(focusX, focusY);
       const targetX = iso.x - this.viewW / 2;
       const targetY = iso.y - this.viewH / 2;
 
@@ -1011,8 +1105,8 @@ class Renderer {
       return;
     }
 
-    const targetX = me.x - this.viewW / 2;
-    const targetY = me.y - this.viewH / 2;
+    const targetX = focusX - this.viewW / 2;
+    const targetY = focusY - this.viewH / 2;
 
     const mapW = this.map.width * CONSTANTS.TILE_SIZE;
     const mapH = this.map.height * CONSTANTS.TILE_SIZE;
@@ -1589,14 +1683,26 @@ class Renderer {
 
       // Name tag (above sprite top)
       nameTag.text = mob.name;
-      nameTag.style.fill = '#e57373';
-      nameTag.y = this.isoMode ? -42 : -r - 6;
+      nameTag.style.fill = mob.boss ? '#ff8a80' : '#e57373';
+      if (mob.boss) {
+        nameTag.style.fontSize = 11;
+        nameTag.style.fontWeight = 'bold';
+      } else {
+        nameTag.style.fontSize = 9;
+        nameTag.style.fontWeight = 'normal';
+      }
+      nameTag.y = this.isoMode ? (mob.boss ? -50 : -42) : -r - 6;
       nameTag.visible = true;
 
-      // Health bar (just below name tag)
+      // Health bar (just below name tag) — bosses get a wider bar
       const hp = mob.health / mob.maxHealth;
-      const barColor = hp > 0.5 ? 0xe53935 : 0xff6f00;
-      this._drawHealthBar(healthBg, healthFill, 0, this.isoMode ? -40 : -r - 4, 26, 3, hp, barColor);
+      const barColor = mob.boss
+        ? (hp > 0.6 ? 0xe53935 : hp > 0.3 ? 0xff6f00 : 0xd50000)
+        : (hp > 0.5 ? 0xe53935 : 0xff6f00);
+      const barW = mob.boss ? 40 : 26;
+      const barH = mob.boss ? 5 : 3;
+      const barY = this.isoMode ? (mob.boss ? -48 : -40) : -r - 4;
+      this._drawHealthBar(healthBg, healthFill, 0, barY, barW, barH, hp, barColor);
 
       // Ambush fade-in: override alpha if this mob is fading in
       if (this.ambushFadeIns.has(mob.id)) {
@@ -1638,6 +1744,8 @@ class Renderer {
           shadow_bolt: 0x7c4dff,   // dark purple
           magma_glob: 0xff6e40,    // fiery orange
           spore_cloud: 0x69f0ae,   // sickly green
+          crystal_shard_bolt: 0x80deea, // icy cyan
+          energy_bolt: 0xffab40,   // amber/orange
         };
         sprite.tint = projColors[proj.projectileType] || 0x4fc3f7;
         container.addChild(sprite);
@@ -1987,19 +2095,106 @@ class Renderer {
     };
   }
 
+  _updateBossIntro(dt) {
+    if (!this.bossIntro) {
+      this.bossIntroContainer.visible = false;
+      return;
+    }
+
+    this.bossIntro.elapsed += dt;
+    const { elapsed, duration, bossName, bossTitle } = this.bossIntro;
+    const t = elapsed / duration; // 0..1
+
+    if (t >= 1) {
+      this.bossIntro = null;
+      this.bossIntroContainer.visible = false;
+      return;
+    }
+
+    this.bossIntroContainer.visible = true;
+
+    // Letterbox bar height: ease in during first 15%, hold, ease out during last 15%
+    const barMax = 40;
+    let barH;
+    if (t < 0.12) barH = barMax * (t / 0.12);
+    else if (t > 0.85) barH = barMax * (1 - (t - 0.85) / 0.15);
+    else barH = barMax;
+
+    // Draw letterbox bars
+    this.bossIntroBarTop.clear();
+    this.bossIntroBarTop.beginFill(0x000000);
+    this.bossIntroBarTop.drawRect(0, 0, this.viewW, barH);
+    this.bossIntroBarTop.endFill();
+
+    this.bossIntroBarBottom.clear();
+    this.bossIntroBarBottom.beginFill(0x000000);
+    this.bossIntroBarBottom.drawRect(0, this.viewH - barH, this.viewW, barH);
+    this.bossIntroBarBottom.endFill();
+
+    // Vignette overlay: dark edges that pulse during intro
+    this.bossIntroVignette.clear();
+    let vigAlpha = 0;
+    if (t < 0.15) vigAlpha = 0.35 * (t / 0.15);
+    else if (t > 0.8) vigAlpha = 0.35 * (1 - (t - 0.8) / 0.2);
+    else vigAlpha = 0.35;
+    // Draw darkened border rectangles to simulate vignette
+    this.bossIntroVignette.beginFill(0x000000, vigAlpha);
+    const vEdge = Math.floor(this.viewW * 0.12);
+    const hEdge = Math.floor(this.viewH * 0.15);
+    this.bossIntroVignette.drawRect(0, barH, vEdge, this.viewH - barH * 2);  // left
+    this.bossIntroVignette.drawRect(this.viewW - vEdge, barH, vEdge, this.viewH - barH * 2);  // right
+    this.bossIntroVignette.endFill();
+    // Softer inner vignette
+    this.bossIntroVignette.beginFill(0x000000, vigAlpha * 0.4);
+    this.bossIntroVignette.drawRect(vEdge, barH, vEdge * 0.6, this.viewH - barH * 2);
+    this.bossIntroVignette.drawRect(this.viewW - vEdge - vEdge * 0.6, barH, vEdge * 0.6, this.viewH - barH * 2);
+    this.bossIntroVignette.drawRect(0, barH, this.viewW, hEdge * 0.5);
+    this.bossIntroVignette.drawRect(0, this.viewH - barH - hEdge * 0.5, this.viewW, hEdge * 0.5);
+    this.bossIntroVignette.endFill();
+
+    // Boss name text: fade in from 15%-30%, hold, fade out from 75%-88%
+    let textAlpha = 0;
+    if (t >= 0.15 && t < 0.30) textAlpha = (t - 0.15) / 0.15;
+    else if (t >= 0.30 && t <= 0.75) textAlpha = 1;
+    else if (t > 0.75 && t < 0.88) textAlpha = 1 - (t - 0.75) / 0.13;
+
+    this.bossIntroText.text = bossName;
+    this.bossIntroText.alpha = textAlpha;
+    this.bossIntroText.x = this.viewW / 2;
+    this.bossIntroText.y = this.viewH - barH - 38;
+
+    // Boss subtitle (epithet): fade in slightly after name, fade out together
+    if (bossTitle) {
+      let subAlpha = 0;
+      if (t >= 0.22 && t < 0.37) subAlpha = (t - 0.22) / 0.15;
+      else if (t >= 0.37 && t <= 0.75) subAlpha = 1;
+      else if (t > 0.75 && t < 0.88) subAlpha = 1 - (t - 0.75) / 0.13;
+      this.bossIntroSubtitle.text = bossTitle;
+      this.bossIntroSubtitle.alpha = subAlpha * 0.8;
+      this.bossIntroSubtitle.x = this.viewW / 2;
+      this.bossIntroSubtitle.y = this.viewH - barH - 20;
+    } else {
+      this.bossIntroSubtitle.alpha = 0;
+    }
+  }
+
   _getDeathStyle(monsterType) {
     // Categorize monsters into death animation styles
     const styleMap = {
       // Shadow/wraith types: dissolve (fade + expand)
       shadow_ambusher: 'dissolve', gloom_wraith: 'dissolve',
       shade_stalker: 'dissolve', shade_stalker_alpha: 'dissolve',
+      rime_stalker: 'dissolve',
       // Heavy/brute types: crumble (shake + collapse)
       magma_brute: 'crumble', crystal_guardian: 'crumble',
       frost_warden: 'crumble', luddite_warlord: 'crumble',
       elder_sporecap: 'crumble', nest_mother: 'crumble',
       // Fungal types: pop (scale up then vanish)
       sporecap_shambler: 'pop', mycelium_lurker: 'pop',
-      fungal_sprayer: 'pop',
+      fungal_sprayer: 'pop', scrap_drone: 'pop',
+      // Crystal/array types: shatter (flash + scatter)
+      crystal_shard_minion: 'shatter',
+      array_sentinel: 'shatter', array_fabricator: 'shatter',
     };
     return styleMap[monsterType] || 'collapse'; // default: original collapse
   }
@@ -2026,7 +2221,7 @@ class Renderer {
     this.entityContainer.addChild(container);
 
     const style = this._getDeathStyle(monsterType);
-    const maxAge = style === 'crumble' ? 0.5 : 0.4;
+    const maxAge = style === 'crumble' ? 0.5 : style === 'shatter' ? 0.3 : 0.4;
 
     this.deathAnims.push({
       container, sprite, x, y, style,
@@ -2071,6 +2266,20 @@ class Renderer {
             da.sprite.scale.y = 1.6 * shrink;
           }
           da.container.alpha = progress < 0.3 ? 1 : 1 - ((progress - 0.3) / 0.7);
+          break;
+        case 'shatter':
+          // Brief white flash then rapid fade with scale burst
+          if (progress < 0.15) {
+            da.sprite.tint = 0xffffff;
+            da.sprite.scale.x = 1 + progress * 3;
+            da.sprite.scale.y = 1 + progress * 3;
+          } else {
+            da.sprite.tint = 0x80deea;
+            const fade = 1 - ((progress - 0.15) / 0.85);
+            da.container.alpha = fade * fade;
+            da.sprite.scale.x = 1.5 * (1 + (progress - 0.15) * 0.5);
+            da.sprite.scale.y = 1.5 * (1 - (progress - 0.15) * 0.8);
+          }
           break;
         default: // 'collapse' — original behavior
           da.container.alpha = 1 - progress;
@@ -2155,6 +2364,10 @@ class Renderer {
           range: ev.range,
           age: 0, maxAge: 0.4,
         });
+        // Screen shake on heavy attack (cone abilities)
+        if (ev.ownerId === this.myId) {
+          this.screenShake = { intensity: 3, duration: 0.12, elapsed: 0 };
+        }
       } else if (ev.type === 'melee_effect') {
         this.meleeEffects.push({
           x: ev.x, y: ev.y,
@@ -2162,6 +2375,46 @@ class Renderer {
           range: ev.range,
           age: 0, maxAge: 0.2,
         });
+        // Screen shake on player's own melee strike
+        if (ev.ownerId === this.myId) {
+          this.screenShake = { intensity: 2, duration: 0.08, elapsed: 0 };
+        }
+      } else if (ev.type === 'boss_phase') {
+        // Phase transition: screen shake + floating text + flash
+        this.screenShake = { intensity: 8, duration: 0.5, elapsed: 0 };
+        const phaseLabels = { 1: 'PHASE 1', 2: 'PHASE 2 - RANGED', 3: 'PHASE 3 - ENRAGED' };
+        this.damageNumbers.push({
+          text: phaseLabels[ev.phase] || `PHASE ${ev.phase}`,
+          x: ev.x, y: ev.y - 30,
+          age: 0, maxAge: 2.5,
+          color: '#ffa726',
+        });
+        // Trigger CSS flash on HUD boss bar
+        const track = document.querySelector('.boss-bar-track');
+        if (track) {
+          track.classList.remove('phase-flash');
+          void track.offsetWidth; // reflow to restart animation
+          track.classList.add('phase-flash');
+        }
+      } else if (ev.type === 'boss_summon') {
+        // Summon event: lighter shake + text
+        this.screenShake = { intensity: 5, duration: 0.3, elapsed: 0 };
+        this.damageNumbers.push({
+          text: 'SUMMONING!',
+          x: ev.x, y: ev.y - 20,
+          age: 0, maxAge: 1.5,
+          color: '#ce93d8',
+        });
+      } else if (ev.type === 'boss_intro' && ev.playerId === this.myId) {
+        // Start boss intro cinematic
+        this.bossIntro = {
+          bossName: ev.bossName || 'BOSS',
+          bossTitle: ev.bossTitle || null,
+          x: ev.x, y: ev.y,
+          elapsed: 0,
+          duration: 3.5,  // total cinematic length in seconds
+        };
+        this.screenShake = { intensity: 6, duration: 0.8, elapsed: 0 };
       }
     }
   }
@@ -2216,7 +2469,11 @@ class Renderer {
 
   renderMinimap() {
     this.minimapGfx.clear();
-    if (!this.map) return;
+    this._minimapLabelIdx = 0;
+    if (!this.map) {
+      this._hideUnusedMinimapLabels();
+      return;
+    }
 
     const ts = CONSTANTS.TILE_SIZE;
     const W = this.map.width;
@@ -2305,9 +2562,21 @@ class Renderer {
         for (const player of this.state.players) {
           const p = isoPx(player.x, player.y);
           const isMe = player.id === this.myId;
-          this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
-          this.minimapGfx.drawRect(p.x - dotLarge / 2, p.y - dotLarge / 2, dotLarge, dotLarge);
+          const color = isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff);
+          const sz = isMe ? dotLarge : dotLarge + 1;
+          // Outline for other players to distinguish from items
+          if (!isMe) {
+            this.minimapGfx.beginFill(0x000000);
+            this.minimapGfx.drawRect(p.x - (sz + 2) / 2, p.y - (sz + 2) / 2, sz + 2, sz + 2);
+            this.minimapGfx.endFill();
+          }
+          this.minimapGfx.beginFill(color);
+          this.minimapGfx.drawRect(p.x - sz / 2, p.y - sz / 2, sz, sz);
           this.minimapGfx.endFill();
+          // Name label in full map mode
+          if (full && !isMe && player.name) {
+            this._drawMinimapLabel(player.name, p.x, p.y - sz - 2, color);
+          }
         }
       }
 
@@ -2321,16 +2590,25 @@ class Renderer {
         this.minimapGfx.endFill();
       }
 
-      // Quest objective pulsing dot
-      if (this.questObjective) {
-        const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+      // Secondary quest objective dots (drawn first so primary draws on top)
+      if (this.secondaryQuestObjectives) {
+        for (const secObj of this.secondaryQuestObjectives) {
+          if (secObj.tileX != null) {
+            const sp = isoPx((secObj.tileX + 0.5) * ts, (secObj.tileY + 0.5) * ts);
+            this._drawSecondaryWaypoint(sp.x, sp.y, questDotR, secObj, mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2);
+          }
+        }
+      }
+
+      // Quest objective waypoint marker (primary / tracked)
+      if (this.questObjective && this.questObjective.tileX != null) {
         const qp = isoPx(
           (this.questObjective.tileX + 0.5) * ts,
           (this.questObjective.tileY + 0.5) * ts
         );
-        this.minimapGfx.beginFill(0xffa726, pulse);
-        this.minimapGfx.drawCircle(qp.x, qp.y, questDotR);
-        this.minimapGfx.endFill();
+        this._drawQuestWaypoint(qp.x, qp.y, questDotR, this.questObjective, mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2, full);
+      } else {
+        this.questWaypointText.visible = false;
       }
 
       // Viewport circle at player position
@@ -2402,9 +2680,19 @@ class Renderer {
           const dotX = Math.round(mmX + (player.x / ts) * scale);
           const dotY = Math.round(mmY + (player.y / ts) * scale);
           const isMe = player.id === this.myId;
-          this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
-          this.minimapGfx.drawRect(dotX - dotLarge / 2, dotY - dotLarge / 2, dotLarge, dotLarge);
+          const color = isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff);
+          const sz = isMe ? dotLarge : dotLarge + 1;
+          if (!isMe) {
+            this.minimapGfx.beginFill(0x000000);
+            this.minimapGfx.drawRect(dotX - (sz + 2) / 2, dotY - (sz + 2) / 2, sz + 2, sz + 2);
+            this.minimapGfx.endFill();
+          }
+          this.minimapGfx.beginFill(color);
+          this.minimapGfx.drawRect(dotX - sz / 2, dotY - sz / 2, sz, sz);
           this.minimapGfx.endFill();
+          if (full && !isMe && player.name) {
+            this._drawMinimapLabel(player.name, dotX, dotY - sz - 2, color);
+          }
         }
       }
 
@@ -2419,14 +2707,24 @@ class Renderer {
         this.minimapGfx.endFill();
       }
 
-      // Quest objective pulsing dot
-      if (this.questObjective) {
-        const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+      // Secondary quest objective dots (drawn first so primary draws on top)
+      if (this.secondaryQuestObjectives) {
+        for (const secObj of this.secondaryQuestObjectives) {
+          if (secObj.tileX != null) {
+            const sx = Math.round(mmX + secObj.tileX * scale);
+            const sy = Math.round(mmY + secObj.tileY * scale);
+            this._drawSecondaryWaypoint(sx, sy, questDotR, secObj, mmX - 2, mmY - 2, mmW + 4, mmH + 4);
+          }
+        }
+      }
+
+      // Quest objective waypoint marker (primary / tracked)
+      if (this.questObjective && this.questObjective.tileX != null) {
         const qx = Math.round(mmX + this.questObjective.tileX * scale);
         const qy = Math.round(mmY + this.questObjective.tileY * scale);
-        this.minimapGfx.beginFill(0xffa726, pulse);
-        this.minimapGfx.drawCircle(qx, qy, questDotR);
-        this.minimapGfx.endFill();
+        this._drawQuestWaypoint(qx, qy, questDotR, this.questObjective, mmX - 2, mmY - 2, mmW + 4, mmH + 4, full);
+      } else {
+        this.questWaypointText.visible = false;
       }
 
       // Viewport rect
@@ -2447,6 +2745,153 @@ class Renderer {
       this.roomNameText.visible = true;
     } else {
       this.roomNameText.visible = false;
+    }
+    this._hideUnusedMinimapLabels();
+  }
+
+  _hideUnusedMinimapLabels() {
+    if (!this._minimapLabels) return;
+    for (let i = this._minimapLabelIdx || 0; i < this._minimapLabels.length; i++) {
+      this._minimapLabels[i].visible = false;
+    }
+  }
+
+  // --- Minimap player name label (full map mode only) ---
+
+  _drawMinimapLabel(name, x, y, color) {
+    // Use pooled PIXI text objects for efficiency
+    if (!this._minimapLabels) this._minimapLabels = [];
+    let label;
+    if (this._minimapLabelIdx < this._minimapLabels.length) {
+      label = this._minimapLabels[this._minimapLabelIdx];
+    } else {
+      label = new PIXI.Text('', {
+        fontSize: 9,
+        fill: 0xffffff,
+        fontFamily: 'monospace',
+        align: 'center',
+        dropShadow: true,
+        dropShadowColor: 0x000000,
+        dropShadowDistance: 1,
+      });
+      label.anchor.set(0.5, 1);
+      this.minimapGfx.parent.addChild(label);
+      this._minimapLabels.push(label);
+    }
+    this._minimapLabelIdx++;
+    label.text = name;
+    label.style.fill = color;
+    label.x = Math.round(x);
+    label.y = Math.round(y);
+    label.visible = true;
+  }
+
+  // --- Secondary quest waypoint (dimmer dot for non-tracked quests) ---
+
+  _drawSecondaryWaypoint(qx, qy, baseR, objective, mmLeft, mmTop, mmWidth, mmHeight) {
+    const inside = qx >= mmLeft && qx <= mmLeft + mmWidth &&
+                   qy >= mmTop && qy <= mmTop + mmHeight;
+    if (!inside) return; // skip edge indicators for secondary — only show when visible
+
+    const pulse = 0.3 + 0.2 * Math.sin(Date.now() / 500);
+    const r = Math.max(baseR - 1, 2);
+    const color = 0x90caf9; // light blue to distinguish from primary orange
+
+    // Small circle dot
+    this.minimapGfx.beginFill(color, 0.5 + pulse);
+    this.minimapGfx.drawCircle(qx, qy, r);
+    this.minimapGfx.endFill();
+
+    // Subtle pulsing ring
+    this.minimapGfx.lineStyle(1, color, pulse * 0.5);
+    this.minimapGfx.drawCircle(qx, qy, r + 2);
+    this.minimapGfx.lineStyle(0);
+  }
+
+  // --- Quest waypoint drawing helper (used by both iso and top-down minimap) ---
+
+  _drawQuestWaypoint(qx, qy, baseR, objective, mmLeft, mmTop, mmWidth, mmHeight, full) {
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+    const sameRoom = objective.sameRoom !== false;
+    const r = baseR;
+
+    // Check if the marker is inside the minimap bounds
+    const inside = qx >= mmLeft && qx <= mmLeft + mmWidth &&
+                   qy >= mmTop && qy <= mmTop + mmHeight;
+
+    if (inside) {
+      if (sameRoom) {
+        // Diamond marker for actual objective
+        this.minimapGfx.beginFill(0xffa726, 0.9);
+        this.minimapGfx.moveTo(qx, qy - r);
+        this.minimapGfx.lineTo(qx + r, qy);
+        this.minimapGfx.lineTo(qx, qy + r);
+        this.minimapGfx.lineTo(qx - r, qy);
+        this.minimapGfx.closePath();
+        this.minimapGfx.endFill();
+
+        // Pulsing outer ring
+        this.minimapGfx.lineStyle(1, 0xffa726, pulse);
+        this.minimapGfx.drawCircle(qx, qy, r + 3);
+        this.minimapGfx.lineStyle(0);
+      } else {
+        // Chevron/arrow marker for exit-toward-objective
+        const s = r + 1;
+        this.minimapGfx.beginFill(0xffa726, pulse);
+        // Right-pointing chevron
+        this.minimapGfx.moveTo(qx + s, qy);
+        this.minimapGfx.lineTo(qx - s * 0.3, qy - s);
+        this.minimapGfx.lineTo(qx, qy);
+        this.minimapGfx.lineTo(qx - s * 0.3, qy + s);
+        this.minimapGfx.closePath();
+        this.minimapGfx.endFill();
+
+        // Pulsing outer ring
+        this.minimapGfx.lineStyle(1, 0xffa726, pulse * 0.7);
+        this.minimapGfx.drawCircle(qx, qy, r + 3);
+        this.minimapGfx.lineStyle(0);
+      }
+    } else if (!full) {
+      // Edge indicator: clamp to minimap border and draw a small arrow
+      const cx = mmLeft + mmWidth / 2;
+      const cy = mmTop + mmHeight / 2;
+      const dx = qx - cx;
+      const dy = qy - cy;
+      const halfW = mmWidth / 2 - 4;
+      const halfH = mmHeight / 2 - 4;
+      const scale = Math.min(
+        Math.abs(halfW / (dx || 0.001)),
+        Math.abs(halfH / (dy || 0.001))
+      );
+      const edgeX = cx + dx * scale;
+      const edgeY = cy + dy * scale;
+
+      // Draw pulsing triangle pointing outward
+      const angle = Math.atan2(dy, dx);
+      const s = 4;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      this.minimapGfx.beginFill(0xffa726, pulse);
+      this.minimapGfx.moveTo(edgeX + cos * s, edgeY + sin * s);
+      this.minimapGfx.lineTo(edgeX + (-sin * s * 0.7 - cos * s * 0.5), edgeY + (cos * s * 0.7 - sin * s * 0.5));
+      this.minimapGfx.lineTo(edgeX + (sin * s * 0.7 - cos * s * 0.5), edgeY + (-cos * s * 0.7 - sin * s * 0.5));
+      this.minimapGfx.closePath();
+      this.minimapGfx.endFill();
+
+      qx = edgeX;
+      qy = edgeY;
+    }
+
+    // Show label in full map mode or when marker is inside compact minimap
+    if (objective.label && (full || inside)) {
+      const label = sameRoom ? objective.label : objective.label + ' \u2192';
+      this.questWaypointText.text = label;
+      this.questWaypointText.x = Math.round(qx);
+      this.questWaypointText.y = Math.round(qy - r - 4);
+      this.questWaypointText.visible = true;
+      this.questWaypointText.style.fontSize = full ? 12 : 9;
+    } else {
+      this.questWaypointText.visible = false;
     }
   }
 

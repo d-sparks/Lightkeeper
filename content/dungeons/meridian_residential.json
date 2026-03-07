@@ -142,6 +142,20 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "sable_warned_post_secret",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sable_meridian" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "not": { "hasFlag": "sable_warned_about_array" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "sable_warned_about_array" },
+        { "type": "grantXp", "amount": 25 }
+      ],
+      "once": true
     }
   ]
 }

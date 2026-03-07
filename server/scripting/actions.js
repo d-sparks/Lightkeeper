@@ -21,6 +21,7 @@
 //   { type: "showChoice",  choiceId: "weapon_choice", prompt: "Choose:", options: [{label, description, value}] }
 //   { type: "giveStructure", structureId: "solar_panel" }
 //   { type: "openAutomation" }
+//   { type: "rollLootTable", lootTable: "frost_biome_common", x: 5, y: 3 }  // roll from loot table, spawn result; x/y optional
 //   { type: "spawnNpc",    npcType: "outpost_warden", x: 4, y: 10 }  // spawns NPC at tile coords if not already present
 
 const CONSTANTS = require('../../shared/constants');
@@ -108,6 +109,9 @@ class ActionExecutor {
         break;
       case 'spawnNpc':
         this.doSpawnNpc(action, context);
+        break;
+      case 'rollLootTable':
+        this.doRollLootTable(action, context);
         break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
@@ -496,6 +500,53 @@ class ActionExecutor {
         tileId: action.tileId,
       });
     }
+  }
+
+  doRollLootTable(action, context) {
+    const room = context.room;
+    if (!room || !action.lootTable) return;
+    const table = this.content.getLootTable(action.lootTable);
+    if (!table || !table.rolls || table.rolls.length === 0) return;
+
+    // Weighted random selection
+    const totalWeight = table.rolls.reduce((sum, r) => sum + (r.weight || 1), 0);
+    let roll = Math.random() * totalWeight;
+    let chosen = null;
+    for (const entry of table.rolls) {
+      roll -= (entry.weight || 1);
+      if (roll <= 0) { chosen = entry; break; }
+    }
+    if (!chosen) return;
+
+    const itemDef = this.content.getItem(chosen.item);
+    if (!itemDef) return;
+
+    // Determine spawn position: explicit tile coords > event tileX/tileY > player position
+    let x, y;
+    if (action.x !== undefined && action.y !== undefined) {
+      x = (action.x + 0.5) * CONSTANTS.TILE_SIZE;
+      y = (action.y + 0.5) * CONSTANTS.TILE_SIZE;
+    } else if (context.eventPayload && context.eventPayload.tileX !== undefined) {
+      x = (context.eventPayload.tileX + 0.5) * CONSTANTS.TILE_SIZE;
+      y = (context.eventPayload.tileY + 0.5) * CONSTANTS.TILE_SIZE;
+    } else if (context.player) {
+      x = context.player.x;
+      y = context.player.y;
+    } else {
+      x = CONSTANTS.TILE_SIZE;
+      y = CONSTANTS.TILE_SIZE;
+    }
+
+    const itemId = `item_${room.nextItemId++}`;
+    room.items.set(itemId, {
+      id: itemId,
+      type: chosen.item,
+      name: itemDef.name,
+      rarity: itemDef.rarity || 'common',
+      category: itemDef.type,
+      x,
+      y,
+    });
   }
 
   doToggleTile(action, context) {

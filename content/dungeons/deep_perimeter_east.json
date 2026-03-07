@@ -38,17 +38,28 @@
     { "x": 26, "y": 17, "type": "player_start" }
   ],
   "monsterSpawns": [
-    { "type": "gloom_wraith", "x": 8, "y": 3, "count": 1, "patrol": "wander" },
+    { "type": "gloom_wraith", "x": 8, "y": 3, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 1, "y": 1}, {"x": 13, "y": 1}, {"x": 13, "y": 5}, {"x": 1, "y": 5}
+    ] },
     { "type": "gloom_wraith", "x": 20, "y": 8, "count": 1, "patrol": "wander" },
-    { "type": "gloom_wraith", "x": 14, "y": 15, "count": 1, "patrol": "wander" },
+    { "type": "gloom_wraith", "x": 14, "y": 15, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 8, "y": 14}, {"x": 17, "y": 14}, {"x": 17, "y": 17}, {"x": 8, "y": 17}
+    ] },
     { "type": "shade_stalker", "x": 4, "y": 10, "count": 1, "patrol": "guard" },
     { "type": "shade_stalker", "x": 22, "y": 14, "count": 1, "patrol": "guard" },
-    { "type": "shade_stalker", "x": 12, "y": 6, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 12, "y": 6, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 8, "y": 5}, {"x": 17, "y": 5}, {"x": 17, "y": 8}, {"x": 8, "y": 8}
+    ] },
     { "type": "dusk_crawler", "x": 16, "y": 2, "count": 2, "patrol": "wander" },
     { "type": "dusk_crawler", "x": 6, "y": 16, "count": 2, "patrol": "wander" },
     { "type": "rime_stalker", "x": 26, "y": 5, "count": 1, "patrol": "guard" },
     { "type": "frostfang_hunter", "x": 18, "y": 12, "count": 2, "patrol": "wander" },
-    { "type": "frostfang_hunter", "x": 10, "y": 17, "count": 2, "patrol": "wander" }
+    { "type": "frostfang_hunter", "x": 10, "y": 17, "count": 2, "patrol": "wander" },
+    { "type": "shadow_ambusher", "x": 24, "y": 13, "count": 1, "patrol": "guard" },
+    { "type": "shadow_ambusher", "x": 8, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "tunnel_creeper", "x": 20, "y": 16, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 18, "y": 15}, {"x": 25, "y": 15}, {"x": 25, "y": 18}, {"x": 18, "y": 18}
+    ] }
   ],
   "npcSpawns": [],
   "itemSpawns": [

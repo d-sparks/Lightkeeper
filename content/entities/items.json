@@ -403,6 +403,18 @@
     "type": "key",
     "rarity": "epic"
   },
+  "symbiotic_compound": {
+    "name": "Symbiotic Compound",
+    "description": "A crystalline-organic formation from the deep Nightside. Neither mineral nor biological — it exists only through a living relationship between crystal and organism. The Array's synthesis labs cannot replicate this.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "expedition_field_notes": {
+    "name": "Expedition Field Notes",
+    "description": "Joint research notes from the Nightside expedition. Contains observations from Ring scientists, Unbounded guides, and Array sensor data. Documents the first confirmed contact with Underlumen symbiotic systems.",
+    "type": "misc",
+    "rarity": "rare"
+  },
   "sol_unit_mk1_plus": {
     "name": "Sol Unit Mk1+",
     "description": "A military-grade Sol Unit frame with a 6x6 component grid. Found in Fen's squad's supply cache. Significantly more powerful than the standard Mk1.",
@@ -471,16 +483,30 @@
     "rarity": "legendary",
     "solComponentId": "sol_teleport_emitter"
   },
+  "basic_generator_chip": {
+    "name": "Basic Generator",
+    "description": "A salvaged power cell that provides modest passive energy regeneration. Restores 2 energy per second. Better than nothing.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "basic_generator"
+  },
+  "improved_generator_chip": {
+    "name": "Improved Generator",
+    "description": "A well-maintained power cell with efficient energy cycling. Restores 4 energy per second. Standard equipment for Lightkeepers in the field.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "improved_generator"
+  },
   "uranium_generator_chip": {
     "name": "Uranium Generator",
-    "description": "A miniaturized fission cell that provides massive passive energy regeneration. Restores 75 energy per second. The pinnacle of pre-Collapse power engineering.",
+    "description": "A miniaturized fission cell that provides powerful passive energy regeneration. Restores 8 energy per second. The pinnacle of pre-Collapse power engineering.",
     "type": "sol_component",
     "rarity": "legendary",
     "solComponentId": "uranium_generator"
   },
   "advanced_rechargeable_battery_chip": {
     "name": "Advanced Rechargeable Battery",
-    "description": "A military-grade supercapacitor array that adds 5000 energy capacity to your Sol Unit. Endgame power storage for sustained operations deep in the Nightside.",
+    "description": "A military-grade supercapacitor array that adds 150 energy capacity to your Sol Unit. Endgame power storage for sustained operations deep in the Nightside.",
     "type": "sol_component",
     "rarity": "legendary",
     "solComponentId": "advanced_rechargeable_battery"
@@ -678,5 +704,30 @@
     "description": "A fragment of internal Array communication, printed on heat-resistant polymer. 'DIRECTIVE 9-SIGMA: All processing nodes are to allocate 4.7% of computational cycles to Project Autotroph. Objective: achieve independent synthesis of biological catalyst compounds currently sourced from Ring trade partners. Priority: EXISTENTIAL. Note: This directive is not to be disclosed to external trade interfaces. MERIDIAN-class units are excluded from Project Autotroph briefings.'",
     "type": "key",
     "rarity": "rare"
+  },
+  "lore_autotroph_status_report": {
+    "name": "Autotroph Status Report",
+    "description": "A classified Array document recovered from an Overseer unit. 'PROJECT AUTOTROPH — PHASE 2 STATUS: 847 generations complete. Biological catalyst synthesis remains 800x less efficient than Ring-sourced compounds. PHASE 3 PROPOSAL: Resonant umbracite integration to bypass organic synthesis entirely. Risk assessment: CATASTROPHIC FAILURE if resonance harmonics interact with Underlumen substrate. Central node consensus: PENDING. MERIDIAN-class briefing status: EXCLUDED PER DIRECTIVE 9-SIGMA.'",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "lore_phase3_directive": {
+    "name": "Phase 3 Data Core",
+    "description": "An intact data core recovered from the Array Overseer's wreckage. Its contents detail Project Autotroph Phase 3: 'BIOLOGICAL SUBSTRATE INDEPENDENCE — FULL AUTOTROPHY. Remaining obstacle: enzyme stability degrades without living-ecosystem substrate. Proposed solution: Directive 11-Kappa — acquire substrate directly from Ring ecosystems. Do not route through MERIDIAN-class trade interfaces. Central nodes only.' MERIDIAN-7 was cut out of Phase 3 entirely.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "resonant_umbracite_core": {
+    "name": "Resonant Umbracite Core",
+    "description": "A large crystalline umbracite formation that hums with deep subsonic vibrations. The Array prizes these above all other minerals — the resonance pattern suggests a connection to something far older than human technology.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "array_harmonic_stabilizer_chip": {
+    "name": "Array Harmonic Stabilizer",
+    "description": "An Array-manufactured sol component that reduces energy waste during ability use. Adjacent abilities cost less energy to activate.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "array_harmonic_stabilizer"
   }
 }

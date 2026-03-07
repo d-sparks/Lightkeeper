@@ -21,18 +21,18 @@
     "name": "Medipac Heal",
     "type": "heal",
     "heal": 30,
-    "cooldown": 45.0,
+    "cooldown": 25.0,
     "consumesItem": "medical_supplies",
     "defaultSlot": 6
   },
   "sol_beam": {
     "name": "Sol Beam",
     "type": "projectile",
-    "damageMultiplier": 2.0,
+    "damageMultiplier": 2.5,
     "projectileRadius": 8,
     "projectileSpeed": 300,
     "cooldown": 0.8,
-    "energyCost": 5,
+    "energyCost": 6,
     "defaultSlot": 2
   },
   "sol_cone": {
@@ -42,8 +42,8 @@
     "coneRange": 4.5,
     "coneAngle": 70,
     "knockback": 96,
-    "cooldown": 8.0,
-    "energyCost": 10,
+    "cooldown": 3.5,
+    "energyCost": 15,
     "defaultSlot": 2
   },
   "precision_shot": {
@@ -52,7 +52,7 @@
     "damageMultiplier": 1.2,
     "projectileRadius": 4,
     "projectileSpeed": 400,
-    "cooldown": 0.4,
+    "cooldown": 0.5,
     "defaultSlot": 1
   },
   "shock_strike": {
@@ -77,15 +77,15 @@
     "name": "Sol Shield",
     "type": "heal",
     "heal": 35,
-    "cooldown": 12.0,
-    "energyCost": 15,
+    "cooldown": 10.0,
+    "energyCost": 20,
     "defaultSlot": 3
   },
   "sol_teleport": {
     "name": "Sol Teleport",
     "type": "teleport",
     "cooldown": 3.0,
-    "energyCost": 200,
+    "energyCost": 35,
     "maxRange": 20,
     "stickDistance": 12,
     "defaultSlot": 4

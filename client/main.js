@@ -37,6 +37,13 @@
   const worldmapBtn = document.getElementById('worldmap-btn');
   const onboardMove = document.getElementById('onboard-move');
   const onboardInteract = document.getElementById('onboard-interact');
+  const bossBar = document.getElementById('boss-bar');
+  const bossBarName = document.getElementById('boss-bar-name');
+  const bossBarFill = document.getElementById('boss-bar-fill');
+  const bossBarText = document.getElementById('boss-bar-text');
+  const bossBarPhase = document.getElementById('boss-bar-phase');
+  const partyFrames = document.getElementById('party-frames');
+  const PARTY_COLORS = ['#4fc3f7', '#ef5350', '#66bb6a', '#ffa726'];
 
   // --- Instances ---
   const net = new NetClient();
@@ -266,6 +273,7 @@
 
   // Quest state
   let questState = [];
+  let partyQuestsState = [];
   let questToastTimeout = null;
 
   // Tutorial arrow state (driven by quest uiHint)
@@ -597,6 +605,78 @@
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         ctx.fillText('YOU ARE HERE', px, py - 14);
+      }
+    }
+
+    // Secondary quest objective markers (drawn first so primary draws on top)
+    const secObjs = renderer.secondaryQuestObjectives;
+    if (secObjs) {
+      for (const sec of secObjs) {
+        if (!sec.targetLocationId || sec.targetLocationId === worldmapCurrentLocation) continue;
+        const secLoc = locMap[sec.targetLocationId];
+        if (!secLoc) continue;
+        const sx = locX(secLoc.x);
+        const sy = locY(secLoc.y);
+        const sPulse = 0.3 + 0.4 * Math.sin(now / 500);
+
+        // Subtle pulsing ring
+        ctx.beginPath();
+        ctx.arc(sx, sy, 12, 0, Math.PI * 2);
+        ctx.strokeStyle = '#90caf9';
+        ctx.globalAlpha = sPulse * 0.5;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // Small circle above
+        ctx.beginPath();
+        ctx.arc(sx, sy - 14, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#90caf9';
+        ctx.globalAlpha = 0.6;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // Quest objective marker (primary / tracked)
+    const qObj = renderer.questObjective;
+    if (qObj && qObj.targetLocationId && qObj.targetLocationId !== worldmapCurrentLocation) {
+      const targetLoc = locMap[qObj.targetLocationId];
+      if (targetLoc) {
+        const px = locX(targetLoc.x);
+        const py = locY(targetLoc.y);
+        const pulse = 0.4 + 0.6 * Math.sin(now / 300);
+
+        // Pulsing outer ring
+        ctx.beginPath();
+        ctx.arc(px, py, 14, 0, Math.PI * 2);
+        ctx.strokeStyle = '#ffa726';
+        ctx.globalAlpha = pulse * 0.6;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // Diamond marker above the location dot
+        const dy = -16;
+        const s = 5;
+        ctx.beginPath();
+        ctx.moveTo(px, py + dy - s);
+        ctx.lineTo(px + s, py + dy);
+        ctx.lineTo(px, py + dy + s);
+        ctx.lineTo(px - s, py + dy);
+        ctx.closePath();
+        ctx.fillStyle = '#ffa726';
+        ctx.globalAlpha = 0.9;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Label
+        const label = qObj.questName || qObj.label || 'Objective';
+        ctx.fillStyle = '#ffa726';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(label, px, py - 22);
       }
     }
   }
@@ -1312,6 +1392,31 @@
         questPanelContent.appendChild(stepDiv);
       }
     }
+
+    // Party quest progress section
+    if (partyQuestsState.length > 0) {
+      const sep = document.createElement('div');
+      sep.style.cssText = 'border-top:1px solid #333;margin:8px 0 6px;';
+      questPanelContent.appendChild(sep);
+      const header = document.createElement('div');
+      header.style.cssText = 'font-size:10px;color:#777;margin-bottom:4px;';
+      header.textContent = 'PARTY PROGRESS';
+      questPanelContent.appendChild(header);
+      for (const pq of partyQuestsState) {
+        const row = document.createElement('div');
+        row.style.cssText = 'font-size:10px;margin-bottom:2px;display:flex;gap:4px;align-items:center;';
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = pq.name;
+        nameSpan.style.color = PARTY_COLORS[pq.colorIndex] || '#aaa';
+        const stepSpan = document.createElement('span');
+        stepSpan.style.color = '#999';
+        stepSpan.textContent = pq.questName + ': ' + pq.stepLabel;
+        row.appendChild(nameSpan);
+        row.appendChild(stepSpan);
+        questPanelContent.appendChild(row);
+      }
+    }
+
     updateCursorHighlight();
   }
 
@@ -1587,6 +1692,40 @@
     if (!solGridState) return;
     solGridContainer.innerHTML = '';
     const size = solGridState.size || 5;
+
+    // --- Innate bonus banner ---
+    if (solGridState.unitName || solGridState.innateBonus) {
+      const banner = document.createElement('div');
+      banner.className = 'sol-innate-banner';
+      let bannerHtml = '';
+      if (solGridState.unitName) {
+        bannerHtml += '<div class="sol-unit-name">' + solGridState.unitName + '</div>';
+      }
+      if (solGridState.innateBonus) {
+        const bonus = solGridState.innateBonus;
+        bannerHtml += '<div class="sol-innate-perks">';
+        if (bonus.damageMultiplier) {
+          bannerHtml += '<span class="sol-innate-perk">+' + Math.round(bonus.damageMultiplier * 100) + '% damage</span>';
+        }
+        if (bonus.cooldownReduction) {
+          bannerHtml += '<span class="sol-innate-perk">-' + Math.round(bonus.cooldownReduction * 100) + '% cooldown</span>';
+        }
+        if (bonus.energyCostReduction) {
+          bannerHtml += '<span class="sol-innate-perk">-' + Math.round(bonus.energyCostReduction * 100) + '% energy cost</span>';
+        }
+        if (bonus.healOnHit) {
+          bannerHtml += '<span class="sol-innate-perk">+' + bonus.healOnHit + ' heal on hit</span>';
+        }
+        if (bonus.hazardResist && bonus.hazardResist.length > 0) {
+          for (const resist of bonus.hazardResist) {
+            bannerHtml += '<span class="sol-innate-perk">' + resist + ' resist</span>';
+          }
+        }
+        bannerHtml += '</div>';
+      }
+      banner.innerHTML = bannerHtml;
+      solGridContainer.appendChild(banner);
+    }
 
     // --- Top section: placement grid ---
     const grid = document.createElement('div');
@@ -2106,18 +2245,20 @@
       onboardMove.style.display = '';
     }
 
-    // Start background music
+    // Start background music — pick ambient track from data-driven biome_map in music.json
     audio.resume();
-    const roomName = (msg.map && msg.map.name || '').toLowerCase();
-    if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
-      audio.playMusic('outpost');
-    } else {
-      audio.playMusic('dungeon');
-    }
+    const roomName = (msg.map && msg.map.name || '');
+    const tileset = (msg.map && msg.map.tileset || '');
+    audio.playMusic(audio.resolveAmbientTrack(roomName, tileset));
   });
 
   net.on(CONSTANTS.MSG.STATE, (msg) => {
     renderer.setState(msg);
+
+    // Store party quest progress for quest panel
+    if (msg.partyQuests) {
+      partyQuestsState = msg.partyQuests.filter(pq => pq.playerId !== renderer.myId);
+    }
 
     // Process combat events for damage numbers + audio
     if (msg.events) {
@@ -2142,6 +2283,9 @@
           audio.play('pickup');
         } else if (ev.type === 'level_up') {
           audio.play('level_up');
+        } else if (ev.type === 'boss_intro' && ev.playerId === renderer.myId) {
+          audio.play('boss_intro');
+          audio.playMusic(ev.bossMusic || 'boss_combat');
         }
       }
     }
@@ -2172,6 +2316,68 @@
         hudName.textContent = me.name;
         if (me.facing !== undefined) lastFacing = me.facing;
       }
+
+      // Update party member health frames
+      const others = msg.players.filter(p => p.id !== renderer.myId);
+      if (others.length === 0) {
+        partyFrames.style.display = 'none';
+      } else {
+        partyFrames.style.display = '';
+        // Rebuild if player count changed
+        if (partyFrames.childElementCount !== others.length) {
+          partyFrames.innerHTML = '';
+          for (const p of others) {
+            const frame = document.createElement('div');
+            frame.className = 'party-frame';
+            frame.dataset.pid = p.id;
+            const nameEl = document.createElement('span');
+            nameEl.className = 'party-frame-name';
+            nameEl.textContent = p.name;
+            nameEl.style.color = PARTY_COLORS[p.colorIndex] || '#aaa';
+            const barEl = document.createElement('div');
+            barEl.className = 'party-frame-bar';
+            const fillEl = document.createElement('div');
+            fillEl.className = 'party-frame-fill';
+            const pct = Math.max(0, (p.health / p.maxHealth) * 100);
+            fillEl.style.width = pct + '%';
+            fillEl.style.background = pct > 50 ? '#4caf50' : pct > 25 ? '#ffa726' : '#e53935';
+            barEl.appendChild(fillEl);
+            frame.appendChild(nameEl);
+            frame.appendChild(barEl);
+            partyFrames.appendChild(frame);
+          }
+        } else {
+          // Update existing frames
+          for (let i = 0; i < others.length; i++) {
+            const p = others[i];
+            const frame = partyFrames.children[i];
+            const nameEl = frame.querySelector('.party-frame-name');
+            const fillEl = frame.querySelector('.party-frame-fill');
+            nameEl.textContent = p.name;
+            nameEl.style.color = PARTY_COLORS[p.colorIndex] || '#aaa';
+            const pct = Math.max(0, (p.health / p.maxHealth) * 100);
+            fillEl.style.width = pct + '%';
+            fillEl.style.background = pct > 50 ? '#4caf50' : pct > 25 ? '#ffa726' : '#e53935';
+          }
+        }
+      }
+    }
+
+    // Update boss health bar HUD and boss music
+    const boss = msg.monsters && msg.monsters.find(m => m.boss);
+    if (boss) {
+      bossBar.style.display = '';
+      bossBarName.textContent = boss.name;
+      const bossHpPct = Math.max(0, boss.health / boss.maxHealth) * 100;
+      bossBarFill.style.width = `${bossHpPct}%`;
+      bossBarText.textContent = `${boss.health} / ${boss.maxHealth}`;
+      const phaseLabels = { 1: 'Phase 1', 2: 'Phase 2 - Ranged', 3: 'Phase 3 - Enraged' };
+      bossBarPhase.textContent = phaseLabels[boss.bossPhase] || '';
+    } else {
+      if (bossBar.style.display !== 'none' && audio.musicId && audio.musicId.startsWith('boss_')) {
+        audio.playMusic('dungeon');
+      }
+      bossBar.style.display = 'none';
     }
 
     // Update click-to-move direction based on current position
@@ -2202,6 +2408,8 @@
     closeChoiceMenu();
     closeAutomationScreen();
     closeWorldmap();
+    // Hide boss bar when changing floors
+    bossBar.style.display = 'none';
     // Play floor change SFX and switch music based on room name
     audio.play('floor_change');
     const roomName = (msg.map.name || '').toLowerCase();
@@ -2283,6 +2491,7 @@
 
   net.on(CONSTANTS.MSG.QUEST_OBJECTIVE, (msg) => {
     renderer.questObjective = msg.objective || null;
+    renderer.secondaryQuestObjectives = msg.secondaryObjectives || null;
     // Update HUD quest label with quest name + step label
     if (msg.objective && msg.objective.label) {
       const prefix = msg.objective.questName ? msg.objective.questName + ': ' : '';

@@ -1,0 +1,198 @@
+{
+  "id": "underlumen_threshold",
+  "name": "Underlumen Threshold",
+  "depth": 0,
+  "tileset": "nightside",
+  "theme": "underlumen_depths",
+  "tileSize": 32,
+  "ambientLight": 0.003,
+  "environmentalHazard": { "type": "cold", "damage": 4, "interval": 2.5 },
+  "width": 30,
+  "height": 24,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,2,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,1,1,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,1,3,3,1,1,2,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,1,1,1,3,3,3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,1,1,1,3,7,3,3,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,1,1,3,3,3,3,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,
+    3,3,3,3,3,3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,
+    3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,3,3,3,3,
+    3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,1,1,1,2,1,1,1,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,3,3,3,3,3,1,1,1,1,1,1,1,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,1,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 3, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "threshold_watcher", "x": 10, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "gloom_wraith", "x": 7, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "threshold_watcher", "x": 17, "y": 10, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 15, "y": 10}, {"x": 20, "y": 10}, {"x": 20, "y": 13}, {"x": 15, "y": 13}
+    ] },
+    { "type": "shade_stalker_alpha", "x": 8, "y": 13, "count": 1, "patrol": "wander" },
+    { "type": "abyssal_tendril", "x": 14, "y": 14, "count": 2, "patrol": "guard" },
+    { "type": "rime_stalker", "x": 22, "y": 15, "count": 1, "patrol": "guard" },
+    { "type": "frostfang_hunter", "x": 12, "y": 17, "count": 2, "patrol": "wander" },
+    { "type": "abyssal_tendril", "x": 20, "y": 18, "count": 1, "patrol": "guard" },
+    { "type": "threshold_watcher", "x": 24, "y": 19, "count": 1, "patrol": "wander" },
+    { "type": "threshold_keeper", "x": 14, "y": 13, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [
+    { "type": "sable_threshold", "x": 4, "y": 4 }
+  ],
+  "itemSpawns": [
+    { "type": "umbracite", "x": 2, "y": 2 },
+    { "type": "refined_umbrasite", "x": 10, "y": 7 },
+    { "type": "health_potion", "x": 8, "y": 14 },
+    { "type": "field_medkit", "x": 19, "y": 15 },
+    { "type": "umbracite", "x": 23, "y": 19 },
+    { "type": "flare", "x": 15, "y": 17 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "nightside_passage", "type": "stairs_up", "spawnX": 24, "spawnY": 18 }
+  ],
+  "triggers": [
+    {
+      "id": "threshold_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Underlumen Threshold. You stand at the edge of the planet's living core.",
+          "The walls here are more crystal than stone. Veins of bioluminescent matter pulse in slow, rhythmic waves — not just glowing, but communicating. Patterns flow through the crystalline network like thoughts through neurons.",
+          "The air itself hums. Not sound — vibration. The entire chamber resonates with a frequency older than human civilization. The planet is aware of you."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "threshold_reached_flag",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "nightside_expedition_started" },
+        { "not": { "hasFlag": "reached_underlumen_threshold" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "reached_underlumen_threshold" },
+        { "type": "grantXp", "amount": 60 },
+        { "type": "showMessage", "lines": [
+          "You've reached the Underlumen Threshold — deeper than any Ring citizen has ventured.",
+          "The expedition objective is within reach. Document what you find here, collect the symbiotic compound, and return to Councillor Asha."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "sable_threshold_guide",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sable_threshold" },
+      "conditions": [
+        { "hasFlag": "helped_sable" },
+        { "not": { "hasFlag": "sable_threshold_spoken" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "sable_threshold_spoken" },
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "lines": [
+          "Sable kneels at the edge of the crystal floor, one hand pressed flat against the stone. Her eyes are closed. When she speaks, her voice is barely a whisper.",
+          "'My grandmother told me about this place. She called it the Listening Floor. She said if you're still enough, you can hear the planet thinking.'",
+          "'The Underlumen isn't hostile. It's not trying to consume us or replace us. It's been here for millions of years, running the planet's systems — water cycles, mineral distribution, thermal regulation. It's infrastructure. Like the Array, but alive.'",
+          "'The Lighthouses suppress it. Push it deeper. The Array designed them that way — not to protect us from the dark, but to protect the Array from competition.'",
+          "'If we can prove this to the Council — that the Underlumen and biology can coexist, that they must coexist — we change everything.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "sable_threshold_low_trust",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sable_threshold" },
+      "conditions": [
+        { "hasFlag": "sable_not_helped" },
+        { "not": { "hasFlag": "sable_threshold_spoken" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "sable_threshold_spoken" },
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "lines": [
+          "Sable doesn't look up from the crystal floor.",
+          "'We're here. The Listening Floor. My grandmother's stories were real.'",
+          "'The Underlumen runs everything beneath the surface. Water, minerals, heat. The Array suppresses it with the Lighthouses. That's the truth no one wanted to hear.'",
+          "'Get what Asha needs and go. The planet will decide what happens next, not us.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "threshold_keeper_drop",
+      "event": "monster_killed",
+      "filter": { "monsterType": "threshold_keeper" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Threshold Keeper collapses, its crystalline shell fracturing into luminous shards. For a moment, the chamber dims — as if the Underlumen itself mourns.",
+          "Then the light returns, brighter than before. The veins in the walls pulse faster. Something noticed."
+        ]},
+        { "type": "setFlag", "flag": "threshold_keeper_defeated" },
+        { "type": "grantXp", "amount": 80 }
+      ],
+      "once": true
+    },
+    {
+      "id": "threshold_deep_communion",
+      "event": "door_interacted",
+      "filter": { "tileX": 14, "tileY": 14 },
+      "conditions": [
+        { "hasFlag": "threshold_keeper_defeated" },
+        { "not": { "hasFlag": "deep_communion_experienced" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "deep_communion_experienced" },
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "lines": [
+          "You press both hands against the crystalline floor. The vibration intensifies — not painful, but overwhelming. The boundary between you and the stone dissolves.",
+          "You see the planet. All of it. A network of crystal veins stretching from pole to pole, threading through bedrock and ocean floor. A nervous system for a world. The Underlumen.",
+          "It has been here for two hundred million years. It regulated the climate, distributed minerals, maintained the water table. It was the planet's immune system, its circulatory system, its memory.",
+          "Then the Array came. The Lighthouses drove it deep. Suppressed it. Not destroyed — the Array couldn't destroy it. But silenced. Contained. Made to sleep.",
+          "Now it's waking. And it doesn't want revenge. It wants what it always wanted: symbiosis. Partnership. Living systems working together.",
+          "The vision fades. You're kneeling on cold crystal, shaking. But you understand now. The three paths ahead aren't just political choices. They're biological ones."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "threshold_ambient_pulse",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "reached_underlumen_threshold" },
+        { "hasFlag": "threshold_keeper_defeated" },
+        { "not": { "hasFlag": "threshold_ambient_noted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "threshold_ambient_noted" },
+        { "type": "showMessage", "lines": [
+          "With the Threshold Keeper gone, the chamber has changed. The crystal veins pulse freely now — no guardian to regulate the flow.",
+          "The bioluminescence is stronger. Warmer. Patterns emerge in the light: spirals, fractals, wave forms. The Underlumen is communicating.",
+          "Not to you specifically. To everything. To the stone, the water, the air. To the organisms that live in symbiosis with it. It's running diagnostics on a planetary scale."
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

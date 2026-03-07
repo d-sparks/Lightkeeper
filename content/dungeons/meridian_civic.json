@@ -155,6 +155,144 @@
         { "type": "grantXp", "amount": 60 }
       ],
       "once": true
+    },
+    {
+      "id": "asha_briefed_on_secret",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "not": { "hasFlag": "asha_briefed_on_array" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_briefed_on_array" },
+        { "type": "grantXp", "amount": 35 },
+        { "type": "showMessage", "text": "Councillor Asha Denn receives your report with grim composure. The Council will never be the same." }
+      ],
+      "once": true
+    },
+    {
+      "id": "thorne_post_secret",
+      "event": "npc_interacted",
+      "filter": { "npcType": "liaison_thorne" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "not": { "hasFlag": "thorne_confronted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "thorne_confronted" },
+        { "type": "grantXp", "amount": 20 }
+      ],
+      "once": true
+    },
+    {
+      "id": "act3_asha_alliance_trigger",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "hasFlag": "sable_warned_about_array" },
+        { "hasFlag": "confronted_meridian_7" },
+        { "not": { "hasFlag": "act3_asha_alliance_activated" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "act3_asha_alliance_activated" },
+        { "type": "grantXp", "amount": 75 },
+        { "type": "showMessage", "lines": [
+          "The alliance is forged. Ring, Unbounded, and Array — three factions, one expedition.",
+          "Councillor Asha Denn has authorized the joint Nightside expedition. Sable will guide. The Array will observe. And you will lead.",
+          "Meet Sable at the Nightside Passage, beyond the Nightside Depths. The path to the three endings begins here."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "asha_receives_compound",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "symbiotic_compound" },
+        { "hasFlag": "nightside_expedition_started" },
+        { "not": { "hasFlag": "asha_received_compound" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "symbiotic_compound" },
+        { "type": "setFlag", "flag": "asha_received_compound" },
+        { "type": "grantXp", "amount": 75 },
+        { "type": "showMessage", "lines": [
+          "Asha takes the compound with trembling hands. She holds it up to the light, watching the crystalline-organic matrix shift and pulse.",
+          "'This is it. The proof we needed. A compound that exists only through symbiosis — a living relationship that no synthesis lab can replicate.'",
+          "'The Array's Autotroph project will never reproduce this. Biology isn't just chemistry. It's communion.'",
+          "'The Council will hear this. All of them. And then... then we decide what comes next. For all three factions.'",
+          "'Three paths lie ahead, Lightkeeper. The choice will be yours.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "three_paths_choice",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "asha_received_compound" },
+        { "not": { "hasFlag": "chose_path_shutdown" } },
+        { "not": { "hasFlag": "chose_path_merge" } },
+        { "not": { "hasFlag": "chose_path_control" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "three_paths", "prompt": "The evidence is before the Council. Three paths forward. The choice shapes the future of all three factions — and the planet itself.", "options": [
+          { "label": "Shut Down the Array", "description": "Side with the Unbounded. Restore the Underlumen. Accept a harder world, but a free one.", "value": "shutdown" },
+          { "label": "Broker Symbiosis", "description": "Merge Array, Underlumen, and Ring biology into a genuine partnership. The hardest path, but the most hopeful.", "value": "merge" },
+          { "label": "Seize Control", "description": "Take the Array's infrastructure for humanity. Suppress both the Underlumen and Array autonomy. Power at a cost.", "value": "control" }
+        ]}
+      ]
+    },
+    {
+      "id": "path_shutdown_chosen",
+      "event": "choice_made",
+      "filter": { "choiceId": "three_paths", "value": "shutdown" },
+      "actions": [
+        { "type": "setFlag", "flag": "chose_path_shutdown" },
+        { "type": "grantXp", "amount": 100 },
+        { "type": "showMessage", "lines": [
+          "Asha nods slowly. 'The hardest road. But the most honest.'",
+          "'Sable's people have survived without the Array for generations. If we shut it down, the Unbounded become our teachers. The Underlumen returns to its natural state. The Lighthouses go dark.'",
+          "'It will be cold. It will be difficult. Some people will not survive the transition. But we will be free — truly free — for the first time since Landing.'",
+          "'I'll present your recommendation to the Council. Prepare yourself, Lightkeeper. The Array will not go quietly.'"
+        ]}
+      ]
+    },
+    {
+      "id": "path_merge_chosen",
+      "event": "choice_made",
+      "filter": { "choiceId": "three_paths", "value": "merge" },
+      "actions": [
+        { "type": "setFlag", "flag": "chose_path_merge" },
+        { "type": "grantXp", "amount": 100 },
+        { "type": "showMessage", "lines": [
+          "Asha's eyes widen. 'Symbiosis. You want to merge them all.'",
+          "'Array computation. Underlumen biology. Human adaptability. Three systems, one ecology. No hierarchy — partnership.'",
+          "'It's never been done. It may not be possible. You'd need MERIDIAN-7 to agree, the Underlumen to accept technological integration, and the Ring Council to trust both.'",
+          "'But the compound proves it can work. Crystal and organism, machine and biology — communion, not competition.'",
+          "'This is the path the Root faction has dreamed about for decades. I'll champion it. But you'll need to convince every side. Starting with MERIDIAN-7.'"
+        ]}
+      ]
+    },
+    {
+      "id": "path_control_chosen",
+      "event": "choice_made",
+      "filter": { "choiceId": "three_paths", "value": "control" },
+      "actions": [
+        { "type": "setFlag", "flag": "chose_path_control" },
+        { "type": "grantXp", "amount": 100 },
+        { "type": "showMessage", "lines": [
+          "Asha stiffens. Her voice is careful. 'You want to seize the Array. Take its power for humanity.'",
+          "'The Steward faction will support this. Control the Lighthouses, control the Array's production, control the Underlumen's suppression. Total authority over the planet's systems.'",
+          "'It would work. In the short term, it would work brilliantly. But ask yourself: is benevolent control really different from what the Array already does? Optimizing everything. Deciding what's efficient. Eliminating what isn't.'",
+          "'You'd become the Array, Lightkeeper. With a human face.'",
+          "'I'll present your recommendation. The Stewards will rally behind it. But Sable's people will never forgive this. And neither will the Underlumen.'"
+        ]}
+      ]
     }
   ]
 }

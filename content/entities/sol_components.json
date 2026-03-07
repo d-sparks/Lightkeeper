@@ -11,58 +11,88 @@
     "name": "Sol Cone Emitter",
     "shape": [[1]]
   },
+  "night_vision_lens": {
+    "type": "modifier",
+    "name": "Night Vision Lens",
+    "rarity": "common",
+    "bonus": { "damageMultiplier": 0.10 },
+    "shape": [[1]]
+  },
+  "reinforced_battery": {
+    "type": "modifier",
+    "name": "Reinforced Battery",
+    "rarity": "common",
+    "bonus": { "cooldownReduction": 0.08 },
+    "shape": [[1]]
+  },
   "damage_booster": {
     "type": "modifier",
     "name": "Damage Booster",
-    "bonus": { "damageMultiplier": 0.25 },
+    "rarity": "uncommon",
+    "bonus": { "damageMultiplier": 0.20 },
     "shape": [[1]]
   },
   "cooldown_reducer": {
     "type": "modifier",
     "name": "Cooldown Reducer",
+    "rarity": "uncommon",
     "bonus": { "cooldownReduction": 0.15 },
     "shape": [[1, 1]]
   },
   "signal_booster": {
     "type": "modifier",
     "name": "Signal Booster",
-    "bonus": { "cooldownReduction": 0.20 },
-    "shape": [[1]]
-  },
-  "cooldown_reducer_mk2": {
-    "type": "modifier",
-    "name": "Cooldown Reducer Mk2",
-    "bonus": { "cooldownReduction": 0.25 },
-    "shape": [[1, 1]]
-  },
-  "night_vision_lens": {
-    "type": "modifier",
-    "name": "Night Vision Lens",
-    "bonus": { "damageMultiplier": 0.15 },
-    "shape": [[1]]
-  },
-  "reinforced_battery": {
-    "type": "modifier",
-    "name": "Reinforced Battery",
-    "bonus": { "cooldownReduction": 0.10 },
-    "shape": [[1]]
-  },
-  "efficiency_core": {
-    "type": "modifier",
-    "name": "Efficiency Core",
-    "bonus": { "cooldownReduction": 0.20 },
+    "rarity": "uncommon",
+    "bonus": { "cooldownReduction": 0.15 },
     "shape": [[1]]
   },
   "area_expander": {
     "type": "modifier",
     "name": "Area Expander",
+    "rarity": "uncommon",
     "bonus": { "damageMultiplier": 0.20 },
     "shape": [[1]]
+  },
+  "efficiency_core": {
+    "type": "modifier",
+    "name": "Efficiency Core",
+    "rarity": "uncommon",
+    "bonus": { "cooldownReduction": 0.15 },
+    "shape": [[1]]
+  },
+  "cooldown_reducer_mk2": {
+    "type": "modifier",
+    "name": "Cooldown Reducer Mk2",
+    "rarity": "rare",
+    "bonus": { "cooldownReduction": 0.22 },
+    "shape": [[1, 1]]
   },
   "power_tap": {
     "type": "modifier",
     "name": "Power Tap",
-    "bonus": { "damageMultiplier": 0.15, "cooldownReduction": 0.15 },
+    "rarity": "rare",
+    "bonus": { "damageMultiplier": 0.20, "cooldownReduction": 0.15 },
+    "shape": [[1, 1]]
+  },
+  "bio_resonance_amplifier": {
+    "type": "modifier",
+    "name": "Bio-Resonance Amplifier",
+    "rarity": "rare",
+    "bonus": { "damageMultiplier": 0.20, "cooldownReduction": 0.15 },
+    "shape": [[1]]
+  },
+  "resonance_detector": {
+    "type": "modifier",
+    "name": "Resonance Detector",
+    "rarity": "rare",
+    "bonus": { "damageMultiplier": 0.20, "cooldownReduction": 0.15 },
+    "shape": [[1]]
+  },
+  "guardian_core": {
+    "type": "modifier",
+    "name": "Guardian Core",
+    "rarity": "epic",
+    "bonus": { "damageMultiplier": 0.35, "cooldownReduction": 0.20 },
     "shape": [[1, 1]]
   },
   "sol_shield_emitter": {
@@ -71,40 +101,34 @@
     "name": "Sol Shield Emitter",
     "shape": [[1]]
   },
-  "guardian_core": {
-    "type": "modifier",
-    "name": "Guardian Core",
-    "bonus": { "damageMultiplier": 0.35, "cooldownReduction": 0.25 },
-    "shape": [[1, 1]]
-  },
-  "bio_resonance_amplifier": {
-    "type": "modifier",
-    "name": "Bio-Resonance Amplifier",
-    "bonus": { "damageMultiplier": 0.15, "cooldownReduction": 0.20 },
-    "shape": [[1]]
-  },
-  "resonance_detector": {
-    "type": "modifier",
-    "name": "Resonance Detector",
-    "bonus": { "damageMultiplier": 0.20, "cooldownReduction": 0.15 },
-    "shape": [[1]]
-  },
   "sol_teleport_emitter": {
     "type": "ability",
     "abilityId": "sol_teleport",
     "name": "Sol Teleport Emitter",
     "shape": [[1]]
   },
+  "basic_generator": {
+    "type": "generator",
+    "name": "Basic Generator",
+    "energyRegen": 3,
+    "shape": [[1]]
+  },
+  "improved_generator": {
+    "type": "generator",
+    "name": "Improved Generator",
+    "energyRegen": 5,
+    "shape": [[1]]
+  },
   "uranium_generator": {
     "type": "generator",
     "name": "Uranium Generator",
-    "energyRegen": 75,
+    "energyRegen": 8,
     "shape": [[1]]
   },
   "advanced_rechargeable_battery": {
     "type": "battery",
     "name": "Advanced Rechargeable Battery",
-    "energyCapacity": 5000,
+    "energyCapacity": 150,
     "shape": [[1]]
   },
   "shadow_conduit": {
@@ -112,7 +136,7 @@
     "name": "Shadow Conduit",
     "rarity": "uncommon",
     "faction": "nightside",
-    "bonus": { "damageMultiplier": 0.30 },
+    "bonus": { "damageMultiplier": 0.25 },
     "description": "Nightside-forged circuit that channels umbral energy into raw damage.",
     "shape": [[1]]
   },
@@ -121,7 +145,7 @@
     "name": "Umbral Amplifier",
     "rarity": "rare",
     "faction": "nightside",
-    "bonus": { "damageMultiplier": 0.45, "cooldownReduction": 0.10 },
+    "bonus": { "damageMultiplier": 0.40, "cooldownReduction": 0.10 },
     "description": "Dark-tuned amplifier that surges with power in low-light conditions.",
     "shape": [[1, 1]]
   },
@@ -130,7 +154,7 @@
     "name": "Void Resonator",
     "rarity": "epic",
     "faction": "nightside",
-    "bonus": { "damageMultiplier": 0.55, "cooldownReduction": 0.20 },
+    "bonus": { "damageMultiplier": 0.55, "cooldownReduction": 0.15 },
     "description": "Rare Nightside component that hums with void-frequency energy, massively boosting adjacent abilities.",
     "shape": [[1, 1]]
   },
@@ -148,7 +172,7 @@
     "name": "Symbiotic Core",
     "rarity": "rare",
     "faction": "greenway",
-    "bonus": { "healOnHit": 5, "damageMultiplier": 0.10 },
+    "bonus": { "healOnHit": 5, "damageMultiplier": 0.15 },
     "description": "Living symbiote that feeds on combat energy, healing its host with each strike.",
     "shape": [[1, 1]]
   },
@@ -157,7 +181,7 @@
     "name": "Mycelial Matrix",
     "rarity": "epic",
     "faction": "greenway",
-    "bonus": { "healOnHit": 8, "damageMultiplier": 0.15 },
+    "bonus": { "healOnHit": 8, "damageMultiplier": 0.20 },
     "description": "Dense fungal network from the deep Greenway that rapidly regenerates tissue on contact damage.",
     "shape": [[1, 1]]
   },
@@ -177,6 +201,15 @@
     "faction": "dayside",
     "bonus": { "energyCostReduction": 0.30, "cooldownReduction": 0.10 },
     "description": "Dayside-charged capacitor that stores solar energy for efficient ability cycling.",
+    "shape": [[1, 1]]
+  },
+  "array_harmonic_stabilizer": {
+    "type": "modifier",
+    "name": "Array Harmonic Stabilizer",
+    "rarity": "epic",
+    "faction": "dayside",
+    "bonus": { "energyCostReduction": 0.40, "damageMultiplier": 0.25 },
+    "description": "A precision Array instrument that harmonizes energy flow, drastically reducing waste while amplifying output to adjacent components.",
     "shape": [[1, 1]]
   }
 }

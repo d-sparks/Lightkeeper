@@ -1,7 +1,0 @@
-Done. Here's what I changed in `content/dungeons/outpost_workshop.json`:
-
-1. **Placed sealed gates** (tile 14 = `sealed_gate_charger`) at positions (4,6) and (5,6), directly in front of the training range stairs at (4,7) and (5,7). Tile 14 already has the condition `{ "hasFlag": "received_sol_unit" }` with fail message "The gate is sealed. Get your Sol Unit from the engineer first."
-
-2. **Added `toggleTile` actions** to the existing `receive_sol_unit` trigger so the gates open immediately when the player gets the sol unit from the engineer.
-
-3. **Added `auto_open_training_gates` trigger** on `room_entered` that auto-opens the gates if the player already has the `received_sol_unit` flag (for re-entry). This follows the same pattern used in `outpost_entrance.json` for the warden gates.

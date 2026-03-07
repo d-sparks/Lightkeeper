@@ -1,1 +1,0 @@
-Done. The fix adds a click event listener to the `[I] Close` hint element at the bottom of the character menu (`client/main.js:537-541`). Previously it was just a text label with no interaction — now clicking or tapping it calls `closeMenu()` and shows a pointer cursor to indicate it's clickable.

@@ -48,9 +48,7 @@
       "tag": "treasure",
       "width": { "min": 4, "max": 5 },
       "height": { "min": 4, "max": 5 },
-      "itemSpawns": [
-        { "type": "medical_supplies", "position": "center" }
-      ]
+      "centerTile": 30
     }
   ],
 
@@ -64,7 +62,9 @@
     "pool": [
       { "type": "skeleton", "weight": 3, "cost": 1, "minDepth": 0 },
       { "type": "luddite_brawler", "weight": 2, "cost": 1, "minDepth": 0 },
-      { "type": "luddite_scrapper", "weight": 1, "cost": 2, "minDepth": 2 }
+      { "type": "luddite_scrapper", "weight": 1, "cost": 2, "minDepth": 2 },
+      { "type": "tunnel_creeper", "weight": 2, "cost": 1, "minDepth": 0 },
+      { "type": "feral_hound", "weight": 2, "cost": 1, "minDepth": 1 }
     ],
     "maxPerRoom": 4,
     "avoidEntranceRoom": true
@@ -86,6 +86,30 @@
           "type": "showMessage",
           "text": "The tunnels stretch deeper. The air grows thick."
         }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_{instanceId}",
+      "event": "door_interacted",
+      "maxDepth": 6,
+      "requiresRoom": "treasure",
+      "filter": { "tileName": "crate_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "outpost_biome_common", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "showMessage", "text": "Old supplies, still usable." }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_{instanceId}",
+      "event": "door_interacted",
+      "minDepth": 7,
+      "requiresRoom": "treasure",
+      "filter": { "tileName": "crate_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "outpost_biome_rare", "x": "{treasure.cx}", "y": "{treasure.cy}" },
+        { "type": "showMessage", "text": "A well-preserved cache from before the quarantine." }
       ],
       "once": true
     }
