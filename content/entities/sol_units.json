@@ -6,7 +6,8 @@
     "maxCharge": 100,
     "initialEnergy": 40,
     "initialComponents": [
-      { "abilityId": "sol_cone", "gridX": 2, "gridY": 2 }
+      { "abilityId": "sol_cone", "gridX": 2, "gridY": 2 },
+      { "generatorId": "basic_generator", "gridX": 0, "gridY": 0 }
     ]
   },
   "sol_unit_mk1_plus": {

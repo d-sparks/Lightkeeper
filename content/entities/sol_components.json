@@ -107,16 +107,28 @@
     "name": "Sol Teleport Emitter",
     "shape": [[1]]
   },
+  "basic_generator": {
+    "type": "generator",
+    "name": "Basic Generator",
+    "energyRegen": 2,
+    "shape": [[1]]
+  },
+  "improved_generator": {
+    "type": "generator",
+    "name": "Improved Generator",
+    "energyRegen": 4,
+    "shape": [[1]]
+  },
   "uranium_generator": {
     "type": "generator",
     "name": "Uranium Generator",
-    "energyRegen": 75,
+    "energyRegen": 8,
     "shape": [[1]]
   },
   "advanced_rechargeable_battery": {
     "type": "battery",
     "name": "Advanced Rechargeable Battery",
-    "energyCapacity": 5000,
+    "energyCapacity": 150,
     "shape": [[1]]
   },
   "shadow_conduit": {

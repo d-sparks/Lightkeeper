@@ -32,7 +32,7 @@
     "projectileRadius": 8,
     "projectileSpeed": 300,
     "cooldown": 0.8,
-    "energyCost": 5,
+    "energyCost": 8,
     "defaultSlot": 2
   },
   "sol_cone": {
@@ -43,7 +43,7 @@
     "coneAngle": 70,
     "knockback": 96,
     "cooldown": 8.0,
-    "energyCost": 10,
+    "energyCost": 18,
     "defaultSlot": 2
   },
   "precision_shot": {
@@ -78,14 +78,14 @@
     "type": "heal",
     "heal": 35,
     "cooldown": 12.0,
-    "energyCost": 15,
+    "energyCost": 25,
     "defaultSlot": 3
   },
   "sol_teleport": {
     "name": "Sol Teleport",
     "type": "teleport",
     "cooldown": 3.0,
-    "energyCost": 200,
+    "energyCost": 50,
     "maxRange": 20,
     "stickDistance": 12,
     "defaultSlot": 4

@@ -483,16 +483,30 @@
     "rarity": "legendary",
     "solComponentId": "sol_teleport_emitter"
   },
+  "basic_generator_chip": {
+    "name": "Basic Generator",
+    "description": "A salvaged power cell that provides modest passive energy regeneration. Restores 2 energy per second. Better than nothing.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "basic_generator"
+  },
+  "improved_generator_chip": {
+    "name": "Improved Generator",
+    "description": "A well-maintained power cell with efficient energy cycling. Restores 4 energy per second. Standard equipment for Lightkeepers in the field.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "improved_generator"
+  },
   "uranium_generator_chip": {
     "name": "Uranium Generator",
-    "description": "A miniaturized fission cell that provides massive passive energy regeneration. Restores 75 energy per second. The pinnacle of pre-Collapse power engineering.",
+    "description": "A miniaturized fission cell that provides powerful passive energy regeneration. Restores 8 energy per second. The pinnacle of pre-Collapse power engineering.",
     "type": "sol_component",
     "rarity": "legendary",
     "solComponentId": "uranium_generator"
   },
   "advanced_rechargeable_battery_chip": {
     "name": "Advanced Rechargeable Battery",
-    "description": "A military-grade supercapacitor array that adds 5000 energy capacity to your Sol Unit. Endgame power storage for sustained operations deep in the Nightside.",
+    "description": "A military-grade supercapacitor array that adds 150 energy capacity to your Sol Unit. Endgame power storage for sustained operations deep in the Nightside.",
     "type": "sol_component",
     "rarity": "legendary",
     "solComponentId": "advanced_rechargeable_battery"

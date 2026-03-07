@@ -39,6 +39,15 @@ All done:
 - Add explicit `patrolPath` waypoints to remaining dungeon spawns that use `"patrol": "patrol"` (nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02) — currently they auto-generate default paths
 - Pack AI could be extended with a "pack leader" variant that buffs nearby pack members
 
+## Balance Pass Follow-ups (combat & energy)
+
+- Headless sim bot can't navigate past early rooms (gets stuck at NPC interactions, only visits ~6/42 rooms) — needs bot pathfinding/AI improvements before sim-based balance testing is useful
+- Verify new basic_generator and improved_generator items are obtainable via loot tables or quest rewards — currently defined in items.json but not yet wired into any dungeon chests or loot drops
+- Playtest energy pacing at mid-game (improved_generator @ 4/s) to confirm Sol Beam spam isn't still trivial with energy cost reduction modifiers stacked
+- Crystal Guardian phase 3 was tuned down (18 dmg, 1.0s projectile interval, 10s summon interval) — verify this still feels challenging in manual play
+- Consider adding a "basic_battery" sol component (uncommon, +30-50 capacity) as a mid-tier bridge between base sol unit capacity and the legendary Advanced Rechargeable Battery (+150)
+- Medipac heal cooldown (45s) may be too long given that Sol Shield (12s, 25 energy, 35 HP) exists — compare healing economy in manual play
+
 ## Sol Grid Follow-ups
 
 - [x] Client UI displays healOnHit, energyCostReduction, and boostedEnergyRegen in sol grid
