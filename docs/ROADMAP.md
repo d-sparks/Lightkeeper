@@ -130,9 +130,9 @@ These are done and don't need further investment:
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
-| docs/progression-system.md | Active | Core decisions + sol unit variants + modifier stat ranges resolved. Remaining: battery math, harvester scaling |
-| docs/automation_screen.md | Active | Grid UI not yet built — next major feature |
-| docs/storyboard.md | Active | Act I implemented, Act II started, Acts II-III need more content |
+| docs/progression-system.md | Active | Core decisions + sol unit variants + modifier stat ranges resolved. Remaining: battery math, harvester scaling, extended adjacency modifiers |
+| docs/automation_screen.md | Active | Phases 1-2 (server grid state + client CSS grid UI) complete. Next: Phase 3 (automation screen access via MERIDIAN-7 interaction) |
+| docs/storyboard.md | Active | Act I implemented, Act II partially implemented (Crystal Guardian, MERIDIAN-7 umbrasite, Array complex). Act III stubbed (underlumen approach + threshold exist). Three ending path dungeons needed |
 | docs/testing-design.md | Done | Both tools built and functional, wired into npm test |
 | docs/procedural-generation.md | Done | Engine + 4 templates implemented |
 | docs/TESTING.md | Done | Tiers 1-3 complete (scripting + physics). Tier 4 (integration) remains for future |
