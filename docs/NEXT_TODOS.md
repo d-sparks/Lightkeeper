@@ -41,12 +41,27 @@ All done:
 
 ## Balance Pass Follow-ups (combat & energy)
 
-- Headless sim bot can't navigate past early rooms (gets stuck at NPC interactions, only visits ~6/42 rooms) — needs bot pathfinding/AI improvements before sim-based balance testing is useful
-- Verify new basic_generator and improved_generator items are obtainable via loot tables or quest rewards — currently defined in items.json but not yet wired into any dungeon chests or loot drops
-- Playtest energy pacing at mid-game (improved_generator @ 4/s) to confirm Sol Beam spam isn't still trivial with energy cost reduction modifiers stacked
-- Crystal Guardian phase 3 was tuned down (18 dmg, 1.0s projectile interval, 10s summon interval) — verify this still feels challenging in manual play
+### Completed in balance pass (Mar 2026)
+- [x] Monster HP across all tiers increased ~1.8-2.3x — fights now last 2-5s (regular) and 20-30s (bosses) instead of sub-1-second
+- [x] Precision Shot cooldown: 0.4s -> 0.5s (was 75% more DPS than Blaster for free)
+- [x] Sol Beam: energyCost 8->6, damageMultiplier 2.0->2.5 (now clearly outperforms free weapons to justify cost)
+- [x] Sol Cone: cooldown 8.0s->3.5s, energyCost 18->15 (usable multiple times per fight)
+- [x] Sol Shield: cooldown 12.0s->10.0s, energyCost 25->20 (more accessible defensive option)
+- [x] Sol Teleport: energyCost 50->35 (no longer half the Mk1's total capacity)
+- [x] Medipac Heal: cooldown 45.0s->25.0s (still consumes items, still meaningful CD, but usable every other fight)
+- [x] Basic Generator: 2->3 energy/s (sustains Sol Beam at 6 cost / 0.8s CD = 7.5/s with weapon interleaving)
+- [x] Improved Generator: 4->5 energy/s (supports mid-game ability rotation)
+- [x] Sol Unit Mk1+ initialEnergy: 5->40 (no longer starts empty on equip)
+
+### Still outstanding
+- Headless sim bot can't navigate past early rooms (gets stuck at NPC interactions, only visits ~4/43 rooms) — needs bot pathfinding/AI improvements before sim-based balance testing is useful
+- Verify basic_generator and improved_generator items are obtainable via loot tables or quest rewards — currently defined in items.json but not yet wired into dungeon chests or loot drops
+- Playtest energy pacing at mid-game (improved_generator @ 5/s) to confirm Sol Beam spam isn't trivial with energy cost reduction modifiers stacked (75% cap exists but epics can stack fast)
+- Crystal Guardian at 700 HP (up from 300) — verify this feels appropriately epic in manual play, not grindy
 - Consider adding a "basic_battery" sol component (uncommon, +30-50 capacity) as a mid-tier bridge between base sol unit capacity and the legendary Advanced Rechargeable Battery (+150)
-- Medipac heal cooldown (45s) may be too long given that Sol Shield (12s, 25 energy, 35 HP) exists — compare healing economy in manual play
+- Late-game monsters (magma_brute 240 HP, frost_warden 280 HP, elder_sporecap 320 HP) may need XP increases to match their new durability — currently give 55-65 XP which may feel low for 4-6 second fights
+- Pulse Rifle DPS (60) is close to Sol Beam DPS (~84 with sol_unit) — monitor whether rare weapon makes energy investment feel unrewarding
+- Rechargeable Battery L1 (30 energy) may need bump to 40 given higher ability usage in longer fights
 
 ## Sol Grid Follow-ups
 

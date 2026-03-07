@@ -110,13 +110,13 @@
   "basic_generator": {
     "type": "generator",
     "name": "Basic Generator",
-    "energyRegen": 2,
+    "energyRegen": 3,
     "shape": [[1]]
   },
   "improved_generator": {
     "type": "generator",
     "name": "Improved Generator",
-    "energyRegen": 4,
+    "energyRegen": 5,
     "shape": [[1]]
   },
   "uranium_generator": {

@@ -15,7 +15,7 @@
     "description": "Military-grade Sol Unit frame with a 6x6 component grid. Recovered from a Lightkeeper squad's supply cache. More grid space and charge than the standard Mk1.",
     "gridSize": 6,
     "maxCharge": 120,
-    "initialEnergy": 5,
+    "initialEnergy": 40,
     "initialComponents": [
       { "abilityId": "sol_cone", "gridX": 2, "gridY": 2 }
     ]
