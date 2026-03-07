@@ -69,21 +69,21 @@ const C = {
   bone:        hex('#c8beaa'),   // Bone
   solGold:     hex('#f0c850'),   // Sol Gold
   // Legacy aliases (used by existing sprites)
-  darkBone:    rgba(150, 140, 120),
-  skin:        rgba(200, 160, 120),
-  darkSkin:    rgba(150, 110, 80),
-  // Tileset colors
-  floorDark:   rgba(35, 35, 55),
-  floorMid:    rgba(45, 45, 65),
-  floorLight:  rgba(55, 55, 75),
-  wallDark:    rgba(70, 70, 100),
-  wallMid:     rgba(90, 90, 122),
-  wallLight:   rgba(110, 110, 140),
-  wallTop:     rgba(120, 120, 150),
-  water1:      rgba(30, 60, 100),
-  water2:      rgba(40, 75, 120),
-  water3:      rgba(50, 90, 140),
-  voidColor:   rgba(10, 10, 20),
+  darkBone:    hex('#968c78'),
+  skin:        hex('#c8a078'),
+  darkSkin:    hex('#966e50'),
+  // Tileset colors (crypt)
+  floorDark:   hex('#232337'),
+  floorMid:    hex('#2d2d41'),
+  floorLight:  hex('#37374b'),
+  wallDark:    hex('#464664'),
+  wallMid:     hex('#5a5a7a'),
+  wallLight:   hex('#6e6e8c'),
+  wallTop:     hex('#787896'),
+  water1:      hex('#1e3c64'),
+  water2:      hex('#284b78'),
+  water3:      hex('#325a8c'),
+  voidColor:   hex('#0a0a14'),
 };
 
 // ---- PNG creation helpers ----
@@ -364,8 +364,8 @@ function generateMonsterSprites() {
 
   // --- Luddite Brawler: burly humanoid, dark clothes, no tech ---
   const brawler = createPNG(16, 16);
-  const Br = rgba(100, 70, 50);  // brown clothing
-  const Bd = rgba(70, 50, 35);   // dark clothing
+  const Br = C.brown;
+  const Bd = C.darkBrown;
   drawPixelArt(brawler, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
@@ -388,8 +388,8 @@ function generateMonsterSprites() {
 
   // --- Luddite Scrapper: thinner, hooded, ranged ---
   const scrapper = createPNG(16, 16);
-  const Hd = rgba(60, 55, 50);  // hood color
-  const Hk = rgba(45, 40, 35);  // dark hood
+  const Hd = C.midGray;
+  const Hk = C.darkSlate;
   drawPixelArt(scrapper, 0, 0, [
     [_, _, _, _, _, _,Hd,Hd,Hd,Hd, _, _, _, _, _, _],
     [_, _, _, _, _,Hd,Hd,Hd,Hd,Hd,Hd, _, _, _, _, _],
@@ -412,9 +412,9 @@ function generateMonsterSprites() {
 
   // --- Luddite Warlord: bigger, armored, menacing (boss) ---
   const warlord = createPNG(16, 16);
-  const Ar = rgba(80, 80, 95);   // armor
-  const Ad = rgba(55, 55, 70);   // dark armor
-  const Rr = rgba(180, 40, 40);  // red accent
+  const Ar = C.gray;
+  const Ad = C.midGray;
+  const Rr = C.red;
   drawPixelArt(warlord, 0, 0, [
     [_, _, _, _, _,Rr,Ar,Ar,Ar,Ar,Rr, _, _, _, _, _],
     [_, _, _, _, _,Ar,Ar,Ar,Ar,Ar,Ar, _, _, _, _, _],
@@ -437,8 +437,8 @@ function generateMonsterSprites() {
 
   // --- Training Target: wooden practice dummy ---
   const target = createPNG(16, 16);
-  const Tw = rgba(160, 130, 80);  // warm wood
-  const Tk = rgba(120, 95, 55);   // dark wood
+  const Tw = C.tan;
+  const Tk = C.darkBrown;
   drawPixelArt(target, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, R, R, _, _, _, _, _, _, _],
@@ -461,9 +461,9 @@ function generateMonsterSprites() {
 
   // --- Scrap Drone: small metallic flying bot ---
   const drone = createPNG(16, 16);
-  const Mt = rgba(150, 155, 165);  // metal
-  const Md = rgba(100, 105, 115);  // dark metal
-  const Yl = rgba(240, 200, 50);   // yellow eye
+  const Mt = C.lightGray;
+  const Md = C.gray;
+  const Yl = C.yellow;
   drawPixelArt(drone, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -486,9 +486,9 @@ function generateMonsterSprites() {
 
   // --- Shadow Ambusher: dark cloaked figure with glowing eyes ---
   const ambusher = createPNG(16, 16);
-  const Sh = rgba(30, 25, 40);   // shadow cloak
-  const Sd2 = rgba(20, 15, 30);  // deep shadow
-  const Ey = rgba(200, 50, 200); // purple eyes
+  const Sh = C.darkSlate;
+  const Sd2 = C.black;
+  const Ey = C.lightPurple;
   drawPixelArt(ambusher, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _,Sh,Sh,Sh,Sh, _, _, _, _, _, _],
@@ -511,8 +511,8 @@ function generateMonsterSprites() {
 
   // --- Tunnel Creeper: pale insectoid crawler ---
   const creeper = createPNG(16, 16);
-  const Tn = rgba(140, 120, 100);  // tan shell
-  const Td2 = rgba(100, 85, 70);   // dark shell
+  const Tn = C.tan;
+  const Td2 = C.brown;
   drawPixelArt(creeper, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -535,8 +535,8 @@ function generateMonsterSprites() {
 
   // --- Feral Hound: dark wolf-like creature ---
   const hound = createPNG(16, 16);
-  const Fur = rgba(80, 65, 55);   // dark fur
-  const Frl = rgba(110, 90, 75);  // lighter fur
+  const Fur = C.darkBrown;
+  const Frl = C.brown;
   drawPixelArt(hound, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -559,9 +559,9 @@ function generateMonsterSprites() {
 
   // --- Frost Warden: icy blue armored boss ---
   const fwarden = createPNG(16, 16);
-  const Ic = rgba(160, 200, 230);  // ice bright
-  const Id = rgba(100, 140, 180);  // ice dark
-  const Ik = rgba(60, 90, 130);    // ice deep
+  const Ic = C.lightBlue;
+  const Id = C.blue;
+  const Ik = C.darkBlue;
   drawPixelArt(fwarden, 0, 0, [
     [_, _, _, _, _,Ic,Id,Id,Id,Id,Ic, _, _, _, _, _],
     [_, _, _, _, _,Id,Id,Id,Id,Id,Id, _, _, _, _, _],
@@ -584,10 +584,10 @@ function generateMonsterSprites() {
 
   // --- Sporecap Shambler: mushroom-headed creature ---
   const shambler = createPNG(16, 16);
-  const Sp = rgba(120, 140, 80);   // spore green
-  const Sk = rgba(80, 100, 55);    // dark spore
-  const Cap = rgba(160, 100, 70);  // mushroom cap
-  const Cd = rgba(120, 70, 45);    // dark cap
+  const Sp = C.lightGreen;
+  const Sk = C.darkGreen;
+  const Cap = C.rust;
+  const Cd = C.darkBrown;
   drawPixelArt(shambler, 0, 0, [
     [_, _, _, _, _, _,Cd,Cap,Cap,Cd, _, _, _, _, _, _],
     [_, _, _, _, _,Cd,Cap,Cap,Cap,Cap,Cd, _, _, _, _, _],
@@ -610,9 +610,9 @@ function generateMonsterSprites() {
 
   // --- Mycelium Lurker: pale fungal ambusher ---
   const mycelium = createPNG(16, 16);
-  const My = rgba(180, 190, 170);  // pale mycelium
-  const Mk = rgba(130, 140, 120);  // dark mycelium
-  const Mg = rgba(100, 160, 80);   // green accent
+  const My = C.paleGray;
+  const Mk = C.lightGray;
+  const Mg = C.green;
   drawPixelArt(mycelium, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _,My,My,My,My, _, _, _, _, _, _],
@@ -635,9 +635,9 @@ function generateMonsterSprites() {
 
   // --- Fungal Sprayer: squat mushroom with spore nozzle ---
   const sprayer = createPNG(16, 16);
-  const Fg = rgba(90, 150, 60);    // fungal green
-  const Fk = rgba(60, 110, 40);    // dark fungal
-  const Yw = rgba(200, 190, 50);   // yellow spore
+  const Fg = C.green;
+  const Fk = C.darkGreen;
+  const Yw = C.yellow;
   drawPixelArt(sprayer, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _,Yw, _, _],
@@ -660,10 +660,10 @@ function generateMonsterSprites() {
 
   // --- Elder Sporecap: large fungal boss ---
   const elder = createPNG(16, 16);
-  const Ec = rgba(100, 60, 45);    // elder cap
-  const Ed = rgba(70, 40, 30);     // dark cap
-  const Es = rgba(80, 120, 50);    // elder stem
-  const Ek = rgba(55, 85, 35);     // dark stem
+  const Ec = C.brown;
+  const Ed = C.darkBrown;
+  const Es = C.green;
+  const Ek = C.darkGreen;
   drawPixelArt(elder, 0, 0, [
     [_, _, _, _,Ed,Ec,Ec,Ec,Ec,Ec,Ec,Ed, _, _, _, _],
     [_, _, _,Ed,Ec,Ec,Ec,Ec,Ec,Ec,Ec,Ec,Ed, _, _, _],
@@ -686,10 +686,10 @@ function generateMonsterSprites() {
 
   // --- Dusk Crawler: low insectoid nightside creature, purple/teal ---
   const dcrawl = createPNG(16, 16);
-  const Dp = hex('#50236e');   // dark purple
-  const Pp = hex('#823caa');   // purple
-  const Lp = hex('#b478d2');   // light purple
-  const Tg = hex('#32aa96');   // teal glow
+  const Dp = C.darkPurple;
+  const Pp = C.purple;
+  const Lp = C.lightPurple;
+  const Tg = C.teal;
   drawPixelArt(dcrawl, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -712,11 +712,11 @@ function generateMonsterSprites() {
 
   // --- Crystal Guardian: imposing crystalline boss, icy blues ---
   const cguard = createPNG(16, 16);
-  const Cb = hex('#6ea0e0');   // light blue crystal
-  const Cm = hex('#3c78c8');   // blue crystal
-  const Cd2 = hex('#1e3c78');  // dark blue
-  const Cw = hex('#dcdce6');   // white highlight
-  const Pg = hex('#c0c0d0');   // pale gray
+  const Cb = C.lightBlue;
+  const Cm = C.blue;
+  const Cd2 = C.darkBlue;
+  const Cw = C.white;
+  const Pg = C.paleGray;
   drawPixelArt(cguard, 0, 0, [
     [_, _, _, _, _, Cw, Cb, _, _, Cb, Cw, _, _, _, _, _],
     [_, _, _, _, Cb, Cm, Cb, Cm, Cm, Cb, Cm, Cb, _, _, _, _],
@@ -739,9 +739,9 @@ function generateMonsterSprites() {
 
   // --- Garden Mite: tiny green-brown insect pest ---
   const gmite = createPNG(16, 16);
-  const Gn = hex('#46a046');   // green
-  const Gd = hex('#1e5a28');   // dark green
-  const Gb = hex('#8c6440');   // brown
+  const Gn = C.green;
+  const Gd = C.darkGreen;
+  const Gb = C.brown;
   drawPixelArt(gmite, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -764,9 +764,9 @@ function generateMonsterSprites() {
 
   // --- Nest Mother: large spider-like boss, purple with teal glow ---
   const nmother = createPNG(16, 16);
-  const Nm = hex('#823caa');   // purple body
-  const Nd = hex('#50236e');   // dark purple
-  const Nt = hex('#32aa96');   // teal accent
+  const Nm = C.purple;
+  const Nd = C.darkPurple;
+  const Nt = C.teal;
   drawPixelArt(nmother, 0, 0, [
     [_, _, _, _, _, _, Nd, Nm, Nm, Nd, _, _, _, _, _, _],
     [_, _, _, _, _, Nd, Nm, Nm, Nm, Nm, Nd, _, _, _, _, _],
@@ -789,9 +789,9 @@ function generateMonsterSprites() {
 
   // --- Shade Stalker: stealthy nightside predator, dark with teal eyes ---
   const sstalker = createPNG(16, 16);
-  const Ss = hex('#1e1e2a');   // dark slate body
-  const Sm = hex('#3d3d50');   // mid gray detail
-  const St = hex('#32aa96');   // teal eyes
+  const Ss = C.darkSlate;
+  const Sm = C.midGray;
+  const St = C.teal;
   drawPixelArt(sstalker, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],
@@ -814,10 +814,10 @@ function generateMonsterSprites() {
 
   // --- Shade Stalker Alpha: larger, glowing purple accents ---
   const ssalpha = createPNG(16, 16);
-  const Sa = hex('#1e1e2a');   // dark slate body
-  const Sam = hex('#3d3d50');  // mid gray
-  const Sat = hex('#32aa96');  // teal eyes
-  const Sap = hex('#b478d2');  // light purple glow
+  const Sa = C.darkSlate;
+  const Sam = C.midGray;
+  const Sat = C.teal;
+  const Sap = C.lightPurple;
   drawPixelArt(ssalpha, 0, 0, [
     [_, _, _, _, _, Sap, Sa, Sa, Sa, Sa, Sap, _, _, _, _, _],
     [_, _, _, _, _, Sa, Sa, Sa, Sa, Sa, Sa, _, _, _, _, _],
@@ -840,10 +840,10 @@ function generateMonsterSprites() {
 
   // --- Ravine Lurker: earthy ambush predator, hunched and wide ---
   const rlurk = createPNG(16, 16);
-  const Rl = hex('#8c6440');   // brown body
-  const Rd = hex('#5a4128');   // dark brown
-  const Rr = hex('#a05a28');   // rust accent
-  const Re = hex('#dc9632');   // orange eyes
+  const Rl = C.brown;
+  const Rd = C.darkBrown;
+  const Rr = C.rust;
+  const Re = C.orange;
   drawPixelArt(rlurk, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -866,10 +866,10 @@ function generateMonsterSprites() {
 
   // --- Gloom Wraith: ghostly ethereal figure, purple translucent ---
   const gwraith = createPNG(16, 16);
-  const Gw = hex('#823caa');   // purple body
-  const Gwl = hex('#b478d2');  // light purple glow
-  const Gwd = hex('#50236e');  // dark purple
-  const Gwe = hex('#dc9632');  // orange eyes
+  const Gw = C.purple;
+  const Gwl = C.lightPurple;
+  const Gwd = C.darkPurple;
+  const Gwe = C.orange;
   drawPixelArt(gwraith, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, Gwl, Gwl, Gwl, Gwl, _, _, _, _, _, _],
@@ -892,10 +892,10 @@ function generateMonsterSprites() {
 
   // --- Rime Stalker: icy predator, sharp crystalline edges ---
   const rstalker = createPNG(16, 16);
-  const Ri = hex('#6ea0e0');   // light blue
-  const Rm = hex('#3c78c8');   // blue
-  const Rdk = hex('#1e3c78');  // dark blue
-  const Rw = hex('#dcdce6');   // white highlight
+  const Ri = C.lightBlue;
+  const Rm = C.blue;
+  const Rdk = C.darkBlue;
+  const Rw = C.white;
   drawPixelArt(rstalker, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, Rm, Rm, Rm, Rm, _, _, _, _, _, _],
@@ -918,10 +918,10 @@ function generateMonsterSprites() {
 
   // --- Frostfang Hunter: icy wolf-like predator ---
   const fhunter = createPNG(16, 16);
-  const Fi = hex('#6ea0e0');   // light blue fur
-  const Fm = hex('#3c78c8');   // blue fur
-  const Fd = hex('#1e3c78');   // dark blue
-  const Fw = hex('#dcdce6');   // white fang/highlight
+  const Fi = C.lightBlue;
+  const Fm = C.blue;
+  const Fd = C.darkBlue;
+  const Fw = C.white;
   drawPixelArt(fhunter, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -944,10 +944,10 @@ function generateMonsterSprites() {
 
   // --- Vent Spewer: volcanic stationary creature, red/orange with yellow vents ---
   const vspew = createPNG(16, 16);
-  const Vr = hex('#c83232');   // red body
-  const Vd = hex('#8c1e1e');   // dark red
-  const Vo = hex('#dc9632');   // orange
-  const Vy = hex('#f0dc50');   // yellow vent glow
+  const Vr = C.red;
+  const Vd = C.darkRed;
+  const Vo = C.orange;
+  const Vy = C.yellow;
   drawPixelArt(vspew, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, Vy, Vy, _, _, _, _, _, _, _],
@@ -970,11 +970,11 @@ function generateMonsterSprites() {
 
   // --- Magma Brute: large volcanic boss, red/orange/yellow core ---
   const mbrute = createPNG(16, 16);
-  const Mr = hex('#c83232');   // red body
-  const Md2 = hex('#8c1e1e');  // dark red
-  const Mo = hex('#dc9632');   // orange
-  const My2 = hex('#f0dc50');  // yellow core glow
-  const Mlr = hex('#e06060'); // light red
+  const Mr = C.red;
+  const Md2 = C.darkRed;
+  const Mo = C.orange;
+  const My2 = C.yellow;
+  const Mlr = C.lightRed;
   drawPixelArt(mbrute, 0, 0, [
     [_, _, _, _, _, Mo, Md2, Md2, Md2, Md2, Mo, _, _, _, _, _],
     [_, _, _, _, _, Mr, Mr, Mr, Mr, Mr, Mr, _, _, _, _, _],
@@ -994,6 +994,163 @@ function generateMonsterSprites() {
     [_, _, _, _, Md2, Md2, _, _, _, _, Md2, Md2, _, _, _, _],
   ]);
   savePNG(mbrute, path.join(CONTENT_DIR, 'sprites', 'magma_brute.png'));
+
+  // --- Array Sentinel: floating tech sentry, teal energy with gray chassis ---
+  const asent = createPNG(16, 16);
+  const At = C.teal;
+  const Am = C.lightGray;
+  const Adk = C.midGray;
+  drawPixelArt(asent, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, At, At, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, At, At, At, At, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, At, At, _, _, _, _, _, _, _],
+    [_, _, _, _, _, Adk,Am,Am,Am,Am,Adk, _, _, _, _, _],
+    [_, _, _, _, Adk,Am,Am,Am,Am,Am,Am,Adk, _, _, _, _],
+    [_, _, _, _, Adk,Am, At,Am,Am, At,Am,Adk, _, _, _, _],
+    [_, _, _, _, Adk,Am,Am,Am,Am,Am,Am,Adk, _, _, _, _],
+    [_, _, _, At,Adk,Am,Am,Am,Am,Am,Am,Adk, At, _, _, _],
+    [_, _, _, _, Adk,Am,Am,Am,Am,Am,Am,Adk, _, _, _, _],
+    [_, _, _, _, _, Adk,Am,Am,Am,Am,Adk, _, _, _, _, _],
+    [_, _, _, _, _, _, Adk,Adk,Adk,Adk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, At, At, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(asent, path.join(CONTENT_DIR, 'sprites', 'array_sentinel.png'));
+
+  // --- Array Fabricator: bulky tech construct, gray/teal ---
+  const afab = createPNG(16, 16);
+  const Ft = C.teal;
+  const Fam = C.lightGray;
+  const Fad = C.gray;
+  const Fak = C.midGray;
+  drawPixelArt(afab, 0, 0, [
+    [_, _, _, _, _, Fak,Fad,Fad,Fad,Fad,Fak, _, _, _, _, _],
+    [_, _, _, _, _, Fad,Fam,Fam,Fam,Fam,Fad, _, _, _, _, _],
+    [_, _, _, _, _, Fad, Ft,Fam,Fam, Ft,Fad, _, _, _, _, _],
+    [_, _, _, _, _, Fad,Fam,Fak,Fak,Fam,Fad, _, _, _, _, _],
+    [_, _, _, _, _, _, Fad,Fad,Fad,Fad, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,Fad,Fad, _, _, _, _, _, _, _],
+    [_, _, Fad,Fad,Fad,Fad,Fad,Fad,Fad,Fad,Fad,Fad,Fad,Fad, _, _],
+    [_, _, Fad,Fam,Fam,Fam,Fam,Fam,Fam,Fam,Fam,Fam,Fam,Fad, _, _],
+    [_, _, Ft,Fak, _,Fam, Ft,Fam,Fam, Ft,Fam, _,Fak, Ft, _, _],
+    [_, _, _, _, _, Fak,Fam,Fam,Fam,Fam,Fak, _, _, _, _, _],
+    [_, _, _, _, _, Fak,Fam,Fam,Fam,Fam,Fak, _, _, _, _, _],
+    [_, _, _, _, _, Fak,Fak,Fam,Fam,Fak,Fak, _, _, _, _, _],
+    [_, _, _, _, _, Fak,Fak,Fak,Fak,Fak,Fak, _, _, _, _, _],
+    [_, _, _, _, _, Fak, _, _, _, _,Fak, _, _, _, _, _],
+    [_, _, _, _, _, Fak, _, _, _, _,Fak, _, _, _, _, _],
+    [_, _, _, _, Fak,Fak, _, _, _, _,Fak,Fak, _, _, _, _],
+  ]);
+  savePNG(afab, path.join(CONTENT_DIR, 'sprites', 'array_fabricator.png'));
+
+  // --- Array Overseer: imposing tech boss, teal/purple energy ---
+  const aoverseer = createPNG(16, 16);
+  const Ot = C.teal;
+  const Op = C.lightPurple;
+  const Om = C.lightGray;
+  const Od = C.gray;
+  const Ok = C.midGray;
+  drawPixelArt(aoverseer, 0, 0, [
+    [_, _, _, _, _, Op, Ot, Ot, Ot, Ot, Op, _, _, _, _, _],
+    [_, _, _, _, Od, Om, Om, Om, Om, Om, Om, Od, _, _, _, _],
+    [_, _, _, _, Od, Om, Ot, Om, Om, Ot, Om, Od, _, _, _, _],
+    [_, _, _, _, Od, Om, Op, Ok, Ok, Op, Om, Od, _, _, _, _],
+    [_, _, _, _, _, Od, Om, Om, Om, Om, Od, _, _, _, _, _],
+    [_, _, _, _, _, _, Od, Om, Om, Od, _, _, _, _, _, _],
+    [_, _, Od, Om, Om, Om, Om, Om, Om, Om, Om, Om, Om, Od, _, _],
+    [_, _, Od, Om, Om, Om, Om, Op, Op, Om, Om, Om, Om, Od, _, _],
+    [_, _, Op, Ok, _, Om, Ot, Om, Om, Ot, Om, _, Ok, Op, _, _],
+    [_, _, _, _, _, Ok, Om, Om, Om, Om, Ok, _, _, _, _, _],
+    [_, _, _, _, _, Ok, Op, Om, Om, Op, Ok, _, _, _, _, _],
+    [_, _, _, _, _, Ok, Ok, Om, Om, Ok, Ok, _, _, _, _, _],
+    [_, _, _, _, _, Ok, Ok, Ok, Ok, Ok, Ok, _, _, _, _, _],
+    [_, _, _, _, _, Ok, _, _, _, _, Ok, _, _, _, _, _],
+    [_, _, _, _, _, Ok, _, _, _, _, Ok, _, _, _, _, _],
+    [_, _, _, _, Ok, Ok, _, _, _, _, Ok, Ok, _, _, _, _],
+  ]);
+  savePNG(aoverseer, path.join(CONTENT_DIR, 'sprites', 'array_overseer.png'));
+
+  // --- Threshold Watcher: ethereal sentinel, purple/blue with glowing eyes ---
+  const twatcher = createPNG(16, 16);
+  const Wp = C.purple;
+  const Wd = C.darkPurple;
+  const Wl = C.lightPurple;
+  const Wb = C.blue;
+  drawPixelArt(twatcher, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Wl, Wl, Wl, Wl, _, _, _, _, _, _],
+    [_, _, _, _, _, Wp, Wp, Wl, Wl, Wp, Wp, _, _, _, _, _],
+    [_, _, _, _, _, Wp, Wb, Wp, Wp, Wb, Wp, _, _, _, _, _],
+    [_, _, _, _, _, Wd, Wp, Wp, Wp, Wp, Wd, _, _, _, _, _],
+    [_, _, _, _, _, _, Wp, Wd, Wd, Wp, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Wp, Wp, _, _, _, _, _, _, _],
+    [_, _, _, Wl, Wp, Wp, Wp, Wp, Wp, Wp, Wp, Wp, Wl, _, _, _],
+    [_, _, _, _, Wd, Wp, Wp, Wp, Wp, Wp, Wp, Wd, _, _, _, _],
+    [_, _, _, _, _, Wp, Wb, Wp, Wp, Wb, Wp, _, _, _, _, _],
+    [_, _, _, _, _, Wd, Wp, Wp, Wp, Wp, Wd, _, _, _, _, _],
+    [_, _, _, _, _, Wd, Wd, Wp, Wp, Wd, Wd, _, _, _, _, _],
+    [_, _, _, _, _, Wd, Wl, Wd, Wd, Wl, Wd, _, _, _, _, _],
+    [_, _, _, _, _, _, Wl, _, _, Wl, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(twatcher, path.join(CONTENT_DIR, 'sprites', 'threshold_watcher.png'));
+
+  // --- Abyssal Tendril: dark writhing tentacle creature ---
+  const atendril = createPNG(16, 16);
+  const Tb2 = C.darkSlate;
+  const Tm = C.midGray;
+  const Tp2 = C.darkPurple;
+  const Te = C.red;
+  drawPixelArt(atendril, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, Tp2, _, _, _, _, _, _, _, _, Tp2, _, _, _],
+    [_, _, _, Tb2, Tp2, _, _, _, _, _, Tp2, Tb2, _, _, _, _],
+    [_, _, _, _, Tb2, _, _, _, _, _, Tb2, _, _, _, _, _],
+    [_, _, _, _, _, Tb2, Tb2, Tb2, Tb2, Tb2, _, _, _, _, _, _],
+    [_, _, _, _, Tb2, Tb2, Te, Tb2, Tb2, Te, Tb2, _, _, _, _, _],
+    [_, _, _, _, Tb2, Tm, Tb2, Tb2, Tb2, Tb2, Tm, _, _, _, _, _],
+    [_, _, _, _, _, Tb2, Tb2, Tb2, Tb2, Tb2, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Tb2, Tm, Tm, Tb2, _, _, _, _, _, _],
+    [_, _, Tp2, _, _, Tb2, Tb2, Tb2, Tb2, Tb2, _, _, Tp2, _, _, _],
+    [_, _, Tb2, _, Tb2, Tb2, Tb2, Tb2, Tb2, Tb2, Tb2, _, Tb2, _, _, _],
+    [_, _, _, Tb2, _, Tb2, _, Tb2, Tb2, _, Tb2, Tb2, _, _, _, _],
+    [_, _, _, Tp2, _, _, _, Tb2, Tb2, _, _, Tp2, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(atendril, path.join(CONTENT_DIR, 'sprites', 'abyssal_tendril.png'));
+
+  // --- Threshold Keeper: imposing dark boss, purple/red with void energy ---
+  const tkeeper = createPNG(16, 16);
+  const Kp = C.purple;
+  const Kd = C.darkPurple;
+  const Kl = C.lightPurple;
+  const Kr = C.red;
+  const Kk = C.darkSlate;
+  drawPixelArt(tkeeper, 0, 0, [
+    [_, _, _, _, _, Kl, Kd, Kd, Kd, Kd, Kl, _, _, _, _, _],
+    [_, _, _, _, Kd, Kp, Kp, Kp, Kp, Kp, Kp, Kd, _, _, _, _],
+    [_, _, _, _, Kd, Kp, Kr, Kp, Kp, Kr, Kp, Kd, _, _, _, _],
+    [_, _, _, _, Kd, Kp, Kl, Kd, Kd, Kl, Kp, Kd, _, _, _, _],
+    [_, _, _, _, _, Kd, Kp, Kp, Kp, Kp, Kd, _, _, _, _, _],
+    [_, _, _, _, _, _, Kd, Kp, Kp, Kd, _, _, _, _, _, _],
+    [_, _, Kd, Kp, Kp, Kp, Kp, Kp, Kp, Kp, Kp, Kp, Kp, Kd, _, _],
+    [_, _, Kd, Kp, Kp, Kp, Kp, Kr, Kr, Kp, Kp, Kp, Kp, Kd, _, _],
+    [_, _, Kl, Kk, _, Kp, Kl, Kp, Kp, Kl, Kp, _, Kk, Kl, _, _],
+    [_, _, _, _, _, Kk, Kp, Kp, Kp, Kp, Kk, _, _, _, _, _],
+    [_, _, _, _, _, Kk, Kr, Kp, Kp, Kr, Kk, _, _, _, _, _],
+    [_, _, _, _, _, Kk, Kk, Kp, Kp, Kk, Kk, _, _, _, _, _],
+    [_, _, _, _, _, Kk, Kk, Kk, Kk, Kk, Kk, _, _, _, _, _],
+    [_, _, _, _, _, Kk, _, _, _, _, Kk, _, _, _, _, _],
+    [_, _, _, _, _, Kk, _, _, _, _, Kk, _, _, _, _, _],
+    [_, _, _, _, Kk, Kk, _, _, _, _, Kk, Kk, _, _, _, _],
+  ]);
+  savePNG(tkeeper, path.join(CONTENT_DIR, 'sprites', 'threshold_keeper.png'));
 }
 
 // ============================================================================
@@ -1002,10 +1159,10 @@ function generateMonsterSprites() {
 
 function generatePlayerSprites() {
   const playerColors = [
-    { name: 'blue',   body: rgba(60, 150, 220),  dark: rgba(40, 100, 160)  },
-    { name: 'red',    body: rgba(220, 70, 70),    dark: rgba(160, 45, 45)   },
-    { name: 'green',  body: rgba(80, 170, 80),    dark: rgba(50, 120, 50)   },
-    { name: 'orange', body: rgba(220, 150, 60),   dark: rgba(170, 110, 40)  },
+    { name: 'blue',   body: C.blue,      dark: C.darkBlue    },
+    { name: 'red',    body: C.red,       dark: C.darkRed     },
+    { name: 'green',  body: C.green,     dark: C.darkGreen   },
+    { name: 'orange', body: C.orange,    dark: C.rust        },
   ];
 
   for (const pc of playerColors) {
@@ -1118,8 +1275,8 @@ function generateItemSprites() {
 
   // --- Rusty Sword: brown-orange blade ---
   const sword = createPNG(16, 16);
-  const Ru = rgba(180, 130, 80);  // rusty
-  const Rd = rgba(130, 90, 55);   // dark rust
+  const Ru = C.tan;
+  const Rd = C.rust;
   drawPixelArt(sword, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _,Lg, _, _],
@@ -1142,8 +1299,8 @@ function generateItemSprites() {
 
   // --- Torch: wooden handle with flame ---
   const torch = createPNG(16, 16);
-  const Fl = rgba(255, 200, 60);   // flame
-  const Fd = rgba(255, 140, 30);   // dark flame
+  const Fl = C.yellow;
+  const Fd = C.orange;
   drawPixelArt(torch, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, Fl, _, _, _, _, _, _, _, _],
@@ -1188,8 +1345,8 @@ function generateItemSprites() {
 
   // --- Titanium Cylinders: metallic blue cylinders ---
   const cyl = createPNG(16, 16);
-  const Tb = rgba(100, 160, 200);  // titanium bright
-  const Td = rgba(70, 120, 160);   // titanium dark
+  const Tb = C.lightBlue;
+  const Td = C.blue;
   drawPixelArt(cyl, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -1212,9 +1369,9 @@ function generateItemSprites() {
 
   // --- Sol Unit: glowing energy weapon ---
   const sol = createPNG(16, 16);
-  const Sg = rgba(255, 220, 100);  // sol glow
-  const Sm = rgba(220, 180, 60);   // sol mid
-  const Sd = rgba(180, 140, 40);   // sol dark
+  const Sg = C.yellow;
+  const Sm = C.solGold;
+  const Sd = C.orange;
   drawPixelArt(sol, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, Sg, _, _, _],
@@ -1246,22 +1403,22 @@ function generateOutpostTileset() {
 
   // Outpost palette
   const O = {
-    floorDark:  rgba(42, 40, 35),
-    floorMid:   rgba(53, 51, 46),
-    floorLight: rgba(65, 62, 55),
-    wallDark:   rgba(80, 75, 68),
-    wallMid:    rgba(100, 95, 85),
-    wallLight:  rgba(115, 110, 100),
-    wallTop:    rgba(125, 118, 108),
-    doorMid:    rgba(106, 122, 138),
-    doorDark:   rgba(80, 95, 110),
-    doorLight:  rgba(130, 145, 160),
-    voidColor:  rgba(15, 14, 12),
-    water1:     rgba(35, 42, 32),
-    water2:     rgba(48, 55, 40),
-    water3:     rgba(58, 68, 48),
-    teal:       rgba(50, 170, 150),
-    purple:     rgba(130, 100, 60),
+    floorDark:  hex('#2a2823'),
+    floorMid:   hex('#35332e'),
+    floorLight: hex('#413e37'),
+    wallDark:   hex('#504b44'),
+    wallMid:    hex('#645f55'),
+    wallLight:  hex('#736e64'),
+    wallTop:    hex('#7d766c'),
+    doorMid:    hex('#6a7a8a'),
+    doorDark:   hex('#505f6e'),
+    doorLight:  hex('#8291a0'),
+    voidColor:  hex('#0f0e0c'),
+    water1:     hex('#232a20'),
+    water2:     hex('#303728'),
+    water3:     hex('#3a4430'),
+    teal:       C.teal,
+    purple:     hex('#82643c'),
   };
 
   // --- Tile 0: Void (near-black warm) ---
@@ -1393,23 +1550,23 @@ function generateQuarantineTileset() {
 
   // Quarantine palette
   const Q = {
-    floorDark:  rgba(28, 38, 28),
-    floorMid:   rgba(37, 46, 37),
-    floorLight: rgba(48, 58, 45),
-    wallDark:   rgba(55, 70, 50),
-    wallMid:    rgba(74, 90, 69),
-    wallLight:  rgba(88, 105, 80),
-    wallTop:    rgba(95, 112, 88),
-    doorMid:    rgba(138, 122, 48),
-    doorDark:   rgba(100, 88, 30),
-    doorLight:  rgba(165, 148, 60),
-    voidColor:  rgba(10, 16, 10),
-    water1:     rgba(20, 45, 18),
-    water2:     rgba(35, 65, 28),
-    water3:     rgba(50, 85, 38),
-    teal:       rgba(50, 170, 100),
-    purple:     rgba(100, 60, 130),
-    contamGreen: rgba(80, 160, 60),
+    floorDark:  hex('#1c261c'),
+    floorMid:   hex('#252e25'),
+    floorLight: hex('#303a2d'),
+    wallDark:   hex('#374632'),
+    wallMid:    hex('#4a5a45'),
+    wallLight:  hex('#586950'),
+    wallTop:    hex('#5f7058'),
+    doorMid:    hex('#8a7a30'),
+    doorDark:   hex('#64581e'),
+    doorLight:  hex('#a5943c'),
+    voidColor:  hex('#0a100a'),
+    water1:     hex('#142d12'),
+    water2:     hex('#23411c'),
+    water3:     hex('#325526'),
+    teal:       hex('#32aa64'),
+    purple:     hex('#643c82'),
+    contamGreen: hex('#50a03c'),
   };
 
   // --- Tile 0: Void (dark green-black) ---
@@ -1546,22 +1703,22 @@ function generateDarkCityTileset() {
 
   // Dark city palette
   const DC = {
-    floorDark:  rgba(30, 28, 28),
-    floorMid:   rgba(42, 40, 40),
-    floorLight: rgba(55, 52, 50),
-    wallDark:   rgba(68, 55, 50),
-    wallMid:    rgba(90, 74, 69),
-    wallLight:  rgba(105, 88, 82),
-    wallTop:    rgba(112, 95, 88),
-    doorMid:    rgba(106, 92, 78),
-    doorDark:   rgba(75, 62, 50),
-    doorLight:  rgba(130, 112, 95),
-    voidColor:  rgba(8, 8, 8),
-    water1:     rgba(22, 28, 35),
-    water2:     rgba(32, 40, 50),
-    water3:     rgba(42, 52, 65),
-    teal:       rgba(50, 140, 130),
-    purple:     rgba(100, 60, 80),
+    floorDark:  hex('#1e1c1c'),
+    floorMid:   hex('#2a2828'),
+    floorLight: hex('#373432'),
+    wallDark:   hex('#443732'),
+    wallMid:    hex('#5a4a45'),
+    wallLight:  hex('#695852'),
+    wallTop:    hex('#705f58'),
+    doorMid:    hex('#6a5c4e'),
+    doorDark:   hex('#4b3e32'),
+    doorLight:  hex('#82705f'),
+    voidColor:  hex('#080808'),
+    water1:     hex('#161c23'),
+    water2:     hex('#202832'),
+    water3:     hex('#2a3441'),
+    teal:       hex('#328c82'),
+    purple:     hex('#643c50'),
   };
 
   // --- Tile 0: Void (near-black) ---
