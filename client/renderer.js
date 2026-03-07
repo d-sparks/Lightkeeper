@@ -119,6 +119,11 @@ class Renderer {
     this.aimIndicator = null;  // reference to input.aimIndicator { active, angle }
     this.aimLineGfx = null;
 
+    // Boss phase transition effects (screen-space particle bursts)
+    this.bossPhaseEffects = [];
+    // Track last known boss phase to detect transitions
+    this.lastBossPhase = null;
+
     this._initPixi();
   }
 
@@ -1602,14 +1607,26 @@ class Renderer {
 
       // Name tag (above sprite top)
       nameTag.text = mob.name;
-      nameTag.style.fill = '#e57373';
-      nameTag.y = this.isoMode ? -42 : -r - 6;
+      nameTag.style.fill = mob.boss ? '#ff8a80' : '#e57373';
+      if (mob.boss) {
+        nameTag.style.fontSize = 11;
+        nameTag.style.fontWeight = 'bold';
+      } else {
+        nameTag.style.fontSize = 9;
+        nameTag.style.fontWeight = 'normal';
+      }
+      nameTag.y = this.isoMode ? (mob.boss ? -50 : -42) : -r - 6;
       nameTag.visible = true;
 
-      // Health bar (just below name tag)
+      // Health bar (just below name tag) — bosses get a wider bar
       const hp = mob.health / mob.maxHealth;
-      const barColor = hp > 0.5 ? 0xe53935 : 0xff6f00;
-      this._drawHealthBar(healthBg, healthFill, 0, this.isoMode ? -40 : -r - 4, 26, 3, hp, barColor);
+      const barColor = mob.boss
+        ? (hp > 0.6 ? 0xe53935 : hp > 0.3 ? 0xff6f00 : 0xd50000)
+        : (hp > 0.5 ? 0xe53935 : 0xff6f00);
+      const barW = mob.boss ? 40 : 26;
+      const barH = mob.boss ? 5 : 3;
+      const barY = this.isoMode ? (mob.boss ? -48 : -40) : -r - 4;
+      this._drawHealthBar(healthBg, healthFill, 0, barY, barW, barH, hp, barColor);
 
       // Ambush fade-in: override alpha if this mob is fading in
       if (this.ambushFadeIns.has(mob.id)) {
@@ -2178,6 +2195,32 @@ class Renderer {
           angle: ev.angle,
           range: ev.range,
           age: 0, maxAge: 0.2,
+        });
+      } else if (ev.type === 'boss_phase') {
+        // Phase transition: screen shake + floating text + flash
+        this.screenShake = { intensity: 8, duration: 0.5, elapsed: 0 };
+        const phaseLabels = { 1: 'PHASE 1', 2: 'PHASE 2 - RANGED', 3: 'PHASE 3 - ENRAGED' };
+        this.damageNumbers.push({
+          text: phaseLabels[ev.phase] || `PHASE ${ev.phase}`,
+          x: ev.x, y: ev.y - 30,
+          age: 0, maxAge: 2.5,
+          color: '#ffa726',
+        });
+        // Trigger CSS flash on HUD boss bar
+        const track = document.querySelector('.boss-bar-track');
+        if (track) {
+          track.classList.remove('phase-flash');
+          void track.offsetWidth; // reflow to restart animation
+          track.classList.add('phase-flash');
+        }
+      } else if (ev.type === 'boss_summon') {
+        // Summon event: lighter shake + text
+        this.screenShake = { intensity: 5, duration: 0.3, elapsed: 0 };
+        this.damageNumbers.push({
+          text: 'SUMMONING!',
+          x: ev.x, y: ev.y - 20,
+          age: 0, maxAge: 1.5,
+          color: '#ce93d8',
         });
       }
     }

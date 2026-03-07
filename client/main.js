@@ -37,6 +37,11 @@
   const worldmapBtn = document.getElementById('worldmap-btn');
   const onboardMove = document.getElementById('onboard-move');
   const onboardInteract = document.getElementById('onboard-interact');
+  const bossBar = document.getElementById('boss-bar');
+  const bossBarName = document.getElementById('boss-bar-name');
+  const bossBarFill = document.getElementById('boss-bar-fill');
+  const bossBarText = document.getElementById('boss-bar-text');
+  const bossBarPhase = document.getElementById('boss-bar-phase');
 
   // --- Instances ---
   const net = new NetClient();
@@ -2208,6 +2213,20 @@
       }
     }
 
+    // Update boss health bar HUD
+    const boss = msg.monsters && msg.monsters.find(m => m.boss);
+    if (boss) {
+      bossBar.style.display = '';
+      bossBarName.textContent = boss.name;
+      const bossHpPct = Math.max(0, boss.health / boss.maxHealth) * 100;
+      bossBarFill.style.width = `${bossHpPct}%`;
+      bossBarText.textContent = `${boss.health} / ${boss.maxHealth}`;
+      const phaseLabels = { 1: 'Phase 1', 2: 'Phase 2 - Ranged', 3: 'Phase 3 - Enraged' };
+      bossBarPhase.textContent = phaseLabels[boss.bossPhase] || '';
+    } else {
+      bossBar.style.display = 'none';
+    }
+
     // Update click-to-move direction based on current position
     if (renderer.myId) {
       const me = msg.players.find(p => p.id === renderer.myId);
@@ -2236,6 +2255,8 @@
     closeChoiceMenu();
     closeAutomationScreen();
     closeWorldmap();
+    // Hide boss bar when changing floors
+    bossBar.style.display = 'none';
     // Play floor change SFX and switch music based on room name
     audio.play('floor_change');
     const roomName = (msg.map.name || '').toLowerCase();
