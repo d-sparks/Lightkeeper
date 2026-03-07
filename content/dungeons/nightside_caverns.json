@@ -36,16 +36,22 @@
     { "x": 2, "y": 6, "type": "player_start" }
   ],
   "monsterSpawns": [
-    { "type": "shade_stalker", "x": 10, "y": 4, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 10, "y": 4, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 8, "y": 4}, {"x": 14, "y": 4}, {"x": 14, "y": 6}, {"x": 8, "y": 6}
+    ] },
     { "type": "shade_stalker", "x": 20, "y": 3, "count": 1, "patrol": "wander" },
     { "type": "gloom_wraith", "x": 15, "y": 9, "count": 1, "patrol": "guard" },
     { "type": "gloom_wraith", "x": 5, "y": 12, "count": 1, "patrol": "wander" },
-    { "type": "dusk_crawler", "x": 8, "y": 7, "count": 2, "patrol": "wander" },
+    { "type": "dusk_crawler", "x": 8, "y": 7, "count": 2, "patrol": "patrol", "patrolPath": [
+      {"x": 3, "y": 7}, {"x": 9, "y": 7}, {"x": 9, "y": 10}, {"x": 3, "y": 10}
+    ] },
     { "type": "dusk_crawler", "x": 18, "y": 14, "count": 2, "patrol": "wander" },
     { "type": "shadow_ambusher", "x": 12, "y": 13, "count": 1, "patrol": "guard" },
     { "type": "shade_stalker_alpha", "x": 21, "y": 8, "count": 1, "patrol": "guard" },
     { "type": "frostfang_hunter", "x": 14, "y": 6, "count": 2, "patrol": "wander" },
-    { "type": "frostfang_hunter", "x": 3, "y": 15, "count": 2, "patrol": "wander" },
+    { "type": "frostfang_hunter", "x": 3, "y": 15, "count": 2, "patrol": "patrol", "patrolPath": [
+      {"x": 1, "y": 13}, {"x": 4, "y": 13}, {"x": 4, "y": 16}, {"x": 1, "y": 16}
+    ] },
     { "type": "rime_stalker", "x": 20, "y": 12, "count": 1, "patrol": "guard" },
     { "type": "tunnel_creeper", "x": 7, "y": 10, "count": 1, "patrol": "patrol", "patrolPath": [
       {"x": 4, "y": 10}, {"x": 9, "y": 10}, {"x": 9, "y": 12}, {"x": 4, "y": 12}

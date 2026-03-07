@@ -38,9 +38,13 @@
     { "x": 3, "y": 3, "type": "player_start" }
   ],
   "monsterSpawns": [
-    { "type": "gloom_wraith", "x": 10, "y": 5, "count": 1, "patrol": "wander" },
+    { "type": "gloom_wraith", "x": 10, "y": 5, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 8, "y": 4}, {"x": 16, "y": 4}, {"x": 16, "y": 6}, {"x": 8, "y": 6}
+    ] },
     { "type": "gloom_wraith", "x": 18, "y": 4, "count": 1, "patrol": "guard" },
-    { "type": "shade_stalker_alpha", "x": 7, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker_alpha", "x": 7, "y": 8, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 3, "y": 7}, {"x": 8, "y": 7}, {"x": 8, "y": 11}, {"x": 3, "y": 11}
+    ] },
     { "type": "shade_stalker", "x": 15, "y": 8, "count": 1, "patrol": "wander" },
     { "type": "shade_stalker", "x": 4, "y": 14, "count": 1, "patrol": "guard" },
     { "type": "shadow_ambusher", "x": 10, "y": 13, "count": 2, "patrol": "wander" },
@@ -48,7 +52,9 @@
     { "type": "crystal_guardian", "x": 10, "y": 17, "count": 1, "patrol": "guard" },
     { "type": "rime_stalker", "x": 14, "y": 11, "count": 1, "patrol": "guard" },
     { "type": "rime_stalker", "x": 5, "y": 17, "count": 1, "patrol": "guard" },
-    { "type": "frostfang_hunter", "x": 16, "y": 14, "count": 2, "patrol": "wander" },
+    { "type": "frostfang_hunter", "x": 16, "y": 14, "count": 2, "patrol": "patrol", "patrolPath": [
+      {"x": 13, "y": 13}, {"x": 17, "y": 13}, {"x": 17, "y": 16}, {"x": 13, "y": 16}
+    ] },
     { "type": "tunnel_creeper", "x": 8, "y": 12, "count": 1, "patrol": "patrol", "patrolPath": [
       {"x": 5, "y": 12}, {"x": 8, "y": 12}, {"x": 8, "y": 16}, {"x": 5, "y": 16}
     ] }
