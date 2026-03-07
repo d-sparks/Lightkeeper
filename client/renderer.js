@@ -210,6 +210,7 @@ class Renderer {
     this.questArrowGfx = new PIXI.Graphics();
     this.overlayContainer.addChild(this.questArrowGfx);
     this.questObjective = null; // { label, tileX, tileY, sameRoom }
+    this.secondaryQuestObjectives = null; // array of { label, tileX, tileY, sameRoom, targetLocationId }
 
     // Quest waypoint label on minimap
     this.questWaypointText = new PIXI.Text('', {
@@ -2441,7 +2442,17 @@ class Renderer {
         this.minimapGfx.endFill();
       }
 
-      // Quest objective waypoint marker
+      // Secondary quest objective dots (drawn first so primary draws on top)
+      if (this.secondaryQuestObjectives) {
+        for (const secObj of this.secondaryQuestObjectives) {
+          if (secObj.tileX != null) {
+            const sp = isoPx((secObj.tileX + 0.5) * ts, (secObj.tileY + 0.5) * ts);
+            this._drawSecondaryWaypoint(sp.x, sp.y, questDotR, secObj, mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2);
+          }
+        }
+      }
+
+      // Quest objective waypoint marker (primary / tracked)
       if (this.questObjective && this.questObjective.tileX != null) {
         const qp = isoPx(
           (this.questObjective.tileX + 0.5) * ts,
@@ -2548,7 +2559,18 @@ class Renderer {
         this.minimapGfx.endFill();
       }
 
-      // Quest objective waypoint marker
+      // Secondary quest objective dots (drawn first so primary draws on top)
+      if (this.secondaryQuestObjectives) {
+        for (const secObj of this.secondaryQuestObjectives) {
+          if (secObj.tileX != null) {
+            const sx = Math.round(mmX + secObj.tileX * scale);
+            const sy = Math.round(mmY + secObj.tileY * scale);
+            this._drawSecondaryWaypoint(sx, sy, questDotR, secObj, mmX - 2, mmY - 2, mmW + 4, mmH + 4);
+          }
+        }
+      }
+
+      // Quest objective waypoint marker (primary / tracked)
       if (this.questObjective && this.questObjective.tileX != null) {
         const qx = Math.round(mmX + this.questObjective.tileX * scale);
         const qy = Math.round(mmY + this.questObjective.tileY * scale);
@@ -2614,6 +2636,28 @@ class Renderer {
     label.x = Math.round(x);
     label.y = Math.round(y);
     label.visible = true;
+  }
+
+  // --- Secondary quest waypoint (dimmer dot for non-tracked quests) ---
+
+  _drawSecondaryWaypoint(qx, qy, baseR, objective, mmLeft, mmTop, mmWidth, mmHeight) {
+    const inside = qx >= mmLeft && qx <= mmLeft + mmWidth &&
+                   qy >= mmTop && qy <= mmTop + mmHeight;
+    if (!inside) return; // skip edge indicators for secondary — only show when visible
+
+    const pulse = 0.3 + 0.2 * Math.sin(Date.now() / 500);
+    const r = Math.max(baseR - 1, 2);
+    const color = 0x90caf9; // light blue to distinguish from primary orange
+
+    // Small circle dot
+    this.minimapGfx.beginFill(color, 0.5 + pulse);
+    this.minimapGfx.drawCircle(qx, qy, r);
+    this.minimapGfx.endFill();
+
+    // Subtle pulsing ring
+    this.minimapGfx.lineStyle(1, color, pulse * 0.5);
+    this.minimapGfx.drawCircle(qx, qy, r + 2);
+    this.minimapGfx.lineStyle(0);
   }
 
   // --- Quest waypoint drawing helper (used by both iso and top-down minimap) ---

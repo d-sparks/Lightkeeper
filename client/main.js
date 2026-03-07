@@ -608,7 +608,37 @@
       }
     }
 
-    // Quest objective marker
+    // Secondary quest objective markers (drawn first so primary draws on top)
+    const secObjs = renderer.secondaryQuestObjectives;
+    if (secObjs) {
+      for (const sec of secObjs) {
+        if (!sec.targetLocationId || sec.targetLocationId === worldmapCurrentLocation) continue;
+        const secLoc = locMap[sec.targetLocationId];
+        if (!secLoc) continue;
+        const sx = locX(secLoc.x);
+        const sy = locY(secLoc.y);
+        const sPulse = 0.3 + 0.4 * Math.sin(now / 500);
+
+        // Subtle pulsing ring
+        ctx.beginPath();
+        ctx.arc(sx, sy, 12, 0, Math.PI * 2);
+        ctx.strokeStyle = '#90caf9';
+        ctx.globalAlpha = sPulse * 0.5;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // Small circle above
+        ctx.beginPath();
+        ctx.arc(sx, sy - 14, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#90caf9';
+        ctx.globalAlpha = 0.6;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // Quest objective marker (primary / tracked)
     const qObj = renderer.questObjective;
     if (qObj && qObj.targetLocationId && qObj.targetLocationId !== worldmapCurrentLocation) {
       const targetLoc = locMap[qObj.targetLocationId];
@@ -2458,6 +2488,7 @@
 
   net.on(CONSTANTS.MSG.QUEST_OBJECTIVE, (msg) => {
     renderer.questObjective = msg.objective || null;
+    renderer.secondaryQuestObjectives = msg.secondaryObjectives || null;
     // Update HUD quest label with quest name + step label
     if (msg.objective && msg.objective.label) {
       const prefix = msg.objective.questName ? msg.objective.questName + ': ' : '';

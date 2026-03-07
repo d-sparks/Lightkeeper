@@ -566,38 +566,14 @@ class GameLoop {
   }
 
   // Send quest objective to a player, resolving exit coordinates if needed
-  _sendQuestObjective(playerId, currentRoomId) {
-    const room = this.rooms.get(currentRoomId);
-    if (!room) return;
-    const player = room.players.get(playerId);
-    if (!player) return;
-
-    if (!player.questObjective) {
-      // Send null objective to clear client display
-      if (this.actions.sendToPlayer) {
-        this.actions.sendToPlayer(playerId, {
-          type: CONSTANTS.MSG.QUEST_OBJECTIVE,
-          objective: null,
-        });
-      }
-      return;
-    }
-
-    const obj = player.questObjective;
+  // Resolve a raw quest objective to screen-ready coordinates for the client.
+  // Returns { label, questName, uiHint, tileX, tileY, sameRoom, targetLocationId } or null.
+  _resolveObjective(obj, currentRoomId, room) {
+    if (!obj) return null;
 
     // UI-hint-only objectives (no world-space arrow needed)
     if (obj.uiHint && !obj.roomId) {
-      if (this.actions.sendToPlayer) {
-        this.actions.sendToPlayer(playerId, {
-          type: CONSTANTS.MSG.QUEST_OBJECTIVE,
-          objective: {
-            label: obj.label,
-            questName: obj.questName || null,
-            uiHint: obj.uiHint,
-          },
-        });
-      }
-      return;
+      return { label: obj.label, questName: obj.questName || null, uiHint: obj.uiHint };
     }
 
     let targetRoomId = obj.roomId;
@@ -659,19 +635,53 @@ class GameLoop {
       ? this.content.getWorldmapLocation(targetRoomId)
       : null;
 
+    return {
+      label: obj.label,
+      questName: obj.questName || null,
+      uiHint: obj.uiHint || null,
+      tileX,
+      tileY,
+      sameRoom,
+      targetLocationId,
+    };
+  }
+
+  _sendQuestObjective(playerId, currentRoomId) {
+    const room = this.rooms.get(currentRoomId);
+    if (!room) return;
+    const player = room.players.get(playerId);
+    if (!player) return;
+
+    if (!player.questObjective) {
+      if (this.actions.sendToPlayer) {
+        this.actions.sendToPlayer(playerId, {
+          type: CONSTANTS.MSG.QUEST_OBJECTIVE,
+          objective: null,
+        });
+      }
+      return;
+    }
+
+    const objective = this._resolveObjective(player.questObjective, currentRoomId, room);
+
+    // Resolve secondary objectives (other active quests)
+    const secondaryRaw = this.questTracker.getAllActiveObjectives(playerId);
+    let secondaryObjectives = null;
+    if (secondaryRaw.length > 0) {
+      secondaryObjectives = [];
+      for (const secObj of secondaryRaw) {
+        const resolved = this._resolveObjective(secObj, currentRoomId, room);
+        if (resolved && resolved.tileX != null) {
+          secondaryObjectives.push(resolved);
+        }
+      }
+      if (secondaryObjectives.length === 0) secondaryObjectives = null;
+    }
+
     if (this.actions.sendToPlayer) {
-      this.actions.sendToPlayer(playerId, {
-        type: CONSTANTS.MSG.QUEST_OBJECTIVE,
-        objective: {
-          label: obj.label,
-          questName: obj.questName || null,
-          uiHint: obj.uiHint || null,
-          tileX,
-          tileY,
-          sameRoom,
-          targetLocationId,
-        },
-      });
+      const msg = { type: CONSTANTS.MSG.QUEST_OBJECTIVE, objective };
+      if (secondaryObjectives) msg.secondaryObjectives = secondaryObjectives;
+      this.actions.sendToPlayer(playerId, msg);
     }
   }
 
