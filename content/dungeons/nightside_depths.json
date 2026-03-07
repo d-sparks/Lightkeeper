@@ -47,7 +47,9 @@
     { "type": "dusk_crawler", "x": 17, "y": 17, "count": 3, "patrol": "wander" },
     { "type": "crystal_guardian", "x": 10, "y": 17, "count": 1, "patrol": "guard" },
     { "type": "rime_stalker", "x": 14, "y": 11, "count": 1, "patrol": "guard" },
-    { "type": "rime_stalker", "x": 5, "y": 17, "count": 1, "patrol": "guard" }
+    { "type": "rime_stalker", "x": 5, "y": 17, "count": 1, "patrol": "guard" },
+    { "type": "frostfang_hunter", "x": 16, "y": 14, "count": 2, "patrol": "wander" },
+    { "type": "tunnel_creeper", "x": 8, "y": 12, "count": 1, "patrol": "patrol" }
   ],
   "npcSpawns": [],
   "itemSpawns": [

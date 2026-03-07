@@ -31,7 +31,8 @@
   "monsterSpawns": [
     { "type": "gloom_wraith", "x": 5, "y": 4, "count": 1, "patrol": "guard" },
     { "type": "gloom_wraith", "x": 9, "y": 7, "count": 1, "patrol": "guard" },
-    { "type": "tunnel_creeper", "x": 7, "y": 5, "count": 1, "patrol": "patrol" }
+    { "type": "tunnel_creeper", "x": 7, "y": 5, "count": 1, "patrol": "patrol" },
+    { "type": "shadow_ambusher", "x": 5, "y": 8, "count": 1, "patrol": "guard" }
   ],
   "npcSpawns": [],
   "itemSpawns": [

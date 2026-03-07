@@ -50,7 +50,10 @@
   "monsterSpawns": [
     { "type": "vent_spewer", "x": 5, "y": 8, "count": 1, "patrol": "guard" },
     { "type": "vent_spewer", "x": 20, "y": 6, "count": 1, "patrol": "guard" },
-    { "type": "vent_spewer", "x": 12, "y": 20, "count": 1, "patrol": "guard" }
+    { "type": "vent_spewer", "x": 12, "y": 20, "count": 1, "patrol": "guard" },
+    { "type": "vent_spewer", "x": 24, "y": 16, "count": 1, "patrol": "guard" },
+    { "type": "magma_brute", "x": 14, "y": 10, "count": 1, "patrol": "wander" },
+    { "type": "magma_brute", "x": 8, "y": 24, "count": 1, "patrol": "guard" }
   ],
   "npcSpawns": [],
   "itemSpawns": [

@@ -62,7 +62,9 @@
     "pool": [
       { "type": "skeleton", "weight": 3, "cost": 1, "minDepth": 0 },
       { "type": "luddite_brawler", "weight": 2, "cost": 1, "minDepth": 0 },
-      { "type": "luddite_scrapper", "weight": 1, "cost": 2, "minDepth": 2 }
+      { "type": "luddite_scrapper", "weight": 1, "cost": 2, "minDepth": 2 },
+      { "type": "tunnel_creeper", "weight": 2, "cost": 1, "minDepth": 0 },
+      { "type": "feral_hound", "weight": 2, "cost": 1, "minDepth": 1 }
     ],
     "maxPerRoom": 4,
     "avoidEntranceRoom": true

@@ -43,7 +43,9 @@
     { "type": "array_fabricator", "x": 17, "y": 7, "count": 1, "patrol": "guard" },
     { "type": "array_fabricator", "x": 10, "y": 13, "count": 1, "patrol": "guard" },
     { "type": "array_sentinel", "x": 2, "y": 15, "count": 1, "patrol": "wander" },
-    { "type": "array_sentinel", "x": 19, "y": 15, "count": 1, "patrol": "guard" }
+    { "type": "array_sentinel", "x": 19, "y": 15, "count": 1, "patrol": "guard" },
+    { "type": "vent_spewer", "x": 4, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "vent_spewer", "x": 16, "y": 12, "count": 1, "patrol": "guard" }
   ],
   "npcSpawns": [],
   "itemSpawns": [

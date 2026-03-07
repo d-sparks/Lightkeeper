@@ -90,7 +90,9 @@
       { "type": "frostfang_hunter", "weight": 3, "cost": 1, "minDepth": 0 },
       { "type": "rime_stalker", "weight": 2, "cost": 2, "minDepth": 2 },
       { "type": "skeleton", "weight": 2, "cost": 1, "minDepth": 0 },
-      { "type": "skeleton_archer", "weight": 1, "cost": 2, "minDepth": 3 }
+      { "type": "skeleton_archer", "weight": 1, "cost": 2, "minDepth": 3 },
+      { "type": "shadow_ambusher", "weight": 1, "cost": 2, "minDepth": 2 },
+      { "type": "tunnel_creeper", "weight": 2, "cost": 1, "minDepth": 0 }
     ],
     "maxPerRoom": 3,
     "avoidEntranceRoom": true

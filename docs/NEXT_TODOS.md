@@ -14,9 +14,10 @@ All 6 errors resolved:
 
 ## Monster Deployment
 
-- Add dungeon monsterSpawns entries using the new AI types (ambush, patrol, pack) in actual dungeon floors — these monsters are defined but not placed
+- [x] Add dungeon monsterSpawns entries using the new AI types (ambush, patrol, pack) in actual dungeon floors — deployed across nightside, frost, geothermal, and fungal dungeons plus procedural templates
 - Add placeholder sprites for new monsters (shadow_ambusher, tunnel_creeper, feral_hound) — currently reusing existing sprites
 - Add placeholder sprites for newer monsters missing from PLACEHOLDER_ASSETS.md (dusk_crawler, crystal_guardian, garden_mite, nest_mother, shade_stalker, shade_stalker_alpha, ravine_lurker, gloom_wraith, rime_stalker, frostfang_hunter, vent_spewer, magma_brute)
+- [ ] Add a proc_geothermal procedural template (vent_spewer, magma_brute pool) — currently only static dayside dungeons have geothermal monsters
 
 ## Monster Loot Wiring
 
