@@ -10,7 +10,7 @@ TODOs
 ## Content Wiring (Stuff Built But Not Connected)
 
 - Deploy newer monster types into actual dungeon floors. The ambush, patrol, and pack AI monsters (shadow_ambusher, tunnel_creeper, feral_hound, rime_stalker, frostfang_hunter, vent_spewer, sporecap_shambler, mycelium_lurker, fungal_sprayer) are defined but not placed. Add monsterSpawns entries in thematically appropriate dungeons (nightside, frost, geothermal, fungal).
-- Wire the patrol field on dungeon monsterSpawns into the patrol AI behavior. The field exists in dungeon JSON but the engine ignores it — patrol monsters currently wander randomly instead of following designed paths.
+- ~~Wire the patrol field on dungeon monsterSpawns into the patrol AI behavior~~ Done — patrol monsters now follow waypoint paths. Add explicit patrolPath arrays to remaining dungeons that use "patrol": "patrol" without paths (they auto-generate for now).
 - Add dungeon triggers and loot drops for acquiring the 4 non-starter sol units: nightcaster_frame (Frost Crypts chest/boss drop), array_precision_core (MERIDIAN-7 trade reward), greenway_bioframe (Fungal Forest quest reward), underlumen_nexus (deep ruins discovery). These are defined in sol_units.json but currently unobtainable in-game.
 - Add minimap quest waypoints / markers for active quest objectives. The quest panel shows text but the player has no spatial guidance toward their next goal. Even a simple colored dot on the minimap for the target room would help enormously.
 

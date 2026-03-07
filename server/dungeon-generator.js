@@ -142,7 +142,13 @@ class DungeonGenerator {
             x = room.x + 1 + Math.floor(rng() * (room.w - 2));
             y = room.y + 1 + Math.floor(rng() * (room.h - 2));
           }
-          dungeon.monsterSpawns.push({ type: spawn.type, x, y, count: 1 });
+          const entry = { type: spawn.type, x, y, count: 1 };
+          if (spawn.patrol) entry.patrol = spawn.patrol;
+          if (spawn.patrolPath) {
+            // Offset waypoints relative to room position
+            entry.patrolPath = spawn.patrolPath.map(p => ({ x: room.x + p.x, y: room.y + p.y }));
+          }
+          dungeon.monsterSpawns.push(entry);
         }
       }
 

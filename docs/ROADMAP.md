@@ -53,7 +53,7 @@ Focus: **Automation UI, Act II deepening, and multiplayer**
 9. **Minimap quest waypoints** — Colored dots on minimap for active quest objectives. Text-only quest panel gives no spatial guidance.
 10. **Multiplayer polish** — Party indicators, shared quest progress display, co-op balance tuning.
 11. **Proc geothermal template** — Add procedural geothermal dungeon with chest tiles wired to geothermal loot tables.
-12. **Wire patrol field into engine** — The patrol field on dungeon monsterSpawns exists in JSON but the engine ignores it. Patrol monsters currently wander randomly instead of following paths.
+12. ~~**Wire patrol field into engine**~~ Done — Patrol monsters follow waypoint paths (`patrolPath` in monsterSpawn JSON, or auto-generated).
 
 ## Long-Term Vision (3+ Months)
 

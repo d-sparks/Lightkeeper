@@ -238,10 +238,22 @@ class GameLoop {
         // Wander/patrol idle: set up wandering state
         const idleWanders = mob.idleMode === 'wander' || mob.idleMode === 'patrol' || def.ai === 'patrol';
         if (idleWanders) {
-          mob.patrolAngle = Math.random() * Math.PI * 2;
           mob.patrolTimer = 0;
           mob.patrolState = 'walking'; // 'walking' or 'waiting'
           mob.patrolWaitTime = 1.5 + Math.random();
+          // Waypoint patrol: use explicit path or generate default back-and-forth
+          if (mob.idleMode === 'patrol' || def.ai === 'patrol') {
+            const waypoints = spawn.patrolPath && spawn.patrolPath.length >= 2
+              ? spawn.patrolPath.map(p => ({
+                  x: (p.x + 0.5) * CONSTANTS.TILE_SIZE,
+                  y: (p.y + 0.5) * CONSTANTS.TILE_SIZE,
+                }))
+              : this._generateDefaultPatrolPath(mob, room.dungeon);
+            mob.patrolWaypoints = waypoints;
+            mob.patrolWaypointIndex = 0;
+          } else {
+            mob.patrolAngle = Math.random() * Math.PI * 2;
+          }
         }
         // Ranged kite: store projectile type from definition
         if (def.ai === 'ranged_kite' && def.projectile) {
@@ -1734,7 +1746,9 @@ class GameLoop {
       if (!mob.aggroTarget && nearestDist > aggroRange) {
         // Idle behavior based on spawn patrol mode
         const idleWanders = mob.idleMode === 'wander' || mob.idleMode === 'patrol' || mob.ai === 'patrol';
-        if (idleWanders) {
+        if (mob.patrolWaypoints) {
+          this._updateWaypointPatrol(mob, room.dungeon, dt);
+        } else if (idleWanders) {
           this._updatePatrol(mob, room.dungeon, dt);
         } else if (mob.idleMode === 'guard') {
           // Guard: face nearest player but don't move
@@ -1885,6 +1899,93 @@ class GameLoop {
       mob.patrolState = 'waiting';
       mob.patrolTimer = 1.0 + Math.random() * 1.5;
     }
+  }
+
+  _updateWaypointPatrol(mob, dungeon, dt) {
+    const waypoints = mob.patrolWaypoints;
+    if (!waypoints || waypoints.length < 2) return;
+
+    if (mob.patrolState === 'waiting') {
+      mob.patrolTimer -= dt;
+      if (mob.patrolTimer <= 0) {
+        mob.patrolState = 'walking';
+        mob.patrolTimer = 0;
+      }
+      return;
+    }
+
+    const target = waypoints[mob.patrolWaypointIndex];
+    const dx = target.x - mob.x;
+    const dy = target.y - mob.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const arrivalThreshold = CONSTANTS.TILE_SIZE * 0.3;
+
+    if (dist < arrivalThreshold) {
+      // Arrived at waypoint — advance to next
+      mob.patrolWaypointIndex = (mob.patrolWaypointIndex + 1) % waypoints.length;
+      mob.patrolState = 'waiting';
+      mob.patrolTimer = 1.0 + Math.random() * 1.0;
+      return;
+    }
+
+    // Move toward current waypoint
+    const speed = mob.speed * CONSTANTS.TILE_SIZE * dt * 0.4;
+    const nx = mob.x + (dx / dist) * speed;
+    const ny = mob.y + (dy / dist) * speed;
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+
+    if (!this.physics.collidesAt(nx, mob.y, dungeon, mr)) mob.x = nx;
+    if (!this.physics.collidesAt(mob.x, ny, dungeon, mr)) mob.y = ny;
+    mob.facing = Math.atan2(dy, dx);
+  }
+
+  _generateDefaultPatrolPath(mob, dungeon) {
+    // Generate a back-and-forth path ±3 tiles from spawn along whichever axis is clear
+    const spawnTileX = Math.floor(mob.spawnX / CONSTANTS.TILE_SIZE);
+    const spawnTileY = Math.floor(mob.spawnY / CONSTANTS.TILE_SIZE);
+    const reach = 3;
+
+    // Try horizontal patrol first
+    let leftX = spawnTileX, rightX = spawnTileX;
+    for (let d = 1; d <= reach; d++) {
+      if (this.content.isSpawnable(dungeon, spawnTileX - d, spawnTileY)) leftX = spawnTileX - d;
+      else break;
+    }
+    for (let d = 1; d <= reach; d++) {
+      if (this.content.isSpawnable(dungeon, spawnTileX + d, spawnTileY)) rightX = spawnTileX + d;
+      else break;
+    }
+
+    if (rightX - leftX >= 2) {
+      return [
+        { x: (leftX + 0.5) * CONSTANTS.TILE_SIZE, y: mob.spawnY },
+        { x: (rightX + 0.5) * CONSTANTS.TILE_SIZE, y: mob.spawnY },
+      ];
+    }
+
+    // Try vertical patrol
+    let topY = spawnTileY, bottomY = spawnTileY;
+    for (let d = 1; d <= reach; d++) {
+      if (this.content.isSpawnable(dungeon, spawnTileX, spawnTileY - d)) topY = spawnTileY - d;
+      else break;
+    }
+    for (let d = 1; d <= reach; d++) {
+      if (this.content.isSpawnable(dungeon, spawnTileX, spawnTileY + d)) bottomY = spawnTileY + d;
+      else break;
+    }
+
+    if (bottomY - topY >= 2) {
+      return [
+        { x: mob.spawnX, y: (topY + 0.5) * CONSTANTS.TILE_SIZE },
+        { x: mob.spawnX, y: (bottomY + 0.5) * CONSTANTS.TILE_SIZE },
+      ];
+    }
+
+    // Fallback: patrol in a small area around spawn
+    return [
+      { x: mob.spawnX - CONSTANTS.TILE_SIZE, y: mob.spawnY },
+      { x: mob.spawnX + CONSTANTS.TILE_SIZE, y: mob.spawnY },
+    ];
   }
 
   _updateBossCrystal(mob, nearest, nearestDist, room, dt) {

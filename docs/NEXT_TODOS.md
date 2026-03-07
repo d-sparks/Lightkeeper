@@ -35,7 +35,8 @@ All done:
 
 - Consider adding a "reveal" visual effect on client when ambush monsters appear (fade-in animation)
 - Monster projectiles (from ranged_kite) use generic blue color — tint by monster type or add distinct sprite
-- The existing dungeon `patrol` field on monsterSpawns is unused by the engine — wire into patrol AI
+- [x] The existing dungeon `patrol` field on monsterSpawns is wired into the engine — patrol monsters follow waypoint paths (explicit `patrolPath` array or auto-generated back-and-forth)
+- Add explicit `patrolPath` waypoints to remaining dungeon spawns that use `"patrol": "patrol"` (nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02) — currently they auto-generate default paths
 - Pack AI could be extended with a "pack leader" variant that buffs nearby pack members
 
 ## Sol Grid Follow-ups
