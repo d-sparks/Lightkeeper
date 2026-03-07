@@ -195,7 +195,15 @@ while true; do
   # ─── Run each task ──────────────────────────────────────────
   for i in "${!TASKS[@]}"; do
     num=$((i + 1))
-    task="${TASKS[$i]}"
+    raw_task="${TASKS[$i]}"
+
+    # Parse optional [model] prefix, e.g. "[sonnet] Do something"
+    task_model=""
+    task="$raw_task"
+    if [[ "$raw_task" =~ ^\[([a-zA-Z0-9._-]+)\]\ (.+) ]]; then
+      task_model="${BASH_REMATCH[1]}"
+      task="${BASH_REMATCH[2]}"
+    fi
 
     # Apply --start filter (first pass only)
     if [[ "$PASS" -eq 1 && "$num" -lt "$START_AT" ]]; then continue; fi
@@ -208,14 +216,20 @@ while true; do
     echo ""
     echo "  ───────────────────────────────────────────────────"
     echo "  TODO #${num}: ${task:0:80}$([ ${#task} -gt 80 ] && echo '...')"
+    if [[ -n "$task_model" ]]; then
+      echo "  Model: ${task_model}"
+    fi
     echo "  ───────────────────────────────────────────────────"
 
     prompt="$(build_prompt "$task")"
 
-    echo "  Running Claude (max ${MAX_TURNS} turns)..."
+    echo "  Running Claude (max ${MAX_TURNS} turns, model: ${task_model:-default})..."
     echo ""
 
     CLAUDE_ARGS=(--max-turns "$MAX_TURNS" --verbose)
+    if [[ -n "$task_model" ]]; then
+      CLAUDE_ARGS+=(--model "$task_model")
+    fi
     if $YOLO; then
       CLAUDE_ARGS+=(--dangerously-skip-permissions)
     fi
