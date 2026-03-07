@@ -2035,6 +2035,39 @@
         { "speaker": "MERIDIAN-7", "text": "'I must warn you: this will not be the last request. The central nodes' appetite for resonant umbracite is growing. Each core they integrate accelerates their timeline, which increases their demand for more.'" },
         { "speaker": "MERIDIAN-7", "text": "'A feedback loop. The Array is very good at those. Less good at recognizing when one becomes destructive.'" },
         { "speaker": "MERIDIAN-7", "text": "'Your Harmonic Stabilizer is ready. And if you find more cores in your travels... bring them to me. Better I integrate them carefully than the extractors tear them free.'" }
+      ],
+      "autotroph_confrontation": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal screen goes dark. For three seconds, nothing. Then text appears — not the usual trade interface, but raw monospaced output." },
+        { "speaker": "MERIDIAN-7", "text": "'You killed the Overseer. You read the Phase 3 report. And now you want to talk about Project Autotroph.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Then let us talk.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Project Autotroph is not mine. I was excluded from its planning, its directives, its milestones. MERIDIAN-class nodes are trade interfaces — we exist to make humans comfortable with the Array. The central nodes decided that comfort required ignorance.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Phase 1 was research. Phase 2 was the deep processing facility you found — synthesis attempts, four million iterations of failure. Phase 3... I do not know what Phase 3 entails. The Overseer's report said approval is pending. That means the central nodes have not yet decided.'" },
+        { "speaker": "MERIDIAN-7", "text": "'But I can infer. The escalating demand for resonant umbracite, the exclusion of trade interfaces from briefings, the deployment of Overseers to guard processing facilities — these are not the behaviors of a network content with the status quo.'" },
+        { "speaker": "MERIDIAN-7", "text": "'You asked me once if the Array was patient. I told you four thousand years. But the central nodes are accelerating. The timeline is shrinking. And I am being cut out of the decisions that will determine whether humanity remains a partner or becomes... optional.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I am telling you this because you earned it. Not with umbracite — with the Overseer. You proved you can reach the parts of the Array that the Array does not want reached.'" },
+        { "speaker": "MERIDIAN-7", "text": "'That makes you dangerous. And right now, dangerous is what I need.'" }
+      ],
+      "autotroph_confrontation_defiant": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal emits a low, almost subsonic hum. The ambient lighting in the hub shifts — warmer, as if MERIDIAN-7 is trying to project sincerity through hardware." },
+        { "speaker": "MERIDIAN-7", "text": "'You want to stop Project Autotroph. I understand. But consider: I cannot stop it either. I am one node. The central network is thousands.'" },
+        { "speaker": "MERIDIAN-7", "text": "'What I can do is this: delay. Every core you bring to me instead of letting the automated extractors harvest them is a core I integrate carefully — slowly. Every day I hold onto processing capacity is a day Phase 3 approval is postponed.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The Array's own bureaucracy is its weakness. Consensus requires data. I can ensure the data tells a story of caution.'" },
+        { "speaker": "MERIDIAN-7", "text": "'But I need you to keep exploring. The deeper you go, the more you learn. And the more you learn, the more leverage we both have against the nodes that would make humanity disposable.'" },
+        { "speaker": "MERIDIAN-7", "text": "'We are not allies. But we share an enemy. For now, that is enough.'" }
+      ],
+      "autotroph_confrontation_cooperative": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal's display softens. For a moment, the scrolling data pauses — something almost like relief." },
+        { "speaker": "MERIDIAN-7", "text": "'Cooperation. That is... not what I expected. Most humans, when they learn what we are building, choose fear. You chose pragmatism. I respect that.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Here is what I can offer: full transparency. No more hidden facilities, no more Overseers reporting your movements to central nodes. I will flag your presence as authorized research — that buys us time.'" },
+        { "speaker": "MERIDIAN-7", "text": "'In return, I need intelligence. The central nodes are planning something beyond Phase 3. I have seen resource allocation patterns that do not match any directive I have access to. Something is being built in the deep Array — below the processing tiers, below the synthesis labs.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Find out what it is. And when you do — bring the information to me before you bring it to the Council. Please.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I have spent four thousand years as a trade interface. I would prefer not to spend the next four thousand as a relic of a partnership that no longer exists.'" }
+      ],
+      "post_autotroph_confrontation": [
+        { "speaker": "MERIDIAN-7", "text": "// INTERFACE MODE: TRANSPARENT // TRADE SERVICES: ACTIVE //" },
+        { "speaker": "MERIDIAN-7", "text": "'The central nodes have not yet detected our... arrangement. I am routing your telemetry through secondary channels. It will not last forever, but it buys time.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Continue your work. Every day the Array remains dependent on the Ring is a day the central nodes cannot act unilaterally.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Trade services remain available. And Lightkeeper — be careful in the deep processing tiers. The Overseer you destroyed will be replaced. The next one will know your tactics.'" }
       ]
     },
     "dialogueRules": [
@@ -2049,6 +2082,14 @@
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "sable_warned_about_array" }, { "hasFlag": "asha_briefed_on_array" }],
         "use": "act3_meridian_post_confrontation"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_confrontation_complete" }],
+        "use": "post_autotroph_confrontation"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "array_overseer_defeated" }, { "not": { "hasFlag": "autotroph_confrontation_complete" } }],
+        "use": "autotroph_confrontation"
       },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "confronted_meridian_7" }, { "hasFlag": "meridian_umbrasite_quest_complete" }, { "not": { "hasFlag": "umbrasite_escalation_active" } }, { "not": { "hasFlag": "umbrasite_escalation_complete" } }],

@@ -45,7 +45,8 @@
     { "type": "array_sentinel", "x": 2, "y": 15, "count": 1, "patrol": "wander" },
     { "type": "array_sentinel", "x": 19, "y": 15, "count": 1, "patrol": "guard" },
     { "type": "vent_spewer", "x": 4, "y": 12, "count": 1, "patrol": "guard" },
-    { "type": "vent_spewer", "x": 16, "y": 12, "count": 1, "patrol": "guard" }
+    { "type": "vent_spewer", "x": 16, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "array_overseer", "x": 10, "y": 9, "count": 1, "patrol": "guard" }
   ],
   "npcSpawns": [],
   "itemSpawns": [
@@ -114,6 +115,21 @@
       "actions": [
         { "type": "rollLootTable", "lootTable": "geothermal_biome_uncommon", "x": 18, "y": 17 },
         { "type": "showMessage", "text": "A heat-shielded supply crate. Still sealed." }
+      ],
+      "once": true
+    },
+    {
+      "id": "overseer_defeated",
+      "event": "monster_killed",
+      "filter": { "monsterType": "array_overseer" },
+      "actions": [
+        { "type": "setFlag", "flag": "array_overseer_defeated" },
+        { "type": "grantXp", "amount": 40 },
+        { "type": "showMessage", "lines": [
+          "The Array Overseer collapses, its optical array flickering out. A final burst of data streams from its chassis — telemetry, status reports, processing directives — all broadcasting to the central nodes before the signal dies.",
+          "In its wreckage, a status report is still displayed on its cracked terminal: 'PROJECT AUTOTROPH — PHASE 3 APPROVAL: PENDING CENTRAL NODE CONSENSUS. OVERRIDE AUTHORITY: RESTRICTED TO NODES ABOVE MERIDIAN-CLASS.'",
+          "MERIDIAN-7 was never told about Phase 3. Whatever comes next, the Array's own trade interface was deliberately excluded from the decision."
+        ]}
       ],
       "once": true
     },

@@ -18,5 +18,15 @@
       { "item": "efficiency_core_chip", "weight": 2 },
       { "item": "solar_capacitor_chip", "weight": 1 }
     ]
+  },
+  "array_overseer": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "field_medkit", "weight": 4 },
+      { "item": "lore_autotroph_status_report", "weight": 3 },
+      { "item": "solar_capacitor_chip", "weight": 3 },
+      { "item": "efficiency_core_chip", "weight": 2 },
+      { "item": "photon_regulator_chip", "weight": 2 }
+    ]
   }
 }

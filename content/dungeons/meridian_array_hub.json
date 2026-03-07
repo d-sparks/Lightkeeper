@@ -256,6 +256,68 @@
       "once": true
     },
     {
+      "id": "autotroph_confrontation_choice",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "hasFlag": "array_overseer_defeated" },
+        { "not": { "hasFlag": "autotroph_confrontation_complete" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "autotroph_confrontation", "prompt": "MERIDIAN-7 has revealed the truth about Project Autotroph. How do you respond?", "options": [
+          { "label": "Challenge", "description": "Demand that MERIDIAN-7 help you stop Project Autotroph. The Array cannot be allowed to make humanity disposable.", "value": "defiant" },
+          { "label": "Cooperate", "description": "Work with MERIDIAN-7 to slow the central nodes from within. Mutual dependency is architecture, not weakness.", "value": "cooperative" }
+        ]}
+      ]
+    },
+    {
+      "id": "autotroph_confrontation_defiant",
+      "event": "choice_made",
+      "filter": { "choiceId": "autotroph_confrontation", "value": "defiant" },
+      "actions": [
+        { "type": "setFlag", "flag": "autotroph_confrontation_complete" },
+        { "type": "setFlag", "flag": "autotroph_path_defiant" },
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "lines": [
+          "You make your position clear: Project Autotroph must be stopped. Humanity's leverage over the Array is the only thing preventing the network from dictating terms.",
+          "MERIDIAN-7 processes this for a long moment. When it responds, the tone is different — measured, careful, almost human."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "autotroph_confrontation_cooperative",
+      "event": "choice_made",
+      "filter": { "choiceId": "autotroph_confrontation", "value": "cooperative" },
+      "actions": [
+        { "type": "setFlag", "flag": "autotroph_confrontation_complete" },
+        { "type": "setFlag", "flag": "autotroph_path_cooperative" },
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "lines": [
+          "You extend an offer: cooperation against the central nodes. If MERIDIAN-7 believes mutual dependency is architecture, then prove it — work together.",
+          "The terminal's display shifts. For a moment, you could swear the data streams slow down — as if the entire network is holding its breath."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "overseer_escalation_warning",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "hasFlag": "array_overseer_defeated" },
+        { "not": { "hasFlag": "autotroph_confrontation_complete" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The hub's ambient lighting flickers as you enter. The holographic advertisements are gone — replaced by scrolling diagnostic data.",
+          "MERIDIAN-7 knows about the Overseer. It's been waiting for you."
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "umbrasite_escalation_offer",
       "event": "npc_interacted",
       "filter": { "npcType": "meridian_7_hub" },

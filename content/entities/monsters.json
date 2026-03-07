@@ -384,5 +384,19 @@
     "ai": "melee_chase",
     "lootTable": "array_fabricator",
     "xp": 30
+  },
+  "array_overseer": {
+    "name": "Array Overseer",
+    "sprite": "sprites/array_overseer.png",
+    "size": [16, 16],
+    "health": 220,
+    "speed": 1.8,
+    "damage": 18,
+    "attackRange": 7,
+    "attackSpeed": 0.7,
+    "projectile": "energy_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "array_overseer",
+    "xp": 85
   }
 }

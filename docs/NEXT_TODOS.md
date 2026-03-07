@@ -74,7 +74,11 @@ All done:
 - [x] Add MERIDIAN-7 post-confrontation Act III dialogue (reveals Project Autotroph's flaw, internal conflict)
 - [x] Add Asha act3_alliance dialogue (joint expedition to deep Nightside, tri-faction cooperation)
 - [x] Add Sable Act III dialogues with high/low trust variants (Unbounded elder maps, Nightside guidance)
-- Consider adding an Array overseer mini-boss in array_deep_processing
+- [x] Add Array Overseer mini-boss in array_deep_processing (with boss kill trigger, lore drop, confrontation dialogue)
+- Replace placeholder sprite for array_overseer (currently copied from array_sentinel)
+- Wire autotroph_path_defiant / autotroph_path_cooperative flags into Act III quest branching
+- Add Phase 3 investigation quest after Autotroph confrontation (player explores deep Array sub-tiers)
+- Add replacement Overseer encounter that adapts to player tactics (referenced in post-confrontation dialogue)
 
 ## Act III Follow-ups
 

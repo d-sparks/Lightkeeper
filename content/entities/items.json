@@ -679,6 +679,12 @@
     "type": "key",
     "rarity": "rare"
   },
+  "lore_autotroph_status_report": {
+    "name": "Autotroph Status Report",
+    "description": "A classified Array document recovered from an Overseer unit. 'PROJECT AUTOTROPH — PHASE 2 STATUS: 847 generations complete. Biological catalyst synthesis remains 800x less efficient than Ring-sourced compounds. PHASE 3 PROPOSAL: Resonant umbracite integration to bypass organic synthesis entirely. Risk assessment: CATASTROPHIC FAILURE if resonance harmonics interact with Underlumen substrate. Central node consensus: PENDING. MERIDIAN-class briefing status: EXCLUDED PER DIRECTIVE 9-SIGMA.'",
+    "type": "key",
+    "rarity": "rare"
+  },
   "resonant_umbracite_core": {
     "name": "Resonant Umbracite Core",
     "description": "A large crystalline umbracite formation that hums with deep subsonic vibrations. The Array prizes these above all other minerals — the resonance pattern suggests a connection to something far older than human technology.",
