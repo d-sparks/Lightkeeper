@@ -947,6 +947,19 @@ setInterval(() => {
     }
   }
 
+  // Process death penalties — send updated inventory to players who died
+  const deathPenalties = gameLoop.consumeDeathPenalties();
+  for (const dp of deathPenalties) {
+    const ws = findClientByPlayerId(dp.playerId);
+    if (!ws || ws.readyState !== 1) continue;
+    ws.send(JSON.stringify({
+      type: CONSTANTS.MSG.INVENTORY,
+      items: dp.inventory,
+      equipment: dp.equipment,
+      medipacCharges: dp.medipacCharges,
+    }));
+  }
+
   // Send state to each room's players
   for (const [roomId, room] of gameLoop.rooms) {
     const state = gameLoop.getRoomState(roomId);

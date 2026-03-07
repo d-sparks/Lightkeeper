@@ -16,6 +16,7 @@ class GameLoop {
     this.rooms = new Map();  // roomId -> Room
     this.interval = null;
     this.pendingTransitions = [];
+    this.pendingDeathPenalties = [];
 
     // Track killed monsters per dungeon so they stay dead across room destruction/recreation
     // Map<dungeonId, Set<spawnKey>>  where spawnKey = "spawnIdx:subIdx"
@@ -1592,22 +1593,7 @@ class GameLoop {
           amount: damage, x: player.x, y: player.y,
         });
 
-        // Player death -> respawn at floor spawn
-        if (player.health <= 0) {
-          player.health = player.maxHealth;
-          const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
-          player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
-          player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
-          room.events.push({
-            type: 'death', targetId: pid,
-            x: player.x, y: player.y,
-          });
-
-          const deathCtx = this._scriptContext(pid, room.id);
-          this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
-            playerId: pid, roomId: room.id,
-          }, deathCtx);
-        }
+        this._checkPlayerDeath(player, room);
       }
     }
   }
@@ -1635,21 +1621,7 @@ class GameLoop {
           amount: damage, x: player.x, y: player.y,
         });
 
-        if (player.health <= 0) {
-          player.health = player.maxHealth;
-          const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
-          player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
-          player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
-          room.events.push({
-            type: 'death', targetId: pid,
-            x: player.x, y: player.y,
-          });
-
-          const deathCtx = this._scriptContext(pid, room.id);
-          this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
-            playerId: pid, roomId: room.id,
-          }, deathCtx);
-        }
+        this._checkPlayerDeath(player, room);
       }
     }
   }
@@ -1898,6 +1870,39 @@ class GameLoop {
 
   _checkPlayerDeath(player, room) {
     if (player.health <= 0) {
+      // Death penalty: drain 25-50% of current energy
+      const drainPct = 0.25 + Math.random() * 0.25;
+      const energyLost = Math.floor(player.energy * drainPct);
+      player.energy = Math.max(0, player.energy - energyLost);
+
+      // Death penalty: drop one random non-quest item on the ground
+      // Quest items = keys and sol_components (progression-critical)
+      const droppableItems = [];
+      for (let i = 0; i < player.inventory.length; i++) {
+        const item = player.inventory[i];
+        if (item.category !== 'key' && item.category !== 'sol_component') {
+          droppableItems.push(i);
+        }
+      }
+      let droppedItem = null;
+      if (droppableItems.length > 0) {
+        const dropIdx = droppableItems[Math.floor(Math.random() * droppableItems.length)];
+        droppedItem = player.inventory[dropIdx];
+        player.inventory.splice(dropIdx, 1);
+        // Spawn item on the ground at the player's death position
+        const itemId = `item_${room.nextItemId++}`;
+        room.items.set(itemId, {
+          id: itemId,
+          type: droppedItem.type,
+          name: droppedItem.name,
+          rarity: droppedItem.rarity || 'common',
+          category: droppedItem.category || 'misc',
+          x: player.x,
+          y: player.y,
+        });
+      }
+
+      // Respawn at floor spawn
       player.health = player.maxHealth;
       const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
       player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
@@ -1907,11 +1912,27 @@ class GameLoop {
         x: player.x, y: player.y,
       });
 
+      // Queue inventory update for the client
+      this.pendingDeathPenalties.push({
+        playerId: player.id,
+        inventory: player.inventory,
+        equipment: player.equipment,
+        medipacCharges: player.medipacCharges || 0,
+        energyLost,
+        droppedItem: droppedItem ? droppedItem.name : null,
+      });
+
       const deathCtx = this._scriptContext(player.id, room.id);
       this._emitGameEvent(EventBus.Events.PLAYER_DEATH, {
         playerId: player.id, roomId: room.id,
       }, deathCtx);
     }
+  }
+
+  consumeDeathPenalties() {
+    const penalties = this.pendingDeathPenalties;
+    this.pendingDeathPenalties = [];
+    return penalties;
   }
 
   // Spawn a projectile from player attack
