@@ -17,7 +17,7 @@ All 6 errors resolved:
 - [x] Add dungeon monsterSpawns entries using the new AI types (ambush, patrol, pack) in actual dungeon floors — deployed across nightside, frost, geothermal, and fungal dungeons plus procedural templates
 - Add placeholder sprites for new monsters (shadow_ambusher, tunnel_creeper, feral_hound) — currently reusing existing sprites
 - Add placeholder sprites for newer monsters missing from PLACEHOLDER_ASSETS.md (dusk_crawler, crystal_guardian, garden_mite, nest_mother, shade_stalker, shade_stalker_alpha, ravine_lurker, gloom_wraith, rime_stalker, frostfang_hunter, vent_spewer, magma_brute)
-- [ ] Add a proc_geothermal procedural template (vent_spewer, magma_brute pool) — currently only static dayside dungeons have geothermal monsters
+- [x] Add a proc_geothermal procedural template (vent_spewer, magma_brute pool) — proc_geothermal.json added
 
 ## Monster Loot Wiring
 
@@ -28,7 +28,7 @@ All done:
 - [x] Monster-specific loot tables now include sol modifier chip drops — faction-aligned, weighted by monster difficulty and mod rarity
 - [x] Wire biome loot tables to dungeon chests/crates via triggers (rollLootTable action on interactable tiles)
 - [x] Add biome loot table references to procedural dungeon templates (proc_frost_crypt, proc_fungal_forest, proc_quarantine, proc_quarantine_deep)
-- [ ] Add a proc_geothermal template with chest tiles wired to geothermal loot tables (currently only static dayside dungeons have chests)
+- [x] Add a proc_geothermal template with chest tiles wired to geothermal loot tables — done in proc_geothermal.json
 - [ ] Add placeholder chest/crate sprites to frost_crypt, fungal_forest tilesets (tile IDs 10/11) and crypt tileset (tile IDs 30/31 for unlocked crates)
 
 ## Combat & AI Polish
@@ -45,13 +45,13 @@ All done:
 - [x] Define the 5-6 sol unit variants (grid dimensions, innate perks, where found) — 6 variants in sol_units.json with innateBonus engine support
 - [x] Client UI should display sol unit innateBonus info (name, perk description) on the sol grid screen
 - Design and implement extended-adjacency modifiers (radius 2, entire row/column) for rare/legendary tier
-- Define modifier stat ranges per rarity tier (common -> legendary number values)
+- [x] Define modifier stat ranges per rarity tier (common -> legendary number values) — resolved in progression-system.md
 - Add dungeon triggers/loot for acquiring new sol units (nightcaster_frame, array_precision_core, greenway_bioframe, underlumen_nexus)
 
 ## Act II Quest Follow-ups
 
 - Add placeholder sprites for Nightside Caverns and Depths tilesets (currently using frost_crypt)
-- Consider a dedicated "nightside" tileset with umbracite-vein wall tiles
+- [x] Dedicated "nightside" tileset with umbracite-vein wall tiles — nightside.json added
 - [x] Crystal Guardian boss has unique multi-phase AI (boss_crystal): phase 1 melee, phase 2 crystal shard projectiles, phase 3 summons crystal shard minions
 - [x] Crystal Guardian boss: client-side visual effects for phase transitions (boss_phase event), summon bursts (boss_summon event) — screen shake, floating phase text, CSS flash
 - [x] Crystal Guardian boss: boss health bar UI (client receives boss=true, bossPhase in monster data) — HUD bar at top-center + enhanced in-world bar
@@ -78,8 +78,8 @@ All done:
 
 ## Act III Follow-ups
 
-- Add `resonant_umbracite_core` item definition to items.json and spawn in deep Nightside dungeon
-- Add `array_harmonic_stabilizer_chip` sol component to sol_components.json (energy waste reduction)
+- [x] Add `resonant_umbracite_core` item definition to items.json — added (spawn location TBD in deep Nightside dungeon)
+- [x] Add `array_harmonic_stabilizer_chip` sol component to sol_components.json (energy waste reduction) — added as epic dual-stat modifier
 - Create `nightside_passage` dungeon for Sable's Act III guide sequence
 - Add Nightside expedition quest JSON (joint Ring/Unbounded/Array exploration)
 - Add symbiotic compound items for Asha's Act III research line

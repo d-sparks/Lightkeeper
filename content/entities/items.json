@@ -678,5 +678,18 @@
     "description": "A fragment of internal Array communication, printed on heat-resistant polymer. 'DIRECTIVE 9-SIGMA: All processing nodes are to allocate 4.7% of computational cycles to Project Autotroph. Objective: achieve independent synthesis of biological catalyst compounds currently sourced from Ring trade partners. Priority: EXISTENTIAL. Note: This directive is not to be disclosed to external trade interfaces. MERIDIAN-class units are excluded from Project Autotroph briefings.'",
     "type": "key",
     "rarity": "rare"
+  },
+  "resonant_umbracite_core": {
+    "name": "Resonant Umbracite Core",
+    "description": "A large crystalline umbracite formation that hums with deep subsonic vibrations. The Array prizes these above all other minerals — the resonance pattern suggests a connection to something far older than human technology.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "array_harmonic_stabilizer_chip": {
+    "name": "Array Harmonic Stabilizer",
+    "description": "An Array-manufactured sol component that reduces energy waste during ability use. Adjacent abilities cost less energy to activate.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "array_harmonic_stabilizer"
   }
 }

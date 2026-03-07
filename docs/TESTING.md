@@ -1,6 +1,6 @@
 # Automated Testing Plan
 
-> **STATUS: IMPLEMENTED.** The static content validator (`tools/content-validator.js`) and headless game simulator (`tools/headless-sim.js`) described in this plan and in `testing-design.md` are both built and functional. The unit test suite (`tests/`) described below has not been created yet — the headless sim covers integration testing more effectively for now.
+> **STATUS: TIERS 1-2 IMPLEMENTED.** The static content validator (`tools/content-validator.js`) and headless game simulator (`tools/headless-sim.js`) are both built and functional. The unit test suite has Tier 1 (flag-store, event-bus, automation) and Tier 2 (conditions, actions, trigger-registry) complete — 178 tests passing via `node --test`. Tier 3 (physics) and Tier 4 (integration) remain for future work.
 
 ## Framework
 

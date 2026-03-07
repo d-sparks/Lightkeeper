@@ -190,5 +190,14 @@
     "bonus": { "energyCostReduction": 0.30, "cooldownReduction": 0.10 },
     "description": "Dayside-charged capacitor that stores solar energy for efficient ability cycling.",
     "shape": [[1, 1]]
+  },
+  "array_harmonic_stabilizer": {
+    "type": "modifier",
+    "name": "Array Harmonic Stabilizer",
+    "rarity": "epic",
+    "faction": "dayside",
+    "bonus": { "energyCostReduction": 0.40, "damageMultiplier": 0.25 },
+    "description": "A precision Array instrument that harmonizes energy flow, drastically reducing waste while amplifying output to adjacent components.",
+    "shape": [[1, 1]]
   }
 }

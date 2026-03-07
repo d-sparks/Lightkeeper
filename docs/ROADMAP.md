@@ -17,17 +17,18 @@ Last updated: 2026-03-07
 | Item Rarity UI | Done | Rarity colors (common→legendary) displayed in inventory and sol grid |
 | Art Style Guide | Done | Master palette, sprite conventions, zone color identity documented (docs/art-style-guide.md) |
 | Content Validation CI | Done | `npm test` runs content-validator.js + headless-sim.js --mainline |
-| Automation System | Partial | Basic automation works (solar panels, harvesters, silicon). Grid placement UI not yet built |
+| Automation System | Partial | Basic automation works (solar panels, harvesters, silicon). Grid placement UI not yet built (see docs/automation_screen.md) |
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons. Engine support in game-loop.js |
 | Act II Content | Partial | Dayside locations, Array complex floors, Crystal Guardian boss (3-phase AI), MERIDIAN-7 umbrasite quest, Disappeared Courier. Deeper Array questlines needed |
 | Act III Content | Stub | Underlumen approach + crypts exist. array_secret_discovered flag partially wired. Story revelation content not built |
 | Art / Audio | Placeholder | Generated placeholder sprites. Art style guide exists. Audio system wired but no real assets |
 | Game Balance | Needs Work | Combat functional but untuned. Energy economy untested at scale |
 | Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
-| Content Validation Errors | Done | All 6 known broken refs/flags resolved |
+| Content Validation Errors | Done | All broken refs/flags resolved (resonant_umbracite_core + array_harmonic_stabilizer_chip added) |
 | Monster Loot Wiring | Done | All 25 combat monsters have lootTable refs. 22 biome-specific tables across 6 files |
 | Sol Grid UI | Done | healOnHit, energyCostReduction, boostedEnergyRegen, innateBonus name/perks displayed |
 | Unit Tests (Tier 1) | Done | flag-store, event-bus, automation tests written with Node built-in test runner |
+| Unit Tests (Tier 2) | Done | conditions, actions, trigger-registry tests written (178 tests passing) |
 | Crystal Guardian Boss | Done | 3-phase boss_crystal AI: melee, projectiles, summons. Needs client VFX and health bar |
 | Array Complex Gating | Done | Exit conditions gate synthesis lab and deep processing behind quest/item progression |
 
@@ -51,8 +52,8 @@ Focus: **Automation UI, Act II deepening, and multiplayer**
 7. **Automation grid UI** — Full-screen grid placement screen per docs/automation_screen.md. Server-side coordinate tracking (Phase 1) then client CSS grid (Phase 2). Next major feature.
 8. **Act II quest expansion** — Extend Array questline: escalating umbrasite demands, MERIDIAN-7 confrontation after array_secret_discovered, Array overseer mini-boss, wire secret into Sable/Asha dialogue for Act III hooks.
 9. **Minimap quest waypoints** — Colored dots on minimap for active quest objectives. Text-only quest panel gives no spatial guidance.
-10. **Multiplayer polish** — Party indicators, shared quest progress display, co-op balance tuning.
-11. **Proc geothermal template** — Add procedural geothermal dungeon with chest tiles wired to geothermal loot tables.
+10. ~~**Multiplayer polish**~~ Done — Party health frames, enhanced minimap dots, shared quest progress.
+11. ~~**Proc geothermal template**~~ Done — `proc_geothermal.json` template with vent_spewer/magma_brute pool and geothermal loot tables.
 12. ~~**Wire patrol field into engine**~~ Done — Patrol monsters follow waypoint paths (`patrolPath` in monsterSpawn JSON, or auto-generated).
 
 ## Long-Term Vision (3+ Months)
@@ -64,7 +65,7 @@ Focus: **Complete the story, real art, audio, and endgame**
 15. **Music and ambient audio** — Per-biome music, combat music, ambient sounds.
 16. **Additional boss encounters** — Crystal Guardian sets the pattern. Add bosses for Nightside, Array, and Underlumen arcs.
 17. **Endgame loop** — Post-story sandbox with escalating procedural dungeons, legendary modifier chase, automation scaling.
-18. **Tier 2 unit tests** — conditions.js, actions.js, trigger-registry.js, quest-tracker.js (Tier 1 done).
+18. ~~**Tier 2 unit tests**~~ Done — conditions.js, actions.js, trigger-registry.js all tested (178 tests passing). quest-tracker.js remains for Tier 3.
 19. **Mobile/touch optimization** — Touch controls exist but need polish for real mobile play.
 20. **Game balance pass** — Tune combat numbers, energy economy, loot drop rates across full playthrough.
 
@@ -108,15 +109,21 @@ These are done and don't need further investment:
 - **Sol unit innateBonus display** — Sol grid screen shows unit name and innate perk descriptions
 - **Biome loot to chests/crates** — Biome loot tables wired to dungeon interactable tiles via triggers
 - **Biome loot in proc templates** — Procedural dungeon templates reference biome-appropriate loot tables
+- **Tier 2 unit tests** — conditions.js, actions.js, trigger-registry.js (178 tests total)
+- **Proc geothermal template** — proc_geothermal.json with vent_spewer/magma_brute pool
+- **Multiplayer polish** — Party health frames, enhanced minimap dots, shared quest progress
+- **Sol modifier stat ranges** — Rarity tiers defined (common->legendary) in progression-system.md and sol_components.json
+- **Nightside tileset** — Dedicated nightside tileset with umbracite-vein walls and dark accents
+- **Content validation fixes (round 2)** — resonant_umbracite_core and array_harmonic_stabilizer_chip items added
 
 ## Active Design Docs
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
-| docs/progression-system.md | Active | Core decisions + sol unit variants resolved. Remaining: modifier stat ranges, battery math |
+| docs/progression-system.md | Active | Core decisions + sol unit variants + modifier stat ranges resolved. Remaining: battery math, harvester scaling |
 | docs/automation_screen.md | Active | Grid UI not yet built — next major feature |
 | docs/storyboard.md | Active | Act I implemented, Act II started, Acts II-III need more content |
 | docs/testing-design.md | Done | Both tools built and functional, wired into npm test |
 | docs/procedural-generation.md | Done | Engine + 4 templates implemented |
-| docs/TESTING.md | Active | Tier 1 done. Tier 2 (conditions, actions, trigger-registry) still valuable |
+| docs/TESTING.md | Done | Tier 1 + Tier 2 complete. Tier 3 (physics) and Tier 4 (integration) remain for future |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
