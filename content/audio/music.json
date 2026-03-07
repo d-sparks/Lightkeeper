@@ -103,5 +103,37 @@
       { "freq": 175, "bass": 87, "len": 1 },
       null
     ]
+  },
+
+  "boss_combat": {
+    "bpm": 130,
+    "wave": "sawtooth",
+    "volume": 0.13,
+    "pattern": [
+      { "freq": 87, "bass": 44, "len": 1 },
+      { "freq": 87, "len": 1 },
+      { "freq": 104, "bass": 52, "len": 1 },
+      null,
+      { "freq": 117, "bass": 58, "len": 1 },
+      { "freq": 117, "len": 1 },
+      null,
+      { "freq": 131, "bass": 65, "len": 1 },
+      { "freq": 104, "len": 1 },
+      null,
+      { "freq": 87, "bass": 44, "len": 1 },
+      { "freq": 87, "len": 1 },
+      { "freq": 117, "bass": 58, "len": 1 },
+      null,
+      { "freq": 131, "bass": 65, "len": 1 },
+      { "freq": 156, "len": 1 },
+      { "freq": 131, "bass": 65, "len": 1 },
+      null,
+      { "freq": 104, "bass": 52, "len": 1 },
+      { "freq": 87, "len": 1 },
+      null,
+      { "freq": 117, "bass": 58, "len": 1 },
+      { "freq": 131, "len": 1 },
+      null
+    ]
   }
 }

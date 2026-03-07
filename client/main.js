@@ -2286,6 +2286,9 @@
           audio.play('pickup');
         } else if (ev.type === 'level_up') {
           audio.play('level_up');
+        } else if (ev.type === 'boss_intro' && ev.playerId === renderer.myId) {
+          audio.play('boss_intro');
+          audio.playMusic('boss_combat');
         }
       }
     }
@@ -2363,7 +2366,7 @@
       }
     }
 
-    // Update boss health bar HUD
+    // Update boss health bar HUD and boss music
     const boss = msg.monsters && msg.monsters.find(m => m.boss);
     if (boss) {
       bossBar.style.display = '';
@@ -2374,6 +2377,9 @@
       const phaseLabels = { 1: 'Phase 1', 2: 'Phase 2 - Ranged', 3: 'Phase 3 - Enraged' };
       bossBarPhase.textContent = phaseLabels[boss.bossPhase] || '';
     } else {
+      if (bossBar.style.display !== 'none' && audio.musicId === 'boss_combat') {
+        audio.playMusic('dungeon');
+      }
       bossBar.style.display = 'none';
     }
 

@@ -124,6 +124,9 @@ class Renderer {
     // Track last known boss phase to detect transitions
     this.lastBossPhase = null;
 
+    // Boss intro cinematic state
+    this.bossIntro = null; // { bossName, x, y, elapsed, duration, phase }
+
     this._initPixi();
   }
 
@@ -211,6 +214,29 @@ class Renderer {
     this.overlayContainer.addChild(this.questArrowGfx);
     this.questObjective = null; // { label, tileX, tileY, sameRoom }
     this.secondaryQuestObjectives = null; // array of { label, tileX, tileY, sameRoom, targetLocationId }
+
+    // Boss intro cinematic overlays
+    this.bossIntroContainer = new PIXI.Container();
+    this.bossIntroContainer.visible = false;
+    this.overlayContainer.addChild(this.bossIntroContainer);
+
+    this.bossIntroBarTop = new PIXI.Graphics();
+    this.bossIntroContainer.addChild(this.bossIntroBarTop);
+    this.bossIntroBarBottom = new PIXI.Graphics();
+    this.bossIntroContainer.addChild(this.bossIntroBarBottom);
+
+    this.bossIntroText = new PIXI.Text('', {
+      fontFamily: 'Courier New',
+      fontSize: 18,
+      fontWeight: 'bold',
+      fill: '#ffa726',
+      align: 'center',
+      dropShadow: true,
+      dropShadowColor: '#000000',
+      dropShadowDistance: 2,
+    });
+    this.bossIntroText.anchor.set(0.5);
+    this.bossIntroContainer.addChild(this.bossIntroText);
 
     // Quest waypoint label on minimap
     this.questWaypointText = new PIXI.Text('', {
@@ -981,6 +1007,7 @@ class Renderer {
     this._tickHitFlashes(dt);
     this._tickAmbushFadeIns(dt);
     this._tickScreenShake(dt);
+    this._updateBossIntro(dt);
 
     // Position world container (camera offset + screen shake)
     const shake = this._getShakeOffset();
@@ -1021,8 +1048,21 @@ class Renderer {
     const me = this.state.players.find(p => p.id === this.myId);
     if (!me) return;
 
+    // During boss intro, lerp camera toward boss position
+    let focusX = me.x, focusY = me.y;
+    if (this.bossIntro) {
+      const t = this.bossIntro.elapsed / this.bossIntro.duration;
+      // Pan toward boss during 10%-60%, pan back during 65%-95%
+      let blend = 0;
+      if (t >= 0.1 && t < 0.6) blend = Math.min(1, (t - 0.1) / 0.15);
+      else if (t >= 0.6 && t < 0.65) blend = 1;
+      else if (t >= 0.65 && t < 0.95) blend = 1 - (t - 0.65) / 0.3;
+      focusX = me.x + (this.bossIntro.x - me.x) * blend;
+      focusY = me.y + (this.bossIntro.y - me.y) * blend;
+    }
+
     if (this.isoMode) {
-      const iso = this.worldToIso(me.x, me.y);
+      const iso = this.worldToIso(focusX, focusY);
       const targetX = iso.x - this.viewW / 2;
       const targetY = iso.y - this.viewH / 2;
 
@@ -1050,8 +1090,8 @@ class Renderer {
       return;
     }
 
-    const targetX = me.x - this.viewW / 2;
-    const targetY = me.y - this.viewH / 2;
+    const targetX = focusX - this.viewW / 2;
+    const targetY = focusY - this.viewH / 2;
 
     const mapW = this.map.width * CONSTANTS.TILE_SIZE;
     const mapH = this.map.height * CONSTANTS.TILE_SIZE;
@@ -2040,6 +2080,54 @@ class Renderer {
     };
   }
 
+  _updateBossIntro(dt) {
+    if (!this.bossIntro) {
+      this.bossIntroContainer.visible = false;
+      return;
+    }
+
+    this.bossIntro.elapsed += dt;
+    const { elapsed, duration, bossName } = this.bossIntro;
+    const t = elapsed / duration; // 0..1
+
+    if (t >= 1) {
+      this.bossIntro = null;
+      this.bossIntroContainer.visible = false;
+      return;
+    }
+
+    this.bossIntroContainer.visible = true;
+
+    // Letterbox bar height: ease in during first 20%, hold, ease out during last 20%
+    const barMax = 40;
+    let barH;
+    if (t < 0.15) barH = barMax * (t / 0.15);
+    else if (t > 0.8) barH = barMax * (1 - (t - 0.8) / 0.2);
+    else barH = barMax;
+
+    // Draw letterbox bars
+    this.bossIntroBarTop.clear();
+    this.bossIntroBarTop.beginFill(0x000000);
+    this.bossIntroBarTop.drawRect(0, 0, this.viewW, barH);
+    this.bossIntroBarTop.endFill();
+
+    this.bossIntroBarBottom.clear();
+    this.bossIntroBarBottom.beginFill(0x000000);
+    this.bossIntroBarBottom.drawRect(0, this.viewH - barH, this.viewW, barH);
+    this.bossIntroBarBottom.endFill();
+
+    // Boss name text: fade in from 15%-35%, hold, fade out from 75%-90%
+    let textAlpha = 0;
+    if (t >= 0.15 && t < 0.35) textAlpha = (t - 0.15) / 0.2;
+    else if (t >= 0.35 && t <= 0.75) textAlpha = 1;
+    else if (t > 0.75 && t < 0.9) textAlpha = 1 - (t - 0.75) / 0.15;
+
+    this.bossIntroText.text = bossName;
+    this.bossIntroText.alpha = textAlpha;
+    this.bossIntroText.x = this.viewW / 2;
+    this.bossIntroText.y = this.viewH - barH - 20;
+  }
+
   _getDeathStyle(monsterType) {
     // Categorize monsters into death animation styles
     const styleMap = {
@@ -2267,6 +2355,15 @@ class Renderer {
           age: 0, maxAge: 1.5,
           color: '#ce93d8',
         });
+      } else if (ev.type === 'boss_intro' && ev.playerId === this.myId) {
+        // Start boss intro cinematic
+        this.bossIntro = {
+          bossName: ev.bossName || 'BOSS',
+          x: ev.x, y: ev.y,
+          elapsed: 0,
+          duration: 3.0,  // total cinematic length in seconds
+        };
+        this.screenShake = { intensity: 6, duration: 0.8, elapsed: 0 };
       }
     }
   }

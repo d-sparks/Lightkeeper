@@ -470,6 +470,23 @@ class GameLoop {
     this._emitGameEvent(EventBus.Events.ROOM_ENTERED, {
       playerId, roomId, dungeonId: room.dungeonId,
     }, ctx);
+
+    // Check for boss monsters and emit boss_intro event (once per player per boss type)
+    for (const mob of room.monsters.values()) {
+      if (!mob.bossPhases) continue;
+      const introFlag = `boss_intro_seen_${mob.type}`;
+      if (this.flagStore.getPlayerFlag(playerId, introFlag)) continue;
+      this.flagStore.setPlayerFlag(playerId, introFlag, true);
+      room.events.push({
+        type: 'boss_intro',
+        playerId,
+        bossId: mob.id,
+        bossName: mob.name,
+        bossType: mob.type,
+        x: mob.x,
+        y: mob.y,
+      });
+    }
   }
 
   removePlayer(roomId, playerId) {
