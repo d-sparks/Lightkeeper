@@ -2,7 +2,7 @@
   "id": "nightside_depths",
   "name": "Nightside Depths",
   "depth": 0,
-  "tileset": "frost_crypt",
+  "tileset": "nightside",
   "theme": "nightside",
   "tileSize": 32,
   "ambientLight": 0.01,

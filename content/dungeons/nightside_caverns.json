@@ -2,7 +2,7 @@
   "id": "nightside_caverns",
   "name": "Nightside Caverns",
   "depth": 0,
-  "tileset": "frost_crypt",
+  "tileset": "nightside",
   "theme": "nightside",
   "tileSize": 32,
   "ambientLight": 0.02,

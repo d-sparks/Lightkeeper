@@ -434,6 +434,26 @@ class Renderer {
         chest_closed: 0xb0a080, chest_opened: 0xa09070,
       },
     },
+    nightside: {
+      wallRise: 32,
+      floor:      { fill: '#1a1528', edge: 'rgba(140,100,220,0.05)' },
+      floor2:     { fill: '#1e1830', crack: 'rgba(120,60,200,0.25)', edge: 'rgba(140,100,220,0.06)' },
+      water:      { fill: '#0e0a1e', wave: 'rgba(100,60,180,0.3)' },
+      stairsDown: { fill: '#2a1a3e', step: 'rgba(180,140,255,0.15)', chevron: 'rgba(180,140,255,0.4)' },
+      stairsUp:   { fill: '#1a2e3a', step: 'rgba(140,200,220,0.15)', chevron: 'rgba(140,200,220,0.4)' },
+      doorOpen:   { fill: '#1e1528', frame: 'rgba(140,80,220,0.35)' },
+      wall:       { top: '#3a2a5a', left: '#2e2050', right: '#221840', edge: 'rgba(160,100,255,0.1)' },
+      doorClosed: { top: '#4a3070', left: '#3e2660', right: '#321e50', arch: 'rgba(180,120,255,0.2)', edge: 'rgba(160,100,255,0.12)' },
+      lockedDoor: { top: '#3a2660', left: '#2e1e50', right: '#221640', arch: 'rgba(180,120,255,0.15)', lock: 'rgba(180,100,255,0.6)', lockEdge: 'rgba(200,140,255,0.4)', edge: 'rgba(160,100,255,0.08)' },
+      chest:      { top: '#2e2848', left: '#242040', right: '#1a1830', band: 'rgba(140,100,180,0.4)', lock: 'rgba(180,100,255,0.7)', lockEdge: 'rgba(200,140,255,0.5)', edge: 'rgba(160,100,255,0.1)' },
+      chestOpen:  { fill: '#1a1830', edge: 'rgba(140,100,180,0.5)', inner: 'rgba(0,0,0,0.4)' },
+      minimap: {
+        dark_stone_floor: 0x1a1528, umbracite_floor: 0x241a3a, umbracite_vein_wall: 0x3a2a5a,
+        crystal_door_closed: 0x4a3070, crystal_door_open: 0x1e1528, deep_stairs_down: 0x2a1a3e,
+        deep_stairs_up: 0x1a2e3a, dark_pool: 0x0e0a1e, void: 0x08060e,
+        chest_closed: 0x2e2848, chest_opened: 0x1a1830,
+      },
+    },
   };
 
   _getIsoTheme() {
