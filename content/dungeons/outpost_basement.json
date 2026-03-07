@@ -28,7 +28,9 @@
     { "x": 5, "y": 10, "type": "player_start" },
     { "x": 6, "y": 10, "type": "player_start" }
   ],
-  "monsterSpawns": [],
+  "monsterSpawns": [
+    { "type": "tunnel_creeper", "x": 10, "y": 8, "count": 1, "patrol": "patrol" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "cooldown_reducer_mk2_chip", "x": 2, "y": 2 },

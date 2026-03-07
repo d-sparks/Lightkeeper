@@ -681,6 +681,27 @@
       "y": 12,
       "count": 3,
       "patrol": "wander"
+    },
+    {
+      "type": "shadow_ambusher",
+      "x": 12,
+      "y": 6,
+      "count": 1,
+      "patrol": "guard"
+    },
+    {
+      "type": "shadow_ambusher",
+      "x": 24,
+      "y": 9,
+      "count": 1,
+      "patrol": "guard"
+    },
+    {
+      "type": "feral_hound",
+      "x": 17,
+      "y": 15,
+      "count": 3,
+      "patrol": "wander"
     }
   ],
   "npcSpawns": [],
