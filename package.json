@@ -5,7 +5,8 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "test": "node tools/content-validator.js && node tools/headless-sim.js --mainline"
+    "test": "node --test tests/**/*.test.js && node tools/content-validator.js && node tools/headless-sim.js --mainline",
+    "test:unit": "node --test tests/**/*.test.js"
   },
   "dependencies": {
     "ws": "^8.16.0"
