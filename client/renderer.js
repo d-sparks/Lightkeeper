@@ -225,6 +225,9 @@ class Renderer {
     this.bossIntroBarBottom = new PIXI.Graphics();
     this.bossIntroContainer.addChild(this.bossIntroBarBottom);
 
+    this.bossIntroVignette = new PIXI.Graphics();
+    this.bossIntroContainer.addChild(this.bossIntroVignette);
+
     this.bossIntroText = new PIXI.Text('', {
       fontFamily: 'Courier New',
       fontSize: 18,
@@ -237,6 +240,18 @@ class Renderer {
     });
     this.bossIntroText.anchor.set(0.5);
     this.bossIntroContainer.addChild(this.bossIntroText);
+
+    this.bossIntroSubtitle = new PIXI.Text('', {
+      fontFamily: 'Courier New',
+      fontSize: 11,
+      fill: '#b0bec5',
+      align: 'center',
+      dropShadow: true,
+      dropShadowColor: '#000000',
+      dropShadowDistance: 1,
+    });
+    this.bossIntroSubtitle.anchor.set(0.5);
+    this.bossIntroContainer.addChild(this.bossIntroSubtitle);
 
     // Quest waypoint label on minimap
     this.questWaypointText = new PIXI.Text('', {
@@ -2087,7 +2102,7 @@ class Renderer {
     }
 
     this.bossIntro.elapsed += dt;
-    const { elapsed, duration, bossName } = this.bossIntro;
+    const { elapsed, duration, bossName, bossTitle } = this.bossIntro;
     const t = elapsed / duration; // 0..1
 
     if (t >= 1) {
@@ -2098,11 +2113,11 @@ class Renderer {
 
     this.bossIntroContainer.visible = true;
 
-    // Letterbox bar height: ease in during first 20%, hold, ease out during last 20%
+    // Letterbox bar height: ease in during first 15%, hold, ease out during last 15%
     const barMax = 40;
     let barH;
-    if (t < 0.15) barH = barMax * (t / 0.15);
-    else if (t > 0.8) barH = barMax * (1 - (t - 0.8) / 0.2);
+    if (t < 0.12) barH = barMax * (t / 0.12);
+    else if (t > 0.85) barH = barMax * (1 - (t - 0.85) / 0.15);
     else barH = barMax;
 
     // Draw letterbox bars
@@ -2116,16 +2131,51 @@ class Renderer {
     this.bossIntroBarBottom.drawRect(0, this.viewH - barH, this.viewW, barH);
     this.bossIntroBarBottom.endFill();
 
-    // Boss name text: fade in from 15%-35%, hold, fade out from 75%-90%
+    // Vignette overlay: dark edges that pulse during intro
+    this.bossIntroVignette.clear();
+    let vigAlpha = 0;
+    if (t < 0.15) vigAlpha = 0.35 * (t / 0.15);
+    else if (t > 0.8) vigAlpha = 0.35 * (1 - (t - 0.8) / 0.2);
+    else vigAlpha = 0.35;
+    // Draw darkened border rectangles to simulate vignette
+    this.bossIntroVignette.beginFill(0x000000, vigAlpha);
+    const vEdge = Math.floor(this.viewW * 0.12);
+    const hEdge = Math.floor(this.viewH * 0.15);
+    this.bossIntroVignette.drawRect(0, barH, vEdge, this.viewH - barH * 2);  // left
+    this.bossIntroVignette.drawRect(this.viewW - vEdge, barH, vEdge, this.viewH - barH * 2);  // right
+    this.bossIntroVignette.endFill();
+    // Softer inner vignette
+    this.bossIntroVignette.beginFill(0x000000, vigAlpha * 0.4);
+    this.bossIntroVignette.drawRect(vEdge, barH, vEdge * 0.6, this.viewH - barH * 2);
+    this.bossIntroVignette.drawRect(this.viewW - vEdge - vEdge * 0.6, barH, vEdge * 0.6, this.viewH - barH * 2);
+    this.bossIntroVignette.drawRect(0, barH, this.viewW, hEdge * 0.5);
+    this.bossIntroVignette.drawRect(0, this.viewH - barH - hEdge * 0.5, this.viewW, hEdge * 0.5);
+    this.bossIntroVignette.endFill();
+
+    // Boss name text: fade in from 15%-30%, hold, fade out from 75%-88%
     let textAlpha = 0;
-    if (t >= 0.15 && t < 0.35) textAlpha = (t - 0.15) / 0.2;
-    else if (t >= 0.35 && t <= 0.75) textAlpha = 1;
-    else if (t > 0.75 && t < 0.9) textAlpha = 1 - (t - 0.75) / 0.15;
+    if (t >= 0.15 && t < 0.30) textAlpha = (t - 0.15) / 0.15;
+    else if (t >= 0.30 && t <= 0.75) textAlpha = 1;
+    else if (t > 0.75 && t < 0.88) textAlpha = 1 - (t - 0.75) / 0.13;
 
     this.bossIntroText.text = bossName;
     this.bossIntroText.alpha = textAlpha;
     this.bossIntroText.x = this.viewW / 2;
-    this.bossIntroText.y = this.viewH - barH - 20;
+    this.bossIntroText.y = this.viewH - barH - 38;
+
+    // Boss subtitle (epithet): fade in slightly after name, fade out together
+    if (bossTitle) {
+      let subAlpha = 0;
+      if (t >= 0.22 && t < 0.37) subAlpha = (t - 0.22) / 0.15;
+      else if (t >= 0.37 && t <= 0.75) subAlpha = 1;
+      else if (t > 0.75 && t < 0.88) subAlpha = 1 - (t - 0.75) / 0.13;
+      this.bossIntroSubtitle.text = bossTitle;
+      this.bossIntroSubtitle.alpha = subAlpha * 0.8;
+      this.bossIntroSubtitle.x = this.viewW / 2;
+      this.bossIntroSubtitle.y = this.viewH - barH - 20;
+    } else {
+      this.bossIntroSubtitle.alpha = 0;
+    }
   }
 
   _getDeathStyle(monsterType) {
@@ -2359,9 +2409,10 @@ class Renderer {
         // Start boss intro cinematic
         this.bossIntro = {
           bossName: ev.bossName || 'BOSS',
+          bossTitle: ev.bossTitle || null,
           x: ev.x, y: ev.y,
           elapsed: 0,
-          duration: 3.0,  // total cinematic length in seconds
+          duration: 3.5,  // total cinematic length in seconds
         };
         this.screenShake = { intensity: 6, duration: 0.8, elapsed: 0 };
       }

@@ -135,5 +135,46 @@
       { "freq": 131, "len": 1 },
       null
     ]
+  },
+
+  "boss_crystal": {
+    "_comment": "Crystal Guardian boss theme — higher register, triangle wave for crystalline resonance, driving tempo",
+    "bpm": 140,
+    "wave": "triangle",
+    "volume": 0.15,
+    "pattern": [
+      { "freq": 165, "bass": 55, "len": 1 },
+      { "freq": 165, "len": 1 },
+      { "freq": 196, "bass": 65, "len": 1 },
+      { "freq": 220, "len": 1 },
+      null,
+      { "freq": 262, "bass": 87, "len": 1 },
+      { "freq": 220, "len": 1 },
+      { "freq": 196, "bass": 65, "len": 1 },
+      null,
+      { "freq": 165, "bass": 55, "len": 1 },
+      { "freq": 196, "len": 1 },
+      { "freq": 220, "bass": 73, "len": 1 },
+      null,
+      { "freq": 247, "bass": 82, "len": 1 },
+      { "freq": 262, "len": 1 },
+      { "freq": 247, "len": 1 },
+      { "freq": 220, "bass": 73, "len": 1 },
+      null,
+      { "freq": 196, "bass": 65, "len": 1 },
+      { "freq": 165, "len": 1 },
+      null,
+      { "freq": 147, "bass": 49, "len": 1 },
+      { "freq": 165, "len": 1 },
+      { "freq": 196, "bass": 65, "len": 1 },
+      { "freq": 220, "len": 1 },
+      null,
+      { "freq": 262, "bass": 87, "len": 2 },
+      null,
+      { "freq": 220, "bass": 73, "len": 1 },
+      { "freq": 196, "len": 1 },
+      null,
+      null
+    ]
   }
 }

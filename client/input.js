@@ -11,6 +11,7 @@ class InputHandler {
     this.keys = { up: false, down: false, left: false, right: false };
     this.lastSent = '';
     this.active = false;
+    this.renderer = null; // set by main.js for boss intro input lock
 
     // Callbacks — set by main.js
     this.onFirstMove = null;     // () => void — fires once on first movement input
@@ -1007,6 +1008,9 @@ class InputHandler {
   }
 
   sendInput() {
+    // Block input during boss intro cinematic
+    if (this.renderer && this.renderer.bossIntro) return;
+
     const threshold = 0.3;
     const joyKeys = {
       up:    this.joyDY < -threshold,

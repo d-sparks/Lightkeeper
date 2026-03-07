@@ -2288,7 +2288,7 @@
           audio.play('level_up');
         } else if (ev.type === 'boss_intro' && ev.playerId === renderer.myId) {
           audio.play('boss_intro');
-          audio.playMusic('boss_combat');
+          audio.playMusic(ev.bossMusic || 'boss_combat');
         }
       }
     }
@@ -2377,7 +2377,7 @@
       const phaseLabels = { 1: 'Phase 1', 2: 'Phase 2 - Ranged', 3: 'Phase 3 - Enraged' };
       bossBarPhase.textContent = phaseLabels[boss.bossPhase] || '';
     } else {
-      if (bossBar.style.display !== 'none' && audio.musicId === 'boss_combat') {
+      if (bossBar.style.display !== 'none' && audio.musicId && audio.musicId.startsWith('boss_')) {
         audio.playMusic('dungeon');
       }
       bossBar.style.display = 'none';

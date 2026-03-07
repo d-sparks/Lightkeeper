@@ -267,6 +267,10 @@ class GameLoop {
           mob.bossSummonTimer = 0;
           mob.bossSummonCount = 0;
         }
+        if (def.boss) {
+          if (def.bossTitle) mob.bossTitle = def.bossTitle;
+          if (def.bossMusic) mob.bossMusic = def.bossMusic;
+        }
         room.monsters.set(id, mob);
       }
     }
@@ -482,6 +486,8 @@ class GameLoop {
         playerId,
         bossId: mob.id,
         bossName: mob.name,
+        bossTitle: mob.bossTitle || null,
+        bossMusic: mob.bossMusic || null,
         bossType: mob.type,
         x: mob.x,
         y: mob.y,

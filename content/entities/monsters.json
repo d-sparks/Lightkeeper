@@ -171,6 +171,8 @@
   },
   "crystal_guardian": {
     "name": "Crystal Guardian",
+    "bossTitle": "Ancient Protector of the Deep Crystal",
+    "bossMusic": "boss_crystal",
     "sprite": "sprites/crystal_guardian.png",
     "size": [16, 16],
     "health": 300,
