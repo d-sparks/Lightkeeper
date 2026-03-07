@@ -11,6 +11,8 @@ class AudioManager {
 
     this.sounds = {};          // Sound definitions from JSON
     this.musicDefs = {};       // Music definitions from JSON
+    this.biomeMap = {};        // Tileset -> ambient track mapping from music.json
+    this.nameOverrides = {};   // Room name substring -> track overrides from music.json
     this.samples = {};         // Loaded AudioBuffer cache (for future sample-based audio)
 
     this.musicSource = null;   // Currently playing music oscillators/nodes
@@ -62,8 +64,18 @@ class AudioManager {
   // Load music definitions from JSON
   loadMusic(defs) {
     if (!defs) return;
+    if (defs.biome_map) {
+      for (const [k, v] of Object.entries(defs.biome_map)) {
+        if (!k.startsWith('_')) this.biomeMap[k] = v;
+      }
+    }
+    if (defs.name_overrides) {
+      for (const [k, v] of Object.entries(defs.name_overrides)) {
+        if (!k.startsWith('_')) this.nameOverrides[k] = v;
+      }
+    }
     for (const [id, def] of Object.entries(defs)) {
-      if (id.startsWith('_')) continue; // skip comments
+      if (id.startsWith('_') || id === 'biome_map' || id === 'name_overrides') continue;
       this.musicDefs[id] = def;
     }
   }
@@ -71,6 +83,20 @@ class AudioManager {
   // Check if a music track is defined
   hasMusic(id) {
     return !!this.musicDefs[id];
+  }
+
+  // Resolve the ambient track for a room based on name and tileset
+  resolveAmbientTrack(roomName, tileset) {
+    const name = (roomName || '').toLowerCase();
+    // Check name overrides first (room name substring matches)
+    for (const [substr, trackId] of Object.entries(this.nameOverrides)) {
+      if (name.includes(substr) && this.hasMusic(trackId)) return trackId;
+    }
+    // Then check biome_map by tileset
+    const biomeTrack = this.biomeMap[tileset];
+    if (biomeTrack && this.hasMusic(biomeTrack)) return biomeTrack;
+    // Fallback to generic dungeon
+    return 'dungeon';
   }
 
   // Play a sound effect by id

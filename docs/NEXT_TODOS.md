@@ -40,7 +40,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Act II Quest Follow-ups
 
-- Crystal Guardian boss: add dedicated boss music track (currently uses dungeon music).
+- Crystal Guardian boss: wire `boss_crystal` music track into the Crystal Guardian encounter triggers (track exists in music.json but isn't triggered yet).
 - Make sure initial MERIDIAN-7 trade at train station flows into Array Hub quest.
 - Add map/minimap markers or quest waypoints for Nightside Caverns entrance.
 
@@ -60,6 +60,11 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Add loot tables for threshold_watcher, abyssal_tendril, threshold_keeper monsters.
 - Add sable_nightside_guide sprite placeholder.
 - Consider further umbrasite escalation tiers (repeatable with diminishing returns).
+
+## Audio Pipeline Follow-ups
+
+- Assign biome-appropriate tilesets to dungeons still using generic "crypt" (e.g. outpost_* rooms should use "outpost", station_* should use "station", meridian_* could use a dedicated tileset). This would activate the per-biome ambient music automatically via the data-driven biome_map in music.json.
+- Replace procedural placeholder patterns in ambient_perimeter, ambient_underlumen, ambient_array, ambient_station with final compositions once art direction is set.
 
 ## Art & Sprites
 

@@ -2245,30 +2245,11 @@
       onboardMove.style.display = '';
     }
 
-    // Start background music — prefer biome-specific ambient track, fall back to generic
+    // Start background music — pick ambient track from data-driven biome_map in music.json
     audio.resume();
-    const roomName = (msg.map && msg.map.name || '').toLowerCase();
+    const roomName = (msg.map && msg.map.name || '');
     const tileset = (msg.map && msg.map.tileset || '');
-    const biomeTrackMap = {
-      nightside: 'ambient_nightside',
-      dayside: 'ambient_dayside',
-      fungal_forest: 'ambient_fungal',
-      frost_crypt: 'ambient_frost',
-      crypt: 'ambient_crypt',
-      geothermal: 'ambient_geothermal',
-      quarantine: 'ambient_quarantine',
-      dark_city: 'ambient_dark_city',
-      outpost: 'ambient_outpost'
-    };
-    if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
-      audio.playMusic('outpost');
-    } else if (roomName.includes('meridian')) {
-      audio.playMusic(audio.hasMusic('ambient_meridian') ? 'ambient_meridian' : 'outpost');
-    } else if (biomeTrackMap[tileset] && audio.hasMusic(biomeTrackMap[tileset])) {
-      audio.playMusic(biomeTrackMap[tileset]);
-    } else {
-      audio.playMusic('dungeon');
-    }
+    audio.playMusic(audio.resolveAmbientTrack(roomName, tileset));
   });
 
   net.on(CONSTANTS.MSG.STATE, (msg) => {

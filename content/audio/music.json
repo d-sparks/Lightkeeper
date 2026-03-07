@@ -1,6 +1,31 @@
 {
   "_comment": "Music track definitions for procedural synthesis. Pattern is an array of note objects played sequentially at the given BPM. null entries are rests.",
 
+  "biome_map": {
+    "_comment": "Maps tileset names to ambient music track IDs. The client uses this to pick the right track per room.",
+    "crypt": "ambient_crypt",
+    "nightside": "ambient_nightside",
+    "dayside": "ambient_dayside",
+    "fungal_forest": "ambient_fungal",
+    "frost_crypt": "ambient_frost",
+    "geothermal": "ambient_geothermal",
+    "quarantine": "ambient_quarantine",
+    "dark_city": "ambient_dark_city",
+    "outpost": "ambient_outpost",
+    "perimeter": "ambient_perimeter",
+    "underlumen": "ambient_underlumen",
+    "array": "ambient_array",
+    "station": "ambient_station"
+  },
+
+  "name_overrides": {
+    "_comment": "Room name substring matches that override the tileset-based lookup. Checked in order.",
+    "outpost": "outpost",
+    "town": "outpost",
+    "hub": "outpost",
+    "meridian": "ambient_meridian"
+  },
+
   "dungeon": {
     "bpm": 70,
     "wave": "triangle",
@@ -386,6 +411,108 @@
       { "freq": 262, "len": 2 },
       null,
       { "freq": 294, "bass": 147, "len": 2 },
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_perimeter": {
+    "_comment": "Perimeter biome — exposed, windswept frontier. Silent placeholder.",
+    "bpm": 46,
+    "wave": "sine",
+    "volume": 0.07,
+    "pattern": [
+      { "freq": 131, "bass": 65, "len": 3 },
+      null,
+      null,
+      null,
+      { "freq": 147, "len": 2 },
+      null,
+      null,
+      null,
+      { "freq": 117, "bass": 58, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_underlumen": {
+    "_comment": "Underlumen biome — deep subterranean, bioluminescent. Silent placeholder.",
+    "bpm": 38,
+    "wave": "sine",
+    "volume": 0.05,
+    "pattern": [
+      { "freq": 65, "bass": 33, "len": 4 },
+      null,
+      null,
+      null,
+      null,
+      { "freq": 73, "len": 3 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      { "freq": 55, "bass": 28, "len": 4 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_array": {
+    "_comment": "Array biome — technological, humming machinery. Silent placeholder.",
+    "bpm": 54,
+    "wave": "triangle",
+    "volume": 0.06,
+    "pattern": [
+      { "freq": 196, "bass": 98, "len": 2 },
+      null,
+      { "freq": 220, "len": 1 },
+      null,
+      null,
+      { "freq": 185, "bass": 92, "len": 2 },
+      null,
+      null,
+      { "freq": 196, "len": 1 },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "ambient_station": {
+    "_comment": "Station biome — transit corridors, metallic echoes. Silent placeholder.",
+    "bpm": 50,
+    "wave": "triangle",
+    "volume": 0.06,
+    "pattern": [
+      { "freq": 175, "bass": 87, "len": 2 },
+      null,
+      null,
+      { "freq": 196, "len": 1 },
+      null,
+      null,
+      { "freq": 165, "bass": 82, "len": 2 },
+      null,
+      null,
+      null,
+      { "freq": 175, "len": 1 },
       null,
       null,
       null,
