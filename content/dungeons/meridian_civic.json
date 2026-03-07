@@ -228,6 +228,71 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "three_paths_choice",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "asha_received_compound" },
+        { "not": { "hasFlag": "chose_path_shutdown" } },
+        { "not": { "hasFlag": "chose_path_merge" } },
+        { "not": { "hasFlag": "chose_path_control" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "three_paths", "prompt": "The evidence is before the Council. Three paths forward. The choice shapes the future of all three factions — and the planet itself.", "options": [
+          { "label": "Shut Down the Array", "description": "Side with the Unbounded. Restore the Underlumen. Accept a harder world, but a free one.", "value": "shutdown" },
+          { "label": "Broker Symbiosis", "description": "Merge Array, Underlumen, and Ring biology into a genuine partnership. The hardest path, but the most hopeful.", "value": "merge" },
+          { "label": "Seize Control", "description": "Take the Array's infrastructure for humanity. Suppress both the Underlumen and Array autonomy. Power at a cost.", "value": "control" }
+        ]}
+      ]
+    },
+    {
+      "id": "path_shutdown_chosen",
+      "event": "choice_made",
+      "filter": { "choiceId": "three_paths", "value": "shutdown" },
+      "actions": [
+        { "type": "setFlag", "flag": "chose_path_shutdown" },
+        { "type": "grantXp", "amount": 100 },
+        { "type": "showMessage", "lines": [
+          "Asha nods slowly. 'The hardest road. But the most honest.'",
+          "'Sable's people have survived without the Array for generations. If we shut it down, the Unbounded become our teachers. The Underlumen returns to its natural state. The Lighthouses go dark.'",
+          "'It will be cold. It will be difficult. Some people will not survive the transition. But we will be free — truly free — for the first time since Landing.'",
+          "'I'll present your recommendation to the Council. Prepare yourself, Lightkeeper. The Array will not go quietly.'"
+        ]}
+      ]
+    },
+    {
+      "id": "path_merge_chosen",
+      "event": "choice_made",
+      "filter": { "choiceId": "three_paths", "value": "merge" },
+      "actions": [
+        { "type": "setFlag", "flag": "chose_path_merge" },
+        { "type": "grantXp", "amount": 100 },
+        { "type": "showMessage", "lines": [
+          "Asha's eyes widen. 'Symbiosis. You want to merge them all.'",
+          "'Array computation. Underlumen biology. Human adaptability. Three systems, one ecology. No hierarchy — partnership.'",
+          "'It's never been done. It may not be possible. You'd need MERIDIAN-7 to agree, the Underlumen to accept technological integration, and the Ring Council to trust both.'",
+          "'But the compound proves it can work. Crystal and organism, machine and biology — communion, not competition.'",
+          "'This is the path the Root faction has dreamed about for decades. I'll champion it. But you'll need to convince every side. Starting with MERIDIAN-7.'"
+        ]}
+      ]
+    },
+    {
+      "id": "path_control_chosen",
+      "event": "choice_made",
+      "filter": { "choiceId": "three_paths", "value": "control" },
+      "actions": [
+        { "type": "setFlag", "flag": "chose_path_control" },
+        { "type": "grantXp", "amount": 100 },
+        { "type": "showMessage", "lines": [
+          "Asha stiffens. Her voice is careful. 'You want to seize the Array. Take its power for humanity.'",
+          "'The Steward faction will support this. Control the Lighthouses, control the Array's production, control the Underlumen's suppression. Total authority over the planet's systems.'",
+          "'It would work. In the short term, it would work brilliantly. But ask yourself: is benevolent control really different from what the Array already does? Optimizing everything. Deciding what's efficient. Eliminating what isn't.'",
+          "'You'd become the Array, Lightkeeper. With a human face.'",
+          "'I'll present your recommendation. The Stewards will rally behind it. But Sable's people will never forgive this. And neither will the Underlumen.'"
+        ]}
+      ]
     }
   ]
 }

@@ -404,5 +404,51 @@
     ],
     "lootTable": "array_overseer",
     "xp": 95
+  },
+  "threshold_watcher": {
+    "name": "Threshold Watcher",
+    "sprite": "sprites/threshold_watcher.png",
+    "size": [16, 16],
+    "health": 60,
+    "speed": 2.0,
+    "damage": 14,
+    "attackRange": 5,
+    "attackSpeed": 0.9,
+    "projectile": "crystal_shard_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "threshold_watcher",
+    "xp": 30
+  },
+  "abyssal_tendril": {
+    "name": "Abyssal Tendril",
+    "sprite": "sprites/abyssal_tendril.png",
+    "size": [16, 16],
+    "health": 40,
+    "speed": 1.5,
+    "damage": 16,
+    "attackRange": 2,
+    "attackSpeed": 1.1,
+    "ai": "ambush",
+    "lootTable": "abyssal_tendril",
+    "xp": 22
+  },
+  "threshold_keeper": {
+    "name": "Threshold Keeper",
+    "sprite": "sprites/threshold_keeper.png",
+    "size": [16, 16],
+    "health": 320,
+    "speed": 1.8,
+    "damage": 20,
+    "attackRange": 3,
+    "attackSpeed": 0.7,
+    "ai": "boss_crystal",
+    "boss": true,
+    "phases": [
+      { "threshold": 1.0, "mode": "melee", "speed": 1.5, "damage": 20 },
+      { "threshold": 0.6, "mode": "ranged", "speed": 1.8, "damage": 16, "projectile": "crystal_shard_bolt", "projectileInterval": 1.0 },
+      { "threshold": 0.3, "mode": "summon", "speed": 2.0, "damage": 22, "projectile": "crystal_shard_bolt", "projectileInterval": 0.8, "summonType": "abyssal_tendril", "summonCount": 2, "summonInterval": 12.0 }
+    ],
+    "lootTable": "threshold_keeper",
+    "xp": 130
   }
 }

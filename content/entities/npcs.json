@@ -1885,6 +1885,40 @@
     ]
   },
 
+  "sable_threshold": {
+    "name": "Sable",
+    "dialogue": [
+      { "speaker": "Sable", "text": "The Listening Floor. My grandmother was right about this place." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Sable", "text": "This is the Underlumen Threshold. The deepest point any Unbounded has documented." },
+        { "speaker": "Sable", "text": "The crystal veins here aren't just mineral. They carry information. The planet's own nervous system, running beneath everything." },
+        { "speaker": "Sable", "text": "The Array fears this. Not because it's dangerous — because it's competition. An infrastructure that predates humanity by millions of years." },
+        { "speaker": "Sable", "text": "Find what Asha needs. The proof is here, in the living crystal. Take it back to the Council." }
+      ],
+      "keeper_defeated": [
+        { "speaker": "Sable", "text": "The Keeper is gone. The Underlumen's guardian — or its voice, maybe. Hard to tell the difference down here." },
+        { "speaker": "Sable", "text": "The crystal veins are pulsing faster now. Communicating. The planet knows something changed." },
+        { "speaker": "Sable", "text": "Touch the floor where the Keeper stood. Listen. The Underlumen has something to show you." }
+      ],
+      "low_trust": [
+        { "speaker": "Sable", "text": "We're at the bottom. The Listening Floor. Deepest point on the map." },
+        { "speaker": "Sable", "text": "Get the evidence. Get out. The elders are waiting for my report." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "threshold_keeper_defeated" }],
+        "use": "keeper_defeated"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_not_helped" }],
+        "use": "low_trust"
+      }
+    ]
+  },
+
   "crafter_yun": {
     "name": "Master Crafter Yun",
     "dialogue": [

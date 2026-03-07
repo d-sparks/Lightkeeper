@@ -100,10 +100,17 @@ All done:
 - Consider further umbrasite escalation tiers (repeatable with diminishing returns)
 - Add Unbounded elder NPC for deep Nightside encounters (referenced by Sable)
 - Add Council faction NPCs (Steward representative, Compact representative, Root representative) for political branching
-- Create `underlumen_threshold` dungeon (nightside_passage exit leads here — currently a dead-end reference)
-- Add three ending path dungeons/sequences (shutdown, merge, control) referenced by nightside_expedition quest
-- Add Asha `act3_compound_received` dialogue with three-path choice trigger (showChoice for chose_path_shutdown/merge/control)
+- [x] Create `underlumen_threshold` dungeon (nightside_passage exit leads here) — underlumen_threshold.json added (30x24, threshold_keeper boss, sable_threshold NPC, deep communion trigger, Underlumen vision sequence)
+- Add three ending path dungeons/sequences (shutdown, merge, control) — each path needs its own dungeon(s) with final encounters and resolution triggers
+- [x] Add Asha `act3_compound_received` dialogue with three-path choice trigger (showChoice for chose_path_shutdown/merge/control) — three_paths_choice trigger in meridian_civic.json
 - Add sable_nightside_guide sprite placeholder
+- [x] Add sable_threshold NPC for Underlumen Threshold dungeon — sable_threshold in npcs.json with keeper_defeated/low_trust dialogue variants
+- [x] Add threshold_watcher, abyssal_tendril, threshold_keeper monsters — added to monsters.json (threshold_keeper is boss with 3 phases)
+- Add loot tables for threshold_watcher, abyssal_tendril, threshold_keeper monsters
+- Add placeholder sprites for threshold_watcher, abyssal_tendril, threshold_keeper, sable_threshold
+- Create ending dungeons for each path: array_control_center (shutdown path), underlumen_nexus_chamber (merge path), array_command_core (control path)
+- Add post-choice NPC dialogue variants for Asha, Sable, and MERIDIAN-7 based on chosen path
+- Add final boss encounters for each ending path
 
 ## Art & Sprites
 
