@@ -133,6 +133,27 @@ All done:
 - Create tileset strips for each zone theme (currently only stone_crypt has a full tileset)
 - Add animation frames (idle, attack, hit) once the engine supports sprite animation
 
+## Automation Grid Follow-ups
+
+Phase 1 (server grid state) and Phase 2 (client CSS grid UI) are complete. Remaining phases:
+
+### Phase 3: Automation Screen Access (Engine + Content)
+- Add `openAutomation` scripting action to `server/scripting/actions.js`
+- Add MERIDIAN-7 interaction trigger that opens the automation screen (fire `openAutomation` action on `npc_interacted` for meridian_7)
+- Client handler for `AUTO_STATE` with `openScreen: true` — open full-screen automation overlay
+- Remove the auto tab from the menu (or keep it as a read-only summary)
+
+### Phase 4: Dungeon Sync (Engine)
+- Modify MAP data sending in `game-loop.js` — when a player enters `dayside_solar_fields`, merge their automation placements into the tile data before sending
+- Grid-to-dungeon coordinate conversion using the offset from grid config
+- Visual-only harvester entities — spawn non-interactive entity markers at harvester positions when player enters the room
+
+### Phase 5: Polish
+- Add tooltips on hover/click for placed structures (CSS `.auto-cell-tooltip` already defined, needs JS)
+- Add sound effects for placement confirmation and level-up
+- Mobile/touch support — tap to select, tap to place
+- Controller support — d-pad navigation of grid cells, A to place, B to cancel
+
 ## Audio
 
 - Add placeholder sound effects for core actions: weapon attack, ability fire, monster hit, monster death, item pickup, door open, level transition

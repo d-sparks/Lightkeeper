@@ -26,9 +26,9 @@ Prioritized task list. Updated 2026-03-07.
 
 ## Features & Systems
 
-- [ ] **9. Automation grid UI — Phase 1 (server)** — Update automation.js state to track placements with {x, y} coordinates. Update build() to accept gridX/gridY. Add grid config computed from dayside_solar_fields tile data. See docs/automation_screen.md Phase 1.
+- [x] **9. Automation grid UI — Phase 1 (server)** — Update automation.js state to track placements with {x, y} coordinates. Update build() to accept gridX/gridY. Add grid config computed from dayside_solar_fields tile data. See docs/automation_screen.md Phase 1.
 
-- [ ] **10. Automation grid UI — Phase 2 (client)** — Replace renderAutoTab() with full-screen CSS grid placement UI. 12x12 cells, build palette, resource sidebar, progress bar. See docs/automation_screen.md Phase 2.
+- [x] **10. Automation grid UI — Phase 2 (client)** — Replace renderAutoTab() with full-screen CSS grid placement UI. 12x12 cells, build palette, resource sidebar, progress bar. See docs/automation_screen.md Phase 2.
 
 - [ ] **11. Minimap quest waypoints** — Add colored dots on the minimap for active quest objectives. The text-only quest panel gives no spatial guidance to players.
 
