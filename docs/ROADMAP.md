@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-06
+Last updated: 2026-03-07
 
 ## Project Status Overview
 
@@ -19,50 +19,54 @@ Last updated: 2026-03-06
 | Content Validation CI | Done | `npm test` runs content-validator.js + headless-sim.js --mainline |
 | Automation System | Partial | Basic automation works (solar panels, harvesters, silicon). Grid placement UI not yet built |
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons. Engine support in game-loop.js |
-| Act II Content | Partial | Dayside locations, Array complex floors, MERIDIAN-7 umbrasite quest, Disappeared Courier. Deeper Array questlines needed |
-| Act III Content | Stub | Underlumen approach + crypts exist. Story revelation content not built |
+| Act II Content | Partial | Dayside locations, Array complex floors, Crystal Guardian boss (3-phase AI), MERIDIAN-7 umbrasite quest, Disappeared Courier. Deeper Array questlines needed |
+| Act III Content | Stub | Underlumen approach + crypts exist. array_secret_discovered flag partially wired. Story revelation content not built |
 | Art / Audio | Placeholder | Generated placeholder sprites. Art style guide exists. Audio system wired but no real assets |
 | Game Balance | Needs Work | Combat functional but untuned. Energy economy untested at scale |
 | Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
 | Content Validation Errors | Done | All 6 known broken refs/flags resolved |
 | Monster Loot Wiring | Done | All 25 combat monsters have lootTable refs. 22 biome-specific tables across 6 files |
-| Sol Grid UI | Done | healOnHit, energyCostReduction, boostedEnergyRegen all displayed in sol grid |
+| Sol Grid UI | Done | healOnHit, energyCostReduction, boostedEnergyRegen, innateBonus name/perks displayed |
+| Unit Tests (Tier 1) | Done | flag-store, event-bus, automation tests written with Node built-in test runner |
+| Crystal Guardian Boss | Done | 3-phase boss_crystal AI: melee, projectiles, summons. Needs client VFX and health bar |
+| Array Complex Gating | Done | Exit conditions gate synthesis lab and deep processing behind quest/item progression |
 
 ---
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Fix broken content, wire up existing systems, and polish the core loop**
+Focus: **Game feel, missing content wiring, and the core death/reward loop**
 
-1. ~~**Fix content validation errors**~~ — Done. All 6 resolved.
-2. ~~**Wire monster loot drops**~~ — Done. All combat monsters have lootTable refs and biome tables exist.
-3. **Combat feel polish** — Enhance remaining rough edges: screen shake, ability-specific visual effects, monster death variety. Some effects exist but the overall feel needs another pass.
-4. **Sound effects** — Even placeholder beeps dramatically improve game feel. Wire basic sounds for attacks, hits, deaths, pickups, doors, and transitions.
-5. **Deploy new monsters to dungeons** — 38 monster types exist but the newer ones (ambush, patrol, pack AI) aren't spawned in actual dungeon floors.
-6. **Wire loot tables to dungeon chests/crates** — Biome loot tables exist but interactable containers don't use them. Add lootTable triggers to chest/crate tiles.
+1. **Sound effects** — Even placeholder synthesized tones dramatically improve game feel. Wire basic sounds for attacks, hits, deaths, pickups, doors, and transitions. Audio system exists — it just needs content.
+2. **Combat juice pass** — Screen shake on player hit, monster death fade-out, ambush monster fade-in reveal, monster projectile tinting by type. Small visual improvements that compound.
+3. **Death penalty** — When the player dies, drain energy and drop a non-quest item. Respawn at room entrance. This completes the risk/reward loop that makes dungeon runs meaningful.
+4. **Deploy new monsters to dungeons** — ambush/patrol/pack AI monsters are defined but not placed in actual dungeon floors. Place them in thematically appropriate biome dungeons.
+5. **Boss health bar UI** — Crystal Guardian has 3-phase AI but no client-side boss health bar or phase transition effects. Add these for the game's first real boss encounter.
+6. **Sol unit acquisition paths** — The 4 non-starter sol units need actual in-game acquisition (chest drops, NPC rewards, quest completions). Currently defined but unobtainable.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
-Focus: **Build the automation UI, expand Act II, and deepen the game loop**
+Focus: **Automation UI, Act II deepening, and multiplayer**
 
-6. **Automation grid UI** — Implement the full-screen grid placement screen per docs/automation_screen.md. This is the next major feature — transforms the factory/automation feel.
-7. **Act II quest expansion** — Extend the MERIDIAN-7 relationship: Array complex exploration, advanced trades, escalating umbrasite demands. The narrative hook is planted; flesh it out.
-8. **Sol unit variants** — Design and implement the 5-6 sol unit models with different grid sizes and innate perks. This is the main progression differentiator.
-9. **Death penalty** — Implement meaningful consequences for dying (item loss, energy drain). Needs careful tuning.
+7. **Automation grid UI** — Full-screen grid placement screen per docs/automation_screen.md. Server-side coordinate tracking (Phase 1) then client CSS grid (Phase 2). Next major feature.
+8. **Act II quest expansion** — Extend Array questline: escalating umbrasite demands, MERIDIAN-7 confrontation after array_secret_discovered, Array overseer mini-boss, wire secret into Sable/Asha dialogue for Act III hooks.
+9. **Minimap quest waypoints** — Colored dots on minimap for active quest objectives. Text-only quest panel gives no spatial guidance.
 10. **Multiplayer polish** — Party indicators, shared quest progress display, co-op balance tuning.
-11. ~~**Environmental hazards**~~ — Done. Cold, heat, and poison damage implemented in biome dungeons.
+11. **Proc geothermal template** — Add procedural geothermal dungeon with chest tiles wired to geothermal loot tables.
+12. **Wire patrol field into engine** — The patrol field on dungeon monsterSpawns exists in JSON but the engine ignores it. Patrol monsters currently wander randomly instead of following paths.
 
 ## Long-Term Vision (3+ Months)
 
 Focus: **Complete the story, real art, audio, and endgame**
 
-12. **Act III content** — Underlumen revelation, three ending paths, faction choice system.
-13. **Real art assets** — Replace all placeholder sprites with proper pixel art following the style guide.
-14. **Music and ambient audio** — Per-biome music, combat music, ambient sounds.
-15. **Boss encounters** — Multi-phase bosses with unique mechanics, arena design, and rewards.
-16. **Endgame loop** — Post-story sandbox with escalating procedural dungeons, legendary modifier chase, automation scaling.
-17. **Unit tests** — Implement Tier 1-2 unit tests per docs/TESTING.md (flag-store, event-bus, conditions, actions). High value per effort.
-18. **Mobile/touch optimization** — Touch controls exist but need polish for real mobile play.
+13. **Act III content** — Underlumen revelation, three ending paths, faction choice system. Requires significant quest/dialogue/dungeon work.
+14. **Real art assets** — Replace all placeholder sprites with proper pixel art following docs/art-style-guide.md.
+15. **Music and ambient audio** — Per-biome music, combat music, ambient sounds.
+16. **Additional boss encounters** — Crystal Guardian sets the pattern. Add bosses for Nightside, Array, and Underlumen arcs.
+17. **Endgame loop** — Post-story sandbox with escalating procedural dungeons, legendary modifier chase, automation scaling.
+18. **Tier 2 unit tests** — conditions.js, actions.js, trigger-registry.js, quest-tracker.js (Tier 1 done).
+19. **Mobile/touch optimization** — Touch controls exist but need polish for real mobile play.
+20. **Game balance pass** — Tune combat numbers, energy economy, loot drop rates across full playthrough.
 
 ---
 
@@ -97,6 +101,13 @@ These are done and don't need further investment:
 - **Sol unit variants** — 6 variants defined in sol_units.json with innateBonus engine support
 - **Array complex content** — Array synthesis lab + deep processing floors with bio-catalyst hints
 - **Disappeared Courier quest** — Side quest added in Meridian City
+- **Tier 1 unit tests** — flag-store, event-bus, automation tests using Node built-in test runner
+- **Crystal Guardian boss AI** — 3-phase boss_crystal AI (melee → projectiles → summons)
+- **Array complex gating** — Exit conditions gate synthesis lab and deep processing behind quest/item progression
+- **Array monster loot tables** — array_sentinel and array_fabricator wired to loot tables with placeholder sprites
+- **Sol unit innateBonus display** — Sol grid screen shows unit name and innate perk descriptions
+- **Biome loot to chests/crates** — Biome loot tables wired to dungeon interactable tiles via triggers
+- **Biome loot in proc templates** — Procedural dungeon templates reference biome-appropriate loot tables
 
 ## Active Design Docs
 
@@ -107,5 +118,5 @@ These are done and don't need further investment:
 | docs/storyboard.md | Active | Act I implemented, Act II started, Acts II-III need more content |
 | docs/testing-design.md | Done | Both tools built and functional, wired into npm test |
 | docs/procedural-generation.md | Done | Engine + 4 templates implemented |
-| docs/TESTING.md | Done | Testing plan executed — tools exist. Unit tests (Tier 1-2) still valuable future work |
+| docs/TESTING.md | Active | Tier 1 done. Tier 2 (conditions, actions, trigger-registry) still valuable |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |

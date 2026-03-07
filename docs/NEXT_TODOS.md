@@ -41,9 +41,9 @@ All done:
 
 - [x] Client UI displays healOnHit, energyCostReduction, and boostedEnergyRegen in sol grid
 - [x] Define the 5-6 sol unit variants (grid dimensions, innate perks, where found) — 6 variants in sol_units.json with innateBonus engine support
+- [x] Client UI should display sol unit innateBonus info (name, perk description) on the sol grid screen
 - Design and implement extended-adjacency modifiers (radius 2, entire row/column) for rare/legendary tier
 - Define modifier stat ranges per rarity tier (common -> legendary number values)
-- Client UI should display sol unit innateBonus info (name, perk description) on the sol grid screen
 - Add dungeon triggers/loot for acquiring new sol units (nightcaster_frame, array_precision_core, greenway_bioframe, underlumen_nexus)
 
 ## Act II Quest Follow-ups
@@ -60,12 +60,12 @@ All done:
 
 ## Array Complex Follow-ups
 
-- Add placeholder sprites for array_sentinel and array_fabricator monsters
-- Add loot tables for array_sentinel and array_fabricator (currently undefined)
-- Add generate-sprites.js entries for new Array construct monsters
-- ~~Consider gating array_synthesis_lab access behind umbrasite quest completion~~ DONE: exit conditions added
-- ~~Add array_clearance_badge as a key requirement for array_deep_processing door~~ DONE: exit requires hasItem check
-- Wire array_secret_discovered flag into MERIDIAN-7 dialogue at the Hub (confrontation dialogue)
+- [x] Add placeholder sprites for array_sentinel and array_fabricator monsters
+- [x] Add loot tables for array_sentinel and array_fabricator
+- [x] Add generate-sprites.js entries for new Array construct monsters
+- [x] Gate array_synthesis_lab access behind umbrasite quest completion — exit conditions added
+- [x] Add array_clearance_badge as key requirement for array_deep_processing door — exit requires hasItem check
+- [x] Wire array_secret_discovered flag into MERIDIAN-7 dialogue at the Hub (confrontation dialogue)
 - Wire array_secret_discovered flag into Sable, Asha, or Council NPC dialogue for Act 3 progression
 - Consider adding an Array overseer mini-boss in array_deep_processing
 
