@@ -1344,7 +1344,7 @@ class GameLoop {
     // Send cone effect event for client rendering
     room.events.push({
       type: 'cone_effect',
-      ownerId: pid,
+      ownerId: player.id,
       x: player.x,
       y: player.y,
       angle: dirAngle,

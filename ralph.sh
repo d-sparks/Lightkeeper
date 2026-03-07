@@ -22,6 +22,8 @@ ONLY=""
 MAX_TURNS=100
 YOLO=false
 LOG_DIR="$REPO_ROOT/.claude/ralph-logs"
+DAILY_LIMIT=80    # Stop if 5-hour usage >= this %
+WEEKLY_LIMIT=14   # Stop if 7-day usage >= this %
 
 # ─── Parse args ───────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -68,12 +70,91 @@ parse_todos() {
   done < "$TODOS_FILE"
 }
 
+# ─── Budget check via cclimits ─────────────────────────────────
+check_budget() {
+  if ! command -v cclimits &>/dev/null; then
+    echo "  WARNING: cclimits not found, skipping budget check"
+    return 0
+  fi
+
+  local json
+  json="$(cclimits --json 2>/dev/null)" || {
+    echo "  WARNING: cclimits failed, skipping budget check"
+    return 0
+  }
+
+  # Extract used% as floats (strip the % suffix)
+  local daily_used weekly_used
+  daily_used="$(echo "$json" | node -e "
+    const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+    const v = d.claude?.five_hour?.used || '0%';
+    console.log(parseFloat(v));
+  " 2>/dev/null)" || daily_used="0"
+  weekly_used="$(echo "$json" | node -e "
+    const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+    const v = d.claude?.seven_day?.used || '0%';
+    console.log(parseFloat(v));
+  " 2>/dev/null)" || weekly_used="0"
+
+  echo "  Budget: 5h ${daily_used}% / ${DAILY_LIMIT}% cap, 7d ${weekly_used}% / ${WEEKLY_LIMIT}% cap"
+
+  # Compare as integers (bash can't do float comparison)
+  local daily_int weekly_int
+  daily_int="$(echo "$daily_used" | node -e "console.log(Math.floor(parseFloat(require('fs').readFileSync('/dev/stdin','utf8'))))" 2>/dev/null)" || daily_int=0
+  weekly_int="$(echo "$weekly_used" | node -e "console.log(Math.floor(parseFloat(require('fs').readFileSync('/dev/stdin','utf8'))))" 2>/dev/null)" || weekly_int=0
+
+  if [[ "$daily_int" -ge "$DAILY_LIMIT" ]]; then
+    echo "  BUDGET STOP: 5-hour usage ${daily_used}% >= ${DAILY_LIMIT}% cap."
+    budget_summary
+    exit 0
+  fi
+  if [[ "$weekly_int" -ge "$WEEKLY_LIMIT" ]]; then
+    echo "  BUDGET STOP: 7-day usage ${weekly_used}% >= ${WEEKLY_LIMIT}% cap."
+    budget_summary
+    exit 0
+  fi
+  return 0
+}
+
+budget_summary() {
+  echo ""
+  echo "  ╔═══════════════════════════════════════════════════════╗"
+  echo "    Ralph stopped — budget limit reached"
+  echo "  ╚═══════════════════════════════════════════════════════╝"
+  if [[ ${#DONE_TASKS[@]} -gt 0 ]]; then
+    echo "  Completed tasks:"
+    for entry in "${DONE_TASKS[@]}"; do
+      echo "    [done] ${entry}"
+    done
+  else
+    echo "  No tasks completed this run."
+  fi
+  # Show remaining by diffing all tasks against done
+  echo ""
+  echo "  Remaining tasks:"
+  for i in "${!TASKS[@]}"; do
+    local num=$((i + 1))
+    local label="#${num}: ${TASKS[$i]:0:80}"
+    local is_done=false
+    for d in "${DONE_TASKS[@]+"${DONE_TASKS[@]}"}"; do
+      if [[ "$d" == "$label" ]]; then is_done=true; break; fi
+    done
+    if ! $is_done; then
+      echo "    [todo] ${label}"
+    fi
+  done
+  echo ""
+}
+
 # ─── Assert we're not on main ──────────────────────────────────
 CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "$CURRENT_BRANCH" == "main" ]]; then
   echo "ERROR: Do not run ralph on main. Check out a feature branch first."
   exit 1
 fi
+
+# ─── Task tracking ───────────────────────────────────────────
+DONE_TASKS=()
 
 # ─── Main loop: repeat forever ─────────────────────────────────
 PASS=0
@@ -108,6 +189,9 @@ while true; do
   pass_log_dir="${LOG_DIR}/ralph-pass-${PASS}"
   mkdir -p "$pass_log_dir"
 
+  # Reset done tracking for this pass
+  DONE_TASKS=()
+
   # ─── Run each task ──────────────────────────────────────────
   for i in "${!TASKS[@]}"; do
     num=$((i + 1))
@@ -117,6 +201,9 @@ while true; do
     if [[ "$PASS" -eq 1 && "$num" -lt "$START_AT" ]]; then continue; fi
     # Apply --only filter
     if [[ -n "$ONLY" && "$num" -ne "$ONLY" ]]; then continue; fi
+
+    # Check budget before each task
+    check_budget
 
     echo ""
     echo "  ───────────────────────────────────────────────────"
@@ -139,6 +226,8 @@ while true; do
     ) || {
       echo "  Claude exited with non-zero status for TODO #${num}, continuing..."
     }
+
+    DONE_TASKS+=("#${num}: ${task:0:80}")
   done
 
   # Reset --start after first pass

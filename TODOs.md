@@ -1,5 +1,11 @@
 TODOs
 
+## Human feedback / inputs
+- If we're going to advertise WASD as working, it should at least be orthogonal to the screen - but it ends up being diagonal/isometric.
+- Major new feature: I want to have multiple floor levels (z coordinates), with ramps, which is standard in isometric games. We'll need 4 orientations of ramp isometric sprite and then game logic to detect walls/levels. We also need a taller "full wall" sprite. (Much later in the game I want to add "hover" ability so we can move up and down levels, so keep that in mind, but no need to implement it just yet.)
+- The right arrow after a quest name in the minimap is misleading. The arrow that points to the exit on the minimap is nice, but, let's not make it a right arrow. Just make it a circle or dot?
+- There's too much dialogue when entering random rooms. Let's prune most of that, unless it's good hint for a quest or exceptionally impactful for flavor/feel.
+
 ## Game Feel & Core Loop (Highest Impact — Make It Fun)
 
 - Add placeholder sound effects for core actions (weapon_attack, ability_fire, monster_hit, monster_death, item_pickup, door_open, floor_transition, player_hurt) using Web Audio API synthesized tones. Wire them into client/audio.js. The audio system exists — it just needs content. Even simple beeps/clicks dramatically improve the experience.
