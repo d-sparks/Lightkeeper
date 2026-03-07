@@ -798,6 +798,7 @@ class GameLoop {
     }
     const result = { size: grid.size, cells: clientCells, nextPlacementId: grid.nextPlacementId };
     if (grid.innateBonus) result.innateBonus = grid.innateBonus;
+    if (grid.unitName) result.unitName = grid.unitName;
     return result;
   }
 
@@ -947,7 +948,7 @@ class GameLoop {
       }
     }
 
-    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null };
+    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null, unitName: solUnitDef.name || null };
     // Set charge capacity from sol unit definition
     player.maxEnergy = solUnitDef.maxCharge || 100;
     player.energy = solUnitDef.initialEnergy !== undefined

@@ -1588,6 +1588,40 @@
     solGridContainer.innerHTML = '';
     const size = solGridState.size || 5;
 
+    // --- Innate bonus banner ---
+    if (solGridState.unitName || solGridState.innateBonus) {
+      const banner = document.createElement('div');
+      banner.className = 'sol-innate-banner';
+      let bannerHtml = '';
+      if (solGridState.unitName) {
+        bannerHtml += '<div class="sol-unit-name">' + solGridState.unitName + '</div>';
+      }
+      if (solGridState.innateBonus) {
+        const bonus = solGridState.innateBonus;
+        bannerHtml += '<div class="sol-innate-perks">';
+        if (bonus.damageMultiplier) {
+          bannerHtml += '<span class="sol-innate-perk">+' + Math.round(bonus.damageMultiplier * 100) + '% damage</span>';
+        }
+        if (bonus.cooldownReduction) {
+          bannerHtml += '<span class="sol-innate-perk">-' + Math.round(bonus.cooldownReduction * 100) + '% cooldown</span>';
+        }
+        if (bonus.energyCostReduction) {
+          bannerHtml += '<span class="sol-innate-perk">-' + Math.round(bonus.energyCostReduction * 100) + '% energy cost</span>';
+        }
+        if (bonus.healOnHit) {
+          bannerHtml += '<span class="sol-innate-perk">+' + bonus.healOnHit + ' heal on hit</span>';
+        }
+        if (bonus.hazardResist && bonus.hazardResist.length > 0) {
+          for (const resist of bonus.hazardResist) {
+            bannerHtml += '<span class="sol-innate-perk">' + resist + ' resist</span>';
+          }
+        }
+        bannerHtml += '</div>';
+      }
+      banner.innerHTML = bannerHtml;
+      solGridContainer.appendChild(banner);
+    }
+
     // --- Top section: placement grid ---
     const grid = document.createElement('div');
     grid.className = 'sol-grid';
