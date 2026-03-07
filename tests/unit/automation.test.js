@@ -25,6 +25,13 @@ const testStructures = {
   },
 };
 
+// Helper: create an Automation instance with a 5x5 open grid
+function makeAutoWithGrid(structures) {
+  const auto = new Automation(makeContent(structures || testStructures));
+  auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
+  return auto;
+}
+
 describe('Automation', () => {
   describe('resources', () => {
     it('starts with zero silicon', () => {
@@ -88,41 +95,69 @@ describe('Automation', () => {
   });
 
   describe('build', () => {
-    it('builds a structure and deducts cost', () => {
-      const auto = new Automation(makeContent(testStructures));
+    it('builds a structure at grid coords and deducts cost', () => {
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 10);
-      const result = auto.build('p1', 'solar_panel');
+      const result = auto.build('p1', 'solar_panel', 0, 0);
       assert.equal(result, true);
       assert.equal(auto.getResource('p1', 'silicon'), 7);
       const state = auto.getState('p1');
       assert.equal(state.structures.solar_panel.count, 1);
+      assert.deepEqual(state.structures.solar_panel.placements, [{ x: 0, y: 0 }]);
+    });
+
+    it('requires grid coordinates', () => {
+      const auto = makeAutoWithGrid();
+      auto.addResource('p1', 'silicon', 10);
+      assert.equal(auto.build('p1', 'solar_panel'), false);
+      assert.equal(auto.getResource('p1', 'silicon'), 10); // no cost deducted
     });
 
     it('respects maxCount limit', () => {
-      const auto = new Automation(makeContent(testStructures));
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 100);
-      for (let i = 0; i < 4; i++) {
-        assert.equal(auto.build('p1', 'solar_panel'), true);
-      }
-      assert.equal(auto.build('p1', 'solar_panel'), false);
+      assert.equal(auto.build('p1', 'solar_panel', 0, 0), true);
+      assert.equal(auto.build('p1', 'solar_panel', 1, 0), true);
+      assert.equal(auto.build('p1', 'solar_panel', 2, 0), true);
+      assert.equal(auto.build('p1', 'solar_panel', 3, 0), true);
+      assert.equal(auto.build('p1', 'solar_panel', 4, 0), false);
     });
 
     it('fails if insufficient resources', () => {
-      const auto = new Automation(makeContent(testStructures));
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 1);
-      assert.equal(auto.build('p1', 'solar_panel'), false);
+      assert.equal(auto.build('p1', 'solar_panel', 0, 0), false);
     });
 
     it('fails for unknown structure', () => {
-      const auto = new Automation(makeContent(testStructures));
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 100);
-      assert.equal(auto.build('p1', 'nonexistent'), false);
+      assert.equal(auto.build('p1', 'nonexistent', 0, 0), false);
     });
 
-    it('records placement when grid coords provided', () => {
+    it('rejects occupied cells', () => {
+      const auto = makeAutoWithGrid();
+      auto.addResource('p1', 'silicon', 20);
+      assert.equal(auto.build('p1', 'solar_panel', 2, 3), true);
+      assert.equal(auto.build('p1', 'solar_panel', 2, 3), false);
+    });
+
+    it('rejects blocked cells', () => {
       const auto = new Automation(makeContent(testStructures));
-      // Inject a grid config so isCellBlocked doesn't reject coords
-      auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
+      auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set([7]) }; // cell (2,1) blocked
+      auto.addResource('p1', 'silicon', 10);
+      assert.equal(auto.build('p1', 'solar_panel', 2, 1), false);
+    });
+
+    it('rejects out-of-bounds cells', () => {
+      const auto = makeAutoWithGrid();
+      auto.addResource('p1', 'silicon', 10);
+      assert.equal(auto.build('p1', 'solar_panel', -1, 0), false);
+      assert.equal(auto.build('p1', 'solar_panel', 5, 0), false);
+    });
+
+    it('records placement coordinates', () => {
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 10);
       auto.build('p1', 'solar_panel', 2, 3);
       const state = auto.getState('p1');
@@ -132,9 +167,9 @@ describe('Automation', () => {
 
   describe('production tick', () => {
     it('produces resources after enough time', () => {
-      const auto = new Automation(makeContent(testStructures));
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 5);
-      auto.build('p1', 'silicon_harvester');
+      auto.build('p1', 'silicon_harvester', 0, 0);
       // silicon_harvester: 1 silicon every 30s
       auto.updateProduction('p1', 30);
       // Started with 5, spent 5 on build, then produced 1
@@ -142,36 +177,36 @@ describe('Automation', () => {
     });
 
     it('does not produce before interval elapses', () => {
-      const auto = new Automation(makeContent(testStructures));
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 5);
-      auto.build('p1', 'silicon_harvester');
+      auto.build('p1', 'silicon_harvester', 0, 0);
       auto.updateProduction('p1', 10); // only 10s, need 30s
       assert.equal(auto.getResource('p1', 'silicon'), 0);
     });
 
     it('accumulates partial time across ticks', () => {
-      const auto = new Automation(makeContent(testStructures));
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 5);
-      auto.build('p1', 'silicon_harvester');
+      auto.build('p1', 'silicon_harvester', 0, 0);
       auto.updateProduction('p1', 15);
       auto.updateProduction('p1', 15);
       assert.equal(auto.getResource('p1', 'silicon'), 1);
     });
 
     it('scales production by structure count', () => {
-      const auto = new Automation(makeContent(testStructures));
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 10);
-      auto.build('p1', 'silicon_harvester');
-      auto.build('p1', 'silicon_harvester');
+      auto.build('p1', 'silicon_harvester', 0, 0);
+      auto.build('p1', 'silicon_harvester', 1, 0);
       // 2 harvesters: produce 2 silicon per 30s interval
       auto.updateProduction('p1', 30);
       assert.equal(auto.getResource('p1', 'silicon'), 2);
     });
 
     it('returns produced resources list', () => {
-      const auto = new Automation(makeContent(testStructures));
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 5);
-      auto.build('p1', 'silicon_harvester');
+      auto.build('p1', 'silicon_harvester', 0, 0);
       const produced = auto.updateProduction('p1', 30);
       assert.equal(produced.length, 1);
       assert.equal(produced[0].resource, 'silicon');
@@ -186,11 +221,21 @@ describe('Automation', () => {
     });
 
     it('calculates regen from solar panels', () => {
-      const auto = new Automation(makeContent(testStructures));
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 10);
-      auto.build('p1', 'solar_panel');
+      auto.build('p1', 'solar_panel', 0, 0);
       // 1 panel: amount=1, interval=10s => 0.1/s
       assert.equal(auto.getEnergyRegenRate('p1', 'room1'), 0.1);
+    });
+  });
+
+  describe('trackEnergyGenerated', () => {
+    it('accumulates total energy generated', () => {
+      const auto = new Automation(makeContent());
+      auto.trackEnergyGenerated('p1', 5.5);
+      auto.trackEnergyGenerated('p1', 2.0);
+      const state = auto.getState('p1');
+      assert.equal(state.stats.totalEnergyGenerated, 7.5);
     });
   });
 
@@ -236,8 +281,7 @@ describe('Automation', () => {
 
   describe('cell occupancy', () => {
     it('detects occupied cells', () => {
-      const auto = new Automation(makeContent(testStructures));
-      auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 10);
       auto.build('p1', 'solar_panel', 1, 2);
       assert.equal(auto.isCellOccupied('p1', 1, 2), true);
@@ -245,8 +289,7 @@ describe('Automation', () => {
     });
 
     it('isolates occupancy between players', () => {
-      const auto = new Automation(makeContent(testStructures));
-      auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 10);
       auto.build('p1', 'solar_panel', 1, 1);
       assert.equal(auto.isCellOccupied('p2', 1, 1), false);
@@ -255,8 +298,7 @@ describe('Automation', () => {
 
   describe('getPlacements', () => {
     it('returns all placements across structures', () => {
-      const auto = new Automation(makeContent(testStructures));
-      auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
+      const auto = makeAutoWithGrid();
       auto.addResource('p1', 'silicon', 20);
       auto.build('p1', 'solar_panel', 0, 0);
       auto.build('p1', 'silicon_harvester', 1, 1);
@@ -264,6 +306,45 @@ describe('Automation', () => {
       assert.equal(placements.length, 2);
       const types = placements.map(p => p.structureId).sort();
       assert.deepEqual(types, ['silicon_harvester', 'solar_panel']);
+    });
+  });
+
+  describe('getStateForClient', () => {
+    it('includes grid data with blocked cells and placements', () => {
+      const auto = makeAutoWithGrid();
+      auto.addResource('p1', 'silicon', 10);
+      auto.build('p1', 'solar_panel', 1, 2);
+      const clientState = auto.getStateForClient('p1');
+      assert.ok(clientState.grid);
+      assert.equal(clientState.grid.width, 5);
+      assert.equal(clientState.grid.height, 5);
+      assert.equal(clientState.grid.placements.length, 1);
+      assert.deepEqual(clientState.grid.placements[0], { structureId: 'solar_panel', x: 1, y: 2 });
+    });
+
+    it('includes stats with totalEnergyGenerated', () => {
+      const auto = makeAutoWithGrid();
+      auto.trackEnergyGenerated('p1', 10);
+      const clientState = auto.getStateForClient('p1');
+      assert.equal(clientState.stats.totalEnergyGenerated, 10);
+    });
+
+    it('includes automation level info', () => {
+      const structs = {
+        ...testStructures,
+        _automationLevels: [
+          { name: 'Outpost', threshold: 1 },
+          { name: 'Depot', threshold: 3 },
+        ],
+      };
+      const auto = new Automation(makeContent(structs));
+      auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
+      auto.addResource('p1', 'silicon', 100);
+      auto.build('p1', 'solar_panel', 0, 0);
+      const clientState = auto.getStateForClient('p1');
+      assert.equal(clientState.stats.automationLevel, 1);
+      assert.equal(clientState.stats.automationLevelName, 'Outpost');
+      assert.equal(clientState.stats.totalStructures, 1);
     });
   });
 });
