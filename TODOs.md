@@ -12,7 +12,6 @@ TODOs
 - Add dungeon triggers and loot drops for acquiring the 4 non-starter sol units: nightcaster_frame (Frost Crypts chest/boss drop), array_precision_core (MERIDIAN-7 trade reward), greenway_bioframe (Fungal Forest quest reward), underlumen_nexus (deep ruins discovery). These are defined in sol_units.json but currently unobtainable in-game.
 - Add explicit patrolPath waypoint arrays to dungeon spawns that use patrol AI without paths (nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02). Currently they auto-generate basic back-and-forth paths — hand-crafted waypoints would feel more intentional.
 - Add minimap quest waypoints / markers for active quest objectives. The quest panel shows text but the player has no spatial guidance toward their next goal. Even a simple colored dot on the minimap for the target room would help enormously.
-- Spawn resonant_umbracite_core in a deep Nightside dungeon (nightside_depths or underlumen_approach) via trigger/chest so the MERIDIAN-7 escalation quest chain at the Array Hub is completable end-to-end.
 
 ## Automation & Progression
 

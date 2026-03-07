@@ -24,7 +24,7 @@
     3,3,1,1,1,1,1,1,1,3,3,3,3,1,1,1,1,1,1,1,1,3,
     3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
     3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
-    3,1,1,1,1,3,3,1,1,1,1,2,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,3,3,1,1,1,1,10,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
     3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,3,
@@ -57,7 +57,7 @@
   "itemSpawns": [
     { "type": "refined_umbrasite", "x": 19, "y": 18 },
     { "type": "umbracite", "x": 3, "y": 9 },
-    { "type": "umbracite", "x": 11, "y": 14 },
+    { "type": "umbracite", "x": 12, "y": 14 },
     { "type": "field_medkit", "x": 18, "y": 9 },
     { "type": "health_potion", "x": 3, "y": 16 },
     { "type": "flare", "x": 15, "y": 4 }
@@ -88,6 +88,25 @@
           "This isn't like the rough umbracite you've found before. This crystal is perfectly formed — geometric facets that catch even the faintest light and split it into impossible colors.",
           "It's warm in your hands. Almost alive. You understand now why MERIDIAN-7 wants this so badly.",
           "The Array's interest in umbracite isn't just commercial. There's something deeper at work here."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "depths_umbracite_chest",
+      "event": "door_interacted",
+      "filter": { "tileX": 11, "tileY": 14 },
+      "conditions": [
+        { "hasFlag": "umbrasite_escalation_active" },
+        { "not": { "hasFlag": "resonant_core_collected" } }
+      ],
+      "actions": [
+        { "type": "spawnItem", "itemType": "resonant_umbracite_core", "x": 11, "y": 13 },
+        { "type": "setFlag", "flag": "resonant_core_collected" },
+        { "type": "showMessage", "lines": [
+          "The sealed chest cracks open, releasing a wave of deep subsonic vibration that you feel in your bones more than hear.",
+          "Inside, nestled in crystalline formations, sits a massive umbracite core. Its resonance pattern is unlike anything you've encountered — rhythmic, almost purposeful.",
+          "This is what MERIDIAN-7 wants. The question is whether giving it to the Array is wise."
         ]}
       ],
       "once": true
