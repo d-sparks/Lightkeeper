@@ -2155,6 +2155,10 @@ class Renderer {
           range: ev.range,
           age: 0, maxAge: 0.4,
         });
+        // Screen shake on heavy attack (cone abilities)
+        if (ev.ownerId === this.myId) {
+          this.screenShake = { intensity: 3, duration: 0.12, elapsed: 0 };
+        }
       } else if (ev.type === 'melee_effect') {
         this.meleeEffects.push({
           x: ev.x, y: ev.y,
