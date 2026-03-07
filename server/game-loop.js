@@ -1573,10 +1573,14 @@ class GameLoop {
         }
         // Energy regeneration: solar panels (dayside) + sol grid generators
         if (player.maxEnergy > 0) {
-          let regenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
+          const autoRegenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
+          let regenRate = autoRegenRate;
           if (player.solGridEnergyRegen > 0) regenRate += player.solGridEnergyRegen;
           if (regenRate > 0) {
             player.energy = Math.min(player.maxEnergy, player.energy + regenRate * dt);
+          }
+          if (autoRegenRate > 0) {
+            this.automation.trackEnergyGenerated(pid, autoRegenRate * dt);
           }
         }
 
@@ -2974,13 +2978,28 @@ class GameLoop {
       projectiles.push(pData);
     }
 
+    // Party quest progress summaries (name, color, active step labels)
+    const partyQuests = [];
+    for (const [pid, p] of room.players) {
+      const obj = this.questTracker.getActiveObjective(pid);
+      if (obj) {
+        partyQuests.push({
+          playerId: pid,
+          name: p.name,
+          colorIndex: p.colorIndex,
+          questName: obj.questName,
+          stepLabel: obj.label,
+        });
+      }
+    }
+
     const events = room.events || [];
     room.events = [];
 
     return {
       type: CONSTANTS.MSG.STATE,
       tick: room.tick,
-      players, npcs, monsters, items, projectiles, events,
+      players, npcs, monsters, items, projectiles, events, partyQuests,
     };
   }
 }

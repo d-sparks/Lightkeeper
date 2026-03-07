@@ -42,6 +42,8 @@
   const bossBarFill = document.getElementById('boss-bar-fill');
   const bossBarText = document.getElementById('boss-bar-text');
   const bossBarPhase = document.getElementById('boss-bar-phase');
+  const partyFrames = document.getElementById('party-frames');
+  const PARTY_COLORS = ['#4fc3f7', '#ef5350', '#66bb6a', '#ffa726'];
 
   // --- Instances ---
   const net = new NetClient();
@@ -271,6 +273,7 @@
 
   // Quest state
   let questState = [];
+  let partyQuestsState = [];
   let questToastTimeout = null;
 
   // Tutorial arrow state (driven by quest uiHint)
@@ -1359,6 +1362,31 @@
         questPanelContent.appendChild(stepDiv);
       }
     }
+
+    // Party quest progress section
+    if (partyQuestsState.length > 0) {
+      const sep = document.createElement('div');
+      sep.style.cssText = 'border-top:1px solid #333;margin:8px 0 6px;';
+      questPanelContent.appendChild(sep);
+      const header = document.createElement('div');
+      header.style.cssText = 'font-size:10px;color:#777;margin-bottom:4px;';
+      header.textContent = 'PARTY PROGRESS';
+      questPanelContent.appendChild(header);
+      for (const pq of partyQuestsState) {
+        const row = document.createElement('div');
+        row.style.cssText = 'font-size:10px;margin-bottom:2px;display:flex;gap:4px;align-items:center;';
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = pq.name;
+        nameSpan.style.color = PARTY_COLORS[pq.colorIndex] || '#aaa';
+        const stepSpan = document.createElement('span');
+        stepSpan.style.color = '#999';
+        stepSpan.textContent = pq.questName + ': ' + pq.stepLabel;
+        row.appendChild(nameSpan);
+        row.appendChild(stepSpan);
+        questPanelContent.appendChild(row);
+      }
+    }
+
     updateCursorHighlight();
   }
 
@@ -2200,6 +2228,11 @@
   net.on(CONSTANTS.MSG.STATE, (msg) => {
     renderer.setState(msg);
 
+    // Store party quest progress for quest panel
+    if (msg.partyQuests) {
+      partyQuestsState = msg.partyQuests.filter(pq => pq.playerId !== renderer.myId);
+    }
+
     // Process combat events for damage numbers + audio
     if (msg.events) {
       renderer.processEvents(msg.events);
@@ -2252,6 +2285,51 @@
         }
         hudName.textContent = me.name;
         if (me.facing !== undefined) lastFacing = me.facing;
+      }
+
+      // Update party member health frames
+      const others = msg.players.filter(p => p.id !== renderer.myId);
+      if (others.length === 0) {
+        partyFrames.style.display = 'none';
+      } else {
+        partyFrames.style.display = '';
+        // Rebuild if player count changed
+        if (partyFrames.childElementCount !== others.length) {
+          partyFrames.innerHTML = '';
+          for (const p of others) {
+            const frame = document.createElement('div');
+            frame.className = 'party-frame';
+            frame.dataset.pid = p.id;
+            const nameEl = document.createElement('span');
+            nameEl.className = 'party-frame-name';
+            nameEl.textContent = p.name;
+            nameEl.style.color = PARTY_COLORS[p.colorIndex] || '#aaa';
+            const barEl = document.createElement('div');
+            barEl.className = 'party-frame-bar';
+            const fillEl = document.createElement('div');
+            fillEl.className = 'party-frame-fill';
+            const pct = Math.max(0, (p.health / p.maxHealth) * 100);
+            fillEl.style.width = pct + '%';
+            fillEl.style.background = pct > 50 ? '#4caf50' : pct > 25 ? '#ffa726' : '#e53935';
+            barEl.appendChild(fillEl);
+            frame.appendChild(nameEl);
+            frame.appendChild(barEl);
+            partyFrames.appendChild(frame);
+          }
+        } else {
+          // Update existing frames
+          for (let i = 0; i < others.length; i++) {
+            const p = others[i];
+            const frame = partyFrames.children[i];
+            const nameEl = frame.querySelector('.party-frame-name');
+            const fillEl = frame.querySelector('.party-frame-fill');
+            nameEl.textContent = p.name;
+            nameEl.style.color = PARTY_COLORS[p.colorIndex] || '#aaa';
+            const pct = Math.max(0, (p.health / p.maxHealth) * 100);
+            fillEl.style.width = pct + '%';
+            fillEl.style.background = pct > 50 ? '#4caf50' : pct > 25 ? '#ffa726' : '#e53935';
+          }
+        }
       }
     }
 

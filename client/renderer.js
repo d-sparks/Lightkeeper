@@ -2296,7 +2296,11 @@ class Renderer {
 
   renderMinimap() {
     this.minimapGfx.clear();
-    if (!this.map) return;
+    this._minimapLabelIdx = 0;
+    if (!this.map) {
+      this._hideUnusedMinimapLabels();
+      return;
+    }
 
     const ts = CONSTANTS.TILE_SIZE;
     const W = this.map.width;
@@ -2385,9 +2389,21 @@ class Renderer {
         for (const player of this.state.players) {
           const p = isoPx(player.x, player.y);
           const isMe = player.id === this.myId;
-          this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
-          this.minimapGfx.drawRect(p.x - dotLarge / 2, p.y - dotLarge / 2, dotLarge, dotLarge);
+          const color = isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff);
+          const sz = isMe ? dotLarge : dotLarge + 1;
+          // Outline for other players to distinguish from items
+          if (!isMe) {
+            this.minimapGfx.beginFill(0x000000);
+            this.minimapGfx.drawRect(p.x - (sz + 2) / 2, p.y - (sz + 2) / 2, sz + 2, sz + 2);
+            this.minimapGfx.endFill();
+          }
+          this.minimapGfx.beginFill(color);
+          this.minimapGfx.drawRect(p.x - sz / 2, p.y - sz / 2, sz, sz);
           this.minimapGfx.endFill();
+          // Name label in full map mode
+          if (full && !isMe && player.name) {
+            this._drawMinimapLabel(player.name, p.x, p.y - sz - 2, color);
+          }
         }
       }
 
@@ -2481,9 +2497,19 @@ class Renderer {
           const dotX = Math.round(mmX + (player.x / ts) * scale);
           const dotY = Math.round(mmY + (player.y / ts) * scale);
           const isMe = player.id === this.myId;
-          this.minimapGfx.beginFill(isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff));
-          this.minimapGfx.drawRect(dotX - dotLarge / 2, dotY - dotLarge / 2, dotLarge, dotLarge);
+          const color = isMe ? 0xffffff : (playerColors[player.colorIndex] || 0xffffff);
+          const sz = isMe ? dotLarge : dotLarge + 1;
+          if (!isMe) {
+            this.minimapGfx.beginFill(0x000000);
+            this.minimapGfx.drawRect(dotX - (sz + 2) / 2, dotY - (sz + 2) / 2, sz + 2, sz + 2);
+            this.minimapGfx.endFill();
+          }
+          this.minimapGfx.beginFill(color);
+          this.minimapGfx.drawRect(dotX - sz / 2, dotY - sz / 2, sz, sz);
           this.minimapGfx.endFill();
+          if (full && !isMe && player.name) {
+            this._drawMinimapLabel(player.name, dotX, dotY - sz - 2, color);
+          }
         }
       }
 
@@ -2526,6 +2552,44 @@ class Renderer {
     } else {
       this.roomNameText.visible = false;
     }
+    this._hideUnusedMinimapLabels();
+  }
+
+  _hideUnusedMinimapLabels() {
+    if (!this._minimapLabels) return;
+    for (let i = this._minimapLabelIdx || 0; i < this._minimapLabels.length; i++) {
+      this._minimapLabels[i].visible = false;
+    }
+  }
+
+  // --- Minimap player name label (full map mode only) ---
+
+  _drawMinimapLabel(name, x, y, color) {
+    // Use pooled PIXI text objects for efficiency
+    if (!this._minimapLabels) this._minimapLabels = [];
+    let label;
+    if (this._minimapLabelIdx < this._minimapLabels.length) {
+      label = this._minimapLabels[this._minimapLabelIdx];
+    } else {
+      label = new PIXI.Text('', {
+        fontSize: 9,
+        fill: 0xffffff,
+        fontFamily: 'monospace',
+        align: 'center',
+        dropShadow: true,
+        dropShadowColor: 0x000000,
+        dropShadowDistance: 1,
+      });
+      label.anchor.set(0.5, 1);
+      this.minimapGfx.parent.addChild(label);
+      this._minimapLabels.push(label);
+    }
+    this._minimapLabelIdx++;
+    label.text = name;
+    label.style.fill = color;
+    label.x = Math.round(x);
+    label.y = Math.round(y);
+    label.visible = true;
   }
 
   // --- Quest waypoint drawing helper (used by both iso and top-down minimap) ---
