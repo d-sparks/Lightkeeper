@@ -16,7 +16,7 @@ All 6 errors resolved:
 
 - [x] Add dungeon monsterSpawns entries using the new AI types (ambush, patrol, pack) in actual dungeon floors — deployed across nightside, frost, geothermal, and fungal dungeons plus procedural templates
 - Add placeholder sprites for new monsters (shadow_ambusher, tunnel_creeper, feral_hound) — currently reusing existing sprites
-- Add placeholder sprites for newer monsters missing from PLACEHOLDER_ASSETS.md (dusk_crawler, crystal_guardian, garden_mite, nest_mother, shade_stalker, shade_stalker_alpha, ravine_lurker, gloom_wraith, rime_stalker, frostfang_hunter, vent_spewer, magma_brute)
+- [x] Add placeholder sprites for newer monsters missing from PLACEHOLDER_ASSETS.md (dusk_crawler, crystal_guardian, garden_mite, nest_mother, shade_stalker, shade_stalker_alpha, ravine_lurker, gloom_wraith, rime_stalker, frostfang_hunter, vent_spewer, magma_brute)
 - [x] Add a proc_geothermal procedural template (vent_spewer, magma_brute pool) — proc_geothermal.json added
 
 ## Monster Loot Wiring
@@ -129,7 +129,7 @@ All done:
 
 ## Art & Sprites
 
-- Update `tools/generate-sprites.js` to use hex values from `docs/art-style-guide.md` master palette
+- [x] Update `tools/generate-sprites.js` to use hex values from `docs/art-style-guide.md` master palette
 - Create tileset strips for each zone theme (currently only stone_crypt has a full tileset)
 - Add animation frames (idle, attack, hit) once the engine supports sprite animation
 

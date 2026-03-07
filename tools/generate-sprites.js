@@ -28,30 +28,51 @@ function hex(hexStr) {
   );
 }
 
+// Master palette from docs/art-style-guide.md — all hex values match the guide
 const C = {
   transparent: rgba(0, 0, 0, 0),
-  black:       rgba(0, 0, 0),
-  darkGray:    rgba(40, 40, 50),
-  gray:        rgba(90, 90, 110),
-  lightGray:   rgba(140, 140, 160),
-  white:       rgba(220, 220, 230),
-  brown:       rgba(140, 100, 60),
-  darkBrown:   rgba(90, 65, 40),
-  red:         rgba(200, 50, 50),
-  darkRed:     rgba(140, 30, 30),
-  blue:        rgba(60, 120, 200),
-  darkBlue:    rgba(30, 60, 120),
-  teal:        rgba(50, 170, 150),
-  darkTeal:    rgba(30, 100, 90),
-  purple:      rgba(130, 60, 170),
-  darkPurple:  rgba(80, 35, 110),
-  green:       rgba(70, 160, 70),
-  orange:      rgba(220, 150, 50),
-  yellow:      rgba(240, 220, 80),
-  bone:        rgba(200, 190, 170),
+  // Core Grays
+  black:       hex('#0a0a0f'),   // Void Black
+  darkSlate:   hex('#1e1e2a'),   // Dark Slate
+  midGray:     hex('#3d3d50'),   // Mid Gray
+  darkGray:    hex('#1e1e2a'),   // alias: Dark Slate (legacy compat)
+  gray:        hex('#5a5a6e'),   // Stone Gray
+  lightGray:   hex('#8c8ca0'),   // Light Gray
+  paleGray:    hex('#c0c0d0'),   // Pale Gray
+  white:       hex('#dcdce6'),   // White
+  // Warm Tones
+  darkBrown:   hex('#5a4128'),   // Dark Brown
+  brown:       hex('#8c6440'),   // Brown
+  tan:         hex('#c4a070'),   // Tan
+  darkRed:     hex('#8c1e1e'),   // Dark Red
+  red:         hex('#c83232'),   // Red
+  lightRed:    hex('#e06060'),   // Light Red
+  rust:        hex('#a05a28'),   // Rust
+  orange:      hex('#dc9632'),   // Orange
+  yellow:      hex('#f0dc50'),   // Yellow
+  // Cool Tones
+  darkBlue:    hex('#1e3c78'),   // Dark Blue
+  blue:        hex('#3c78c8'),   // Blue
+  lightBlue:   hex('#6ea0e0'),   // Light Blue
+  darkTeal:    hex('#1e6450'),   // Dark Teal
+  teal:        hex('#32aa96'),   // Teal
+  lightTeal:   hex('#64d2b4'),   // Light Teal
+  // Purple / Nightside
+  darkPurple:  hex('#50236e'),   // Dark Purple
+  purple:      hex('#823caa'),   // Purple
+  lightPurple: hex('#b478d2'),   // Light Purple
+  // Greens
+  darkGreen:   hex('#1e5a28'),   // Dark Green
+  green:       hex('#46a046'),   // Green
+  lightGreen:  hex('#78c878'),   // Light Green
+  // Special
+  bone:        hex('#c8beaa'),   // Bone
+  solGold:     hex('#f0c850'),   // Sol Gold
+  // Legacy aliases (used by existing sprites)
   darkBone:    rgba(150, 140, 120),
   skin:        rgba(200, 160, 120),
   darkSkin:    rgba(150, 110, 80),
+  // Tileset colors
   floorDark:   rgba(35, 35, 55),
   floorMid:    rgba(45, 45, 65),
   floorLight:  rgba(55, 55, 75),
@@ -662,6 +683,317 @@ function generateMonsterSprites() {
     [_, _, _, _,Ek,Ek, _, _, _, _,Ek,Ek, _, _, _, _],
   ]);
   savePNG(elder, path.join(CONTENT_DIR, 'sprites', 'elder_sporecap.png'));
+
+  // --- Dusk Crawler: low insectoid nightside creature, purple/teal ---
+  const dcrawl = createPNG(16, 16);
+  const Dp = hex('#50236e');   // dark purple
+  const Pp = hex('#823caa');   // purple
+  const Lp = hex('#b478d2');   // light purple
+  const Tg = hex('#32aa96');   // teal glow
+  drawPixelArt(dcrawl, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, Dp, _, _, _, _, _, _, _, _, Dp, _, _, _],
+    [_, _, Dp, Pp, Dp, _, _, _, _, _, Dp, Pp, Dp, _, _, _],
+    [_, _, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _, _],
+    [_, _, Dp, _, Pp, Tg, Pp, Pp, Pp, Tg, Pp, _, Dp, _, _, _],
+    [_, _, _, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, _, _, _, _],
+    [_, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _],
+    [_, _, _, Pp, Pp, Lp, Pp, Pp, Pp, Pp, Lp, Pp, _, _, _, _],
+    [_, _, Dp, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, Dp, _, _],
+    [_, _, _, _, _, Dp, Dp, Pp, Pp, Dp, Dp, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(dcrawl, path.join(CONTENT_DIR, 'sprites', 'dusk_crawler.png'));
+
+  // --- Crystal Guardian: imposing crystalline boss, icy blues ---
+  const cguard = createPNG(16, 16);
+  const Cb = hex('#6ea0e0');   // light blue crystal
+  const Cm = hex('#3c78c8');   // blue crystal
+  const Cd2 = hex('#1e3c78');  // dark blue
+  const Cw = hex('#dcdce6');   // white highlight
+  const Pg = hex('#c0c0d0');   // pale gray
+  drawPixelArt(cguard, 0, 0, [
+    [_, _, _, _, _, Cw, Cb, _, _, Cb, Cw, _, _, _, _, _],
+    [_, _, _, _, Cb, Cm, Cb, Cm, Cm, Cb, Cm, Cb, _, _, _, _],
+    [_, _, _, _, Cm, Cm, Cm, Cm, Cm, Cm, Cm, Cm, _, _, _, _],
+    [_, _, _, _, Cm, Cw, Cm, Cm, Cm, Cw, Cm, Cm, _, _, _, _],
+    [_, _, _, _, Cd2, Cm, Cm, Cm, Cm, Cm, Cm, Cd2, _, _, _, _],
+    [_, _, _, _, _, Cd2, Cm, Cm, Cm, Cm, Cd2, _, _, _, _, _],
+    [_, _, _, _, _, _, Cd2, Cm, Cm, Cd2, _, _, _, _, _, _],
+    [_, _, Cb, Cm, Cm, Cm, Cm, Cm, Cm, Cm, Cm, Cm, Cm, Cb, _, _],
+    [_, _, Pg, Cm, Cm, Cm, Cm, Cm, Cm, Cm, Cm, Cm, Cm, Pg, _, _],
+    [_, _, _, Cd2, _, Cm, Cb, Cm, Cm, Cb, Cm, _, Cd2, _, _, _],
+    [_, _, _, _, _, Cd2, Cm, Cm, Cm, Cm, Cd2, _, _, _, _, _],
+    [_, _, _, _, _, Cd2, Cd2, Cm, Cm, Cd2, Cd2, _, _, _, _, _],
+    [_, _, _, _, _, Cd2, Cd2, Cd2, Cd2, Cd2, Cd2, _, _, _, _, _],
+    [_, _, _, _, _, Cd2, _, _, _, _, Cd2, _, _, _, _, _],
+    [_, _, _, _, _, Cd2, _, _, _, _, Cd2, _, _, _, _, _],
+    [_, _, _, _, Cd2, Cd2, _, _, _, _, Cd2, Cd2, _, _, _, _],
+  ]);
+  savePNG(cguard, path.join(CONTENT_DIR, 'sprites', 'crystal_guardian.png'));
+
+  // --- Garden Mite: tiny green-brown insect pest ---
+  const gmite = createPNG(16, 16);
+  const Gn = hex('#46a046');   // green
+  const Gd = hex('#1e5a28');   // dark green
+  const Gb = hex('#8c6440');   // brown
+  drawPixelArt(gmite, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Gd, Gd, Gd, Gd, _, _, _, _, _, _],
+    [_, _, _, _, Gd, _, Gn, R, R, Gn, _, Gd, _, _, _, _],
+    [_, _, _, _, _, Gn, Gn, Gn, Gn, Gn, Gn, _, _, _, _, _],
+    [_, _, _, Gd, Gn, Gn, Gb, Gn, Gn, Gb, Gn, Gn, Gd, _, _, _],
+    [_, _, _, _, _, Gn, Gn, Gn, Gn, Gn, Gn, _, _, _, _, _],
+    [_, _, _, _, Gd, _, Gd, Gn, Gn, Gd, _, Gd, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(gmite, path.join(CONTENT_DIR, 'sprites', 'garden_mite.png'));
+
+  // --- Nest Mother: large spider-like boss, purple with teal glow ---
+  const nmother = createPNG(16, 16);
+  const Nm = hex('#823caa');   // purple body
+  const Nd = hex('#50236e');   // dark purple
+  const Nt = hex('#32aa96');   // teal accent
+  drawPixelArt(nmother, 0, 0, [
+    [_, _, _, _, _, _, Nd, Nm, Nm, Nd, _, _, _, _, _, _],
+    [_, _, _, _, _, Nd, Nm, Nm, Nm, Nm, Nd, _, _, _, _, _],
+    [_, _, _, _, Nd, Nm, Nt, Nm, Nm, Nt, Nm, Nd, _, _, _, _],
+    [_, _, _, _, Nd, Nm, Nm, Nm, Nm, Nm, Nm, Nd, _, _, _, _],
+    [_, _, _, _, _, Nd, Nm, Nm, Nm, Nm, Nd, _, _, _, _, _],
+    [_, _, _, _, _, _, Nd, Nm, Nm, Nd, _, _, _, _, _, _],
+    [_, Nd, _, Nd, Nm, Nm, Nm, Nm, Nm, Nm, Nm, Nm, Nd, _, Nd, _],
+    [Nd, _, Nd, Nm, Nm, Nm, Nm, Nm, Nm, Nm, Nm, Nm, Nm, Nd, _, Nd],
+    [_, Nd, _, Nm, Nm, Nt, Nm, Nm, Nm, Nm, Nt, Nm, Nm, _, Nd, _],
+    [Nd, _, _, Nd, Nm, Nm, Nm, Nm, Nm, Nm, Nm, Nm, Nd, _, _, Nd],
+    [_, _, _, _, Nd, Nm, Nm, Nm, Nm, Nm, Nm, Nd, _, _, _, _],
+    [_, _, _, Nd, _, Nd, Nd, Nm, Nm, Nd, Nd, _, Nd, _, _, _],
+    [_, _, Nd, _, _, _, _, Nd, Nd, _, _, _, _, Nd, _, _],
+    [_, Nd, _, _, _, _, _, _, _, _, _, _, _, _, Nd, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(nmother, path.join(CONTENT_DIR, 'sprites', 'nest_mother.png'));
+
+  // --- Shade Stalker: stealthy nightside predator, dark with teal eyes ---
+  const sstalker = createPNG(16, 16);
+  const Ss = hex('#1e1e2a');   // dark slate body
+  const Sm = hex('#3d3d50');   // mid gray detail
+  const St = hex('#32aa96');   // teal eyes
+  drawPixelArt(sstalker, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],
+    [_, _, _, _, _, Ss, Ss, Ss, Ss, Ss, Ss, _, _, _, _, _],
+    [_, _, _, _, _, Ss, St, Ss, Ss, St, Ss, _, _, _, _, _],
+    [_, _, _, _, _, _, Ss, Sm, Sm, Ss, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Ss, Ss, _, _, _, _, _, _, _],
+    [_, _, _, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, _, _, _],
+    [_, _, _, _, Sm, Ss, Ss, Ss, Ss, Ss, Ss, Sm, _, _, _, _],
+    [_, _, _, _, _, Ss, Ss, Ss, Ss, Ss, Ss, _, _, _, _, _],
+    [_, _, _, _, _, Sm, Ss, Ss, Ss, Ss, Sm, _, _, _, _, _],
+    [_, _, _, _, _, _, Sm, Ss, Ss, Sm, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Ss, _, _, Ss, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Ss, _, _, Ss, _, _, _, _, _, _],
+    [_, _, _, _, _, Ss, Ss, _, _, Ss, Ss, _, _, _, _, _],
+  ]);
+  savePNG(sstalker, path.join(CONTENT_DIR, 'sprites', 'shade_stalker.png'));
+
+  // --- Shade Stalker Alpha: larger, glowing purple accents ---
+  const ssalpha = createPNG(16, 16);
+  const Sa = hex('#1e1e2a');   // dark slate body
+  const Sam = hex('#3d3d50');  // mid gray
+  const Sat = hex('#32aa96');  // teal eyes
+  const Sap = hex('#b478d2');  // light purple glow
+  drawPixelArt(ssalpha, 0, 0, [
+    [_, _, _, _, _, Sap, Sa, Sa, Sa, Sa, Sap, _, _, _, _, _],
+    [_, _, _, _, _, Sa, Sa, Sa, Sa, Sa, Sa, _, _, _, _, _],
+    [_, _, _, _, _, Sa, Sat, Sa, Sa, Sat, Sa, _, _, _, _, _],
+    [_, _, _, _, _, Sa, Sap, Sam, Sam, Sap, Sa, _, _, _, _, _],
+    [_, _, _, _, _, _, Sa, Sa, Sa, Sa, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Sa, Sa, _, _, _, _, _, _, _],
+    [_, _, Sa, Sa, Sa, Sa, Sa, Sa, Sa, Sa, Sa, Sa, Sa, Sa, _, _],
+    [_, _, Sa, Sa, Sa, Sa, Sa, Sa, Sa, Sa, Sa, Sa, Sa, Sa, _, _],
+    [_, _, Sap, Sam, _, Sa, Sap, Sa, Sa, Sap, Sa, _, Sam, Sap, _, _],
+    [_, _, _, _, _, Sam, Sa, Sa, Sa, Sa, Sam, _, _, _, _, _],
+    [_, _, _, _, _, Sam, Sa, Sa, Sa, Sa, Sam, _, _, _, _, _],
+    [_, _, _, _, _, Sam, Sam, Sa, Sa, Sam, Sam, _, _, _, _, _],
+    [_, _, _, _, _, Sa, Sa, Sa, Sa, Sa, Sa, _, _, _, _, _],
+    [_, _, _, _, _, Sa, _, _, _, _, Sa, _, _, _, _, _],
+    [_, _, _, _, _, Sa, _, _, _, _, Sa, _, _, _, _, _],
+    [_, _, _, _, Sa, Sa, _, _, _, _, Sa, Sa, _, _, _, _],
+  ]);
+  savePNG(ssalpha, path.join(CONTENT_DIR, 'sprites', 'shade_stalker_alpha.png'));
+
+  // --- Ravine Lurker: earthy ambush predator, hunched and wide ---
+  const rlurk = createPNG(16, 16);
+  const Rl = hex('#8c6440');   // brown body
+  const Rd = hex('#5a4128');   // dark brown
+  const Rr = hex('#a05a28');   // rust accent
+  const Re = hex('#dc9632');   // orange eyes
+  drawPixelArt(rlurk, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Rd, Rd, Rd, Rd, _, _, _, _, _, _],
+    [_, _, _, _, _, Rd, Rl, Rl, Rl, Rl, Rd, _, _, _, _, _],
+    [_, _, _, _, Rd, Rl, Re, Rl, Rl, Re, Rl, Rd, _, _, _, _],
+    [_, _, _, _, Rd, Rl, Rl, Rr, Rr, Rl, Rl, Rd, _, _, _, _],
+    [_, _, _, _, _, Rd, Rl, Rl, Rl, Rl, Rd, _, _, _, _, _],
+    [_, _, Rd, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rd, _, _],
+    [_, Rd, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rd, _],
+    [_, _, Rd, Rl, Rr, Rl, Rl, Rl, Rl, Rl, Rl, Rr, Rl, Rd, _, _],
+    [_, _, _, Rd, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rd, _, _, _],
+    [_, _, _, _, Rd, Rd, Rl, Rl, Rl, Rl, Rd, Rd, _, _, _, _],
+    [_, _, _, Rd, _, _, Rd, Rl, Rl, Rd, _, _, Rd, _, _, _],
+    [_, _, Rd, _, _, _, Rd, _, _, Rd, _, _, _, Rd, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(rlurk, path.join(CONTENT_DIR, 'sprites', 'ravine_lurker.png'));
+
+  // --- Gloom Wraith: ghostly ethereal figure, purple translucent ---
+  const gwraith = createPNG(16, 16);
+  const Gw = hex('#823caa');   // purple body
+  const Gwl = hex('#b478d2');  // light purple glow
+  const Gwd = hex('#50236e');  // dark purple
+  const Gwe = hex('#dc9632');  // orange eyes
+  drawPixelArt(gwraith, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Gwl, Gwl, Gwl, Gwl, _, _, _, _, _, _],
+    [_, _, _, _, _, Gw, Gw, Gwl, Gwl, Gw, Gw, _, _, _, _, _],
+    [_, _, _, _, _, Gw, Gwe, Gw, Gw, Gwe, Gw, _, _, _, _, _],
+    [_, _, _, _, _, _, Gw, Gwd, Gwd, Gw, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Gw, Gw, Gw, Gw, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Gw, Gw, _, _, _, _, _, _, _],
+    [_, _, _, Gwl, Gw, Gw, Gw, Gw, Gw, Gw, Gw, Gw, Gwl, _, _, _],
+    [_, _, _, _, Gw, Gw, Gw, Gw, Gw, Gw, Gw, Gw, _, _, _, _],
+    [_, _, _, _, _, Gw, Gwl, Gw, Gw, Gwl, Gw, _, _, _, _, _],
+    [_, _, _, _, _, Gwd, Gw, Gw, Gw, Gw, Gwd, _, _, _, _, _],
+    [_, _, _, _, _, _, Gwd, Gw, Gw, Gwd, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Gwd, Gwl, Gwl, Gwd, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Gwl, Gwl, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Gwl, _, _, Gwl, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(gwraith, path.join(CONTENT_DIR, 'sprites', 'gloom_wraith.png'));
+
+  // --- Rime Stalker: icy predator, sharp crystalline edges ---
+  const rstalker = createPNG(16, 16);
+  const Ri = hex('#6ea0e0');   // light blue
+  const Rm = hex('#3c78c8');   // blue
+  const Rdk = hex('#1e3c78');  // dark blue
+  const Rw = hex('#dcdce6');   // white highlight
+  drawPixelArt(rstalker, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Rm, Rm, Rm, Rm, _, _, _, _, _, _],
+    [_, _, _, _, _, Rm, Ri, Rm, Rm, Ri, Rm, _, _, _, _, _],
+    [_, _, _, _, _, Rm, Rw, Rm, Rm, Rw, Rm, _, _, _, _, _],
+    [_, _, _, _, _, _, Rm, Rdk, Rdk, Rm, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Rm, Rm, Rm, Rm, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Rm, Rm, _, _, _, _, _, _, _],
+    [_, _, _, Ri, Rm, Rm, Rm, Rm, Rm, Rm, Rm, Rm, Ri, _, _, _],
+    [_, _, _, _, Rdk, Rm, Rm, Rm, Rm, Rm, Rm, Rdk, _, _, _, _],
+    [_, _, _, _, _, Rm, Ri, Rm, Rm, Ri, Rm, _, _, _, _, _],
+    [_, _, _, _, _, Rdk, Rm, Rm, Rm, Rm, Rdk, _, _, _, _, _],
+    [_, _, _, _, _, _, Rdk, Rm, Rm, Rdk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Rdk, Rdk, Rdk, Rdk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Rdk, _, _, Rdk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Rdk, _, _, Rdk, _, _, _, _, _, _],
+    [_, _, _, _, _, Rdk, Rdk, _, _, Rdk, Rdk, _, _, _, _, _],
+  ]);
+  savePNG(rstalker, path.join(CONTENT_DIR, 'sprites', 'rime_stalker.png'));
+
+  // --- Frostfang Hunter: icy wolf-like predator ---
+  const fhunter = createPNG(16, 16);
+  const Fi = hex('#6ea0e0');   // light blue fur
+  const Fm = hex('#3c78c8');   // blue fur
+  const Fd = hex('#1e3c78');   // dark blue
+  const Fw = hex('#dcdce6');   // white fang/highlight
+  drawPixelArt(fhunter, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, Fm, Fi, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, Fm, Fi, Fi, Fm, _, _, _, _, _, _, _, _, _, _],
+    [_, _, Fm, Fw, Fi, Fw, Fm, _, _, _, _, _, _, _, _, _],
+    [_, _, _, Fm, Fw, Fm, Fm, Fm, _, _, _, _, _, _, _, _],
+    [_, _, _, _, Fm, Fi, Fi, Fi, Fm, Fm, Fm, Fm, _, _, _, _],
+    [_, _, _, _, Fm, Fi, Fi, Fi, Fi, Fi, Fi, Fm, _, _, _, _],
+    [_, _, _, _, _, Fm, Fi, Fi, Fi, Fi, Fm, Fd, Fd, _, _, _],
+    [_, _, _, _, _, Fd, _, Fm, Fm, _, Fd, _, _, _, _, _],
+    [_, _, _, _, _, Fd, _, Fm, Fm, _, Fd, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(fhunter, path.join(CONTENT_DIR, 'sprites', 'frostfang_hunter.png'));
+
+  // --- Vent Spewer: volcanic stationary creature, red/orange with yellow vents ---
+  const vspew = createPNG(16, 16);
+  const Vr = hex('#c83232');   // red body
+  const Vd = hex('#8c1e1e');   // dark red
+  const Vo = hex('#dc9632');   // orange
+  const Vy = hex('#f0dc50');   // yellow vent glow
+  drawPixelArt(vspew, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Vy, Vy, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Vy, Vo, Vo, Vy, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Vy, Vy, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Vr, Vr, Vr, Vr, _, _, _, _, _, _],
+    [_, _, _, _, _, Vr, Vr, Vo, Vo, Vr, Vr, _, _, _, _, _],
+    [_, _, _, _, Vr, Vr, Vy, Vr, Vr, Vy, Vr, Vr, _, _, _, _],
+    [_, _, _, Vd, Vr, Vr, Vr, Vr, Vr, Vr, Vr, Vr, Vd, _, _, _],
+    [_, _, _, Vd, Vr, Vo, Vr, Vr, Vr, Vr, Vo, Vr, Vd, _, _, _],
+    [_, _, _, Vd, Vr, Vr, Vr, Vr, Vr, Vr, Vr, Vr, Vd, _, _, _],
+    [_, _, _, _, Vd, Vr, Vr, Vr, Vr, Vr, Vr, Vd, _, _, _, _],
+    [_, _, _, _, _, Vd, Vr, Vr, Vr, Vr, Vd, _, _, _, _, _],
+    [_, _, _, _, _, Vd, Vd, Vr, Vr, Vd, Vd, _, _, _, _, _],
+    [_, _, _, _, _, _, Vd, Vd, Vd, Vd, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(vspew, path.join(CONTENT_DIR, 'sprites', 'vent_spewer.png'));
+
+  // --- Magma Brute: large volcanic boss, red/orange/yellow core ---
+  const mbrute = createPNG(16, 16);
+  const Mr = hex('#c83232');   // red body
+  const Md2 = hex('#8c1e1e');  // dark red
+  const Mo = hex('#dc9632');   // orange
+  const My2 = hex('#f0dc50');  // yellow core glow
+  const Mlr = hex('#e06060'); // light red
+  drawPixelArt(mbrute, 0, 0, [
+    [_, _, _, _, _, Mo, Md2, Md2, Md2, Md2, Mo, _, _, _, _, _],
+    [_, _, _, _, _, Mr, Mr, Mr, Mr, Mr, Mr, _, _, _, _, _],
+    [_, _, _, _, _, Mr, My2, Mr, Mr, My2, Mr, _, _, _, _, _],
+    [_, _, _, _, _, Mr, Mo, Md2, Md2, Mo, Mr, _, _, _, _, _],
+    [_, _, _, _, _, _, Mr, Mr, Mr, Mr, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Mr, Mr, _, _, _, _, _, _, _],
+    [_, _, Mr, Mr, Mr, Mr, Mr, Mr, Mr, Mr, Mr, Mr, Mr, Mr, _, _],
+    [_, _, Mr, Mr, Mr, Mr, Mr, Mo, Mo, Mr, Mr, Mr, Mr, Mr, _, _],
+    [_, _, Mlr, Md2, _, Mr, My2, Mr, Mr, My2, Mr, _, Md2, Mlr, _, _],
+    [_, _, Mlr, _, _, Md2, Mr, Mr, Mr, Mr, Md2, _, _, Mlr, _, _],
+    [_, _, _, _, _, Md2, Mo, Mr, Mr, Mo, Md2, _, _, _, _, _],
+    [_, _, _, _, _, Md2, Md2, Mr, Mr, Md2, Md2, _, _, _, _, _],
+    [_, _, _, _, _, Md2, Md2, Md2, Md2, Md2, Md2, _, _, _, _, _],
+    [_, _, _, _, _, Md2, _, _, _, _, Md2, _, _, _, _, _],
+    [_, _, _, _, _, Md2, _, _, _, _, Md2, _, _, _, _, _],
+    [_, _, _, _, Md2, Md2, _, _, _, _, Md2, Md2, _, _, _, _],
+  ]);
+  savePNG(mbrute, path.join(CONTENT_DIR, 'sprites', 'magma_brute.png'));
 }
 
 // ============================================================================

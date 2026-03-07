@@ -18,6 +18,18 @@ any public release:
 - `content/sprites/luddite_brawler.png`
 - `content/sprites/luddite_scrapper.png`
 - `content/sprites/luddite_warlord.png`
+- `content/sprites/dusk_crawler.png`
+- `content/sprites/crystal_guardian.png`
+- `content/sprites/garden_mite.png`
+- `content/sprites/nest_mother.png`
+- `content/sprites/shade_stalker.png`
+- `content/sprites/shade_stalker_alpha.png`
+- `content/sprites/ravine_lurker.png`
+- `content/sprites/gloom_wraith.png`
+- `content/sprites/rime_stalker.png`
+- `content/sprites/frostfang_hunter.png`
+- `content/sprites/vent_spewer.png`
+- `content/sprites/magma_brute.png`
 
 ### Player Sprites (16x16 each, 4 color variants)
 - `content/sprites/player_blue.png`
