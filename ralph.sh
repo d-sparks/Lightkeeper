@@ -2,8 +2,10 @@
 set -euo pipefail
 
 # ─── Ralph Loop for Lightkeeper TODOs ─────────────────────────
-# Parses TODOs.md, runs Claude Code for each bullet point on the
-# current branch, then loops back and repeats until killed.
+# Alternates between TODOs.md and TODOs_loop.md:
+#   1. Run all tasks in TODOs.md
+#   2. Run all tasks in TODOs_loop.md (which regenerates TODOs.md)
+#   3. Repeat
 # Must be run on a non-main branch.
 #
 # Usage:
@@ -16,6 +18,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 TODOS_FILE="$REPO_ROOT/TODOs.md"
+TODOS_LOOP_FILE="$REPO_ROOT/TODOs_loop.md"
 DRY_RUN=false
 START_AT=1
 ONLY=""
@@ -63,12 +66,13 @@ PROMPT
 
 # ─── Parse TODOs into an array ─────────────────────────────────
 parse_todos() {
+  local file="$1"
   TASKS=()
   while IFS= read -r line; do
     if [[ "$line" =~ ^-\ (.+) ]]; then
       TASKS+=("${BASH_REMATCH[1]}")
     fi
-  done < "$TODOS_FILE"
+  done < "$file"
 }
 
 # ─── Budget check via cclimits ─────────────────────────────────
@@ -164,40 +168,37 @@ fi
 # ─── Task tracking ───────────────────────────────────────────
 DONE_TASKS=()
 
-# ─── Main loop: repeat forever ─────────────────────────────────
-PASS=0
-while true; do
-  PASS=$((PASS + 1))
+# ─── Run all tasks from a given file ──────────────────────────
+run_tasks_from_file() {
+  local file="$1"
+  local file_label="$2"
 
-  parse_todos
+  parse_todos "$file"
 
   if [[ ${#TASKS[@]} -eq 0 ]]; then
-    echo "No TODOs found in ${TODOS_FILE}. Waiting 30s..."
-    sleep 30
-    continue
+    echo "  No tasks found in ${file_label}. Skipping."
+    return 0
   fi
 
   echo ""
   echo "╔═══════════════════════════════════════════════════════╗"
-  echo "  Pass #${PASS} — ${#TASKS[@]} task(s)"
+  echo "  Pass #${PASS} — ${file_label} — ${#TASKS[@]} task(s)"
   echo "  Branch: ${CURRENT_BRANCH}"
   echo "╚═══════════════════════════════════════════════════════╝"
 
   if $DRY_RUN; then
     for i in "${!TASKS[@]}"; do
       num=$((i + 1))
-      echo "  [dry-run] TODO #${num}: ${TASKS[$i]:0:80}"
+      echo "  [dry-run] ${file_label} #${num}: ${TASKS[$i]:0:80}"
     done
-    echo ""
-    echo "Dry run complete."
-    exit 0
+    return 0
   fi
 
   # Log dir for this pass
   pass_log_dir="${LOG_DIR}/ralph-pass-${PASS}"
   mkdir -p "$pass_log_dir"
 
-  # Reset done tracking for this pass
+  # Reset done tracking for this phase
   DONE_TASKS=()
 
   # ─── Run each task ──────────────────────────────────────────
@@ -213,17 +214,17 @@ while true; do
       task="${BASH_REMATCH[2]}"
     fi
 
-    # Apply --start filter (first pass only)
-    if [[ "$PASS" -eq 1 && "$num" -lt "$START_AT" ]]; then continue; fi
-    # Apply --only filter
-    if [[ -n "$ONLY" && "$num" -ne "$ONLY" ]]; then continue; fi
+    # Apply --start filter (first pass only, TODOs.md only)
+    if [[ "$PASS" -eq 1 && "$file" == "$TODOS_FILE" && "$num" -lt "$START_AT" ]]; then continue; fi
+    # Apply --only filter (TODOs.md only)
+    if [[ -n "$ONLY" && "$file" == "$TODOS_FILE" && "$num" -ne "$ONLY" ]]; then continue; fi
 
     # Check budget before each task
     check_budget
 
     echo ""
     echo "  ───────────────────────────────────────────────────"
-    echo "  TODO #${num}: ${task:0:80}$([ ${#task} -gt 80 ] && echo '...')"
+    echo "  ${file_label} #${num}: ${task:0:80}$([ ${#task} -gt 80 ] && echo '...')"
     if [[ -n "$task_model" ]]; then
       echo "  Model: ${task_model}"
     fi
@@ -244,18 +245,36 @@ while true; do
 
     (
       echo "$prompt" | claude "${CLAUDE_ARGS[@]}" \
-        2>&1 | tee "${pass_log_dir}/.claude-ralph-log-${num}.txt"
+        2>&1 | tee "${pass_log_dir}/.claude-ralph-log-${file_label}-${num}.txt"
     ) || {
-      echo "  Claude exited with non-zero status for TODO #${num}, continuing..."
+      echo "  Claude exited with non-zero status for ${file_label} #${num}, continuing..."
     }
 
     DONE_TASKS+=("#${num}: ${task:0:80}")
   done
+}
+
+# ─── Main loop: alternate TODOs.md ↔ TODOs_loop.md ───────────
+PASS=0
+while true; do
+  PASS=$((PASS + 1))
+
+  # Phase 1: Run tasks from TODOs.md
+  run_tasks_from_file "$TODOS_FILE" "TODOs"
+
+  # Phase 2: Run tasks from TODOs_loop.md
+  run_tasks_from_file "$TODOS_LOOP_FILE" "TODOs_loop"
+
+  if $DRY_RUN; then
+    echo ""
+    echo "Dry run complete."
+    exit 0
+  fi
 
   # Reset --start after first pass
   START_AT=1
 
   echo ""
-  echo "  Pass #${PASS} complete. Looping..."
+  echo "  Pass #${PASS} complete (TODOs + TODOs_loop). Looping..."
   echo ""
 done
