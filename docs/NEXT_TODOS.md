@@ -37,7 +37,7 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 
 ## Progression Wiring
 
-- Sol unit acquisition paths: 4 non-starter sol units (nightcaster_frame, array_precision_core, greenway_bioframe, underlumen_nexus) are defined but unobtainable. Wire as chest drops, NPC rewards, or quest completions in thematic locations.
+- ~~Sol unit acquisition paths: 4 non-starter sol units (nightcaster_frame, array_precision_core, greenway_bioframe, underlumen_nexus) are defined but unobtainable. Wire as chest drops, NPC rewards, or quest completions in thematic locations.~~ Done — nightcaster_frame drops from frost_warden boss (proc_frost_crypt depth 4); greenway_bioframe drops from elder_sporecap (proc_fungal_forest depth 4); array_precision_core is a quest reward from MERIDIAN-7 (meridian_array_hub, directive 11-Kappa quest); underlumen_nexus is gifted by the Underlumen after deep communion at the Threshold (underlumen_threshold).
 - Wire generators into loot/rewards: basic_generator and improved_generator items exist but aren't obtainable via any loot table or quest reward.
 - Consider adding a "basic_battery" sol component (uncommon, +30-50 capacity) as a mid-tier bridge.
 
