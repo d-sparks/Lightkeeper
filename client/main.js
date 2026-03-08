@@ -1701,8 +1701,14 @@
       if (solGridState.unitName) {
         bannerHtml += '<div class="sol-unit-name">' + solGridState.unitName + '</div>';
       }
+      if (solGridState.unitDescription) {
+        bannerHtml += '<div class="sol-unit-description">' + solGridState.unitDescription + '</div>';
+      }
       if (solGridState.innateBonus) {
         const bonus = solGridState.innateBonus;
+        if (bonus.perkName) {
+          bannerHtml += '<div class="sol-innate-label">INNATE: ' + bonus.perkName + '</div>';
+        }
         bannerHtml += '<div class="sol-innate-perks">';
         if (bonus.damageMultiplier) {
           bannerHtml += '<span class="sol-innate-perk">+' + Math.round(bonus.damageMultiplier * 100) + '% damage</span>';
