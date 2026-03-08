@@ -42,17 +42,6 @@
   ],
   "triggers": [
     {
-      "id": "enter_residential",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The Residential Quarter. Quieter than the market, more personal. Small homes and apartments line the paths, their windows warm with light.",
-          "There's a small garden in the southern section — unusual plants glow softly in the twilight."
-        ]}
-      ],
-      "once": true
-    },
-    {
       "id": "remove_sable_meridian_no_encounter",
       "event": "room_entered",
       "conditions": [

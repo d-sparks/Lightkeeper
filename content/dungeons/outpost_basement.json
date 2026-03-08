@@ -43,18 +43,6 @@
   ],
   "triggers": [
     {
-      "id": "basement_welcome",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "A forgotten lower level beneath the workshop. The air is stale and cold.",
-          "Signs of recent habitation: a sleeping bag in the corner, empty ration tins, tally marks scratched into the wall.",
-          "Whoever was here is long gone."
-        ]}
-      ],
-      "once": true
-    },
-    {
       "id": "find_journal_fragment",
       "event": "room_entered",
       "conditions": [

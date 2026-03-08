@@ -62,11 +62,7 @@
       "id": "dead_road_enter",
       "event": "room_entered",
       "actions": [
-        { "type": "showMessage", "lines": [
-          "A cracked supply road stretches into the darkness. Wrecked vehicles litter the roadside, their cargo long scavenged.",
-          "Dark-adapted vegetation grows through the cracks in the asphalt. The air smells of rust and decay.",
-          "Movement ahead — something crouches behind a wrecked transport. Human-shaped."
-        ]}
+        { "type": "showMessage", "text": "Movement ahead — something crouches behind a wrecked transport. Human-shaped." }
       ],
       "once": true
     },

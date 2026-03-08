@@ -81,11 +81,7 @@
       "id": "deep_perimeter_enter",
       "event": "room_entered",
       "actions": [
-        { "type": "showMessage", "lines": [
-          "The darkness here is absolute. The outpost's floodlights are distant specks behind you — barely visible, impossibly far away.",
-          "The air is colder. Heavier. You can feel it pressing against your skin like something physical.",
-          "Old perimeter markers jut from the ground at intervals, their territorial carvings eroded almost to nothing. Unbounded symbols — Sable's people were here, once."
-        ]}
+        { "type": "showMessage", "text": "Old perimeter markers jut from the ground at intervals, their territorial carvings eroded almost to nothing. Unbounded symbols — Sable's people were here, once." }
       ],
       "once": true
     },

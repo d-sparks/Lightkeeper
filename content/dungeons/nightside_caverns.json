@@ -70,18 +70,6 @@
   ],
   "triggers": [
     {
-      "id": "nightside_caverns_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The cavern walls are slick with black ice. What little light your Sol Unit casts is swallowed almost immediately.",
-          "The temperature drops sharply. This is deeper Nightside — beyond the perimeter, beyond the patrols, beyond any map you've seen.",
-          "Faint violet veins of crystal run through the walls. Umbracite deposits — raw and unrefined. The Array would pay dearly for what's down here."
-        ]}
-      ],
-      "once": true
-    },
-    {
       "id": "cavern_quest_hint",
       "event": "room_entered",
       "conditions": [

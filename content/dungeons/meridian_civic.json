@@ -49,17 +49,6 @@
   ],
   "triggers": [
     {
-      "id": "enter_civic",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The Civic Center. Clean lines, functional architecture. This is where Meridian City governs itself.",
-          "Offices line both sides of the main hall. A reception desk sits unattended — budget cuts, presumably."
-        ]}
-      ],
-      "once": true
-    },
-    {
       "id": "hollis_gives_deed",
       "event": "npc_interacted",
       "filter": { "npcType": "registrar_hollis" },
