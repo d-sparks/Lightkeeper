@@ -881,89 +881,130 @@ class Renderer {
     });
 
     // --- Ramp textures (4 directions) ---
+    // Each ramp is a sloped surface from elevation 0 on one edge to
+    // elevation 1 (wallRise) on the opposite edge.  The diamond corners
+    // are: top=NW, right=NE, bottom=SE, left=SW in world orientation.
+    // In iso coords: top(hw,0), right(dw,hh), bottom(hw,dh), left(0,hh).
+    // "ramp_south" means ascending as you walk south (increasing Y),
+    // so the north edge (top) is low and the south edge (bottom) is high.
     const rampDirs = ['north', 'south', 'east', 'west'];
     for (const dir of rampDirs) {
       this.isoTileTextures['ramp_' + dir] = this._createIsoTexture(dw, dh + wallRise, (ctx, w, h) => {
-        // Draw base diamond
-        const baseY = wallRise;
-        ctx.save();
-        ctx.translate(0, baseY);
-        this._drawDiamond(ctx, hw, hh, hw, hh);
+        // Corner heights (how much each corner rises above ground).
+        // Iso diamond corners: top=NW, right=NE, bottom=SE, left=SW.
+        // World directions map to iso: north=top-right, south=bottom-left,
+        // east=bottom-right, west=top-left.
+        let hTL, hTR, hBL, hBR; // top-left(W), top(NW), bottom(SE), right(NE) of iso diamond
+        // top = (hw, 0), right = (dw, hh), bottom = (hw, dh), left = (0, hh)
+        // NW corner = top, NE corner = right, SE corner = bottom, SW corner = left
+        if (dir === 'north') {
+          // Ascending north: south side low, north side high
+          // SE(bottom) and SW(left) low, NE(right) and NW(top) high
+          hTL = wallRise; hTR = wallRise; hBL = 0; hBR = 0;
+        } else if (dir === 'south') {
+          // Ascending south: north side low, south side high
+          hTL = 0; hTR = 0; hBL = wallRise; hBR = wallRise;
+        } else if (dir === 'east') {
+          // Ascending east: west side low, east side high
+          // NW(top) and SW(left) low, NE(right) and SE(bottom) high
+          hTL = 0; hTR = wallRise; hBL = 0; hBR = wallRise;
+        } else { // west
+          // Ascending west: east side low, west side high
+          hTL = wallRise; hTR = 0; hBL = wallRise; hBR = 0;
+        }
+
+        // The four iso diamond corners, offset down by wallRise so the
+        // highest point sits at y=0 in the texture.
+        const topX = hw,  topY = wallRise - hTL;     // NW corner
+        const rtX  = dw,  rtY  = hh + wallRise - hTR; // NE corner
+        const btX  = hw,  btY  = dh + wallRise - hBR; // SE corner
+        const ltX  = 0,   ltY  = hh + wallRise - hBL; // SW corner
+
+        // --- Sloped top face ---
+        ctx.beginPath();
+        ctx.moveTo(topX, topY);
+        ctx.lineTo(rtX, rtY);
+        ctx.lineTo(btX, btY);
+        ctx.lineTo(ltX, ltY);
+        ctx.closePath();
         ctx.fillStyle = p.stairsUp.fill;
         ctx.fill();
 
-        // Draw directional arrow/gradient indicating ramp direction
+        // Subtle grid lines on slope surface to convey incline
         ctx.strokeStyle = p.stairsUp.step;
         ctx.lineWidth = 1;
-
-        // Draw step lines based on direction
-        if (dir === 'north' || dir === 'south') {
-          for (let i = -3; i <= 3; i++) {
-            const y = hh + i * 4;
-            const xSpan = hw * (1 - Math.abs(i) * 0.15);
+        const steps = 5;
+        for (let i = 1; i < steps; i++) {
+          const t = i / steps;
+          // Interpolate across the diamond in the ramp direction
+          if (dir === 'north' || dir === 'south') {
+            // Lines parallel to east-west axis (top-to-bottom interpolation)
+            const lx = ltX + (topX - ltX) * t;
+            const ly = ltY + (topY - ltY) * t;
+            const rx = btX + (rtX - btX) * t;
+            const ry = btY + (rtY - btY) * t;
             ctx.beginPath();
-            ctx.moveTo(hw - xSpan * 0.7, y);
-            ctx.lineTo(hw + xSpan * 0.7, y);
+            ctx.moveTo(lx, ly);
+            ctx.lineTo(rx, ry);
             ctx.stroke();
-          }
-        } else {
-          for (let i = -3; i <= 3; i++) {
-            const x = hw + i * 6;
-            const ySpan = hh * (1 - Math.abs(i) * 0.15);
+          } else {
+            // Lines parallel to north-south axis (left-to-right interpolation)
+            const ux = topX + (rtX - topX) * t;
+            const uy = topY + (rtY - topY) * t;
+            const dx = ltX + (btX - ltX) * t;
+            const dy = ltY + (btY - ltY) * t;
             ctx.beginPath();
-            ctx.moveTo(x, hh - ySpan * 0.7);
-            ctx.lineTo(x, hh + ySpan * 0.7);
+            ctx.moveTo(ux, uy);
+            ctx.lineTo(dx, dy);
             ctx.stroke();
           }
         }
 
-        // Direction chevron
-        ctx.strokeStyle = p.stairsUp.chevron;
-        ctx.lineWidth = 2;
+        // Edge outline of top face
+        ctx.strokeStyle = p.wall.edge;
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        if (dir === 'north') {
-          ctx.moveTo(hw - 8, hh + 4);
-          ctx.lineTo(hw, hh - 4);
-          ctx.lineTo(hw + 8, hh + 4);
-        } else if (dir === 'south') {
-          ctx.moveTo(hw - 8, hh - 4);
-          ctx.lineTo(hw, hh + 4);
-          ctx.lineTo(hw + 8, hh - 4);
-        } else if (dir === 'east') {
-          ctx.moveTo(hw - 4, hh - 8);
-          ctx.lineTo(hw + 4, hh);
-          ctx.lineTo(hw - 4, hh + 8);
-        } else {
-          ctx.moveTo(hw + 4, hh - 8);
-          ctx.lineTo(hw - 4, hh);
-          ctx.lineTo(hw + 4, hh + 8);
-        }
+        ctx.moveTo(topX, topY);
+        ctx.lineTo(rtX, rtY);
+        ctx.lineTo(btX, btY);
+        ctx.lineTo(ltX, ltY);
+        ctx.closePath();
         ctx.stroke();
-        ctx.restore();
 
-        // Draw side face to show height transition
-        const riseAmt = wallRise * 0.5;
-        ctx.beginPath();
-        ctx.moveTo(0, baseY + hh);
-        ctx.lineTo(hw, baseY + dh);
-        ctx.lineTo(hw, baseY + dh + riseAmt);
-        ctx.lineTo(0, baseY + hh + riseAmt);
-        ctx.closePath();
-        ctx.fillStyle = p.wall.left;
-        ctx.globalAlpha = 0.5;
-        ctx.fill();
-        ctx.globalAlpha = 1.0;
+        // --- Side faces (only draw where there is height above the base) ---
+        const baseLeft = hh + wallRise;   // base Y for left corner (SW)
+        const baseBottom = dh + wallRise;  // base Y for bottom corner (SE)
+        const baseRight = hh + wallRise;   // base Y for right corner (NE)
 
-        ctx.beginPath();
-        ctx.moveTo(hw, baseY + dh);
-        ctx.lineTo(dw, baseY + hh);
-        ctx.lineTo(dw, baseY + hh + riseAmt);
-        ctx.lineTo(hw, baseY + dh + riseAmt);
-        ctx.closePath();
-        ctx.fillStyle = p.wall.right;
-        ctx.globalAlpha = 0.5;
-        ctx.fill();
-        ctx.globalAlpha = 1.0;
+        // Left side face (SW to SE edge, visible when bottom-left has height)
+        if (hBL > 0 || hBR > 0) {
+          ctx.beginPath();
+          ctx.moveTo(ltX, ltY);
+          ctx.lineTo(btX, btY);
+          ctx.lineTo(btX, baseBottom);
+          ctx.lineTo(ltX, baseLeft);
+          ctx.closePath();
+          ctx.fillStyle = p.wall.left;
+          ctx.fill();
+          ctx.strokeStyle = p.wall.edge;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // Right side face (SE to NE edge, visible when bottom-right has height)
+        if (hBR > 0 || hTR > 0) {
+          ctx.beginPath();
+          ctx.moveTo(btX, btY);
+          ctx.lineTo(rtX, rtY);
+          ctx.lineTo(rtX, baseRight);
+          ctx.lineTo(btX, baseBottom);
+          ctx.closePath();
+          ctx.fillStyle = p.wall.right;
+          ctx.fill();
+          ctx.strokeStyle = p.wall.edge;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
       });
     }
 
