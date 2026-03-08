@@ -81,6 +81,7 @@ class Renderer {
     this.npcSprites = new Map();
     this.itemSprites = new Map();
     this.projectileSprites = new Map();
+    this.sentrySprites = new Map();
 
     // Sprite texture cache: path -> PIXI.Texture
     this.textureCache = {};
@@ -179,6 +180,11 @@ class Renderer {
     // Melee slash effect graphics
     this.meleeGfx = new PIXI.Graphics();
     this.worldContainer.addChild(this.meleeGfx);
+
+    // Sentry beam graphics
+    this.sentryBeamGfx = new PIXI.Graphics();
+    this.worldContainer.addChild(this.sentryBeamGfx);
+    this.sentryPulseTime = 0;
 
     // Click target indicator
     this.clickTargetGfx = new PIXI.Graphics();
@@ -1350,6 +1356,7 @@ class Renderer {
     this.renderNPCs();
     this.renderMonsters();
     this.renderProjectiles();
+    this.renderSentries();
     this.renderConeEffects();
     this.renderMeleeEffects();
     this.renderPlayers();
@@ -2035,6 +2042,9 @@ class Renderer {
       // Hit flash: override tint to white briefly
       if (this.hitFlashes.has(mob.id)) {
         sprite.tint = 0xffffff;
+      } else if (mob.slowed) {
+        // Light blue tint when slowed by sentry beam
+        sprite.tint = 0x4fc3f7;
       }
 
       // Name tag (above sprite top)
@@ -2115,6 +2125,142 @@ class Renderer {
     }
 
     this._cleanupPool(this.projectileSprites, activeIds);
+  }
+
+  // --- Light Sentries ---
+
+  renderSentries() {
+    if (!this.state || !this.state.sentries) return;
+
+    this.sentryBeamGfx.clear();
+    this.sentryPulseTime += 1 / 60;
+
+    const activeIds = new Set();
+
+    for (const sentry of this.state.sentries) {
+      activeIds.add(sentry.id);
+
+      // Get or create sentry sprite
+      let entry = this.sentrySprites.get(sentry.id);
+      if (!entry) {
+        const container = new PIXI.Container();
+
+        // Base glow circle
+        const glow = new PIXI.Graphics();
+        glow.beginFill(0x4fc3f7, 0.15);
+        glow.drawCircle(0, 0, 20);
+        glow.endFill();
+        glow.beginFill(0x81d4fa, 0.25);
+        glow.drawCircle(0, 0, 12);
+        glow.endFill();
+        container.addChild(glow);
+
+        // Sentry body sprite
+        const sz = this.isoMode ? 36 : CONSTANTS.TILE_SIZE;
+        const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+        sprite.anchor.set(0.5, 0.5);
+        sprite.width = sz;
+        sprite.height = sz;
+        sprite.tint = 0x4fc3f7;
+
+        // Try to load the sentry sprite texture
+        const tex = this.loadTexture('sprites/light_sentry.png');
+        if (tex.valid) {
+          sprite.texture = tex;
+          sprite.tint = 0xffffff;
+        }
+        container.addChild(sprite);
+
+        // Rotating light rays around the sentry
+        const rays = new PIXI.Graphics();
+        container.addChild(rays);
+
+        this.entityContainer.addChild(container);
+        entry = { container, sprite, glow, rays };
+        this.sentrySprites.set(sentry.id, entry);
+      }
+
+      const { container, glow, rays } = entry;
+      this._positionEntity(container, sentry.x, sentry.y);
+
+      // Animate glow pulse
+      const pulse = 0.7 + 0.3 * Math.sin(this.sentryPulseTime * 4);
+      glow.alpha = pulse;
+
+      // Animate rotating rays
+      rays.clear();
+      const rayCount = 6;
+      const rayLen = 14 + 4 * Math.sin(this.sentryPulseTime * 3);
+      for (let i = 0; i < rayCount; i++) {
+        const angle = this.sentryPulseTime * 1.5 + (i * Math.PI * 2 / rayCount);
+        const x1 = Math.cos(angle) * 8;
+        const y1 = Math.sin(angle) * 8;
+        const x2 = Math.cos(angle) * rayLen;
+        const y2 = Math.sin(angle) * rayLen;
+        rays.lineStyle(1.5, 0x81d4fa, 0.5 * pulse);
+        rays.moveTo(x1, y1);
+        rays.lineTo(x2, y2);
+      }
+      rays.lineStyle(0);
+
+      // Draw beam to target
+      if (sentry.targetId) {
+        // Find target monster position
+        const targetMob = this.state.monsters.find(m => m.id === sentry.targetId);
+        if (targetMob) {
+          // Use world coords (or iso-world coords) since sentryBeamGfx is in worldContainer
+          const toWorld = (wx, wy) => {
+            return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+          };
+          const sp = toWorld(sentry.x, sentry.y);
+          const tp = toWorld(targetMob.x, targetMob.y);
+
+          const beamPulse = 0.5 + 0.5 * Math.sin(this.sentryPulseTime * 8);
+
+          // Outer beam glow
+          this.sentryBeamGfx.lineStyle(6, 0x4fc3f7, 0.15 * beamPulse);
+          this.sentryBeamGfx.moveTo(sp.x, sp.y);
+          this.sentryBeamGfx.lineTo(tp.x, tp.y);
+
+          // Mid beam
+          this.sentryBeamGfx.lineStyle(3, 0x81d4fa, 0.4 * beamPulse);
+          this.sentryBeamGfx.moveTo(sp.x, sp.y);
+          this.sentryBeamGfx.lineTo(tp.x, tp.y);
+
+          // Core beam (bright)
+          this.sentryBeamGfx.lineStyle(1.5, 0xe1f5fe, 0.8);
+          this.sentryBeamGfx.moveTo(sp.x, sp.y);
+          this.sentryBeamGfx.lineTo(tp.x, tp.y);
+
+          // Impact glow at target
+          this.sentryBeamGfx.lineStyle(0);
+          this.sentryBeamGfx.beginFill(0x4fc3f7, 0.3 * beamPulse);
+          this.sentryBeamGfx.drawCircle(tp.x, tp.y, 8);
+          this.sentryBeamGfx.endFill();
+          this.sentryBeamGfx.beginFill(0xe1f5fe, 0.5 * beamPulse);
+          this.sentryBeamGfx.drawCircle(tp.x, tp.y, 4);
+          this.sentryBeamGfx.endFill();
+
+          // Crawling energy particles along beam
+          const dx = tp.x - sp.x;
+          const dy = tp.y - sp.y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          if (len > 0) {
+            const particleCount = 3;
+            for (let i = 0; i < particleCount; i++) {
+              const t = ((this.sentryPulseTime * 2 + i / particleCount) % 1);
+              const px = sp.x + dx * t;
+              const py = sp.y + dy * t;
+              this.sentryBeamGfx.beginFill(0xe1f5fe, 0.7 * (1 - t));
+              this.sentryBeamGfx.drawCircle(px, py, 2);
+              this.sentryBeamGfx.endFill();
+            }
+          }
+        }
+      }
+    }
+
+    this._cleanupPool(this.sentrySprites, activeIds);
   }
 
   // --- Players ---
@@ -2830,6 +2976,21 @@ class Renderer {
           age: 0, maxAge: 1.0,
           color: '#ff7043',
         });
+      } else if (ev.type === 'sentry_spawn') {
+        this.damageNumbers.push({
+          text: 'SENTRY DEPLOYED',
+          x: ev.x, y: ev.y - 16,
+          age: 0, maxAge: 1.2,
+          color: '#4fc3f7',
+        });
+      } else if (ev.type === 'sentry_despawn') {
+        // Clean up sprite immediately
+        const oldEntry = this.sentrySprites.get(ev.sentryId);
+        if (oldEntry) {
+          this.entityContainer.removeChild(oldEntry.container);
+          oldEntry.container.destroy({ children: true });
+          this.sentrySprites.delete(ev.sentryId);
+        }
       } else if (ev.type === 'boss_intro' && ev.playerId === this.myId) {
         // Start boss intro cinematic
         this.bossIntro = {

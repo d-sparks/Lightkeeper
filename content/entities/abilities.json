@@ -97,5 +97,16 @@
     "energyCost": 8,
     "duration": 3.0,
     "defaultSlot": 5
+  },
+  "light_sentry": {
+    "name": "Light Sentry",
+    "type": "sentry",
+    "damageMultiplier": 0.6,
+    "beamRange": 6.0,
+    "beamTickRate": 0.3,
+    "slowFactor": 0.5,
+    "cooldown": 2.0,
+    "energyCost": 25,
+    "defaultSlot": 2
   }
 }
