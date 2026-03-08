@@ -15,7 +15,7 @@
       "label": "Return Tags to Tannis",
       "description": "Bring the dog tags back to Pvt. Tannis in the outpost infirmary.",
       "prerequisiteSteps": ["find_tags"],
-      "objective": { "roomId": "outpost_infirmary", "tileX": 11, "tileY": 3 },
+      "objective": { "roomId": "outpost_infirmary", "targetNpc": "infirmary_pvt_tannis" },
       "completionConditions": [{ "hasFlag": "returned_tannis_tags" }],
       "completionActions": [
         { "type": "grantXp", "amount": 25 },

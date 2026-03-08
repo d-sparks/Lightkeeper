@@ -626,6 +626,45 @@ class GameLoop {
     let tileX = obj.tileX;
     let tileY = obj.tileY;
 
+    // Resolve targetNpc: find the NPC's position (live room or dungeon definition)
+    if (obj.targetNpc) {
+      let found = false;
+      const targetRoom = this.rooms.get(targetRoomId);
+      if (targetRoom) {
+        for (const npc of targetRoom.npcs.values()) {
+          if (npc.type === obj.targetNpc) {
+            tileX = Math.floor(npc.x / CONSTANTS.TILE_SIZE);
+            tileY = Math.floor(npc.y / CONSTANTS.TILE_SIZE);
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found) {
+        // Fall back to dungeon definition npcSpawns
+        const dungeon = this.content.getDungeon(targetRoomId);
+        if (dungeon && dungeon.npcSpawns) {
+          const spawn = dungeon.npcSpawns.find(s => s.type === obj.targetNpc);
+          if (spawn) {
+            tileX = spawn.x;
+            tileY = spawn.y;
+          }
+        }
+      }
+    }
+
+    // Resolve targetExit: find the exit tile that leads to a given room
+    if (obj.targetExit) {
+      const dungeon = this._getDungeonData(targetRoomId);
+      if (dungeon && dungeon.exits) {
+        const exit = dungeon.exits.find(e => e.leadsTo === obj.targetExit);
+        if (exit) {
+          tileX = exit.x;
+          tileY = exit.y;
+        }
+      }
+    }
+
     // Resolve objectiveItem: find the item's actual location in active rooms
     if (obj.objectiveItem) {
       const itemLoc = this._findItemInRooms(obj.objectiveItem);

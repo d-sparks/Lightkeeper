@@ -8,7 +8,7 @@
       "label": "Meet Array Liaison Thorne",
       "description": "Visit the Civic Center and speak with Thorne about the Array's offer.",
       "prerequisiteSteps": [],
-      "objective": { "roomId": "meridian_civic", "tileX": 6, "tileY": 14 },
+      "objective": { "roomId": "meridian_civic", "targetNpc": "liaison_thorne" },
       "completionConditions": [
         { "or": [
           { "hasFlag": "accepted_array_deal" },

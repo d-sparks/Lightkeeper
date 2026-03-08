@@ -164,6 +164,9 @@ class QuestTracker {
             tileY: stepDef.objective ? stepDef.objective.tileY : 0,
             depth: stepDef.objective ? stepDef.objective.depth : null,
             targetTile: stepDef.objective ? stepDef.objective.targetTile : null,
+            targetNpc: stepDef.objective ? stepDef.objective.targetNpc : null,
+            targetMonster: stepDef.objective ? stepDef.objective.targetMonster : null,
+            targetExit: stepDef.objective ? stepDef.objective.targetExit : null,
           };
           if (stepDef.objectiveItem) {
             obj.objectiveItem = stepDef.objectiveItem;
@@ -217,6 +220,9 @@ class QuestTracker {
             tileY: stepDef.objective ? stepDef.objective.tileY : 0,
             depth: stepDef.objective ? stepDef.objective.depth : null,
             targetTile: stepDef.objective ? stepDef.objective.targetTile : null,
+            targetNpc: stepDef.objective ? stepDef.objective.targetNpc : null,
+            targetMonster: stepDef.objective ? stepDef.objective.targetMonster : null,
+            targetExit: stepDef.objective ? stepDef.objective.targetExit : null,
           };
           if (stepDef.objectiveItem) obj.objectiveItem = stepDef.objectiveItem;
           results.push(obj);
