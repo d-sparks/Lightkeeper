@@ -10,6 +10,10 @@ class Physics {
   // corner rounding, and tight hallway navigation.
   movePlayer(player, dungeon, dt) {
     if (!player.input) return;
+    // Stunned players cannot move
+    if (player.stunTime > 0) return;
+    // Players being knocked back cannot move voluntarily
+    if (player.knockbackTime > 0) return;
 
     const speed = CONSTANTS.PLAYER_SPEED * CONSTANTS.TILE_SIZE * dt;
     let dx = 0;

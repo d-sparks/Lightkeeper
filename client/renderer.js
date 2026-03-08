@@ -2170,6 +2170,25 @@ class Renderer {
         entry.hoverGfx.drawCircle(0, isoOff, r + 16);
       }
 
+      // Stun indicator (spinning dots)
+      if (!entry.stunGfx) {
+        entry.stunGfx = new PIXI.Graphics();
+        container.addChild(entry.stunGfx);
+      }
+      entry.stunGfx.clear();
+      if (player.stunned) {
+        const stunAngle = Date.now() / 300;
+        const stunY = this.isoMode ? -30 : -r - 2;
+        for (let s = 0; s < 3; s++) {
+          const a = stunAngle + (s * Math.PI * 2 / 3);
+          const sx = Math.cos(a) * 10;
+          const sy = Math.sin(a) * 4 + stunY;
+          entry.stunGfx.beginFill(0xffeb3b, 0.9);
+          entry.stunGfx.drawCircle(sx, sy, 2.5);
+          entry.stunGfx.endFill();
+        }
+      }
+
       // Name tag (above sprite top)
       nameTag.text = player.name;
       nameTag.style.fill = isMe ? '#ffffff' : 'rgba(255,255,255,0.7)';
@@ -2782,6 +2801,34 @@ class Renderer {
           x: ev.x, y: ev.y - 20,
           age: 0, maxAge: 1.5,
           color: '#ce93d8',
+        });
+      } else if (ev.type === 'stun' && ev.targetId === this.myId) {
+        // Player got stunned — screen shake + floating text
+        this.screenShake = { intensity: 6, duration: 0.3, elapsed: 0 };
+        this.damageNumbers.push({
+          text: 'STUNNED!',
+          x: ev.x, y: ev.y - 16,
+          age: 0, maxAge: 1.2,
+          color: '#ffeb3b',
+        });
+      } else if (ev.type === 'lunge_start' && ev.targetId) {
+        // Monster lunge — brief visual indicator
+        this.damageNumbers.push({
+          text: 'LUNGE!',
+          x: ev.x, y: ev.y - 16,
+          age: 0, maxAge: 0.8,
+          color: '#ff5722',
+        });
+      } else if (ev.type === 'lunge_hit' && ev.targetId) {
+        this.screenShake = { intensity: 5, duration: 0.2, elapsed: 0 };
+      } else if (ev.type === 'ground_slam') {
+        // AOE ground slam — screen shake for everyone
+        this.screenShake = { intensity: 7, duration: 0.4, elapsed: 0 };
+        this.damageNumbers.push({
+          text: 'SLAM!',
+          x: ev.x, y: ev.y - 16,
+          age: 0, maxAge: 1.0,
+          color: '#ff7043',
         });
       } else if (ev.type === 'boss_intro' && ev.playerId === this.myId) {
         // Start boss intro cinematic

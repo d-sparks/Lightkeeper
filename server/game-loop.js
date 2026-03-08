@@ -271,6 +271,13 @@ class GameLoop {
           mob.bossSummonTimer = 0;
           mob.bossSummonCount = 0;
         }
+        // Special attacks: initialize cooldown timers from definition
+        if (def.specialAttacks && def.specialAttacks.length > 0) {
+          mob.specialAttacks = def.specialAttacks.map(sa => ({
+            ...sa,
+            timer: sa.cooldown * (0.3 + Math.random() * 0.7), // Stagger initial cooldowns
+          }));
+        }
         if (def.boss) {
           if (def.bossTitle) mob.bossTitle = def.bossTitle;
           if (def.bossMusic) mob.bossMusic = def.bossMusic;
@@ -1162,6 +1169,9 @@ class GameLoop {
     const player = room.players.get(playerId);
     if (!player) return false;
 
+    // Cannot use abilities while stunned or knocked back
+    if (player.stunTime > 0 || player.knockbackTime > 0) return false;
+
     const slotIdx = slot - 1;
     if (slotIdx < 0 || slotIdx >= 6) return false;
 
@@ -1637,6 +1647,25 @@ class GameLoop {
 
       // Update each player's movement and cooldowns
       for (const [pid, player] of room.players) {
+        // Tick down stun time
+        if (player.stunTime > 0) {
+          player.stunTime -= dt;
+          if (player.stunTime <= 0) player.stunTime = 0;
+        }
+        // Apply player knockback (from ground slam etc.)
+        if (player.knockbackTime > 0) {
+          const kbX = player.x + (player.knockbackVx || 0) * dt;
+          const kbY = player.y + (player.knockbackVy || 0) * dt;
+          const pr = CONSTANTS.PLAYER_RADIUS;
+          if (!this.physics.collidesAt(kbX, player.y, room.dungeon, pr, player.elevation)) player.x = kbX;
+          if (!this.physics.collidesAt(player.x, kbY, room.dungeon, pr, player.elevation)) player.y = kbY;
+          player.knockbackTime -= dt;
+          if (player.knockbackTime <= 0) {
+            player.knockbackVx = 0;
+            player.knockbackVy = 0;
+            player.knockbackTime = 0;
+          }
+        }
         this.physics.movePlayer(player, room.dungeon, dt);
         if (player.transitionCooldown > 0) {
           player.transitionCooldown -= dt;
@@ -1779,6 +1808,55 @@ class GameLoop {
     for (const [mid, mob] of room.monsters) {
       mob.attackTimer = Math.max(0, mob.attackTimer - dt);
 
+      // Tick down special attack cooldowns
+      if (mob.specialAttacks) {
+        for (const sa of mob.specialAttacks) {
+          if (sa.timer > 0) sa.timer = Math.max(0, sa.timer - dt);
+        }
+      }
+
+      // Execute lunge movement if active
+      if (mob.lungeTime > 0) {
+        mob.lungeTime -= dt;
+        const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+        const lx = mob.x + mob.lungeVx * dt;
+        const ly = mob.y + mob.lungeVy * dt;
+        if (!this.physics.collidesAt(lx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = lx;
+        if (!this.physics.collidesAt(mob.x, ly, room.dungeon, mr, mob.elevation)) mob.y = ly;
+        if (mob.lungeTime <= 0) {
+          mob.lungeVx = 0;
+          mob.lungeVy = 0;
+          mob.lungeTime = 0;
+        }
+        // Check if lunge hits a player
+        if (mob.lungeTarget) {
+          const target = room.players.get(mob.lungeTarget);
+          if (target) {
+            const ldx = target.x - mob.x;
+            const ldy = target.y - mob.y;
+            const ldist = Math.sqrt(ldx * ldx + ldy * ldy);
+            if (ldist < mob.attackRange * 0.8) {
+              const lungeDmg = Math.round(mob.damage * (mob.lungeDamageMult || 1.5));
+              target.health -= lungeDmg;
+              mob.lungeTarget = null;
+              mob.lungeTime = 0;
+              mob.lungeVx = 0;
+              mob.lungeVy = 0;
+              room.events.push({
+                type: 'damage', targetId: target.id,
+                amount: lungeDmg, x: target.x, y: target.y,
+              });
+              room.events.push({
+                type: 'lunge_hit', targetId: mob.id,
+                x: mob.x, y: mob.y,
+              });
+              this._checkPlayerDeath(target, room);
+            }
+          }
+        }
+        continue; // Skip normal AI while lunging
+      }
+
       // Apply knockback movement
       if (mob.knockbackTime > 0) {
         const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
@@ -1878,35 +1956,43 @@ class GameLoop {
           }
         }
 
-        if (nearestDist > mob.attackRange) {
-          // Chase player
-          const dx = nearest.x - mob.x;
-          const dy = nearest.y - mob.y;
-          const len = Math.sqrt(dx * dx + dy * dy);
-          if (len > 0) {
-            const speed = mob.speed * CONSTANTS.TILE_SIZE * dt;
-            const nx = mob.x + (dx / len) * speed;
-            const ny = mob.y + (dy / len) * speed;
-            const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
-            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
-            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
-            mob.facing = Math.atan2(dy, dx);
-          }
-        } else if (mob.attackTimer <= 0) {
-          // Ambush bonus: 1.5x damage on first strike
-          let damage = mob.damage;
-          if (mob.ai === 'ambush' && mob.ambushRevealed) {
-            damage = Math.round(damage * 1.5);
-            mob.ambushRevealed = false;
-          }
-          nearest.health -= damage;
-          mob.attackTimer = mob.attackCooldown;
-          room.events.push({
-            type: 'damage', targetId: nearest.id,
-            amount: damage, x: nearest.x, y: nearest.y,
-          });
+        // Check for special attacks before normal behavior
+        let usedSpecial = false;
+        if (mob.specialAttacks) {
+          usedSpecial = this._trySpecialAttack(mob, nearest, nearestDist, room, dt);
+        }
 
-          this._checkPlayerDeath(nearest, room);
+        if (!usedSpecial) {
+          if (nearestDist > mob.attackRange) {
+            // Chase player
+            const dx = nearest.x - mob.x;
+            const dy = nearest.y - mob.y;
+            const len = Math.sqrt(dx * dx + dy * dy);
+            if (len > 0) {
+              const speed = mob.speed * CONSTANTS.TILE_SIZE * dt;
+              const nx = mob.x + (dx / len) * speed;
+              const ny = mob.y + (dy / len) * speed;
+              const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+              if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+              if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
+              mob.facing = Math.atan2(dy, dx);
+            }
+          } else if (mob.attackTimer <= 0) {
+            // Ambush bonus: 1.5x damage on first strike
+            let damage = mob.damage;
+            if (mob.ai === 'ambush' && mob.ambushRevealed) {
+              damage = Math.round(damage * 1.5);
+              mob.ambushRevealed = false;
+            }
+            nearest.health -= damage;
+            mob.attackTimer = mob.attackCooldown;
+            room.events.push({
+              type: 'damage', targetId: nearest.id,
+              amount: damage, x: nearest.x, y: nearest.y,
+            });
+
+            this._checkPlayerDeath(nearest, room);
+          }
         }
       } else if (mob.ai === 'ranged_kite') {
         const preferredRange = mob.attackRange * 0.6;
@@ -2229,6 +2315,95 @@ class GameLoop {
     }
   }
 
+  /**
+   * Try to use a special attack. Returns true if one was used (preempts normal behavior).
+   * Special attack types: lunge, stun, ground_slam
+   */
+  _trySpecialAttack(mob, target, dist, room, dt) {
+    const TILE = CONSTANTS.TILE_SIZE;
+    for (const sa of mob.specialAttacks) {
+      if (sa.timer > 0) continue;
+
+      const saRange = (sa.range || 4) * TILE;
+
+      if (sa.type === 'lunge') {
+        // Lunge: dash toward player when outside melee but within lunge range
+        if (dist > mob.attackRange && dist <= saRange) {
+          const dx = target.x - mob.x;
+          const dy = target.y - mob.y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          if (len > 0) {
+            const lungeSpeed = (sa.speed || 8) * TILE;
+            mob.lungeVx = (dx / len) * lungeSpeed;
+            mob.lungeVy = (dy / len) * lungeSpeed;
+            mob.lungeTime = sa.duration || 0.25;
+            mob.lungeTarget = target.id;
+            mob.lungeDamageMult = sa.damage || 1.5;
+            mob.facing = Math.atan2(dy, dx);
+            sa.timer = sa.cooldown;
+            room.events.push({
+              type: 'lunge_start', targetId: mob.id,
+              x: mob.x, y: mob.y,
+            });
+            return true;
+          }
+        }
+      } else if (sa.type === 'stun') {
+        // Stun: when in melee range, stun the player briefly
+        if (dist <= mob.attackRange && mob.attackTimer <= 0) {
+          const stunDmg = Math.round(mob.damage * (sa.damage || 0.5));
+          target.health -= stunDmg;
+          target.stunTime = sa.duration || 1.0;
+          mob.attackTimer = mob.attackCooldown;
+          sa.timer = sa.cooldown;
+          room.events.push({
+            type: 'damage', targetId: target.id,
+            amount: stunDmg, x: target.x, y: target.y,
+          });
+          room.events.push({
+            type: 'stun', targetId: target.id,
+            duration: sa.duration || 1.0,
+            x: target.x, y: target.y,
+          });
+          this._checkPlayerDeath(target, room);
+          return true;
+        }
+      } else if (sa.type === 'ground_slam') {
+        // Ground slam: AOE knockback + damage when in range
+        if (dist <= saRange && mob.attackTimer <= 0) {
+          const slamDmg = Math.round(mob.damage * (sa.damage || 1.2));
+          const knockback = sa.knockback || 128;
+          sa.timer = sa.cooldown;
+          mob.attackTimer = mob.attackCooldown;
+          // Hit all players in range
+          for (const [pid, player] of room.players) {
+            const pdx = player.x - mob.x;
+            const pdy = player.y - mob.y;
+            const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
+            if (pdist <= saRange && pdist > 0) {
+              player.health -= slamDmg;
+              // Apply knockback to player
+              player.knockbackVx = (pdx / pdist) * knockback;
+              player.knockbackVy = (pdy / pdist) * knockback;
+              player.knockbackTime = 0.3;
+              room.events.push({
+                type: 'damage', targetId: player.id,
+                amount: slamDmg, x: player.x, y: player.y,
+              });
+              this._checkPlayerDeath(player, room);
+            }
+          }
+          room.events.push({
+            type: 'ground_slam', targetId: mob.id,
+            range: saRange, x: mob.x, y: mob.y,
+          });
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   _checkPlayerDeath(player, room) {
     if (player.health <= 0) {
       // Death penalty: drain 25-50% of current energy
@@ -2309,6 +2484,9 @@ class GameLoop {
     // Check if player has a projectile weapon equipped
     const weapon = player.equipment && player.equipment.arms;
     if (!weapon || !weapon.stats || !weapon.stats.projectile) return false;
+
+    // Cannot attack while stunned or knocked back
+    if (player.stunTime > 0 || player.knockbackTime > 0) return false;
 
     // Check attack cooldown
     if (player.attackTimer > 0) return false;
@@ -3019,6 +3197,7 @@ class GameLoop {
         colorIndex: p.colorIndex,
         elevation: Math.round((p.elevation || 0) * 100) / 100,
         hovering: p.hovering || false,
+        stunned: (p.stunTime || 0) > 0,
       };
       // Include weapon name if equipped (for rendering)
       if (p.equipment && p.equipment.arms) {
