@@ -2,6 +2,10 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOS.md tasks.
 
+## Controls
+
+- Touch joystick and gamepad analog sticks also send raw screen-space dx/dy — they should be rotated 45° for isometric screen-orthogonal movement, same as the WASD fix applied in `client/input.js`.
+
 ## Game Feel (Critical Gap)
 
 - Death penalty: when the player dies, drain energy, drop non-quest items (per dropBehavior rules in architecture-plan.md), respawn at room entrance. Completes the core risk/reward loop.

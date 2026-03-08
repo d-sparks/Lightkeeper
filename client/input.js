@@ -1035,10 +1035,13 @@ class InputHandler {
       dx += this.moveDX;
       dy += this.moveDY;
     } else {
-      if (this.keys.up) dy -= 1;
-      if (this.keys.down) dy += 1;
-      if (this.keys.left) dx -= 1;
-      if (this.keys.right) dx += 1;
+      // Rotate WASD 45° so movement is orthogonal to the screen in isometric view.
+      // Screen-up   = world (-1,-1), screen-down  = world (+1,+1),
+      // Screen-left = world (-1,+1), screen-right = world (+1,-1).
+      if (this.keys.up)    { dx -= 1; dy -= 1; }
+      if (this.keys.down)  { dx += 1; dy += 1; }
+      if (this.keys.left)  { dx -= 1; dy += 1; }
+      if (this.keys.right) { dx += 1; dy -= 1; }
     }
 
     // Touch joystick (analog)
