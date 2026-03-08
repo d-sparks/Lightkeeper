@@ -4,9 +4,8 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Map Streaming & Fog of War
 
-Chunk-based map streaming and fog of war are now implemented. Outstanding work:
+Chunk-based map streaming and fog of war are implemented. Outstanding work:
 
-- ~~Persist revealed chunks per player per room across sessions (requires session persistence first).~~ Done — session system now saves/restores revealed chunks.
 - Create 10x bigger dungeon content (200x120+ tile maps) to take advantage of the streaming system.
 - Optimize iso rendering for very large maps: skip iteration of unrevealed chunk regions entirely instead of checking each tile.
 - Add a smooth fog-of-war edge effect at the border of revealed/unrevealed chunks (gradient or dithered fade).
@@ -16,7 +15,7 @@ Chunk-based map streaming and fog of war are now implemented. Outstanding work:
 
 ## Sessions & Persistence
 
-Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
+Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 - Add authentication or simple password protection to prevent session hijacking (anyone can resume any character by name).
 - Add a delete character button on the session select screen.
@@ -27,7 +26,7 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 
 ## Controls
 
-- Touch joystick and gamepad analog sticks also send raw screen-space dx/dy — they should be rotated 45° for isometric screen-orthogonal movement, same as the WASD fix applied in `client/input.js`.
+- Touch joystick and gamepad analog sticks send raw screen-space dx/dy — they should be rotated 45° for isometric screen-orthogonal movement, same as the WASD fix applied in `client/input.js`.
 
 ## Game Feel (Critical Gap)
 
@@ -37,20 +36,18 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 
 ## Progression Wiring
 
-- ~~Sol unit acquisition paths~~ Done — all 4 non-starter sol units wired.
-- Wire generators into loot/rewards: basic_generator and improved_generator items exist but aren't obtainable via any loot table or quest reward.
+- Wire generators into loot/rewards: basic_generator and improved_generator items exist but aren't obtainable via any loot table or quest reward. Critical for energy progression pacing.
 - Consider adding a "basic_battery" sol component (uncommon, +30-50 capacity) as a mid-tier bridge.
 
 ## Content Completion
 
-- ~~**Fungal biome loot tables** exist (`content/loot/fungal.json`) but no fungal dungeons exist yet.~~ Done — `proc_fungal_forest` template wires `fungal_biome_common/uncommon/rare` by depth.
-- **Frost biome** loot is wired to `nightside_caverns` (two chests → `frost_biome_common`) and `proc_frost_crypt` (all three tiers by depth). Consider adding `frost_biome_uncommon/rare` to deeper static nightside dungeons (nightside_depths, nightside_passage) if story chests are supplemented with loot crates.
+- **Frost biome** loot is wired to `nightside_caverns` and `proc_frost_crypt` (all three tiers by depth). Consider adding `frost_biome_uncommon/rare` to deeper static nightside dungeons (nightside_depths, nightside_passage) if story chests are supplemented with loot crates.
 - Loot tables for Act III monsters: threshold_watcher, abyssal_tendril, threshold_keeper have no loot tables. Create nightside/underlumen loot tables with thematic drops.
 - Three ending path dungeons: array_control_center (shutdown), underlumen_nexus_chamber (merge), array_command_core (control). Each needs a final boss encounter and resolution triggers.
 - Post-choice NPC dialogue: Asha, Sable, and MERIDIAN-7 dialogue variants reacting to the player's chosen ending path (chose_path_shutdown/merge/control flags).
 - Unbounded elder NPC for deep Nightside (referenced by Sable). Provides Underlumen lore, gates merge path.
 - Council faction NPCs (Steward, Compact, Root representatives) for political branching. These should react to `array_secret_discovered` and `chose_path_*` flags — referenced in Asha's `array_secret_crisis` dialogue but not yet embodied by spawnable NPCs in `meridian_civic`.
-- Add `registrar_hollis` `array_secret_discovered` dialogue variant: the civic bureaucracy should have ambient reactions to the Council fracturing (grumblings, closed-door meetings, changed shift schedules) visible even before talking to Asha or Thorne.
+- Add `registrar_hollis` `array_secret_discovered` dialogue variant: the civic bureaucracy should have ambient reactions to the Council fracturing.
 
 ## Combat & AI Polish
 
@@ -58,7 +55,6 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 - Add explicit patrolPath waypoints to remaining patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
 - Pack AI "pack leader" variant that buffs nearby pack members.
 - Tune special attack cooldowns and damage multipliers after playtesting (lunge, stun, ground slam).
-- ~~Special attacks for boss phases~~ Done — boss_crystal AI integrates specialAttacks; Crystal Guardian has ground_slam + stun.
 - Add stun/knockback immunity window after recovery to prevent stun-locks.
 - Visual polish: lunge trail effect, ground slam shockwave ring animation, stun stars instead of dots.
 
@@ -78,8 +74,7 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 ## Testing
 
 - Integration tests (Tier 4): combat flow, equipment system, sol grid adjacency, room lifecycle.
-- Headless sim bot stuck at ~3/44 rooms (talk_to_engineer step) — needs NPC approach + interact logic for useful sim-based testing.
-- ~~Physics test mock failures (getRampInfo, getTileDef)~~ Fixed — added missing mocks to physics.test.js.
+- Headless sim bot stuck at perimeter_gate (can't interact with Sgt. Fenn NPC). Bot needs better NPC approach + interact logic for sim-based testing beyond step 9.
 - Pre-existing physics bug: "large dt does not skip through walls" test fails — player teleports through wall at high dt values. Needs dt clamping or substep logic in movePlayer.
 
 ## Automation Grid (Phases 3-5)
@@ -90,13 +85,7 @@ Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 
 ## Sol Grid
 
-- Light Sentry enhancements:
-  - Multiple sentries at higher sol grid levels (adjacency bonus could increase max sentries).
-  - Light/mirror puzzles: sentries project light beams that can reflect off mirrors to solve environmental puzzles.
-  - Sentry lifetime/duration option (currently infinite until replaced or owner leaves).
-  - Sentry range indicator circle on placement.
-  - Upgrade path: stronger beam, wider range, chain-beam to multiple targets.
-  - Replace placeholder sentry sprite with proper pixel art.
+- Light Sentry enhancements: multiple sentries, light/mirror puzzles, lifetime/duration, range indicator, upgrade paths, replace placeholder sprite.
 - Extended-adjacency modifiers (radius 2, row/column) for rare/legendary tier.
 - Battery math: capacity per tier, energy costs per ability, casts per full charge.
 - Harvester scaling: silicon rate, max harvesters, late-game upgrades.
@@ -109,15 +98,16 @@ Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 - Tileset strips for each zone theme.
 - Animation frames (idle, attack, hit) when engine supports sprite animation.
 
-## Quest Graph Disconnections (identified 2026-03-08)
+## Quest Graph Disconnections
 
 Critical gaps in the quest graph where content exists but isn't reachable from the main quest line:
 
-- **Main quest dead-ends at step 13** — After "meet Yun" there's no guidance toward dayside, Array complex, or Nightside. Players must stumble into Act II content independently. Need steps 14-17 bridging to Act III.
+- **Main quest dead-ends at step 18** — After "Visit the Workshop District" (meet Yun) there's no guidance toward dayside, Array complex, or Nightside. Players must stumble into Act II content independently. Need steps 19+ bridging to Act III.
 - **No NPC directs players to dayside_solar_fields** — `visited_dayside` flag is properly set on entry, but no dialogue mentions dayside. Yun or Hollis should provide breadcrumbs after `met_crafter_yun`.
 - **autotroph_path_defiant/cooperative flags orphaned** — Set in meridian_array_hub.json but never checked anywhere. Should gate Act III dialogue and ending path availability.
 - **Boss-kill flags orphaned** — `frost_warden_defeated`, `elder_sporecap_defeated`, `magma_core_cleared` set but never checked. NPCs should react to these accomplishments.
 - **Act III paths accept choices but nothing happens** — nightside_expedition quest lets players choose shutdown/merge/control but the ending dungeons don't exist yet.
+- **nightside_expedition requires `act3_asha_alliance_activated`** — No clear path to set this flag from main quest progression.
 - **Council faction NPCs not spawned** — Steward, Compact, Root representatives referenced in Asha's dialogue but not in meridian_civic as spawnable NPCs.
 
 ## Act II Quest Follow-ups
