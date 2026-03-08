@@ -17,6 +17,12 @@ function makeContent(dungeon) {
       if (tx < 0 || ty < 0 || tx >= d.width || ty >= d.height) return true;
       if (tx === 0 || ty === 0 || tx === d.width - 1 || ty === d.height - 1) return true;
       return d.solidSet.has(`${tx},${ty}`);
+    },
+    getRampInfo(d, tx, ty) {
+      return null;
+    },
+    getTileDef(d, tx, ty) {
+      return null;
     }
   };
 }

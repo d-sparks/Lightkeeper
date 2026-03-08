@@ -37,7 +37,7 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 
 ## Progression Wiring
 
-- ~~Sol unit acquisition paths: 4 non-starter sol units (nightcaster_frame, array_precision_core, greenway_bioframe, underlumen_nexus) are defined but unobtainable. Wire as chest drops, NPC rewards, or quest completions in thematic locations.~~ Done — nightcaster_frame drops from frost_warden boss (proc_frost_crypt depth 4); greenway_bioframe drops from elder_sporecap (proc_fungal_forest depth 4); array_precision_core is a quest reward from MERIDIAN-7 (meridian_array_hub, directive 11-Kappa quest); underlumen_nexus is gifted by the Underlumen after deep communion at the Threshold (underlumen_threshold).
+- ~~Sol unit acquisition paths~~ Done — all 4 non-starter sol units wired.
 - Wire generators into loot/rewards: basic_generator and improved_generator items exist but aren't obtainable via any loot table or quest reward.
 - Consider adding a "basic_battery" sol component (uncommon, +30-50 capacity) as a mid-tier bridge.
 
@@ -58,7 +58,7 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 - Add explicit patrolPath waypoints to remaining patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
 - Pack AI "pack leader" variant that buffs nearby pack members.
 - Tune special attack cooldowns and damage multipliers after playtesting (lunge, stun, ground slam).
-- ~~Consider adding special attacks to boss phases (boss_crystal AI doesn't use specialAttacks yet).~~ Done — boss_crystal AI now integrates specialAttacks; Crystal Guardian has ground_slam + stun.
+- ~~Special attacks for boss phases~~ Done — boss_crystal AI integrates specialAttacks; Crystal Guardian has ground_slam + stun.
 - Add stun/knockback immunity window after recovery to prevent stun-locks.
 - Visual polish: lunge trail effect, ground slam shockwave ring animation, stun stars instead of dots.
 
@@ -78,7 +78,9 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 ## Testing
 
 - Integration tests (Tier 4): combat flow, equipment system, sol grid adjacency, room lifecycle.
-- Headless sim bot stuck at ~4/43 rooms — needs pathfinding/NPC interaction improvements for useful sim-based testing.
+- Headless sim bot stuck at ~3/44 rooms (talk_to_engineer step) — needs NPC approach + interact logic for useful sim-based testing.
+- ~~Physics test mock failures (getRampInfo, getTileDef)~~ Fixed — added missing mocks to physics.test.js.
+- Pre-existing physics bug: "large dt does not skip through walls" test fails — player teleports through wall at high dt values. Needs dt clamping or substep logic in movePlayer.
 
 ## Automation Grid (Phases 3-5)
 
@@ -106,6 +108,17 @@ Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 - Placeholder sprites needed: array_overseer (unique), sable_nightside_guide, sable_threshold.
 - Tileset strips for each zone theme.
 - Animation frames (idle, attack, hit) when engine supports sprite animation.
+
+## Quest Graph Disconnections (identified 2026-03-08)
+
+Critical gaps in the quest graph where content exists but isn't reachable from the main quest line:
+
+- **Main quest dead-ends at step 13** — After "meet Yun" there's no guidance toward dayside, Array complex, or Nightside. Players must stumble into Act II content independently. Need steps 14-17 bridging to Act III.
+- **No NPC directs players to dayside_solar_fields** — `visited_dayside` flag is properly set on entry, but no dialogue mentions dayside. Yun or Hollis should provide breadcrumbs after `met_crafter_yun`.
+- **autotroph_path_defiant/cooperative flags orphaned** — Set in meridian_array_hub.json but never checked anywhere. Should gate Act III dialogue and ending path availability.
+- **Boss-kill flags orphaned** — `frost_warden_defeated`, `elder_sporecap_defeated`, `magma_core_cleared` set but never checked. NPCs should react to these accomplishments.
+- **Act III paths accept choices but nothing happens** — nightside_expedition quest lets players choose shutdown/merge/control but the ending dungeons don't exist yet.
+- **Council faction NPCs not spawned** — Steward, Compact, Root representatives referenced in Asha's dialogue but not in meridian_civic as spawnable NPCs.
 
 ## Act II Quest Follow-ups
 
