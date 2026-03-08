@@ -72,6 +72,7 @@ class Renderer {
     this.isoTileLoaded = false;
     this.isoThemeId = null;       // track which theme was built
     this.isoWallRise = CONSTANTS.ISO_WALL_RISE; // per-theme wall rise
+    this.elevBand = 2000; // depth sorting band per elevation level (recomputed in setMap)
     this.tileToIsoKey = {};       // tile name -> iso key
 
     // Entity sprite pools: id -> { container, sprite, nameTag, healthBar, ... }
@@ -340,11 +341,11 @@ class Renderer {
       const hoverOffset = hovering ? 12 : 0;
       container.x = iso.x;
       container.y = iso.y - elevOffset - hoverOffset;
-      // Elevation layer sorting: each full elevation level pushes the entity
-      // in front of ALL ground-level tiles. Within the same level, iso.y sorts.
-      // Hovering entities sort one full level above their tile elevation.
+      // Elevation depth sorting: each elevation level has two sub-bands
+      // (floor tiles, then walls+entities). Entities go in the upper sub-band
+      // so they always render on top of floor tiles at their level.
       const sortElev = hovering ? Math.floor(elev) + 1 : Math.floor(elev);
-      container.zIndex = iso.y + sortElev * 2000;
+      container.zIndex = iso.y + sortElev * this.elevBand * 2 + this.elevBand;
       // Store elevation offset for shadow positioning
       container._elevOffset = elevOffset + hoverOffset;
     } else {
@@ -1147,6 +1148,11 @@ class Renderer {
   setMap(map, tileset) {
     this.map = map;
     this.tileset = tileset;
+    // Compute elevation depth band from map iso-Y range so elevation layers
+    // never overlap.  Each elevation gets TWO sub-bands: one for floor tiles
+    // (always behind entities at that level) and one for walls + entities.
+    const mapIsoRange = (map.width + map.height) * CONSTANTS.ISO_DIAMOND_H / 2 + 100;
+    this.elevBand = mapIsoRange;
     this.ambientLight = map.ambientLight !== undefined ? map.ambientLight : 1.0;
     this.buildTileColors();
     this.tilesetLoaded = false;
@@ -1502,7 +1508,7 @@ class Renderer {
 
     // Wall-type iso keys (rendered in entityContainer for depth sorting)
     const wallKeys = new Set(['wall', 'door_closed', 'locked_door', 'chest_closed', 'full_wall', 'elevated_wall',
-      'ramp_north', 'ramp_south', 'ramp_east', 'ramp_west']);
+      'elevated_floor', 'ramp_north', 'ramp_south', 'ramp_east', 'ramp_west']);
 
     // Viewport culling bounds in iso screen space (generous padding for large screens)
     const pad = dw * 2;
@@ -1560,18 +1566,32 @@ class Renderer {
           let spriteH = dh + wallRise;
           if (isoKey === 'full_wall') {
             spriteH = dh + wallRise * 2;
+          } else if (isoKey === 'elevated_floor') {
+            // Flat floor tile — no wall rise, use floor-style anchor
+            spriteH = dh;
           } else if (isoKey.startsWith('ramp_')) {
             spriteH = dh + wallRise;
           }
 
-          sprite.anchor.set(0.5, 1.0);
-          sprite.width = dw;
-          sprite.height = spriteH;
-          sprite.x = iso.x;
-          sprite.y = iso.y + dh / 2 - elevOffset;
-          // Elevation layer sorting: elevated walls sort in front of all
-          // ground-level content, matching entity elevation sorting.
-          sprite.zIndex = iso.y + tileElev * 2000;
+          if (isoKey === 'elevated_floor') {
+            sprite.anchor.set(0.5, 0.5);
+            sprite.width = dw;
+            sprite.height = spriteH;
+            sprite.x = iso.x;
+            sprite.y = iso.y - elevOffset;
+          } else {
+            sprite.anchor.set(0.5, 1.0);
+            sprite.width = dw;
+            sprite.height = spriteH;
+            sprite.x = iso.x;
+            sprite.y = iso.y + dh / 2 - elevOffset;
+          }
+          // Elevation depth sorting with sub-bands: floor-type tiles go in the
+          // lower sub-band (behind entities), wall-type tiles go in the upper
+          // sub-band (depth-sorts with entities for proper occlusion).
+          const isFloorTile = (isoKey === 'elevated_floor');
+          sprite.zIndex = iso.y + tileElev * this.elevBand * 2
+            + (isFloorTile ? 0 : this.elevBand);
         } else {
           // Floor tiles stay in tileContainer (always behind entities)
           if (floorIdx >= this.tileSprites.length) continue;
@@ -1894,7 +1914,7 @@ class Renderer {
       const entry = this._getOrCreateEntityContainer(this.monsterSprites, mob.id);
       const { container, sprite, nameTag, healthBg, healthFill, promptText } = entry;
 
-      this._positionEntity(container, mob.x, mob.y);
+      this._positionEntity(container, mob.x, mob.y, mob.elevation);
 
       // Sprite
       const spritePath = mob.type ? 'sprites/' + mob.type + '.png' : null;

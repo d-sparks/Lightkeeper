@@ -210,6 +210,9 @@ class GameLoop {
         }
         const spawnX = (validTile.x + 0.5) * CONSTANTS.TILE_SIZE;
         const spawnY = (validTile.y + 0.5) * CONSTANTS.TILE_SIZE;
+        // Determine spawn tile elevation
+        const spawnTileDef = this.content.getTileDef(room.dungeon, validTile.x, validTile.y);
+        const spawnElevation = spawnTileDef ? (spawnTileDef.elevation || 0) : 0;
         const mob = {
           id,
           spawnKey,
@@ -219,6 +222,7 @@ class GameLoop {
           y: spawnY,
           spawnX,
           spawnY,
+          elevation: spawnElevation,
           health: def.health,
           maxHealth: def.health,
           speed: def.speed,
@@ -1807,9 +1811,11 @@ class GameLoop {
         }
       }
 
-      // Fall back to nearest player within aggro range
+      // Fall back to nearest player within aggro range (same elevation only)
       if (!nearest) {
         for (const [pid, player] of room.players) {
+          // Monsters only aggro players at the same elevation level
+          if (Math.floor(player.elevation || 0) !== Math.floor(mob.elevation || 0)) continue;
           const dx = player.x - mob.x;
           const dy = player.y - mob.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1882,8 +1888,8 @@ class GameLoop {
             const nx = mob.x + (dx / len) * speed;
             const ny = mob.y + (dy / len) * speed;
             const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
-            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
-            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
             mob.facing = Math.atan2(dy, dx);
           }
         } else if (mob.attackTimer <= 0) {
@@ -1916,8 +1922,8 @@ class GameLoop {
             const nx = mob.x - (dx / len) * speed;
             const ny = mob.y - (dy / len) * speed;
             const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
-            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
-            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
           }
         } else if (nearestDist > mob.attackRange) {
           // Too far — close distance
@@ -1926,8 +1932,8 @@ class GameLoop {
             const nx = mob.x + (dx / len) * speed;
             const ny = mob.y + (dy / len) * speed;
             const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
-            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
-            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
           }
         }
 
@@ -2126,16 +2132,16 @@ class GameLoop {
       if (len > 0) {
         const nx = mob.x - (dx / len) * effectiveSpeed;
         const ny = mob.y - (dy / len) * effectiveSpeed;
-        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
-        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
       }
     } else if (nearestDist > mob.attackRange) {
       // Chase
       if (len > 0) {
         const nx = mob.x + (dx / len) * effectiveSpeed;
         const ny = mob.y + (dy / len) * effectiveSpeed;
-        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
-        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
       }
     }
 
@@ -3035,6 +3041,7 @@ class GameLoop {
         y: Math.round(m.y * 10) / 10,
         facing: Math.round(m.facing * 100) / 100,
         health: m.health, maxHealth: m.maxHealth,
+        elevation: m.elevation || 0,
       };
       if (m.bossPhases) {
         mData.boss = true;
