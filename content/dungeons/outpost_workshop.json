@@ -158,7 +158,7 @@
     3,
     1,
     1,
-    1,
+    30,
     1,
     1,
     1,
@@ -923,7 +923,7 @@
           "type": "showMessage",
           "lines": [
             "You read the crumpled note: 'They won't find me down here. I just need to hold out until the next train.'",
-            "Something shifts behind a crate in the corner. There are stairs leading down — a hidden lower level."
+            "Something shifts behind a crate in the corner. There are stairs leading down \u2014 a hidden lower level."
           ]
         }
       ],
@@ -942,6 +942,19 @@
           "type": "toggleTile",
           "x": 10,
           "y": 9
+        }
+      ]
+    },
+    {
+      "id": "crate_loot_workshop",
+      "event": "door_interacted",
+      "filter": {
+        "tileName": "crate_closed"
+      },
+      "actions": [
+        {
+          "type": "rollLootTable",
+          "lootTable": "outpost_biome_uncommon"
         }
       ]
     }

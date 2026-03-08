@@ -43,6 +43,8 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 
 ## Content Completion
 
+- **Fungal biome loot tables** exist (`content/loot/fungal.json`) but no fungal dungeons exist yet. The `fungal_forest` and `quarantine` tilesets are defined but unused. Create fungal dungeon(s) and wire `fungal_biome_common/uncommon/rare` loot tables to chests via `door_interacted` triggers (follow the pattern in `array_deep_processing.json`).
+- **Frost biome** loot is wired to `nightside_caverns` (two chests → `frost_biome_common`). Consider adding `frost_biome_uncommon/rare` to the deeper nightside dungeons (nightside_depths, nightside_passage) if story chests there are supplemented with loot crates.
 - Loot tables for Act III monsters: threshold_watcher, abyssal_tendril, threshold_keeper have no loot tables. Create nightside/underlumen loot tables with thematic drops.
 - Three ending path dungeons: array_control_center (shutdown), underlumen_nexus_chamber (merge), array_command_core (control). Each needs a final boss encounter and resolution triggers.
 - Post-choice NPC dialogue: Asha, Sable, and MERIDIAN-7 dialogue variants reacting to the player's chosen ending path (chose_path_shutdown/merge/control flags).
@@ -85,6 +87,13 @@ Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 
 ## Sol Grid
 
+- Light Sentry enhancements:
+  - Multiple sentries at higher sol grid levels (adjacency bonus could increase max sentries).
+  - Light/mirror puzzles: sentries project light beams that can reflect off mirrors to solve environmental puzzles.
+  - Sentry lifetime/duration option (currently infinite until replaced or owner leaves).
+  - Sentry range indicator circle on placement.
+  - Upgrade path: stronger beam, wider range, chain-beam to multiple targets.
+  - Replace placeholder sentry sprite with proper pixel art.
 - Extended-adjacency modifiers (radius 2, row/column) for rare/legendary tier.
 - Battery math: capacity per tier, energy costs per ability, casts per full charge.
 - Harvester scaling: silicon rate, max harvesters, late-game upgrades.
