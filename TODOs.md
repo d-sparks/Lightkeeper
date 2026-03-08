@@ -1,14 +1,14 @@
 TODOs
 
 ## Human feedback / inputs
-- In the editor, can right click always display what we right click on in the tile-placing area? If a square has an item + a ground tile, display both in a dropdown. If only one, just display that thing.
-- If we're going to advertise WASD as working, it should at least be orthogonal to the screen - but it ends up being diagonal/isometric.
-- The right arrow after a quest name in the minimap is misleading. The arrow that points to the exit on the minimap is nice, but, let's not make it a right arrow. Just make it a circle or dot?
-- There's too much dialogue when entering random rooms. Let's prune most of that, unless it's good hint for a quest or exceptionally impactful for flavor/feel.
-- Major project: I want bigger levels. It should take 10x longer or more to clear areas in between quest objectives. To support 10x bigger areas, we may need to stream chunks of room maps instead of sending the entire room as soon as you enter it. Come up with a design for this and implement it. The player can start by not seeing the entire map until they've explored it. (Eventually we'll save a digest of what areas of the map have been revealed to a player, and it will persist with their play sessions, once play sessions persist.)
-- Make the areas of outpost balor larger. Make the dark perimeter leading out to the station significantly longer.
-- Slow enemies down a bit but give them more abilities such as lunge attacks, stun moves, etc. Aiming to make play funner and more dynamic while also being slightly slower with less kiting.
-- Let's introduce sessions to our play. On the main page, we should have the option to either select an existing player from a dropdown or create a new one. For now the create a new one can have a placeholder UI that just lets us select the player's name. We'll need a way of persisting their information: what room / coords they were last in, any flags, inventory, and what parts of map have been revealed to them.
+- [sonnet] If we're going to advertise WASD as working, it should at least be orthogonal to the screen - but it ends up being diagonal/isometric.
+- [sonnet] The right arrow after a quest name in the minimap is misleading. The arrow that points to the exit on the minimap is nice, but, let's not make it a right arrow. Just make it a circle or dot?
+- [sonnet] There's too much dialogue when entering random rooms. Let's prune most of that, unless it's good hint for a quest or exceptionally impactful for flavor/feel.
+- [opus] Major project: I want bigger levels. It should take 10x longer or more to clear areas in between quest objectives. To support 10x bigger areas, we may need to stream chunks of room maps instead of sending the entire room as soon as you enter it. Come up with a design for this and implement it. The player can start by not seeing the entire map until they've explored it. (Eventually we'll save a digest of what areas of the map have been revealed to a player, and it will persist with their play sessions, once play sessions persist.)
+- [opus] Make the areas of outpost balor larger. Make the dark perimeter leading out to the station significantly longer.
+- [opus] Slow enemies down a bit but give them more abilities such as lunge attacks, stun moves, etc. Aiming to make play funner and more dynamic while also being slightly slower with less kiting.
+- [opus] Let's introduce sessions to our play. On the main page, we should have the option to either select an existing player from a dropdown or create a new one. For now the create a new one can have a placeholder UI that just lets us select the player's name. We'll need a way of persisting their information: what room / coords they were last in, any flags, inventory, and what parts of map have been revealed to them.
+- [opus] Add a "light sentry" sol mod which places a light sentry. The light sentry will last until the next light sentry is placed (maybe at later levels we can have multiple light sentries active). It will project a beam which auto aims at the nearest enemy slowing and damaging them over time. Later we'll also use light sentry for light/mirror puzzles. Add graphics for this and make it awesome!
 
 ## Game Feel & Polish
 
