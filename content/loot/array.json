@@ -4,6 +4,7 @@
     "rolls": [
       { "item": "health_potion", "weight": 8 },
       { "item": "silicon", "weight": 5 },
+      { "item": "emp_charge", "weight": 3 },
       { "item": "photon_regulator_chip", "weight": 2 },
       { "item": "efficiency_core_chip", "weight": 1 }
     ]
@@ -14,6 +15,8 @@
       { "item": "health_potion", "weight": 6 },
       { "item": "field_medkit", "weight": 3 },
       { "item": "silicon", "weight": 5 },
+      { "item": "circuit_board", "weight": 3 },
+      { "item": "copper_coil", "weight": 2 },
       { "item": "photon_regulator_chip", "weight": 3 },
       { "item": "efficiency_core_chip", "weight": 2 },
       { "item": "solar_capacitor_chip", "weight": 1 }
