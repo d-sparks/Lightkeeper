@@ -89,5 +89,13 @@
     "maxRange": 20,
     "stickDistance": 12,
     "defaultSlot": 4
+  },
+  "hover": {
+    "name": "Hover",
+    "type": "hover",
+    "cooldown": 1.0,
+    "energyCost": 8,
+    "duration": 3.0,
+    "defaultSlot": 5
   }
 }

@@ -332,16 +332,26 @@ class Renderer {
     };
   }
 
-  _positionEntity(container, wx, wy) {
+  _positionEntity(container, wx, wy, elevation, hovering) {
     if (this.isoMode) {
       const iso = this.worldToIso(wx, wy);
+      const elev = elevation || 0;
+      const elevOffset = elev * CONSTANTS.ISO_WALL_RISE;
+      const hoverOffset = hovering ? 12 : 0;
       container.x = iso.x;
-      container.y = iso.y;
-      container.zIndex = iso.y;
+      container.y = iso.y - elevOffset - hoverOffset;
+      // Elevation layer sorting: each full elevation level pushes the entity
+      // in front of ALL ground-level tiles. Within the same level, iso.y sorts.
+      // Hovering entities sort one full level above their tile elevation.
+      const sortElev = hovering ? Math.floor(elev) + 1 : Math.floor(elev);
+      container.zIndex = iso.y + sortElev * 2000;
+      // Store elevation offset for shadow positioning
+      container._elevOffset = elevOffset + hoverOffset;
     } else {
       container.x = wx;
       container.y = wy;
       container.zIndex = wy;
+      container._elevOffset = 0;
     }
   }
 
@@ -394,6 +404,9 @@ class Renderer {
         door_closed: 0x7a6a4a, door_open: 0x4a3a2a, stairs_down: 0x6a3a8a,
         stairs_up: 0x3a8a6a, water: 0x2a4a6a, void: 0x0d0d1a,
         chest_closed: 0x5a6a5a, chest_opened: 0x3a4a3a,
+        elevated_floor: 0x3a3a5d, ramp_north: 0x3a6a4a, ramp_south: 0x3a6a4a,
+        ramp_east: 0x3a6a4a, ramp_west: 0x3a6a4a, full_wall: 0x6a6a9a,
+        elevated_wall: 0x5a5a8a,
       },
     },
     outpost: {
@@ -847,6 +860,204 @@ class Renderer {
       ctx.fill();
     });
 
+    // --- Elevated floor (tinted differently) ---
+    this.isoTileTextures['elevated_floor'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
+      this._drawDiamond(ctx, hw, hh, hw, hh);
+      const floorFill = p.floor.fill;
+      // Lighten the floor color slightly for elevated tiles
+      ctx.fillStyle = floorFill;
+      ctx.fill();
+      // Add a subtle highlight border to indicate elevation
+      this._drawDiamond(ctx, hw, hh, hw - 1, hh - 1);
+      ctx.strokeStyle = 'rgba(100,180,255,0.15)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // Inner diamond highlight
+      this._drawDiamond(ctx, hw, hh, hw - 4, hh - 4);
+      ctx.strokeStyle = 'rgba(100,180,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // --- Ramp textures (4 directions) ---
+    const rampDirs = ['north', 'south', 'east', 'west'];
+    for (const dir of rampDirs) {
+      this.isoTileTextures['ramp_' + dir] = this._createIsoTexture(dw, dh + wallRise, (ctx, w, h) => {
+        // Draw base diamond
+        const baseY = wallRise;
+        ctx.save();
+        ctx.translate(0, baseY);
+        this._drawDiamond(ctx, hw, hh, hw, hh);
+        ctx.fillStyle = p.stairsUp.fill;
+        ctx.fill();
+
+        // Draw directional arrow/gradient indicating ramp direction
+        ctx.strokeStyle = p.stairsUp.step;
+        ctx.lineWidth = 1;
+
+        // Draw step lines based on direction
+        if (dir === 'north' || dir === 'south') {
+          for (let i = -3; i <= 3; i++) {
+            const y = hh + i * 4;
+            const xSpan = hw * (1 - Math.abs(i) * 0.15);
+            ctx.beginPath();
+            ctx.moveTo(hw - xSpan * 0.7, y);
+            ctx.lineTo(hw + xSpan * 0.7, y);
+            ctx.stroke();
+          }
+        } else {
+          for (let i = -3; i <= 3; i++) {
+            const x = hw + i * 6;
+            const ySpan = hh * (1 - Math.abs(i) * 0.15);
+            ctx.beginPath();
+            ctx.moveTo(x, hh - ySpan * 0.7);
+            ctx.lineTo(x, hh + ySpan * 0.7);
+            ctx.stroke();
+          }
+        }
+
+        // Direction chevron
+        ctx.strokeStyle = p.stairsUp.chevron;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        if (dir === 'north') {
+          ctx.moveTo(hw - 8, hh + 4);
+          ctx.lineTo(hw, hh - 4);
+          ctx.lineTo(hw + 8, hh + 4);
+        } else if (dir === 'south') {
+          ctx.moveTo(hw - 8, hh - 4);
+          ctx.lineTo(hw, hh + 4);
+          ctx.lineTo(hw + 8, hh - 4);
+        } else if (dir === 'east') {
+          ctx.moveTo(hw - 4, hh - 8);
+          ctx.lineTo(hw + 4, hh);
+          ctx.lineTo(hw - 4, hh + 8);
+        } else {
+          ctx.moveTo(hw + 4, hh - 8);
+          ctx.lineTo(hw - 4, hh);
+          ctx.lineTo(hw + 4, hh + 8);
+        }
+        ctx.stroke();
+        ctx.restore();
+
+        // Draw side face to show height transition
+        const riseAmt = wallRise * 0.5;
+        ctx.beginPath();
+        ctx.moveTo(0, baseY + hh);
+        ctx.lineTo(hw, baseY + dh);
+        ctx.lineTo(hw, baseY + dh + riseAmt);
+        ctx.lineTo(0, baseY + hh + riseAmt);
+        ctx.closePath();
+        ctx.fillStyle = p.wall.left;
+        ctx.globalAlpha = 0.5;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+
+        ctx.beginPath();
+        ctx.moveTo(hw, baseY + dh);
+        ctx.lineTo(dw, baseY + hh);
+        ctx.lineTo(dw, baseY + hh + riseAmt);
+        ctx.lineTo(hw, baseY + dh + riseAmt);
+        ctx.closePath();
+        ctx.fillStyle = p.wall.right;
+        ctx.globalAlpha = 0.5;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+      });
+    }
+
+    // --- Full wall (taller, blocks all levels) ---
+    const fullWallH = dh + wallRise * 2;
+    this.isoTileTextures['full_wall'] = this._createIsoTexture(dw, fullWallH, (ctx, w, h) => {
+      const rise = wallRise * 2;
+      // Top diamond face
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(0, hh);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.top;
+      ctx.fill();
+
+      // Left face (taller)
+      ctx.beginPath();
+      ctx.moveTo(0, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(hw, dh + rise);
+      ctx.lineTo(0, hh + rise);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.left;
+      ctx.fill();
+
+      // Right face (taller)
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + rise);
+      ctx.lineTo(hw, dh + rise);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.right;
+      ctx.fill();
+
+      // Edge lines
+      ctx.strokeStyle = p.wall.edge;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + rise);
+      ctx.moveTo(0, hh);
+      ctx.lineTo(0, hh + rise);
+      ctx.lineTo(hw, dh + rise);
+      ctx.lineTo(dw, hh + rise);
+      ctx.stroke();
+    });
+
+    // --- Elevated wall (wall at elevation 1) ---
+    this.isoTileTextures['elevated_wall'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
+      // Same as regular wall but with a blue tint
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(0, hh);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.top;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(0, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.left;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.right;
+      ctx.fill();
+
+      // Blue highlight edge for elevated walls
+      ctx.strokeStyle = 'rgba(100,180,255,0.2)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.moveTo(0, hh);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.stroke();
+    });
+
     // Map tile names to iso keys
     this.tileToIsoKey = {
       'stone_floor':   'floor',
@@ -862,6 +1073,13 @@ class Renderer {
       'chest_closed':  'chest_closed',
       'chest_opened':  'chest_opened',
       'sealed_gate':   'door_closed',
+      'elevated_floor': 'elevated_floor',
+      'ramp_north':    'ramp_north',
+      'ramp_south':    'ramp_south',
+      'ramp_east':     'ramp_east',
+      'ramp_west':     'ramp_west',
+      'full_wall':     'full_wall',
+      'elevated_wall': 'elevated_wall',
     };
 
     this.isoThemeId = this.tileset ? this.tileset.id : 'crypt';
@@ -1282,8 +1500,9 @@ class Renderer {
     const dh = CONSTANTS.ISO_DIAMOND_H;
     const wallRise = this.isoWallRise;
 
-    // Wall-type iso keys
-    const wallKeys = new Set(['wall', 'door_closed', 'locked_door', 'chest_closed']);
+    // Wall-type iso keys (rendered in entityContainer for depth sorting)
+    const wallKeys = new Set(['wall', 'door_closed', 'locked_door', 'chest_closed', 'full_wall', 'elevated_wall',
+      'ramp_north', 'ramp_south', 'ramp_east', 'ramp_west']);
 
     // Viewport culling bounds in iso screen space (generous padding for large screens)
     const pad = dw * 2;
@@ -1318,6 +1537,10 @@ class Renderer {
         const isoKey = this.tileToIsoKey[tileName] || 'wall';
         const isWall = wallKeys.has(isoKey);
 
+        // Determine tile elevation for rendering offset
+        const tileElev = tileDef ? (tileDef.elevation || 0) : 0;
+        const elevOffset = tileElev * wallRise;
+
         if (isWall) {
           // Wall tiles go into entityContainer for depth sorting with entities
           if (wallIdx >= this.wallSprites.length) continue;
@@ -1333,12 +1556,22 @@ class Renderer {
             sprite.tint = this.tileColors[tileId] !== undefined ? this.tileColors[tileId] : 0xff00ff;
           }
 
+          // Determine sprite height based on tile type
+          let spriteH = dh + wallRise;
+          if (isoKey === 'full_wall') {
+            spriteH = dh + wallRise * 2;
+          } else if (isoKey.startsWith('ramp_')) {
+            spriteH = dh + wallRise;
+          }
+
           sprite.anchor.set(0.5, 1.0);
           sprite.width = dw;
-          sprite.height = dh + wallRise;
+          sprite.height = spriteH;
           sprite.x = iso.x;
-          sprite.y = iso.y + dh / 2;
-          sprite.zIndex = iso.y;
+          sprite.y = iso.y + dh / 2 - elevOffset;
+          // Elevation layer sorting: elevated walls sort in front of all
+          // ground-level content, matching entity elevation sorting.
+          sprite.zIndex = iso.y + tileElev * 2000;
         } else {
           // Floor tiles stay in tileContainer (always behind entities)
           if (floorIdx >= this.tileSprites.length) continue;
@@ -1358,7 +1591,7 @@ class Renderer {
           sprite.width = dw;
           sprite.height = dh;
           sprite.x = iso.x;
-          sprite.y = iso.y;
+          sprite.y = iso.y - elevOffset;
         }
       }
     }
@@ -1776,7 +2009,15 @@ class Renderer {
       const { container, sprite, nameTag, healthBg, healthFill, promptText } = entry;
       const isMe = player.id === this.myId;
 
-      this._positionEntity(container, player.x, player.y);
+      this._positionEntity(container, player.x, player.y, player.elevation, player.hovering);
+
+      // Update shadow position for hovering/elevation
+      const shadow = container.children[0]; // shadow is first child
+      if (shadow && container._elevOffset) {
+        shadow.y = container._elevOffset;
+      } else if (shadow) {
+        shadow.y = 0;
+      }
 
       // Sprite
       const spriteName = playerSpriteNames[player.colorIndex] || 'player_blue';
@@ -1790,6 +2031,21 @@ class Renderer {
       // Hit flash: override tint to white briefly
       if (this.hitFlashes.has(player.id)) {
         sprite.tint = 0xffffff;
+      }
+
+      // Hover glow effect
+      if (!entry.hoverGfx) {
+        entry.hoverGfx = new PIXI.Graphics();
+        container.addChild(entry.hoverGfx);
+      }
+      entry.hoverGfx.clear();
+      if (player.hovering && this.isoMode) {
+        const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 200);
+        const isoOff = -18;
+        entry.hoverGfx.lineStyle(2, 0x4fc3f7, 0.3 + 0.3 * pulse);
+        entry.hoverGfx.drawCircle(0, isoOff, r + 10);
+        entry.hoverGfx.lineStyle(1, 0x4fc3f7, 0.15 + 0.15 * pulse);
+        entry.hoverGfx.drawCircle(0, isoOff, r + 16);
       }
 
       // Name tag (above sprite top)

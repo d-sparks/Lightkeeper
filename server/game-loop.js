@@ -420,6 +420,9 @@ class GameLoop {
       equipment: { arms: null, sol_unit: null, medipac: null, accessory: null },
       abilities: [null, null, null, null, null, null],
       cooldowns: [0, 0, 0, 0, 0, 0],
+      elevation: 0,
+      hovering: false,
+      hoverTime: 0,
       solGrid: null,
       energy: 0,
       maxEnergy: 0,
@@ -457,6 +460,9 @@ class GameLoop {
     player.y = (spawnY + 0.5) * CONSTANTS.TILE_SIZE;
     player.transitionCooldown = 1.5;
     player.attackTimer = 0;
+    player.hovering = false;
+    player.hoverTime = 0;
+    player.elevation = 0;
 
     room.players.set(player.id, player);
 
@@ -1181,6 +1187,8 @@ class GameLoop {
         return this._useHeal(room, player, abilityDef, slotIdx);
       case 'teleport':
         return this._useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData);
+      case 'hover':
+        return this._useHover(room, player, abilityDef, slotIdx);
       default:
         return false;
     }
@@ -1587,6 +1595,38 @@ class GameLoop {
     return true;
   }
 
+  _useHover(room, player, abilityDef, slotIdx) {
+    // Toggle hover on/off
+    if (player.hovering) {
+      // Deactivate hover early
+      player.hovering = false;
+      player.hoverTime = 0;
+      room.events.push({
+        type: 'hover_end', targetId: player.id,
+        x: player.x, y: player.y,
+      });
+      player.cooldowns[slotIdx] = abilityDef.cooldown || 1.0;
+      return true;
+    }
+
+    // Activate hover
+    if (abilityDef.energyCost) {
+      if (player.energy < abilityDef.energyCost) return false;
+      player.energy -= abilityDef.energyCost;
+    }
+
+    player.hovering = true;
+    player.hoverTime = abilityDef.duration || 3.0;
+
+    room.events.push({
+      type: 'hover_start', targetId: player.id,
+      x: player.x, y: player.y,
+    });
+
+    player.cooldowns[slotIdx] = 0; // No cooldown on activation (can toggle off)
+    return true;
+  }
+
   update(dt) {
     for (const [roomId, room] of this.rooms) {
       room.tick++;
@@ -1605,6 +1645,19 @@ class GameLoop {
             player.cooldowns[i] = Math.max(0, player.cooldowns[i] - dt);
           }
         }
+        // Tick down hover duration
+        if (player.hovering) {
+          player.hoverTime -= dt;
+          if (player.hoverTime <= 0) {
+            player.hovering = false;
+            player.hoverTime = 0;
+            room.events.push({
+              type: 'hover_end', targetId: player.id,
+              x: player.x, y: player.y,
+            });
+          }
+        }
+
         // Energy regeneration: solar panels (dayside) + sol grid generators
         if (player.maxEnergy > 0) {
           const autoRegenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
@@ -2206,6 +2259,9 @@ class GameLoop {
 
       // Respawn at floor spawn
       player.health = player.maxHealth;
+      player.hovering = false;
+      player.hoverTime = 0;
+      player.elevation = 0;
       const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
       player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
       player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
@@ -2955,6 +3011,8 @@ class GameLoop {
         energy: Math.round(p.energy), maxEnergy: p.maxEnergy,
         xp: p.xp, level: p.level, xpToNextLevel: p.xpToNextLevel,
         colorIndex: p.colorIndex,
+        elevation: Math.round((p.elevation || 0) * 100) / 100,
+        hovering: p.hovering || false,
       };
       // Include weapon name if equipped (for rendering)
       if (p.equipment && p.equipment.arms) {

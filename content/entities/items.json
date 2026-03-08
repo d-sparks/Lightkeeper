@@ -729,5 +729,12 @@
     "type": "sol_component",
     "rarity": "epic",
     "solComponentId": "array_harmonic_stabilizer"
+  },
+  "hover_chip": {
+    "name": "Hover Thruster",
+    "description": "An anti-gravity thruster module. Place in a Sol Grid to gain the Hover ability — float above ground level to traverse elevation changes and cross gaps.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "hover_thruster"
   }
 }
