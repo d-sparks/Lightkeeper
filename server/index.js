@@ -10,6 +10,7 @@ const { handleCheckpointAPI } = require('./checkpoint-api');
 const { isAuthenticated, handleLogin, sendUnauthorized } = require('./editor-auth');
 const contentGit = require('./content-git');
 const ChunkManager = require('./chunk-manager');
+const SessionStore = require('./session-store');
 
 // --- Configuration ---
 const PORT = process.env.PORT || 3000;
@@ -322,6 +323,9 @@ const httpServer = http.createServer((req, res) => {
 // --- Chunk manager for map streaming ---
 const chunkManager = new ChunkManager();
 
+// --- Session persistence ---
+const sessionStore = new SessionStore();
+
 // --- WebSocket server ---
 const wss = new WebSocketServer({ server: httpServer });
 let nextPlayerId = 1;
@@ -427,16 +431,67 @@ wss.on('connection', (ws) => {
     }
 
     switch (msg.type) {
+      case CONSTANTS.MSG.SESSION_LIST: {
+        ws.send(JSON.stringify({
+          type: CONSTANTS.MSG.SESSION_LIST_RESPONSE,
+          sessions: sessionStore.list(),
+        }));
+        break;
+      }
+
       case CONSTANTS.MSG.JOIN: {
+        const savedSession = msg.name ? sessionStore.load(msg.name) : null;
         ws.playerName = msg.name || `Player ${nextPlayerId}`;
-        const spawnRoom = getDefaultRoom();
-        const room0 = gameLoop.getOrCreateRoom(spawnRoom);
-        ws.playerRoom = spawnRoom;
+
+        // Determine spawn room: saved session room or default
+        const targetRoom = (savedSession && savedSession.room) || getDefaultRoom();
+        gameLoop.getOrCreateRoom(targetRoom);
+        ws.playerRoom = targetRoom;
 
         const player = gameLoop.addPlayer(ws.playerRoom, playerId, ws.playerName);
         if (!player) {
           ws.send(JSON.stringify({ type: 'error', message: 'Could not join room' }));
           return;
+        }
+
+        // Restore saved session state onto the player
+        if (savedSession) {
+          player.x = savedSession.x || player.x;
+          player.y = savedSession.y || player.y;
+          player.health = savedSession.health || player.health;
+          player.maxHealth = savedSession.maxHealth || player.maxHealth;
+          player.inventory = JSON.parse(JSON.stringify(savedSession.inventory || []));
+          player.equipment = JSON.parse(JSON.stringify(savedSession.equipment || { arms: null, sol_unit: null, medipac: null, accessory: null }));
+          player.solGrid = savedSession.solGrid ? JSON.parse(JSON.stringify(savedSession.solGrid)) : null;
+          player.energy = savedSession.energy || 0;
+          player.maxEnergy = savedSession.maxEnergy || 0;
+          player.solGridEnergyRegen = savedSession.solGridEnergyRegen || 0;
+          player.xp = savedSession.xp || 0;
+          player.level = savedSession.level || 1;
+          player.xpToNextLevel = savedSession.xpToNextLevel || gameLoop._xpForLevel(player.level);
+          player.medipacCharges = savedSession.medipacCharges || 0;
+
+          // Restore flags
+          if (savedSession.flags) {
+            gameLoop.flagStore.playerFlags.set(playerId, JSON.parse(JSON.stringify(savedSession.flags)));
+          }
+
+          // Restore quest state
+          if (savedSession.questState) {
+            gameLoop.questTracker.restorePlayerState(playerId, savedSession.questState);
+          }
+
+          // Rebuild abilities from restored equipment/solGrid
+          gameLoop._rebuildAbilities(player);
+
+          // Restore revealed chunks
+          if (savedSession.revealedChunks) {
+            for (const [roomId, chunkKeys] of Object.entries(savedSession.revealedChunks)) {
+              chunkManager.markSent(playerId, roomId, chunkKeys);
+            }
+          }
+
+          console.log(`[Session] Restored saved session for "${ws.playerName}"`);
         }
 
         const room = gameLoop.getRoom(ws.playerRoom);
@@ -446,12 +501,20 @@ wss.on('connection', (ws) => {
         // Compute initial visible chunks around spawn
         const welcomePlayer = room.players.get(playerId);
         const visibleKeys = chunkManager.getVisibleChunks(welcomePlayer.x, welcomePlayer.y, overlayedDungeon);
+
+        // Also include previously revealed chunks for this room
+        const previouslyRevealed = savedSession && savedSession.revealedChunks && savedSession.revealedChunks[ws.playerRoom];
+        const allChunkKeys = new Set(visibleKeys);
+        if (previouslyRevealed) {
+          for (const key of previouslyRevealed) allChunkKeys.add(key);
+        }
+
         const initialChunks = [];
-        for (const key of visibleKeys) {
+        for (const key of allChunkKeys) {
           const { cx, cy } = chunkManager.parseKey(key);
           initialChunks.push(chunkManager.extractChunk(overlayedDungeon, cx, cy));
         }
-        chunkManager.markSent(playerId, ws.playerRoom, [...visibleKeys]);
+        chunkManager.markSent(playerId, ws.playerRoom, [...allChunkKeys]);
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.WELCOME,
           playerId,
@@ -463,7 +526,7 @@ wss.on('connection', (ws) => {
           chunks: initialChunks,
         }));
 
-        // Send initial empty inventory and equipment
+        // Send inventory and equipment
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.INVENTORY,
           items: player.inventory,
@@ -471,20 +534,20 @@ wss.on('connection', (ws) => {
           medipacCharges: player.medipacCharges,
         }));
 
-        // Send initial ability state
+        // Send ability state
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.ABILITY_STATE,
           abilities: player.abilities,
           cooldowns: player.cooldowns,
         }));
 
-        // Send initial quest state
+        // Send quest state
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.QUEST_STATE,
           quests: gameLoop.questTracker.getQuestStateForClient(playerId),
         }));
 
-        // Send initial automation state
+        // Send automation state
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.AUTO_STATE,
           auto: gameLoop.automation.getStateForClient(playerId),
@@ -496,7 +559,15 @@ wss.on('connection', (ws) => {
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.WORLDMAP,
             worldmap,
-            currentLocation: content.getWorldmapLocation(spawnRoom),
+            currentLocation: content.getWorldmapLocation(targetRoom),
+          }));
+        }
+
+        // Send sol grid state if restored
+        if (player.solGrid) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.SOL_GRID,
+            grid: player.solGrid,
           }));
         }
 
@@ -856,6 +927,45 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     console.log(`[WS] Client disconnected: ${playerId}`);
+
+    // Save session before cleanup
+    if (ws.playerRoom && ws.playerName) {
+      const room = gameLoop.getRoom(ws.playerRoom);
+      const player = room && room.players.get(playerId);
+      if (player) {
+        // Serialize revealed chunks from chunk manager
+        const revealedChunks = {};
+        const playerChunkMap = chunkManager.playerChunks.get(playerId);
+        if (playerChunkMap) {
+          for (const [roomId, chunkSet] of playerChunkMap) {
+            revealedChunks[roomId] = [...chunkSet];
+          }
+        }
+
+        sessionStore.save({
+          name: ws.playerName,
+          room: ws.playerRoom,
+          x: player.x,
+          y: player.y,
+          health: player.health,
+          maxHealth: player.maxHealth,
+          inventory: player.inventory,
+          equipment: player.equipment,
+          solGrid: player.solGrid,
+          energy: player.energy,
+          maxEnergy: player.maxEnergy,
+          solGridEnergyRegen: player.solGridEnergyRegen,
+          flags: gameLoop.flagStore.getPlayerFlags(playerId),
+          questState: gameLoop.questTracker.serializePlayerState(playerId),
+          xp: player.xp,
+          level: player.level,
+          xpToNextLevel: player.xpToNextLevel,
+          medipacCharges: player.medipacCharges,
+          revealedChunks,
+        });
+      }
+    }
+
     chunkManager.removePlayer(playerId);
     if (ws.playerRoom) {
       gameLoop.removePlayer(ws.playerRoom, playerId);

@@ -6,13 +6,24 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Chunk-based map streaming and fog of war are now implemented. Outstanding work:
 
-- Persist revealed chunks per player per room across sessions (requires session persistence first).
+- ~~Persist revealed chunks per player per room across sessions (requires session persistence first).~~ Done — session system now saves/restores revealed chunks.
 - Create 10x bigger dungeon content (200x120+ tile maps) to take advantage of the streaming system.
 - Optimize iso rendering for very large maps: skip iteration of unrevealed chunk regions entirely instead of checking each tile.
 - Add a smooth fog-of-war edge effect at the border of revealed/unrevealed chunks (gradient or dithered fade).
 - Editor reload paths still send full map data (no fog of war). Consider chunking those too if needed.
 - Consider reducing chunk reveal radius (currently 3 chunks = 48 tiles) for bigger maps to increase exploration feel.
 - Tune the `getOverlayedMapData` call frequency — currently checked every tick for every player; could throttle to every N ticks.
+
+## Sessions & Persistence
+
+Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
+
+- Add authentication or simple password protection to prevent session hijacking (anyone can resume any character by name).
+- Add a delete character button on the session select screen.
+- Save automation/dayside state per session (currently not persisted).
+- Periodic auto-save during play (currently only saves on disconnect).
+- Handle name collisions more gracefully (warn if creating a character with an existing name).
+- Consider a database backend (SQLite) for deployed environments where filesystem is ephemeral.
 
 ## Controls
 

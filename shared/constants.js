@@ -116,6 +116,11 @@ const CONSTANTS = {
     // World map (Server -> Client)
     WORLDMAP: 'worldmap',
 
+    // Sessions (Client -> Server)
+    SESSION_LIST: 'session_list',
+    // Sessions (Server -> Client)
+    SESSION_LIST_RESPONSE: 'session_list_response',
+
     // Bidirectional
     SOL_GRID_MOVE: 'sol_grid_move',
     SOL_GRID_PLACE: 'sol_grid_place',
