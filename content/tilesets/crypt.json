@@ -172,6 +172,54 @@
     "31": {
       "name": "crate_opened",
       "solid": false
+    },
+    "32": {
+      "name": "elevated_floor",
+      "solid": false,
+      "elevation": 1
+    },
+    "33": {
+      "name": "ramp_north",
+      "solid": false,
+      "ramp": true,
+      "rampDir": "north",
+      "rampFrom": 0,
+      "rampTo": 1
+    },
+    "34": {
+      "name": "ramp_south",
+      "solid": false,
+      "ramp": true,
+      "rampDir": "south",
+      "rampFrom": 0,
+      "rampTo": 1
+    },
+    "35": {
+      "name": "ramp_east",
+      "solid": false,
+      "ramp": true,
+      "rampDir": "east",
+      "rampFrom": 0,
+      "rampTo": 1
+    },
+    "36": {
+      "name": "ramp_west",
+      "solid": false,
+      "ramp": true,
+      "rampDir": "west",
+      "rampFrom": 0,
+      "rampTo": 1
+    },
+    "37": {
+      "name": "full_wall",
+      "solid": true,
+      "elevation": 1,
+      "fullWall": true
+    },
+    "38": {
+      "name": "elevated_wall",
+      "solid": true,
+      "elevation": 1
     }
   }
 }

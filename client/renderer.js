@@ -72,6 +72,7 @@ class Renderer {
     this.isoTileLoaded = false;
     this.isoThemeId = null;       // track which theme was built
     this.isoWallRise = CONSTANTS.ISO_WALL_RISE; // per-theme wall rise
+    this.elevBand = 2000; // depth sorting band per elevation level (recomputed in setMap)
     this.tileToIsoKey = {};       // tile name -> iso key
 
     // Entity sprite pools: id -> { container, sprite, nameTag, healthBar, ... }
@@ -332,16 +333,27 @@ class Renderer {
     };
   }
 
-  _positionEntity(container, wx, wy) {
+  _positionEntity(container, wx, wy, elevation, hovering) {
     if (this.isoMode) {
       const iso = this.worldToIso(wx, wy);
+      const elev = elevation || 0;
+      const elevOffset = elev * CONSTANTS.ISO_WALL_RISE;
+      const hoverOffset = hovering ? 12 : 0;
       container.x = iso.x;
-      container.y = iso.y;
-      container.zIndex = iso.y;
+      container.y = iso.y - elevOffset - hoverOffset;
+      // Elevation depth sorting: each elevation level has two sub-bands
+      // (floor tiles, then walls+entities). Entities go in the upper sub-band
+      // so they always render on top of floor tiles at their level.
+      const sortElev = hovering ? Math.floor(elev) + 1 : Math.floor(elev);
+      container.zIndex = iso.y + sortElev * this.elevBand * 2 + this.elevBand;
+      // Store hover offset for shadow positioning — shadow sits on the
+      // surface at the entity's elevation, only separated by hover gap.
+      container._shadowOffset = hoverOffset;
     } else {
       container.x = wx;
       container.y = wy;
       container.zIndex = wy;
+      container._shadowOffset = 0;
     }
   }
 
@@ -394,6 +406,9 @@ class Renderer {
         door_closed: 0x7a6a4a, door_open: 0x4a3a2a, stairs_down: 0x6a3a8a,
         stairs_up: 0x3a8a6a, water: 0x2a4a6a, void: 0x0d0d1a,
         chest_closed: 0x5a6a5a, chest_opened: 0x3a4a3a,
+        elevated_floor: 0x3a3a5d, ramp_north: 0x3a6a4a, ramp_south: 0x3a6a4a,
+        ramp_east: 0x3a6a4a, ramp_west: 0x3a6a4a, full_wall: 0x6a6a9a,
+        elevated_wall: 0x5a5a8a,
       },
     },
     outpost: {
@@ -847,6 +862,245 @@ class Renderer {
       ctx.fill();
     });
 
+    // --- Elevated floor (tinted differently) ---
+    this.isoTileTextures['elevated_floor'] = this._createIsoTexture(dw, dh, (ctx, w, h) => {
+      this._drawDiamond(ctx, hw, hh, hw, hh);
+      const floorFill = p.floor.fill;
+      // Lighten the floor color slightly for elevated tiles
+      ctx.fillStyle = floorFill;
+      ctx.fill();
+      // Add a subtle highlight border to indicate elevation
+      this._drawDiamond(ctx, hw, hh, hw - 1, hh - 1);
+      ctx.strokeStyle = 'rgba(100,180,255,0.15)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // Inner diamond highlight
+      this._drawDiamond(ctx, hw, hh, hw - 4, hh - 4);
+      ctx.strokeStyle = 'rgba(100,180,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // --- Ramp textures (4 directions) ---
+    // Each ramp is a sloped surface from elevation 0 on one edge to
+    // elevation 1 (wallRise) on the opposite edge.  The diamond corners
+    // are: top=NW, right=NE, bottom=SE, left=SW in world orientation.
+    // In iso coords: top(hw,0), right(dw,hh), bottom(hw,dh), left(0,hh).
+    // "ramp_south" means ascending as you walk south (increasing Y),
+    // so the north edge (top) is low and the south edge (bottom) is high.
+    const rampDirs = ['north', 'south', 'east', 'west'];
+    for (const dir of rampDirs) {
+      this.isoTileTextures['ramp_' + dir] = this._createIsoTexture(dw, dh + wallRise, (ctx, w, h) => {
+        // Corner heights (how much each corner rises above ground).
+        // Iso diamond corners: top=NW, right=NE, bottom=SE, left=SW.
+        // World directions map to iso: north=top-right, south=bottom-left,
+        // east=bottom-right, west=top-left.
+        let hTL, hTR, hBL, hBR; // top-left(W), top(NW), bottom(SE), right(NE) of iso diamond
+        // top = (hw, 0), right = (dw, hh), bottom = (hw, dh), left = (0, hh)
+        // NW corner = top, NE corner = right, SE corner = bottom, SW corner = left
+        if (dir === 'north') {
+          // Ascending north: south side low, north side high
+          // SE(bottom) and SW(left) low, NE(right) and NW(top) high
+          hTL = wallRise; hTR = wallRise; hBL = 0; hBR = 0;
+        } else if (dir === 'south') {
+          // Ascending south: north side low, south side high
+          hTL = 0; hTR = 0; hBL = wallRise; hBR = wallRise;
+        } else if (dir === 'east') {
+          // Ascending east: west side low, east side high
+          // NW(top) and SW(left) low, NE(right) and SE(bottom) high
+          hTL = 0; hTR = wallRise; hBL = 0; hBR = wallRise;
+        } else { // west
+          // Ascending west: east side low, west side high
+          hTL = wallRise; hTR = 0; hBL = wallRise; hBR = 0;
+        }
+
+        // The four iso diamond corners, offset down by wallRise so the
+        // highest point sits at y=0 in the texture.
+        const topX = hw,  topY = wallRise - hTL;     // NW corner
+        const rtX  = dw,  rtY  = hh + wallRise - hTR; // NE corner
+        const btX  = hw,  btY  = dh + wallRise - hBR; // SE corner
+        const ltX  = 0,   ltY  = hh + wallRise - hBL; // SW corner
+
+        // --- Sloped top face ---
+        ctx.beginPath();
+        ctx.moveTo(topX, topY);
+        ctx.lineTo(rtX, rtY);
+        ctx.lineTo(btX, btY);
+        ctx.lineTo(ltX, ltY);
+        ctx.closePath();
+        ctx.fillStyle = p.stairsUp.fill;
+        ctx.fill();
+
+        // Subtle grid lines on slope surface to convey incline
+        ctx.strokeStyle = p.stairsUp.step;
+        ctx.lineWidth = 1;
+        const steps = 5;
+        for (let i = 1; i < steps; i++) {
+          const t = i / steps;
+          // Interpolate across the diamond in the ramp direction
+          if (dir === 'north' || dir === 'south') {
+            // Lines parallel to east-west axis (top-to-bottom interpolation)
+            const lx = ltX + (topX - ltX) * t;
+            const ly = ltY + (topY - ltY) * t;
+            const rx = btX + (rtX - btX) * t;
+            const ry = btY + (rtY - btY) * t;
+            ctx.beginPath();
+            ctx.moveTo(lx, ly);
+            ctx.lineTo(rx, ry);
+            ctx.stroke();
+          } else {
+            // Lines parallel to north-south axis (left-to-right interpolation)
+            const ux = topX + (rtX - topX) * t;
+            const uy = topY + (rtY - topY) * t;
+            const dx = ltX + (btX - ltX) * t;
+            const dy = ltY + (btY - ltY) * t;
+            ctx.beginPath();
+            ctx.moveTo(ux, uy);
+            ctx.lineTo(dx, dy);
+            ctx.stroke();
+          }
+        }
+
+        // Edge outline of top face
+        ctx.strokeStyle = p.wall.edge;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(topX, topY);
+        ctx.lineTo(rtX, rtY);
+        ctx.lineTo(btX, btY);
+        ctx.lineTo(ltX, ltY);
+        ctx.closePath();
+        ctx.stroke();
+
+        // --- Side faces (only draw where there is height above the base) ---
+        const baseLeft = hh + wallRise;   // base Y for left corner (SW)
+        const baseBottom = dh + wallRise;  // base Y for bottom corner (SE)
+        const baseRight = hh + wallRise;   // base Y for right corner (NE)
+
+        // Left side face (SW to SE edge, visible when bottom-left has height)
+        if (hBL > 0 || hBR > 0) {
+          ctx.beginPath();
+          ctx.moveTo(ltX, ltY);
+          ctx.lineTo(btX, btY);
+          ctx.lineTo(btX, baseBottom);
+          ctx.lineTo(ltX, baseLeft);
+          ctx.closePath();
+          ctx.fillStyle = p.wall.left;
+          ctx.fill();
+          ctx.strokeStyle = p.wall.edge;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // Right side face (SE to NE edge, visible when bottom-right has height)
+        if (hBR > 0 || hTR > 0) {
+          ctx.beginPath();
+          ctx.moveTo(btX, btY);
+          ctx.lineTo(rtX, rtY);
+          ctx.lineTo(rtX, baseRight);
+          ctx.lineTo(btX, baseBottom);
+          ctx.closePath();
+          ctx.fillStyle = p.wall.right;
+          ctx.fill();
+          ctx.strokeStyle = p.wall.edge;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      });
+    }
+
+    // --- Full wall (taller, blocks all levels) ---
+    const fullWallH = dh + wallRise * 2;
+    this.isoTileTextures['full_wall'] = this._createIsoTexture(dw, fullWallH, (ctx, w, h) => {
+      const rise = wallRise * 2;
+      // Top diamond face
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(0, hh);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.top;
+      ctx.fill();
+
+      // Left face (taller)
+      ctx.beginPath();
+      ctx.moveTo(0, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(hw, dh + rise);
+      ctx.lineTo(0, hh + rise);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.left;
+      ctx.fill();
+
+      // Right face (taller)
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + rise);
+      ctx.lineTo(hw, dh + rise);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.right;
+      ctx.fill();
+
+      // Edge lines
+      ctx.strokeStyle = p.wall.edge;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + rise);
+      ctx.moveTo(0, hh);
+      ctx.lineTo(0, hh + rise);
+      ctx.lineTo(hw, dh + rise);
+      ctx.lineTo(dw, hh + rise);
+      ctx.stroke();
+    });
+
+    // --- Elevated wall (wall at elevation 1) ---
+    this.isoTileTextures['elevated_wall'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
+      // Same as regular wall but with a blue tint
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(0, hh);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.top;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(0, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.left;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.right;
+      ctx.fill();
+
+      // Blue highlight edge for elevated walls
+      ctx.strokeStyle = 'rgba(100,180,255,0.2)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.moveTo(0, hh);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.stroke();
+    });
+
     // Map tile names to iso keys
     this.tileToIsoKey = {
       'stone_floor':   'floor',
@@ -862,6 +1116,13 @@ class Renderer {
       'chest_closed':  'chest_closed',
       'chest_opened':  'chest_opened',
       'sealed_gate':   'door_closed',
+      'elevated_floor': 'elevated_floor',
+      'ramp_north':    'ramp_north',
+      'ramp_south':    'ramp_south',
+      'ramp_east':     'ramp_east',
+      'ramp_west':     'ramp_west',
+      'full_wall':     'full_wall',
+      'elevated_wall': 'elevated_wall',
     };
 
     this.isoThemeId = this.tileset ? this.tileset.id : 'crypt';
@@ -929,6 +1190,11 @@ class Renderer {
   setMap(map, tileset) {
     this.map = map;
     this.tileset = tileset;
+    // Compute elevation depth band from map iso-Y range so elevation layers
+    // never overlap.  Each elevation gets TWO sub-bands: one for floor tiles
+    // (always behind entities at that level) and one for walls + entities.
+    const mapIsoRange = (map.width + map.height) * CONSTANTS.ISO_DIAMOND_H / 2 + 100;
+    this.elevBand = mapIsoRange;
     this.ambientLight = map.ambientLight !== undefined ? map.ambientLight : 1.0;
     this.buildTileColors();
     this.tilesetLoaded = false;
@@ -1282,8 +1548,9 @@ class Renderer {
     const dh = CONSTANTS.ISO_DIAMOND_H;
     const wallRise = this.isoWallRise;
 
-    // Wall-type iso keys
-    const wallKeys = new Set(['wall', 'door_closed', 'locked_door', 'chest_closed']);
+    // Wall-type iso keys (rendered in entityContainer for depth sorting)
+    const wallKeys = new Set(['wall', 'door_closed', 'locked_door', 'chest_closed', 'full_wall', 'elevated_wall',
+      'elevated_floor', 'ramp_north', 'ramp_south', 'ramp_east', 'ramp_west']);
 
     // Viewport culling bounds in iso screen space (generous padding for large screens)
     const pad = dw * 2;
@@ -1318,6 +1585,10 @@ class Renderer {
         const isoKey = this.tileToIsoKey[tileName] || 'wall';
         const isWall = wallKeys.has(isoKey);
 
+        // Determine tile elevation for rendering offset
+        const tileElev = tileDef ? (tileDef.elevation || 0) : 0;
+        const elevOffset = tileElev * wallRise;
+
         if (isWall) {
           // Wall tiles go into entityContainer for depth sorting with entities
           if (wallIdx >= this.wallSprites.length) continue;
@@ -1333,12 +1604,36 @@ class Renderer {
             sprite.tint = this.tileColors[tileId] !== undefined ? this.tileColors[tileId] : 0xff00ff;
           }
 
-          sprite.anchor.set(0.5, 1.0);
-          sprite.width = dw;
-          sprite.height = dh + wallRise;
-          sprite.x = iso.x;
-          sprite.y = iso.y + dh / 2;
-          sprite.zIndex = iso.y;
+          // Determine sprite height based on tile type
+          let spriteH = dh + wallRise;
+          if (isoKey === 'full_wall') {
+            spriteH = dh + wallRise * 2;
+          } else if (isoKey === 'elevated_floor') {
+            // Flat floor tile — no wall rise, use floor-style anchor
+            spriteH = dh;
+          } else if (isoKey.startsWith('ramp_')) {
+            spriteH = dh + wallRise;
+          }
+
+          if (isoKey === 'elevated_floor') {
+            sprite.anchor.set(0.5, 0.5);
+            sprite.width = dw;
+            sprite.height = spriteH;
+            sprite.x = iso.x;
+            sprite.y = iso.y - elevOffset;
+          } else {
+            sprite.anchor.set(0.5, 1.0);
+            sprite.width = dw;
+            sprite.height = spriteH;
+            sprite.x = iso.x;
+            sprite.y = iso.y + dh / 2 - elevOffset;
+          }
+          // Elevation depth sorting with sub-bands: floor-type tiles go in the
+          // lower sub-band (behind entities), wall-type tiles go in the upper
+          // sub-band (depth-sorts with entities for proper occlusion).
+          const isFloorTile = (isoKey === 'elevated_floor');
+          sprite.zIndex = iso.y + tileElev * this.elevBand * 2
+            + (isFloorTile ? 0 : this.elevBand);
         } else {
           // Floor tiles stay in tileContainer (always behind entities)
           if (floorIdx >= this.tileSprites.length) continue;
@@ -1358,7 +1653,7 @@ class Renderer {
           sprite.width = dw;
           sprite.height = dh;
           sprite.x = iso.x;
-          sprite.y = iso.y;
+          sprite.y = iso.y - elevOffset;
         }
       }
     }
@@ -1661,7 +1956,11 @@ class Renderer {
       const entry = this._getOrCreateEntityContainer(this.monsterSprites, mob.id);
       const { container, sprite, nameTag, healthBg, healthFill, promptText } = entry;
 
-      this._positionEntity(container, mob.x, mob.y);
+      this._positionEntity(container, mob.x, mob.y, mob.elevation);
+
+      // Shadow sits on the surface at the entity's elevation
+      const mobShadow = container.children[0];
+      if (mobShadow) mobShadow.y = container._shadowOffset || 0;
 
       // Sprite
       const spritePath = mob.type ? 'sprites/' + mob.type + '.png' : null;
@@ -1776,7 +2075,14 @@ class Renderer {
       const { container, sprite, nameTag, healthBg, healthFill, promptText } = entry;
       const isMe = player.id === this.myId;
 
-      this._positionEntity(container, player.x, player.y);
+      this._positionEntity(container, player.x, player.y, player.elevation, player.hovering);
+
+      // Update shadow position — shadow sits on the surface at the entity's
+      // elevation, offset only by hover gap (not by elevation itself).
+      const shadow = container.children[0]; // shadow is first child
+      if (shadow) {
+        shadow.y = container._shadowOffset || 0;
+      }
 
       // Sprite
       const spriteName = playerSpriteNames[player.colorIndex] || 'player_blue';
@@ -1790,6 +2096,21 @@ class Renderer {
       // Hit flash: override tint to white briefly
       if (this.hitFlashes.has(player.id)) {
         sprite.tint = 0xffffff;
+      }
+
+      // Hover glow effect
+      if (!entry.hoverGfx) {
+        entry.hoverGfx = new PIXI.Graphics();
+        container.addChild(entry.hoverGfx);
+      }
+      entry.hoverGfx.clear();
+      if (player.hovering && this.isoMode) {
+        const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 200);
+        const isoOff = -18;
+        entry.hoverGfx.lineStyle(2, 0x4fc3f7, 0.3 + 0.3 * pulse);
+        entry.hoverGfx.drawCircle(0, isoOff, r + 10);
+        entry.hoverGfx.lineStyle(1, 0x4fc3f7, 0.15 + 0.15 * pulse);
+        entry.hoverGfx.drawCircle(0, isoOff, r + 16);
       }
 
       // Name tag (above sprite top)

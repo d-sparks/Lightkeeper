@@ -330,8 +330,37 @@ class ContentLoader {
     return this.tilesets[id] || null;
   }
 
-  // Check if a tile at (tileX, tileY) is solid in a given dungeon
-  isSolid(dungeon, tileX, tileY) {
+  // Get the tile definition at (tileX, tileY) in a dungeon
+  getTileDef(dungeon, tileX, tileY) {
+    if (tileX < 0 || tileY < 0 || tileX >= dungeon.width || tileY >= dungeon.height) {
+      return null;
+    }
+    const tileId = dungeon.data[tileY * dungeon.width + tileX];
+    const tileset = this.tilesets[dungeon.tileset];
+    if (!tileset) return null;
+    return tileset.tiles[String(tileId)] || null;
+  }
+
+  // Get elevation of a tile (0 = ground level, 1+ = raised)
+  getTileElevation(dungeon, tileX, tileY) {
+    const tileDef = this.getTileDef(dungeon, tileX, tileY);
+    if (!tileDef) return 0;
+    return tileDef.elevation || 0;
+  }
+
+  // Get ramp info for a tile, or null if not a ramp
+  getRampInfo(dungeon, tileX, tileY) {
+    const tileDef = this.getTileDef(dungeon, tileX, tileY);
+    if (!tileDef || !tileDef.ramp) return null;
+    return {
+      dir: tileDef.rampDir,
+      from: tileDef.rampFrom || 0,
+      to: tileDef.rampTo || 1,
+    };
+  }
+
+  // Check if a tile at (tileX, tileY) is solid for an entity at a given elevation
+  isSolid(dungeon, tileX, tileY, entityElevation) {
     if (tileX < 0 || tileY < 0 || tileX >= dungeon.width || tileY >= dungeon.height) {
       return true; // Out of bounds = solid
     }
@@ -340,7 +369,19 @@ class ContentLoader {
     if (!tileset) return true;
     const tileDef = tileset.tiles[String(tileId)];
     if (!tileDef) return true;
-    return tileDef.solid === true;
+    if (!tileDef.solid) return false;
+
+    // Elevation-aware: a wall at elevation 0 doesn't block an entity at elevation 1
+    // (they're walking on top of it). But a wall at elevation 1 blocks entities at elevation 1.
+    if (entityElevation !== undefined && entityElevation !== null) {
+      const tileElev = tileDef.elevation || 0;
+      // Entity above wall level can walk over it
+      if (entityElevation > tileElev) return false;
+      // Full walls block at all levels
+      if (tileDef.fullWall) return true;
+    }
+
+    return true;
   }
 
   // Check if a tile is suitable for monster spawning (not solid, not interactable, not an exit)

@@ -211,5 +211,12 @@
     "bonus": { "energyCostReduction": 0.40, "damageMultiplier": 0.25 },
     "description": "A precision Array instrument that harmonizes energy flow, drastically reducing waste while amplifying output to adjacent components.",
     "shape": [[1, 1]]
+  },
+  "hover_thruster": {
+    "type": "ability",
+    "abilityId": "hover",
+    "name": "Hover Thruster",
+    "description": "Anti-gravity thruster that lets you float above the ground, changing elevation levels.",
+    "shape": [[1]]
   }
 }

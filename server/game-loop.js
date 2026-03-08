@@ -210,6 +210,9 @@ class GameLoop {
         }
         const spawnX = (validTile.x + 0.5) * CONSTANTS.TILE_SIZE;
         const spawnY = (validTile.y + 0.5) * CONSTANTS.TILE_SIZE;
+        // Determine spawn tile elevation
+        const spawnTileDef = this.content.getTileDef(room.dungeon, validTile.x, validTile.y);
+        const spawnElevation = spawnTileDef ? (spawnTileDef.elevation || 0) : 0;
         const mob = {
           id,
           spawnKey,
@@ -219,6 +222,7 @@ class GameLoop {
           y: spawnY,
           spawnX,
           spawnY,
+          elevation: spawnElevation,
           health: def.health,
           maxHealth: def.health,
           speed: def.speed,
@@ -420,6 +424,9 @@ class GameLoop {
       equipment: { arms: null, sol_unit: null, medipac: null, accessory: null },
       abilities: [null, null, null, null, null, null],
       cooldowns: [0, 0, 0, 0, 0, 0],
+      elevation: 0,
+      hovering: false,
+      hoverTime: 0,
       solGrid: null,
       energy: 0,
       maxEnergy: 0,
@@ -457,6 +464,9 @@ class GameLoop {
     player.y = (spawnY + 0.5) * CONSTANTS.TILE_SIZE;
     player.transitionCooldown = 1.5;
     player.attackTimer = 0;
+    player.hovering = false;
+    player.hoverTime = 0;
+    player.elevation = 0;
 
     room.players.set(player.id, player);
 
@@ -1181,6 +1191,8 @@ class GameLoop {
         return this._useHeal(room, player, abilityDef, slotIdx);
       case 'teleport':
         return this._useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData);
+      case 'hover':
+        return this._useHover(room, player, abilityDef, slotIdx);
       default:
         return false;
     }
@@ -1587,6 +1599,38 @@ class GameLoop {
     return true;
   }
 
+  _useHover(room, player, abilityDef, slotIdx) {
+    // Toggle hover on/off
+    if (player.hovering) {
+      // Deactivate hover early
+      player.hovering = false;
+      player.hoverTime = 0;
+      room.events.push({
+        type: 'hover_end', targetId: player.id,
+        x: player.x, y: player.y,
+      });
+      player.cooldowns[slotIdx] = abilityDef.cooldown || 1.0;
+      return true;
+    }
+
+    // Activate hover
+    if (abilityDef.energyCost) {
+      if (player.energy < abilityDef.energyCost) return false;
+      player.energy -= abilityDef.energyCost;
+    }
+
+    player.hovering = true;
+    player.hoverTime = abilityDef.duration || 3.0;
+
+    room.events.push({
+      type: 'hover_start', targetId: player.id,
+      x: player.x, y: player.y,
+    });
+
+    player.cooldowns[slotIdx] = 0; // No cooldown on activation (can toggle off)
+    return true;
+  }
+
   update(dt) {
     for (const [roomId, room] of this.rooms) {
       room.tick++;
@@ -1605,6 +1649,19 @@ class GameLoop {
             player.cooldowns[i] = Math.max(0, player.cooldowns[i] - dt);
           }
         }
+        // Tick down hover duration
+        if (player.hovering) {
+          player.hoverTime -= dt;
+          if (player.hoverTime <= 0) {
+            player.hovering = false;
+            player.hoverTime = 0;
+            room.events.push({
+              type: 'hover_end', targetId: player.id,
+              x: player.x, y: player.y,
+            });
+          }
+        }
+
         // Energy regeneration: solar panels (dayside) + sol grid generators
         if (player.maxEnergy > 0) {
           const autoRegenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
@@ -1754,9 +1811,11 @@ class GameLoop {
         }
       }
 
-      // Fall back to nearest player within aggro range
+      // Fall back to nearest player within aggro range (same elevation only)
       if (!nearest) {
         for (const [pid, player] of room.players) {
+          // Monsters only aggro players at the same elevation level
+          if (Math.floor(player.elevation || 0) !== Math.floor(mob.elevation || 0)) continue;
           const dx = player.x - mob.x;
           const dy = player.y - mob.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1829,8 +1888,8 @@ class GameLoop {
             const nx = mob.x + (dx / len) * speed;
             const ny = mob.y + (dy / len) * speed;
             const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
-            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
-            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
             mob.facing = Math.atan2(dy, dx);
           }
         } else if (mob.attackTimer <= 0) {
@@ -1863,8 +1922,8 @@ class GameLoop {
             const nx = mob.x - (dx / len) * speed;
             const ny = mob.y - (dy / len) * speed;
             const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
-            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
-            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
           }
         } else if (nearestDist > mob.attackRange) {
           // Too far — close distance
@@ -1873,8 +1932,8 @@ class GameLoop {
             const nx = mob.x + (dx / len) * speed;
             const ny = mob.y + (dy / len) * speed;
             const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
-            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
-            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
           }
         }
 
@@ -2073,16 +2132,16 @@ class GameLoop {
       if (len > 0) {
         const nx = mob.x - (dx / len) * effectiveSpeed;
         const ny = mob.y - (dy / len) * effectiveSpeed;
-        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
-        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
       }
     } else if (nearestDist > mob.attackRange) {
       // Chase
       if (len > 0) {
         const nx = mob.x + (dx / len) * effectiveSpeed;
         const ny = mob.y + (dy / len) * effectiveSpeed;
-        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr)) mob.x = nx;
-        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr)) mob.y = ny;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
       }
     }
 
@@ -2206,6 +2265,9 @@ class GameLoop {
 
       // Respawn at floor spawn
       player.health = player.maxHealth;
+      player.hovering = false;
+      player.hoverTime = 0;
+      player.elevation = 0;
       const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
       player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
       player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
@@ -2955,6 +3017,8 @@ class GameLoop {
         energy: Math.round(p.energy), maxEnergy: p.maxEnergy,
         xp: p.xp, level: p.level, xpToNextLevel: p.xpToNextLevel,
         colorIndex: p.colorIndex,
+        elevation: Math.round((p.elevation || 0) * 100) / 100,
+        hovering: p.hovering || false,
       };
       // Include weapon name if equipped (for rendering)
       if (p.equipment && p.equipment.arms) {
@@ -2977,6 +3041,7 @@ class GameLoop {
         y: Math.round(m.y * 10) / 10,
         facing: Math.round(m.facing * 100) / 100,
         health: m.health, maxHealth: m.maxHealth,
+        elevation: m.elevation || 0,
       };
       if (m.bossPhases) {
         mData.boss = true;
