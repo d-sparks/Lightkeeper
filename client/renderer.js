@@ -3205,7 +3205,7 @@ class Renderer {
 
     // Show label in full map mode or when marker is inside compact minimap
     if (objective.label && (full || inside)) {
-      const label = sameRoom ? objective.label : objective.label + ' \u2192';
+      const label = sameRoom ? objective.label : objective.label + ' \u25CF';
       this.questWaypointText.text = label;
       this.questWaypointText.x = Math.round(qx);
       this.questWaypointText.y = Math.round(qy - r - 4);
