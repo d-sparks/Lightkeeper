@@ -5,108 +5,515 @@
   "tileset": "crypt",
   "theme": "outpost_military",
   "tileSize": 32,
-  "width": 15,
-  "height": 10,
+  "width": 22,
+  "height": 14,
   "data": [
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    8,1,1,1,1,1,1,3,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,
-    3,1,1,1,2,1,1,4,1,1,2,1,1,1,3,
-    3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,3,1,1,1,1,1,1,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    8,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    4,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
   ],
   "spawns": [
-    { "x": 1, "y": 5, "type": "player_start" },
-    { "x": 2, "y": 5, "type": "player_start" },
-    { "x": 1, "y": 6, "type": "player_start" },
-    { "x": 2, "y": 6, "type": "player_start" }
+    {
+      "x": 4,
+      "y": 7,
+      "type": "player_start"
+    },
+    {
+      "x": 5,
+      "y": 7,
+      "type": "player_start"
+    },
+    {
+      "x": 4,
+      "y": 8,
+      "type": "player_start"
+    },
+    {
+      "x": 5,
+      "y": 8,
+      "type": "player_start"
+    }
   ],
   "monsterSpawns": [],
   "npcSpawns": [
-    { "type": "infirmary_dr_vasik", "x": 3, "y": 2 },
-    { "type": "infirmary_pvt_tannis", "x": 11, "y": 3 }
+    {
+      "type": "infirmary_dr_vasik",
+      "x": 6,
+      "y": 4
+    },
+    {
+      "type": "infirmary_pvt_tannis",
+      "x": 14,
+      "y": 5
+    }
   ],
   "itemSpawns": [
-    { "type": "medical_supplies", "x": 5, "y": 7 },
-    { "type": "bandage", "x": 12, "y": 7 }
+    {
+      "type": "medical_supplies",
+      "x": 8,
+      "y": 9
+    },
+    {
+      "type": "bandage",
+      "x": 15,
+      "y": 9
+    }
   ],
   "exits": [
-    { "x": 0, "y": 1, "leadsTo": "outpost_mess_hall", "type": "stairs_up", "spawnX": 1, "spawnY": 12 }
+    {
+      "x": 0,
+      "y": 3,
+      "leadsTo": "outpost_mess_hall",
+      "type": "stairs_up",
+      "spawnX": 5,
+      "spawnY": 14
+    }
   ],
   "triggers": [
     {
       "id": "infirmary_welcome",
       "event": "room_entered",
       "actions": [
-        { "type": "showMessage", "text": "The infirmary. Clean but cramped. A wounded soldier lies on a cot behind a partition." }
+        {
+          "type": "showMessage",
+          "text": "The infirmary. Clean but cramped. A wounded soldier lies on a cot behind a partition."
+        }
       ],
       "once": true
     },
     {
       "id": "vasik_quest_start_infirmary",
       "event": "npc_interacted",
-      "filter": { "npcType": "infirmary_dr_vasik" },
+      "filter": {
+        "npcType": "infirmary_dr_vasik"
+      },
       "conditions": [
-        { "not": { "hasFlag": "vasik_asked_for_moss" } }
+        {
+          "not": {
+            "hasFlag": "vasik_asked_for_moss"
+          }
+        }
       ],
       "actions": [
-        { "type": "setFlag", "flag": "vasik_asked_for_moss" }
+        {
+          "type": "setFlag",
+          "flag": "vasik_asked_for_moss"
+        }
       ],
       "once": true
     },
     {
       "id": "vasik_receives_moss",
       "event": "npc_interacted",
-      "filter": { "npcType": "infirmary_dr_vasik" },
+      "filter": {
+        "npcType": "infirmary_dr_vasik"
+      },
       "conditions": [
-        { "hasItem": "bioluminescent_moss" },
-        { "not": { "hasFlag": "vasik_quest_complete" } }
+        {
+          "hasItem": "bioluminescent_moss"
+        },
+        {
+          "not": {
+            "hasFlag": "vasik_quest_complete"
+          }
+        }
       ],
       "actions": [
-        { "type": "removeItem", "itemType": "bioluminescent_moss" },
-        { "type": "setFlag", "flag": "vasik_quest_complete" },
-        { "type": "giveItem", "itemType": "field_medkit" },
-        { "type": "giveItem", "itemType": "field_medkit" },
-        { "type": "showMessage", "lines": [
-          "Dr. Vasik prepares the healing salve and applies it to Tannis's wounds.",
-          "She teaches you how to craft Field Medkits — a significant improvement over basic bandages.",
-          "You received 2 Field Medkits."
-        ]}
+        {
+          "type": "removeItem",
+          "itemType": "bioluminescent_moss"
+        },
+        {
+          "type": "setFlag",
+          "flag": "vasik_quest_complete"
+        },
+        {
+          "type": "giveItem",
+          "itemType": "field_medkit"
+        },
+        {
+          "type": "giveItem",
+          "itemType": "field_medkit"
+        },
+        {
+          "type": "showMessage",
+          "lines": [
+            "Dr. Vasik prepares the healing salve and applies it to Tannis's wounds.",
+            "She teaches you how to craft Field Medkits — a significant improvement over basic bandages.",
+            "You received 2 Field Medkits."
+          ]
+        }
       ],
       "once": true
     },
     {
       "id": "tannis_dog_tags_return",
       "event": "npc_interacted",
-      "filter": { "npcType": "infirmary_pvt_tannis" },
+      "filter": {
+        "npcType": "infirmary_pvt_tannis"
+      },
       "conditions": [
-        { "hasItem": "tannis_dog_tags" }
+        {
+          "hasItem": "tannis_dog_tags"
+        }
       ],
       "actions": [
-        { "type": "removeItem", "itemType": "tannis_dog_tags" },
-        { "type": "giveItem", "itemType": "reinforced_battery_chip" },
-        { "type": "setFlag", "flag": "returned_tannis_tags" },
-        { "type": "showMessage", "text": "Tannis takes the dog tags with trembling hands. After a long silence, he presses a modified battery casing into your palm. \"It was Dolan's. Take it.\"" }
+        {
+          "type": "removeItem",
+          "itemType": "tannis_dog_tags"
+        },
+        {
+          "type": "giveItem",
+          "itemType": "reinforced_battery_chip"
+        },
+        {
+          "type": "setFlag",
+          "flag": "returned_tannis_tags"
+        },
+        {
+          "type": "showMessage",
+          "text": "Tannis takes the dog tags with trembling hands. After a long silence, he presses a modified battery casing into your palm. \"It was Dolan's. Take it.\""
+        }
       ],
       "once": true
     },
     {
       "id": "vasik_preserves_samples",
       "event": "npc_interacted",
-      "filter": { "npcType": "infirmary_dr_vasik" },
+      "filter": {
+        "npcType": "infirmary_dr_vasik"
+      },
       "conditions": [
-        { "hasItem": "biological_samples" },
-        { "hasFlag": "vasik_quest_complete" },
-        { "not": { "hasFlag": "samples_preserved" } }
+        {
+          "hasItem": "biological_samples"
+        },
+        {
+          "hasFlag": "vasik_quest_complete"
+        },
+        {
+          "not": {
+            "hasFlag": "samples_preserved"
+          }
+        }
       ],
       "actions": [
-        { "type": "setFlag", "flag": "samples_preserved" },
-        { "type": "grantXp", "amount": 15 },
-        { "type": "showMessage", "text": "Dr. Vasik carefully preserves the biological samples using her medical compounds. 'Properly sealed and temperature-stabilized. Councillor Denn will get much better data from these.'" }
+        {
+          "type": "setFlag",
+          "flag": "samples_preserved"
+        },
+        {
+          "type": "grantXp",
+          "amount": 15
+        },
+        {
+          "type": "showMessage",
+          "text": "Dr. Vasik carefully preserves the biological samples using her medical compounds. 'Properly sealed and temperature-stabilized. Councillor Denn will get much better data from these.'"
+        }
       ],
       "once": true
     }

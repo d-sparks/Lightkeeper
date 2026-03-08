@@ -5,117 +5,471 @@
   "tileset": "crypt",
   "theme": "outpost_military",
   "tileSize": 32,
-  "width": 12,
-  "height": 10,
+  "width": 18,
+  "height": 14,
   "data": [
-    3,3,3,3,3,3,3,3,3,3,3,3,
-    3,1,1,1,1,1,1,1,1,1,1,3,
-    3,1,1,1,1,2,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,8,3,
-    3,1,1,1,2,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,3,
-    3,3,3,3,3,3,3,3,3,3,3,3
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    8,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
   ],
   "spawns": [
-    { "x": 9, "y": 5, "type": "player_start" },
-    { "x": 9, "y": 6, "type": "player_start" },
-    { "x": 10, "y": 5, "type": "player_start" },
-    { "x": 10, "y": 6, "type": "player_start" }
+    {
+      "x": 12,
+      "y": 7,
+      "type": "player_start"
+    },
+    {
+      "x": 12,
+      "y": 8,
+      "type": "player_start"
+    },
+    {
+      "x": 13,
+      "y": 7,
+      "type": "player_start"
+    },
+    {
+      "x": 13,
+      "y": 8,
+      "type": "player_start"
+    }
   ],
   "monsterSpawns": [],
   "npcSpawns": [
-    { "type": "comms_officer_daley", "x": 3, "y": 3 }
+    {
+      "type": "comms_officer_daley",
+      "x": 6,
+      "y": 5
+    }
   ],
   "itemSpawns": [
-    { "type": "lore_array_transmission", "x": 2, "y": 7 }
+    {
+      "type": "lore_array_transmission",
+      "x": 5,
+      "y": 9
+    }
   ],
   "exits": [
-    { "x": 10, "y": 5, "leadsTo": "outpost_entrance", "type": "stairs_up", "spawnX": 2, "spawnY": 5 }
+    {
+      "x": 13,
+      "y": 7,
+      "leadsTo": "outpost_entrance",
+      "type": "stairs_up",
+      "spawnX": 9,
+      "spawnY": 9
+    }
   ],
   "triggers": [
     {
       "id": "comms_room_welcome",
       "event": "room_entered",
       "actions": [
-        { "type": "showMessage", "text": "A small room cluttered with radio equipment. Most of the panels are dark. Static hisses from a damaged speaker." }
+        {
+          "type": "showMessage",
+          "text": "A small room cluttered with radio equipment. Most of the panels are dark. Static hisses from a damaged speaker."
+        }
       ],
       "once": true
     },
     {
       "id": "daley_quest_start",
       "event": "npc_interacted",
-      "filter": { "npcType": "comms_officer_daley" },
+      "filter": {
+        "npcType": "comms_officer_daley"
+      },
       "conditions": [
-        { "not": { "hasFlag": "daley_quest_active" } },
-        { "not": { "hasFlag": "comms_restored" } }
+        {
+          "not": {
+            "hasFlag": "daley_quest_active"
+          }
+        },
+        {
+          "not": {
+            "hasFlag": "comms_restored"
+          }
+        }
       ],
       "actions": [
-        { "type": "setFlag", "flag": "daley_quest_active" }
+        {
+          "type": "setFlag",
+          "flag": "daley_quest_active"
+        }
       ],
       "once": true
     },
     {
       "id": "daley_comms_restored",
       "event": "npc_interacted",
-      "filter": { "npcType": "comms_officer_daley" },
+      "filter": {
+        "npcType": "comms_officer_daley"
+      },
       "conditions": [
-        { "hasItem": "circuit_board" },
-        { "hasItem": "backup_power_cell" },
-        { "not": { "hasFlag": "comms_restored" } }
+        {
+          "hasItem": "circuit_board"
+        },
+        {
+          "hasItem": "backup_power_cell"
+        },
+        {
+          "not": {
+            "hasFlag": "comms_restored"
+          }
+        }
       ],
       "actions": [
-        { "type": "removeItem", "itemType": "circuit_board" },
-        { "type": "removeItem", "itemType": "backup_power_cell" },
-        { "type": "setFlag", "flag": "comms_restored" },
-        { "type": "giveItem", "itemType": "signal_booster_chip" },
-        { "type": "showMessage", "text": "Comms partially restored! You received a Signal Booster chip." }
+        {
+          "type": "removeItem",
+          "itemType": "circuit_board"
+        },
+        {
+          "type": "removeItem",
+          "itemType": "backup_power_cell"
+        },
+        {
+          "type": "setFlag",
+          "flag": "comms_restored"
+        },
+        {
+          "type": "giveItem",
+          "itemType": "signal_booster_chip"
+        },
+        {
+          "type": "showMessage",
+          "text": "Comms partially restored! You received a Signal Booster chip."
+        }
       ],
       "once": true
     },
     {
       "id": "daley_gives_coordinates",
       "event": "npc_interacted",
-      "filter": { "npcType": "comms_officer_daley" },
+      "filter": {
+        "npcType": "comms_officer_daley"
+      },
       "conditions": [
-        { "hasFlag": "comms_restored" },
-        { "hasFlag": "arrived_meridian" },
-        { "not": { "hasFlag": "daley_gave_coordinates" } }
+        {
+          "hasFlag": "comms_restored"
+        },
+        {
+          "hasFlag": "arrived_meridian"
+        },
+        {
+          "not": {
+            "hasFlag": "daley_gave_coordinates"
+          }
+        }
       ],
       "actions": [
-        { "type": "setFlag", "flag": "daley_gave_coordinates" },
-        { "type": "giveItem", "itemType": "daley_coordinates" }
+        {
+          "type": "setFlag",
+          "flag": "daley_gave_coordinates"
+        },
+        {
+          "type": "giveItem",
+          "itemType": "daley_coordinates"
+        }
       ],
       "once": true
     },
     {
       "id": "lore_array_transmission_pickup",
       "event": "item_picked_up",
-      "filter": { "itemType": "lore_array_transmission" },
+      "filter": {
+        "itemType": "lore_array_transmission"
+      },
       "actions": [
-        { "type": "showMessage", "lines": [
-          "A printed log of early Array communications, dated years before this outpost was built.",
-          "One entry is circled in red ink: 'REQUEST: Subsurface mineral survey data, Nightside quadrant 7-North. PRIORITY: Maximum. REASON: [FIELD EXCEEDS PROTOCOL LENGTH].'",
-          "Someone has written in the margin: 'They never did explain why.'"
-        ]}
+        {
+          "type": "showMessage",
+          "lines": [
+            "A printed log of early Array communications, dated years before this outpost was built.",
+            "One entry is circled in red ink: 'REQUEST: Subsurface mineral survey data, Nightside quadrant 7-North. PRIORITY: Maximum. REASON: [FIELD EXCEEDS PROTOCOL LENGTH].'",
+            "Someone has written in the margin: 'They never did explain why.'"
+          ]
+        }
       ],
       "once": true
     },
     {
       "id": "daley_signal_complete",
       "event": "npc_interacted",
-      "filter": { "npcType": "comms_officer_daley" },
+      "filter": {
+        "npcType": "comms_officer_daley"
+      },
       "conditions": [
-        { "hasItem": "lightkeeper_journal" },
-        { "hasFlag": "signal_source_found" },
-        { "not": { "hasFlag": "broken_signal_complete" } }
+        {
+          "hasItem": "lightkeeper_journal"
+        },
+        {
+          "hasFlag": "signal_source_found"
+        },
+        {
+          "not": {
+            "hasFlag": "broken_signal_complete"
+          }
+        }
       ],
       "actions": [
-        { "type": "removeItem", "itemType": "lightkeeper_journal" },
-        { "type": "setFlag", "flag": "broken_signal_complete" },
-        { "type": "grantXp", "amount": 50 }
+        {
+          "type": "removeItem",
+          "itemType": "lightkeeper_journal"
+        },
+        {
+          "type": "setFlag",
+          "flag": "broken_signal_complete"
+        },
+        {
+          "type": "grantXp",
+          "amount": 50
+        }
       ],
       "once": true
     }
