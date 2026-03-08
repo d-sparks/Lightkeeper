@@ -43,8 +43,8 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 
 ## Content Completion
 
-- **Fungal biome loot tables** exist (`content/loot/fungal.json`) but no fungal dungeons exist yet. The `fungal_forest` and `quarantine` tilesets are defined but unused. Create fungal dungeon(s) and wire `fungal_biome_common/uncommon/rare` loot tables to chests via `door_interacted` triggers (follow the pattern in `array_deep_processing.json`).
-- **Frost biome** loot is wired to `nightside_caverns` (two chests → `frost_biome_common`). Consider adding `frost_biome_uncommon/rare` to the deeper nightside dungeons (nightside_depths, nightside_passage) if story chests there are supplemented with loot crates.
+- ~~**Fungal biome loot tables** exist (`content/loot/fungal.json`) but no fungal dungeons exist yet.~~ Done — `proc_fungal_forest` template wires `fungal_biome_common/uncommon/rare` by depth.
+- **Frost biome** loot is wired to `nightside_caverns` (two chests → `frost_biome_common`) and `proc_frost_crypt` (all three tiers by depth). Consider adding `frost_biome_uncommon/rare` to deeper static nightside dungeons (nightside_depths, nightside_passage) if story chests are supplemented with loot crates.
 - Loot tables for Act III monsters: threshold_watcher, abyssal_tendril, threshold_keeper have no loot tables. Create nightside/underlumen loot tables with thematic drops.
 - Three ending path dungeons: array_control_center (shutdown), underlumen_nexus_chamber (merge), array_command_core (control). Each needs a final boss encounter and resolution triggers.
 - Post-choice NPC dialogue: Asha, Sable, and MERIDIAN-7 dialogue variants reacting to the player's chosen ending path (chose_path_shutdown/merge/control flags).
