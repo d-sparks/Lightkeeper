@@ -57,7 +57,7 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 - Add explicit patrolPath waypoints to remaining patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
 - Pack AI "pack leader" variant that buffs nearby pack members.
 - Tune special attack cooldowns and damage multipliers after playtesting (lunge, stun, ground slam).
-- Consider adding special attacks to boss phases (boss_crystal AI doesn't use specialAttacks yet).
+- ~~Consider adding special attacks to boss phases (boss_crystal AI doesn't use specialAttacks yet).~~ Done — boss_crystal AI now integrates specialAttacks; Crystal Guardian has ground_slam + stun.
 - Add stun/knockback immunity window after recovery to prevent stun-locks.
 - Visual polish: lunge trail effect, ground slam shockwave ring animation, stun stars instead of dots.
 
