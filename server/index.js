@@ -9,6 +9,7 @@ const { handleEditorAPI } = require('./editor-api');
 const { handleCheckpointAPI } = require('./checkpoint-api');
 const { isAuthenticated, handleLogin, sendUnauthorized } = require('./editor-auth');
 const contentGit = require('./content-git');
+const ChunkManager = require('./chunk-manager');
 
 // --- Configuration ---
 const PORT = process.env.PORT || 3000;
@@ -318,6 +319,9 @@ const httpServer = http.createServer((req, res) => {
   serveFile(res, path.join(CLIENT_DIR, urlPath));
 });
 
+// --- Chunk manager for map streaming ---
+const chunkManager = new ChunkManager();
+
 // --- WebSocket server ---
 const wss = new WebSocketServer({ server: httpServer });
 let nextPlayerId = 1;
@@ -436,13 +440,27 @@ wss.on('connection', (ws) => {
         }
 
         const room = gameLoop.getRoom(ws.playerRoom);
-        const welcomeMap = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
+        const overlayedDungeon = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
+        // Send map metadata without tile data; chunks will fill it in
+        const { data: _stripData, ...mapMeta } = overlayedDungeon;
+        // Compute initial visible chunks around spawn
+        const welcomePlayer = room.players.get(playerId);
+        const visibleKeys = chunkManager.getVisibleChunks(welcomePlayer.x, welcomePlayer.y, overlayedDungeon);
+        const initialChunks = [];
+        for (const key of visibleKeys) {
+          const { cx, cy } = chunkManager.parseKey(key);
+          initialChunks.push(chunkManager.extractChunk(overlayedDungeon, cx, cy));
+        }
+        chunkManager.markSent(playerId, ws.playerRoom, [...visibleKeys]);
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.WELCOME,
           playerId,
-          map: welcomeMap,
+          map: mapMeta,
           tileset: content.getTileset(room.dungeon.tileset),
           itemCatalog: content.getAllItems(),
+          chunked: true,
+          chunkSize: CONSTANTS.CHUNK_SIZE,
+          chunks: initialChunks,
         }));
 
         // Send initial empty inventory and equipment
@@ -838,6 +856,7 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     console.log(`[WS] Client disconnected: ${playerId}`);
+    chunkManager.removePlayer(playerId);
     if (ws.playerRoom) {
       gameLoop.removePlayer(ws.playerRoom, playerId);
       gameLoop.questTracker.removePlayer(playerId);
@@ -914,11 +933,25 @@ setInterval(() => {
     gameLoop.addPlayerAt(targetRoomId, player, spawnX, spawnY);
     ws.playerRoom = targetRoomId;
 
-    const floorMap = gameLoop.automation.getOverlayedMapData(t.playerId, targetRoom.dungeon);
+    const floorOverlay = gameLoop.automation.getOverlayedMapData(t.playerId, targetRoom.dungeon);
+    const { data: _stripFloorData, ...floorMeta } = floorOverlay;
+    // Reset chunk tracking for this player in the new room
+    chunkManager.resetRoom(t.playerId, targetRoomId);
+    // Compute initial chunks around spawn position
+    const transPlayer = targetRoom.players.get(t.playerId);
+    const floorVisibleKeys = chunkManager.getVisibleChunks(transPlayer.x, transPlayer.y, floorOverlay);
+    const floorChunks = [];
+    for (const key of floorVisibleKeys) {
+      const { cx, cy } = chunkManager.parseKey(key);
+      floorChunks.push(chunkManager.extractChunk(floorOverlay, cx, cy));
+    }
+    chunkManager.markSent(t.playerId, targetRoomId, [...floorVisibleKeys]);
     ws.send(JSON.stringify({
       type: CONSTANTS.MSG.FLOOR_CHANGE,
-      map: floorMap,
+      map: floorMeta,
       tileset: content.getTileset(targetRoom.dungeon.tileset),
+      chunked: true,
+      chunks: floorChunks,
     }));
 
     // Emit room_entered AFTER sending FLOOR_CHANGE so that any triggered
@@ -967,6 +1000,28 @@ setInterval(() => {
       type: CONSTANTS.MSG.DIALOGUE,
       dialogue: lines.map(text => ({ speaker: '', text })),
     }));
+  }
+
+  // Stream new map chunks to players who have moved into new areas
+  for (const [roomId, room] of gameLoop.rooms) {
+    for (const [playerId, player] of room.players) {
+      const client = findClientByPlayerId(playerId);
+      if (!client || client.readyState !== 1) continue;
+      // Check if there are new visible chunks before doing expensive overlay
+      const visible = chunkManager.getVisibleChunks(player.x, player.y, room.dungeon);
+      const newKeys = chunkManager.getNewChunkKeys(playerId, roomId, visible);
+      if (newKeys.length === 0) continue;
+      const overlayed = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
+      const chunks = newKeys.map(key => {
+        const { cx, cy } = chunkManager.parseKey(key);
+        return chunkManager.extractChunk(overlayed, cx, cy);
+      });
+      chunkManager.markSent(playerId, roomId, newKeys);
+      client.send(JSON.stringify({
+        type: CONSTANTS.MSG.MAP_CHUNKS,
+        chunks,
+      }));
+    }
   }
 
   // Send state to each room's players

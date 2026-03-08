@@ -2,6 +2,18 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOS.md tasks.
 
+## Map Streaming & Fog of War
+
+Chunk-based map streaming and fog of war are now implemented. Outstanding work:
+
+- Persist revealed chunks per player per room across sessions (requires session persistence first).
+- Create 10x bigger dungeon content (200x120+ tile maps) to take advantage of the streaming system.
+- Optimize iso rendering for very large maps: skip iteration of unrevealed chunk regions entirely instead of checking each tile.
+- Add a smooth fog-of-war edge effect at the border of revealed/unrevealed chunks (gradient or dithered fade).
+- Editor reload paths still send full map data (no fog of war). Consider chunking those too if needed.
+- Consider reducing chunk reveal radius (currently 3 chunks = 48 tiles) for bigger maps to increase exploration feel.
+- Tune the `getOverlayedMapData` call frequency — currently checked every tick for every player; could throttle to every N ticks.
+
 ## Controls
 
 - Touch joystick and gamepad analog sticks also send raw screen-space dx/dy — they should be rotated 45° for isometric screen-orthogonal movement, same as the WASD fix applied in `client/input.js`.

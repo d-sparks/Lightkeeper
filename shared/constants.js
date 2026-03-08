@@ -10,6 +10,7 @@ const CONSTANTS = {
   // Tile / rendering
   TILE_SIZE: 32,              // Display size of each tile in pixels
   SPRITE_SIZE: 16,            // Native sprite size (scaled up 2x to TILE_SIZE)
+  CHUNK_SIZE: 16,             // Tiles per chunk side for map streaming
 
   // Isometric rendering
   ISO_DIAMOND_W: 96,          // Diamond footprint width in pixels
@@ -108,6 +109,9 @@ const CONSTANTS = {
     AUTO_TRADE: 'auto_trade',
     // Automation (Server -> Client)
     AUTO_STATE: 'auto_state',
+
+    // Map chunk streaming (Server -> Client)
+    MAP_CHUNKS: 'map_chunks',
 
     // World map (Server -> Client)
     WORLDMAP: 'worldmap',

@@ -85,6 +85,12 @@ class Renderer {
     // Sprite texture cache: path -> PIXI.Texture
     this.textureCache = {};
 
+    // Chunk-based fog of war
+    this.chunked = false;       // true when using chunk streaming
+    this.chunkCols = 0;
+    this.chunkRows = 0;
+    this.revealedChunks = null; // Uint8Array, 1 = revealed
+
     // Minimap graphics
     this.minimapGfx = null;
     this.fullMap = false;
@@ -1187,9 +1193,16 @@ class Renderer {
     this._rebuildTilePool();
   }
 
-  setMap(map, tileset) {
+  setMap(map, tileset, chunked) {
     this.map = map;
     this.tileset = tileset;
+    // Initialize chunk-based fog of war tracking
+    const cs = CONSTANTS.CHUNK_SIZE || 16;
+    this.chunked = !!chunked;
+    this.chunkCols = Math.ceil(map.width / cs);
+    this.chunkRows = Math.ceil(map.height / cs);
+    this.revealedChunks = new Uint8Array(this.chunkCols * this.chunkRows);
+    if (!chunked) this.revealedChunks.fill(1); // full data = all revealed
     // Compute elevation depth band from map iso-Y range so elevation layers
     // never overlap.  Each elevation gets TWO sub-bands: one for floor tiles
     // (always behind entities at that level) and one for walls + entities.
@@ -1207,6 +1220,38 @@ class Renderer {
       }
     }
     this._rebuildTilePool();
+  }
+
+  // Apply received chunks into the map data and mark them revealed
+  applyChunks(chunks) {
+    if (!this.map) return;
+    const cs = CONSTANTS.CHUNK_SIZE || 16;
+    for (const chunk of chunks) {
+      // Mark chunk as revealed
+      if (this.revealedChunks) {
+        this.revealedChunks[chunk.cy * this.chunkCols + chunk.cx] = 1;
+      }
+      // Copy tile data into map
+      for (let row = 0; row < chunk.h; row++) {
+        for (let col = 0; col < chunk.w; col++) {
+          const mapX = chunk.x + col;
+          const mapY = chunk.y + row;
+          if (mapX < this.map.width && mapY < this.map.height) {
+            this.map.data[mapY * this.map.width + mapX] = chunk.data[row * chunk.w + col];
+          }
+        }
+      }
+    }
+  }
+
+  // Check if a tile position is in a revealed chunk
+  isTileRevealed(tx, ty) {
+    if (!this.revealedChunks) return true;
+    const cs = CONSTANTS.CHUNK_SIZE || 16;
+    const cx = Math.floor(tx / cs);
+    const cy = Math.floor(ty / cs);
+    if (cx < 0 || cy < 0 || cx >= this.chunkCols || cy >= this.chunkRows) return false;
+    return this.revealedChunks[cy * this.chunkCols + cx] === 1;
   }
 
   buildTileColors() {
@@ -1242,8 +1287,9 @@ class Renderer {
     this.wallSprites = [];
 
     if (this.isoMode) {
-      // In iso mode, allocate enough sprites for entire map (maps are small, ~960 tiles max)
-      const count = this.map ? this.map.width * this.map.height : 600;
+      // In iso mode, allocate sprites for visible tiles (capped for large maps)
+      const mapTiles = this.map ? this.map.width * this.map.height : 600;
+      const count = Math.min(mapTiles, 4000);
       // Floor tile sprites in tileContainer (always behind entities)
       for (let i = 0; i < count; i++) {
         const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -1520,7 +1566,14 @@ class Renderer {
           continue;
         }
 
-        const tileId = String(this.map.data[ty * this.map.width + tx]);
+        // Skip unrevealed tiles (fog of war)
+        const rawTileIdFlat = this.map.data[ty * this.map.width + tx];
+        if (rawTileIdFlat === -1) {
+          sprite.visible = false;
+          continue;
+        }
+
+        const tileId = String(rawTileIdFlat);
         sprite.visible = true;
         sprite.x = tx * ts;
         sprite.y = ty * ts;
@@ -1579,7 +1632,11 @@ class Renderer {
           continue;
         }
 
-        const tileId = String(this.map.data[ty * w + tx]);
+        // Skip unrevealed tiles (fog of war)
+        const rawTileId = this.map.data[ty * w + tx];
+        if (rawTileId === -1) continue;
+
+        const tileId = String(rawTileId);
         const tileDef = this.tileset ? this.tileset.tiles[tileId] : null;
         const tileName = tileDef ? tileDef.name : 'void';
         const isoKey = this.tileToIsoKey[tileName] || 'wall';
@@ -2852,12 +2909,14 @@ class Renderer {
       this.minimapGfx.drawRect(Math.round(mmX - pad), Math.round(mmY - pad), Math.round(mmW + pad * 2), Math.round(mmH + pad * 2));
       this.minimapGfx.endFill();
 
-      // Tiles
+      // Tiles (skip unrevealed in fog of war)
       const s = Math.max(Math.round(fit * 0.9), 1);
       const sHalf = Math.floor(s / 2);
       for (let ty = 0; ty < H; ty++) {
         for (let tx = 0; tx < W; tx++) {
+          if (!this.isTileRevealed(tx, ty)) continue;
           const tileId = this.map.data[ty * W + tx];
+          if (tileId === -1) continue;
           const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
           const solid = tileDef ? tileDef.solid : true;
           this.minimapGfx.beginFill(solid ? 0x3a3a5a : 0x1a1a2e);
@@ -2866,9 +2925,11 @@ class Renderer {
         }
       }
 
-      // Items
+      // Items (only in revealed areas)
       if (this.state && this.state.items) {
         for (const item of this.state.items) {
+          const itx = Math.floor(item.x / ts), ity = Math.floor(item.y / ts);
+          if (!this.isTileRevealed(itx, ity)) continue;
           const p = isoPx(item.x, item.y);
           const color = item.category === 'key' ? 0x00e5ff : 0xfdd835;
           const dot = item.category === 'key' ? dotLarge : dotSmall;
@@ -2901,10 +2962,12 @@ class Renderer {
         }
       }
 
-      // Monsters
+      // Monsters (only in revealed areas)
       if (this.state && this.state.monsters) {
         this.minimapGfx.beginFill(0xe53935);
         for (const mob of this.state.monsters) {
+          const mtx = Math.floor(mob.x / ts), mty = Math.floor(mob.y / ts);
+          if (!this.isTileRevealed(mtx, mty)) continue;
           const p = isoPx(mob.x, mob.y);
           this.minimapGfx.drawRect(p.x - dotSmall / 2, p.y - dotSmall / 2, dotSmall, dotSmall);
         }
@@ -2969,10 +3032,12 @@ class Renderer {
       this.minimapGfx.drawRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
       this.minimapGfx.endFill();
 
-      // Tiles
+      // Tiles (skip unrevealed in fog of war)
       for (let ty = 0; ty < H; ty++) {
         for (let tx = 0; tx < W; tx++) {
+          if (!this.isTileRevealed(tx, ty)) continue;
           const tileId = this.map.data[ty * W + tx];
+          if (tileId === -1) continue;
           const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
           const solid = tileDef ? tileDef.solid : true;
 
@@ -2982,9 +3047,11 @@ class Renderer {
         }
       }
 
-      // Items
+      // Items (only in revealed areas)
       if (this.state && this.state.items) {
         for (const item of this.state.items) {
+          const fitx = Math.floor(item.x / ts), fity = Math.floor(item.y / ts);
+          if (!this.isTileRevealed(fitx, fity)) continue;
           const dotX = Math.round(mmX + (item.x / ts) * scale);
           const dotY = Math.round(mmY + (item.y / ts) * scale);
           const color = item.category === 'key' ? 0x00e5ff : 0xfdd835;
@@ -3017,10 +3084,12 @@ class Renderer {
         }
       }
 
-      // Monsters
+      // Monsters (only in revealed areas)
       if (this.state && this.state.monsters) {
         this.minimapGfx.beginFill(0xe53935);
         for (const mob of this.state.monsters) {
+          const fmtx = Math.floor(mob.x / ts), fmty = Math.floor(mob.y / ts);
+          if (!this.isTileRevealed(fmtx, fmty)) continue;
           const dotX = Math.round(mmX + (mob.x / ts) * scale);
           const dotY = Math.round(mmY + (mob.y / ts) * scale);
           this.minimapGfx.drawRect(dotX - dotSmall / 2, dotY - dotSmall / 2, dotSmall, dotSmall);

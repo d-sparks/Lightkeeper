@@ -2222,7 +2222,12 @@
     console.log('[Game] Welcome!', msg.playerId);
 
     renderer.setMyId(msg.playerId);
-    renderer.setMap(msg.map, msg.tileset);
+    // Chunk-based map streaming: create empty data array, fill from chunks
+    if (msg.chunked) {
+      msg.map.data = new Array(msg.map.width * msg.map.height).fill(-1);
+    }
+    renderer.setMap(msg.map, msg.tileset, msg.chunked);
+    if (msg.chunks) renderer.applyChunks(msg.chunks);
     if (msg.itemCatalog) itemCatalog = msg.itemCatalog;
 
     // Switch from join screen to game
@@ -2400,7 +2405,12 @@
 
   net.on(CONSTANTS.MSG.FLOOR_CHANGE, (msg) => {
     console.log('[Game] Floor change!', msg.map.name);
-    renderer.setMap(msg.map, msg.tileset);
+    // Chunk-based map streaming: create empty data array, fill from chunks
+    if (msg.chunked) {
+      msg.map.data = new Array(msg.map.width * msg.map.height).fill(-1);
+    }
+    renderer.setMap(msg.map, msg.tileset, msg.chunked);
+    if (msg.chunks) renderer.applyChunks(msg.chunks);
     renderer.fullMap = false;
     input.clearMoveTarget();
     // Close any open dialogue, choice menu, worldmap, or automation screen
@@ -2446,6 +2456,11 @@
       renderer.map.data[idx] = msg.tileId;
     }
     audio.play('door_open');
+  });
+
+  // Chunk-based map streaming: receive new map chunks as player explores
+  net.on(CONSTANTS.MSG.MAP_CHUNKS, (msg) => {
+    if (msg.chunks) renderer.applyChunks(msg.chunks);
   });
 
   net.on(CONSTANTS.MSG.SOL_GRID, (msg) => {
