@@ -142,7 +142,11 @@
       ],
       "actions": [
         { "type": "setFlag", "flag": "sable_warned_about_array" },
-        { "type": "grantXp", "amount": 25 }
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "lines": [
+          "You tell Sable what you found inside the Array Deep Processing facility. The synthesis vats. Project Autotroph. The Array's long, patient effort to replicate Ring biology.",
+          "She does not look surprised. She looks like someone who has been waiting a very long time to be believed."
+        ]}
       ],
       "once": true
     }

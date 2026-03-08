@@ -49,7 +49,8 @@ Session save/load is now implemented (JSON files in `saves/`). Outstanding work:
 - Three ending path dungeons: array_control_center (shutdown), underlumen_nexus_chamber (merge), array_command_core (control). Each needs a final boss encounter and resolution triggers.
 - Post-choice NPC dialogue: Asha, Sable, and MERIDIAN-7 dialogue variants reacting to the player's chosen ending path (chose_path_shutdown/merge/control flags).
 - Unbounded elder NPC for deep Nightside (referenced by Sable). Provides Underlumen lore, gates merge path.
-- Council faction NPCs (Steward, Compact, Root representatives) for political branching.
+- Council faction NPCs (Steward, Compact, Root representatives) for political branching. These should react to `array_secret_discovered` and `chose_path_*` flags — referenced in Asha's `array_secret_crisis` dialogue but not yet embodied by spawnable NPCs in `meridian_civic`.
+- Add `registrar_hollis` `array_secret_discovered` dialogue variant: the civic bureaucracy should have ambient reactions to the Council fracturing (grumblings, closed-door meetings, changed shift schedules) visible even before talking to Asha or Thorne.
 
 ## Combat & AI Polish
 
