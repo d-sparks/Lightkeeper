@@ -49,12 +49,18 @@
   ],
   "triggers": [
     {
-      "id": "enter_civic",
+      "id": "civic_post_secret_atmosphere",
       "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "not": { "hasFlag": "civic_post_secret_entered" } }
+      ],
       "actions": [
+        { "type": "setFlag", "flag": "civic_post_secret_entered" },
         { "type": "showMessage", "lines": [
-          "The Civic Center. Clean lines, functional architecture. This is where Meridian City governs itself.",
-          "Offices line both sides of the main hall. A reception desk sits unattended — budget cuts, presumably."
+          "The Civic Center is tense. Hushed arguments in the corridors. Councillor Asha Denn's door is closed — voices behind it, urgent and low.",
+          "Thorne is at his usual post, but his posture has changed. He is watching the exits.",
+          "Whatever the Array learned from your visit to the Deep Processing facility, the information is already rippling outward. The Council knows something has shifted."
         ]}
       ],
       "once": true
@@ -167,7 +173,13 @@
       "actions": [
         { "type": "setFlag", "flag": "asha_briefed_on_array" },
         { "type": "grantXp", "amount": 35 },
-        { "type": "showMessage", "text": "Councillor Asha Denn receives your report with grim composure. The Council will never be the same." }
+        { "type": "showMessage", "lines": [
+          "Councillor Asha Denn takes one look at your face and closes the door to her office.",
+          "You lay out everything: the Deep Processing facility, the central containment vats, the culture medium labeled 7-SIGMA-4. Synthetic amino acids. Chloroplast-analog enzymes. Four million synthesis iterations.",
+          "Project Autotroph. The Array's quiet, patient effort to make the Ring's biological leverage obsolete.",
+          "Asha listens without interrupting. When you finish, she is silent for a long moment. Her hands are still. Her jaw is tight.",
+          "The Council will never look at the Array the same way again."
+        ]}
       ],
       "once": true
     },
@@ -181,7 +193,11 @@
       ],
       "actions": [
         { "type": "setFlag", "flag": "thorne_confronted" },
-        { "type": "grantXp", "amount": 20 }
+        { "type": "grantXp", "amount": 20 },
+        { "type": "showMessage", "lines": [
+          "Thorne sees you coming. His practiced smile flickers once — then steadies, out of habit. But his eyes are different.",
+          "He already knows you've been inside the Array complex. MERIDIAN-7 told him. That's his job: to know."
+        ]}
       ],
       "once": true
     },

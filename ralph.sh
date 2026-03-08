@@ -23,7 +23,8 @@ MAX_TURNS=100
 YOLO=false
 LOG_DIR="$REPO_ROOT/.claude/ralph-logs"
 DAILY_LIMIT=80    # Stop if 5-hour usage >= this %
-WEEKLY_LIMIT=14   # Stop if 7-day usage >= this %
+WEEKLY_RATE=17             # Max % of 7-day budget per day
+WEEKLY_START="2026-03-07"  # Budget start date (day 1)
 
 # ─── Parse args ───────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -96,7 +97,14 @@ check_budget() {
     console.log(parseFloat(v));
   " 2>/dev/null)" || weekly_used="0"
 
-  echo "  Budget: 5h ${daily_used}% / ${DAILY_LIMIT}% cap, 7d ${weekly_used}% / ${WEEKLY_LIMIT}% cap"
+  # Compute dynamic weekly limit: WEEKLY_RATE% per day since WEEKLY_START
+  local start_epoch now_epoch days_elapsed weekly_limit
+  start_epoch="$(date -d "$WEEKLY_START" +%s)"
+  now_epoch="$(date +%s)"
+  days_elapsed=$(( (now_epoch - start_epoch) / 86400 + 1 ))
+  weekly_limit=$((days_elapsed * WEEKLY_RATE))
+
+  echo "  Budget: 5h ${daily_used}% / ${DAILY_LIMIT}% cap, 7d ${weekly_used}% / ${weekly_limit}% cap (day ${days_elapsed}, ${WEEKLY_RATE}%/day)"
 
   # Compare as integers (bash can't do float comparison)
   local daily_int weekly_int
@@ -108,8 +116,8 @@ check_budget() {
     budget_summary
     exit 0
   fi
-  if [[ "$weekly_int" -ge "$WEEKLY_LIMIT" ]]; then
-    echo "  BUDGET STOP: 7-day usage ${weekly_used}% >= ${WEEKLY_LIMIT}% cap."
+  if [[ "$weekly_int" -ge "$weekly_limit" ]]; then
+    echo "  BUDGET STOP: 7-day usage ${weekly_used}% >= ${weekly_limit}% cap (day ${days_elapsed})."
     budget_summary
     exit 0
   fi

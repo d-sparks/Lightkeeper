@@ -81,9 +81,16 @@ class Renderer {
     this.npcSprites = new Map();
     this.itemSprites = new Map();
     this.projectileSprites = new Map();
+    this.sentrySprites = new Map();
 
     // Sprite texture cache: path -> PIXI.Texture
     this.textureCache = {};
+
+    // Chunk-based fog of war
+    this.chunked = false;       // true when using chunk streaming
+    this.chunkCols = 0;
+    this.chunkRows = 0;
+    this.revealedChunks = null; // Uint8Array, 1 = revealed
 
     // Minimap graphics
     this.minimapGfx = null;
@@ -173,6 +180,11 @@ class Renderer {
     // Melee slash effect graphics
     this.meleeGfx = new PIXI.Graphics();
     this.worldContainer.addChild(this.meleeGfx);
+
+    // Sentry beam graphics
+    this.sentryBeamGfx = new PIXI.Graphics();
+    this.worldContainer.addChild(this.sentryBeamGfx);
+    this.sentryPulseTime = 0;
 
     // Click target indicator
     this.clickTargetGfx = new PIXI.Graphics();
@@ -1187,9 +1199,16 @@ class Renderer {
     this._rebuildTilePool();
   }
 
-  setMap(map, tileset) {
+  setMap(map, tileset, chunked) {
     this.map = map;
     this.tileset = tileset;
+    // Initialize chunk-based fog of war tracking
+    const cs = CONSTANTS.CHUNK_SIZE || 16;
+    this.chunked = !!chunked;
+    this.chunkCols = Math.ceil(map.width / cs);
+    this.chunkRows = Math.ceil(map.height / cs);
+    this.revealedChunks = new Uint8Array(this.chunkCols * this.chunkRows);
+    if (!chunked) this.revealedChunks.fill(1); // full data = all revealed
     // Compute elevation depth band from map iso-Y range so elevation layers
     // never overlap.  Each elevation gets TWO sub-bands: one for floor tiles
     // (always behind entities at that level) and one for walls + entities.
@@ -1207,6 +1226,38 @@ class Renderer {
       }
     }
     this._rebuildTilePool();
+  }
+
+  // Apply received chunks into the map data and mark them revealed
+  applyChunks(chunks) {
+    if (!this.map) return;
+    const cs = CONSTANTS.CHUNK_SIZE || 16;
+    for (const chunk of chunks) {
+      // Mark chunk as revealed
+      if (this.revealedChunks) {
+        this.revealedChunks[chunk.cy * this.chunkCols + chunk.cx] = 1;
+      }
+      // Copy tile data into map
+      for (let row = 0; row < chunk.h; row++) {
+        for (let col = 0; col < chunk.w; col++) {
+          const mapX = chunk.x + col;
+          const mapY = chunk.y + row;
+          if (mapX < this.map.width && mapY < this.map.height) {
+            this.map.data[mapY * this.map.width + mapX] = chunk.data[row * chunk.w + col];
+          }
+        }
+      }
+    }
+  }
+
+  // Check if a tile position is in a revealed chunk
+  isTileRevealed(tx, ty) {
+    if (!this.revealedChunks) return true;
+    const cs = CONSTANTS.CHUNK_SIZE || 16;
+    const cx = Math.floor(tx / cs);
+    const cy = Math.floor(ty / cs);
+    if (cx < 0 || cy < 0 || cx >= this.chunkCols || cy >= this.chunkRows) return false;
+    return this.revealedChunks[cy * this.chunkCols + cx] === 1;
   }
 
   buildTileColors() {
@@ -1242,8 +1293,9 @@ class Renderer {
     this.wallSprites = [];
 
     if (this.isoMode) {
-      // In iso mode, allocate enough sprites for entire map (maps are small, ~960 tiles max)
-      const count = this.map ? this.map.width * this.map.height : 600;
+      // In iso mode, allocate sprites for visible tiles (capped for large maps)
+      const mapTiles = this.map ? this.map.width * this.map.height : 600;
+      const count = Math.min(mapTiles, 4000);
       // Floor tile sprites in tileContainer (always behind entities)
       for (let i = 0; i < count; i++) {
         const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
@@ -1304,6 +1356,7 @@ class Renderer {
     this.renderNPCs();
     this.renderMonsters();
     this.renderProjectiles();
+    this.renderSentries();
     this.renderConeEffects();
     this.renderMeleeEffects();
     this.renderPlayers();
@@ -1520,7 +1573,14 @@ class Renderer {
           continue;
         }
 
-        const tileId = String(this.map.data[ty * this.map.width + tx]);
+        // Skip unrevealed tiles (fog of war)
+        const rawTileIdFlat = this.map.data[ty * this.map.width + tx];
+        if (rawTileIdFlat === -1) {
+          sprite.visible = false;
+          continue;
+        }
+
+        const tileId = String(rawTileIdFlat);
         sprite.visible = true;
         sprite.x = tx * ts;
         sprite.y = ty * ts;
@@ -1579,7 +1639,11 @@ class Renderer {
           continue;
         }
 
-        const tileId = String(this.map.data[ty * w + tx]);
+        // Skip unrevealed tiles (fog of war)
+        const rawTileId = this.map.data[ty * w + tx];
+        if (rawTileId === -1) continue;
+
+        const tileId = String(rawTileId);
         const tileDef = this.tileset ? this.tileset.tiles[tileId] : null;
         const tileName = tileDef ? tileDef.name : 'void';
         const isoKey = this.tileToIsoKey[tileName] || 'wall';
@@ -1978,6 +2042,9 @@ class Renderer {
       // Hit flash: override tint to white briefly
       if (this.hitFlashes.has(mob.id)) {
         sprite.tint = 0xffffff;
+      } else if (mob.slowed) {
+        // Light blue tint when slowed by sentry beam
+        sprite.tint = 0x4fc3f7;
       }
 
       // Name tag (above sprite top)
@@ -2060,6 +2127,142 @@ class Renderer {
     this._cleanupPool(this.projectileSprites, activeIds);
   }
 
+  // --- Light Sentries ---
+
+  renderSentries() {
+    if (!this.state || !this.state.sentries) return;
+
+    this.sentryBeamGfx.clear();
+    this.sentryPulseTime += 1 / 60;
+
+    const activeIds = new Set();
+
+    for (const sentry of this.state.sentries) {
+      activeIds.add(sentry.id);
+
+      // Get or create sentry sprite
+      let entry = this.sentrySprites.get(sentry.id);
+      if (!entry) {
+        const container = new PIXI.Container();
+
+        // Base glow circle
+        const glow = new PIXI.Graphics();
+        glow.beginFill(0x4fc3f7, 0.15);
+        glow.drawCircle(0, 0, 20);
+        glow.endFill();
+        glow.beginFill(0x81d4fa, 0.25);
+        glow.drawCircle(0, 0, 12);
+        glow.endFill();
+        container.addChild(glow);
+
+        // Sentry body sprite
+        const sz = this.isoMode ? 36 : CONSTANTS.TILE_SIZE;
+        const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+        sprite.anchor.set(0.5, 0.5);
+        sprite.width = sz;
+        sprite.height = sz;
+        sprite.tint = 0x4fc3f7;
+
+        // Try to load the sentry sprite texture
+        const tex = this.loadTexture('sprites/light_sentry.png');
+        if (tex.valid) {
+          sprite.texture = tex;
+          sprite.tint = 0xffffff;
+        }
+        container.addChild(sprite);
+
+        // Rotating light rays around the sentry
+        const rays = new PIXI.Graphics();
+        container.addChild(rays);
+
+        this.entityContainer.addChild(container);
+        entry = { container, sprite, glow, rays };
+        this.sentrySprites.set(sentry.id, entry);
+      }
+
+      const { container, glow, rays } = entry;
+      this._positionEntity(container, sentry.x, sentry.y);
+
+      // Animate glow pulse
+      const pulse = 0.7 + 0.3 * Math.sin(this.sentryPulseTime * 4);
+      glow.alpha = pulse;
+
+      // Animate rotating rays
+      rays.clear();
+      const rayCount = 6;
+      const rayLen = 14 + 4 * Math.sin(this.sentryPulseTime * 3);
+      for (let i = 0; i < rayCount; i++) {
+        const angle = this.sentryPulseTime * 1.5 + (i * Math.PI * 2 / rayCount);
+        const x1 = Math.cos(angle) * 8;
+        const y1 = Math.sin(angle) * 8;
+        const x2 = Math.cos(angle) * rayLen;
+        const y2 = Math.sin(angle) * rayLen;
+        rays.lineStyle(1.5, 0x81d4fa, 0.5 * pulse);
+        rays.moveTo(x1, y1);
+        rays.lineTo(x2, y2);
+      }
+      rays.lineStyle(0);
+
+      // Draw beam to target
+      if (sentry.targetId) {
+        // Find target monster position
+        const targetMob = this.state.monsters.find(m => m.id === sentry.targetId);
+        if (targetMob) {
+          // Use world coords (or iso-world coords) since sentryBeamGfx is in worldContainer
+          const toWorld = (wx, wy) => {
+            return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+          };
+          const sp = toWorld(sentry.x, sentry.y);
+          const tp = toWorld(targetMob.x, targetMob.y);
+
+          const beamPulse = 0.5 + 0.5 * Math.sin(this.sentryPulseTime * 8);
+
+          // Outer beam glow
+          this.sentryBeamGfx.lineStyle(6, 0x4fc3f7, 0.15 * beamPulse);
+          this.sentryBeamGfx.moveTo(sp.x, sp.y);
+          this.sentryBeamGfx.lineTo(tp.x, tp.y);
+
+          // Mid beam
+          this.sentryBeamGfx.lineStyle(3, 0x81d4fa, 0.4 * beamPulse);
+          this.sentryBeamGfx.moveTo(sp.x, sp.y);
+          this.sentryBeamGfx.lineTo(tp.x, tp.y);
+
+          // Core beam (bright)
+          this.sentryBeamGfx.lineStyle(1.5, 0xe1f5fe, 0.8);
+          this.sentryBeamGfx.moveTo(sp.x, sp.y);
+          this.sentryBeamGfx.lineTo(tp.x, tp.y);
+
+          // Impact glow at target
+          this.sentryBeamGfx.lineStyle(0);
+          this.sentryBeamGfx.beginFill(0x4fc3f7, 0.3 * beamPulse);
+          this.sentryBeamGfx.drawCircle(tp.x, tp.y, 8);
+          this.sentryBeamGfx.endFill();
+          this.sentryBeamGfx.beginFill(0xe1f5fe, 0.5 * beamPulse);
+          this.sentryBeamGfx.drawCircle(tp.x, tp.y, 4);
+          this.sentryBeamGfx.endFill();
+
+          // Crawling energy particles along beam
+          const dx = tp.x - sp.x;
+          const dy = tp.y - sp.y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          if (len > 0) {
+            const particleCount = 3;
+            for (let i = 0; i < particleCount; i++) {
+              const t = ((this.sentryPulseTime * 2 + i / particleCount) % 1);
+              const px = sp.x + dx * t;
+              const py = sp.y + dy * t;
+              this.sentryBeamGfx.beginFill(0xe1f5fe, 0.7 * (1 - t));
+              this.sentryBeamGfx.drawCircle(px, py, 2);
+              this.sentryBeamGfx.endFill();
+            }
+          }
+        }
+      }
+    }
+
+    this._cleanupPool(this.sentrySprites, activeIds);
+  }
+
   // --- Players ---
 
   renderPlayers() {
@@ -2111,6 +2314,25 @@ class Renderer {
         entry.hoverGfx.drawCircle(0, isoOff, r + 10);
         entry.hoverGfx.lineStyle(1, 0x4fc3f7, 0.15 + 0.15 * pulse);
         entry.hoverGfx.drawCircle(0, isoOff, r + 16);
+      }
+
+      // Stun indicator (spinning dots)
+      if (!entry.stunGfx) {
+        entry.stunGfx = new PIXI.Graphics();
+        container.addChild(entry.stunGfx);
+      }
+      entry.stunGfx.clear();
+      if (player.stunned) {
+        const stunAngle = Date.now() / 300;
+        const stunY = this.isoMode ? -30 : -r - 2;
+        for (let s = 0; s < 3; s++) {
+          const a = stunAngle + (s * Math.PI * 2 / 3);
+          const sx = Math.cos(a) * 10;
+          const sy = Math.sin(a) * 4 + stunY;
+          entry.stunGfx.beginFill(0xffeb3b, 0.9);
+          entry.stunGfx.drawCircle(sx, sy, 2.5);
+          entry.stunGfx.endFill();
+        }
       }
 
       // Name tag (above sprite top)
@@ -2726,6 +2948,49 @@ class Renderer {
           age: 0, maxAge: 1.5,
           color: '#ce93d8',
         });
+      } else if (ev.type === 'stun' && ev.targetId === this.myId) {
+        // Player got stunned — screen shake + floating text
+        this.screenShake = { intensity: 6, duration: 0.3, elapsed: 0 };
+        this.damageNumbers.push({
+          text: 'STUNNED!',
+          x: ev.x, y: ev.y - 16,
+          age: 0, maxAge: 1.2,
+          color: '#ffeb3b',
+        });
+      } else if (ev.type === 'lunge_start' && ev.targetId) {
+        // Monster lunge — brief visual indicator
+        this.damageNumbers.push({
+          text: 'LUNGE!',
+          x: ev.x, y: ev.y - 16,
+          age: 0, maxAge: 0.8,
+          color: '#ff5722',
+        });
+      } else if (ev.type === 'lunge_hit' && ev.targetId) {
+        this.screenShake = { intensity: 5, duration: 0.2, elapsed: 0 };
+      } else if (ev.type === 'ground_slam') {
+        // AOE ground slam — screen shake for everyone
+        this.screenShake = { intensity: 7, duration: 0.4, elapsed: 0 };
+        this.damageNumbers.push({
+          text: 'SLAM!',
+          x: ev.x, y: ev.y - 16,
+          age: 0, maxAge: 1.0,
+          color: '#ff7043',
+        });
+      } else if (ev.type === 'sentry_spawn') {
+        this.damageNumbers.push({
+          text: 'SENTRY DEPLOYED',
+          x: ev.x, y: ev.y - 16,
+          age: 0, maxAge: 1.2,
+          color: '#4fc3f7',
+        });
+      } else if (ev.type === 'sentry_despawn') {
+        // Clean up sprite immediately
+        const oldEntry = this.sentrySprites.get(ev.sentryId);
+        if (oldEntry) {
+          this.entityContainer.removeChild(oldEntry.container);
+          oldEntry.container.destroy({ children: true });
+          this.sentrySprites.delete(ev.sentryId);
+        }
       } else if (ev.type === 'boss_intro' && ev.playerId === this.myId) {
         // Start boss intro cinematic
         this.bossIntro = {
@@ -2852,12 +3117,14 @@ class Renderer {
       this.minimapGfx.drawRect(Math.round(mmX - pad), Math.round(mmY - pad), Math.round(mmW + pad * 2), Math.round(mmH + pad * 2));
       this.minimapGfx.endFill();
 
-      // Tiles
+      // Tiles (skip unrevealed in fog of war)
       const s = Math.max(Math.round(fit * 0.9), 1);
       const sHalf = Math.floor(s / 2);
       for (let ty = 0; ty < H; ty++) {
         for (let tx = 0; tx < W; tx++) {
+          if (!this.isTileRevealed(tx, ty)) continue;
           const tileId = this.map.data[ty * W + tx];
+          if (tileId === -1) continue;
           const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
           const solid = tileDef ? tileDef.solid : true;
           this.minimapGfx.beginFill(solid ? 0x3a3a5a : 0x1a1a2e);
@@ -2866,9 +3133,11 @@ class Renderer {
         }
       }
 
-      // Items
+      // Items (only in revealed areas)
       if (this.state && this.state.items) {
         for (const item of this.state.items) {
+          const itx = Math.floor(item.x / ts), ity = Math.floor(item.y / ts);
+          if (!this.isTileRevealed(itx, ity)) continue;
           const p = isoPx(item.x, item.y);
           const color = item.category === 'key' ? 0x00e5ff : 0xfdd835;
           const dot = item.category === 'key' ? dotLarge : dotSmall;
@@ -2901,10 +3170,12 @@ class Renderer {
         }
       }
 
-      // Monsters
+      // Monsters (only in revealed areas)
       if (this.state && this.state.monsters) {
         this.minimapGfx.beginFill(0xe53935);
         for (const mob of this.state.monsters) {
+          const mtx = Math.floor(mob.x / ts), mty = Math.floor(mob.y / ts);
+          if (!this.isTileRevealed(mtx, mty)) continue;
           const p = isoPx(mob.x, mob.y);
           this.minimapGfx.drawRect(p.x - dotSmall / 2, p.y - dotSmall / 2, dotSmall, dotSmall);
         }
@@ -2969,10 +3240,12 @@ class Renderer {
       this.minimapGfx.drawRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
       this.minimapGfx.endFill();
 
-      // Tiles
+      // Tiles (skip unrevealed in fog of war)
       for (let ty = 0; ty < H; ty++) {
         for (let tx = 0; tx < W; tx++) {
+          if (!this.isTileRevealed(tx, ty)) continue;
           const tileId = this.map.data[ty * W + tx];
+          if (tileId === -1) continue;
           const tileDef = this.tileset ? this.tileset.tiles[String(tileId)] : null;
           const solid = tileDef ? tileDef.solid : true;
 
@@ -2982,9 +3255,11 @@ class Renderer {
         }
       }
 
-      // Items
+      // Items (only in revealed areas)
       if (this.state && this.state.items) {
         for (const item of this.state.items) {
+          const fitx = Math.floor(item.x / ts), fity = Math.floor(item.y / ts);
+          if (!this.isTileRevealed(fitx, fity)) continue;
           const dotX = Math.round(mmX + (item.x / ts) * scale);
           const dotY = Math.round(mmY + (item.y / ts) * scale);
           const color = item.category === 'key' ? 0x00e5ff : 0xfdd835;
@@ -3017,10 +3292,12 @@ class Renderer {
         }
       }
 
-      // Monsters
+      // Monsters (only in revealed areas)
       if (this.state && this.state.monsters) {
         this.minimapGfx.beginFill(0xe53935);
         for (const mob of this.state.monsters) {
+          const fmtx = Math.floor(mob.x / ts), fmty = Math.floor(mob.y / ts);
+          if (!this.isTileRevealed(fmtx, fmty)) continue;
           const dotX = Math.round(mmX + (mob.x / ts) * scale);
           const dotY = Math.round(mmY + (mob.y / ts) * scale);
           this.minimapGfx.drawRect(dotX - dotSmall / 2, dotY - dotSmall / 2, dotSmall, dotSmall);
@@ -3205,7 +3482,7 @@ class Renderer {
 
     // Show label in full map mode or when marker is inside compact minimap
     if (objective.label && (full || inside)) {
-      const label = sameRoom ? objective.label : objective.label + ' \u2192';
+      const label = sameRoom ? objective.label : objective.label + ' \u25CF';
       this.questWaypointText.text = label;
       this.questWaypointText.x = Math.round(qx);
       this.questWaypointText.y = Math.round(qy - r - 4);

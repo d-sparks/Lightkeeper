@@ -50,10 +50,7 @@
       "id": "relay_station_enter",
       "event": "room_entered",
       "actions": [
-        { "type": "showMessage", "lines": [
-          "The relay station is barely standing. Half the ceiling has caved in, and dark vines creep through the cracks.",
-          "Two junction boxes flank the room. A sealed maintenance hatch divides the station in two. Something large moves in the darkness beyond it."
-        ]}
+        { "type": "showMessage", "text": "Two junction boxes flank the room. A sealed maintenance hatch divides the station in two. Something large moves in the darkness beyond it." }
       ],
       "once": true
     },

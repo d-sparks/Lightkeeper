@@ -42,17 +42,6 @@
   ],
   "triggers": [
     {
-      "id": "enter_residential",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The Residential Quarter. Quieter than the market, more personal. Small homes and apartments line the paths, their windows warm with light.",
-          "There's a small garden in the southern section — unusual plants glow softly in the twilight."
-        ]}
-      ],
-      "once": true
-    },
-    {
       "id": "remove_sable_meridian_no_encounter",
       "event": "room_entered",
       "conditions": [
@@ -153,7 +142,11 @@
       ],
       "actions": [
         { "type": "setFlag", "flag": "sable_warned_about_array" },
-        { "type": "grantXp", "amount": 25 }
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "lines": [
+          "You tell Sable what you found inside the Array Deep Processing facility. The synthesis vats. Project Autotroph. The Array's long, patient effort to replicate Ring biology.",
+          "She does not look surprised. She looks like someone who has been waiting a very long time to be believed."
+        ]}
       ],
       "once": true
     }

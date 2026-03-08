@@ -8,7 +8,7 @@
       "label": "Meet Sable at the Nightside Passage",
       "description": "Sable is waiting at the Nightside Passage beyond the Nightside Depths. She will guide the expedition into the deep dark.",
       "prerequisiteSteps": [],
-      "objective": { "roomId": "nightside_passage", "tileX": 5, "tileY": 4 },
+      "objective": { "roomId": "nightside_passage", "targetNpc": "sable_nightside_guide" },
       "completionConditions": [{ "hasFlag": "nightside_expedition_started" }],
       "completionActions": [{ "type": "grantXp", "amount": 50 }]
     },
@@ -24,7 +24,7 @@
       "label": "Reach the Underlumen Threshold",
       "description": "Descend through the Nightside Passage to the Underlumen Threshold — the edge of the planet's living core.",
       "prerequisiteSteps": ["collect_symbiotic_compound"],
-      "objective": { "roomId": "nightside_passage", "tileX": 25, "tileY": 19 },
+      "objective": { "roomId": "nightside_passage", "targetExit": "underlumen_threshold" },
       "completionConditions": [{ "hasFlag": "reached_underlumen_threshold" }],
       "completionActions": [{ "type": "grantXp", "amount": 60 }]
     },
@@ -32,7 +32,7 @@
       "label": "Bring the Symbiotic Compound to Asha",
       "description": "Return the symbiotic compound to Councillor Asha Denn at the Civic Center. This evidence could change the balance of power between all three factions.",
       "prerequisiteSteps": ["reach_underlumen_threshold"],
-      "objective": { "roomId": "meridian_civic", "tileX": 17, "tileY": 5 },
+      "objective": { "roomId": "meridian_civic", "targetNpc": "councillor_asha" },
       "completionConditions": [{ "hasFlag": "asha_received_compound" }],
       "completionActions": [
         { "type": "grantXp", "amount": 75 },

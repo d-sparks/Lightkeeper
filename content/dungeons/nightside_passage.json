@@ -74,7 +74,6 @@
       "event": "room_entered",
       "actions": [
         { "type": "showMessage", "lines": [
-          "The passage narrows and descends. The air is thick with a subsonic vibration — not heard, but felt in your chest.",
           "Unbounded trail markers are scratched into the walls here. Fresh ones. Sable's people have walked this path recently.",
           "The umbracite veins in the walls pulse with a deep, rhythmic light. Like a heartbeat."
         ]}

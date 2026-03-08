@@ -218,5 +218,12 @@
     "name": "Hover Thruster",
     "description": "Anti-gravity thruster that lets you float above the ground, changing elevation levels.",
     "shape": [[1]]
+  },
+  "light_sentry_emitter": {
+    "type": "ability",
+    "abilityId": "light_sentry",
+    "name": "Light Sentry Emitter",
+    "description": "Deploys a stationary light sentry that projects a beam at the nearest enemy, dealing continuous damage and slowing them. Only one sentry active at a time.",
+    "shape": [[1]]
   }
 }

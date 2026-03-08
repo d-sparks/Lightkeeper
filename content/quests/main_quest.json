@@ -7,7 +7,7 @@
       "label": "Talk to Warden Holt",
       "description": "Find Warden Holt in the outpost entrance.",
       "prerequisiteSteps": [],
-      "objective": { "roomId": "outpost_entrance", "tileX": 4, "tileY": 10 },
+      "objective": { "roomId": "outpost_entrance", "targetNpc": "outpost_warden" },
       "completionConditions": [{ "hasFlag": "talked_to_warden" }],
       "completionActions": [{ "type": "grantXp", "amount": 10 }]
     },
@@ -15,14 +15,14 @@
       "label": "Get a Weapon",
       "description": "Head to the munitions depot and get a weapon from Quartermaster Voss.",
       "prerequisiteSteps": ["talk_to_warden"],
-      "objective": { "roomId": "outpost_munitions", "tileX": 21, "tileY": 7 },
+      "objective": { "roomId": "outpost_munitions", "targetNpc": "munitions_quartermaster" },
       "completionConditions": [{ "hasFlag": "received_weapon" }]
     },
     "talk_to_engineer": {
       "label": "Talk to the Engineer",
       "description": "Visit the workshop and speak with the Sol Engineer.",
       "prerequisiteSteps": ["get_weapon"],
-      "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 5 },
+      "objective": { "roomId": "outpost_workshop", "targetNpc": "sol_engineer_1" },
       "completionConditions": [{ "hasFlag": "quest_cylinders_active" }],
       "completionActions": [{ "type": "grantXp", "amount": 15 }]
     },
@@ -46,7 +46,7 @@
       "label": "Return to the Engineer",
       "description": "Bring the titanium cylinders back to the workshop.",
       "prerequisiteSteps": ["open_supply_crate"],
-      "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 5 },
+      "objective": { "roomId": "outpost_workshop", "targetNpc": "sol_engineer_1" },
       "completionConditions": [{ "hasFlag": "received_sol_unit" }],
       "completionActions": [{ "type": "grantXp", "amount": 25 }]
     },
@@ -62,7 +62,7 @@
       "label": "Talk to the Engineer",
       "description": "Talk to the Sol Engineer about your Sol Grid setup.",
       "prerequisiteSteps": ["equip_damage_booster"],
-      "objective": { "roomId": "outpost_workshop", "tileX": 20, "tileY": 5 },
+      "objective": { "roomId": "outpost_workshop", "targetNpc": "sol_engineer_1" },
       "completionConditions": [{ "hasFlag": "engineer_briefing_complete" }],
       "completionActions": [{ "type": "grantXp", "amount": 10 }]
     },
@@ -78,7 +78,7 @@
       "label": "Charge your Sol Unit",
       "description": "Head to the Power Station to charge the Sol Unit.",
       "prerequisiteSteps": ["training_range"],
-      "objective": { "roomId": "outpost_charging_station", "tileX": 12, "tileY": 6 },
+      "objective": { "roomId": "outpost_charging_station", "targetNpc": "charging_tech_maren" },
       "completionConditions": [{ "hasFlag": "sol_unit_charged" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
     },
@@ -86,7 +86,7 @@
       "label": "Report to Warden Holt",
       "description": "Return to the outpost entrance and report to Warden Holt that your Sol Unit is charged.",
       "prerequisiteSteps": ["charge_sol_unit"],
-      "objective": { "roomId": "outpost_entrance", "tileX": 4, "tileY": 10 },
+      "objective": { "roomId": "outpost_entrance", "targetNpc": "outpost_warden" },
       "completionConditions": [{ "hasFlag": "ready_for_perimeter" }],
       "completionActions": [{ "type": "grantXp", "amount": 10 }]
     },
@@ -102,7 +102,7 @@
       "label": "Get a Transit Pass",
       "description": "Help Tech Yara clear the junction box nest to earn a Transit Pass for the train to Meridian City.",
       "prerequisiteSteps": ["cross_perimeter"],
-      "objective": { "roomId": "train_station", "tileX": 6, "tileY": 5 },
+      "objective": { "roomId": "train_station", "targetNpc": "station_tech_yara" },
       "completionConditions": [{ "hasFlag": "has_transit_pass" }],
       "completionActions": [{ "type": "grantXp", "amount": 25 }]
     },
@@ -110,7 +110,7 @@
       "label": "Board the Train to Meridian City",
       "description": "Use your Transit Pass to open the platform gate and board the train.",
       "prerequisiteSteps": ["get_transit_pass"],
-      "objective": { "roomId": "train_station", "tileX": 12, "tileY": 0 },
+      "objective": { "roomId": "train_station", "targetExit": "meridian_station" },
       "completionConditions": [{ "hasFlag": "boarded_train" }],
       "completionActions": [{ "type": "grantXp", "amount": 40 }]
     },
@@ -118,7 +118,7 @@
       "label": "Arrive at Meridian City",
       "description": "You've boarded the train. Ride it to Meridian City and explore the station.",
       "prerequisiteSteps": ["board_train"],
-      "objective": { "roomId": "meridian_station", "tileX": 15, "tileY": 10 },
+      "objective": { "roomId": "meridian_station", "targetNpc": "station_master_calloway" },
       "completionConditions": [{ "hasFlag": "arrived_meridian" }],
       "completionActions": [{ "type": "grantXp", "amount": 25 }]
     },
@@ -126,7 +126,7 @@
       "label": "Claim Your Salvage Yard",
       "description": "Head east from the station to the Civic Center and claim a salvage lot from Land Registrar Hollis. This is where you'll build your own solar infrastructure — half the game is dungeon crawling, the other half is building your array.",
       "prerequisiteSteps": ["arrive_meridian"],
-      "objective": { "roomId": "meridian_civic", "tileX": 6, "tileY": 5 },
+      "objective": { "roomId": "meridian_civic", "targetNpc": "registrar_hollis" },
       "completionConditions": [{ "hasFlag": "has_yard_deed" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
     },
@@ -134,7 +134,7 @@
       "label": "Visit the Workshop District",
       "description": "Head west from the station to the Workshop District and meet Master Crafter Yun.",
       "prerequisiteSteps": ["visit_civic_center"],
-      "objective": { "roomId": "meridian_workshop", "tileX": 5, "tileY": 5 },
+      "objective": { "roomId": "meridian_workshop", "targetNpc": "crafter_yun" },
       "completionConditions": [{ "hasFlag": "met_crafter_yun" }],
       "completionActions": [{ "type": "grantXp", "amount": 30 }]
     }

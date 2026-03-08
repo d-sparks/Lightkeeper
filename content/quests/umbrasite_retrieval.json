@@ -8,7 +8,7 @@
       "label": "Accept MERIDIAN-7's Request",
       "description": "Speak with MERIDIAN-7 at the Array Hub in Meridian City about the refined umbrasite.",
       "prerequisiteSteps": [],
-      "objective": { "roomId": "meridian_array_hub", "tileX": 10, "tileY": 7 },
+      "objective": { "roomId": "meridian_array_hub", "targetNpc": "meridian_7_hub" },
       "completionConditions": [{ "hasFlag": "meridian_umbrasite_quest_active" }],
       "completionActions": [{ "type": "grantXp", "amount": 15 }]
     },
@@ -25,7 +25,7 @@
       "label": "Return to MERIDIAN-7",
       "description": "Bring the refined umbrasite back to MERIDIAN-7 at the Array Hub.",
       "prerequisiteSteps": ["find_umbrasite"],
-      "objective": { "roomId": "meridian_array_hub", "tileX": 10, "tileY": 7 },
+      "objective": { "roomId": "meridian_array_hub", "targetNpc": "meridian_7_hub" },
       "completionConditions": [{ "hasFlag": "meridian_umbrasite_quest_complete" }],
       "completionActions": [{ "type": "grantXp", "amount": 50 }]
     }

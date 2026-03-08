@@ -41,17 +41,6 @@
   ],
   "triggers": [
     {
-      "id": "enter_archives",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The Archives. Rows of data terminals and physical records stretch into the distance. The air smells of old paper and ozone.",
-          "It's quieter here than the rest of the city. The kind of quiet that comes from people thinking hard."
-        ]}
-      ],
-      "once": true
-    },
-    {
       "id": "solen_relay_log",
       "event": "npc_interacted",
       "filter": { "npcType": "archivist_solen" },

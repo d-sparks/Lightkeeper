@@ -150,12 +150,14 @@ class GameLoop {
       monsters: new Map(),   // monsterId -> Monster
       items,                 // itemId -> GroundItem
       projectiles: [],       // Projectile objects
+      sentries: [],          // Light sentries placed by players
       events: [],            // combat events for current tick
       tick: 0,
       nextSpawnIndex: 0,
       nextMonsterId: 0,
       nextItemId,
       nextProjectileId: 0,
+      nextSentryId: 0,
     };
 
     // Spawn monsters
@@ -270,6 +272,13 @@ class GameLoop {
           mob.bossProjectileTimer = 0;
           mob.bossSummonTimer = 0;
           mob.bossSummonCount = 0;
+        }
+        // Special attacks: initialize cooldown timers from definition
+        if (def.specialAttacks && def.specialAttacks.length > 0) {
+          mob.specialAttacks = def.specialAttacks.map(sa => ({
+            ...sa,
+            timer: sa.cooldown * (0.3 + Math.random() * 0.7), // Stagger initial cooldowns
+          }));
         }
         if (def.boss) {
           if (def.bossTitle) mob.bossTitle = def.bossTitle;
@@ -509,6 +518,10 @@ class GameLoop {
     const room = this.rooms.get(roomId);
     if (!room) return null;
     const player = room.players.get(playerId);
+    // Remove any sentries owned by this player
+    if (room.sentries) {
+      room.sentries = room.sentries.filter(s => s.ownerId !== playerId);
+    }
     room.players.delete(playerId);
     console.log(`[GameLoop] Player ${playerId} left room "${roomId}"`);
 
@@ -612,6 +625,45 @@ class GameLoop {
     let targetRoomId = obj.roomId;
     let tileX = obj.tileX;
     let tileY = obj.tileY;
+
+    // Resolve targetNpc: find the NPC's position (live room or dungeon definition)
+    if (obj.targetNpc) {
+      let found = false;
+      const targetRoom = this.rooms.get(targetRoomId);
+      if (targetRoom) {
+        for (const npc of targetRoom.npcs.values()) {
+          if (npc.type === obj.targetNpc) {
+            tileX = Math.floor(npc.x / CONSTANTS.TILE_SIZE);
+            tileY = Math.floor(npc.y / CONSTANTS.TILE_SIZE);
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found) {
+        // Fall back to dungeon definition npcSpawns
+        const dungeon = this.content.getDungeon(targetRoomId);
+        if (dungeon && dungeon.npcSpawns) {
+          const spawn = dungeon.npcSpawns.find(s => s.type === obj.targetNpc);
+          if (spawn) {
+            tileX = spawn.x;
+            tileY = spawn.y;
+          }
+        }
+      }
+    }
+
+    // Resolve targetExit: find the exit tile that leads to a given room
+    if (obj.targetExit) {
+      const dungeon = this._getDungeonData(targetRoomId);
+      if (dungeon && dungeon.exits) {
+        const exit = dungeon.exits.find(e => e.leadsTo === obj.targetExit);
+        if (exit) {
+          tileX = exit.x;
+          tileY = exit.y;
+        }
+      }
+    }
 
     // Resolve objectiveItem: find the item's actual location in active rooms
     if (obj.objectiveItem) {
@@ -860,6 +912,7 @@ class GameLoop {
     const result = { size: grid.size, cells: clientCells, nextPlacementId: grid.nextPlacementId };
     if (grid.innateBonus) result.innateBonus = grid.innateBonus;
     if (grid.unitName) result.unitName = grid.unitName;
+    if (grid.unitDescription) result.unitDescription = grid.unitDescription;
     return result;
   }
 
@@ -1009,7 +1062,7 @@ class GameLoop {
       }
     }
 
-    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null, unitName: solUnitDef.name || null };
+    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null, unitName: solUnitDef.name || null, unitDescription: solUnitDef.description || null };
     // Set charge capacity from sol unit definition
     player.maxEnergy = solUnitDef.maxCharge || 100;
     player.energy = solUnitDef.initialEnergy !== undefined
@@ -1162,6 +1215,9 @@ class GameLoop {
     const player = room.players.get(playerId);
     if (!player) return false;
 
+    // Cannot use abilities while stunned or knocked back
+    if (player.stunTime > 0 || player.knockbackTime > 0) return false;
+
     const slotIdx = slot - 1;
     if (slotIdx < 0 || slotIdx >= 6) return false;
 
@@ -1193,6 +1249,8 @@ class GameLoop {
         return this._useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData);
       case 'hover':
         return this._useHover(room, player, abilityDef, slotIdx);
+      case 'sentry':
+        return this._placeSentry(room, player, abilityDef, slotIdx);
       default:
         return false;
     }
@@ -1631,12 +1689,150 @@ class GameLoop {
     return true;
   }
 
+  _placeSentry(room, player, abilityDef, slotIdx) {
+    // Check energy cost
+    if (abilityDef.energyCost) {
+      if (player.energy < abilityDef.energyCost) return false;
+      player.energy -= abilityDef.energyCost;
+    }
+
+    // Remove any existing sentry owned by this player
+    const oldIdx = room.sentries.findIndex(s => s.ownerId === player.id);
+    if (oldIdx !== -1) {
+      const old = room.sentries[oldIdx];
+      room.events.push({
+        type: 'sentry_despawn', sentryId: old.id,
+        x: old.x, y: old.y,
+      });
+      room.sentries.splice(oldIdx, 1);
+    }
+
+    const sentryId = `sentry_${room.nextSentryId++}`;
+    const damage = this.getPlayerAttackDamage(player) * (abilityDef.damageMultiplier || 0.6);
+    const sentry = {
+      id: sentryId,
+      ownerId: player.id,
+      x: player.x,
+      y: player.y,
+      damage: damage,
+      beamRange: (abilityDef.beamRange || 6) * CONSTANTS.TILE_SIZE,
+      beamTickRate: abilityDef.beamTickRate || 0.3,
+      beamTimer: 0,
+      slowFactor: abilityDef.slowFactor || 0.5,
+      targetId: null,
+      healOnHit: abilityDef.healOnHit || 0,
+    };
+    room.sentries.push(sentry);
+
+    room.events.push({
+      type: 'sentry_spawn', sentryId, ownerId: player.id,
+      x: sentry.x, y: sentry.y,
+    });
+
+    player.cooldowns[slotIdx] = abilityDef.cooldown || 2.0;
+    return true;
+  }
+
+  updateSentries(room, dt) {
+    if (room.sentries.length === 0) return;
+
+    for (let i = room.sentries.length - 1; i >= 0; i--) {
+      const sentry = room.sentries[i];
+
+      // Remove sentry if owner left the room
+      if (!room.players.has(sentry.ownerId)) {
+        room.events.push({
+          type: 'sentry_despawn', sentryId: sentry.id,
+          x: sentry.x, y: sentry.y,
+        });
+        room.sentries.splice(i, 1);
+        continue;
+      }
+
+      // Find nearest monster in beam range
+      let nearestMob = null;
+      let nearestDist = Infinity;
+      for (const [mid, mob] of room.monsters) {
+        if (mob.hidden) continue;
+        const dx = mob.x - sentry.x;
+        const dy = mob.y - sentry.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < sentry.beamRange && dist < nearestDist) {
+          nearestMob = mob;
+          nearestDist = dist;
+        }
+      }
+
+      if (nearestMob) {
+        sentry.targetId = nearestMob.id;
+
+        // Apply slow to target
+        nearestMob.sentrySlowFactor = sentry.slowFactor;
+        nearestMob.sentrySlowTime = 0.2; // refreshed each tick while beam is active
+
+        // Damage on tick rate
+        sentry.beamTimer -= dt;
+        if (sentry.beamTimer <= 0) {
+          sentry.beamTimer += sentry.beamTickRate;
+
+          nearestMob.health -= sentry.damage;
+          nearestMob.aggroTarget = sentry.ownerId;
+
+          room.events.push({
+            type: 'damage', targetId: nearestMob.id,
+            amount: Math.round(sentry.damage),
+            x: nearestMob.x, y: nearestMob.y,
+          });
+
+          // Heal on hit for owner
+          if (sentry.healOnHit > 0) {
+            const owner = room.players.get(sentry.ownerId);
+            if (owner && owner.health < owner.maxHealth) {
+              owner.health = Math.min(owner.maxHealth, owner.health + sentry.healOnHit);
+              room.events.push({
+                type: 'heal', targetId: sentry.ownerId,
+                amount: sentry.healOnHit,
+                x: owner.x, y: owner.y,
+              });
+            }
+          }
+
+          // Check if killed
+          if (nearestMob.health <= 0) {
+            this._handleMonsterDeath(nearestMob, room, sentry.ownerId);
+          }
+        }
+      } else {
+        sentry.targetId = null;
+      }
+    }
+  }
+
   update(dt) {
     for (const [roomId, room] of this.rooms) {
       room.tick++;
 
       // Update each player's movement and cooldowns
       for (const [pid, player] of room.players) {
+        // Tick down stun time
+        if (player.stunTime > 0) {
+          player.stunTime -= dt;
+          if (player.stunTime <= 0) player.stunTime = 0;
+        }
+        // Apply player knockback (from ground slam etc.)
+        if (player.knockbackTime > 0) {
+          const kbX = player.x + (player.knockbackVx || 0) * dt;
+          const kbY = player.y + (player.knockbackVy || 0) * dt;
+          const pr = CONSTANTS.PLAYER_RADIUS;
+          if (!this.physics.collidesAt(kbX, player.y, room.dungeon, pr, player.elevation)) player.x = kbX;
+          if (!this.physics.collidesAt(player.x, kbY, room.dungeon, pr, player.elevation)) player.y = kbY;
+          player.knockbackTime -= dt;
+          if (player.knockbackTime <= 0) {
+            player.knockbackVx = 0;
+            player.knockbackVy = 0;
+            player.knockbackTime = 0;
+          }
+        }
         this.physics.movePlayer(player, room.dungeon, dt);
         if (player.transitionCooldown > 0) {
           player.transitionCooldown -= dt;
@@ -1681,6 +1877,9 @@ class GameLoop {
 
       // Update monsters (AI + attacks)
       this.updateMonsters(room, dt);
+
+      // Update light sentries (beam targeting, damage, slow)
+      this.updateSentries(room, dt);
 
       // Update projectiles (movement, collision, lifetime)
       this.updateProjectiles(room, dt);
@@ -1778,6 +1977,68 @@ class GameLoop {
   updateMonsters(room, dt) {
     for (const [mid, mob] of room.monsters) {
       mob.attackTimer = Math.max(0, mob.attackTimer - dt);
+
+      // Tick down sentry slow effect and apply speed modifier
+      if (mob.sentrySlowTime > 0) {
+        mob.sentrySlowTime -= dt;
+        if (mob.sentrySlowTime <= 0) {
+          mob.sentrySlowFactor = 1.0;
+          mob.sentrySlowTime = 0;
+        }
+      }
+      const origSpeed = mob.speed;
+      if (mob.sentrySlowFactor && mob.sentrySlowFactor < 1.0) {
+        mob.speed = mob.speed * mob.sentrySlowFactor;
+      }
+
+      // Tick down special attack cooldowns
+      if (mob.specialAttacks) {
+        for (const sa of mob.specialAttacks) {
+          if (sa.timer > 0) sa.timer = Math.max(0, sa.timer - dt);
+        }
+      }
+
+      // Execute lunge movement if active
+      if (mob.lungeTime > 0) {
+        mob.lungeTime -= dt;
+        const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+        const lx = mob.x + mob.lungeVx * dt;
+        const ly = mob.y + mob.lungeVy * dt;
+        if (!this.physics.collidesAt(lx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = lx;
+        if (!this.physics.collidesAt(mob.x, ly, room.dungeon, mr, mob.elevation)) mob.y = ly;
+        if (mob.lungeTime <= 0) {
+          mob.lungeVx = 0;
+          mob.lungeVy = 0;
+          mob.lungeTime = 0;
+        }
+        // Check if lunge hits a player
+        if (mob.lungeTarget) {
+          const target = room.players.get(mob.lungeTarget);
+          if (target) {
+            const ldx = target.x - mob.x;
+            const ldy = target.y - mob.y;
+            const ldist = Math.sqrt(ldx * ldx + ldy * ldy);
+            if (ldist < mob.attackRange * 0.8) {
+              const lungeDmg = Math.round(mob.damage * (mob.lungeDamageMult || 1.5));
+              target.health -= lungeDmg;
+              mob.lungeTarget = null;
+              mob.lungeTime = 0;
+              mob.lungeVx = 0;
+              mob.lungeVy = 0;
+              room.events.push({
+                type: 'damage', targetId: target.id,
+                amount: lungeDmg, x: target.x, y: target.y,
+              });
+              room.events.push({
+                type: 'lunge_hit', targetId: mob.id,
+                x: mob.x, y: mob.y,
+              });
+              this._checkPlayerDeath(target, room);
+            }
+          }
+        }
+        continue; // Skip normal AI while lunging
+      }
 
       // Apply knockback movement
       if (mob.knockbackTime > 0) {
@@ -1878,35 +2139,43 @@ class GameLoop {
           }
         }
 
-        if (nearestDist > mob.attackRange) {
-          // Chase player
-          const dx = nearest.x - mob.x;
-          const dy = nearest.y - mob.y;
-          const len = Math.sqrt(dx * dx + dy * dy);
-          if (len > 0) {
-            const speed = mob.speed * CONSTANTS.TILE_SIZE * dt;
-            const nx = mob.x + (dx / len) * speed;
-            const ny = mob.y + (dy / len) * speed;
-            const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
-            if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
-            if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
-            mob.facing = Math.atan2(dy, dx);
-          }
-        } else if (mob.attackTimer <= 0) {
-          // Ambush bonus: 1.5x damage on first strike
-          let damage = mob.damage;
-          if (mob.ai === 'ambush' && mob.ambushRevealed) {
-            damage = Math.round(damage * 1.5);
-            mob.ambushRevealed = false;
-          }
-          nearest.health -= damage;
-          mob.attackTimer = mob.attackCooldown;
-          room.events.push({
-            type: 'damage', targetId: nearest.id,
-            amount: damage, x: nearest.x, y: nearest.y,
-          });
+        // Check for special attacks before normal behavior
+        let usedSpecial = false;
+        if (mob.specialAttacks) {
+          usedSpecial = this._trySpecialAttack(mob, nearest, nearestDist, room, dt);
+        }
 
-          this._checkPlayerDeath(nearest, room);
+        if (!usedSpecial) {
+          if (nearestDist > mob.attackRange) {
+            // Chase player
+            const dx = nearest.x - mob.x;
+            const dy = nearest.y - mob.y;
+            const len = Math.sqrt(dx * dx + dy * dy);
+            if (len > 0) {
+              const speed = mob.speed * CONSTANTS.TILE_SIZE * dt;
+              const nx = mob.x + (dx / len) * speed;
+              const ny = mob.y + (dy / len) * speed;
+              const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+              if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+              if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
+              mob.facing = Math.atan2(dy, dx);
+            }
+          } else if (mob.attackTimer <= 0) {
+            // Ambush bonus: 1.5x damage on first strike
+            let damage = mob.damage;
+            if (mob.ai === 'ambush' && mob.ambushRevealed) {
+              damage = Math.round(damage * 1.5);
+              mob.ambushRevealed = false;
+            }
+            nearest.health -= damage;
+            mob.attackTimer = mob.attackCooldown;
+            room.events.push({
+              type: 'damage', targetId: nearest.id,
+              amount: damage, x: nearest.x, y: nearest.y,
+            });
+
+            this._checkPlayerDeath(nearest, room);
+          }
         }
       } else if (mob.ai === 'ranged_kite') {
         const preferredRange = mob.attackRange * 0.6;
@@ -1959,6 +2228,9 @@ class GameLoop {
       } else if (mob.ai === 'boss_crystal') {
         this._updateBossCrystal(mob, nearest, nearestDist, room, dt);
       }
+
+      // Restore original speed after movement calculations
+      mob.speed = origSpeed;
     }
   }
 
@@ -2126,6 +2398,16 @@ class GameLoop {
     const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
     const effectiveDamage = phase.damage || mob.damage;
 
+    // Try special attacks before normal behavior
+    if (mob.specialAttacks) {
+      if (this._trySpecialAttack(mob, nearest, nearestDist, room, dt)) {
+        // Still run projectile and summon logic even when using a special attack
+        this._updateBossProjectiles(mob, phase, effectiveDamage, dx, dy, len, room, dt);
+        this._updateBossSummons(mob, phase, room, dt);
+        return;
+      }
+    }
+
     // Movement: chase in melee/summon modes, kite in ranged mode
     if (phase.mode === 'ranged' && nearestDist < mob.attackRange * 0.5) {
       // Kite away when too close
@@ -2157,76 +2439,179 @@ class GameLoop {
     }
 
     // Projectile attack (phase 2+)
-    if (phase.projectile && len > 0) {
-      mob.bossProjectileTimer -= dt;
-      if (mob.bossProjectileTimer <= 0) {
-        mob.bossProjectileTimer = phase.projectileInterval || 1.5;
-        // Fire a spread of crystal shards
-        const spreadCount = phase.mode === 'summon' ? 3 : 2;
-        const spreadAngle = Math.PI / 8;
-        const baseAngle = Math.atan2(dy, dx);
-        for (let s = 0; s < spreadCount; s++) {
-          const angle = baseAngle + (s - (spreadCount - 1) / 2) * spreadAngle;
-          const projId = `proj_${room.nextProjectileId++}`;
-          room.projectiles.push({
-            id: projId,
-            ownerId: mob.id,
-            isMonsterProjectile: true,
-            projectileType: phase.projectile,
-            x: mob.x,
-            y: mob.y,
-            vx: Math.cos(angle) * CONSTANTS.PROJECTILE_SPEED * 0.6,
-            vy: Math.sin(angle) * CONSTANTS.PROJECTILE_SPEED * 0.6,
-            damage: Math.round(effectiveDamage * 0.6),
-            lifetime: CONSTANTS.PROJECTILE_LIFETIME,
-          });
-        }
-      }
-    }
+    this._updateBossProjectiles(mob, phase, effectiveDamage, dx, dy, len, room, dt);
 
     // Summon minions (phase 3)
-    if (phase.summonType && phase.summonCount) {
-      mob.bossSummonTimer -= dt;
-      if (mob.bossSummonTimer <= 0 && mob.bossSummonCount < phase.summonCount) {
-        mob.bossSummonTimer = phase.summonInterval || 8.0;
-        const minionDef = this.content.getMonster(phase.summonType);
-        if (minionDef) {
-          const summonCount = Math.min(2, phase.summonCount - mob.bossSummonCount);
-          for (let s = 0; s < summonCount; s++) {
-            const angle = (Math.PI * 2 * s) / summonCount + Math.random() * 0.5;
-            const dist = 2 * CONSTANTS.TILE_SIZE;
-            const sx = mob.x + Math.cos(angle) * dist;
-            const sy = mob.y + Math.sin(angle) * dist;
-            if (this.physics.collidesAt(sx, sy, room.dungeon, mr)) continue;
-            const minionId = `mob_${room.nextMonsterId++}`;
-            room.monsters.set(minionId, {
-              id: minionId,
-              type: phase.summonType,
-              name: minionDef.name,
-              x: sx, y: sy,
-              spawnX: sx, spawnY: sy,
-              health: minionDef.health,
-              maxHealth: minionDef.health,
-              speed: minionDef.speed,
-              damage: minionDef.damage,
-              attackRange: (minionDef.attackRange || 1) * CONSTANTS.TILE_SIZE,
-              attackCooldown: 1 / (minionDef.attackSpeed || 1),
-              attackTimer: 0,
-              ai: minionDef.ai,
-              facing: angle,
-              idleMode: 'stationary',
-              isSummon: true,
+    this._updateBossSummons(mob, phase, room, dt);
+  }
+
+  _updateBossProjectiles(mob, phase, effectiveDamage, dx, dy, len, room, dt) {
+    if (!phase.projectile || len <= 0) return;
+    mob.bossProjectileTimer -= dt;
+    if (mob.bossProjectileTimer <= 0) {
+      mob.bossProjectileTimer = phase.projectileInterval || 1.5;
+      // Fire a spread of crystal shards
+      const spreadCount = phase.mode === 'summon' ? 3 : 2;
+      const spreadAngle = Math.PI / 8;
+      const baseAngle = Math.atan2(dy, dx);
+      for (let s = 0; s < spreadCount; s++) {
+        const angle = baseAngle + (s - (spreadCount - 1) / 2) * spreadAngle;
+        const projId = `proj_${room.nextProjectileId++}`;
+        room.projectiles.push({
+          id: projId,
+          ownerId: mob.id,
+          isMonsterProjectile: true,
+          projectileType: phase.projectile,
+          x: mob.x,
+          y: mob.y,
+          vx: Math.cos(angle) * CONSTANTS.PROJECTILE_SPEED * 0.6,
+          vy: Math.sin(angle) * CONSTANTS.PROJECTILE_SPEED * 0.6,
+          damage: Math.round(effectiveDamage * 0.6),
+          lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+        });
+      }
+    }
+  }
+
+  _updateBossSummons(mob, phase, room, dt) {
+    if (!phase.summonType || !phase.summonCount) return;
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+    mob.bossSummonTimer -= dt;
+    if (mob.bossSummonTimer <= 0 && mob.bossSummonCount < phase.summonCount) {
+      mob.bossSummonTimer = phase.summonInterval || 8.0;
+      const minionDef = this.content.getMonster(phase.summonType);
+      if (minionDef) {
+        const summonCount = Math.min(2, phase.summonCount - mob.bossSummonCount);
+        for (let s = 0; s < summonCount; s++) {
+          const angle = (Math.PI * 2 * s) / summonCount + Math.random() * 0.5;
+          const dist = 2 * CONSTANTS.TILE_SIZE;
+          const sx = mob.x + Math.cos(angle) * dist;
+          const sy = mob.y + Math.sin(angle) * dist;
+          if (this.physics.collidesAt(sx, sy, room.dungeon, mr)) continue;
+          const minionId = `mob_${room.nextMonsterId++}`;
+          const minionMob = {
+            id: minionId,
+            type: phase.summonType,
+            name: minionDef.name,
+            x: sx, y: sy,
+            spawnX: sx, spawnY: sy,
+            health: minionDef.health,
+            maxHealth: minionDef.health,
+            speed: minionDef.speed,
+            damage: minionDef.damage,
+            attackRange: (minionDef.attackRange || 1) * CONSTANTS.TILE_SIZE,
+            attackCooldown: 1 / (minionDef.attackSpeed || 1),
+            attackTimer: 0,
+            ai: minionDef.ai,
+            facing: angle,
+            idleMode: 'stationary',
+            isSummon: true,
+          };
+          if (minionDef.specialAttacks && minionDef.specialAttacks.length > 0) {
+            minionMob.specialAttacks = minionDef.specialAttacks.map(sa => ({
+              ...sa,
+              timer: sa.cooldown * (0.3 + Math.random() * 0.7),
+            }));
+          }
+          room.monsters.set(minionId, minionMob);
+          mob.bossSummonCount++;
+        }
+        room.events.push({
+          type: 'boss_summon',
+          targetId: mob.id,
+          x: mob.x, y: mob.y,
+        });
+      }
+    }
+  }
+
+  /**
+   * Try to use a special attack. Returns true if one was used (preempts normal behavior).
+   * Special attack types: lunge, stun, ground_slam
+   */
+  _trySpecialAttack(mob, target, dist, room, dt) {
+    const TILE = CONSTANTS.TILE_SIZE;
+    for (const sa of mob.specialAttacks) {
+      if (sa.timer > 0) continue;
+
+      const saRange = (sa.range || 4) * TILE;
+
+      if (sa.type === 'lunge') {
+        // Lunge: dash toward player when outside melee but within lunge range
+        if (dist > mob.attackRange && dist <= saRange) {
+          const dx = target.x - mob.x;
+          const dy = target.y - mob.y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          if (len > 0) {
+            const lungeSpeed = (sa.speed || 8) * TILE;
+            mob.lungeVx = (dx / len) * lungeSpeed;
+            mob.lungeVy = (dy / len) * lungeSpeed;
+            mob.lungeTime = sa.duration || 0.25;
+            mob.lungeTarget = target.id;
+            mob.lungeDamageMult = sa.damage || 1.5;
+            mob.facing = Math.atan2(dy, dx);
+            sa.timer = sa.cooldown;
+            room.events.push({
+              type: 'lunge_start', targetId: mob.id,
+              x: mob.x, y: mob.y,
             });
-            mob.bossSummonCount++;
+            return true;
+          }
+        }
+      } else if (sa.type === 'stun') {
+        // Stun: when in melee range, stun the player briefly
+        if (dist <= mob.attackRange && mob.attackTimer <= 0) {
+          const stunDmg = Math.round(mob.damage * (sa.damage || 0.5));
+          target.health -= stunDmg;
+          target.stunTime = sa.duration || 1.0;
+          mob.attackTimer = mob.attackCooldown;
+          sa.timer = sa.cooldown;
+          room.events.push({
+            type: 'damage', targetId: target.id,
+            amount: stunDmg, x: target.x, y: target.y,
+          });
+          room.events.push({
+            type: 'stun', targetId: target.id,
+            duration: sa.duration || 1.0,
+            x: target.x, y: target.y,
+          });
+          this._checkPlayerDeath(target, room);
+          return true;
+        }
+      } else if (sa.type === 'ground_slam') {
+        // Ground slam: AOE knockback + damage when in range
+        if (dist <= saRange && mob.attackTimer <= 0) {
+          const slamDmg = Math.round(mob.damage * (sa.damage || 1.2));
+          const knockback = sa.knockback || 128;
+          sa.timer = sa.cooldown;
+          mob.attackTimer = mob.attackCooldown;
+          // Hit all players in range
+          for (const [pid, player] of room.players) {
+            const pdx = player.x - mob.x;
+            const pdy = player.y - mob.y;
+            const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
+            if (pdist <= saRange && pdist > 0) {
+              player.health -= slamDmg;
+              // Apply knockback to player
+              player.knockbackVx = (pdx / pdist) * knockback;
+              player.knockbackVy = (pdy / pdist) * knockback;
+              player.knockbackTime = 0.3;
+              room.events.push({
+                type: 'damage', targetId: player.id,
+                amount: slamDmg, x: player.x, y: player.y,
+              });
+              this._checkPlayerDeath(player, room);
+            }
           }
           room.events.push({
-            type: 'boss_summon',
-            targetId: mob.id,
-            x: mob.x, y: mob.y,
+            type: 'ground_slam', targetId: mob.id,
+            range: saRange, x: mob.x, y: mob.y,
           });
+          return true;
         }
       }
     }
+    return false;
   }
 
   _checkPlayerDeath(player, room) {
@@ -2309,6 +2694,9 @@ class GameLoop {
     // Check if player has a projectile weapon equipped
     const weapon = player.equipment && player.equipment.arms;
     if (!weapon || !weapon.stats || !weapon.stats.projectile) return false;
+
+    // Cannot attack while stunned or knocked back
+    if (player.stunTime > 0 || player.knockbackTime > 0) return false;
 
     // Check attack cooldown
     if (player.attackTimer > 0) return false;
@@ -2880,6 +3268,45 @@ class GameLoop {
   }
 
   // Get total attack damage for a player (base + equipment bonuses)
+  _handleMonsterDeath(mob, room, killerId) {
+    const mid = mob.id;
+    room.events.push({
+      type: 'death', targetId: mid,
+      monsterType: mob.type,
+      x: mob.x, y: mob.y,
+    });
+    room.monsters.delete(mid);
+
+    // Record the kill
+    if (mob.spawnKey) {
+      if (!this.killedMonsters.has(room.dungeonId)) {
+        this.killedMonsters.set(room.dungeonId, new Set());
+      }
+      this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
+    }
+
+    // Grant XP for kill
+    const killer = room.players.get(killerId);
+    if (killer) {
+      const monsterDef = this.content.getMonster(mob.type);
+      if (monsterDef && monsterDef.xp) {
+        this.grantXp(killer, monsterDef.xp, room);
+      }
+    }
+
+    this._rollLoot(room, mob);
+
+    // Emit monster_killed scripting event
+    const ctx = this._scriptContext(killerId, room.id);
+    this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
+      playerId: killerId,
+      roomId: room.id,
+      monsterType: mob.type,
+      monsterId: mid,
+      monsterX: mob.x, monsterY: mob.y,
+    }, ctx);
+  }
+
   getPlayerAttackDamage(player) {
     let damage = CONSTANTS.PLAYER_ATTACK_DAMAGE;
     for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
@@ -3019,6 +3446,7 @@ class GameLoop {
         colorIndex: p.colorIndex,
         elevation: Math.round((p.elevation || 0) * 100) / 100,
         hovering: p.hovering || false,
+        stunned: (p.stunTime || 0) > 0,
       };
       // Include weapon name if equipped (for rendering)
       if (p.equipment && p.equipment.arms) {
@@ -3046,6 +3474,9 @@ class GameLoop {
       if (m.bossPhases) {
         mData.boss = true;
         mData.bossPhase = m.bossPhase + 1;
+      }
+      if (m.sentrySlowTime > 0) {
+        mData.slowed = true;
       }
       monsters.push(mData);
     }
@@ -3077,6 +3508,17 @@ class GameLoop {
       projectiles.push(pData);
     }
 
+    const sentries = [];
+    for (const sentry of room.sentries) {
+      sentries.push({
+        id: sentry.id,
+        ownerId: sentry.ownerId,
+        x: Math.round(sentry.x * 10) / 10,
+        y: Math.round(sentry.y * 10) / 10,
+        targetId: sentry.targetId,
+      });
+    }
+
     // Party quest progress summaries (name, color, active step labels)
     const partyQuests = [];
     for (const [pid, p] of room.players) {
@@ -3098,7 +3540,7 @@ class GameLoop {
     return {
       type: CONSTANTS.MSG.STATE,
       tick: room.tick,
-      players, npcs, monsters, items, projectiles, events, partyQuests,
+      players, npcs, monsters, items, projectiles, sentries, events, partyQuests,
     };
   }
 }

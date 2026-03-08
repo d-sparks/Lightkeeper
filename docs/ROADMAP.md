@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-07
+Last updated: 2026-03-08
 
 ## Big Picture
 
@@ -32,7 +32,7 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Game Feel | Not Started | No death penalty, no sound effects, minimal combat juice. Highest-priority gap |
 | Game Balance | Partial | Initial balance pass done (monster HP, ability costs). Further playtesting needed |
 | Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
-| Unit Tests | Done | Tiers 1-3: flag-store, event-bus, automation, conditions, actions, trigger-registry, physics (178 tests). Tier 4 integration tests remain |
+| Unit Tests | Done | Tiers 1-3: flag-store, event-bus, automation, conditions, actions, trigger-registry, physics (178 tests). Tier 4 integration tests remain. Note: 1 pre-existing physics test failure (large dt wall skip) |
 | Per-Biome Music | Done | Ambient music definitions and tileset-based track selection wired |
 | Monster Sprites | Done | Placeholder sprites for all monsters, palette aligned to art style guide |
 | Crystal Guardian Boss | Done | 3-phase boss AI, boss health bar, phase transition VFX, intro presentation |
@@ -42,14 +42,14 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Game feel and the core death/reward loop — make minute-to-minute gameplay satisfying**
+Focus: **Quest graph connectivity — extend the main quest and connect disconnected content**
 
-1. **Death penalty** — When the player dies, drain energy and drop non-quest items. Respawn at entrance. This single feature transforms exploration from risk-free wandering into tense dungeon runs.
-2. **Sound effects** — Synthesized tones for attacks, hits, deaths, pickups, doors, transitions. Audio system exists — just needs content. Even basic sounds dramatically change feel.
-3. **Combat juice pass** — Screen shake on player hit, death fade-out, ambush fade-in, projectile tinting by type. Small VFX that compound into satisfying combat.
-4. **Sol unit acquisition paths** — 4 non-starter sol units are defined but unobtainable. Wire as rewards in thematic locations so players feel progression.
-5. **Wire generators into loot/rewards** — basic_generator and improved_generator exist but can't be obtained. Critical for energy progression pacing.
-6. **Biome tileset assignments** — Dungeons using generic "crypt" tileset should use their zone's tileset. This auto-activates per-biome music and visual identity for free.
+1. **Extend main quest into Act II** — Add steps 14-17 directing player from Meridian to dayside, through Array discovery, and into Act III preparation. Currently the main quest dead-ends at "meet Yun" with no guidance toward Act II content.
+2. **NPC breadcrumbs to dayside** — No NPC directs players to dayside_solar_fields. Add dialogue hooks after `met_crafter_yun`.
+3. **Wire autotroph_path flags** — `autotroph_path_defiant/cooperative` are set but never checked. Should gate Act III dialogue.
+4. **Wire boss-kill flags** — `frost_warden_defeated`, `elder_sporecap_defeated`, `magma_core_cleared` are set but never checked. Add NPC reactions.
+5. **Death penalty** — When the player dies, drain energy and drop non-quest items. Respawn at entrance. Biggest game-feel gap.
+6. **Wire generators into loot/rewards** — basic_generator and improved_generator exist but can't be obtained. Critical for energy progression pacing.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
@@ -124,6 +124,11 @@ These are done and don't need further investment:
 - **Per-biome ambient music** — Tileset-based track selection, boss music support
 - **Monster placeholder sprites (round 2)** — 12 newer monsters (dusk_crawler, crystal_guardian, shade_stalker variants, etc.)
 - **Combat balance pass** — Monster HP 1.8-2.3x, ability CD/cost tuning, generator output increases
+- **Sol unit acquisition paths** — All 4 non-starter sol units wired: nightcaster_frame (frost_warden boss), array_precision_core (MERIDIAN-7 quest), greenway_bioframe (elder_sporecap), underlumen_nexus (deep communion)
+- **Array secret wiring** — array_secret_discovered wired into MERIDIAN-7 confrontation and NPC dialogue transitions
+- **Crystal Guardian special attacks** — boss_crystal AI integrates specialAttacks; ground_slam + stun
+- **Sol unit innate perk display** — Sol grid screen shows unit name and innate perk descriptions
+- **Array construct loot tables** — Enhanced with thematic tech drops
 
 ## Active Design Docs
 
@@ -132,7 +137,7 @@ These are done and don't need further investment:
 | docs/progression-system.md | Active | Core decisions resolved. Remaining: battery math, harvester scaling, extended adjacency modifiers |
 | docs/automation_screen.md | Active | Phases 1-2 done. Next: Phase 3 (screen access via MERIDIAN-7) |
 | docs/storyboard.md | Active | Act I done, Act II partial, Act III stubbed. Three ending paths needed |
-| docs/testing-design.md | Done | Both tools built and functional |
+| docs/testing-design.md | Done | Both tools built and functional. 1 pre-existing physics test (large dt) needs fix |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented |
 | docs/TESTING.md | Done | Tiers 1-3 complete. Tier 4 integration remains for future |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |

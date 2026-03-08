@@ -75,11 +75,7 @@
       "id": "ravine_enter",
       "event": "room_entered",
       "actions": [
-        { "type": "showMessage", "lines": [
-          "A deep natural fissure splits the ground. The ravine walls drop away into darkness below, but the walls themselves glow.",
-          "Bioluminescent moss clings to the rock in spreading patches of soft blue-green light. The 'lights' Tannis saw — not artificial. Alive.",
-          "Narrow pathways wind along the ravine edges, with precarious bridges spanning the gap. The air is damp and smells of growth."
-        ]}
+        { "type": "showMessage", "text": "Bioluminescent moss clings to the ravine walls in spreading patches of soft blue-green light. The 'lights' Tannis saw — not artificial. Alive." }
       ],
       "once": true
     },

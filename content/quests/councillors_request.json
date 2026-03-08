@@ -16,7 +16,7 @@
       "label": "Return to Councillor Denn",
       "description": "Bring the biological samples back to Councillor Asha Denn at the Civic Center.",
       "prerequisiteSteps": ["collect_samples"],
-      "objective": { "roomId": "meridian_civic", "tileX": 17, "tileY": 5 },
+      "objective": { "roomId": "meridian_civic", "targetNpc": "councillor_asha" },
       "completionConditions": [{ "hasFlag": "asha_quest_complete" }],
       "completionActions": [
         { "type": "grantXp", "amount": 60 },

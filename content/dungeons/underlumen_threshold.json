@@ -193,6 +193,40 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "underlumen_nexus_gift",
+      "event": "door_interacted",
+      "filter": { "tileX": 14, "tileY": 14 },
+      "conditions": [
+        { "hasFlag": "deep_communion_experienced" },
+        { "not": { "hasFlag": "has_underlumen_nexus" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "You press your hands against the crystal floor again. This time the response is immediate — directed. The Underlumen recognizes you.",
+          "The vibration focuses into a point beneath your palms. A formation rises slowly from the crystalline substrate: geometric, perfect, grown rather than built.",
+          "An 8x8 lattice of pre-human crystal — a Sol Unit frame assembled by a network that has been running planetary systems for two hundred million years. It was waiting for someone who understood.",
+          "The Underlumen Nexus. Not found. Given."
+        ]},
+        { "type": "spawnItem", "itemType": "underlumen_nexus", "x": 14, "y": 13 },
+        { "type": "grantXp", "amount": 100 }
+      ],
+      "once": true
+    },
+    {
+      "id": "underlumen_nexus_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "underlumen_nexus" },
+      "actions": [
+        { "type": "setFlag", "flag": "has_underlumen_nexus", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "The Nexus settles into your grip — warm, resonant, alive in a way no manufactured device has ever been. Its crystalline substrate pulses in sync with your heartbeat.",
+          "8x8 grid. 15% cooldown reduction on everything. The planet itself gave you this.",
+          "You understand now that the Underlumen doesn't distinguish between its living and its tools. Both are part of the network. Both serve the system. Both endure."
+        ]}
+      ],
+      "once": true
     }
   ]
 }

@@ -45,18 +45,6 @@
   ],
   "triggers": [
     {
-      "id": "signal_cave_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "A narrow cave entrance, barely wide enough to squeeze through. Inside, the walls are damp and close.",
-          "A faint electronic hum fills the space — something is broadcasting from deeper within.",
-          "The air smells of minerals and age. No one has been here in a very long time."
-        ]}
-      ],
-      "once": true
-    },
-    {
       "id": "find_dead_lightkeeper",
       "event": "item_picked_up",
       "filter": { "itemType": "lightkeeper_journal" },

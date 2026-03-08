@@ -26,7 +26,7 @@
     "gridSize": 5,
     "maxCharge": 80,
     "initialEnergy": 80,
-    "innateBonus": { "damageMultiplier": 0.20, "hazardResist": ["cold"] },
+    "innateBonus": { "perkName": "Dark Amplification", "damageMultiplier": 0.20, "hazardResist": ["cold"] },
     "initialComponents": []
   },
   "array_precision_core": {
@@ -35,7 +35,7 @@
     "gridSize": 6,
     "maxCharge": 200,
     "initialEnergy": 200,
-    "innateBonus": { "energyCostReduction": 0.20, "hazardResist": ["heat"] },
+    "innateBonus": { "perkName": "Precision Engineering", "energyCostReduction": 0.20, "hazardResist": ["heat"] },
     "initialComponents": []
   },
   "greenway_bioframe": {
@@ -44,7 +44,7 @@
     "gridSize": 7,
     "maxCharge": 140,
     "initialEnergy": 140,
-    "innateBonus": { "healOnHit": 3, "hazardResist": ["poison"] },
+    "innateBonus": { "perkName": "Bio-Symbiosis", "healOnHit": 3, "hazardResist": ["poison"] },
     "initialComponents": []
   },
   "underlumen_nexus": {
@@ -53,7 +53,7 @@
     "gridSize": 8,
     "maxCharge": 160,
     "initialEnergy": 160,
-    "innateBonus": { "cooldownReduction": 0.15 },
+    "innateBonus": { "perkName": "Resonant Cycling", "cooldownReduction": 0.15 },
     "initialComponents": []
   }
 }

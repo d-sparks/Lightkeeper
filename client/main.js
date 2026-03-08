@@ -1701,8 +1701,14 @@
       if (solGridState.unitName) {
         bannerHtml += '<div class="sol-unit-name">' + solGridState.unitName + '</div>';
       }
+      if (solGridState.unitDescription) {
+        bannerHtml += '<div class="sol-unit-description">' + solGridState.unitDescription + '</div>';
+      }
       if (solGridState.innateBonus) {
         const bonus = solGridState.innateBonus;
+        if (bonus.perkName) {
+          bannerHtml += '<div class="sol-innate-label">INNATE: ' + bonus.perkName + '</div>';
+        }
         bannerHtml += '<div class="sol-innate-perks">';
         if (bonus.damageMultiplier) {
           bannerHtml += '<span class="sol-innate-perk">+' + Math.round(bonus.damageMultiplier * 100) + '% damage</span>';
@@ -2196,9 +2202,10 @@
     confirmChoice();
   };
 
-  // --- Join flow ---
-  function doJoin() {
-    const name = nameInput.value.trim() || 'Adventurer';
+  // --- Session / Join flow ---
+  const sessionListEl = document.getElementById('session-list');
+
+  function joinWithName(name) {
     net.send({ type: CONSTANTS.MSG.JOIN, name });
 
     // Initialize audio on first user gesture
@@ -2212,6 +2219,61 @@
     }
   }
 
+  function doJoin() {
+    const name = nameInput.value.trim() || 'Adventurer';
+    joinWithName(name);
+  }
+
+  const sessionDivider = document.getElementById('session-divider');
+
+  function renderSessionList(sessions) {
+    sessionListEl.innerHTML = '';
+    if (!sessions || sessions.length === 0) {
+      sessionDivider.style.display = 'none';
+      return;
+    }
+    sessionDivider.style.display = '';
+
+    const heading = document.createElement('div');
+    heading.className = 'session-heading';
+    heading.textContent = 'Saved Characters';
+    sessionListEl.appendChild(heading);
+
+    for (const session of sessions) {
+      const entry = document.createElement('div');
+      entry.className = 'session-entry';
+
+      const left = document.createElement('div');
+      const nameSpan = document.createElement('div');
+      nameSpan.className = 'session-name';
+      nameSpan.textContent = session.name;
+      left.appendChild(nameSpan);
+
+      const detail = document.createElement('div');
+      detail.className = 'session-detail';
+      const roomLabel = (session.room || '').replace(/_/g, ' ');
+      detail.textContent = `Lv ${session.level} \u00B7 ${roomLabel}`;
+      left.appendChild(detail);
+
+      entry.appendChild(left);
+
+      entry.addEventListener('click', () => {
+        joinWithName(session.name);
+      });
+
+      sessionListEl.appendChild(entry);
+    }
+  }
+
+  // Request session list once connected
+  net.onopen = function () {
+    net.send({ type: CONSTANTS.MSG.SESSION_LIST });
+  };
+
+  net.on(CONSTANTS.MSG.SESSION_LIST_RESPONSE, (msg) => {
+    renderSessionList(msg.sessions);
+  });
+
   joinBtn.addEventListener('click', doJoin);
   nameInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') doJoin();
@@ -2222,7 +2284,12 @@
     console.log('[Game] Welcome!', msg.playerId);
 
     renderer.setMyId(msg.playerId);
-    renderer.setMap(msg.map, msg.tileset);
+    // Chunk-based map streaming: create empty data array, fill from chunks
+    if (msg.chunked) {
+      msg.map.data = new Array(msg.map.width * msg.map.height).fill(-1);
+    }
+    renderer.setMap(msg.map, msg.tileset, msg.chunked);
+    if (msg.chunks) renderer.applyChunks(msg.chunks);
     if (msg.itemCatalog) itemCatalog = msg.itemCatalog;
 
     // Switch from join screen to game
@@ -2400,7 +2467,12 @@
 
   net.on(CONSTANTS.MSG.FLOOR_CHANGE, (msg) => {
     console.log('[Game] Floor change!', msg.map.name);
-    renderer.setMap(msg.map, msg.tileset);
+    // Chunk-based map streaming: create empty data array, fill from chunks
+    if (msg.chunked) {
+      msg.map.data = new Array(msg.map.width * msg.map.height).fill(-1);
+    }
+    renderer.setMap(msg.map, msg.tileset, msg.chunked);
+    if (msg.chunks) renderer.applyChunks(msg.chunks);
     renderer.fullMap = false;
     input.clearMoveTarget();
     // Close any open dialogue, choice menu, worldmap, or automation screen
@@ -2446,6 +2518,11 @@
       renderer.map.data[idx] = msg.tileId;
     }
     audio.play('door_open');
+  });
+
+  // Chunk-based map streaming: receive new map chunks as player explores
+  net.on(CONSTANTS.MSG.MAP_CHUNKS, (msg) => {
+    if (msg.chunks) renderer.applyChunks(msg.chunks);
   });
 
   net.on(CONSTANTS.MSG.SOL_GRID, (msg) => {

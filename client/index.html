@@ -330,6 +330,7 @@
 
     #join-screen {
       text-align: center;
+      max-width: 320px;
     }
 
     #join-screen h1 {
@@ -379,6 +380,58 @@
 
     #join-screen button:hover {
       background: #ffb74d;
+    }
+
+    #session-list {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    #session-list .session-heading {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .session-entry {
+      background: #1a1a2e;
+      border: 1px solid #333;
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .session-entry:hover {
+      border-color: #ffa726;
+      background: #1f1f35;
+    }
+
+    .session-entry .session-name {
+      color: #eee;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .session-entry .session-detail {
+      color: #777;
+      font-size: 11px;
+    }
+
+    #session-divider {
+      color: #555;
+      font-size: 12px;
+      margin: 14px 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #join-screen .new-char-section {
+      text-align: center;
     }
 
     #connection-status {
@@ -916,6 +969,21 @@
       margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 1px;
+    }
+    .sol-innate-banner .sol-unit-description {
+      font-size: 11px;
+      color: #777;
+      margin: 4px 0 6px;
+      line-height: 1.4;
+      font-style: italic;
+    }
+    .sol-innate-banner .sol-innate-label {
+      font-size: 10px;
+      color: #4fc3f7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      opacity: 0.8;
     }
     .sol-innate-banner .sol-innate-perks {
       display: flex;
@@ -1905,8 +1973,12 @@
   <div id="join-screen">
     <h1>⚔ LIGHTKEEPER ⚔</h1>
     <p>Loot is precious. Death is costly.</p>
-    <input type="text" id="name-input" placeholder="Enter your name" maxlength="16" autofocus>
-    <button id="join-btn">ENTER THE DUNGEON</button>
+    <div id="session-list"></div>
+    <div id="session-divider" style="display:none">New Character</div>
+    <div class="new-char-section">
+      <input type="text" id="name-input" placeholder="Enter your name" maxlength="16" autofocus>
+      <button id="join-btn">ENTER THE DUNGEON</button>
+    </div>
   </div>
 
   <!-- Game container (hidden until joined) -->

@@ -17,7 +17,7 @@
       "label": "Return to Quartermaster Voss",
       "description": "Bring the recovered manifest back to Quartermaster Voss in the munitions depot.",
       "prerequisiteSteps": ["find_manifest"],
-      "objective": { "roomId": "outpost_munitions", "tileX": 21, "tileY": 7 },
+      "objective": { "roomId": "outpost_munitions", "targetNpc": "munitions_quartermaster" },
       "completionConditions": [{ "hasFlag": "voss_supply_quest_complete" }],
       "completionActions": [
         { "type": "grantXp", "amount": 30 },

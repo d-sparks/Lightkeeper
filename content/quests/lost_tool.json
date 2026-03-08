@@ -8,7 +8,7 @@
       "label": "Return Davi's Calibration Wrench",
       "description": "Bring the calibration wrench back to Apprentice Davi in the Workshop District.",
       "prerequisiteSteps": [],
-      "objective": { "roomId": "meridian_workshop", "tileX": 14, "tileY": 5 },
+      "objective": { "roomId": "meridian_workshop", "targetNpc": "apprentice_davi" },
       "completionConditions": [{ "hasFlag": "davi_wrench_returned" }],
       "completionActions": [
         { "type": "grantXp", "amount": 15 },

@@ -16,7 +16,7 @@
       "label": "Deliver Fen's Letter to Warden Holt",
       "description": "Return to Outpost Balor and give Fen's letter to Warden Holt.",
       "prerequisiteSteps": ["find_author"],
-      "objective": { "roomId": "outpost_entrance", "tileX": 4, "tileY": 10 },
+      "objective": { "roomId": "outpost_entrance", "targetNpc": "outpost_warden" },
       "completionConditions": [{ "hasFlag": "fen_letter_delivered" }],
       "completionActions": [{ "type": "grantXp", "amount": 25 }]
     },

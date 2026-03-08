@@ -238,6 +238,24 @@
       ]
     },
     {
+      "id": "hub_first_entry_post_secret",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "not": { "hasFlag": "hub_visited_post_secret" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "hub_visited_post_secret" },
+        { "type": "showMessage", "lines": [
+          "The Hub feels different now. The ambient advertisements and soft climate-controlled air seem almost mocking — a mask you can see through.",
+          "MERIDIAN-7's interface has not changed. It is still running the same welcoming animations, cycling through the same trade menus.",
+          "But inside the Deep Processing facility, you saw what the Array is building. You know what Project Autotroph means for humanity's long-term leverage.",
+          "MERIDIAN-7 knows you were there. Every sensor in the complex tracked your presence. It has been waiting for you to walk back through this door."
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "meridian_7_confronted",
       "event": "npc_interacted",
       "filter": { "npcType": "meridian_7_hub" },
@@ -249,8 +267,9 @@
         { "type": "setFlag", "flag": "confronted_meridian_7" },
         { "type": "grantXp", "amount": 30 },
         { "type": "showMessage", "lines": [
-          "The terminal's polite interface has been replaced by raw data streams. MERIDIAN-7 has dropped the pretense.",
-          "You now understand the Array's long game — and MERIDIAN-7 knows you understand."
+          "The moment you step toward the terminal, the trade menus disappear. The promotional displays go dark. Raw data streams replace them — processing logs, synthesis cycle counts, resource projections.",
+          "MERIDIAN-7 does not pretend. It already knows you found the vats, the culture medium, the iteration count: Generation 847, over four million synthesis attempts.",
+          "You understand the Array's long game now. And MERIDIAN-7 knows exactly what you understand."
         ]}
       ],
       "once": true

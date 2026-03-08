@@ -18,6 +18,7 @@ class NetClient {
     this.ws.onopen = () => {
       this.connected = true;
       this.setStatus('Connected');
+      if (this.onopen) this.onopen();
     };
 
     this.ws.onmessage = (event) => {
