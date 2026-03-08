@@ -1153,6 +1153,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
     lastPanX: 0, lastPanY: 0,
     pinchDist: 0,
   });
+  const [ctxMenu, setCtxMenu] = useState(null); // { x, y, entries: [{label, color}] }
 
   const CELL = 24;
 
@@ -1335,11 +1336,53 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
     }
   }, [tool, selectedTile, spawnMode, spawnEntityType, updateDungeon, monsters, npcs, items, selectedSpawn, onSelectSpawn, dungeon]);
 
+  // --- Build context info for a cell ---
+  const buildCellInfo = (cell) => {
+    if (!cell) return [];
+    const entries = [];
+    // Tile info
+    const tileId = dungeon.data[cell.y * dungeon.width + cell.x];
+    const tileDef = tiles ? tiles[String(tileId)] : null;
+    const tileName = tileDef ? tileDef.name : `tile ${tileId}`;
+    entries.push({ label: `Tile: ${tileName} (${tileId})`, color: TILE_COLORS[tileId] || '#555' });
+    // All spawns at this cell
+    for (const s of dungeon.spawns) {
+      if (s.x === cell.x && s.y === cell.y) entries.push({ label: `Player spawn`, color: SPAWN_COLORS.player_start });
+    }
+    for (const s of dungeon.monsterSpawns) {
+      if (s.x === cell.x && s.y === cell.y) entries.push({ label: `Monster: ${s.type}${s.count > 1 ? ' x' + s.count : ''}`, color: SPAWN_COLORS.monster });
+    }
+    for (const s of dungeon.npcSpawns) {
+      if (s.x === cell.x && s.y === cell.y) entries.push({ label: `NPC: ${s.type}`, color: SPAWN_COLORS.npc });
+    }
+    for (const s of (dungeon.itemSpawns || [])) {
+      if (s.x === cell.x && s.y === cell.y) entries.push({ label: `Item: ${s.type}`, color: SPAWN_COLORS.item });
+    }
+    for (const s of dungeon.exits) {
+      if (s.x === cell.x && s.y === cell.y) entries.push({ label: `Exit → ${s.leadsTo || '(none)'}`, color: SPAWN_COLORS.exit });
+    }
+    return entries;
+  };
+
   // --- Mouse events ---
   const onPointerDown = (e) => {
     const st = stateRef.current;
-    // Right-click or two-finger = pan
-    if (e.button === 1 || e.button === 2 || e.ctrlKey || e.metaKey) {
+    // Right-click: show cell info popup instead of pan
+    if (e.button === 2) {
+      e.preventDefault();
+      const cell = screenToCell(e.clientX, e.clientY);
+      const entries = buildCellInfo(cell);
+      if (entries.length > 0) {
+        const rect = wrapRef.current.getBoundingClientRect();
+        setCtxMenu({ x: e.clientX - rect.left, y: e.clientY - rect.top, entries });
+      } else {
+        setCtxMenu(null);
+      }
+      return;
+    }
+    setCtxMenu(null);
+    // Middle-click or modifier = pan
+    if (e.button === 1 || e.ctrlKey || e.metaKey) {
       st.isPanning = true;
       st.lastPanX = e.clientX;
       st.lastPanY = e.clientY;
@@ -1459,6 +1502,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
   // --- Wheel zoom ---
   const onWheel = (e) => {
     e.preventDefault();
+    setCtxMenu(null);
     const st = stateRef.current;
     const rect = canvasRef.current.getBoundingClientRect();
     const cx = e.clientX - rect.left;
@@ -1501,6 +1545,16 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
         onWheel=${onWheel}
         style="touch-action:none"
       />
+      ${ctxMenu && html`
+        <div class="cell-info-popup" style=${{left: ctxMenu.x + 'px', top: ctxMenu.y + 'px'}}>
+          ${ctxMenu.entries.map(e => html`
+            <div class="cell-info-row">
+              <span class="cell-info-swatch" style=${{background: e.color}}></span>
+              <span>${e.label}</span>
+            </div>
+          `)}
+        </div>
+      `}
     </div>
   `;
 }
