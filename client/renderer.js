@@ -346,13 +346,14 @@ class Renderer {
       // so they always render on top of floor tiles at their level.
       const sortElev = hovering ? Math.floor(elev) + 1 : Math.floor(elev);
       container.zIndex = iso.y + sortElev * this.elevBand * 2 + this.elevBand;
-      // Store elevation offset for shadow positioning
-      container._elevOffset = elevOffset + hoverOffset;
+      // Store hover offset for shadow positioning — shadow sits on the
+      // surface at the entity's elevation, only separated by hover gap.
+      container._shadowOffset = hoverOffset;
     } else {
       container.x = wx;
       container.y = wy;
       container.zIndex = wy;
-      container._elevOffset = 0;
+      container._shadowOffset = 0;
     }
   }
 
@@ -1957,6 +1958,10 @@ class Renderer {
 
       this._positionEntity(container, mob.x, mob.y, mob.elevation);
 
+      // Shadow sits on the surface at the entity's elevation
+      const mobShadow = container.children[0];
+      if (mobShadow) mobShadow.y = container._shadowOffset || 0;
+
       // Sprite
       const spritePath = mob.type ? 'sprites/' + mob.type + '.png' : null;
       if (spritePath) {
@@ -2072,12 +2077,11 @@ class Renderer {
 
       this._positionEntity(container, player.x, player.y, player.elevation, player.hovering);
 
-      // Update shadow position for hovering/elevation
+      // Update shadow position — shadow sits on the surface at the entity's
+      // elevation, offset only by hover gap (not by elevation itself).
       const shadow = container.children[0]; // shadow is first child
-      if (shadow && container._elevOffset) {
-        shadow.y = container._elevOffset;
-      } else if (shadow) {
-        shadow.y = 0;
+      if (shadow) {
+        shadow.y = container._shadowOffset || 0;
       }
 
       // Sprite

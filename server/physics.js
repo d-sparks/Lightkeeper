@@ -77,14 +77,11 @@ class Physics {
     } else {
       const tileDef = this.content.getTileDef(dungeon, tx, ty);
       const tileElev = tileDef ? (tileDef.elevation || 0) : 0;
-      const playerElev = player.elevation || 0;
 
       if (tileDef && tileDef.solid) {
-        // On a solid tile — we must be above it (otherwise collision would
-        // have pushed us out). Keep current elevation; the wall top is our
-        // walkable surface. Only snap DOWN if the wall is at our level or
-        // higher (e.g. elevated_wall at elev 1 while player is at elev 1 —
-        // that case shouldn't happen since it's solid at that level).
+        // On a solid tile we're above — round to nearest integer elevation
+        // so we don't get stuck at fractional values after leaving a ramp.
+        player.elevation = Math.round(player.elevation || 0);
       } else {
         // On a walkable floor tile — snap to its elevation
         player.elevation = tileElev;
