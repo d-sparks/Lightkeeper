@@ -168,10 +168,17 @@
   },
   "flare": {
     "name": "Flare",
-    "description": "A single-use emergency flare. The burst of light drives back the dark and soothes frayed nerves. Restores 15 health.",
+    "description": "A single-use emergency flare. Light it to mark an extraction point — a burning beacon you can return to.",
     "type": "consumable",
     "rarity": "uncommon",
-    "effect": { "heal": 15 }
+    "effect": { "createExtraction": true }
+  },
+  "extraction_protocol": {
+    "name": "Extraction Protocol",
+    "description": "An active extraction beacon burns somewhere in the dark. Use this to warp back to it.",
+    "type": "consumable",
+    "rarity": "uncommon",
+    "effect": { "teleportToExtraction": true }
   },
   "relay_log": {
     "name": "Relay Log",

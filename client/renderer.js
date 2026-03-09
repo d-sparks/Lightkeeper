@@ -83,6 +83,7 @@ class Renderer {
     this.projectileSprites = new Map();
     this.sentrySprites = new Map();
     this.beamObjectSprites = new Map();
+    this.extractionPointSprites = new Map();
 
     // Sprite texture cache: path -> PIXI.Texture
     this.textureCache = {};
@@ -1436,6 +1437,7 @@ class Renderer {
     this.renderMonsters();
     this.renderProjectiles();
     this.renderBeamObjects();
+    this.renderExtractionPoints();
     this.renderSentries();
     this.renderConeEffects();
     this.renderExplosionEffects();
@@ -2345,6 +2347,66 @@ class Renderer {
     this._cleanupPool(this.beamObjectSprites, activeIds);
   }
 
+  renderExtractionPoints() {
+    if (!this.state || !this.state.extractionPoints) return;
+
+    const activeIds = new Set();
+    const time = performance.now() / 1000;
+
+    for (const ep of this.state.extractionPoints) {
+      activeIds.add(ep.id);
+
+      let entry = this.extractionPointSprites.get(ep.id);
+      if (!entry) {
+        const container = new PIXI.Container();
+
+        // Outer fire glow
+        const glow = new PIXI.Graphics();
+        container.addChild(glow);
+
+        // Inner fire core
+        const core = new PIXI.Graphics();
+        container.addChild(core);
+
+        this.entityContainer.addChild(container);
+        entry = { container, glow, core };
+        this.extractionPointSprites.set(ep.id, entry);
+      }
+
+      const { container, glow, core } = entry;
+      this._positionEntity(container, ep.x, ep.y);
+
+      // Animate fire effect
+      const flicker1 = Math.sin(time * 8) * 0.15;
+      const flicker2 = Math.sin(time * 13 + 1.7) * 0.1;
+      const pulse = 0.6 + flicker1 + flicker2;
+
+      // Outer glow (orange/red)
+      glow.clear();
+      glow.beginFill(0xff6600, 0.12 * pulse);
+      glow.drawCircle(0, 0, 24);
+      glow.endFill();
+      glow.beginFill(0xff4400, 0.2 * pulse);
+      glow.drawCircle(0, 0, 16);
+      glow.endFill();
+
+      // Inner fire core (yellow/white)
+      core.clear();
+      core.beginFill(0xff8800, 0.5 * pulse);
+      const coreH = 10 + Math.sin(time * 10) * 2;
+      core.drawEllipse(0, -coreH / 2, 5, coreH / 2);
+      core.endFill();
+      core.beginFill(0xffcc00, 0.7);
+      core.drawEllipse(0, -3, 3, 5);
+      core.endFill();
+      core.beginFill(0xffffff, 0.4);
+      core.drawEllipse(0, -2, 1.5, 3);
+      core.endFill();
+    }
+
+    this._cleanupPool(this.extractionPointSprites, activeIds);
+  }
+
   renderSentries() {
     if (!this.state || !this.state.sentries) return;
 
@@ -3245,6 +3307,13 @@ class Renderer {
           x: ev.x, y: ev.y,
           age: 0, maxAge: 1.0,
           color: '#4caf50',
+        });
+      } else if (ev.type === 'extraction_placed') {
+        this.damageNumbers.push({
+          text: 'EXTRACTION SET',
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.5,
+          color: '#ff8800',
         });
       } else if (ev.type === 'pickup') {
         this.damageNumbers.push({

@@ -540,6 +540,10 @@ class GameLoop {
     if (room.sentries) {
       room.sentries = room.sentries.filter(s => s.ownerId !== playerId);
     }
+    // Remove any extraction points owned by this player
+    if (room.extractionPoints) {
+      room.extractionPoints = room.extractionPoints.filter(ep => ep.ownerId !== playerId);
+    }
     room.players.delete(playerId);
     console.log(`[GameLoop] Player ${playerId} left room "${roomId}"`);
 
@@ -3966,11 +3970,92 @@ class GameLoop {
       }
     }
 
+    // Create extraction point (flare)
+    if (itemDef.effect.createExtraction) {
+      // Remove any previous extraction point owned by this player
+      this._removeExtractionPoint(playerId);
+
+      // Create extraction point at player's current position
+      const epId = `ep_${playerId}_${Date.now()}`;
+      const ep = {
+        id: epId,
+        ownerId: playerId,
+        roomId: roomId,
+        x: player.x,
+        y: player.y,
+      };
+      if (!room.extractionPoints) room.extractionPoints = [];
+      room.extractionPoints.push(ep);
+
+      // Store reference on the player for cross-room lookup
+      player.extractionPoint = ep;
+
+      // Replace the flare with an extraction protocol item
+      player.inventory.splice(inventoryIndex, 1, { type: 'extraction_protocol' });
+
+      room.events.push({
+        type: 'extraction_placed', x: player.x, y: player.y, ownerId: playerId,
+      });
+
+      return { inventory: player.inventory, equipment: player.equipment };
+    }
+
+    // Teleport to extraction point
+    if (itemDef.effect.teleportToExtraction) {
+      if (!player.extractionPoint) return null;
+
+      const ep = player.extractionPoint;
+      const targetRoomId = ep.roomId;
+
+      // Remove the extraction point
+      this._removeExtractionPoint(playerId);
+      player.extractionPoint = null;
+
+      // Remove the consumed item
+      player.inventory.splice(inventoryIndex, 1);
+
+      if (targetRoomId === roomId) {
+        // Same room — just teleport
+        player.x = ep.x;
+        player.y = ep.y;
+        room.events.push({
+          type: 'teleport', targetId: playerId, x: ep.x, y: ep.y,
+        });
+      } else {
+        // Different room — queue a floor transition
+        this.pendingTransitions.push({
+          playerId: playerId,
+          fromRoom: roomId,
+          toDungeon: targetRoomId,
+          spawnX: (ep.x / CONSTANTS.TILE_SIZE) - 0.5,
+          spawnY: (ep.y / CONSTANTS.TILE_SIZE) - 0.5,
+          targetId: null,
+          exitX: null,
+          exitY: null,
+          depth: null,
+        });
+      }
+
+      return { inventory: player.inventory, equipment: player.equipment };
+    }
+
     if (!used) return null;
 
     // Remove the consumed item
     player.inventory.splice(inventoryIndex, 1);
     return { inventory: player.inventory, equipment: player.equipment };
+  }
+
+  // Remove extraction point for a player from whatever room it's in
+  _removeExtractionPoint(playerId) {
+    for (const [, room] of this.rooms) {
+      if (!room.extractionPoints) continue;
+      const idx = room.extractionPoints.findIndex(ep => ep.ownerId === playerId);
+      if (idx !== -1) {
+        room.extractionPoints.splice(idx, 1);
+        return;
+      }
+    }
   }
 
   // Get total attack damage for a player (base + equipment bonuses)
@@ -4258,6 +4343,18 @@ class GameLoop {
       });
     }
 
+    const extractionPoints = [];
+    if (room.extractionPoints) {
+      for (const ep of room.extractionPoints) {
+        extractionPoints.push({
+          id: ep.id,
+          ownerId: ep.ownerId,
+          x: Math.round(ep.x * 10) / 10,
+          y: Math.round(ep.y * 10) / 10,
+        });
+      }
+    }
+
     // Party quest progress summaries (name, color, active step labels)
     const partyQuests = [];
     for (const [pid, p] of room.players) {
@@ -4279,7 +4376,7 @@ class GameLoop {
     return {
       type: CONSTANTS.MSG.STATE,
       tick: room.tick,
-      players, npcs, monsters, items, projectiles, sentries, beamObjects, events, partyQuests,
+      players, npcs, monsters, items, projectiles, sentries, beamObjects, extractionPoints, events, partyQuests,
     };
   }
 }
