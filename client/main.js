@@ -2541,7 +2541,7 @@
     renderer.setMap(msg.map, msg.tileset, msg.chunked);
     if (msg.chunks) renderer.applyChunks(msg.chunks);
     renderer.fullMap = false;
-    input.clearMoveTarget();
+    input.stopMovement();
     // Close any open dialogue, choice menu, worldmap, or automation screen
     closeDialogue();
     closeChoiceMenu();

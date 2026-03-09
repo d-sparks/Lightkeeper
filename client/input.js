@@ -1021,6 +1021,7 @@ class InputHandler {
 
   stopMovement() {
     this.keys = { up: false, down: false, left: false, right: false };
+    this.combatTarget = null;
     this.clearMoveTarget();
     this.sendInput();
   }
