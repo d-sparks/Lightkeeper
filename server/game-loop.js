@@ -3433,6 +3433,7 @@ class GameLoop {
       vy: dirY * CONSTANTS.PROJECTILE_SPEED,
       damage: damage,
       lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+      projectileType: weapon.stats.projectileType || null,
     });
 
     // Set attack cooldown

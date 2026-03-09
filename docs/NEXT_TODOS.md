@@ -32,7 +32,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 - Death penalty: when the player dies, drain energy, drop non-quest items (per dropBehavior rules in architecture-plan.md), respawn at room entrance. Completes the core risk/reward loop.
 - Placeholder sound effects for core actions: weapon attack, ability fire, monster hit, monster death, item pickup, door open, level transition. Audio system and per-biome music are wired — needs sound effect content.
-- Combat juice pass: screen shake on player hit, monster death fade-out animation, ambush monster fade-in reveal, projectile tinting by monster type (fire=orange, ice=blue, acid=green).
+- ~~Combat juice pass: screen shake on player hit, monster death fade-out animation, ambush monster fade-in reveal, projectile tinting by monster type (fire=orange, ice=blue, acid=green).~~ — DONE: All four effects implemented. Screen shake on player hit (intensity 4, 0.15s). Per-style monster death animations (dissolve/crumble/pop/shatter/collapse, all ≤0.3s alpha tween). Projectile tinting by type (magma_glob→orange/fire, crystal_shard_bolt→cyan/ice, spore_cloud→green/acid; player blasters→cyan, pulse_bolt→amber). Ambush fade-in (0.5s) with white reveal flash in first 20% of fade.
 
 ## Progression Wiring
 
@@ -54,7 +54,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 ## Combat & AI Polish
 
-- Monster projectiles use generic blue color — tint by monster type or add distinct sprite.
+- ~~Monster projectiles use generic blue color — tint by monster type or add distinct sprite.~~ — DONE: projColors map covers all monster projectile types; player weapon projectiles now carry projectileType (blaster_bolt/pulse_bolt) for distinct coloring.
 - Add explicit patrolPath waypoints to remaining patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
 - Pack AI "pack leader" variant that buffs nearby pack members.
 - Tune special attack cooldowns and damage multipliers after playtesting (lunge, stun, ground slam).

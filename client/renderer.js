@@ -2158,7 +2158,12 @@ class Renderer {
       if (this.ambushFadeIns.has(mob.id)) {
         const remaining = this.ambushFadeIns.get(mob.id);
         const fadeTotal = 0.5;
-        container.alpha = Math.max(0, 1 - remaining / fadeTotal);
+        const progress = 1 - remaining / fadeTotal; // 0=just revealed, 1=fully visible
+        container.alpha = Math.max(0, progress);
+        // Reveal flash: briefly show white tint in first 20% of fade-in
+        if (progress < 0.2 && !this.hitFlashes.has(mob.id)) {
+          sprite.tint = 0xffffff;
+        }
       } else {
         container.alpha = 1;
       }
@@ -2205,12 +2210,16 @@ class Renderer {
           sprite.height = r * 2;
           // Tint by projectile type
           const projColors = {
+            // Monster projectile types
             arrow_bone: 0xbcaaa4,    // bone/tan
             shadow_bolt: 0x7c4dff,   // dark purple
-            magma_glob: 0xff6e40,    // fiery orange
-            spore_cloud: 0x69f0ae,   // sickly green
-            crystal_shard_bolt: 0x80deea, // icy cyan
+            magma_glob: 0xff6e40,    // fire → orange
+            spore_cloud: 0x69f0ae,   // acid → green
+            crystal_shard_bolt: 0x80deea, // ice → blue
             energy_bolt: 0xffab40,   // amber/orange
+            // Player weapon projectile types
+            blaster_bolt: 0x40c4ff,  // bright cyan (energy)
+            pulse_bolt: 0xffd740,    // amber gold (high-energy pulse)
           };
           sprite.tint = projColors[proj.projectileType] || 0x4fc3f7;
           container.addChild(sprite);
@@ -3193,7 +3202,7 @@ class Renderer {
     this.entityContainer.addChild(container);
 
     const style = this._getDeathStyle(monsterType);
-    const maxAge = style === 'crumble' ? 0.5 : style === 'shatter' ? 0.3 : 0.4;
+    const maxAge = style === 'crumble' ? 0.5 : 0.3;
 
     this.deathAnims.push({
       container, sprite, x, y, style,

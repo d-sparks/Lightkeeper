@@ -27,7 +27,7 @@
     "type": "weapon",
     "rarity": "common",
     "slot": "weapon",
-    "stats": { "attackDamage": 3, "projectile": true },
+    "stats": { "attackDamage": 3, "projectile": true, "projectileType": "blaster_bolt" },
     "ability": { "id": "blaster_shot" }
   },
   "combat_baton": {
@@ -245,7 +245,7 @@
     "type": "weapon",
     "rarity": "uncommon",
     "slot": "weapon",
-    "stats": { "attackDamage": 6, "projectile": true },
+    "stats": { "attackDamage": 6, "projectile": true, "projectileType": "blaster_bolt" },
     "ability": { "id": "precision_shot" }
   },
   "shock_baton": {
@@ -263,7 +263,7 @@
     "type": "weapon",
     "rarity": "rare",
     "slot": "weapon",
-    "stats": { "attackDamage": 5, "projectile": true },
+    "stats": { "attackDamage": 5, "projectile": true, "projectileType": "pulse_bolt" },
     "ability": { "id": "pulse_shot" }
   },
   "efficiency_core_chip": {
