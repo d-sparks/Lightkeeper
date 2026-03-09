@@ -2,7 +2,7 @@
   "id": "outpost_entrance",
   "name": "Outpost Balor",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "outpost_military",
   "tileSize": 32,
   "width": 55,

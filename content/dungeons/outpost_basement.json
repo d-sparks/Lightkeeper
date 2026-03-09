@@ -2,7 +2,7 @@
   "id": "outpost_basement",
   "name": "Outpost Balor - Lower Level",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "outpost_military",
   "tileSize": 32,
   "ambientLight": 0.3,

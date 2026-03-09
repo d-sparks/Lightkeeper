@@ -2,7 +2,7 @@
   "id": "meridian_station",
   "name": "Meridian Station",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "meridian",
   "theme": "meridian_city",
   "tileSize": 32,
   "width": 30,

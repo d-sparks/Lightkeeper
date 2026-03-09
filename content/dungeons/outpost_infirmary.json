@@ -2,7 +2,7 @@
   "id": "outpost_infirmary",
   "name": "Outpost Balor - Infirmary",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "outpost_military",
   "tileSize": 32,
   "width": 22,

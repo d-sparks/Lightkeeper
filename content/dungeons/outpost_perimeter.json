@@ -2,7 +2,7 @@
   "id": "outpost_perimeter",
   "name": "The Dark Perimeter",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "dark_perimeter",
   "tileSize": 32,
   "ambientLight": 0.08,

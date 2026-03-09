@@ -2,7 +2,7 @@
   "id": "outpost_mess_hall",
   "name": "Outpost Balor - Mess Hall",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "outpost_military",
   "tileSize": 32,
   "width": 28,

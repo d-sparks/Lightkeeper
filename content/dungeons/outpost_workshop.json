@@ -2,7 +2,7 @@
   "id": "outpost_workshop",
   "name": "Outpost Balor - Apprentice Shop",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "outpost_military",
   "tileSize": 32,
   "width": 32,

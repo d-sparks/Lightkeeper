@@ -2,7 +2,7 @@
   "id": "outpost_comms",
   "name": "Outpost Balor - Comms Room",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "outpost_military",
   "tileSize": 32,
   "width": 18,

@@ -2,7 +2,7 @@
   "id": "meridian_civic",
   "name": "Civic Center",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "meridian",
   "theme": "meridian_city",
   "tileSize": 32,
   "width": 25,

@@ -2,7 +2,7 @@
   "id": "meridian_market",
   "name": "Market Quarter",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "meridian",
   "theme": "meridian_city",
   "tileSize": 32,
   "width": 30,

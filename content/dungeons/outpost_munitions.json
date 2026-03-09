@@ -2,7 +2,7 @@
   "id": "outpost_munitions",
   "name": "Outpost Balor - Munitions Supply",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "outpost_military",
   "tileSize": 32,
   "width": 32,
