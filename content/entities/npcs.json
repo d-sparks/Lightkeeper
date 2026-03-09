@@ -543,14 +543,14 @@
       "has_umbracite": [
         { "speaker": "MERIDIAN-7", "text": "// RESOURCE DETECTED // UMBRACITE CRYSTAL //" },
         { "speaker": "MERIDIAN-7", "text": "You have umbracite. The Array values this mineral above all others. It is essential to our expansion protocols." },
-        { "speaker": "MERIDIAN-7", "text": "I will deploy a Solar Panel on the dayside in exchange. It will passively recharge your Sol Unit while you are there." },
-        { "speaker": "MERIDIAN-7", "text": "Interact again to confirm the exchange." }
+        { "speaker": "MERIDIAN-7", "text": "In exchange, I will deploy a Solar Panel on the dayside and fabricate a Sol Shield Emitter for your grid." },
+        { "speaker": "MERIDIAN-7", "text": "The shield generates a brief energy barrier — essential for surviving deeper runs. Interact again to confirm." }
       ],
       "traded": [
-        { "speaker": "MERIDIAN-7", "text": "// EXCHANGE COMPLETE // SOLAR PANEL DEPLOYED //" },
-        { "speaker": "MERIDIAN-7", "text": "Your solar panel is active on the dayside. It will recharge your Sol Unit passively while you are in the solar fields." },
+        { "speaker": "MERIDIAN-7", "text": "// EXCHANGE COMPLETE // SOLAR PANEL DEPLOYED // SOL SHIELD FABRICATED //" },
+        { "speaker": "MERIDIAN-7", "text": "Your solar panel is active on the dayside. The Sol Shield Emitter is ready — slot it into your grid." },
         { "speaker": "MERIDIAN-7", "text": "Silicon is abundant on the dayside. Collect it to build more structures through your AUTO interface." },
-        { "speaker": "MERIDIAN-7", "text": "When you have surplus silicon, return here. I can offer equipment, components, and advanced schematics in exchange." }
+        { "speaker": "MERIDIAN-7", "text": "As your automation grows, the Array will provide greater rewards. Build enough and I can fabricate a rechargeable battery — no more disposable cells." }
       ],
       "returning": [
         { "speaker": "MERIDIAN-7", "text": "// WELCOME BACK // TRADE INTERFACE ACTIVE //" },

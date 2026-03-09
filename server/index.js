@@ -868,6 +868,43 @@ wss.on('connection', (ws) => {
       case CONSTANTS.MSG.AUTO_BUILD: {
         if (!ws.playerRoom) break;
         const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY);
+        if (built) {
+          // Check for milestone rewards
+          const milestoneRewards = gameLoop.automation.checkMilestones(playerId);
+          if (milestoneRewards.length > 0) {
+            const room = gameLoop.getRoom(ws.playerRoom);
+            const player = room && room.players.get(playerId);
+            if (player) {
+              for (const give of milestoneRewards) {
+                if (give.type === 'item') {
+                  if (give.itemId === 'medical_supplies') {
+                    player.medipacCharges = (player.medipacCharges || 0) + (give.count || 1);
+                  } else {
+                    const itemDef = content.getItem(give.itemId);
+                    if (itemDef) {
+                      for (let i = 0; i < (give.count || 1); i++) {
+                        player.inventory.push({
+                          name: itemDef.name,
+                          type: give.itemId,
+                          category: itemDef.type,
+                          rarity: itemDef.rarity || 'common',
+                          slot: itemDef.slot || null,
+                          stackable: itemDef.stackable || false,
+                        });
+                      }
+                    }
+                  }
+                }
+              }
+              ws.send(JSON.stringify({
+                type: CONSTANTS.MSG.INVENTORY,
+                items: player.inventory,
+                equipment: player.equipment,
+                medipacCharges: player.medipacCharges,
+              }));
+            }
+          }
+        }
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.AUTO_STATE,
           auto: gameLoop.automation.getStateForClient(playerId),

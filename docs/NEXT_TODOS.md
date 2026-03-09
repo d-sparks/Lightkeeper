@@ -38,6 +38,9 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 - Wire generators into loot/rewards: basic_generator and improved_generator items exist but aren't obtainable via any loot table or quest reward. Critical for energy progression pacing.
 - Rechargeable battery (100 cap, uncommon) and single-use battery (100 cap, common) now exist as mid-tier bridge items. Consider additional tiers (50/200 cap variants).
+- Automation milestone rewards are now data-driven in structures.json `_milestoneRewards`. Current thresholds (2/4/6/10/15) may need tuning after playtesting — particularly whether the rechargeable battery at 6 structures feels too early or too late.
+- Milestone reward claiming shows a message via INVENTORY update but has no dedicated UI notification (toast/popup). Consider adding a "Reward Unlocked!" flash in the automation screen when a milestone is claimed.
+- The umbracite trade now gives sol_shield_chip as the second ability. Ensure the sol grid tutorial flow accommodates this (player may need guidance to slot it).
 
 ## Content Completion
 

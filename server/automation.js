@@ -15,6 +15,7 @@ class Automation {
         resources: { silicon: 0 },
         structures: {},       // structureId -> { count, placements: [{x,y}] }
         productionTimers: {}, // structureId -> seconds accumulated
+        claimedMilestones: [],// indices of milestones already claimed
         stats: {
           totalSiliconProduced: 0,
           totalSiliconSpent: 0,
@@ -210,6 +211,31 @@ class Automation {
     return null;
   }
 
+  // Check for newly unlocked milestone rewards (returns array of gives)
+  checkMilestones(playerId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const milestones = structures._milestoneRewards || [];
+    const state = this.getState(playerId);
+    if (!state.claimedMilestones) state.claimedMilestones = [];
+
+    // Count total structures
+    let totalStructures = 0;
+    for (const [id, structData] of Object.entries(state.structures)) {
+      totalStructures += typeof structData === 'object' ? structData.count : structData;
+    }
+
+    const newRewards = [];
+    for (let i = 0; i < milestones.length; i++) {
+      if (state.claimedMilestones.includes(i)) continue;
+      if (totalStructures >= milestones[i].threshold) {
+        state.claimedMilestones.push(i);
+        const m = milestones[i];
+        newRewards.push({ type: 'item', itemId: m.itemId, count: m.count || 1 });
+      }
+    }
+    return newRewards;
+  }
+
   // Execute a trade with MERIDIAN-7
   trade(playerId, tradeId) {
     const trades = {
@@ -371,10 +397,21 @@ class Automation {
       { id: 'medical_supplies', name: 'Medical Supplies x5', cost: { silicon: 10 } },
     ];
 
+    // Build milestone rewards list with claimed status
+    const milestones = (structures._milestoneRewards || []).map((m, i) => ({
+      threshold: m.threshold,
+      name: m.name,
+      description: m.description,
+      icon: m.icon || '?',
+      claimed: (state.claimedMilestones || []).includes(i),
+      unlocked: totalStructures >= m.threshold,
+    }));
+
     const result = {
       resources: { ...state.resources },
       structures: structureList,
       trades,
+      milestones,
       stats: {
         totalSiliconProduced: state.stats.totalSiliconProduced,
         totalSiliconSpent: state.stats.totalSiliconSpent,

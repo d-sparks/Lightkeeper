@@ -1073,6 +1073,57 @@
       screen.appendChild(prog);
     }
 
+    // Milestone rewards track
+    if (autoState.milestones && autoState.milestones.length > 0) {
+      const track = document.createElement('div');
+      track.className = 'auto-rewards-track';
+      const trackTitle = document.createElement('div');
+      trackTitle.className = 'auto-rewards-title';
+      trackTitle.textContent = 'Automation Rewards';
+      track.appendChild(trackTitle);
+
+      const trackRow = document.createElement('div');
+      trackRow.className = 'auto-rewards-row';
+
+      for (let i = 0; i < autoState.milestones.length; i++) {
+        const m = autoState.milestones[i];
+
+        // Connector line between milestones (except before first)
+        if (i > 0) {
+          const connector = document.createElement('div');
+          connector.className = 'auto-reward-connector';
+          if (m.unlocked) connector.classList.add('filled');
+          trackRow.appendChild(connector);
+        }
+
+        const node = document.createElement('div');
+        node.className = 'auto-reward-node';
+        if (m.claimed) node.classList.add('claimed');
+        else if (m.unlocked) node.classList.add('unlocked');
+
+        const icon = document.createElement('div');
+        icon.className = 'auto-reward-icon';
+        icon.textContent = m.icon;
+
+        const label = document.createElement('div');
+        label.className = 'auto-reward-label';
+        label.textContent = m.name;
+
+        const thresh = document.createElement('div');
+        thresh.className = 'auto-reward-thresh';
+        thresh.textContent = m.threshold + ' structures';
+
+        node.title = m.description;
+        node.appendChild(icon);
+        node.appendChild(label);
+        node.appendChild(thresh);
+        trackRow.appendChild(node);
+      }
+
+      track.appendChild(trackRow);
+      screen.appendChild(track);
+    }
+
     // Body: grid + sidebar
     const body = document.createElement('div');
     body.className = 'auto-body';

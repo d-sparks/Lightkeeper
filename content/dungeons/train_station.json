@@ -118,7 +118,12 @@
       "actions": [
         { "type": "removeItem", "itemType": "umbracite" },
         { "type": "giveStructure", "structureId": "solar_panel" },
-        { "type": "setFlag", "flag": "traded_umbracite_meridian" }
+        { "type": "giveItem", "itemType": "sol_shield_chip" },
+        { "type": "setFlag", "flag": "traded_umbracite_meridian" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7 accepts the umbracite. A solar panel deploys on the dayside.",
+          "The terminal also produces a crystalline chip — a Sol Shield Emitter. Your second ability."
+        ]}
       ],
       "once": true
     },
