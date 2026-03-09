@@ -708,6 +708,28 @@
       "once": true
     },
     {
+      "id": "give_generator_chip",
+      "event": "npc_interacted",
+      "filter": {
+        "npcType": "charging_tech_maren"
+      },
+      "conditions": [
+        { "hasFlag": "received_first_battery" },
+        { "not": { "hasFlag": "received_generator_chip" } }
+      ],
+      "actions": [
+        {
+          "type": "giveItem",
+          "itemType": "basic_generator_chip"
+        },
+        {
+          "type": "setFlag",
+          "flag": "received_generator_chip"
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "give_battery_chip",
       "event": "npc_interacted",
       "filter": {

@@ -388,12 +388,22 @@
       "has_battery": [
         { "speaker": "Tech Maren", "text": "You've still got that field cell. Come back once you've used it up — I'll have another one ready." }
       ],
+      "give_generator": [
+        { "speaker": "Tech Maren", "text": "The charging terminal took a hit during that last incursion. Capacitor array's cracked — I can't fix it without parts from the dayside." },
+        { "speaker": "Tech Maren", "text": "Good news is we have a backup. Portable generator — salvaged from a relay station, been sitting in the maintenance locker for two years." },
+        { "speaker": "Tech Maren", "text": "You're heading out anyway. Take it. Install it in your Sol Unit's grid and it'll give you a trickle charge in the field — passive energy regeneration." },
+        { "speaker": "Tech Maren", "text": "It's not much. But out there, between engagements, it'll keep your unit from going dark. You'll want it." }
+      ],
       "has_sol_unit": [
         { "speaker": "Tech Maren", "text": "You've got a Sol Unit? Good. Once you've run your training, come back and I'll set you up with a field cell." },
         { "speaker": "Tech Maren", "text": "We can't do full charge cycles yet — station's still being calibrated. But I keep a stock of single-use cells for deployments." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "received_first_battery" }, { "not": { "hasFlag": "received_generator_chip" } }],
+        "use": "give_generator"
+      },
       {
         "conditions": [{ "hasFlag": "sol_training_complete" }, { "hasItem": "single_use_battery_chip" }],
         "use": "has_battery"

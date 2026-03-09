@@ -36,7 +36,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 ## Progression Wiring
 
-- Wire generators into loot/rewards: basic_generator and improved_generator items exist but aren't obtainable via any loot table or quest reward. Critical for energy progression pacing.
+- ~~Wire generators into loot/rewards: basic_generator and improved_generator items exist but aren't obtainable via any loot table or quest reward. Critical for energy progression pacing.~~ — DONE: basic_generator_chip given by Tech Maren after `received_first_battery` (post-outpost-attack narrative beat); improved_generator_chip added to array_fabricator (weight 1) and array_overseer (weight 2) loot tables.
 - Rechargeable battery (100 cap, uncommon) and single-use battery (100 cap, common) now exist as mid-tier bridge items. Consider additional tiers (50/200 cap variants).
 - Automation milestone rewards are now data-driven in structures.json `_milestoneRewards`. Current thresholds (2/4/6/10/15) may need tuning after playtesting — particularly whether the rechargeable battery at 6 structures feels too early or too late.
 - Milestone reward claiming shows a message via INVENTORY update but has no dedicated UI notification (toast/popup). Consider adding a "Reward Unlocked!" flash in the automation screen when a milestone is claimed.
