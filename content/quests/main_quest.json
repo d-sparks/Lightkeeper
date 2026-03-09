@@ -98,10 +98,26 @@
       "completionConditions": [{ "hasFlag": "reached_station_approach" }],
       "completionActions": [{ "type": "grantXp", "amount": 30 }]
     },
-    "get_transit_pass": {
-      "label": "Get a Transit Pass",
-      "description": "Help Tech Yara clear the junction box nest to earn a Transit Pass for the train to Meridian City.",
+    "talk_to_yara": {
+      "label": "Talk to Tech Yara",
+      "description": "Tech Yara at the train station may know how to get a transit pass. Find her and hear her out.",
       "prerequisiteSteps": ["cross_perimeter"],
+      "objective": { "roomId": "train_station", "targetNpc": "station_tech_yara" },
+      "completionConditions": [{ "hasFlag": "yara_junction_quest" }],
+      "completionActions": [{ "type": "grantXp", "amount": 5 }]
+    },
+    "clear_junction_box": {
+      "label": "Clear the Underground Power Conduit Junction",
+      "description": "Junction Box 7 in the underground power conduit has been overrun by Dusk Crawlers. Clear them out so Yara can restore the train power.",
+      "prerequisiteSteps": ["talk_to_yara"],
+      "objective": { "roomId": "station_junction" },
+      "completionConditions": [{ "hasFlag": "junction_cleared" }],
+      "completionActions": [{ "type": "grantXp", "amount": 20 }]
+    },
+    "get_transit_pass": {
+      "label": "Collect Your Transit Pass",
+      "description": "Return to Tech Yara — the junction is clear and she owes you a Transit Pass.",
+      "prerequisiteSteps": ["clear_junction_box"],
       "objective": { "roomId": "train_station", "targetNpc": "station_tech_yara" },
       "completionConditions": [{ "hasFlag": "has_transit_pass" }],
       "completionActions": [{ "type": "grantXp", "amount": 25 }]
