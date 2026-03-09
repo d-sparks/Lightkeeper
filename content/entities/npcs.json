@@ -1315,9 +1315,19 @@
       "has_deed": [
         { "speaker": "Land Registrar Hollis", "text": "Your lot's all registered. Lot 7, East Terrace. The deed is in your inventory." },
         { "speaker": "Land Registrar Hollis", "text": "Talk to Master Crafter Yun in the Workshop District if you haven't already. He'll help you get your array infrastructure set up." }
+      ],
+      "post_yun_dayside": [
+        { "speaker": "Land Registrar Hollis", "text": "Your lot's all registered. Lot 7, East Terrace." },
+        { "speaker": "Land Registrar Hollis", "text": "Now that you've met Yun, you've got the skills to build. But you should see what you're building against." },
+        { "speaker": "Land Registrar Hollis", "text": "The Dayside Solar Fields. Everything the Array has built — harvesters, panels, processing labs — it's all out there on the sunward side." },
+        { "speaker": "Land Registrar Hollis", "text": "Gives you perspective on what 'self-sufficient' really means when your competition never sleeps." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "has_yard_deed" }, { "hasFlag": "met_crafter_yun" }, { "not": { "hasFlag": "visited_dayside" } }],
+        "use": "post_yun_dayside"
+      },
       {
         "conditions": [{ "hasFlag": "has_yard_deed" }],
         "use": "has_deed"
@@ -1959,6 +1969,12 @@
         { "speaker": "Master Crafter Yun", "text": "Your Sol Unit's running at extended capacity now. You can feel the difference, can't you?" },
         { "speaker": "Master Crafter Yun", "text": "Most people never learn to build their own equipment. They buy what the Array sells, use what the Array provides." },
         { "speaker": "Master Crafter Yun", "text": "You're different. That's why the Array will be watching you. They don't like independence." }
+      ],
+      "dayside_breadcrumb": [
+        { "speaker": "Master Crafter Yun", "text": "You want to understand what you're building against? Go see the dayside." },
+        { "speaker": "Master Crafter Yun", "text": "The Dayside Solar Fields — automated harvesters, solar arrays, all run by MERIDIAN-7. No humans needed. That's the point." },
+        { "speaker": "Master Crafter Yun", "text": "Head through the Array Hub south of the station. MERIDIAN-7 controls access, but they'll let you through — they want you to see it. Makes you feel small." },
+        { "speaker": "Master Crafter Yun", "text": "See the scale of what we're up against. Then come back and tell me independence isn't worth fighting for." }
       ]
     },
     "dialogueRules": [
@@ -1981,6 +1997,10 @@
       {
         "conditions": [{ "hasItem": "copper_coil" }, { "hasItem": "umbracite" }],
         "use": "crafting_tutorial"
+      },
+      {
+        "conditions": [{ "hasFlag": "met_crafter_yun" }, { "not": { "hasFlag": "visited_dayside" } }],
+        "use": "dayside_breadcrumb"
       },
       {
         "conditions": [{ "hasFlag": "has_yard_deed" }],

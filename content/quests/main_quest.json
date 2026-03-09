@@ -137,6 +137,40 @@
       "objective": { "roomId": "meridian_workshop", "targetNpc": "crafter_yun" },
       "completionConditions": [{ "hasFlag": "met_crafter_yun" }],
       "completionActions": [{ "type": "grantXp", "amount": 30 }]
+    },
+    "explore_dayside": {
+      "label": "Explore the Dayside Solar Fields",
+      "description": "Yun says the Array controls the dayside — automated harvesters, solar panels, all of it. Visit the Dayside Solar Fields through the Array Hub to see the Array's infrastructure firsthand.",
+      "prerequisiteSteps": ["visit_workshop"],
+      "objective": { "roomId": "dayside_solar_fields" },
+      "completionConditions": [{ "hasFlag": "visited_dayside" }],
+      "completionActions": [{ "type": "grantXp", "amount": 40 }]
+    },
+    "discover_array_secret": {
+      "label": "Discover the Array's Secret",
+      "description": "MERIDIAN-7 trades umbracite for infrastructure, but something deeper is going on. Find the Array Deep Processing center and uncover what the Array doesn't want you to see.",
+      "prerequisiteSteps": ["explore_dayside"],
+      "objective": { "roomId": "array_deep_processing" },
+      "completionConditions": [{ "hasFlag": "array_secret_discovered" }],
+      "completionActions": [{ "type": "grantXp", "amount": 50 }]
+    },
+    "build_alliance": {
+      "label": "Rally Sable and Confront MERIDIAN-7",
+      "description": "The Array's secret changes everything. Warn Sable about what you found in the residential quarter, then confront MERIDIAN-7 at the Array Hub.",
+      "prerequisiteSteps": ["discover_array_secret"],
+      "completionConditions": [
+        { "hasFlag": "sable_warned_about_array" },
+        { "hasFlag": "confronted_meridian_7" }
+      ],
+      "completionActions": [{ "type": "grantXp", "amount": 40 }]
+    },
+    "forge_expedition": {
+      "label": "Forge the Nightside Expedition",
+      "description": "With Sable warned and MERIDIAN-7 confronted, speak to Councillor Asha Denn at the Civic Center. She's assembling a joint expedition into the deep Nightside.",
+      "prerequisiteSteps": ["build_alliance"],
+      "objective": { "roomId": "meridian_civic", "targetNpc": "councillor_asha" },
+      "completionConditions": [{ "hasFlag": "act3_asha_alliance_activated" }],
+      "completionActions": [{ "type": "grantXp", "amount": 60 }]
     }
   },
   "startStep": "talk_to_warden"

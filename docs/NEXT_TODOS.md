@@ -111,12 +111,12 @@ Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 
 Critical gaps in the quest graph where content exists but isn't reachable from the main quest line:
 
-- **Main quest dead-ends at step 18** — After "Visit the Workshop District" (meet Yun) there's no guidance toward dayside, Array complex, or Nightside. Players must stumble into Act II content independently. Need steps 19+ bridging to Act III.
-- **No NPC directs players to dayside_solar_fields** — `visited_dayside` flag is properly set on entry, but no dialogue mentions dayside. Yun or Hollis should provide breadcrumbs after `met_crafter_yun`.
+- ~~**Main quest dead-ends at step 18**~~ — DONE: Added steps 19-22 (explore_dayside → discover_array_secret → build_alliance → forge_expedition) bridging Act I to Act III.
+- ~~**No NPC directs players to dayside_solar_fields**~~ — DONE: Yun and Hollis now provide dayside breadcrumbs after `met_crafter_yun`.
 - **autotroph_path_defiant/cooperative flags orphaned** — Set in meridian_array_hub.json but never checked anywhere. Should gate Act III dialogue and ending path availability.
 - **Boss-kill flags orphaned** — `frost_warden_defeated`, `elder_sporecap_defeated`, `magma_core_cleared` set but never checked. NPCs should react to these accomplishments.
 - **Act III paths accept choices but nothing happens** — nightside_expedition quest lets players choose shutdown/merge/control but the ending dungeons don't exist yet.
-- **nightside_expedition requires `act3_asha_alliance_activated`** — No clear path to set this flag from main quest progression.
+- ~~**nightside_expedition requires `act3_asha_alliance_activated`**~~ — DONE: Step 22 (forge_expedition) gates on this flag, completing the path from main quest → Act III.
 - **Council faction NPCs not spawned** — Steward, Compact, Root representatives referenced in Asha's dialogue but not in meridian_civic as spawnable NPCs.
 
 ## Act II Quest Follow-ups
