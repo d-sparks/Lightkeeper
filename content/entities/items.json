@@ -736,5 +736,12 @@
     "type": "sol_component",
     "rarity": "rare",
     "solComponentId": "hover_thruster"
+  },
+  "light_sentry_chip": {
+    "name": "Light Sentry Emitter",
+    "description": "A sol component that deploys a stationary light sentry. The sentry projects a beam at the nearest target, dealing continuous damage and heavily slowing enemies. Its beam also interacts with mirrors and photosensors for puzzle solving.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "light_sentry_emitter"
   }
 }

@@ -285,7 +285,7 @@
     1,
     6,
     1,
-    1,
+    6,
     2,
     1,
     1,
@@ -459,6 +459,14 @@
       "x": 10,
       "y": 11,
       "leadsTo": "elevation_demo",
+      "type": "stairs_down",
+      "spawnX": 2,
+      "spawnY": 2
+    },
+    {
+      "x": 12,
+      "y": 11,
+      "leadsTo": "light_sentry_demo",
       "type": "stairs_down",
       "spawnX": 2,
       "spawnY": 2

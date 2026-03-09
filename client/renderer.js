@@ -82,6 +82,7 @@ class Renderer {
     this.itemSprites = new Map();
     this.projectileSprites = new Map();
     this.sentrySprites = new Map();
+    this.beamObjectSprites = new Map();
 
     // Sprite texture cache: path -> PIXI.Texture
     this.textureCache = {};
@@ -1356,6 +1357,7 @@ class Renderer {
     this.renderNPCs();
     this.renderMonsters();
     this.renderProjectiles();
+    this.renderBeamObjects();
     this.renderSentries();
     this.renderConeEffects();
     this.renderMeleeEffects();
@@ -2129,6 +2131,124 @@ class Renderer {
 
   // --- Light Sentries ---
 
+  renderBeamObjects() {
+    if (!this.state || !this.state.beamObjects || this.state.beamObjects.length === 0) return;
+
+    const activeIds = new Set();
+
+    for (const bo of this.state.beamObjects) {
+      activeIds.add(bo.id);
+
+      let entry = this.beamObjectSprites.get(bo.id);
+      if (!entry) {
+        const container = new PIXI.Container();
+
+        if (bo.type === 'mirror') {
+          // Mirror: a reflective surface drawn at the mirror's angle
+          // angle = 45° draws as / (forward slash), 135° draws as \ (backslash)
+          // In screen coords (Y-down), surface direction is (cos(θ), -sin(θ))
+          const gfx = new PIXI.Graphics();
+          const mRad = (bo.angle || 45) * Math.PI / 180;
+          // World-space surface direction (screen coords, Y-down)
+          let sdx = Math.cos(mRad);
+          let sdy = -Math.sin(mRad);
+
+          // Transform surface direction to iso screen space if in iso mode
+          if (this.isoMode) {
+            const dw = CONSTANTS.ISO_DIAMOND_W;
+            const dh = CONSTANTS.ISO_DIAMOND_H;
+            const ix = (sdx - sdy) * dw / 2;
+            const iy = (sdx + sdy) * dh / 2;
+            const ilen = Math.sqrt(ix * ix + iy * iy);
+            sdx = ix / ilen;
+            sdy = iy / ilen;
+          }
+
+          const halfLen = 14;
+          const sx = sdx * halfLen;
+          const sy = sdy * halfLen;
+          // Normal direction (perpendicular to surface)
+          const nx = -sdy * 5;
+          const ny = sdx * 5;
+
+          // Mirror backing (darker, thicker)
+          gfx.lineStyle(5, 0x666666, 0.7);
+          gfx.moveTo(-sx, -sy);
+          gfx.lineTo(sx, sy);
+          // Reflective surface (bright)
+          gfx.lineStyle(3, 0xd0d0d0, 0.95);
+          gfx.moveTo(-sx, -sy);
+          gfx.lineTo(sx, sy);
+          // Bright highlight stripe
+          gfx.lineStyle(1, 0xffffff, 0.8);
+          gfx.moveTo(-sx, -sy);
+          gfx.lineTo(sx, sy);
+          // Small hash marks on one side to indicate reflective face
+          for (let i = -1; i <= 1; i++) {
+            const cx = i * sx * 0.5;
+            const cy = i * sy * 0.5;
+            gfx.lineStyle(1, 0xaaaaaa, 0.4);
+            gfx.moveTo(cx, cy);
+            gfx.lineTo(cx + nx, cy + ny);
+          }
+          container.addChild(gfx);
+
+          // Base glow
+          const glow = new PIXI.Graphics();
+          glow.beginFill(0xc0c0c0, 0.1);
+          glow.drawCircle(0, 0, 16);
+          glow.endFill();
+          container.addChild(glow);
+
+          entry = { container, gfx, glow, type: 'mirror' };
+        } else if (bo.type === 'photosensor') {
+          // Photosensor: a small diamond/crystal shape
+          const gfx = new PIXI.Graphics();
+          gfx.lineStyle(2, 0xffab40, 0.8);
+          gfx.beginFill(0xffab40, 0.3);
+          gfx.moveTo(0, -8);
+          gfx.lineTo(6, 0);
+          gfx.lineTo(0, 8);
+          gfx.lineTo(-6, 0);
+          gfx.closePath();
+          gfx.endFill();
+          container.addChild(gfx);
+
+          // Active glow (hidden initially)
+          const glow = new PIXI.Graphics();
+          glow.beginFill(0xffab40, 0.25);
+          glow.drawCircle(0, 0, 16);
+          glow.endFill();
+          glow.visible = false;
+          container.addChild(glow);
+
+          entry = { container, gfx, glow, type: 'photosensor' };
+        }
+
+        if (entry) {
+          this.entityContainer.addChild(container);
+          this.beamObjectSprites.set(bo.id, entry);
+        }
+      }
+
+      if (!entry) continue;
+
+      this._positionEntity(entry.container, bo.x, bo.y);
+
+      // Animate photosensor active state
+      if (bo.type === 'photosensor' && entry.glow) {
+        entry.glow.visible = bo.active;
+        if (bo.active) {
+          const pulse = 0.5 + 0.5 * Math.sin((this.sentryPulseTime || 0) * 6);
+          entry.glow.alpha = pulse;
+          entry.gfx.tint = 0xffffff;
+        }
+      }
+    }
+
+    this._cleanupPool(this.beamObjectSprites, activeIds);
+  }
+
   renderSentries() {
     if (!this.state || !this.state.sentries) return;
 
@@ -2156,19 +2276,8 @@ class Renderer {
         container.addChild(glow);
 
         // Sentry body sprite
-        const sz = this.isoMode ? 36 : CONSTANTS.TILE_SIZE;
         const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
         sprite.anchor.set(0.5, 0.5);
-        sprite.width = sz;
-        sprite.height = sz;
-        sprite.tint = 0x4fc3f7;
-
-        // Try to load the sentry sprite texture
-        const tex = this.loadTexture('sprites/light_sentry.png');
-        if (tex.valid) {
-          sprite.texture = tex;
-          sprite.tint = 0xffffff;
-        }
         container.addChild(sprite);
 
         // Rotating light rays around the sentry
@@ -2180,8 +2289,12 @@ class Renderer {
         this.sentrySprites.set(sentry.id, entry);
       }
 
-      const { container, glow, rays } = entry;
+      const { container, sprite, glow, rays } = entry;
       this._positionEntity(container, sentry.x, sentry.y);
+
+      // Update sprite texture (handles async loading)
+      const loaded = this._setSpriteTexture(sprite, 'sprites/light_sentry.png', 20);
+      if (!loaded) sprite.tint = 0x4fc3f7;
 
       // Animate glow pulse
       const pulse = 0.7 + 0.3 * Math.sin(this.sentryPulseTime * 4);
@@ -2203,52 +2316,67 @@ class Renderer {
       }
       rays.lineStyle(0);
 
-      // Draw beam to target
-      if (sentry.targetId) {
-        // Find target monster position
-        const targetMob = this.state.monsters.find(m => m.id === sentry.targetId);
-        if (targetMob) {
-          // Use world coords (or iso-world coords) since sentryBeamGfx is in worldContainer
-          const toWorld = (wx, wy) => {
-            return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
-          };
-          const sp = toWorld(sentry.x, sentry.y);
-          const tp = toWorld(targetMob.x, targetMob.y);
+      // Draw beam chain (supports reflections off mirrors)
+      if (sentry.beamChain && sentry.beamChain.length > 0) {
+        const toWorld = (wx, wy) => {
+          return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+        };
+        const beamPulse = 0.5 + 0.5 * Math.sin(this.sentryPulseTime * 8);
 
-          const beamPulse = 0.5 + 0.5 * Math.sin(this.sentryPulseTime * 8);
+        for (let seg = 0; seg < sentry.beamChain.length; seg++) {
+          const chain = sentry.beamChain[seg];
+          const sp = toWorld(chain.fromX, chain.fromY);
+          const tp = toWorld(chain.toX, chain.toY);
 
-          // Outer beam glow
+          // 3-layer beam
           this.sentryBeamGfx.lineStyle(6, 0x4fc3f7, 0.15 * beamPulse);
           this.sentryBeamGfx.moveTo(sp.x, sp.y);
           this.sentryBeamGfx.lineTo(tp.x, tp.y);
 
-          // Mid beam
           this.sentryBeamGfx.lineStyle(3, 0x81d4fa, 0.4 * beamPulse);
           this.sentryBeamGfx.moveTo(sp.x, sp.y);
           this.sentryBeamGfx.lineTo(tp.x, tp.y);
 
-          // Core beam (bright)
           this.sentryBeamGfx.lineStyle(1.5, 0xe1f5fe, 0.8);
           this.sentryBeamGfx.moveTo(sp.x, sp.y);
           this.sentryBeamGfx.lineTo(tp.x, tp.y);
 
-          // Impact glow at target
-          this.sentryBeamGfx.lineStyle(0);
-          this.sentryBeamGfx.beginFill(0x4fc3f7, 0.3 * beamPulse);
-          this.sentryBeamGfx.drawCircle(tp.x, tp.y, 8);
-          this.sentryBeamGfx.endFill();
-          this.sentryBeamGfx.beginFill(0xe1f5fe, 0.5 * beamPulse);
-          this.sentryBeamGfx.drawCircle(tp.x, tp.y, 4);
-          this.sentryBeamGfx.endFill();
+          // Impact glow at endpoint (different color for different target types)
+          const isTerminal = seg === sentry.beamChain.length - 1;
+          if (chain.targetType !== 'none') {
+            this.sentryBeamGfx.lineStyle(0);
+            if (chain.targetType === 'photosensor') {
+              // Golden glow for photosensor hits
+              this.sentryBeamGfx.beginFill(0xffab40, 0.4 * beamPulse);
+              this.sentryBeamGfx.drawCircle(tp.x, tp.y, 10);
+              this.sentryBeamGfx.endFill();
+              this.sentryBeamGfx.beginFill(0xffffff, 0.6 * beamPulse);
+              this.sentryBeamGfx.drawCircle(tp.x, tp.y, 5);
+              this.sentryBeamGfx.endFill();
+            } else if (chain.targetType === 'mirror') {
+              // Silver flash at mirror
+              this.sentryBeamGfx.beginFill(0xffffff, 0.3 * beamPulse);
+              this.sentryBeamGfx.drawCircle(tp.x, tp.y, 6);
+              this.sentryBeamGfx.endFill();
+            } else {
+              // Standard impact for monsters
+              this.sentryBeamGfx.beginFill(0x4fc3f7, 0.3 * beamPulse);
+              this.sentryBeamGfx.drawCircle(tp.x, tp.y, 8);
+              this.sentryBeamGfx.endFill();
+              this.sentryBeamGfx.beginFill(0xe1f5fe, 0.5 * beamPulse);
+              this.sentryBeamGfx.drawCircle(tp.x, tp.y, 4);
+              this.sentryBeamGfx.endFill();
+            }
+          }
 
-          // Crawling energy particles along beam
+          // Crawling energy particles along each segment
           const dx = tp.x - sp.x;
           const dy = tp.y - sp.y;
           const len = Math.sqrt(dx * dx + dy * dy);
           if (len > 0) {
             const particleCount = 3;
-            for (let i = 0; i < particleCount; i++) {
-              const t = ((this.sentryPulseTime * 2 + i / particleCount) % 1);
+            for (let pi = 0; pi < particleCount; pi++) {
+              const t = ((this.sentryPulseTime * 2 + pi / particleCount + seg * 0.3) % 1);
               const px = sp.x + dx * t;
               const py = sp.y + dy * t;
               this.sentryBeamGfx.beginFill(0xe1f5fe, 0.7 * (1 - t));
@@ -2256,6 +2384,35 @@ class Renderer {
               this.sentryBeamGfx.endFill();
             }
           }
+        }
+      } else if (sentry.targetId && sentry.targetId !== 'beam') {
+        // Fallback: legacy single-target beam (for backward compat)
+        const targetMob = this.state.monsters.find(m => m.id === sentry.targetId);
+        if (targetMob) {
+          const toWorld = (wx, wy) => {
+            return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+          };
+          const sp = toWorld(sentry.x, sentry.y);
+          const tp = toWorld(targetMob.x, targetMob.y);
+          const beamPulse = 0.5 + 0.5 * Math.sin(this.sentryPulseTime * 8);
+
+          this.sentryBeamGfx.lineStyle(6, 0x4fc3f7, 0.15 * beamPulse);
+          this.sentryBeamGfx.moveTo(sp.x, sp.y);
+          this.sentryBeamGfx.lineTo(tp.x, tp.y);
+          this.sentryBeamGfx.lineStyle(3, 0x81d4fa, 0.4 * beamPulse);
+          this.sentryBeamGfx.moveTo(sp.x, sp.y);
+          this.sentryBeamGfx.lineTo(tp.x, tp.y);
+          this.sentryBeamGfx.lineStyle(1.5, 0xe1f5fe, 0.8);
+          this.sentryBeamGfx.moveTo(sp.x, sp.y);
+          this.sentryBeamGfx.lineTo(tp.x, tp.y);
+
+          this.sentryBeamGfx.lineStyle(0);
+          this.sentryBeamGfx.beginFill(0x4fc3f7, 0.3 * beamPulse);
+          this.sentryBeamGfx.drawCircle(tp.x, tp.y, 8);
+          this.sentryBeamGfx.endFill();
+          this.sentryBeamGfx.beginFill(0xe1f5fe, 0.5 * beamPulse);
+          this.sentryBeamGfx.drawCircle(tp.x, tp.y, 4);
+          this.sentryBeamGfx.endFill();
         }
       }
     }
@@ -2975,6 +3132,20 @@ class Renderer {
           x: ev.x, y: ev.y - 16,
           age: 0, maxAge: 1.0,
           color: '#ff7043',
+        });
+      } else if (ev.type === 'photosensor_activated') {
+        this.damageNumbers.push({
+          text: 'SENSOR ACTIVATED',
+          x: ev.x, y: ev.y - 16,
+          age: 0, maxAge: 1.5,
+          color: '#ffab40',
+        });
+      } else if (ev.type === 'photosensor_deactivated') {
+        this.damageNumbers.push({
+          text: 'SENSOR OFFLINE',
+          x: ev.x, y: ev.y - 16,
+          age: 0, maxAge: 1.2,
+          color: '#888888',
         });
       } else if (ev.type === 'sentry_spawn') {
         this.damageNumbers.push({

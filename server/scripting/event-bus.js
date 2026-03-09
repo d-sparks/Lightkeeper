@@ -46,6 +46,8 @@ EventBus.Events = {
   PLAYER_DEATH:     'player_death',
   FLAG_CHANGED:     'flag_changed',
   CHOICE_MADE:      'choice_made',
+  PHOTOSENSOR_ACTIVATED:   'photosensor_activated',
+  PHOTOSENSOR_DEACTIVATED: 'photosensor_deactivated',
 };
 
 module.exports = EventBus;
