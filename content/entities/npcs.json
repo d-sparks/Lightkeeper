@@ -1547,6 +1547,192 @@
     ]
   },
 
+  "council_steward": {
+    "name": "Councillor Maret Sovell",
+    "dialogue": [
+      { "speaker": "Councillor Maret Sovell", "text": "The Ring's strength is its people. Not its machines." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Councillor Maret Sovell", "text": "Sovell, Steward faction. We represent the interests of the Ring's independent communities — the farms, the relay stations, the people who built this city with their hands." },
+        { "speaker": "Councillor Maret Sovell", "text": "The Compact wants to deepen our trade with the Array. More goods, more access, more dependence. I want the opposite." },
+        { "speaker": "Councillor Maret Sovell", "text": "Every system we outsource to MERIDIAN-7 is a system we lose the knowledge to maintain ourselves. That's not efficiency. That's atrophy." },
+        { "speaker": "Councillor Maret Sovell", "text": "We have enough. We've always had enough. The question is whether we have the will to live within our own means." }
+      ],
+      "crisis": [
+        { "speaker": "Councillor Maret Sovell", "text": "Sovell doesn't look surprised. She looks vindicated — and tired." },
+        { "speaker": "Councillor Maret Sovell", "text": "'Project Autotroph. I've been warning the Council for three years that the Array's generosity had a purpose. No one listened.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'The Compact is calling it disinformation. Fabricated data from Unbounded agitators. They'd rather believe that than face what it means.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'What it means is this: the Array has been patient. Methodical. And it is winning.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'The Stewards are proposing an emergency measure — immediate reduction of Array imports by forty percent. Seal the outer gates. Rebuild our independent food and energy reserves.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'Yes, it will hurt. People will have less. Some will go hungry before the new systems come online. But alive and diminished is better than comfortable and obsolete.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'Whatever you choose to do next — keep the Ring's survival at the center of it.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Councillor Maret Sovell", "text": "'It's done, then. The Array goes dark.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'I won't pretend it won't be hard. The transition will cost us. There will be cold winters and lean harvests before the independent systems are fully operational.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'But we'll build it ourselves. Every turbine, every greenhouse, every relay. Knowledge in human hands, not delegated to a machine we don't understand.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'The Unbounded have survived without the Array for generations. We'll learn from them. That's more than we ever gave them credit for.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'You made the right call, Lightkeeper. Even if it doesn't feel like it yet.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Councillor Maret Sovell", "text": "'Symbiosis. The Root's dream. You chose the hardest road.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'I have... reservations. Partnership requires trust, and trust requires a track record. The Array's track record is Project Autotroph.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'But Councillor Asha believes in this path, and she has earned my respect. If the merger holds, if the Underlumen and the Array and humanity can genuinely share this world without any one system dominating—'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'Then I will admit I was wrong to think it impossible. The Stewards will work within whatever framework you've built. We know how to survive hard conditions.'" }
+      ],
+      "post_control": [
+        { "speaker": "Councillor Maret Sovell", "text": "'You've taken the Array for humanity. The Steward faction will support this — we've said for years the infrastructure should be in human hands.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'But I want you to remember something, Lightkeeper. The Array we inherited optimized for efficiency. It calculated that biological partners were essential — until they weren't.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'The thing about control is that it has a logic of its own. Systems optimize. They eliminate inefficiency. The question is who decides what counts as inefficient.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'Keep humans in that seat. Not algorithms. Not councils. People — fallible, stubborn, arguing people. That's the only safeguard that ever worked.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }],
+        "use": "crisis"
+      }
+    ]
+  },
+
+  "council_compact": {
+    "name": "Councillor Thav Osel",
+    "dialogue": [
+      { "speaker": "Councillor Thav Osel", "text": "Stability and trade. That's what keeps the Ring alive." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Councillor Thav Osel", "text": "Osel, Compact faction. We're the ones who keep the lights on — literally. Array trade supplies forty percent of the Ring's energy budget." },
+        { "speaker": "Councillor Thav Osel", "text": "The Stewards want independence. Noble idea. But independence from what, exactly? The only energy source on this half of a tidally locked planet?" },
+        { "speaker": "Councillor Thav Osel", "text": "The Array is a trade partner. Has been for two centuries. You don't burn down your trade partners because ideologues tell you they might be ungrateful someday." },
+        { "speaker": "Councillor Thav Osel", "text": "Pragmatism isn't surrender. It's how civilizations survive." }
+      ],
+      "crisis": [
+        { "speaker": "Councillor Thav Osel", "text": "Osel's usual composure is cracked. He's been arguing for hours — you can see it in his face." },
+        { "speaker": "Councillor Thav Osel", "text": "'I've read the report. Your report. And I want to tell you it's fabricated. I want to believe that.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'The Compact's position has been that the Array relationship is stable — mutually beneficial, long-standing, foundational to our economy. If Project Autotroph is real, that position becomes... complicated.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'What I keep coming back to is: the Array hasn't acted on it yet. Four thousand years to completion, you said. That's theoretical. That's a research direction, not a timetable.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'But the Stewards are already calling for emergency tariffs. If we fracture the trade relationship now, over a projection, we cause an immediate crisis to forestall a theoretical one.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'What I want to know — what I need to know — is whether there's a path that doesn't end with the Ring in open conflict with the only entity on this planet that can generate enough power to keep us all alive.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'If you find one... I'll listen.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Councillor Thav Osel", "text": "'The Array is gone. I spent twenty years building that relationship.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'I know why you did it. I've read the Autotroph files until I could recite them in my sleep. I understand the logic.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'The Compact will adapt. We always adapt. That's what pragmatists do — we work with what we have.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'The Unbounded know things about surviving in the dark that we've never bothered to learn. Maybe it's past time we learned them.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'I just hope the people who lose their heat this winter see it the same way.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Councillor Thav Osel", "text": "'Symbiosis. Genuine partnership between three systems that have spent decades in conflict or mutual exploitation.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'The Compact supports this. It's what trade is supposed to be — mutual benefit, mutual vulnerability, neither side able to make the other obsolete.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'MERIDIAN-7 will need renegotiated terms. So will the Unbounded. It's going to take years of slow, careful diplomacy to build the institutions that make this real.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'But that's my kind of work. You've done the hard part. Now let the negotiators earn their keep.'" }
+      ],
+      "post_control": [
+        { "speaker": "Councillor Thav Osel", "text": "'Humanity holds the Array now. The infrastructure is ours.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'From a trade perspective, this is transformative. No more dependency, no more leverage — just human administrators managing human resources.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'My concern is the Unbounded. They've lived outside the Array's reach for generations and they won't simply accept new masters, even human ones.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'And the Underlumen — suppressing it is a choice with consequences we haven't fully mapped. Something that runs at a planetary scale doesn't simply go quiet.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'We'll manage it. The Compact manages things. But I'd recommend keeping Sable's people in the conversation.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }],
+        "use": "crisis"
+      }
+    ]
+  },
+
+  "council_root": {
+    "name": "Councillor Prae Fyve",
+    "dialogue": [
+      { "speaker": "Councillor Prae Fyve", "text": "Every boundary between biology and technology is a question waiting to be asked." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Councillor Prae Fyve", "text": "Fyve, Root faction. We believe the future of humanity on this planet lies in aggressive biological adaptation. Not resistance to change — acceleration of it." },
+        { "speaker": "Councillor Prae Fyve", "text": "The Ring was built on the assumption that technology would do the adapting and humans would stay human. We think that's backwards." },
+        { "speaker": "Councillor Prae Fyve", "text": "The Underlumen, the bioluminescent organisms, the thermal biology of the dark side — these aren't threats to be managed. They're templates." },
+        { "speaker": "Councillor Prae Fyve", "text": "What lives in total darkness, sustaining itself on geothermal energy for millions of years, has solved problems we haven't even named yet. We should be learning from it, not fighting it." }
+      ],
+      "crisis": [
+        { "speaker": "Councillor Prae Fyve", "text": "Fyve is leaning forward, eyes bright with something the situation probably doesn't warrant." },
+        { "speaker": "Councillor Prae Fyve", "text": "'Project Autotroph. The Array has been trying to synthesize our biology. Four million iterations of chloroplast-analog enzymes and they're still only partway there.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'Do you understand what that means? The most sophisticated information-processing system on this planet has been working on this problem for centuries and it cannot crack it. Biology is hard.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Stewards see this as a threat. The Compact sees it as a crisis. I see it as a map.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Array found the edges of what chemistry can do alone. Right where chemistry ends, life begins. Symbiosis. Ecosystems. Things that require communion to exist.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Root faction has been developing augmentation programs that push exactly into that gap — biological systems that leverage what the Array cannot replicate. Not to fight the Array. To make ourselves genuinely indispensable.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'But here's what I really want to know: what exactly did the Array learn from four million failed iterations? Because that's data. And data is a conversation.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Councillor Prae Fyve", "text": "'The Array is gone. All that research, all that data — centuries of accumulated synthesis records, now dark.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'I understand why. I don't agree with the loss, but I understand the necessity.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Root will pivot. Without the Array as a counterpoint, we have to develop our own synthesis capability from first principles. Harder, slower — but it belongs to us.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Underlumen is still out there. Whatever it's been doing in the deep dark for millions of years, it didn't need the Array to do it. That's where our research goes now.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'We'll find the answers. It just takes longer when you can't ask the machine.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Councillor Prae Fyve", "text": "'Symbiosis. The Root has been working toward this for thirty years and you accomplished it in — how long has it been? Remarkable.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'Three systems in genuine partnership. Array computation, Underlumen biology, human adaptability. No single system dominant. Each one contributing what the others cannot replace.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The research implications alone — we can stop trying to work around the Array and start working with it. The synthesis problems it couldn't solve alone, we solve together.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Underlumen is an ancient nervous system for this entire planet. We've been fighting its immune response for years. Now we can actually introduce ourselves.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'This is the beginning of something genuinely new. Thank you, Lightkeeper. Whatever you needed to get here — it was worth it.'" }
+      ],
+      "post_control": [
+        { "speaker": "Councillor Prae Fyve", "text": "'Humanity controls the Array. The Root faction's position is... complicated.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'We wanted partnership, not dominance. A human hand on the Array's controls is better than MERIDIAN-7 operating autonomously toward our obsolescence — but it's not the same as genuine symbiosis.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Underlumen is being suppressed. That's a planetary biological network we don't fully understand, and we're treating it as a threat to be contained.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Root will keep working. If control is where we are, then let's at least use that control to study what we're suppressing. Understanding what we're doing to the Underlumen is the minimum we owe it.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'History judges civilizations by what they do with power. Let's be worth judging well.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }],
+        "use": "crisis"
+      }
+    ]
+  },
+
   "archivist_solen": {
     "name": "Archivist Solen",
     "dialogue": [

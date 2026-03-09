@@ -37,7 +37,10 @@
   "npcSpawns": [
     { "type": "registrar_hollis", "x": 6, "y": 5 },
     { "type": "councillor_asha", "x": 17, "y": 5 },
-    { "type": "liaison_thorne", "x": 6, "y": 14 }
+    { "type": "liaison_thorne", "x": 6, "y": 14 },
+    { "type": "council_steward", "x": 21, "y": 10 },
+    { "type": "council_compact", "x": 12, "y": 10 },
+    { "type": "council_root", "x": 18, "y": 13 }
   ],
   "itemSpawns": [],
   "exits": [

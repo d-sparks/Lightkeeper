@@ -49,7 +49,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 - Three ending path dungeons: array_control_center (shutdown), underlumen_nexus_chamber (merge), array_command_core (control). Each needs a final boss encounter and resolution triggers.
 - Post-choice NPC dialogue: Asha, Sable, and MERIDIAN-7 dialogue variants reacting to the player's chosen ending path (chose_path_shutdown/merge/control flags).
 - Unbounded elder NPC for deep Nightside (referenced by Sable). Provides Underlumen lore, gates merge path.
-- Council faction NPCs (Steward, Compact, Root representatives) for political branching. These should react to `array_secret_discovered` and `chose_path_*` flags — referenced in Asha's `array_secret_crisis` dialogue but not yet embodied by spawnable NPCs in `meridian_civic`.
+- ~~Council faction NPCs (Steward, Compact, Root representatives) for political branching.~~ — DONE: Added `council_steward` (Councillor Maret Sovell), `council_compact` (Councillor Thav Osel), and `council_root` (Councillor Prae Fyve) to npcs.json with default/crisis/post_path dialogue sets; spawned in meridian_civic main corridor and lower-right office.
 - Add `registrar_hollis` `array_secret_discovered` dialogue variant: the civic bureaucracy should have ambient reactions to the Council fracturing.
 
 ## Combat & AI Polish
@@ -118,7 +118,7 @@ Critical gaps in the quest graph where content exists but isn't reachable from t
 - ~~**Boss-kill flags orphaned**~~ — DONE: Wren Alcott (outpost_comms) reacts to `frost_warden_defeated`; Sable (meridian) reacts to `elder_sporecap_defeated`; Asha reacts to `magma_core_cleared`.
 - **Act III paths accept choices but nothing happens** — nightside_expedition quest lets players choose shutdown/merge/control but the ending dungeons don't exist yet.
 - ~~**nightside_expedition requires `act3_asha_alliance_activated`**~~ — DONE: Step 22 (forge_expedition) gates on this flag, completing the path from main quest → Act III.
-- **Council faction NPCs not spawned** — Steward, Compact, Root representatives referenced in Asha's dialogue but not in meridian_civic as spawnable NPCs.
+- ~~**Council faction NPCs not spawned**~~ — DONE: See above.
 
 ## Act II Quest Follow-ups
 
