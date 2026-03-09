@@ -14,6 +14,8 @@ class Physics {
     if (player.stunTime > 0) return;
     // Players being knocked back cannot move voluntarily
     if (player.knockbackTime > 0) return;
+    // Players channeling an ability cannot move
+    if (player.channeling) return;
 
     const speed = CONSTANTS.PLAYER_SPEED * CONSTANTS.TILE_SIZE * dt;
     let dx = 0;

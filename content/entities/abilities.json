@@ -98,6 +98,19 @@
     "duration": 3.0,
     "defaultSlot": 5
   },
+  "pulse_cannon": {
+    "name": "Photonic Pulse",
+    "type": "pulse_cannon",
+    "damageMultiplier": 4.0,
+    "castTime": 2.0,
+    "projectileSpeed": 500,
+    "projectileRadius": 10,
+    "aoeRadius": 4.0,
+    "maxRange": 10,
+    "cooldown": 8.0,
+    "energyCost": 40,
+    "defaultSlot": 4
+  },
   "light_sentry": {
     "name": "Light Sentry",
     "type": "sentry",

@@ -220,6 +220,12 @@
       "name": "elevated_wall",
       "solid": true,
       "elevation": 1
+    },
+    "39": {
+      "name": "cracked_wall",
+      "solid": true,
+      "destructible": true,
+      "destroysTo": 2
     }
   }
 }

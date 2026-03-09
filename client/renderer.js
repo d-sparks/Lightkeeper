@@ -415,7 +415,7 @@ class Renderer {
       chest:      { top: '#5a6a5a', left: '#4a5a4a', right: '#3a4a3a', band: 'rgba(120,140,120,0.4)', lock: 'rgba(220,180,60,0.7)', lockEdge: 'rgba(255,220,100,0.5)', edge: 'rgba(255,255,255,0.1)' },
       chestOpen:  { fill: '#3a4a3a', edge: 'rgba(120,140,120,0.5)', inner: 'rgba(0,0,0,0.3)' },
       minimap: {
-        stone_floor: 0x2a2a3d, cracked_floor: 0x332a3d, stone_wall: 0x5a5a7a,
+        stone_floor: 0x2a2a3d, cracked_floor: 0x332a3d, stone_wall: 0x5a5a7a, cracked_wall: 0x6a5a5a,
         door_closed: 0x7a6a4a, door_open: 0x4a3a2a, stairs_down: 0x6a3a8a,
         stairs_up: 0x3a8a6a, water: 0x2a4a6a, void: 0x0d0d1a,
         chest_closed: 0x5a6a5a, chest_opened: 0x3a4a3a,
@@ -438,7 +438,7 @@ class Renderer {
       chest:      { top: '#5a6058', left: '#4a504a', right: '#3a403a', band: 'rgba(140,140,120,0.4)', lock: 'rgba(220,180,60,0.7)', lockEdge: 'rgba(255,220,100,0.5)', edge: 'rgba(255,255,255,0.1)' },
       chestOpen:  { fill: '#3a3a35', edge: 'rgba(140,140,120,0.5)', inner: 'rgba(0,0,0,0.3)' },
       minimap: {
-        stone_floor: 0x35332e, cracked_floor: 0x38352e, stone_wall: 0x706860,
+        stone_floor: 0x35332e, cracked_floor: 0x38352e, stone_wall: 0x706860, cracked_wall: 0x7a6050,
         door_closed: 0x6a7a8a, door_open: 0x30353a, stairs_down: 0x4a3a2a,
         stairs_up: 0x2a4a3a, water: 0x2a3028, void: 0x151412,
         chest_closed: 0x5a6058, chest_opened: 0x3a3a35,
@@ -458,7 +458,7 @@ class Renderer {
       chest:      { top: '#4a5a3a', left: '#3a4a2a', right: '#2a3a1a', band: 'rgba(100,140,80,0.4)', lock: 'rgba(200,180,40,0.7)', lockEdge: 'rgba(255,240,80,0.5)', edge: 'rgba(180,255,180,0.08)' },
       chestOpen:  { fill: '#2a3a22', edge: 'rgba(100,140,80,0.5)', inner: 'rgba(0,0,0,0.35)' },
       minimap: {
-        stone_floor: 0x252e25, cracked_floor: 0x2a3228, stone_wall: 0x4a5a45,
+        stone_floor: 0x252e25, cracked_floor: 0x2a3228, stone_wall: 0x4a5a45, cracked_wall: 0x5a5040,
         door_closed: 0x8a7a30, door_open: 0x2a2e20, stairs_down: 0x3a2a4a,
         stairs_up: 0x2a4a2a, water: 0x1a3a1a, void: 0x0d140d,
         chest_closed: 0x4a5a3a, chest_opened: 0x2a3a22,
@@ -478,7 +478,7 @@ class Renderer {
       chest:      { top: '#4a4a42', left: '#3a3a32', right: '#2a2a22', band: 'rgba(120,110,90,0.4)', lock: 'rgba(180,140,60,0.7)', lockEdge: 'rgba(220,180,80,0.5)', edge: 'rgba(255,200,150,0.08)' },
       chestOpen:  { fill: '#2a2a25', edge: 'rgba(120,110,90,0.5)', inner: 'rgba(0,0,0,0.4)' },
       minimap: {
-        stone_floor: 0x2a2828, cracked_floor: 0x2e2a28, stone_wall: 0x5a4a45,
+        stone_floor: 0x2a2828, cracked_floor: 0x2e2a28, stone_wall: 0x5a4a45, cracked_wall: 0x6a4a3a,
         door_closed: 0x6a5a48, door_open: 0x282420, stairs_down: 0x3a2830,
         stairs_up: 0x283830, water: 0x1a2028, void: 0x0a0a0a,
         chest_closed: 0x4a4a42, chest_opened: 0x2a2a25,
@@ -498,7 +498,7 @@ class Renderer {
       chest:      { top: '#b0a080', left: '#988868', right: '#807050', band: 'rgba(180,160,120,0.4)', lock: 'rgba(255,200,60,0.8)', lockEdge: 'rgba(255,230,100,0.6)', edge: 'rgba(255,255,255,0.12)' },
       chestOpen:  { fill: '#a09070', edge: 'rgba(180,160,120,0.5)', inner: 'rgba(0,0,0,0.2)' },
       minimap: {
-        stone_floor: 0xd4b896, cracked_floor: 0xc8a882, stone_wall: 0xe0c8a0,
+        stone_floor: 0xd4b896, cracked_floor: 0xc8a882, stone_wall: 0xe0c8a0, cracked_wall: 0xd0a880,
         door_closed: 0xc0a070, door_open: 0xb09870, stairs_down: 0xa08060,
         stairs_up: 0x80a060, water: 0xe8c060, void: 0x8a7050,
         chest_closed: 0xb0a080, chest_opened: 0xa09070,
@@ -707,6 +707,83 @@ class Renderer {
       ctx.lineTo(0, hh + wallRise);
       ctx.lineTo(hw, dh + wallRise);
       ctx.lineTo(dw, hh + wallRise);
+      ctx.stroke();
+    });
+
+    // --- Cracked wall (destructible) ---
+    this.isoTileTextures['cracked_wall'] = this._createIsoTexture(dw, wallH, (ctx, w, h) => {
+      // Same base as wall
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(0, hh);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.top;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(0, hh);
+      ctx.lineTo(hw, dh);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.left;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(hw, dh);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.closePath();
+      ctx.fillStyle = p.wall.right;
+      ctx.fill();
+
+      // Edge lines
+      ctx.strokeStyle = p.wall.edge;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw, 0);
+      ctx.lineTo(dw, hh);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.moveTo(0, hh);
+      ctx.lineTo(0, hh + wallRise);
+      ctx.lineTo(hw, dh + wallRise);
+      ctx.lineTo(dw, hh + wallRise);
+      ctx.stroke();
+
+      // Crack lines on left face
+      ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(hw * 0.3, hh + wallRise * 0.2);
+      ctx.lineTo(hw * 0.5, hh + wallRise * 0.5);
+      ctx.lineTo(hw * 0.35, hh + wallRise * 0.8);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(hw * 0.5, hh + wallRise * 0.5);
+      ctx.lineTo(hw * 0.7, hh + wallRise * 0.4);
+      ctx.stroke();
+
+      // Crack lines on right face
+      ctx.beginPath();
+      ctx.moveTo(hw + hw * 0.6, hh + wallRise * 0.15);
+      ctx.lineTo(hw + hw * 0.4, hh + wallRise * 0.45);
+      ctx.lineTo(hw + hw * 0.55, hh + wallRise * 0.75);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(hw + hw * 0.4, hh + wallRise * 0.45);
+      ctx.lineTo(hw + hw * 0.2, hh + wallRise * 0.55);
+      ctx.stroke();
+
+      // Crack on top face
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(hw * 0.7, hh * 0.5);
+      ctx.lineTo(hw, hh * 0.7);
+      ctx.lineTo(hw * 1.3, hh * 0.5);
       ctx.stroke();
     });
 
@@ -1136,6 +1213,7 @@ class Renderer {
       'ramp_west':     'ramp_west',
       'full_wall':     'full_wall',
       'elevated_wall': 'elevated_wall',
+      'cracked_wall':  'cracked_wall',
     };
 
     this.isoThemeId = this.tileset ? this.tileset.id : 'crypt';
@@ -1360,6 +1438,8 @@ class Renderer {
     this.renderBeamObjects();
     this.renderSentries();
     this.renderConeEffects();
+    this.renderExplosionEffects();
+    this.renderChannelingIndicators();
     this.renderMeleeEffects();
     this.renderPlayers();
     this.renderDoorPrompts();
@@ -1611,7 +1691,7 @@ class Renderer {
     const wallRise = this.isoWallRise;
 
     // Wall-type iso keys (rendered in entityContainer for depth sorting)
-    const wallKeys = new Set(['wall', 'door_closed', 'locked_door', 'chest_closed', 'full_wall', 'elevated_wall',
+    const wallKeys = new Set(['wall', 'cracked_wall', 'door_closed', 'locked_door', 'chest_closed', 'full_wall', 'elevated_wall',
       'elevated_floor', 'ramp_north', 'ramp_south', 'ramp_east', 'ramp_west']);
 
     // Viewport culling bounds in iso screen space (generous padding for large screens)
@@ -2102,23 +2182,39 @@ class Renderer {
       let entry = this.projectileSprites.get(proj.id);
       if (!entry) {
         const container = new PIXI.Container();
-        const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
-        sprite.anchor.set(0.5, 0.5);
-        sprite.width = r * 2;
-        sprite.height = r * 2;
-        // Tint by projectile type
-        const projColors = {
-          arrow_bone: 0xbcaaa4,    // bone/tan
-          shadow_bolt: 0x7c4dff,   // dark purple
-          magma_glob: 0xff6e40,    // fiery orange
-          spore_cloud: 0x69f0ae,   // sickly green
-          crystal_shard_bolt: 0x80deea, // icy cyan
-          energy_bolt: 0xffab40,   // amber/orange
-        };
-        sprite.tint = projColors[proj.projectileType] || 0x4fc3f7;
-        container.addChild(sprite);
+
+        if (proj.projectileType === 'pulse_cannon') {
+          // Large glowing projectile for pulse cannon
+          const glow = new PIXI.Graphics();
+          glow.beginFill(0xff6e40, 0.2);
+          glow.drawCircle(0, 0, 16);
+          glow.endFill();
+          glow.beginFill(0xff9100, 0.4);
+          glow.drawCircle(0, 0, 10);
+          glow.endFill();
+          glow.beginFill(0xffffff, 0.7);
+          glow.drawCircle(0, 0, 5);
+          glow.endFill();
+          container.addChild(glow);
+        } else {
+          const sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+          sprite.anchor.set(0.5, 0.5);
+          sprite.width = r * 2;
+          sprite.height = r * 2;
+          // Tint by projectile type
+          const projColors = {
+            arrow_bone: 0xbcaaa4,    // bone/tan
+            shadow_bolt: 0x7c4dff,   // dark purple
+            magma_glob: 0xff6e40,    // fiery orange
+            spore_cloud: 0x69f0ae,   // sickly green
+            crystal_shard_bolt: 0x80deea, // icy cyan
+            energy_bolt: 0xffab40,   // amber/orange
+          };
+          sprite.tint = projColors[proj.projectileType] || 0x4fc3f7;
+          container.addChild(sprite);
+        }
         this.entityContainer.addChild(container);
-        entry = { container, sprite };
+        entry = { container };
         this.projectileSprites.set(proj.id, entry);
       }
 
@@ -2707,6 +2803,120 @@ class Renderer {
     });
   }
 
+  renderExplosionEffects() {
+    if (!this.explosionEffects || this.explosionEffects.length === 0) return;
+    const dt = 1 / 60;
+    const toScreen = (wx, wy) => {
+      return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+    };
+
+    this.explosionEffects = this.explosionEffects.filter(exp => {
+      exp.age += dt;
+      if (exp.age >= exp.maxAge) return false;
+
+      const t = exp.age / exp.maxAge;
+      const c = toScreen(exp.x, exp.y);
+
+      // Expanding ring
+      const outerR = exp.radius * Math.min(t / 0.3, 1.0);
+      const fadeAlpha = t < 0.3 ? 1.0 : Math.max(0, 1.0 - (t - 0.3) / 0.7);
+
+      // Outer glow
+      this.coneGfx.lineStyle(0);
+      this.coneGfx.beginFill(0xff6e40, 0.15 * fadeAlpha);
+      this.coneGfx.drawCircle(c.x, c.y, outerR);
+      this.coneGfx.endFill();
+
+      // Inner flash
+      const innerR = outerR * 0.6;
+      this.coneGfx.beginFill(0xffab40, 0.3 * fadeAlpha);
+      this.coneGfx.drawCircle(c.x, c.y, innerR);
+      this.coneGfx.endFill();
+
+      // White core
+      const coreR = outerR * 0.25 * (1.0 - t);
+      if (coreR > 1) {
+        this.coneGfx.beginFill(0xffffff, 0.6 * fadeAlpha);
+        this.coneGfx.drawCircle(c.x, c.y, coreR);
+        this.coneGfx.endFill();
+      }
+
+      // Expanding ring outline
+      this.coneGfx.lineStyle(2, 0xff9100, 0.5 * fadeAlpha);
+      this.coneGfx.drawCircle(c.x, c.y, outerR);
+      this.coneGfx.lineStyle(0);
+
+      return true;
+    });
+  }
+
+  renderChannelingIndicators() {
+    if (!this.state || !this.state.players) return;
+    const toScreen = (wx, wy) => {
+      return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+    };
+
+    for (const player of this.state.players) {
+      if (!player.channeling) continue;
+      const ch = player.channeling;
+
+      const pc = toScreen(player.x, player.y);
+      const tc = toScreen(ch.targetX, ch.targetY);
+
+      const progress = 1.0 - (ch.timeRemaining / ch.totalTime);
+      const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.01);
+
+      // Pulsing ring around player
+      this.coneGfx.lineStyle(2, 0xff9100, 0.4 + 0.3 * pulse);
+      this.coneGfx.drawCircle(pc.x, pc.y, 20 + 4 * pulse);
+      this.coneGfx.lineStyle(0);
+
+      // Targeting line (dashed effect via segments)
+      const dx = tc.x - pc.x;
+      const dy = tc.y - pc.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > 0) {
+        const segments = 8;
+        const segLen = dist / (segments * 2);
+        const ndx = dx / dist;
+        const ndy = dy / dist;
+        this.coneGfx.lineStyle(1.5, 0xff6e40, 0.4 + 0.2 * pulse);
+        for (let i = 0; i < segments; i++) {
+          const s = i * 2 * segLen;
+          this.coneGfx.moveTo(pc.x + ndx * s, pc.y + ndy * s);
+          this.coneGfx.lineTo(pc.x + ndx * (s + segLen), pc.y + ndy * (s + segLen));
+        }
+        this.coneGfx.lineStyle(0);
+      }
+
+      // Target reticle
+      const reticleR = 12;
+      this.coneGfx.lineStyle(2, 0xff6e40, 0.5 + 0.3 * pulse);
+      this.coneGfx.drawCircle(tc.x, tc.y, reticleR);
+      // Cross hairs
+      this.coneGfx.moveTo(tc.x - reticleR - 4, tc.y);
+      this.coneGfx.lineTo(tc.x - reticleR + 4, tc.y);
+      this.coneGfx.moveTo(tc.x + reticleR - 4, tc.y);
+      this.coneGfx.lineTo(tc.x + reticleR + 4, tc.y);
+      this.coneGfx.moveTo(tc.x, tc.y - reticleR - 4);
+      this.coneGfx.lineTo(tc.x, tc.y - reticleR + 4);
+      this.coneGfx.moveTo(tc.x, tc.y + reticleR - 4);
+      this.coneGfx.lineTo(tc.x, tc.y + reticleR + 4);
+      this.coneGfx.lineStyle(0);
+
+      // Cast progress bar above player
+      const barW = 30;
+      const barH = 4;
+      const barY = pc.y - 28;
+      this.coneGfx.beginFill(0x333333, 0.6);
+      this.coneGfx.drawRect(pc.x - barW / 2, barY, barW, barH);
+      this.coneGfx.endFill();
+      this.coneGfx.beginFill(0xff9100, 0.8);
+      this.coneGfx.drawRect(pc.x - barW / 2, barY, barW * progress, barH);
+      this.coneGfx.endFill();
+    }
+  }
+
   renderMeleeEffects() {
     this.meleeGfx.clear();
     const dt = 1 / 60;
@@ -3162,6 +3372,15 @@ class Renderer {
           oldEntry.container.destroy({ children: true });
           this.sentrySprites.delete(ev.sentryId);
         }
+      } else if (ev.type === 'pulse_cannon_explosion') {
+        // Spawn explosion effect
+        if (!this.explosionEffects) this.explosionEffects = [];
+        this.explosionEffects.push({
+          x: ev.x, y: ev.y,
+          radius: ev.radius,
+          age: 0, maxAge: 0.6,
+        });
+        this.screenShake = { intensity: 8, duration: 0.4, elapsed: 0 };
       } else if (ev.type === 'boss_intro' && ev.playerId === this.myId) {
         // Start boss intro cinematic
         this.bossIntro = {
