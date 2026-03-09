@@ -751,11 +751,11 @@
       ]
     },
     {
-      "id": "remove_warden_after_charge",
+      "id": "remove_warden_after_battery",
       "event": "room_entered",
       "conditions": [
         {
-          "hasFlag": "sol_unit_charged"
+          "hasFlag": "received_first_battery"
         }
       ],
       "actions": [

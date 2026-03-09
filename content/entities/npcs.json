@@ -88,8 +88,8 @@
         { "speaker": "Warden Holt", "text": "Check the mess hall — Surveyor Kade has maps of the route ahead. And if Tannis is conscious, get his report on the perimeter." },
         { "speaker": "Warden Holt", "text": "The notice board in the mess hall has bounty postings too. Every bit of intel helps." }
       ],
-      "sol_unit_charged": [
-        { "speaker": "Warden Holt", "text": "Sol Unit's charged and ready. Good. You've done everything you can here." },
+      "received_first_battery": [
+        { "speaker": "Warden Holt", "text": "You've got a field cell from Maren. Good enough. You're as ready as you're going to be." },
         { "speaker": "Warden Holt", "text": "The perimeter gate is to the north. Beyond it, you're on your own — no more outpost walls, no more patrols." },
         { "speaker": "Warden Holt", "text": "The dark perimeter is dangerous ground. Creatures out there are drawn to light, and your Sol Unit will be the brightest thing for kilometers." },
         { "speaker": "Warden Holt", "text": "Follow the path to the train station. It's the only way to reach Meridian City — and from there, Lighthouse Mara." },
@@ -148,8 +148,8 @@
         "use": "ready_to_leave"
       },
       {
-        "conditions": [{ "hasFlag": "sol_unit_charged" }],
-        "use": "sol_unit_charged"
+        "conditions": [{ "hasFlag": "received_first_battery" }],
+        "use": "received_first_battery"
       },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
@@ -346,36 +346,34 @@
         { "speaker": "Tech Maren", "text": "We're still calibrating the output profiles. The system isn't fully certified yet, but it's stable enough." },
         { "speaker": "Tech Maren", "text": "When you get a Sol Unit, bring it in. Once we're fully online, a charge cycle takes minutes." }
       ],
-      "needs_charge": [
-        { "speaker": "Tech Maren", "text": "Sol Unit's nearly drained? Yeah, I can see the output readings from here. Slot it in — third terminal from the left." },
-        { "speaker": "Tech Maren", "text": "...There. Charge cycle complete. You're at full capacity." },
+      "give_battery": [
+        { "speaker": "Tech Maren", "text": "Sol Unit's running dry? Station's output isn't certified for full charge cycles yet — too much risk of surge damage." },
+        { "speaker": "Tech Maren", "text": "What I can do is field cells. Single-use, but rated for a hundred energy units. Enough to get you through a deployment." },
+        { "speaker": "Tech Maren", "text": "Here — take this. Slot it into your Sol Unit's grid and it'll top off your reserve. Come back when it's drained and I'll have another ready." },
         { "speaker": "Tech Maren", "text": "You should know — this generator is the single most valuable piece of equipment at Outpost Balor. Maybe on this whole stretch of the terminator." },
         { "speaker": "Tech Maren", "text": "Erith is tidally locked. Permanent day on one hemisphere, permanent night on the other. We live on the terminator — the thin strip between the two." },
         { "speaker": "Tech Maren", "text": "The only scalable power source on the planet is solar, and all of it comes from the dayside. Every watt that reaches the nightside comes through the lighthouse relay network." },
         { "speaker": "Tech Maren", "text": "On the nightside? Batteries and portable generators. Both expensive. Both limited. If the supply lines from the dayside ever get cut..." },
-        { "speaker": "Tech Maren", "text": "The other option is uranium, mined off-planet. But the shipping costs make it a luxury. Only the core settlements can afford reactor fuel." },
         { "speaker": "Tech Maren", "text": "So this generator — and the lighthouse network that powers it — that's what keeps every Sol Unit, every light rifle, every outpost on the terminator running." },
         { "speaker": "Tech Maren", "text": "Lighthouse Mara going dark isn't just a security problem. It's an energy problem. Without that relay, this whole sector loses its power feed." },
-        { "speaker": "Tech Maren", "text": "Keep your unit charged. And keep those lighthouses running. Everything depends on it." }
+        { "speaker": "Tech Maren", "text": "Keep your unit running. And keep those lighthouses lit. Everything depends on it." }
+      ],
+      "has_battery": [
+        { "speaker": "Tech Maren", "text": "You've still got that field cell. Come back once you've used it up — I'll have another one ready." }
       ],
       "has_sol_unit": [
-        { "speaker": "Tech Maren", "text": "You've got a Sol Unit? Good. Third slot from the left — connect the interface and I'll run the charge sequence." },
-        { "speaker": "Tech Maren", "text": "We're not fully certified yet, so the output's capped. But it'll top you off before a deployment." },
-        { "speaker": "Tech Maren", "text": "Come back when you've run it down. That's what we're here for." }
-      ],
-      "charged": [
-        { "speaker": "Tech Maren", "text": "Unit's fully charged. Come back when you need a top-up — that's what we're here for." },
-        { "speaker": "Tech Maren", "text": "And remember — out in the field, you won't have a charging terminal. Manage your energy carefully." }
+        { "speaker": "Tech Maren", "text": "You've got a Sol Unit? Good. Once you've run your training, come back and I'll set you up with a field cell." },
+        { "speaker": "Tech Maren", "text": "We can't do full charge cycles yet — station's still being calibrated. But I keep a stock of single-use cells for deployments." }
       ]
     },
     "dialogueRules": [
       {
-        "conditions": [{ "hasFlag": "sol_unit_charged" }],
-        "use": "charged"
+        "conditions": [{ "hasFlag": "sol_training_complete" }, { "hasItem": "single_use_battery_chip" }],
+        "use": "has_battery"
       },
       {
         "conditions": [{ "hasFlag": "sol_training_complete" }],
-        "use": "needs_charge"
+        "use": "give_battery"
       },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
@@ -933,7 +931,7 @@
       ],
       "training_done": [
         { "speaker": "Apprentice Sol Engineer", "text": "Nice shooting. The Sol Beam packs a punch, doesn't it?" },
-        { "speaker": "Apprentice Sol Engineer", "text": "But you're running on fumes now. Head to the Power Station — south exit from the main hall. Tech Maren will get you charged up." },
+        { "speaker": "Apprentice Sol Engineer", "text": "But you're running on fumes now. Head to the Power Station — south exit from the main hall. Tech Maren keeps field cells for deployment." },
         { "speaker": "Apprentice Sol Engineer", "text": "That generator is the most important thing in this outpost. Without it, every Sol Unit and light rifle on the base goes dark." }
       ],
       "has_sol_unit": [
@@ -947,7 +945,7 @@
         "use": "first_meeting"
       },
       {
-        "conditions": [{ "hasFlag": "sol_unit_charged" }],
+        "conditions": [{ "hasFlag": "received_first_battery" }],
         "use": "has_sol_unit"
       },
       {

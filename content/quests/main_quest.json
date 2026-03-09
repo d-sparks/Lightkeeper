@@ -75,16 +75,16 @@
       "completionActions": [{ "type": "grantXp", "amount": 15 }]
     },
     "charge_sol_unit": {
-      "label": "Charge your Sol Unit",
-      "description": "Head to the Power Station to charge the Sol Unit.",
+      "label": "Get a field battery from Tech Maren",
+      "description": "Head to the Power Station and talk to Tech Maren — the station can't do full charge cycles yet, but she keeps single-use field cells for deployment.",
       "prerequisiteSteps": ["training_range"],
       "objective": { "roomId": "outpost_charging_station", "targetNpc": "charging_tech_maren" },
-      "completionConditions": [{ "hasFlag": "sol_unit_charged" }],
+      "completionConditions": [{ "hasFlag": "received_first_battery" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
     },
     "report_to_warden": {
       "label": "Report to Warden Holt",
-      "description": "Return to the outpost entrance and report to Warden Holt that your Sol Unit is charged.",
+      "description": "Return to the outpost entrance and report to Warden Holt that you're equipped and ready to deploy.",
       "prerequisiteSteps": ["charge_sol_unit"],
       "objective": { "roomId": "outpost_entrance", "targetNpc": "outpost_warden" },
       "completionConditions": [{ "hasFlag": "ready_for_perimeter" }],
