@@ -1233,6 +1233,8 @@ class GameLoop {
 
     // Cannot use abilities while stunned or knocked back
     if (player.stunTime > 0 || player.knockbackTime > 0) return false;
+    // While channeling, only allow the channeled ability slot (to cancel it)
+    if (player.channeling && (slot - 1) !== player.channeling.slotIdx) return false;
 
     const slotIdx = slot - 1;
     if (slotIdx < 0 || slotIdx >= 6) return false;
@@ -1267,6 +1269,8 @@ class GameLoop {
         return this._useHover(room, player, abilityDef, slotIdx);
       case 'sentry':
         return this._placeSentry(room, player, abilityDef, slotIdx);
+      case 'pulse_cannon':
+        return this._usePulseCannon(room, player, abilityDef, aimAngle, slotIdx);
       default:
         return false;
     }
@@ -1749,6 +1753,259 @@ class GameLoop {
     return true;
   }
 
+  _usePulseCannon(room, player, abilityDef, aimAngle, slotIdx) {
+    // If already channeling, cancel it
+    if (player.channeling) {
+      player.channeling = null;
+      return false;
+    }
+
+    // Check energy cost
+    if (abilityDef.energyCost) {
+      if (player.energy < abilityDef.energyCost) return false;
+      player.energy -= abilityDef.energyCost;
+    }
+
+    // Find target position: use aim angle to pick a point at maxRange
+    const maxRange = (abilityDef.maxRange || 10) * CONSTANTS.TILE_SIZE;
+    let targetX, targetY;
+
+    if (aimAngle !== null && typeof aimAngle === 'number' && isFinite(aimAngle)) {
+      targetX = player.x + Math.cos(aimAngle) * maxRange;
+      targetY = player.y + Math.sin(aimAngle) * maxRange;
+
+      // Snap to nearest monster if one is close to the aim line
+      let nearestMob = null;
+      let nearestDist = Infinity;
+      for (const [mid, mob] of room.monsters) {
+        if (mob.hidden) continue;
+        const dx = mob.x - player.x;
+        const dy = mob.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > maxRange) continue;
+        // Check angle difference
+        const angleToMob = Math.atan2(dy, dx);
+        let angleDiff = angleToMob - aimAngle;
+        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+        if (Math.abs(angleDiff) < 0.3 && dist < nearestDist) {
+          nearestMob = mob;
+          nearestDist = dist;
+        }
+      }
+      if (nearestMob) {
+        targetX = nearestMob.x;
+        targetY = nearestMob.y;
+      }
+    } else {
+      // Auto-aim: find nearest monster
+      let nearestMob = null;
+      let nearestDist = Infinity;
+      for (const [mid, mob] of room.monsters) {
+        if (mob.hidden) continue;
+        const dx = mob.x - player.x;
+        const dy = mob.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < maxRange && dist < nearestDist) {
+          nearestMob = mob;
+          nearestDist = dist;
+        }
+      }
+      if (nearestMob) {
+        targetX = nearestMob.x;
+        targetY = nearestMob.y;
+      } else {
+        // No target, aim in facing direction
+        const dir = player.facing || 0;
+        targetX = player.x + Math.cos(dir) * maxRange;
+        targetY = player.y + Math.sin(dir) * maxRange;
+      }
+    }
+
+    // Clamp target to first wall hit so targeting line doesn't extend through walls
+    const dtx = targetX - player.x;
+    const dty = targetY - player.y;
+    const distToTarget = Math.sqrt(dtx * dtx + dty * dty);
+    if (distToTarget > 0) {
+      const dirX = dtx / distToTarget;
+      const dirY = dty / distToTarget;
+      const wallDist = this._rayDistToWall(room.dungeon, player.x, player.y, dirX, dirY, distToTarget);
+      if (wallDist < distToTarget) {
+        targetX = player.x + dirX * wallDist;
+        targetY = player.y + dirY * wallDist;
+      }
+    }
+
+    const castTime = abilityDef.castTime || 2.0;
+    player.channeling = {
+      type: 'pulse_cannon',
+      targetX, targetY,
+      timeRemaining: castTime,
+      totalTime: castTime,
+      slotIdx,
+      abilityDef,
+    };
+
+    room.events.push({
+      type: 'pulse_cannon_channel',
+      playerId: player.id,
+      targetX, targetY,
+      castTime,
+    });
+
+    // Don't set cooldown yet — that happens after firing
+    return true;
+  }
+
+  _firePulseCannonProjectile(room, player) {
+    const ch = player.channeling;
+    if (!ch) return;
+
+    const dx = ch.targetX - player.x;
+    const dy = ch.targetY - player.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist === 0) return;
+
+    const dirX = dx / dist;
+    const dirY = dy / dist;
+    const speed = ch.abilityDef.projectileSpeed || 150;
+    const radius = ch.abilityDef.projectileRadius || 10;
+    const damage = this.getPlayerAttackDamage(player) * (ch.abilityDef.damageMultiplier || 4.0);
+    const aoeRadius = (ch.abilityDef.aoeRadius || 2.5) * CONSTANTS.TILE_SIZE;
+
+    const projectileId = `proj_${room.nextProjectileId++}`;
+    room.projectiles.push({
+      id: projectileId,
+      ownerId: player.id,
+      x: player.x,
+      y: player.y,
+      vx: dirX * speed,
+      vy: dirY * speed,
+      targetX: ch.targetX,
+      targetY: ch.targetY,
+      damage,
+      radius,
+      lifetime: 5.0,
+      aoeRadius,
+      projectileType: 'pulse_cannon',
+      healOnHit: ch.abilityDef.healOnHit || 0,
+    });
+
+    player.cooldowns[ch.slotIdx] = ch.abilityDef.cooldown || 8.0;
+    player.channeling = null;
+  }
+
+  _detonatePulseCannon(room, proj) {
+    const ts = CONSTANTS.TILE_SIZE;
+    const aoeRadius = proj.aoeRadius || (2.5 * ts);
+    const detonationX = proj.x;
+    const detonationY = proj.y;
+
+    // AOE damage to monsters
+    for (const [mid, mob] of room.monsters) {
+      if (mob.hidden) continue;
+      const dx = mob.x - detonationX;
+      const dy = mob.y - detonationY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > aoeRadius + CONSTANTS.MONSTER_COLLISION_RADIUS) continue;
+
+      // Damage falloff: full at center, 50% at edge
+      const falloff = 1.0 - 0.5 * Math.min(dist / aoeRadius, 1.0);
+      const dmg = proj.damage * falloff;
+      mob.health -= dmg;
+      mob.aggroTarget = proj.ownerId;
+
+      room.events.push({
+        type: 'damage', targetId: mid,
+        amount: dmg, x: mob.x, y: mob.y,
+      });
+
+      if (mob.health <= 0) {
+        room.events.push({
+          type: 'death', targetId: mid,
+          monsterType: mob.type, x: mob.x, y: mob.y,
+        });
+        room.monsters.delete(mid);
+
+        if (mob.spawnKey) {
+          if (!this.killedMonsters.has(room.dungeonId)) {
+            this.killedMonsters.set(room.dungeonId, new Set());
+          }
+          this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
+        }
+
+        const killer = room.players.get(proj.ownerId);
+        if (killer) {
+          const monsterDef = this.content.getMonster(mob.type);
+          if (monsterDef && monsterDef.xp) {
+            this.grantXp(killer, monsterDef.xp, room);
+          }
+        }
+
+        this._rollLoot(room, mob);
+
+        const ctx = this._scriptContext(proj.ownerId, room.id);
+        this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
+          playerId: proj.ownerId, roomId: room.id,
+          monsterType: mob.type, monsterId: mid,
+          monsterX: mob.x, monsterY: mob.y,
+        }, ctx);
+      }
+
+      // Heal on hit
+      if (proj.healOnHit > 0) {
+        const attacker = room.players.get(proj.ownerId);
+        if (attacker) {
+          attacker.health = Math.min(attacker.maxHealth, attacker.health + proj.healOnHit);
+        }
+      }
+    }
+
+    // Destroy destructible walls within AOE
+    const tileset = this.content.getTileset(room.dungeon.tileset);
+    if (tileset) {
+      const cx = Math.floor(detonationX / ts);
+      const cy = Math.floor(detonationY / ts);
+      const tileRadius = Math.ceil(aoeRadius / ts);
+
+      for (let dy = -tileRadius; dy <= tileRadius; dy++) {
+        for (let dx = -tileRadius; dx <= tileRadius; dx++) {
+          const tx = cx + dx;
+          const ty = cy + dy;
+          if (tx < 0 || ty < 0 || tx >= room.dungeon.width || ty >= room.dungeon.height) continue;
+
+          const tileCenterX = (tx + 0.5) * ts;
+          const tileCenterY = (ty + 0.5) * ts;
+          const dist = Math.sqrt((tileCenterX - detonationX) ** 2 + (tileCenterY - detonationY) ** 2);
+          if (dist > aoeRadius) continue;
+
+          const idx = ty * room.dungeon.width + tx;
+          const tileId = room.dungeon.data[idx];
+          const tileDef = tileset.tiles[String(tileId)];
+          if (tileDef && tileDef.destructible && tileDef.destroysTo != null) {
+            room.dungeon.data[idx] = tileDef.destroysTo;
+            // Broadcast tile change
+            if (this.actions.broadcastToRoom) {
+              this.actions.broadcastToRoom(room.id, {
+                type: CONSTANTS.MSG.DOOR_TOGGLE,
+                x: tx, y: ty,
+                tileId: tileDef.destroysTo,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // Push explosion event for client rendering
+    room.events.push({
+      type: 'pulse_cannon_explosion',
+      x: detonationX, y: detonationY,
+      radius: aoeRadius,
+      ownerId: proj.ownerId,
+    });
+  }
+
   // Check line-of-sight between two points — returns true if no solid wall blocks the path.
   // Uses a tile-stepping ray march through the dungeon grid.
   _hasLineOfSight(dungeon, x1, y1, x2, y2) {
@@ -2111,6 +2368,25 @@ class GameLoop {
             player.knockbackVx = 0;
             player.knockbackVy = 0;
             player.knockbackTime = 0;
+          }
+        }
+        // Tick channeling (pulse cannon etc.)
+        if (player.channeling) {
+          // Cancel if stunned or knocked back
+          if (player.stunTime > 0 || player.knockbackTime > 0) {
+            player.channeling = null;
+          } else {
+            // Cancel if player is trying to move
+            const inp = player.input;
+            if (inp && (inp.up || inp.down || inp.left || inp.right ||
+                (inp.dx != null && inp.dy != null && (inp.dx !== 0 || inp.dy !== 0)))) {
+              player.channeling = null;
+            } else {
+              player.channeling.timeRemaining -= dt;
+              if (player.channeling.timeRemaining <= 0) {
+                this._firePulseCannonProjectile(room, player);
+              }
+            }
           }
         }
         this.physics.movePlayer(player, room.dungeon, dt);
@@ -3055,7 +3331,39 @@ class GameLoop {
       // Check wall collision
       const radius = proj.radius || CONSTANTS.PROJECTILE_RADIUS;
       if (this.physics.collidesAt(proj.x, proj.y, room.dungeon, radius)) {
+        if (proj.projectileType === 'pulse_cannon') {
+          this._detonatePulseCannon(room, proj);
+        }
         toRemove.push(i);
+        continue;
+      }
+
+      // Pulse cannon: detonate on reaching target or hitting any monster
+      if (proj.projectileType === 'pulse_cannon') {
+        let detonate = false;
+        const dx = proj.targetX - proj.x;
+        const dy = proj.targetY - proj.y;
+        const distToTarget = Math.sqrt(dx * dx + dy * dy);
+        if (distToTarget < CONSTANTS.TILE_SIZE * 0.5) detonate = true;
+
+        // Check monster collision
+        if (!detonate) {
+          for (const [mid, mob] of room.monsters) {
+            if (mob.hidden) continue;
+            const mdx = mob.x - proj.x;
+            const mdy = mob.y - proj.y;
+            const dist = Math.sqrt(mdx * mdx + mdy * mdy);
+            if (dist < CONSTANTS.MONSTER_COLLISION_RADIUS + radius) {
+              detonate = true;
+              break;
+            }
+          }
+        }
+
+        if (detonate) {
+          this._detonatePulseCannon(room, proj);
+          toRemove.push(i);
+        }
         continue;
       }
 
@@ -3731,6 +4039,16 @@ class GameLoop {
       // Include weapon name if equipped (for rendering)
       if (p.equipment && p.equipment.arms) {
         pData.weapon = p.equipment.arms.name;
+      }
+      // Include channeling state
+      if (p.channeling) {
+        pData.channeling = {
+          type: p.channeling.type,
+          targetX: Math.round(p.channeling.targetX * 10) / 10,
+          targetY: Math.round(p.channeling.targetY * 10) / 10,
+          timeRemaining: Math.round(p.channeling.timeRemaining * 100) / 100,
+          totalTime: p.channeling.totalTime,
+        };
       }
       players.push(pData);
     }

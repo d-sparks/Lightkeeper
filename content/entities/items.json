@@ -737,6 +737,13 @@
     "rarity": "rare",
     "solComponentId": "hover_thruster"
   },
+  "pulse_cannon_chip": {
+    "name": "Photonic Pulse Emitter",
+    "description": "A focused light Sol component. Lock on to a target, channel for 2 seconds, then unleash a devastating photonic blast that damages everything in the area — including weakened walls.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "pulse_cannon_emitter"
+  },
   "light_sentry_chip": {
     "name": "Light Sentry Emitter",
     "description": "A sol component that deploys a stationary light sentry. The sentry projects a beam at the nearest target, dealing continuous damage and heavily slowing enemies. Its beam also interacts with mirrors and photosensors for puzzle solving.",

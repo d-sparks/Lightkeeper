@@ -219,6 +219,13 @@
     "description": "Anti-gravity thruster that lets you float above the ground, changing elevation levels.",
     "shape": [[1]]
   },
+  "pulse_cannon_emitter": {
+    "type": "ability",
+    "abilityId": "pulse_cannon",
+    "name": "Photonic Pulse Emitter",
+    "description": "Focused light emitter that locks onto a target and fires an explosive photonic burst. The blast can destroy weakened walls.",
+    "shape": [[1, 1]]
+  },
   "light_sentry_emitter": {
     "type": "ability",
     "abilityId": "light_sentry",

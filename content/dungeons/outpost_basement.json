@@ -289,7 +289,7 @@
     2,
     1,
     1,
-    1,
+    6,
     1,
     6,
     3,
@@ -467,6 +467,14 @@
       "x": 12,
       "y": 11,
       "leadsTo": "light_sentry_demo",
+      "type": "stairs_down",
+      "spawnX": 2,
+      "spawnY": 2
+    },
+    {
+      "x": 14,
+      "y": 11,
+      "leadsTo": "pulse_cannon_demo",
       "type": "stairs_down",
       "spawnX": 2,
       "spawnY": 2
