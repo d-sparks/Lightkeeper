@@ -1155,7 +1155,9 @@ setInterval(() => {
     // Send death penalty notification so the player knows what they lost
     const lines = ['You died.'];
     if (dp.energyLost > 0) lines.push(`Lost ${dp.energyLost} energy.`);
-    if (dp.droppedItem) lines.push(`Dropped: ${dp.droppedItem}`);
+    if (dp.droppedItems && dp.droppedItems.length > 0) {
+      lines.push(`Dropped: ${dp.droppedItems.join(', ')}`);
+    }
     ws.send(JSON.stringify({
       type: CONSTANTS.MSG.DIALOGUE,
       dialogue: lines.map(text => ({ speaker: '', text })),

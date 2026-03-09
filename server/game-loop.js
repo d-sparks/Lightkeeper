@@ -3291,39 +3291,47 @@ class GameLoop {
 
   _checkPlayerDeath(player, room) {
     if (player.health <= 0) {
-      // Death penalty: drain 25-50% of current energy (uses _consumeEnergy for single-use tracking)
-      const drainPct = 0.25 + Math.random() * 0.25;
-      const energyLost = Math.floor(player.energy * drainPct);
+      const deathX = player.x;
+      const deathY = player.y;
+
+      // Death penalty: drain 25% of current energy
+      const energyLost = Math.floor(player.energy * 0.25);
       if (energyLost > 0) {
         this._consumeEnergy(player, energyLost);
       }
 
-      // Death penalty: drop one random non-quest item on the ground
-      // Quest items = keys and sol_components (progression-critical)
-      const droppableItems = [];
-      for (let i = 0; i < player.inventory.length; i++) {
-        const item = player.inventory[i];
-        if (item.category !== 'key' && item.category !== 'sol_component') {
-          droppableItems.push(i);
+      // Death penalty: drop non-quest inventory items based on dropBehavior
+      // dropBehavior per item definition: "keep" = retained, "destroy" = removed,
+      // "drop" (default) = spawned on ground. Quest items (key, sol_component) always kept.
+      const droppedItems = [];
+      const keptItems = [];
+      for (const item of player.inventory) {
+        if (item.category === 'key' || item.category === 'sol_component') {
+          keptItems.push(item);
+          continue;
+        }
+        const itemDef = this.content.getItem(item.type);
+        const behavior = (itemDef && itemDef.dropBehavior) || 'drop';
+        if (behavior === 'keep') {
+          keptItems.push(item);
+        } else if (behavior === 'destroy') {
+          // Item is destroyed — not kept, not spawned
+        } else {
+          // Default "drop": spawn on ground at death position
+          droppedItems.push(item);
+          const itemId = `item_${room.nextItemId++}`;
+          room.items.set(itemId, {
+            id: itemId,
+            type: item.type,
+            name: item.name,
+            rarity: item.rarity || 'common',
+            category: item.category || 'misc',
+            x: deathX,
+            y: deathY,
+          });
         }
       }
-      let droppedItem = null;
-      if (droppableItems.length > 0) {
-        const dropIdx = droppableItems[Math.floor(Math.random() * droppableItems.length)];
-        droppedItem = player.inventory[dropIdx];
-        player.inventory.splice(dropIdx, 1);
-        // Spawn item on the ground at the player's death position
-        const itemId = `item_${room.nextItemId++}`;
-        room.items.set(itemId, {
-          id: itemId,
-          type: droppedItem.type,
-          name: droppedItem.name,
-          rarity: droppedItem.rarity || 'common',
-          category: droppedItem.category || 'misc',
-          x: player.x,
-          y: player.y,
-        });
-      }
+      player.inventory = keptItems;
 
       // Respawn at floor spawn
       player.health = player.maxHealth;
@@ -3339,13 +3347,14 @@ class GameLoop {
       });
 
       // Queue inventory update for the client
+      const droppedNames = droppedItems.map(i => i.name);
       this.pendingDeathPenalties.push({
         playerId: player.id,
         inventory: player.inventory,
         equipment: player.equipment,
         medipacCharges: player.medipacCharges || 0,
         energyLost,
-        droppedItem: droppedItem ? droppedItem.name : null,
+        droppedItems: droppedNames,
       });
 
       const deathCtx = this._scriptContext(player.id, room.id);
