@@ -959,6 +959,19 @@ wss.on('connection', (ws) => {
         }
         break;
       }
+
+      case CONSTANTS.MSG.CHAT: {
+        if (!ws.playerRoom) break;
+        const text = typeof msg.text === 'string' ? msg.text.trim().slice(0, 200) : '';
+        if (!text) break;
+        broadcast(ws.playerRoom, {
+          type: CONSTANTS.MSG.CHAT_BROADCAST,
+          playerId,
+          name: ws.playerName,
+          text,
+        });
+        break;
+      }
     }
   });
 

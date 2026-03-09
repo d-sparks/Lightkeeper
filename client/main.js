@@ -2721,10 +2721,130 @@
 
   net.on(CONSTANTS.MSG.PLAYER_JOIN, (msg) => {
     console.log(`[Game] ${msg.name} joined`);
+    addChatLine(msg.name + ' joined', true);
   });
 
   net.on(CONSTANTS.MSG.PLAYER_LEAVE, (msg) => {
     console.log(`[Game] ${msg.playerId} left`);
+    addChatLine('A player left', true);
+  });
+
+  // --- Chat system ---
+  const chatLog = document.getElementById('chat-log');
+  const chatInputRow = document.getElementById('chat-input-row');
+  const chatInput = document.getElementById('chat-input');
+  const voiceIndicator = document.getElementById('voice-indicator');
+  const CHAT_FADE_MS = 8000;
+
+  function addChatLine(text, isSystem) {
+    const el = document.createElement('div');
+    el.className = 'chat-line' + (isSystem ? ' system' : '');
+    el.textContent = text;
+    chatLog.appendChild(el);
+    // Keep max 50 lines
+    while (chatLog.children.length > 50) chatLog.removeChild(chatLog.firstChild);
+    // Auto-fade after delay
+    setTimeout(() => { el.classList.add('faded'); }, CHAT_FADE_MS);
+  }
+
+  net.on(CONSTANTS.MSG.CHAT_BROADCAST, (msg) => {
+    const el = document.createElement('div');
+    el.className = 'chat-line';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'chat-name';
+    nameSpan.textContent = msg.name + ': ';
+    el.appendChild(nameSpan);
+    el.appendChild(document.createTextNode(msg.text));
+    chatLog.appendChild(el);
+    while (chatLog.children.length > 50) chatLog.removeChild(chatLog.firstChild);
+    setTimeout(() => { el.classList.add('faded'); }, CHAT_FADE_MS);
+  });
+
+  function openChat() {
+    input.chatActive = true;
+    chatInputRow.classList.add('active');
+    chatInput.value = '';
+    chatInput.focus();
+    // Unfade recent messages while chat is open
+    for (const line of chatLog.children) line.classList.remove('faded');
+  }
+
+  function closeChat() {
+    input.chatActive = false;
+    chatInputRow.classList.remove('active');
+    chatInput.blur();
+  }
+
+  function sendChat() {
+    const text = chatInput.value.trim();
+    if (text) {
+      net.send({ type: CONSTANTS.MSG.CHAT, text });
+    }
+    closeChat();
+  }
+
+  chatInput.addEventListener('keydown', (e) => {
+    e.stopPropagation(); // Prevent game input handler from seeing these keys
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendChat();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      closeChat();
+    }
+  });
+
+  // Prevent keyup events from game when chat was active
+  chatInput.addEventListener('keyup', (e) => { e.stopPropagation(); });
+
+  input.onChatOpen = openChat;
+  input.onChatClose = closeChat;
+
+  // --- Voice chat (hold V to speak) ---
+  let voiceRecognition = null;
+  let voiceActive = false;
+
+  function startVoice() {
+    if (voiceActive) return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+    voiceActive = true;
+    voiceIndicator.classList.add('active');
+    voiceRecognition = new SpeechRecognition();
+    voiceRecognition.continuous = false;
+    voiceRecognition.interimResults = false;
+    voiceRecognition.lang = 'en-US';
+    voiceRecognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.trim();
+      if (transcript) {
+        net.send({ type: CONSTANTS.MSG.CHAT, text: transcript });
+      }
+    };
+    voiceRecognition.onerror = () => { stopVoice(); };
+    voiceRecognition.onend = () => { stopVoice(); };
+    voiceRecognition.start();
+  }
+
+  function stopVoice() {
+    voiceActive = false;
+    voiceIndicator.classList.remove('active');
+    if (voiceRecognition) {
+      try { voiceRecognition.stop(); } catch (e) {}
+      voiceRecognition = null;
+    }
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (input.chatActive) return;
+    if ((e.key === 'v' || e.key === 'V') && !e.repeat) {
+      startVoice();
+    }
+  });
+
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'v' || e.key === 'V') {
+      stopVoice();
+    }
   });
 
   // --- Render loop ---

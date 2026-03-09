@@ -121,6 +121,11 @@ const CONSTANTS = {
     // Sessions (Server -> Client)
     SESSION_LIST_RESPONSE: 'session_list_response',
 
+    // Chat (Client -> Server)
+    CHAT: 'chat',
+    // Chat (Server -> Client)
+    CHAT_BROADCAST: 'chat_broadcast',
+
     // Bidirectional
     SOL_GRID_MOVE: 'sol_grid_move',
     SOL_GRID_PLACE: 'sol_grid_place',
