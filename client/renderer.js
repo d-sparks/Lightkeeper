@@ -1101,9 +1101,9 @@ class Renderer {
     }
 
     // --- Full wall (taller, blocks all levels) ---
-    const fullWallH = dh + wallRise * 2;
+    const fullWallH = dh + wallRise * 4;
     this.isoTileTextures['full_wall'] = this._createIsoTexture(dw, fullWallH, (ctx, w, h) => {
-      const rise = wallRise * 2;
+      const rise = wallRise * 4;
       // Top diamond face
       ctx.beginPath();
       ctx.moveTo(hw, 0);
@@ -1755,7 +1755,7 @@ class Renderer {
           // Determine sprite height based on tile type
           let spriteH = dh + wallRise;
           if (isoKey === 'full_wall') {
-            spriteH = dh + wallRise * 2;
+            spriteH = dh + wallRise * 4;
           } else if (isoKey === 'elevated_floor') {
             // Flat floor tile — no wall rise, use floor-style anchor
             spriteH = dh;
