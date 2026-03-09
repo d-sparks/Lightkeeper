@@ -3,7 +3,7 @@
     "name": "Blaster Shot",
     "type": "projectile",
     "damageMultiplier": 1.0,
-    "projectileRadius": 4,
+    "projectileRadius": 8,
     "projectileSpeed": 300,
     "cooldown": 0.5,
     "defaultSlot": 1
@@ -50,7 +50,7 @@
     "name": "Precision Shot",
     "type": "projectile",
     "damageMultiplier": 1.2,
-    "projectileRadius": 4,
+    "projectileRadius": 6,
     "projectileSpeed": 400,
     "cooldown": 0.5,
     "defaultSlot": 1

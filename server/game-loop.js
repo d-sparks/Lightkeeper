@@ -3438,7 +3438,9 @@ class GameLoop {
     for (let i = 0; i < room.projectiles.length; i++) {
       const proj = room.projectiles[i];
 
-      // Update position
+      // Update position (save old position for swept collision)
+      const prevX = proj.x;
+      const prevY = proj.y;
       proj.x += proj.vx * dt;
       proj.y += proj.vy * dt;
 
@@ -3489,13 +3491,27 @@ class GameLoop {
       }
 
       // Check monster collision (only for player-fired projectiles)
+      // Uses swept line test (segment from prevPos to curPos vs monster circle)
+      // to prevent fast projectiles from tunnelling through monsters.
       let hitMonster = false;
       if (!proj.isMonsterProjectile) for (const [mid, mob] of room.monsters) {
         if (mob.hidden) continue;
-        const dx = mob.x - proj.x;
-        const dy = mob.y - proj.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
         const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius;
+
+        // Find closest point on segment [prev->cur] to monster center
+        const segDx = proj.x - prevX;
+        const segDy = proj.y - prevY;
+        const segLen2 = segDx * segDx + segDy * segDy;
+        let t = 0;
+        if (segLen2 > 0) {
+          t = ((mob.x - prevX) * segDx + (mob.y - prevY) * segDy) / segLen2;
+          t = Math.max(0, Math.min(1, t));
+        }
+        const closestX = prevX + t * segDx;
+        const closestY = prevY + t * segDy;
+        const dx = mob.x - closestX;
+        const dy = mob.y - closestY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < hitRadius) {
           // Hit monster — force aggro on the attacker
@@ -3567,13 +3583,24 @@ class GameLoop {
       if (hitMonster) continue;
 
       // Check player collision (for monster-fired projectiles)
+      // Also uses swept line test to prevent tunnelling.
       if (proj.isMonsterProjectile) {
         let hitPlayer = false;
         for (const [pid, player] of room.players) {
-          const dx = player.x - proj.x;
-          const dy = player.y - proj.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
           const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius;
+          const segDx = proj.x - prevX;
+          const segDy = proj.y - prevY;
+          const segLen2 = segDx * segDx + segDy * segDy;
+          let t = 0;
+          if (segLen2 > 0) {
+            t = ((player.x - prevX) * segDx + (player.y - prevY) * segDy) / segLen2;
+            t = Math.max(0, Math.min(1, t));
+          }
+          const closestX = prevX + t * segDx;
+          const closestY = prevY + t * segDy;
+          const dx = player.x - closestX;
+          const dy = player.y - closestY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < hitRadius) {
             player.health -= proj.damage;
             room.events.push({
