@@ -761,7 +761,6 @@ class Bot {
     // If goal tile is out of bounds (e.g. stale goal from before a room transition), abandon it
     if (goal.tileX < 0 || goal.tileY < 0 || goal.tileX >= room.dungeon.width || goal.tileY >= room.dungeon.height) {
       this.popGoal();
-      this.currentPath = null;
       return;
     }
 
@@ -772,24 +771,22 @@ class Bot {
     // Allow generous time (500 ticks = ~33s game time) but not infinite
     if (goal._totalTicks > 500) {
       this.popGoal();
-      this.currentPath = null;
       return;
     }
     const tolerance = goal.tolerance || 0;
 
     if (Math.abs(currentTX - goal.tileX) <= tolerance && Math.abs(currentTY - goal.tileY) <= tolerance) {
       this.popGoal();
-      this.currentPath = null;
       this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
       return;
     }
 
-    // Compute A* path if needed
-    if (!this.currentPath || this.currentPath.length === 0) {
-      this.currentPath = astarPath(room.dungeon, currentTX, currentTY, goal.tileX, goal.tileY);
-      this.pathIndex = 0;
+    // Compute A* path if needed — stored per-goal so sub-goals don't share stale paths
+    if (!goal._path || goal._path.length === 0) {
+      goal._path = astarPath(room.dungeon, currentTX, currentTY, goal.tileX, goal.tileY);
+      goal._pathIndex = 0;
 
-      if (!this.currentPath || this.currentPath.length === 0) {
+      if (!goal._path || goal._path.length === 0) {
         // Can't pathfind — try direct movement
         this.moveTowardTile(player, goal.tileX, goal.tileY);
         return;
@@ -797,12 +794,12 @@ class Bot {
     }
 
     // Follow path
-    if (this.pathIndex >= this.currentPath.length) {
-      this.currentPath = null;
+    if (goal._pathIndex >= goal._path.length) {
+      goal._path = null;
       return;
     }
 
-    const target = this.currentPath[this.pathIndex];
+    const target = goal._path[goal._pathIndex];
     const targetPX = (target.x + 0.5) * TILE_SIZE;
     const targetPY = (target.y + 0.5) * TILE_SIZE;
     const dx = targetPX - player.x;
@@ -810,16 +807,16 @@ class Bot {
     const dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist < TILE_SIZE * 0.4) {
-      this.pathIndex++;
-      if (this.pathIndex >= this.currentPath.length) {
-        this.currentPath = null;
+      goal._pathIndex++;
+      if (goal._pathIndex >= goal._path.length) {
+        goal._path = null;
         this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
         return;
       }
     }
 
     // Check if the next path tile is a closed door — if so, interact to open it
-    const nextTarget = this.currentPath[Math.min(this.pathIndex, this.currentPath.length - 1)];
+    const nextTarget = goal._path[Math.min(goal._pathIndex, goal._path.length - 1)];
     const curRoom = this.getRoom();
     if (curRoom) {
       const tileId = curRoom.dungeon.data[nextTarget.y * curRoom.dungeon.width + nextTarget.x];

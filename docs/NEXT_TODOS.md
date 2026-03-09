@@ -77,7 +77,8 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 ## Testing
 
 - Integration tests (Tier 4): combat flow, equipment system, sol grid adjacency, room lifecycle.
-- Headless sim bot stuck at perimeter_gate (can't interact with Sgt. Fenn NPC). Bot needs better NPC approach + interact logic for sim-based testing beyond step 9.
+- ~~Headless sim bot stuck at perimeter_gate (can't interact with Sgt. Fenn NPC).~~ — DONE: Fixed shared `currentPath`/`pathIndex` state on bot causing sub-goal `move_to_position` for NPC to reuse stale path pointing at blast door, creating an infinite door-detection loop. Paths are now stored per-goal (`goal._path`, `goal._pathIndex`).
+- **Headless sim stuck at junction_cleared** — bot reaches station_junction but can't clear it. `doInteractNearest` doesn't navigate to the junction box tile (7,7); `wait_for_flag` retries `tryInteract` from the wrong position. Either fix `doInteractNearest` to navigate before interacting, or add `kill_monsters` + `move_to_position` goals for door-interacted steps in `buildQuestGoals`.
 - Pre-existing physics bug: "large dt does not skip through walls" test fails — player teleports through wall at high dt values. Needs dt clamping or substep logic in movePlayer.
 
 ## Automation Grid (Phases 3-5)
