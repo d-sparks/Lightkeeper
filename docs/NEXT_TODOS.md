@@ -72,7 +72,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 ## Audio
 
 - Assign biome-appropriate tilesets to dungeons still using generic "crypt" (outpost_* should use "outpost", station_* should use "station", meridian_* should use "meridian"). Activates per-biome music automatically.
-- Wire `boss_crystal` music track into Crystal Guardian encounter triggers (track exists but isn't triggered).
+- ~~Wire `boss_crystal` music track into Crystal Guardian encounter triggers~~ — DONE: boss_intro mechanism was already wired; fixed FLOOR_CHANGE handler and boss-defeat restore to use `resolveAmbientTrack` so biome music (nightside/crypt) plays correctly before/after boss music instead of falling back to generic 'dungeon'.
 
 ## Testing
 

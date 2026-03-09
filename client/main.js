@@ -84,6 +84,7 @@
 
   // --- State ---
   let joined = false;
+  let currentAmbientTrack = 'dungeon'; // Track biome ambient so boss defeat restores correctly
 
   // --- Onboarding state ---
   let onboardMoveShown = false;
@@ -2376,7 +2377,8 @@
     audio.resume();
     const roomName = (msg.map && msg.map.name || '');
     const tileset = (msg.map && msg.map.tileset || '');
-    audio.playMusic(audio.resolveAmbientTrack(roomName, tileset));
+    currentAmbientTrack = audio.resolveAmbientTrack(roomName, tileset);
+    audio.playMusic(currentAmbientTrack);
   });
 
   net.on(CONSTANTS.MSG.STATE, (msg) => {
@@ -2509,7 +2511,7 @@
       bossBarPhase.textContent = phaseLabels[boss.bossPhase] || '';
     } else {
       if (bossBar.style.display !== 'none' && audio.musicId && audio.musicId.startsWith('boss_')) {
-        audio.playMusic('dungeon');
+        audio.playMusic(currentAmbientTrack || 'dungeon');
       }
       bossBar.style.display = 'none';
     }
@@ -2549,14 +2551,12 @@
     closeWorldmap();
     // Hide boss bar when changing floors
     bossBar.style.display = 'none';
-    // Play floor change SFX and switch music based on room name
+    // Play floor change SFX and switch music based on room name/tileset biome
     audio.play('floor_change');
     const roomName = (msg.map.name || '').toLowerCase();
-    if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
-      audio.playMusic('outpost');
-    } else {
-      audio.playMusic('dungeon');
-    }
+    const tilesetId = msg.map.tileset || '';
+    currentAmbientTrack = audio.resolveAmbientTrack(roomName, tilesetId);
+    audio.playMusic(currentAmbientTrack);
   });
 
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {
