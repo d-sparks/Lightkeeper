@@ -125,6 +125,19 @@
     "energyRegen": 8,
     "shape": [[1]]
   },
+  "rechargeable_battery": {
+    "type": "battery",
+    "name": "Rechargeable Battery",
+    "energyCapacity": 100,
+    "shape": [[1]]
+  },
+  "single_use_battery": {
+    "type": "battery",
+    "name": "Single-Use Battery",
+    "energyCapacity": 100,
+    "singleUse": true,
+    "shape": [[1]]
+  },
   "advanced_rechargeable_battery": {
     "type": "battery",
     "name": "Advanced Rechargeable Battery",

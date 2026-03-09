@@ -455,6 +455,8 @@ class GameLoop {
       solGrid: null,
       energy: 0,
       maxEnergy: 0,
+      singleUseEnergy: 0,
+      singleUseMaxEnergy: 0,
       solGridEnergyRegen: 0,
       questObjective: null,
       xp: 0,
@@ -919,7 +921,12 @@ class GameLoop {
           const compDef = this.content.getSolComponent(cell.batteryId);
           if (compDef) {
             clientCell.componentName = compDef.name;
-            clientCell.energyCapacity = compDef.energyCapacity;
+            clientCell.energyCapacity = compDef.singleUse && cell.remainingCapacity !== undefined
+              ? cell.remainingCapacity : compDef.energyCapacity;
+            if (compDef.singleUse) {
+              clientCell.singleUse = true;
+              clientCell.maxCapacity = compDef.energyCapacity;
+            }
           }
         }
       }
@@ -941,6 +948,8 @@ class GameLoop {
     if (!player.solGrid) {
       player.energy = 0;
       player.maxEnergy = 0;
+      player.singleUseEnergy = 0;
+      player.singleUseMaxEnergy = 0;
     }
 
     // Arms slot: provides attack ability
@@ -988,6 +997,7 @@ class GameLoop {
     // Sol grid: scan for abilities, generators, and batteries
     player.solGridEnergyRegen = 0;
     let extraMaxEnergy = 0;
+    let singleUseMaxEnergy = 0;
     if (player.solGrid) {
       // Reset maxEnergy to sol unit base charge so battery capacity doesn't accumulate across calls
       player.maxEnergy = player.solGrid.maxCharge || 100;
@@ -1037,15 +1047,94 @@ class GameLoop {
           if (cell.batteryId) {
             const compDef = this.content.getSolComponent(cell.batteryId);
             if (compDef && compDef.energyCapacity) {
-              extraMaxEnergy += compDef.energyCapacity;
+              // Single-use batteries may have degraded remaining capacity
+              const capacity = compDef.singleUse && cell.remainingCapacity !== undefined
+                ? cell.remainingCapacity : compDef.energyCapacity;
+              extraMaxEnergy += capacity;
+              if (compDef.singleUse) {
+                singleUseMaxEnergy += capacity;
+              }
             }
           }
         }
       }
       player.maxEnergy += extraMaxEnergy;
+      player.singleUseMaxEnergy = singleUseMaxEnergy;
+      // Clamp single-use energy to its max
+      if (player.singleUseEnergy > player.singleUseMaxEnergy) {
+        player.singleUseEnergy = player.singleUseMaxEnergy;
+      }
       // Clamp current energy to new max in case capacity was reduced (e.g. battery removed)
       if (player.energy > player.maxEnergy) player.energy = player.maxEnergy;
     }
+  }
+
+  // Consume energy from a player, drawing from rechargeable pool first, then single-use.
+  // When single-use energy is consumed, permanently degrades the smallest single-use battery.
+  // Returns true if energy was successfully consumed, false if insufficient.
+  _consumeEnergy(player, cost) {
+    if (player.energy < cost) return false;
+
+    const rechargeableCurrent = player.energy - player.singleUseEnergy;
+    player.energy -= cost;
+
+    if (rechargeableCurrent >= cost) {
+      // Entirely from rechargeable pool
+      return true;
+    }
+
+    // Some or all from single-use pool
+    const fromSingleUse = cost - Math.max(0, rechargeableCurrent);
+    player.singleUseEnergy -= fromSingleUse;
+
+    // Permanently degrade single-use batteries (smallest first)
+    this._degradeSingleUseBatteries(player, fromSingleUse);
+    return true;
+  }
+
+  // Permanently reduce capacity of single-use batteries in the sol grid, smallest first.
+  _degradeSingleUseBatteries(player, amount) {
+    if (!player.solGrid || amount <= 0) return;
+
+    // Collect single-use battery cells with their remaining capacity
+    const batteries = [];
+    const grid = player.solGrid;
+    for (let i = 0; i < grid.cells.length; i++) {
+      const cell = grid.cells[i];
+      if (!cell || cell.isExtension || !cell.batteryId) continue;
+      const compDef = this.content.getSolComponent(cell.batteryId);
+      if (!compDef || !compDef.singleUse) continue;
+      if (cell.remainingCapacity === undefined) {
+        cell.remainingCapacity = compDef.energyCapacity;
+      }
+      if (cell.remainingCapacity > 0) {
+        batteries.push({ cell, index: i, capacity: cell.remainingCapacity });
+      }
+    }
+
+    // Sort smallest first
+    batteries.sort((a, b) => a.capacity - b.capacity);
+
+    let remaining = amount;
+    for (const bat of batteries) {
+      if (remaining <= 0) break;
+      const drain = Math.min(remaining, bat.cell.remainingCapacity);
+      bat.cell.remainingCapacity -= drain;
+      remaining -= drain;
+
+      // If battery is fully drained, remove it from the grid
+      if (bat.cell.remainingCapacity <= 0) {
+        const pid = bat.cell.placementId;
+        for (let j = 0; j < grid.cells.length; j++) {
+          if (grid.cells[j] && grid.cells[j].placementId === pid) {
+            grid.cells[j] = null;
+          }
+        }
+      }
+    }
+
+    // Rebuild to update maxEnergy/singleUseMaxEnergy
+    this._rebuildAbilities(player);
   }
 
   // Initialize a sol grid for a player when they equip a sol unit
@@ -1088,6 +1177,8 @@ class GameLoop {
     player.energy = solUnitDef.initialEnergy !== undefined
       ? solUnitDef.initialEnergy
       : player.maxEnergy;
+    player.singleUseEnergy = 0;
+    player.singleUseMaxEnergy = 0;
   }
 
   // Find sol component definition by abilityId
@@ -1157,7 +1248,12 @@ class GameLoop {
         if (compDef.type === 'ability' && compDef.abilityId) cell.abilityId = compDef.abilityId;
         if (compDef.type === 'modifier') cell.modifierId = itemDef.solComponentId;
         if (compDef.type === 'generator') cell.generatorId = itemDef.solComponentId;
-        if (compDef.type === 'battery') cell.batteryId = itemDef.solComponentId;
+        if (compDef.type === 'battery') {
+          cell.batteryId = itemDef.solComponentId;
+          if (compDef.singleUse) {
+            cell.remainingCapacity = compDef.energyCapacity;
+          }
+        }
         cell.componentRarity = item.rarity || compDef.rarity || 'common';
         if (sx !== 0 || sy !== 0) cell.isExtension = true;
         player.solGrid.cells[cy * size + cx] = cell;
@@ -1166,6 +1262,13 @@ class GameLoop {
 
     // Remove from inventory
     player.inventory.splice(inventoryIndex, 1);
+
+    // If placing a single-use battery, fill its energy pool
+    if (compDef.type === 'battery' && compDef.singleUse && compDef.energyCapacity) {
+      player.singleUseEnergy += compDef.energyCapacity;
+      player.energy += compDef.energyCapacity;
+    }
+
     this._rebuildAbilities(player);
     return { ok: true, itemType: item.type };
   }
@@ -1206,6 +1309,17 @@ class GameLoop {
     // Find the item type for this component
     const itemType = this._findItemTypeForSolComponent(solComponentId);
     if (!itemType) return false;
+
+    // If removing a single-use battery, subtract its remaining energy from single-use pool
+    if (clickedCell.batteryId) {
+      const compDef = this.content.getSolComponent(clickedCell.batteryId);
+      if (compDef && compDef.singleUse) {
+        const remaining = clickedCell.remainingCapacity !== undefined
+          ? clickedCell.remainingCapacity : compDef.energyCapacity;
+        player.singleUseEnergy = Math.max(0, player.singleUseEnergy - remaining);
+        player.energy = Math.max(0, player.energy - remaining);
+      }
+    }
 
     // Clear all cells with this placementId
     for (let i = 0; i < size * size; i++) {
@@ -1283,8 +1397,7 @@ class GameLoop {
   _fireProjectile(room, player, abilityDef, aimAngle, slotIdx) {
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
     }
 
     let dirX, dirY;
@@ -1343,8 +1456,7 @@ class GameLoop {
   _fireCone(room, player, abilityDef, aimAngle, slotIdx) {
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
     }
 
     // Use aim angle if provided, otherwise fall back to player facing direction
@@ -1572,8 +1684,7 @@ class GameLoop {
 
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
     }
 
     const healAmount = Math.min(abilityDef.heal || 0, player.maxHealth - player.health);
@@ -1655,7 +1766,7 @@ class GameLoop {
     }
 
     // Deduct energy
-    player.energy -= abilityDef.energyCost;
+    this._consumeEnergy(player, abilityDef.energyCost);
 
     const fromX = player.x;
     const fromY = player.y;
@@ -1697,8 +1808,7 @@ class GameLoop {
 
     // Activate hover
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
     }
 
     player.hovering = true;
@@ -1716,8 +1826,7 @@ class GameLoop {
   _placeSentry(room, player, abilityDef, slotIdx) {
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
     }
 
     // Remove any existing sentry owned by this player
@@ -1766,8 +1875,7 @@ class GameLoop {
 
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
     }
 
     // Find target position: use aim angle to pick a point at maxRange
@@ -2419,12 +2527,15 @@ class GameLoop {
         }
 
         // Energy regeneration: solar panels (dayside) + sol grid generators
+        // Only regenerates the rechargeable portion (not single-use)
         if (player.maxEnergy > 0) {
           const autoRegenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
           let regenRate = autoRegenRate;
           if (player.solGridEnergyRegen > 0) regenRate += player.solGridEnergyRegen;
           if (regenRate > 0) {
-            player.energy = Math.min(player.maxEnergy, player.energy + regenRate * dt);
+            const rechargeableMax = player.maxEnergy - player.singleUseMaxEnergy;
+            const regenCap = rechargeableMax + player.singleUseEnergy;
+            player.energy = Math.min(regenCap, player.energy + regenRate * dt);
           }
           if (autoRegenRate > 0) {
             this.automation.trackEnergyGenerated(pid, autoRegenRate * dt);
@@ -3176,10 +3287,12 @@ class GameLoop {
 
   _checkPlayerDeath(player, room) {
     if (player.health <= 0) {
-      // Death penalty: drain 25-50% of current energy
+      // Death penalty: drain 25-50% of current energy (uses _consumeEnergy for single-use tracking)
       const drainPct = 0.25 + Math.random() * 0.25;
       const energyLost = Math.floor(player.energy * drainPct);
-      player.energy = Math.max(0, player.energy - energyLost);
+      if (energyLost > 0) {
+        this._consumeEnergy(player, energyLost);
+      }
 
       // Death penalty: drop one random non-quest item on the ground
       // Quest items = keys and sol_components (progression-critical)
@@ -3837,11 +3950,12 @@ class GameLoop {
       });
     }
 
-    // Energy effect (e.g. rechargeable batteries)
+    // Energy effect (e.g. rechargeable batteries) — only restores rechargeable pool
     if (itemDef.effect.energy && player.energy !== undefined) {
-      const maxEnergy = player.maxEnergy || 100;
-      if (player.energy < maxEnergy) {
-        const restoreAmount = Math.min(itemDef.effect.energy, maxEnergy - player.energy);
+      const rechargeableMax = (player.maxEnergy || 100) - (player.singleUseMaxEnergy || 0);
+      const rechargeableCurrent = player.energy - (player.singleUseEnergy || 0);
+      if (rechargeableCurrent < rechargeableMax) {
+        const restoreAmount = Math.min(itemDef.effect.energy, rechargeableMax - rechargeableCurrent);
         player.energy += restoreAmount;
         used = true;
 
@@ -4034,6 +4148,7 @@ class GameLoop {
         facing: Math.round(p.facing * 100) / 100,
         health: p.health, maxHealth: p.maxHealth,
         energy: Math.round(p.energy), maxEnergy: p.maxEnergy,
+        singleUseEnergy: Math.round(p.singleUseEnergy || 0), singleUseMaxEnergy: p.singleUseMaxEnergy || 0,
         xp: p.xp, level: p.level, xpToNextLevel: p.xpToNextLevel,
         colorIndex: p.colorIndex,
         elevation: Math.round((p.elevation || 0) * 100) / 100,

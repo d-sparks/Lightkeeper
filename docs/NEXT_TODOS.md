@@ -37,7 +37,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 ## Progression Wiring
 
 - Wire generators into loot/rewards: basic_generator and improved_generator items exist but aren't obtainable via any loot table or quest reward. Critical for energy progression pacing.
-- Consider adding a "basic_battery" sol component (uncommon, +30-50 capacity) as a mid-tier bridge.
+- Rechargeable battery (100 cap, uncommon) and single-use battery (100 cap, common) now exist as mid-tier bridge items. Consider additional tiers (50/200 cap variants).
 
 ## Content Completion
 
@@ -90,6 +90,10 @@ Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 - Battery math: capacity per tier, energy costs per ability, casts per full charge.
 - Harvester scaling: silicon rate, max harvesters, late-game upgrades.
 - Multiplayer implications: shared grid builds? Specialization?
+- Wire rechargeable_battery_chip and single_use_battery_chip into loot tables so players can obtain them.
+- Add single-use battery charging station (NPC or tile interaction) to convert single-use energy back to capacity for a cost.
+- Playtest single-use battery degradation feel — 100 capacity may need tuning based on ability costs.
+- Consider visual/audio feedback when a single-use battery degrades or is fully consumed.
 
 ## Art & Sprites
 

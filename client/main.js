@@ -10,6 +10,7 @@
   const healthFill = document.getElementById('health-fill');
   const energyBar = document.getElementById('energy-bar');
   const energyFill = document.getElementById('energy-fill');
+  const energySingleUseFill = document.getElementById('energy-single-use-fill');
   const energyText = document.getElementById('energy-text');
   const hudName = document.getElementById('hud-name');
   const xpFill = document.getElementById('xp-fill');
@@ -1804,7 +1805,11 @@
           if (!comp.isExtension) {
             let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + (comp.componentName || comp.batteryId.replace(/_/g, ' ')) + '</div>';
             if (comp.energyCapacity) {
-              html += '<div class="sol-mod-tag">+' + comp.energyCapacity + ' cap</div>';
+              if (comp.singleUse) {
+                html += '<div class="sol-mod-tag" style="color:#ffab40">+' + comp.energyCapacity + '/' + (comp.maxCapacity || comp.energyCapacity) + ' cap (1x)</div>';
+              } else {
+                html += '<div class="sol-mod-tag">+' + comp.energyCapacity + ' cap</div>';
+              }
             }
             cell.innerHTML = html;
           }
@@ -2369,8 +2374,15 @@
         healthFill.style.width = `${pct}%`;
         if (me.maxEnergy > 0) {
           energyBar.style.display = 'block';
-          const ePct = (me.energy / me.maxEnergy) * 100;
-          energyFill.style.width = `${ePct}%`;
+          const suEnergy = me.singleUseEnergy || 0;
+          const suMax = me.singleUseMaxEnergy || 0;
+          const rechargeableEnergy = me.energy - suEnergy;
+          const rechargeablePct = (rechargeableEnergy / me.maxEnergy) * 100;
+          const suPct = (suEnergy / me.maxEnergy) * 100;
+          energyFill.style.width = `${rechargeablePct}%`;
+          energySingleUseFill.style.left = `${rechargeablePct}%`;
+          energySingleUseFill.style.width = `${suPct}%`;
+          energySingleUseFill.style.display = suMax > 0 ? 'block' : 'none';
           energyText.textContent = `SOL ${Math.round(me.energy)}/${me.maxEnergy}`;
         } else {
           energyBar.style.display = 'none';

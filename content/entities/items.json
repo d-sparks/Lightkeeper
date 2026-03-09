@@ -504,6 +504,20 @@
     "rarity": "legendary",
     "solComponentId": "uranium_generator"
   },
+  "rechargeable_battery_chip": {
+    "name": "Rechargeable Battery",
+    "description": "A standard rechargeable power cell that adds 100 energy capacity to your Sol Unit. Energy drawn from this battery regenerates over time.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "rechargeable_battery"
+  },
+  "single_use_battery_chip": {
+    "name": "Single-Use Battery",
+    "description": "A disposable power cell that adds 100 energy capacity to your Sol Unit. Energy drawn from this battery is lost permanently — smallest battery drains first.",
+    "type": "sol_component",
+    "rarity": "common",
+    "solComponentId": "single_use_battery"
+  },
   "advanced_rechargeable_battery_chip": {
     "name": "Advanced Rechargeable Battery",
     "description": "A military-grade supercapacitor array that adds 150 energy capacity to your Sol Unit. Endgame power storage for sustained operations deep in the Nightside.",
