@@ -101,12 +101,12 @@
   "light_sentry": {
     "name": "Light Sentry",
     "type": "sentry",
-    "damageMultiplier": 0.6,
-    "beamRange": 6.0,
-    "beamTickRate": 0.3,
-    "slowFactor": 0.5,
+    "damageMultiplier": 0.8,
+    "beamRange": 8.0,
+    "beamTickRate": 0.25,
+    "slowFactor": 0.15,
     "cooldown": 2.0,
     "energyCost": 25,
-    "defaultSlot": 2
+    "defaultSlot": 3
   }
 }

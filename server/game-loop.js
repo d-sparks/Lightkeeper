@@ -151,6 +151,7 @@ class GameLoop {
       items,                 // itemId -> GroundItem
       projectiles: [],       // Projectile objects
       sentries: [],          // Light sentries placed by players
+      beamObjects: [],       // Mirrors and photosensors for sentry beam puzzles
       events: [],            // combat events for current tick
       tick: 0,
       nextSpawnIndex: 0,
@@ -159,6 +160,21 @@ class GameLoop {
       nextProjectileId: 0,
       nextSentryId: 0,
     };
+
+    // Initialize beam objects (mirrors, photosensors) for sentry beam puzzles
+    if (dungeon.beamObjects) {
+      for (const def of dungeon.beamObjects) {
+        room.beamObjects.push({
+          id: def.id,
+          type: def.type,
+          x: (def.x + 0.5) * CONSTANTS.TILE_SIZE,
+          y: (def.y + 0.5) * CONSTANTS.TILE_SIZE,
+          angle: def.angle || 0,
+          sensorId: def.sensorId || null,
+          active: false,
+        });
+      }
+    }
 
     // Spawn monsters
     this.spawnMonsters(room);
@@ -1733,8 +1749,189 @@ class GameLoop {
     return true;
   }
 
+  // Check line-of-sight between two points — returns true if no solid wall blocks the path.
+  // Uses a tile-stepping ray march through the dungeon grid.
+  _hasLineOfSight(dungeon, x1, y1, x2, y2) {
+    const ts = CONSTANTS.TILE_SIZE;
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist === 0) return true;
+
+    // Step along the ray in half-tile increments to check for solid tiles
+    const stepSize = ts * 0.5;
+    const steps = Math.ceil(dist / stepSize);
+    const sx = dx / steps;
+    const sy = dy / steps;
+
+    for (let i = 1; i < steps; i++) {
+      const px = x1 + sx * i;
+      const py = y1 + sy * i;
+      const tx = Math.floor(px / ts);
+      const ty = Math.floor(py / ts);
+      if (this.content.isSolid(dungeon, tx, ty, 0)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Cast a ray and return the distance to the first solid wall hit (or maxDist if none).
+  _rayDistToWall(dungeon, x1, y1, dirX, dirY, maxDist) {
+    const ts = CONSTANTS.TILE_SIZE;
+    const stepSize = ts * 0.5;
+    const steps = Math.ceil(maxDist / stepSize);
+
+    for (let i = 1; i <= steps; i++) {
+      const d = stepSize * i;
+      const px = x1 + dirX * d;
+      const py = y1 + dirY * d;
+      const tx = Math.floor(px / ts);
+      const ty = Math.floor(py / ts);
+      if (this.content.isSolid(dungeon, tx, ty, 0)) {
+        return d - stepSize; // back up one step so beam stops just before the wall
+      }
+    }
+    return maxDist;
+  }
+
+  // Find the nearest target (monster or beam object) from a position within range, with LOS check
+  _findNearestBeamTarget(room, fromX, fromY, range, excludeIds) {
+    let nearest = null;
+    let nearestDist = Infinity;
+
+    // Check monsters
+    for (const [mid, mob] of room.monsters) {
+      if (mob.hidden || excludeIds.has(mob.id)) continue;
+      const dx = mob.x - fromX;
+      const dy = mob.y - fromY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < range && dist < nearestDist) {
+        if (this._hasLineOfSight(room.dungeon, fromX, fromY, mob.x, mob.y)) {
+          nearest = { entity: mob, dist, kind: 'monster' };
+          nearestDist = dist;
+        }
+      }
+    }
+
+    // Check beam objects (mirrors, photosensors)
+    for (const bo of room.beamObjects) {
+      if (excludeIds.has(bo.id)) continue;
+      const dx = bo.x - fromX;
+      const dy = bo.y - fromY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < range && dist < nearestDist) {
+        if (this._hasLineOfSight(room.dungeon, fromX, fromY, bo.x, bo.y)) {
+          nearest = { entity: bo, dist, kind: bo.type };
+          nearestDist = dist;
+        }
+      }
+    }
+
+    return nearest;
+  }
+
+  // Find nearest target along a reflected ray direction (ray cast), with LOS check
+  _findTargetAlongRay(room, fromX, fromY, dirX, dirY, range, excludeIds) {
+    const hitRadius = CONSTANTS.TILE_SIZE * 0.4;
+    let nearest = null;
+    let nearestT = Infinity;
+
+    const checkEntity = (entity, kind) => {
+      if (excludeIds.has(entity.id)) return;
+      if (kind === 'monster' && entity.hidden) return;
+      const ex = entity.x - fromX;
+      const ey = entity.y - fromY;
+      // Project onto ray direction
+      const t = ex * dirX + ey * dirY;
+      if (t <= 0) return; // Behind the ray
+      if (t > range) return; // Beyond range
+      // Perpendicular distance from entity center to ray line
+      const px = ex - t * dirX;
+      const py = ey - t * dirY;
+      const perpDist = Math.sqrt(px * px + py * py);
+      if (perpDist < hitRadius && t < nearestT) {
+        // Check line-of-sight (no walls between ray origin and target)
+        if (this._hasLineOfSight(room.dungeon, fromX, fromY, entity.x, entity.y)) {
+          nearest = { entity, dist: t, kind };
+          nearestT = t;
+        }
+      }
+    };
+
+    for (const [mid, mob] of room.monsters) {
+      checkEntity(mob, 'monster');
+    }
+    for (const bo of room.beamObjects) {
+      checkEntity(bo, bo.type);
+    }
+
+    return nearest;
+  }
+
+  // Compute reflected beam direction off a mirror surface.
+  // angle uses screen-friendly convention: 45° = / (forward slash), 135° = \ (backslash).
+  // In screen coords (Y-down), surface direction is (cos(θ), -sin(θ)).
+  _reflectBeam(inDx, inDy, mirrorAngleDeg) {
+    const mRad = mirrorAngleDeg * Math.PI / 180;
+    // Surface direction in screen coords: (cos(θ), -sin(θ))
+    // Normal (perpendicular, rotated 90° CW): (sin(θ), cos(θ))
+    const nx = Math.sin(mRad);
+    const ny = Math.cos(mRad);
+    // Normalize incoming direction
+    const len = Math.sqrt(inDx * inDx + inDy * inDy);
+    if (len === 0) return { dx: 0, dy: 0 };
+    const dx = inDx / len;
+    const dy = inDy / len;
+    // Reflect: r = d - 2(d·n)n
+    const dot = dx * nx + dy * ny;
+    return {
+      dx: dx - 2 * dot * nx,
+      dy: dy - 2 * dot * ny,
+    };
+  }
+
+  // Apply sentry beam effects to a monster target
+  _applySentryBeamToMonster(sentry, mob, room, dt) {
+    mob.sentrySlowFactor = sentry.slowFactor;
+    mob.sentrySlowTime = 0.2;
+
+    sentry.beamTimer -= dt;
+    if (sentry.beamTimer <= 0) {
+      sentry.beamTimer += sentry.beamTickRate;
+
+      mob.health -= sentry.damage;
+      mob.aggroTarget = sentry.ownerId;
+
+      room.events.push({
+        type: 'damage', targetId: mob.id,
+        amount: Math.round(sentry.damage),
+        x: mob.x, y: mob.y,
+      });
+
+      if (sentry.healOnHit > 0) {
+        const owner = room.players.get(sentry.ownerId);
+        if (owner && owner.health < owner.maxHealth) {
+          owner.health = Math.min(owner.maxHealth, owner.health + sentry.healOnHit);
+          room.events.push({
+            type: 'heal', targetId: sentry.ownerId,
+            amount: sentry.healOnHit,
+            x: owner.x, y: owner.y,
+          });
+        }
+      }
+
+      if (mob.health <= 0) {
+        this._handleMonsterDeath(mob, room, sentry.ownerId);
+      }
+    }
+  }
+
   updateSentries(room, dt) {
-    if (room.sentries.length === 0) return;
+    if (room.sentries.length === 0 && room.beamObjects.length === 0) return;
+
+    // Track which photosensors are hit this tick (sensorId -> sentry ownerId)
+    const activeSensors = new Map();
 
     for (let i = room.sentries.length - 1; i >= 0; i--) {
       const sentry = room.sentries[i];
@@ -1749,61 +1946,144 @@ class GameLoop {
         continue;
       }
 
-      // Find nearest monster in beam range
-      let nearestMob = null;
-      let nearestDist = Infinity;
-      for (const [mid, mob] of room.monsters) {
-        if (mob.hidden) continue;
-        const dx = mob.x - sentry.x;
-        const dy = mob.y - sentry.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < sentry.beamRange && dist < nearestDist) {
-          nearestMob = mob;
-          nearestDist = dist;
+      // Build beam chain: find targets, handle reflections
+      const beamChain = [];
+      const excludeIds = new Set();
+      let currentX = sentry.x;
+      let currentY = sentry.y;
+      let remainingRange = sentry.beamRange;
+      let hitMonster = null;
+      const MAX_BOUNCES = 5;
+
+      // First target: nearest entity (monster or beam object) from sentry position
+      const firstTarget = this._findNearestBeamTarget(room, currentX, currentY, remainingRange, excludeIds);
+
+      if (firstTarget) {
+        beamChain.push({
+          fromX: currentX, fromY: currentY,
+          toX: firstTarget.entity.x, toY: firstTarget.entity.y,
+          targetType: firstTarget.kind,
+        });
+        remainingRange -= firstTarget.dist;
+        excludeIds.add(firstTarget.entity.id);
+
+        if (firstTarget.kind === 'monster') {
+          hitMonster = firstTarget.entity;
+        } else if (firstTarget.kind === 'photosensor') {
+          activeSensors.set(firstTarget.entity.sensorId, sentry.ownerId);
+        } else if (firstTarget.kind === 'mirror') {
+          // Trace reflected beams
+          let prevX = currentX;
+          let prevY = currentY;
+          let mirrorEntity = firstTarget.entity;
+
+          for (let bounce = 0; bounce < MAX_BOUNCES; bounce++) {
+            // Each mirror bounce resets the beam range to full
+            remainingRange = sentry.beamRange;
+
+            const inDx = mirrorEntity.x - prevX;
+            const inDy = mirrorEntity.y - prevY;
+            const reflected = this._reflectBeam(inDx, inDy, mirrorEntity.angle);
+
+            const nextTarget = this._findTargetAlongRay(
+              room, mirrorEntity.x, mirrorEntity.y,
+              reflected.dx, reflected.dy,
+              remainingRange, excludeIds
+            );
+
+            if (!nextTarget) {
+              // Beam extends in reflected direction but stops at first wall
+              const wallDist = this._rayDistToWall(room.dungeon, mirrorEntity.x, mirrorEntity.y, reflected.dx, reflected.dy, sentry.beamRange);
+              if (wallDist > 0) {
+                beamChain.push({
+                  fromX: mirrorEntity.x, fromY: mirrorEntity.y,
+                  toX: mirrorEntity.x + reflected.dx * wallDist,
+                  toY: mirrorEntity.y + reflected.dy * wallDist,
+                  targetType: 'none',
+                });
+              }
+              break;
+            }
+
+            beamChain.push({
+              fromX: mirrorEntity.x, fromY: mirrorEntity.y,
+              toX: nextTarget.entity.x, toY: nextTarget.entity.y,
+              targetType: nextTarget.kind,
+            });
+            excludeIds.add(nextTarget.entity.id);
+
+            if (nextTarget.kind === 'monster') {
+              hitMonster = nextTarget.entity;
+              break;
+            } else if (nextTarget.kind === 'photosensor') {
+              activeSensors.set(nextTarget.entity.sensorId, sentry.ownerId);
+              break;
+            } else if (nextTarget.kind === 'mirror') {
+              prevX = mirrorEntity.x;
+              prevY = mirrorEntity.y;
+              mirrorEntity = nextTarget.entity;
+            }
+          }
         }
       }
 
-      if (nearestMob) {
-        sentry.targetId = nearestMob.id;
+      sentry.beamChain = beamChain;
+      sentry.targetId = hitMonster ? hitMonster.id : (beamChain.length > 0 ? 'beam' : null);
 
-        // Apply slow to target
-        nearestMob.sentrySlowFactor = sentry.slowFactor;
-        nearestMob.sentrySlowTime = 0.2; // refreshed each tick while beam is active
+      // Apply damage/slow to hit monster
+      if (hitMonster) {
+        this._applySentryBeamToMonster(sentry, hitMonster, room, dt);
+      }
+    }
 
-        // Damage on tick rate
-        sentry.beamTimer -= dt;
-        if (sentry.beamTimer <= 0) {
-          sentry.beamTimer += sentry.beamTickRate;
+    // Update photosensor activation states and emit events
+    for (const bo of room.beamObjects) {
+      if (bo.type !== 'photosensor') continue;
+      const wasActive = bo.active;
+      const isActive = activeSensors.has(bo.sensorId);
+      bo.active = isActive;
 
-          nearestMob.health -= sentry.damage;
-          nearestMob.aggroTarget = sentry.ownerId;
-
-          room.events.push({
-            type: 'damage', targetId: nearestMob.id,
-            amount: Math.round(sentry.damage),
-            x: nearestMob.x, y: nearestMob.y,
-          });
-
-          // Heal on hit for owner
-          if (sentry.healOnHit > 0) {
-            const owner = room.players.get(sentry.ownerId);
-            if (owner && owner.health < owner.maxHealth) {
-              owner.health = Math.min(owner.maxHealth, owner.health + sentry.healOnHit);
-              room.events.push({
-                type: 'heal', targetId: sentry.ownerId,
-                amount: sentry.healOnHit,
-                x: owner.x, y: owner.y,
-              });
-            }
-          }
-
-          // Check if killed
-          if (nearestMob.health <= 0) {
-            this._handleMonsterDeath(nearestMob, room, sentry.ownerId);
-          }
-        }
-      } else {
-        sentry.targetId = null;
+      if (isActive && !wasActive) {
+        const ownerId = activeSensors.get(bo.sensorId) || null;
+        bo.lastOwnerId = ownerId;
+        const player = ownerId ? room.players.get(ownerId) : null;
+        const context = {
+          playerId: ownerId,
+          roomId: room.id,
+          room,
+          player,
+          sensorId: bo.sensorId,
+        };
+        this._emitGameEvent('photosensor_activated', {
+          sensorId: bo.sensorId,
+          playerId: ownerId,
+          roomId: room.id,
+        }, context);
+        room.events.push({
+          type: 'photosensor_activated',
+          sensorId: bo.sensorId,
+          x: bo.x, y: bo.y,
+        });
+      } else if (!isActive && wasActive) {
+        const ownerId = bo.lastOwnerId || null;
+        const player = ownerId ? room.players.get(ownerId) : null;
+        const context = {
+          playerId: ownerId,
+          roomId: room.id,
+          room,
+          player,
+          sensorId: bo.sensorId,
+        };
+        this._emitGameEvent('photosensor_deactivated', {
+          sensorId: bo.sensorId,
+          playerId: ownerId,
+          roomId: room.id,
+        }, context);
+        room.events.push({
+          type: 'photosensor_deactivated',
+          sensorId: bo.sensorId,
+          x: bo.x, y: bo.y,
+        });
       }
     }
   }
@@ -3510,12 +3790,34 @@ class GameLoop {
 
     const sentries = [];
     for (const sentry of room.sentries) {
-      sentries.push({
+      const sData = {
         id: sentry.id,
         ownerId: sentry.ownerId,
         x: Math.round(sentry.x * 10) / 10,
         y: Math.round(sentry.y * 10) / 10,
         targetId: sentry.targetId,
+      };
+      if (sentry.beamChain && sentry.beamChain.length > 0) {
+        sData.beamChain = sentry.beamChain.map(seg => ({
+          fromX: Math.round(seg.fromX * 10) / 10,
+          fromY: Math.round(seg.fromY * 10) / 10,
+          toX: Math.round(seg.toX * 10) / 10,
+          toY: Math.round(seg.toY * 10) / 10,
+          targetType: seg.targetType,
+        }));
+      }
+      sentries.push(sData);
+    }
+
+    const beamObjects = [];
+    for (const bo of room.beamObjects) {
+      beamObjects.push({
+        id: bo.id,
+        type: bo.type,
+        x: Math.round(bo.x * 10) / 10,
+        y: Math.round(bo.y * 10) / 10,
+        angle: bo.angle,
+        active: bo.active,
       });
     }
 
@@ -3540,7 +3842,7 @@ class GameLoop {
     return {
       type: CONSTANTS.MSG.STATE,
       tick: room.tick,
-      players, npcs, monsters, items, projectiles, sentries, events, partyQuests,
+      players, npcs, monsters, items, projectiles, sentries, beamObjects, events, partyQuests,
     };
   }
 }
