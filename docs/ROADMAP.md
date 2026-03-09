@@ -32,7 +32,7 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Game Feel | Not Started | No death penalty, no sound effects, minimal combat juice. Highest-priority gap |
 | Game Balance | Partial | Initial balance pass done (monster HP, ability costs). Further playtesting needed |
 | Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
-| Unit Tests | Done | Tiers 1-3: flag-store, event-bus, automation, conditions, actions, trigger-registry, physics (178 tests). Tier 4 integration tests remain. Note: 1 pre-existing physics test failure (large dt wall skip) |
+| Unit Tests | Done | Tiers 1-3: flag-store, event-bus, automation, conditions, actions, trigger-registry, physics (223 tests). Tier 4 integration tests remain. Note: 1 pre-existing physics test failure (large dt wall skip) |
 | Per-Biome Music | Done | Ambient music definitions and tileset-based track selection wired |
 | Monster Sprites | Done | Placeholder sprites for all monsters, palette aligned to art style guide |
 | Crystal Guardian Boss | Done | 3-phase boss AI, boss health bar, phase transition VFX, intro presentation |

@@ -351,20 +351,24 @@
     }
 
     if (tutorialPhase === 'select_component') {
-      // Point at the first sol component in the component list
-      const compCell = document.querySelector('#inv-tab-solgrid .has-modifier');
+      // Point at the first sol component in the inventory list (bottom of sol grid)
+      const compCell = document.querySelector('#inv-tab-solgrid .sol-inv-comp');
       if (compCell) {
         showTutorialArrow(compCell, 'Select the booster', 'above');
+      } else {
+        clearTutorialArrow();
       }
       return;
     }
 
     if (tutorialPhase === 'place_component') {
       // Point at grid cell adjacent to the sol cone (cell 2,1 — above center)
-      const cells = document.querySelectorAll('#inv-tab-solgrid .sol-cell');
+      const cells = document.querySelectorAll('#inv-tab-solgrid .sol-grid .sol-cell');
       // Grid is 5x5, cell (2,1) = index 7
       if (cells.length >= 25 && cells[7]) {
         showTutorialArrow(cells[7], 'Place here', 'above');
+      } else {
+        clearTutorialArrow();
       }
       return;
     }
@@ -1891,7 +1895,7 @@
 
       for (const { item, idx } of solComponents) {
         const compCell = document.createElement('div');
-        compCell.className = 'sol-cell rarity-' + (item.rarity || 'common');
+        compCell.className = 'sol-cell sol-inv-comp rarity-' + (item.rarity || 'common');
         compCell.style.width = '80px';
         compCell.style.height = '80px';
         const compRarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
