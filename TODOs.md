@@ -1,5 +1,10 @@
 TODOs
 
+## Human inputs
+- [sonnet] Add a "fill" tool to the editor, which fills all horizontally or vertically connected, same type tiles, with a selected tile type.
+- [opus] Full wall should go all the way down. Check latest screenshot.
+- [opus] Add in game chat! User presses enter and types, hits enter to display their chat. Also support user microphones by holding v and speaking, if mic access is allowed.
+
 ## Priority 1: Connect the Dots (Quest Graph & Progression)
 
 These tasks wire together existing content that is currently disconnected. Maximum impact because the content already exists — it just needs to be reachable.
