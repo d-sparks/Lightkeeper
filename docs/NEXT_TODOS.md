@@ -113,14 +113,19 @@ Critical gaps in the quest graph where content exists but isn't reachable from t
 
 - ~~**Main quest dead-ends at step 18**~~ — DONE: Added steps 19-22 (explore_dayside → discover_array_secret → build_alliance → forge_expedition) bridging Act I to Act III.
 - ~~**No NPC directs players to dayside_solar_fields**~~ — DONE: Yun and Hollis now provide dayside breadcrumbs after `met_crafter_yun`.
-- **autotroph_path_defiant/cooperative flags orphaned** — Set in meridian_array_hub.json but never checked anywhere. Should gate Act III dialogue and ending path availability.
-- **Boss-kill flags orphaned** — `frost_warden_defeated`, `elder_sporecap_defeated`, `magma_core_cleared` set but never checked. NPCs should react to these accomplishments.
+- ~~**autotroph_path_defiant/cooperative flags orphaned**~~ — DONE: Sable (meridian) now reacts with distinct dialogue for each path; rules fire after array_secret_discovered rules are excluded.
+- ~~**Boss-kill flags orphaned**~~ — DONE: Wren Alcott (outpost_comms) reacts to `frost_warden_defeated`; Sable (meridian) reacts to `elder_sporecap_defeated`; Asha reacts to `magma_core_cleared`.
 - **Act III paths accept choices but nothing happens** — nightside_expedition quest lets players choose shutdown/merge/control but the ending dungeons don't exist yet.
 - ~~**nightside_expedition requires `act3_asha_alliance_activated`**~~ — DONE: Step 22 (forge_expedition) gates on this flag, completing the path from main quest → Act III.
 - **Council faction NPCs not spawned** — Steward, Compact, Root representatives referenced in Asha's dialogue but not in meridian_civic as spawnable NPCs.
 
 ## Act II Quest Follow-ups
 
-- Wire autotroph_path_defiant / autotroph_path_cooperative flags into Act III branching.
-- Phase 3 investigation quest after Autotroph confrontation.
+- ~~Wire autotroph_path_defiant / autotroph_path_cooperative flags into Act III branching.~~ — DONE: Sable now reacts differently to each path in meridian dialogue.
+- Phase 3 investigation quest after Autotroph confrontation — still needed to make the choice *mechanically* meaningful beyond dialogue.
 - Map markers for Nightside Caverns entrance.
+- **Wren Alcott sprite** — `wren_alcott` NPC added to outpost_comms but has no unique sprite. Add placeholder or reuse existing outpost sprite.
+- **Wren low-trust/post-Meridian variants** — Wren currently has only one non-default state (`post_frost_warden`). Add reactions for `elder_sporecap_defeated`, `magma_core_cleared`, and post-Meridian story beats to complete her arc as mentor figure.
+- **sable_trust numeric escalation** — `sable_trust` flag is currently set once to 1 and then never incremented. Wire additional trust-building interactions (e.g., completing Sable's Nightside guide mission) to increment the value, enabling future `flagGreaterThan` checks for deeper relationship stages.
+- **autotroph low-trust Sable reaction** — Current autotroph rules require `helped_sable`. Add low-trust variants so Sable has a response even if the player didn't help her earlier.
+- **Remaining orphaned flags** — Content validator may still report other orphaned flags not in this batch (e.g., any flags set by side quests without corresponding checks). Run validator post-merge to confirm remaining count.

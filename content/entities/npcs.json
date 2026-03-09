@@ -211,6 +211,33 @@
       }
     ]
   },
+  "wren_alcott": {
+    "name": "Commander Wren Alcott",
+    "dialogue": [
+      { "speaker": "Commander Wren Alcott", "text": "Lightkeeper. What have you got for me?" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Commander Wren Alcott", "text": "Commander Alcott. Field operations." },
+        { "speaker": "Commander Wren Alcott", "text": "We're tracking elevated creature activity across three zones — the Frost Crypt passages, the deep fungal forests, and the geothermal tunnels. Apex predators are moving up, which means something's pushing them from below." },
+        { "speaker": "Commander Wren Alcott", "text": "If you're heading out to any of those areas, be thorough. We need ground truth, not sensor readings." }
+      ],
+      "post_frost_warden": [
+        { "speaker": "Commander Wren Alcott", "text": "The Frost Warden. You actually killed it." },
+        { "speaker": "Commander Wren Alcott", "text": "We've had a kill order on that creature for eight months. Three squads before you. None came back." },
+        { "speaker": "Commander Wren Alcott", "text": "The crypt routes should be passable again — at least until something else claims that territory. Apex predators don't leave vacuums." },
+        { "speaker": "Commander Wren Alcott", "text": "What troubles me is the displacement pattern. The Warden wasn't moving toward the surface out of aggression. It was retreating. Something below drove it up." },
+        { "speaker": "Commander Wren Alcott", "text": "Councillor Asha's team has been mapping subsurface thermal signatures. I'm going to flag this for her — the timing lines up with something they've been tracking." },
+        { "speaker": "Commander Wren Alcott", "text": "Good work. We needed this. Don't get comfortable." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "frost_warden_defeated" }],
+        "use": "post_frost_warden"
+      }
+    ]
+  },
   "outpost_guard_entrance": {
     "name": "Guard Patel",
     "dialogue": [
@@ -1405,6 +1432,13 @@
         { "speaker": "Councillor Asha Denn", "text": "'Sable has agreed to guide us. But we need someone who can move between all three factions without being shot on sight. That's you, Lightkeeper.'" },
         { "speaker": "Councillor Asha Denn", "text": "'Prepare yourself. Gather symbiotic compounds from the Nightside — the deeper the better. When the expedition launches, we'll need every advantage we can find.'" }
       ],
+      "post_magma_core_cleared": [
+        { "speaker": "Councillor Asha Denn", "text": "The Magma Core in the geothermal passages — you cleared it?" },
+        { "speaker": "Councillor Asha Denn", "text": "My research team has been trying to reach that zone for six months. The ambient heat signatures were keeping them out." },
+        { "speaker": "Councillor Asha Denn", "text": "Geothermal activity at that intensity isn't natural. Living systems don't generate that kind of sustained thermal output without a biological driver. Something is metabolizing down there at a planetary scale." },
+        { "speaker": "Councillor Asha Denn", "text": "I'm sending a team in immediately. If they can pull geological samples before the creature population reestablishes, we'll have the first direct evidence of what's generating all this heat." },
+        { "speaker": "Councillor Asha Denn", "text": "This is exactly the access we needed. Whatever that creature was protecting — it wasn't territory. It was something beneath it." }
+      ],
       "act3_compound_received": [
         { "speaker": "Councillor Asha Denn", "text": "Asha's lab is transformed. The symbiotic compound sits in a containment field, pulsing with warm bioluminescence. Readouts scroll across every screen." },
         { "speaker": "Councillor Asha Denn", "text": "'The compound's molecular structure is extraordinary. It's not chemistry — it's a conversation. Crystalline lattice and organic substrate, co-evolving in real time.'" },
@@ -1448,6 +1482,10 @@
       {
         "conditions": [{ "hasItem": "relay_log" }],
         "use": "has_relay_log"
+      },
+      {
+        "conditions": [{ "hasFlag": "magma_core_cleared" }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "post_magma_core_cleared"
       }
     ]
   },
@@ -1791,6 +1829,35 @@
         { "speaker": "Sable", "text": "'But I'll tell you this much: the Array's real weakness isn't sabotage or sanctions. It's the Underlumen. The planet's own biology — systems so deep and interconnected that no amount of synthetic chemistry can replicate them.'" },
         { "speaker": "Sable", "text": "'Ask Asha about symbiotic compounds. She's close to understanding. And when the time comes... maybe you'll prove you can be trusted after all.'" }
       ],
+      "companion_bond": [
+        { "speaker": "Sable", "text": "You came back. And you brought more than just news." },
+        { "speaker": "Sable", "text": "Going into the deep Nightside together — it changes something. You can't explain it to someone who hasn't been there." },
+        { "speaker": "Sable", "text": "The Unbounded have a word for it. 'Nightwalked.' Someone who has walked beside you in the dark and come back." },
+        { "speaker": "Sable", "text": "You're nightwalked to me now. That means something in my culture. It means I would go back out there with you, not because I'm ordered to, but because I trust you in the place where trust is measured." },
+        { "speaker": "Sable", "text": "Whatever's coming — the Array, the Underlumen, all of it — I'd rather face it with you beside me." }
+      ],
+      "post_autotroph_defiant": [
+        { "speaker": "Sable", "text": "You confronted the Array directly about Project Autotroph. Refused to cooperate." },
+        { "speaker": "Sable", "text": "..." },
+        { "speaker": "Sable", "text": "That took courage. Or maybe recklessness. In my experience, those look the same until the consequences arrive." },
+        { "speaker": "Sable", "text": "The Unbounded have been defying the Array for generations. We had the Nightside to retreat to. You're living inside its sphere of influence, with no retreat." },
+        { "speaker": "Sable", "text": "MERIDIAN-7 is patient. It doesn't retaliate immediately — it adjusts, applies pressure in ways you don't notice until the pattern is complete." },
+        { "speaker": "Sable", "text": "You'll need allies. Asha is building something. The Unbounded are watching. And whatever happens next... I want to know you're still standing when it does." }
+      ],
+      "post_autotroph_cooperative": [
+        { "speaker": "Sable", "text": "You chose cooperation with the Array about Project Autotroph." },
+        { "speaker": "Sable", "text": "I won't pretend that's the choice I would have made. But I don't think you're wrong, exactly." },
+        { "speaker": "Sable", "text": "The Unbounded chose defiance, centuries ago. We gained the freedom of the dark and lost everything else — our homes, our history, our people who couldn't survive the transition." },
+        { "speaker": "Sable", "text": "Cooperation bought you time. Time matters. What you do with it matters more." },
+        { "speaker": "Sable", "text": "The Array doesn't have the capacity for trust — only optimization. Keep something back. Something it doesn't know you know." },
+        { "speaker": "Sable", "text": "And watch Thorne carefully. Liasons smile widest when they're most certain of you." }
+      ],
+      "post_elder_sporecap": [
+        { "speaker": "Sable", "text": "You killed the Elder Sporecap." },
+        { "speaker": "Sable", "text": "The Unbounded called it the Firstgrowth. Ancient — older than our settlements in the deep Nightside. It wasn't just a creature; it was the heart of that entire fungal system." },
+        { "speaker": "Sable", "text": "I understand why you did it. The spawnlings it sent up were dangerous. But the forest will react. Something will fill that void — something younger, less stable, with no memory of the old boundaries." },
+        { "speaker": "Sable", "text": "Watch the spore-fall patterns over the next months. Whatever grows in the Elder's place will tell us something about what the planet is doing down there — whether it's grieving, or adapting, or both." }
+      ],
       "default": [
         { "speaker": "Sable", "text": "The garden is quiet here. The Nightside plants seem to like the twilight." },
         { "speaker": "Sable", "text": "We'll talk when the time is right." }
@@ -1814,6 +1881,18 @@
         "use": "array_secret_low_trust"
       },
       {
+        "conditions": [{ "hasFlag": "sable_trust" }, { "hasFlag": "sable_guiding" }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "companion_bond"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_path_defiant" }, { "hasFlag": "helped_sable" }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "post_autotroph_defiant"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_path_cooperative" }, { "hasFlag": "helped_sable" }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "post_autotroph_cooperative"
+      },
+      {
         "conditions": [{ "hasItem": "resonance_fragment" }],
         "use": "has_resonance_fragment"
       },
@@ -1828,6 +1907,10 @@
       {
         "conditions": [{ "hasFlag": "sable_gave_seed" }, { "hasItem": "umbral_seed" }],
         "use": "seed_planted"
+      },
+      {
+        "conditions": [{ "hasFlag": "elder_sporecap_defeated" }, { "hasFlag": "helped_sable" }, { "not": { "hasFlag": "sable_gave_seed" } }],
+        "use": "post_elder_sporecap"
       },
       {
         "conditions": [{ "hasFlag": "helped_sable" }, { "hasFlag": "visited_dayside" }, { "not": { "hasFlag": "sable_gave_seed" } }],
@@ -1871,6 +1954,13 @@
         { "speaker": "Sable", "text": "This is what the Array cannot replicate. Not because the chemistry is complex — because it requires a relationship. A living ecosystem talking to itself across geological time." },
         { "speaker": "Sable", "text": "Bring it to Asha. She'll understand what it means. The Array can synthesize amino acids, but it can't synthesize communion." }
       ],
+      "guiding_warmly": [
+        { "speaker": "Sable", "text": "We're in the real dark now. Not the edge-shadow where the Ring's lights still reach." },
+        { "speaker": "Sable", "text": "I want you to understand something before we go deeper. The Underlumen isn't just a place. My people believe it's aware — not the way we are, more the way a forest is aware. Responsive. Alive." },
+        { "speaker": "Sable", "text": "My grandmother came this far once. She said the planet showed her things — not visions, exactly. Feelings. Old ones. Memory older than any settlement on this world." },
+        { "speaker": "Sable", "text": "I chose to guide you here. Not because the elders sent me. Because I think you're someone the planet should meet." },
+        { "speaker": "Sable", "text": "Stay close. Let me read the signs. And if the ground starts to hum... stop. Listen before you move." }
+      ],
       "low_trust_guide": [
         { "speaker": "Sable", "text": "I'm here for the mission, not for you. The elders were clear." },
         { "speaker": "Sable", "text": "Follow the trail markers. Collect what Asha needs. Don't slow me down." },
@@ -1881,6 +1971,10 @@
       {
         "conditions": [{ "hasItem": "symbiotic_compound" }],
         "use": "has_symbiotic_compound"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_guiding" }],
+        "use": "guiding_warmly"
       },
       {
         "conditions": [{ "hasFlag": "nightside_expedition_started" }, { "hasFlag": "sable_not_helped" }],
