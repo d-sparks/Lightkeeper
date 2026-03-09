@@ -989,6 +989,8 @@ class GameLoop {
     player.solGridEnergyRegen = 0;
     let extraMaxEnergy = 0;
     if (player.solGrid) {
+      // Reset maxEnergy to sol unit base charge so battery capacity doesn't accumulate across calls
+      player.maxEnergy = player.solGrid.maxCharge || 100;
       for (let y = 0; y < player.solGrid.size; y++) {
         for (let x = 0; x < player.solGrid.size; x++) {
           const cell = player.solGrid.cells[y * player.solGrid.size + x];
@@ -1041,6 +1043,8 @@ class GameLoop {
         }
       }
       player.maxEnergy += extraMaxEnergy;
+      // Clamp current energy to new max in case capacity was reduced (e.g. battery removed)
+      if (player.energy > player.maxEnergy) player.energy = player.maxEnergy;
     }
   }
 
@@ -1078,7 +1082,7 @@ class GameLoop {
       }
     }
 
-    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null, unitName: solUnitDef.name || null, unitDescription: solUnitDef.description || null };
+    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null, unitName: solUnitDef.name || null, unitDescription: solUnitDef.description || null, maxCharge: solUnitDef.maxCharge || 100 };
     // Set charge capacity from sol unit definition
     player.maxEnergy = solUnitDef.maxCharge || 100;
     player.energy = solUnitDef.initialEnergy !== undefined
