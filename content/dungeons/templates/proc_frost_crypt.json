@@ -92,7 +92,10 @@
       { "type": "skeleton", "weight": 2, "cost": 1, "minDepth": 0 },
       { "type": "skeleton_archer", "weight": 1, "cost": 2, "minDepth": 3 },
       { "type": "shadow_ambusher", "weight": 1, "cost": 2, "minDepth": 2 },
-      { "type": "tunnel_creeper", "weight": 2, "cost": 1, "minDepth": 0 }
+      { "type": "tunnel_creeper", "weight": 2, "cost": 1, "minDepth": 0 },
+      { "type": "feral_hound", "weight": 2, "cost": 1, "minDepth": 1 },
+      { "type": "feral_hound_alpha", "weight": 1, "cost": 3, "minDepth": 2 },
+      { "type": "frostfang_alpha", "weight": 1, "cost": 3, "minDepth": 3 }
     ],
     "maxPerRoom": 3,
     "avoidEntranceRoom": true

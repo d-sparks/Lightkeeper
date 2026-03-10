@@ -617,6 +617,19 @@
       ]
     },
     {
+      "type": "frostfang_alpha",
+      "x": 16,
+      "y": 7,
+      "count": 1,
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 13, "y": 5},
+        {"x": 18, "y": 5},
+        {"x": 18, "y": 9},
+        {"x": 13, "y": 9}
+      ]
+    },
+    {
       "type": "frostfang_hunter",
       "x": 14,
       "y": 6,
@@ -690,6 +703,32 @@
           "x": 4,
           "y": 12
         }
+      ]
+    },
+    {
+      "type": "feral_hound",
+      "x": 13,
+      "y": 14,
+      "count": 2,
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 11, "y": 13},
+        {"x": 16, "y": 13},
+        {"x": 16, "y": 16},
+        {"x": 11, "y": 16}
+      ]
+    },
+    {
+      "type": "feral_hound_alpha",
+      "x": 14,
+      "y": 15,
+      "count": 1,
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 11, "y": 13},
+        {"x": 16, "y": 13},
+        {"x": 16, "y": 16},
+        {"x": 11, "y": 16}
       ]
     }
   ],
