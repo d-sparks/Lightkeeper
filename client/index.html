@@ -79,6 +79,16 @@
       position: relative;
     }
 
+    #hud .energy-bar.battery-depleted-flash {
+      animation: batteryDepletedFlash 0.5s ease-out;
+    }
+
+    @keyframes batteryDepletedFlash {
+      0%   { box-shadow: 0 0 14px rgba(255, 100, 20, 0.95); border-color: #ff6e26; }
+      60%  { box-shadow: 0 0 8px rgba(255, 100, 20, 0.5); border-color: #ff6e26; }
+      100% { box-shadow: none; border-color: #555; }
+    }
+
     #hud .energy-bar-fill {
       height: 100%;
       background: #4fc3f7;

@@ -2433,6 +2433,14 @@
           audio.play('pickup');
         } else if (ev.type === 'level_up') {
           audio.play('level_up');
+        } else if (ev.type === 'battery_depleted' && ev.targetId === renderer.myId) {
+          audio.play('battery_depleted');
+          const bar = document.getElementById('energy-bar');
+          if (bar) {
+            bar.classList.remove('battery-depleted-flash');
+            void bar.offsetWidth; // reflow to restart animation
+            bar.classList.add('battery-depleted-flash');
+          }
         } else if (ev.type === 'boss_intro' && ev.playerId === renderer.myId) {
           audio.play('boss_intro');
           audio.playMusic(ev.bossMusic || 'boss_combat');

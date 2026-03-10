@@ -1110,7 +1110,7 @@ class GameLoop {
   // Consume energy from a player, drawing from rechargeable pool first, then single-use.
   // When single-use energy is consumed, permanently degrades the smallest single-use battery.
   // Returns true if energy was successfully consumed, false if insufficient.
-  _consumeEnergy(player, cost) {
+  _consumeEnergy(player, cost, room) {
     if (player.energy < cost) return false;
 
     const rechargeableCurrent = player.energy - player.singleUseEnergy;
@@ -1126,12 +1126,12 @@ class GameLoop {
     player.singleUseEnergy -= fromSingleUse;
 
     // Permanently degrade single-use batteries (smallest first)
-    this._degradeSingleUseBatteries(player, fromSingleUse);
+    this._degradeSingleUseBatteries(player, fromSingleUse, room);
     return true;
   }
 
   // Permanently reduce capacity of single-use batteries in the sol grid, smallest first.
-  _degradeSingleUseBatteries(player, amount) {
+  _degradeSingleUseBatteries(player, amount, room) {
     if (!player.solGrid || amount <= 0) return;
 
     // Collect single-use battery cells with their remaining capacity
@@ -1167,6 +1167,15 @@ class GameLoop {
           if (grid.cells[j] && grid.cells[j].placementId === pid) {
             grid.cells[j] = null;
           }
+        }
+        // Notify client so it can show visual feedback
+        if (room) {
+          room.events.push({
+            type: 'battery_depleted',
+            targetId: player.id,
+            x: player.x,
+            y: player.y,
+          });
         }
       }
     }
@@ -1435,7 +1444,7 @@ class GameLoop {
   _fireProjectile(room, player, abilityDef, aimAngle, slotIdx) {
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     let dirX, dirY;
@@ -1494,7 +1503,7 @@ class GameLoop {
   _fireCone(room, player, abilityDef, aimAngle, slotIdx) {
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     // Use aim angle if provided, otherwise fall back to player facing direction
@@ -1722,7 +1731,7 @@ class GameLoop {
 
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     const healAmount = Math.min(abilityDef.heal || 0, player.maxHealth - player.health);
@@ -1804,7 +1813,7 @@ class GameLoop {
     }
 
     // Deduct energy
-    this._consumeEnergy(player, abilityDef.energyCost);
+    this._consumeEnergy(player, abilityDef.energyCost, room);
 
     const fromX = player.x;
     const fromY = player.y;
@@ -1846,7 +1855,7 @@ class GameLoop {
 
     // Activate hover
     if (abilityDef.energyCost) {
-      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     player.hovering = true;
@@ -1864,7 +1873,7 @@ class GameLoop {
   _placeSentry(room, player, abilityDef, slotIdx) {
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     // Remove any existing sentry owned by this player
@@ -1913,7 +1922,7 @@ class GameLoop {
 
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (!this._consumeEnergy(player, abilityDef.energyCost)) return false;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     // Find target position: use aim angle to pick a point at maxRange
@@ -3349,7 +3358,7 @@ class GameLoop {
       // Death penalty: drain 25% of current energy
       const energyLost = Math.floor(player.energy * 0.25);
       if (energyLost > 0) {
-        this._consumeEnergy(player, energyLost);
+        this._consumeEnergy(player, energyLost, room);
       }
 
       // Death penalty: drop non-quest inventory items based on dropBehavior

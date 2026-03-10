@@ -235,5 +235,15 @@
       { "wave": "noise", "color": "white", "volume": 0.5, "attack": 0.002, "release": 0.15, "filterFreq": 2500, "filterQ": 1.5 },
       { "wave": "square", "freq": 180, "freqEnd": 120, "delay": 0.1, "attack": 0.005, "decay": 0.1, "sustain": 0.2, "release": 0.15 }
     ]
+  },
+
+  "battery_depleted": {
+    "volume": 0.45,
+    "duration": 0.5,
+    "layers": [
+      { "wave": "square", "freq": 440, "freqEnd": 110, "sweepTime": 0.35, "attack": 0.005, "decay": 0.05, "sustain": 0.4, "release": 0.1 },
+      { "wave": "sine", "freq": 220, "freqEnd": 55, "sweepTime": 0.4, "volume": 0.5, "attack": 0.01, "decay": 0.08, "sustain": 0.3, "release": 0.15 },
+      { "wave": "noise", "color": "pink", "volume": 0.2, "attack": 0.005, "release": 0.4, "filterFreq": 500, "filterQ": 2 }
+    ]
   }
 }

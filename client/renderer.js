@@ -3440,6 +3440,14 @@ class Renderer {
           age: 0, maxAge: 1.5,
           color: '#ce93d8',
         });
+      } else if (ev.type === 'battery_depleted' && ev.targetId === this.myId) {
+        // Single-use battery fully drained — floating warning text
+        this.damageNumbers.push({
+          text: 'BATTERY LOST',
+          x: ev.x, y: ev.y - 20,
+          age: 0, maxAge: 1.5,
+          color: '#ff6e26',
+        });
       } else if (ev.type === 'stun' && ev.targetId === this.myId) {
         // Player got stunned — screen shake + floating text
         this.screenShake = { intensity: 6, duration: 0.3, elapsed: 0 };
