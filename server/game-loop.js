@@ -3307,6 +3307,7 @@ class GameLoop {
             room.events.push({
               type: 'lunge_start', targetId: mob.id,
               x: mob.x, y: mob.y,
+              tx: target.x, ty: target.y,
             });
             return true;
           }

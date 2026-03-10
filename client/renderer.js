@@ -1485,6 +1485,8 @@ class Renderer {
     this.renderSentries();
     this.renderConeEffects();
     this.renderExplosionEffects();
+    this.renderLungeTrails();
+    this.renderShockwaveEffects();
     this.renderChannelingIndicators();
     this.renderMeleeEffects();
     this.renderPlayers();
@@ -2693,7 +2695,7 @@ class Renderer {
         entry.hoverGfx.drawCircle(0, isoOff, r + 16);
       }
 
-      // Stun indicator (spinning dots)
+      // Stun indicator (spinning stars)
       if (!entry.stunGfx) {
         entry.stunGfx = new PIXI.Graphics();
         container.addChild(entry.stunGfx);
@@ -2704,10 +2706,23 @@ class Renderer {
         const stunY = this.isoMode ? -30 : -r - 2;
         for (let s = 0; s < 3; s++) {
           const a = stunAngle + (s * Math.PI * 2 / 3);
-          const sx = Math.cos(a) * 10;
-          const sy = Math.sin(a) * 4 + stunY;
+          const cx = Math.cos(a) * 10;
+          const cy = Math.sin(a) * 4 + stunY;
+          // Draw a 4-pointed star
+          const starAngle = stunAngle * 1.5 + s;
           entry.stunGfx.beginFill(0xffeb3b, 0.9);
-          entry.stunGfx.drawCircle(sx, sy, 2.5);
+          const outerStar = 3.5;
+          const innerStar = 1.2;
+          entry.stunGfx.moveTo(
+            cx + Math.cos(starAngle) * outerStar,
+            cy + Math.sin(starAngle) * outerStar
+          );
+          for (let p = 1; p < 8; p++) {
+            const pr = p % 2 === 0 ? outerStar : innerStar;
+            const pa = starAngle + (p * Math.PI / 4);
+            entry.stunGfx.lineTo(cx + Math.cos(pa) * pr, cy + Math.sin(pa) * pr);
+          }
+          entry.stunGfx.closePath();
           entry.stunGfx.endFill();
         }
       }
@@ -2970,6 +2985,84 @@ class Renderer {
       this.coneGfx.drawCircle(c.x, c.y, outerR);
       this.coneGfx.lineStyle(0);
 
+      return true;
+    });
+  }
+
+  renderLungeTrails() {
+    if (!this.lungeTrails || this.lungeTrails.length === 0) return;
+    const dt = 1 / 60;
+    const toScreen = (wx, wy) => {
+      return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+    };
+
+    this.lungeTrails = this.lungeTrails.filter(trail => {
+      trail.age += dt;
+      if (trail.age >= trail.maxAge) return false;
+
+      const t = trail.age / trail.maxAge;
+      const fadeAlpha = 1.0 - t;
+      const s = toScreen(trail.sx, trail.sy);
+      const e = toScreen(trail.tx, trail.ty);
+
+      // Draw a tapered trail line from start to target
+      // Leading edge progresses along the path
+      const lead = Math.min(t / 0.3, 1.0);
+      const tailProg = Math.max(0, (t - 0.1) / 0.25);
+      const lx = s.x + (e.x - s.x) * lead;
+      const ly = s.y + (e.y - s.y) * lead;
+      const tx = s.x + (e.x - s.x) * tailProg;
+      const ty = s.y + (e.y - s.y) * tailProg;
+
+      // Bright core trail
+      this.coneGfx.lineStyle(4, 0xff5722, 0.8 * fadeAlpha);
+      this.coneGfx.moveTo(tx, ty);
+      this.coneGfx.lineTo(lx, ly);
+
+      // Outer glow
+      this.coneGfx.lineStyle(8, 0xff8a65, 0.25 * fadeAlpha);
+      this.coneGfx.moveTo(tx, ty);
+      this.coneGfx.lineTo(lx, ly);
+
+      this.coneGfx.lineStyle(0);
+      return true;
+    });
+  }
+
+  renderShockwaveEffects() {
+    if (!this.shockwaveEffects || this.shockwaveEffects.length === 0) return;
+    const dt = 1 / 60;
+    const toScreen = (wx, wy) => {
+      return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+    };
+
+    this.shockwaveEffects = this.shockwaveEffects.filter(sw => {
+      sw.age += dt;
+      if (sw.age >= sw.maxAge) return false;
+
+      const t = sw.age / sw.maxAge;
+      const c = toScreen(sw.x, sw.y);
+      // Ease-out expansion
+      const expand = 1.0 - (1.0 - t) * (1.0 - t);
+      const outerR = sw.range * expand;
+      const innerR = sw.range * Math.max(0, expand - 0.15);
+      const fadeAlpha = t < 0.3 ? 1.0 : Math.max(0, 1.0 - (t - 0.3) / 0.7);
+
+      // Thick expanding ring band
+      const ringWidth = Math.max(2, (outerR - innerR));
+      const midR = (outerR + innerR) / 2;
+      this.coneGfx.lineStyle(ringWidth, 0xff7043, 0.2 * fadeAlpha);
+      this.coneGfx.drawCircle(c.x, c.y, midR);
+
+      // Bright leading-edge ring
+      this.coneGfx.lineStyle(2.5, 0xff7043, 0.7 * fadeAlpha);
+      this.coneGfx.drawCircle(c.x, c.y, outerR);
+
+      // Inner edge ring (dimmer)
+      this.coneGfx.lineStyle(1.5, 0xffab91, 0.3 * fadeAlpha);
+      this.coneGfx.drawCircle(c.x, c.y, innerR);
+
+      this.coneGfx.lineStyle(0);
       return true;
     });
   }
@@ -3464,23 +3557,34 @@ class Renderer {
           color: '#ffeb3b',
         });
       } else if (ev.type === 'lunge_start' && ev.targetId) {
-        // Monster lunge — brief visual indicator
+        // Monster lunge — brief visual indicator + trail effect
         this.damageNumbers.push({
           text: 'LUNGE!',
           x: ev.x, y: ev.y - 16,
           age: 0, maxAge: 0.8,
           color: '#ff5722',
         });
+        if (!this.lungeTrails) this.lungeTrails = [];
+        this.lungeTrails.push({
+          sx: ev.x, sy: ev.y, tx: ev.tx, ty: ev.ty,
+          age: 0, maxAge: 0.35,
+        });
       } else if (ev.type === 'lunge_hit' && ev.targetId) {
         this.screenShake = { intensity: 5, duration: 0.2, elapsed: 0 };
       } else if (ev.type === 'ground_slam') {
-        // AOE ground slam — screen shake for everyone
+        // AOE ground slam — screen shake + shockwave ring
         this.screenShake = { intensity: 7, duration: 0.4, elapsed: 0 };
         this.damageNumbers.push({
           text: 'SLAM!',
           x: ev.x, y: ev.y - 16,
           age: 0, maxAge: 1.0,
           color: '#ff7043',
+        });
+        if (!this.shockwaveEffects) this.shockwaveEffects = [];
+        this.shockwaveEffects.push({
+          x: ev.x, y: ev.y,
+          range: ev.range || 128,
+          age: 0, maxAge: 0.5,
         });
       } else if (ev.type === 'photosensor_activated') {
         this.damageNumbers.push({

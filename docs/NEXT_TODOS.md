@@ -61,7 +61,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 - ~~Pack AI "pack leader" variant that buffs nearby pack members.~~ — DONE: `pack_leader` AI type added. Pack leaders have a data-driven `aura` (range/damageMult/speedMult) that buffs nearby pack and pack_leader monsters each tick. Two pack leader monsters added: `feral_hound_alpha` (1.3x damage, 1.15x speed) and `frostfang_alpha` (1.25x damage, 1.2x speed). Client shows orange tint on leaders, yellow on buffed pack members.
 - Tune special attack cooldowns and damage multipliers after playtesting (lunge, stun, ground slam).
 - ~~Stun/knockback immunity~~ — DONE: 1.5s post-stun, 0.75s post-knockback.
-- Visual polish: lunge trail effect, ground slam shockwave ring animation, stun stars instead of dots.
+- ~~Visual polish: lunge trail effect, ground slam shockwave ring animation, stun stars instead of dots.~~ — DONE: Lunge trail (tapered orange line from start to target), ground slam shockwave (expanding ring with bright leading edge), stun stars (spinning 4-pointed stars replacing plain dots).
 
 ## Balance
 
