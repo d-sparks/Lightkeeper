@@ -1038,41 +1038,9 @@ wss.on('connection', (ws) => {
 
     // Save session before cleanup
     if (ws.playerRoom && ws.playerName) {
-      const room = gameLoop.getRoom(ws.playerRoom);
-      const player = room && room.players.get(playerId);
-      if (player) {
-        // Serialize revealed chunks from chunk manager
-        const revealedChunks = {};
-        const playerChunkMap = chunkManager.playerChunks.get(playerId);
-        if (playerChunkMap) {
-          for (const [roomId, chunkSet] of playerChunkMap) {
-            revealedChunks[roomId] = [...chunkSet];
-          }
-        }
-
-        sessionStore.save({
-          name: ws.playerName,
-          sessionToken: ws.sessionToken,
-          room: ws.playerRoom,
-          x: player.x,
-          y: player.y,
-          health: player.health,
-          maxHealth: player.maxHealth,
-          inventory: player.inventory,
-          equipment: player.equipment,
-          solGrid: player.solGrid,
-          energy: player.energy,
-          maxEnergy: player.maxEnergy,
-          solGridEnergyRegen: player.solGridEnergyRegen,
-          flags: gameLoop.flagStore.getPlayerFlags(playerId),
-          questState: gameLoop.questTracker.serializePlayerState(playerId),
-          xp: player.xp,
-          level: player.level,
-          xpToNextLevel: player.xpToNextLevel,
-          medipacCharges: player.medipacCharges,
-          revealedChunks,
-          automationState: gameLoop.automation.serializeState(playerId),
-        });
+      const saveData = gatherPlayerSaveData(ws);
+      if (saveData) {
+        sessionStore.save(saveData);
       }
     }
 
@@ -1091,6 +1059,63 @@ wss.on('connection', (ws) => {
     console.error(`[WS] Error for ${playerId}:`, err.message);
   });
 });
+
+// --- Helper: gather save data for a connected player ---
+function gatherPlayerSaveData(ws) {
+  const room = gameLoop.getRoom(ws.playerRoom);
+  const player = room && room.players.get(ws.playerId);
+  if (!player) return null;
+
+  const revealedChunks = {};
+  const playerChunkMap = chunkManager.playerChunks.get(ws.playerId);
+  if (playerChunkMap) {
+    for (const [roomId, chunkSet] of playerChunkMap) {
+      revealedChunks[roomId] = [...chunkSet];
+    }
+  }
+
+  return {
+    name: ws.playerName,
+    sessionToken: ws.sessionToken,
+    room: ws.playerRoom,
+    x: player.x,
+    y: player.y,
+    health: player.health,
+    maxHealth: player.maxHealth,
+    inventory: player.inventory,
+    equipment: player.equipment,
+    solGrid: player.solGrid,
+    energy: player.energy,
+    maxEnergy: player.maxEnergy,
+    solGridEnergyRegen: player.solGridEnergyRegen,
+    flags: gameLoop.flagStore.getPlayerFlags(ws.playerId),
+    questState: gameLoop.questTracker.serializePlayerState(ws.playerId),
+    xp: player.xp,
+    level: player.level,
+    xpToNextLevel: player.xpToNextLevel,
+    medipacCharges: player.medipacCharges,
+    revealedChunks,
+    automationState: gameLoop.automation.serializeState(ws.playerId),
+  };
+}
+
+// --- Periodic auto-save (every 5 minutes) ---
+const AUTO_SAVE_INTERVAL = 5 * 60 * 1000;
+setInterval(() => {
+  let count = 0;
+  wss.clients.forEach((client) => {
+    if (client.readyState === 1 && client.playerRoom && client.playerName) {
+      const saveData = gatherPlayerSaveData(client);
+      if (saveData) {
+        sessionStore.save(saveData);
+        count++;
+      }
+    }
+  });
+  if (count > 0) {
+    console.log(`[AutoSave] Saved ${count} player(s)`);
+  }
+}, AUTO_SAVE_INTERVAL);
 
 // Broadcast to all clients in a room, optionally excluding one
 function broadcast(roomId, message, excludeId) {
