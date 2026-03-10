@@ -31,7 +31,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 ## Game Feel (Critical Gap)
 
 - Death penalty: when the player dies, drain energy, drop non-quest items (per dropBehavior rules in architecture-plan.md), respawn at room entrance. Completes the core risk/reward loop.
-- Placeholder sound effects for core actions: weapon attack, ability fire, monster hit, monster death, item pickup, door open, level transition. Audio system and per-biome music are wired — needs sound effect content.
+- ~~Placeholder sound effects for core actions: weapon attack, ability fire, monster hit, monster death, item pickup, door open, level transition. Audio system and per-biome music are wired — needs sound effect content.~~ — DONE: All 24 SFX wired. Added `teleport`, `ambush_reveal` sound definitions; added triggers for teleport (own player), ambush_reveal, menu_navigate (tab switching), and corrected door_open vs door_close selection using tileset `solid` flag.
 - ~~Combat juice pass: screen shake on player hit, monster death fade-out animation, ambush monster fade-in reveal, projectile tinting by monster type (fire=orange, ice=blue, acid=green).~~ — DONE: All four effects implemented. Screen shake on player hit (intensity 4, 0.15s). Per-style monster death animations (dissolve/crumble/pop/shatter/collapse, all ≤0.3s alpha tween). Projectile tinting by type (magma_glob→orange/fire, crystal_shard_bolt→cyan/ice, spore_cloud→green/acid; player blasters→cyan, pulse_bolt→amber). Ambush fade-in (0.5s) with white reveal flash in first 20% of fade.
 
 ## Progression Wiring

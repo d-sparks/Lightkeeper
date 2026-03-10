@@ -897,6 +897,7 @@
     // Skip disabled solgrid tab
     if (tab === 'solgrid' && !solGridState) return;
 
+    if (menuOpen) audio.play('menu_navigate');
     menuTab = tab;
     // Update tab UI
     document.querySelectorAll('#character-menu .inv-tab').forEach(t => {
@@ -2395,6 +2396,9 @@
       for (const ev of msg.events) {
         if (ev.type === 'teleport' && ev.targetId === renderer.myId) {
           input.clearMoveTarget();
+          audio.play('teleport');
+        } else if (ev.type === 'ambush_reveal') {
+          audio.play('ambush_reveal');
         } else if (ev.type === 'death' && ev.targetId === renderer.myId) {
           input.clearMoveTarget();
           audio.play('death_player');
@@ -2584,7 +2588,9 @@
       const idx = msg.y * renderer.map.width + msg.x;
       renderer.map.data[idx] = msg.tileId;
     }
-    audio.play('door_open');
+    // Determine if the new tile is solid (closing) or passable (opening)
+    const tileDef = renderer.tileset && renderer.tileset.tiles && renderer.tileset.tiles[String(msg.tileId)];
+    audio.play(tileDef && tileDef.solid ? 'door_close' : 'door_open');
   });
 
   // Chunk-based map streaming: receive new map chunks as player explores
