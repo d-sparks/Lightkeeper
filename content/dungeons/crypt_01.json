@@ -542,6 +542,10 @@
         {
           "type": "showMessage",
           "text": "You found an iron key. It feels cold to the touch."
+        },
+        {
+          "type": "grantXp",
+          "amount": 15
         }
       ],
       "once": true

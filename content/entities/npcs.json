@@ -32,12 +32,46 @@
         { "speaker": "Old Keeper", "text": "He documented the retreat of the light, year by year. Every failed floodlight. Every meter of ground we lost." },
         { "speaker": "Old Keeper", "text": "'The light went out.' That was his way. Never dramatic. Just... factual." },
         { "speaker": "Old Keeper", "text": "He deserved better than to be forgotten up there. Thank you for bringing this to me." }
+      ],
+      "found_dead_lightkeeper_response": [
+        { "speaker": "Old Keeper", "text": "You found a Lightkeeper's remains. In the Signal Cave." },
+        { "speaker": "Old Keeper", "text": "I knew there were still beacons out there, maintained by people who never came back. I told them the perimeter was too far, the signals too weak to bother." },
+        { "speaker": "Old Keeper", "text": "'The planet is alive.' Is that what he wrote? The old-timers used to say that. We thought they'd gone strange from the isolation." },
+        { "speaker": "Old Keeper", "text": "Perhaps they weren't wrong. Perhaps they just figured it out before the rest of us." },
+        { "speaker": "Old Keeper", "text": "He deserved to be found. Thank you for that." }
+      ],
+      "post_journal_given": [
+        { "speaker": "Old Keeper", "text": "I still think about Watcher Corrin's journal. The years he spent alone in that watchtower, watching the light retreat." },
+        { "speaker": "Old Keeper", "text": "He was right, you know. What he documented — the ground we lost, year by year — it's all still happening." },
+        { "speaker": "Old Keeper", "text": "History repeats when we stop reading it." }
+      ],
+      "used_scope_no_journal": [
+        { "speaker": "Old Keeper", "text": "You found the old watchtower? There was a scope up there — Watcher Corrin's observation rig. What did you see through it?" },
+        { "speaker": "Old Keeper", "text": "Shapes in the dark, moving at the horizon. We've had perimeter reports like that for years. Nobody can agree on what they are." },
+        { "speaker": "Old Keeper", "text": "Corrin kept a journal of everything he observed. If it's still up there, it might tell us more. Worth going back for." }
+      ],
+      "visited_archives_lore": [
+        { "speaker": "Old Keeper", "text": "The Meridian Archives. You've been to the city and back, then." },
+        { "speaker": "Old Keeper", "text": "Archivist Solen has been studying the old pre-settlement surveys for years. The Council thinks he's chasing ghosts. I'm not so sure." },
+        { "speaker": "Old Keeper", "text": "Whatever he tells you about the thermal readings and the anomalies — listen carefully. The things I've seen come out of these crypts suggest the old ones weren't just seeing things." }
       ]
     },
     "dialogueRules": [
       {
+        "conditions": [{ "hasFlag": "found_dead_lightkeeper" }],
+        "use": "found_dead_lightkeeper_response"
+      },
+      {
         "conditions": [{ "hasItem": "watchtower_journal" }],
         "use": "has_watchtower_journal"
+      },
+      {
+        "conditions": [{ "hasFlag": "found_watchtower_journal" }, { "not": { "hasItem": "watchtower_journal" } }],
+        "use": "post_journal_given"
+      },
+      {
+        "conditions": [{ "hasFlag": "used_watchtower_scope" }, { "not": { "hasFlag": "found_watchtower_journal" } }],
+        "use": "used_scope_no_journal"
       },
       {
         "conditions": [{ "hasFlag": "vasik_asked_for_moss" }, { "not": { "hasFlag": "keeper_told_moss_location" } }],
@@ -46,6 +80,10 @@
       {
         "conditions": [{ "hasFlag": "visited_crypt_02" }],
         "use": "explored_crypt_02"
+      },
+      {
+        "conditions": [{ "hasFlag": "visited_meridian_archives" }],
+        "use": "visited_archives_lore"
       },
       {
         "conditions": [{ "hasItem": "iron_key" }],
@@ -124,6 +162,23 @@
         { "speaker": "Warden Holt", "text": "I've been doing this job for fifteen years, and I've never seen anything like that. Where did you find it?" },
         { "speaker": "Warden Holt", "text": "The Underlumen... I always thought it was Unbounded superstition. But after what Daley's been picking up on comms, and now this..." },
         { "speaker": "Warden Holt", "text": "Be careful who you show that to. The Council, the Array — they'll all want it. Make sure you know what you're giving away before you give it." }
+      ],
+      "knows_archives_visited": [
+        { "speaker": "Warden Holt", "text": "The Meridian Archives. You went to the city and specifically sought out the Archives?" },
+        { "speaker": "Warden Holt", "text": "Archivist Solen has been requesting field support for two years. Council keeps denying it — 'historical research is not mission-critical.'" },
+        { "speaker": "Warden Holt", "text": "But the old surveys, the thermal readings, the anomalies the first expeditions documented — that's not history. That's intelligence." },
+        { "speaker": "Warden Holt", "text": "Whatever Solen told you, hold onto it. I have a feeling it's going to be relevant to what we're seeing out on the perimeter." }
+      ],
+      "void_flats_explored": [
+        { "speaker": "Warden Holt", "text": "You went into the Void Flats?" },
+        { "speaker": "Warden Holt", "text": "That's not on any of our patrol maps. Our range ends at the ridge — too far, too dark, too unknown to commit resources to." },
+        { "speaker": "Warden Holt", "text": "Most people who go out that far don't come back. You're not most people." },
+        { "speaker": "Warden Holt", "text": "Whatever's out there, we need to know about it before it decides to come looking for us." }
+      ],
+      "found_umbracite_flag": [
+        { "speaker": "Warden Holt", "text": "You found umbracite out there? Crystallized?" },
+        { "speaker": "Warden Holt", "text": "MERIDIAN-7 at the train station will want that — the Array has been buying umbracite for years. Good trade for Sol components if that's what you need." },
+        { "speaker": "Warden Holt", "text": "But think carefully before you trade it. I don't know what the Array does with the stuff, and neither does anyone else." }
       ]
     },
     "dialogueRules": [
@@ -140,8 +195,20 @@
         "use": "has_fens_letter"
       },
       {
+        "conditions": [{ "hasFlag": "visited_meridian_archives" }, { "hasFlag": "arrived_meridian" }],
+        "use": "knows_archives_visited"
+      },
+      {
         "conditions": [{ "hasFlag": "arrived_meridian" }],
         "use": "returned_from_meridian"
+      },
+      {
+        "conditions": [{ "hasFlag": "void_flats_entered" }, { "not": { "hasFlag": "arrived_meridian" } }],
+        "use": "void_flats_explored"
+      },
+      {
+        "conditions": [{ "hasFlag": "found_crystallized_umbracite" }, { "not": { "hasFlag": "arrived_meridian" } }],
+        "use": "found_umbracite_flag"
       },
       {
         "conditions": [{ "hasFlag": "ready_for_perimeter" }],
@@ -976,6 +1043,11 @@
         { "speaker": "Dr. Vasik", "text": "If you're taking these to someone for research, let me prepare proper preservation compounds. Unpreserved specimens degrade within hours." },
         { "speaker": "Dr. Vasik", "text": "There — properly sealed and temperature-stabilized. The cellular structure will hold for weeks now." },
         { "speaker": "Dr. Vasik", "text": "Whoever gets these will owe you. And me." }
+      ],
+      "has_medipac_supplied": [
+        { "speaker": "Dr. Vasik", "text": "The outpost entrance issued you a medipac? Good. At least someone's thinking about field prep." },
+        { "speaker": "Dr. Vasik", "text": "A medipac keeps you stable, but it won't save you from a serious wound. Come back to me when you can — I can teach you to make proper field medkits." },
+        { "speaker": "Dr. Vasik", "text": "In the meantime: I've got a patient here who needs more than standard-issue supplies. Help me find what I need and I'll make it worth your while." }
       ]
     },
     "dialogueRules": [
@@ -994,6 +1066,10 @@
       {
         "conditions": [{ "hasFlag": "keeper_told_moss_location" }],
         "use": "keeper_told"
+      },
+      {
+        "conditions": [{ "hasFlag": "received_medipac" }],
+        "use": "has_medipac_supplied"
       }
     ]
   },

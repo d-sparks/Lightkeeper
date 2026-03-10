@@ -73,7 +73,8 @@
             "The eastern horizon offers nothing — just dark land receding into a void the old surveys never reached.",
             "Whatever is out there, it hasn't been named yet."
           ]
-        }
+        },
+        { "type": "grantXp", "amount": 20 }
       ],
       "once": true
     }
