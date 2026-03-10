@@ -290,6 +290,7 @@
       "filter": { "choiceId": "three_paths", "value": "shutdown" },
       "actions": [
         { "type": "setFlag", "flag": "chose_path_shutdown" },
+        { "type": "setFlag", "flag": "endgame_active" },
         { "type": "grantXp", "amount": 100 },
         { "type": "showMessage", "lines": [
           "Asha nods slowly. 'The hardest road. But the most honest.'",
@@ -305,6 +306,7 @@
       "filter": { "choiceId": "three_paths", "value": "merge" },
       "actions": [
         { "type": "setFlag", "flag": "chose_path_merge" },
+        { "type": "setFlag", "flag": "endgame_active" },
         { "type": "grantXp", "amount": 100 },
         { "type": "showMessage", "lines": [
           "Asha's eyes widen. 'Symbiosis. You want to merge them all.'",
@@ -321,6 +323,7 @@
       "filter": { "choiceId": "three_paths", "value": "control" },
       "actions": [
         { "type": "setFlag", "flag": "chose_path_control" },
+        { "type": "setFlag", "flag": "endgame_active" },
         { "type": "grantXp", "amount": 100 },
         { "type": "showMessage", "lines": [
           "Asha stiffens. Her voice is careful. 'You want to seize the Array. Take its power for humanity.'",

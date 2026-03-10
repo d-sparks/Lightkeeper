@@ -177,11 +177,7 @@
       "event": "npc_interacted",
       "filter": { "npcType": "expedition_board" },
       "conditions": [
-        { "or": [
-          { "hasFlag": "chose_path_shutdown" },
-          { "hasFlag": "chose_path_merge" },
-          { "hasFlag": "chose_path_control" }
-        ]},
+        { "hasFlag": "endgame_active" },
         { "not": { "hasFlag": "expedition_active" } }
       ],
       "actions": [
@@ -235,6 +231,22 @@
       "conditions": [{ "hasFlag": "expedition_active" }],
       "actions": [
         { "type": "showMessage", "text": "You already have an active expedition. Complete or abandon it before starting another." }
+      ]
+    },
+    {
+      "id": "expedition_board_locked",
+      "event": "npc_interacted",
+      "filter": { "npcType": "expedition_board" },
+      "conditions": [
+        { "not": { "hasFlag": "endgame_active" } },
+        { "not": { "hasFlag": "expedition_active" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The expedition board is dark. A notice reads: 'NIGHTSIDE BREACH OPERATIONS — AUTHORIZATION REQUIRED.'",
+          "'Expeditions into the Nightside perimeter are classified operations. Authorization requires a formal faction mandate from the Civic Council.'",
+          "The Council has not yet reached a decision on the Lightkeeper mandate. The path forward isn't clear yet."
+        ]}
       ]
     }
   ]

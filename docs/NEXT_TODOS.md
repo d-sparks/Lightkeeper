@@ -146,7 +146,7 @@ Priority-ordered implementation tasks:
 
 ### Phase 1 — Post-Ending World State (Content only, no engine changes)
 - ~~Wire ending-path room triggers in hub dungeons and NPC dialogue variants per ending.~~ — DONE: meridian_market, meridian_station, meridian_residential all have `once: true` room_entered triggers for each path. merchant_reva, weaponsmith_garro, component_dealer_mira, liaison_thorne, registrar_hollis all have post_shutdown/post_merge/post_control dialogue variants.
-- Wire `chose_path_*` flag checks into meridian_station room triggers to set `endgame_active` flag (needed for Phase 2 expedition board gating).
+- ~~Wire `chose_path_*` flag checks into meridian_station room triggers to set `endgame_active` flag (needed for Phase 2 expedition board gating).~~ — DONE: `endgame_active` is now set alongside each `chose_path_*` flag in meridian_civic.json path_*_chosen triggers. meridian_station.json expedition_board_tier_select conditions simplified to check `endgame_active` directly. Added `expedition_board_locked` fallback trigger for players who reach the board before choosing a path.
 - Add post-ending MERIDIAN-7 dialogue variants for endgame expedition access and modifier crafting.
 - Add post-ending Sable dialogue for Shutdown/Merge paths (expedition quest-giver).
 - Consider post-ending changes to outpost_entrance and outpost_comms (Wren already has dialogue, but no room-level atmospheric changes).
