@@ -523,7 +523,9 @@ wss.on('connection', (ws) => {
 
           // Restore quest state
           if (savedSession.questState) {
-            gameLoop.questTracker.restorePlayerState(playerId, savedSession.questState);
+            const restoreRoom = gameLoop.getRoom(ws.playerRoom);
+            const restoreCtx = { playerId, roomId: ws.playerRoom, room: restoreRoom, player };
+            gameLoop.questTracker.restorePlayerState(playerId, savedSession.questState, restoreCtx);
           }
 
           // Rebuild abilities from restored equipment/solGrid

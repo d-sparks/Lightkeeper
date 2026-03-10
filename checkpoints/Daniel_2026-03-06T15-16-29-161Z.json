@@ -393,6 +393,8 @@
         "charge_sol_unit",
         "report_to_warden",
         "cross_perimeter",
+        "talk_to_yara",
+        "clear_junction_box",
         "get_transit_pass",
         "board_train",
         "arrive_meridian",

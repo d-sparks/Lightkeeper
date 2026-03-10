@@ -169,7 +169,8 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
 
       // Restore quest state
       if (checkpoint.questState) {
-        gameLoop.questTracker.restorePlayerState(playerId, checkpoint.questState);
+        const ctx = { playerId, roomId: ws.playerRoom, room, player };
+        gameLoop.questTracker.restorePlayerState(playerId, checkpoint.questState, ctx);
       }
 
       // Rebuild abilities from restored equipment/solGrid
@@ -456,7 +457,9 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
           };
         }
       }
-      gameLoop.questTracker.restorePlayerState(playerId, questState);
+      const jumpRoom = gameLoop.getRoom(ws.playerRoom);
+      const jumpCtx = { playerId, roomId: ws.playerRoom, room: jumpRoom, player };
+      gameLoop.questTracker.restorePlayerState(playerId, questState, jumpCtx);
 
       // Resync client
       ws.send(JSON.stringify({
@@ -693,6 +696,33 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
       }
       return json(res, 200, { ok: true, action: 'set', flag, value });
     }).catch(() => json(res, 400, { error: 'Invalid request' }));
+  }
+
+  // --- List all known flag names from dungeon content ---
+  if (url === '/api/checkpoint/known-flags' && method === 'GET') {
+    const dungeons = content.getAllDungeons();
+    const flags = new Set();
+    const scanConditions = (cond) => {
+      if (!cond) return;
+      if (Array.isArray(cond)) { cond.forEach(scanConditions); return; }
+      if (cond.hasFlag) flags.add(cond.hasFlag);
+      if (cond.flag) flags.add(cond.flag);
+      if (cond.flagGreaterThan && cond.flagGreaterThan.flag) flags.add(cond.flagGreaterThan.flag);
+      if (cond.not) scanConditions(cond.not);
+      if (cond.and) scanConditions(cond.and);
+      if (cond.or) scanConditions(cond.or);
+      if (cond.condition) scanConditions(cond.condition);
+    };
+    for (const dungeon of Object.values(dungeons)) {
+      for (const trigger of (dungeon.triggers || [])) {
+        scanConditions(trigger.condition);
+        for (const a of (trigger.actions || [])) {
+          if (a.flag) flags.add(a.flag);
+        }
+        if (trigger.filter && trigger.filter.flag) flags.add(trigger.filter.flag);
+      }
+    }
+    return json(res, 200, [...flags].sort());
   }
 
   // --- List all item types (for give-item UI) ---

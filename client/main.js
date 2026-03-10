@@ -2219,17 +2219,17 @@
     }
 
     // Slot 1 interact override: override slot 1 to show the interact action.
-    // Items always override slot 1 (pickup should work even in combat).
-    // Doors/NPCs only override when no monsters are nearby.
+    // Items and doors always override slot 1 (pickup/doors should work even in combat).
+    // NPCs only override when no monsters are nearby.
     const prevMode = slot1InteractMode;
     slot1InteractMode = null;
 
     if (label) {
-      if (label === 'Pick up') {
-        // Items always take priority — pickup should work even in combat
+      if (label === 'Pick up' || label === 'Open' || label === 'Close') {
+        // Items and doors always take priority
         slot1InteractMode = label;
       } else {
-        // Doors/NPCs: only override when no monsters are nearby
+        // NPCs: only override when no monsters are nearby
         let monstersNearby = false;
         if (renderer.state.monsters) {
           const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * ts;

@@ -465,13 +465,8 @@ class InputHandler {
       if (Math.sqrt(dx * dx + dy * dy) > 15) {
         aimAngle = Math.atan2(dy, dx);
       }
-    } else if (this.joystickActive) {
-      // Tap without drag: use joystick direction if actively held
-      const jLen = Math.sqrt(this.joyDX * this.joyDX + this.joyDY * this.joyDY);
-      if (jLen > 0.2) {
-        aimAngle = Math.atan2(this.joyDY, this.joyDX);
-      }
     }
+    // Tap without drag and no manual aim: leave aimAngle null for auto-aim
 
     if (this.onAbility) this.onAbility(drag.slot, aimAngle);
   }
@@ -598,11 +593,7 @@ class InputHandler {
         this.aimIndicator.angle = gamepadAimAngle;
       }
     } else {
-      // Fallback: use left stick direction for aiming when right stick is idle
-      const lLen = Math.sqrt(lx * lx + ly * ly);
-      if (lLen > 0.3) {
-        gamepadAimAngle = Math.atan2(ly, lx);
-      }
+      // Right stick idle — leave gamepadAimAngle null so auto-aim kicks in
       if (!this.abilityDrag) {
         this.aimIndicator.active = false;
       }

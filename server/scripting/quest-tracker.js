@@ -86,14 +86,20 @@ class QuestTracker {
         }
       }
 
-      // Copy activeSteps so we can modify during iteration
-      const active = [...state.activeSteps];
-      for (const stepId of active) {
-        const stepDef = quest.steps[stepId];
-        if (!stepDef || !stepDef.completionConditions) continue;
+      // Loop until no more steps complete — newly unlocked steps whose
+      // conditions are already met should cascade in the same call.
+      let changed = true;
+      while (changed) {
+        changed = false;
+        const active = [...state.activeSteps];
+        for (const stepId of active) {
+          const stepDef = quest.steps[stepId];
+          if (!stepDef || !stepDef.completionConditions) continue;
 
-        if (this.conditions.evaluate(stepDef.completionConditions, context)) {
-          this._completeStep(playerId, questId, quest, state, stepId, stepDef, context);
+          if (this.conditions.evaluate(stepDef.completionConditions, context)) {
+            this._completeStep(playerId, questId, quest, state, stepId, stepDef, context);
+            changed = true;
+          }
         }
       }
     }
@@ -292,7 +298,7 @@ class QuestTracker {
   }
 
   // Restore player quest state from checkpoint
-  restorePlayerState(playerId, saved) {
+  restorePlayerState(playerId, saved, context) {
     if (!saved) return;
 
     const questMap = this.playerStates.get(playerId);
@@ -308,6 +314,42 @@ class QuestTracker {
       if (!state) continue;
       state.activeSteps = new Set(savedState.activeSteps || []);
       state.completedSteps = new Set(savedState.completedSteps || []);
+    }
+
+    // Repair DAG gaps: if a step's prerequisites are all completed but the step
+    // itself is not completed (and its completion conditions are met), mark it
+    // completed.  This fixes saves created before the cascade-loop fix.
+    if (!context) return;
+    const quests = this.content.getAllQuests();
+    for (const [questId, state] of questMap) {
+      const quest = quests[questId];
+      if (!quest) continue;
+      if (state.activeSteps.size === 0 && state.completedSteps.size === 0) continue;
+
+      let repaired = true;
+      while (repaired) {
+        repaired = false;
+        for (const [stepId, stepDef] of Object.entries(quest.steps)) {
+          if (state.completedSteps.has(stepId) || state.activeSteps.has(stepId)) continue;
+          const prereqs = stepDef.prerequisiteSteps || [];
+          if (prereqs.length === 0 && stepId !== quest.startStep) continue;
+          if (!prereqs.every(p => state.completedSteps.has(p))) continue;
+          // Prerequisites met but step was never recorded — check completion conditions
+          if (stepDef.completionConditions && this.conditions.evaluate(stepDef.completionConditions, context)) {
+            state.completedSteps.add(stepId);
+            repaired = true;
+            console.log(`[QuestTracker] Repaired missing completed step "${stepId}" in quest "${questId}" for player ${playerId}`);
+            // Unlock successors so the next iteration can check them
+            for (const [candidateId, candidateDef] of Object.entries(quest.steps)) {
+              if (state.activeSteps.has(candidateId) || state.completedSteps.has(candidateId)) continue;
+              const cPrereqs = candidateDef.prerequisiteSteps || [];
+              if (cPrereqs.length > 0 && cPrereqs.every(p => state.completedSteps.has(p))) {
+                state.activeSteps.add(candidateId);
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

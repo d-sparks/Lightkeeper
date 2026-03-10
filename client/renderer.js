@@ -2030,6 +2030,29 @@ class Renderer {
     }
   }
 
+  _getDiamondTexture() {
+    if (this._diamondTex) return this._diamondTex;
+    const size = 32;
+    const half = size / 2;
+    const g = new PIXI.Graphics();
+    g.beginFill(0xffffff);
+    g.moveTo(half, 0);
+    g.lineTo(size, half);
+    g.lineTo(half, size);
+    g.lineTo(0, half);
+    g.closePath();
+    g.endFill();
+    g.lineStyle(1.5, 0xffffff, 0.4);
+    g.moveTo(half, 0);
+    g.lineTo(size, half);
+    g.lineTo(half, size);
+    g.lineTo(0, half);
+    g.closePath();
+    this._diamondTex = this.app.renderer.generateTexture(g);
+    g.destroy();
+    return this._diamondTex;
+  }
+
   _setSpriteTexture(sprite, spritePath, fallbackSize) {
     const tex = this.loadTexture(spritePath);
     const sz = this.isoMode ? 36 : CONSTANTS.TILE_SIZE;
@@ -2042,8 +2065,8 @@ class Renderer {
       sprite.y = this.isoMode ? -sz / 2 : 0;
       return true;
     }
-    // Texture is loading — use fallback (white square tinted)
-    sprite.texture = PIXI.Texture.WHITE;
+    // Texture is loading — use diamond fallback (matches old Canvas 2D style)
+    sprite.texture = this._getDiamondTexture();
     const fsz = fallbackSize || 20;
     sprite.width = fsz;
     sprite.height = fsz;
@@ -2148,9 +2171,12 @@ class Renderer {
 
       this._positionEntity(container, npc.x, npc.y);
 
-      // Sprite (per-type if available, else generic)
+      // Sprite (per-type if available, else npc_default)
       const spritePath = npc.type ? 'sprites/' + npc.type + '.png' : 'sprites/npc_default.png';
-      const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+      let loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+      if (!loaded && npc.type) {
+        loaded = this._setSpriteTexture(sprite, 'sprites/npc_default.png', r * 2);
+      }
       if (!loaded) sprite.tint = 0x64b5f6;
 
       // Name tag (above sprite top)
