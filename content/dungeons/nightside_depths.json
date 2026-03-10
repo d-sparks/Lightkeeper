@@ -41,17 +41,33 @@
     { "type": "gloom_wraith", "x": 10, "y": 5, "count": 1, "patrol": "patrol", "patrolPath": [
       {"x": 8, "y": 4}, {"x": 16, "y": 4}, {"x": 16, "y": 6}, {"x": 8, "y": 6}
     ] },
-    { "type": "gloom_wraith", "x": 18, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "gloom_wraith", "x": 18, "y": 4, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 16, "y": 3}, {"x": 20, "y": 3}, {"x": 20, "y": 6}, {"x": 16, "y": 6}
+    ] },
     { "type": "shade_stalker_alpha", "x": 7, "y": 8, "count": 1, "patrol": "patrol", "patrolPath": [
       {"x": 3, "y": 7}, {"x": 8, "y": 7}, {"x": 8, "y": 11}, {"x": 3, "y": 11}
     ] },
-    { "type": "shade_stalker", "x": 15, "y": 8, "count": 1, "patrol": "wander" },
-    { "type": "shade_stalker", "x": 4, "y": 14, "count": 1, "patrol": "guard" },
-    { "type": "shadow_ambusher", "x": 10, "y": 13, "count": 2, "patrol": "wander" },
-    { "type": "dusk_crawler", "x": 17, "y": 17, "count": 3, "patrol": "wander" },
-    { "type": "crystal_guardian", "x": 10, "y": 17, "count": 1, "patrol": "guard" },
-    { "type": "rime_stalker", "x": 14, "y": 11, "count": 1, "patrol": "guard" },
-    { "type": "rime_stalker", "x": 5, "y": 17, "count": 1, "patrol": "guard" },
+    { "type": "shade_stalker", "x": 15, "y": 8, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 13, "y": 7}, {"x": 19, "y": 7}, {"x": 19, "y": 10}, {"x": 13, "y": 10}
+    ] },
+    { "type": "shade_stalker", "x": 4, "y": 14, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 2, "y": 13}, {"x": 6, "y": 13}, {"x": 6, "y": 16}, {"x": 2, "y": 16}
+    ] },
+    { "type": "shadow_ambusher", "x": 10, "y": 13, "count": 2, "patrol": "patrol", "patrolPath": [
+      {"x": 8, "y": 12}, {"x": 12, "y": 12}, {"x": 12, "y": 15}, {"x": 8, "y": 15}
+    ] },
+    { "type": "dusk_crawler", "x": 17, "y": 17, "count": 3, "patrol": "patrol", "patrolPath": [
+      {"x": 14, "y": 16}, {"x": 20, "y": 16}, {"x": 20, "y": 18}, {"x": 14, "y": 18}
+    ] },
+    { "type": "crystal_guardian", "x": 10, "y": 17, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 8, "y": 16}, {"x": 12, "y": 16}, {"x": 12, "y": 18}, {"x": 8, "y": 18}
+    ] },
+    { "type": "rime_stalker", "x": 14, "y": 11, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 12, "y": 10}, {"x": 17, "y": 10}, {"x": 17, "y": 13}, {"x": 12, "y": 13}
+    ] },
+    { "type": "rime_stalker", "x": 5, "y": 17, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 3, "y": 16}, {"x": 7, "y": 16}, {"x": 7, "y": 18}, {"x": 3, "y": 18}
+    ] },
     { "type": "frostfang_hunter", "x": 16, "y": 14, "count": 2, "patrol": "patrol", "patrolPath": [
       {"x": 13, "y": 13}, {"x": 17, "y": 13}, {"x": 17, "y": 16}, {"x": 13, "y": 16}
     ] },

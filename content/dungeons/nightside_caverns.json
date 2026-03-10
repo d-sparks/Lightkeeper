@@ -518,21 +518,39 @@
       "x": 20,
       "y": 3,
       "count": 1,
-      "patrol": "wander"
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 18, "y": 2},
+        {"x": 23, "y": 2},
+        {"x": 23, "y": 5},
+        {"x": 18, "y": 5}
+      ]
     },
     {
       "type": "gloom_wraith",
       "x": 15,
       "y": 9,
       "count": 1,
-      "patrol": "guard"
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 13, "y": 8},
+        {"x": 18, "y": 8},
+        {"x": 18, "y": 11},
+        {"x": 13, "y": 11}
+      ]
     },
     {
       "type": "gloom_wraith",
       "x": 5,
       "y": 12,
       "count": 1,
-      "patrol": "wander"
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 3, "y": 11},
+        {"x": 8, "y": 11},
+        {"x": 8, "y": 14},
+        {"x": 3, "y": 14}
+      ]
     },
     {
       "type": "dusk_crawler",
@@ -564,28 +582,52 @@
       "x": 18,
       "y": 14,
       "count": 2,
-      "patrol": "wander"
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 16, "y": 13},
+        {"x": 22, "y": 13},
+        {"x": 22, "y": 16},
+        {"x": 16, "y": 16}
+      ]
     },
     {
       "type": "shadow_ambusher",
       "x": 12,
       "y": 13,
       "count": 1,
-      "patrol": "guard"
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 10, "y": 12},
+        {"x": 15, "y": 12},
+        {"x": 15, "y": 15},
+        {"x": 10, "y": 15}
+      ]
     },
     {
       "type": "shade_stalker_alpha",
       "x": 21,
       "y": 8,
       "count": 1,
-      "patrol": "guard"
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 19, "y": 7},
+        {"x": 23, "y": 7},
+        {"x": 23, "y": 10},
+        {"x": 19, "y": 10}
+      ]
     },
     {
       "type": "frostfang_hunter",
       "x": 14,
       "y": 6,
       "count": 2,
-      "patrol": "wander"
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 12, "y": 5},
+        {"x": 17, "y": 5},
+        {"x": 17, "y": 8},
+        {"x": 12, "y": 8}
+      ]
     },
     {
       "type": "frostfang_hunter",
@@ -617,7 +659,13 @@
       "x": 20,
       "y": 12,
       "count": 1,
-      "patrol": "guard"
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 18, "y": 11},
+        {"x": 23, "y": 11},
+        {"x": 23, "y": 14},
+        {"x": 18, "y": 14}
+      ]
     },
     {
       "type": "tunnel_creeper",
