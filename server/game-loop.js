@@ -494,6 +494,8 @@ class GameLoop {
     player.hovering = false;
     player.hoverTime = 0;
     player.elevation = 0;
+    // Clear movement input so click-to-move from the previous room doesn't carry over
+    player.input = {};
 
     room.players.set(player.id, player);
 
