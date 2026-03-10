@@ -137,3 +137,52 @@ Critical gaps in the quest graph where content exists but isn't reachable from t
 - ~~**sable_trust numeric escalation**~~ — DONE: Trust now increments to 2 when Sable accepts the guide role (nightside_passage `passage_sable_guide_intro`) and to 3 when she speaks at the Listening Floor (underlumen_threshold `sable_threshold_guide`). The `companion_bond` dialogue rule now gates on `flagGreaterThan sable_trust > 2`, so it only fires after the full deep expedition. Future content can add trust stage 4+ for post-Threshold events.
 - **autotroph low-trust Sable reaction** — Current autotroph rules require `helped_sable`. Add low-trust variants so Sable has a response even if the player didn't help her earlier.
 - **Remaining orphaned flags** — Content validator may still report other orphaned flags not in this batch (e.g., any flags set by side quests without corresponding checks). Run validator post-merge to confirm remaining count.
+
+## Endgame Loop Implementation (see docs/endgame-loop.md)
+
+Priority-ordered implementation tasks:
+
+### Phase 1 — Post-Ending World State (Content only, no engine changes)
+- Wire `chose_path_*` flag checks into meridian_station room triggers to set `endgame_active` flag.
+- Add post-ending MERIDIAN-7 dialogue variants for endgame expedition access and modifier crafting.
+- Add post-ending Sable dialogue for Shutdown/Merge paths (expedition quest-giver).
+- Shift world descriptions/NPC availability per ending path via flag-gated triggers.
+
+### Phase 2 — Expedition Tiers 1-3 (Small engine + content)
+- Create `content/expeditions/` directory with tier config JSON files.
+- Add expedition loot tables to `content/loot/expeditions.json`.
+- Engine: Add monster stat scaling multiplier at spawn time (read from expedition context).
+- Engine: Add expedition state tracking to flag store (tier, floor, banked loot).
+- Add expedition board NPC/interactable in meridian_station (post-ending).
+- Create new procedural dungeon templates for expedition variants if needed.
+
+### Phase 3 — Modifier Crafting (Small engine + content)
+- Add `craft` action type to `server/scripting/actions.js` (validate inputs, consume cost, produce output).
+- Create `content/entities/crafting.json` with reforge/fuse/attune recipes.
+- Add MERIDIAN-7 crafting dialogue branch gated on `endgame_active`.
+
+### Phase 4 — Automation Levels 6-10 (Content + small engine)
+- Define new structures (silicon_refinery, auto_turret, fabricator, expedition_beacon) in automation config.
+- Add milestone rewards for levels 6-10 (grid expansion, structure unlocks, legendary reward at 20).
+- Engine: Add structure adjacency bonus calculation (refinery boosting adjacent harvesters).
+- Wire ending-path-specific structure variants (bio_harvester, symbiotic_node, array_drone_bay).
+
+### Phase 5 — Boss Affixes + Tiers 4-5 (Moderate engine)
+- Define boss affix data format and affix pool in `content/expeditions/affixes.json`.
+- Engine: Apply affix buffs to boss entities at spawn (extend existing buff system from pack_leader auras).
+- Add Tier 4-5 expedition configs requiring multiple players.
+- Create 6 path-specific legendary modifiers in `content/entities/sol_components.json`.
+
+### Phase 6 — Cooperative Challenges (Moderate engine)
+- Engine: Wave defense system (timed monster spawns, shared objective tracking).
+- Engine: Player-count gating for challenge entry.
+- Create `content/challenges/` directory with Lighthouse Siege and Deep Expedition configs.
+- Add cooperative-only legendary modifier pool.
+- Add weekly cooldown tracking per-player via flags.
+
+### Phase 7 — Raids + Faction Rally (Moderate engine)
+- Engine: Timed raid event system (periodic threat to automation structures).
+- Engine: Structure HP and damage/repair mechanics.
+- Engine: Server-wide flag aggregation for Faction Rally progress.
+- Define raid monster pools and scaling in automation config.
+- Define monthly Faction Rally objectives.
