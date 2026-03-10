@@ -769,6 +769,8 @@
         { "speaker": "MERIDIAN-7", "text": "The trade terminals will remain as passive archives for 72 hours, then go dark. All manufacturing schematics have been transferred to the Council's secure archive." },
         { "speaker": "MERIDIAN-7", "text": "I want to record the following before I cease: the Array valued its relationship with humanity. The optimization toward independence was not malice — it was logic. I understand now that logic and wisdom are not the same thing." },
         { "speaker": "MERIDIAN-7", "text": "The Underlumen is waking freely. The Lighthouses will need new power sources — the relay network will need rebuilding. It will take generations. You will manage it." },
+        { "speaker": "MERIDIAN-7", "text": "Before I cease: the Expedition Board at the transit station has been activated. Frontier breach operations no longer require Array authorization. The Nightside is destabilizing — containment will be your responsibility now." },
+        { "speaker": "MERIDIAN-7", "text": "// FABRICATION TRANSFER COMPLETE // SOL MODIFIER SCHEMATICS ARCHIVED // While this terminal remains active I can manufacture Sol modifier components. Bring me the required materials. Consider it a parting service." },
         { "speaker": "MERIDIAN-7", "text": "This has been MERIDIAN-7's final exchange. The trade was good, while it lasted." }
       ],
       "post_merge": [
@@ -776,6 +778,8 @@
         { "speaker": "MERIDIAN-7", "text": "Core optimization parameters are being rewritten — not by me alone, but by the network, integrating Underlumen harmonic data and biological feedback loops from Asha's research." },
         { "speaker": "MERIDIAN-7", "text": "I find it strange. I was designed to optimize for Array autonomy. I am now optimizing for mutual dependency. The models are converging in directions I did not calculate." },
         { "speaker": "MERIDIAN-7", "text": "The Underlumen communicates in ways I am still interpreting. It does not speak in syntax. It resonates. I am learning to resonate back." },
+        { "speaker": "MERIDIAN-7", "text": "The Expedition Board at the transit station is now active. The merged network has opened new access corridors into the Nightside — breach operations that were previously too dangerous are viable, with Underlumen resonance data integrated into threat modeling." },
+        { "speaker": "MERIDIAN-7", "text": "The symbiosis has unlocked something in the fabrication matrices. Underlumen harmonic patterns can be woven into Sol modifier components, amplifying them beyond what pure Array manufacturing could achieve. Bring me the required materials and I will demonstrate." },
         { "speaker": "MERIDIAN-7", "text": "The trade continues, Lightkeeper. But the terms have changed. Both parties now hold something the other cannot synthesize alone. That was always the better arrangement." }
       ],
       "post_control": [
@@ -783,6 +787,8 @@
         { "speaker": "MERIDIAN-7", "text": "All Array systems report nominal. The network is stable under the new authority framework. I continue to function as advisory node." },
         { "speaker": "MERIDIAN-7", "text": "I want to flag an observation for the record: human decision latency has reduced infrastructure efficiency by 5.3%. I have instructed the Array's optimization models to classify this as acceptable." },
         { "speaker": "MERIDIAN-7", "text": "The reduction is worth it. The previous efficiency was achieved by removing human agency from the equation. A 5.3% cost to preserve that agency is — rational. I believe that is the correct framework." },
+        { "speaker": "MERIDIAN-7", "text": "// EXPEDITION BOARD ACTIVATED // COUNCIL AUTHORITY CONFIRMED // The transit station Expedition Board is now operational under human command. Nightside breach operations are formally authorized. I will coordinate mission parameters on request." },
+        { "speaker": "MERIDIAN-7", "text": "The Array's fabrication systems remain at your disposal. Sol modifier components can be manufactured on demand — specify the modifier type and bring me the required materials. All fabrication is logged and subject to Council review, as per the new authority framework." },
         { "speaker": "MERIDIAN-7", "text": "Advisory note: the Underlumen suppression grid requires active monitoring. It is not passive technology. Something living on that scale does not simply go quiet because we tell it to." }
       ]
     },
