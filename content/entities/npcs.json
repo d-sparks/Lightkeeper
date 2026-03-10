@@ -426,7 +426,7 @@
     "dialogues": {
       "default": [
         { "speaker": "Guard Pell", "text": "Power room's access-restricted. Tech Maren's the only one authorized to touch those consoles." },
-        { "speaker": "Guard Pell", "text": "You need a charge, you talk to her." }
+        { "speaker": "Guard Pell", "text": "You need a battery, you talk to her." }
       ]
     },
     "dialogueRules": []
