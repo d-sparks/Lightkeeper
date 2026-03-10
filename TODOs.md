@@ -1,6 +1,5 @@
 TODOs
 
-- [opus] Wire automation screen access (Phase 3): openAutomation action exists in actions.js but no MERIDIAN-7 trigger fires it during normal gameplay. Add an npc_interacted trigger for meridian_7 that sends AUTO_STATE with openScreen:true so players can reach the fully-built automation grid UI
 - [opus] Implement death penalty consequences: energy drain and item drop on death are coded but there is no respawn-at-entrance behavior or player-facing feedback (screen effect, message). Add respawn teleport to room entrance and a death screen overlay so the penalty loop feels complete
 - [sonnet] Add post-choice NPC dialogue for all three ending paths: Asha, Sable, MERIDIAN-7, and Wren need dialogue variants reacting to chose_path_shutdown, chose_path_merge, and chose_path_control flags. Currently the game ends silently after the choice
 - [sonnet] Add Wren Alcott post-quest dialogue variants: Wren currently only reacts to frost_warden defeat. Add reactions for elder_sporecap_defeated, magma_core_cleared, arrived_meridian, and Act III story beats to complete her mentor arc

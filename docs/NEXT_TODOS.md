@@ -87,7 +87,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 ## Automation Grid (Phases 3-5)
 
-Phase 3: ~~Add `openAutomation` scripting action~~ (DONE — exists in actions.js). Still needed: MERIDIAN-7 gameplay trigger that fires it during normal play, client handler for AUTO_STATE with openScreen.
+Phase 3: DONE — `openAutomation` action in actions.js, `meridian_open_automation` trigger in train_station.json (fires on npc_interacted for meridian_7 when `traded_umbracite_meridian` flag is set), client AUTO_STATE handler with openScreen in main.js.
 Phase 4: Dungeon sync — merge automation placements into tile data for dayside_solar_fields.
 Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 

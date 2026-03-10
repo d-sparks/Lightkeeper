@@ -25,7 +25,7 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Item Rarity UI | Done | Rarity colors (common to legendary) displayed in inventory and sol grid |
 | Art Style Guide | Done | Master palette, sprite conventions, zone color identity documented |
 | Content Validation CI | Done | `npm test` runs content-validator.js + headless-sim.js --mainline |
-| Automation System | Partial | Server grid state + client CSS grid UI done (Phases 1-2). openAutomation action exists (Phase 3 partial). Gameplay trigger + dungeon sync still needed. See docs/automation_screen.md |
+| Automation System | Partial | Server grid state + client CSS grid UI done (Phases 1-2). Phase 3 done (openAutomation action + MERIDIAN-7 trigger + client handler). Dungeon sync (Phase 4) still needed. See docs/automation_screen.md |
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons |
 | Act II Content | Partial | Dayside, Array complex, Crystal Guardian boss, MERIDIAN-7 quest, quest steps 19-22 bridge to Act III. Deeper questlines needed |
 | Act III Content | Partial | All three ending dungeons built (shutdown, merge, control). Post-choice NPC dialogue and Unbounded elder NPC still needed |
@@ -52,7 +52,7 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 Focus: **Connect disconnected systems, fix testing gaps, implement death penalty**
 
 1. **Death penalty polish** — Energy drain and item drops are coded. Still needs: respawn-at-entrance teleport and death screen overlay so players feel the penalty.
-2. **Automation grid Phase 3** — `openAutomation` action exists in engine. Need a MERIDIAN-7 gameplay trigger that fires it so players can reach the fully-built grid UI.
+2. ~~**Automation grid Phase 3**~~ — DONE. `openAutomation` action, MERIDIAN-7 trigger, and client handler all wired.
 3. **Fix headless sim board_train** — Bot clears junction and gets transit pass but can't navigate to train exit at (12,0). Blocks CI mainline testing past step 11.
 4. **Post-choice NPC dialogue** — Asha, Sable, MERIDIAN-7, Wren dialogue variants reacting to chosen ending path.
 5. **Minimap quest waypoints** — No spatial guidance for quest objectives currently.
@@ -157,7 +157,7 @@ These are done and don't need further investment:
 - **Tileset assignments** — All outpost/station/meridian dungeons using correct themed tilesets
 - **signal_coordinates item** — Added to items.json for outer_expanse discovery
 - **Death penalty core** — 25% energy drain + non-quest item drop on death implemented
-- **openAutomation action** — Scripting action added to actions.js (Phase 3 partial)
+- **Automation Phase 3 complete** — openAutomation action, MERIDIAN-7 npc_interacted trigger, and client AUTO_STATE/openScreen handler all wired
 
 ## Active Design Docs
 
