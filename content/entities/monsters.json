@@ -375,7 +375,7 @@
     "attackSpeed": 0.6,
     "ai": "melee_chase",
     "lootTable": "magma_brute",
-    "xp": 55,
+    "xp": 85,
     "specialAttacks": [
       { "type": "ground_slam", "cooldown": 8, "range": 2.5, "damage": 1.4, "knockback": 160 },
       { "type": "lunge", "cooldown": 10, "range": 4, "damage": 1.8, "speed": 6, "duration": 0.35 }
@@ -392,7 +392,7 @@
     "attackSpeed": 0.7,
     "ai": "melee_chase",
     "lootTable": "frost_warden",
-    "xp": 60,
+    "xp": 95,
     "specialAttacks": [
       { "type": "stun", "cooldown": 10, "damage": 0.6, "duration": 1.5 },
       { "type": "ground_slam", "cooldown": 12, "range": 3, "damage": 1.2, "knockback": 128 }
@@ -455,7 +455,7 @@
     "attackSpeed": 0.6,
     "ai": "melee_chase",
     "lootTable": "elder_sporecap",
-    "xp": 65,
+    "xp": 110,
     "specialAttacks": [
       { "type": "ground_slam", "cooldown": 10, "range": 3, "damage": 1.3, "knockback": 128 },
       { "type": "stun", "cooldown": 12, "damage": 0.5, "duration": 1.2 }
