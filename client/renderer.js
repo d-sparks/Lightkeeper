@@ -3710,7 +3710,7 @@ class Renderer {
         for (const secObj of this.secondaryQuestObjectives) {
           if (secObj.tileX != null) {
             const sp = isoPx((secObj.tileX + 0.5) * ts, (secObj.tileY + 0.5) * ts);
-            this._drawSecondaryWaypoint(sp.x, sp.y, questDotR, secObj, mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2);
+            this._drawSecondaryWaypoint(sp.x, sp.y, questDotR, secObj, mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2, full);
           }
         }
       }
@@ -3834,7 +3834,7 @@ class Renderer {
           if (secObj.tileX != null) {
             const sx = Math.round(mmX + secObj.tileX * scale);
             const sy = Math.round(mmY + secObj.tileY * scale);
-            this._drawSecondaryWaypoint(sx, sy, questDotR, secObj, mmX - 2, mmY - 2, mmW + 4, mmH + 4);
+            this._drawSecondaryWaypoint(sx, sy, questDotR, secObj, mmX - 2, mmY - 2, mmW + 4, mmH + 4, full);
           }
         }
       }
@@ -3909,24 +3909,61 @@ class Renderer {
 
   // --- Secondary quest waypoint (dimmer dot for non-tracked quests) ---
 
-  _drawSecondaryWaypoint(qx, qy, baseR, objective, mmLeft, mmTop, mmWidth, mmHeight) {
+  _drawSecondaryWaypoint(qx, qy, baseR, objective, mmLeft, mmTop, mmWidth, mmHeight, full) {
     const inside = qx >= mmLeft && qx <= mmLeft + mmWidth &&
                    qy >= mmTop && qy <= mmTop + mmHeight;
-    if (!inside) return; // skip edge indicators for secondary — only show when visible
 
     const pulse = 0.3 + 0.2 * Math.sin(Date.now() / 500);
     const r = Math.max(baseR - 1, 2);
     const color = 0x90caf9; // light blue to distinguish from primary orange
 
-    // Small circle dot
-    this.minimapGfx.beginFill(color, 0.5 + pulse);
-    this.minimapGfx.drawCircle(qx, qy, r);
-    this.minimapGfx.endFill();
+    if (inside) {
+      // Small circle dot
+      this.minimapGfx.beginFill(color, 0.5 + pulse);
+      this.minimapGfx.drawCircle(qx, qy, r);
+      this.minimapGfx.endFill();
 
-    // Subtle pulsing ring
-    this.minimapGfx.lineStyle(1, color, pulse * 0.5);
-    this.minimapGfx.drawCircle(qx, qy, r + 2);
-    this.minimapGfx.lineStyle(0);
+      // Subtle pulsing ring
+      this.minimapGfx.lineStyle(1, color, pulse * 0.5);
+      this.minimapGfx.drawCircle(qx, qy, r + 2);
+      this.minimapGfx.lineStyle(0);
+    } else if (!full) {
+      // Edge indicator: clamp to minimap border and draw a small arrow
+      const cx = mmLeft + mmWidth / 2;
+      const cy = mmTop + mmHeight / 2;
+      const dx = qx - cx;
+      const dy = qy - cy;
+      const halfW = mmWidth / 2 - 4;
+      const halfH = mmHeight / 2 - 4;
+      const scale = Math.min(
+        Math.abs(halfW / (dx || 0.001)),
+        Math.abs(halfH / (dy || 0.001))
+      );
+      const edgeX = cx + dx * scale;
+      const edgeY = cy + dy * scale;
+
+      // Draw small triangle pointing outward
+      const angle = Math.atan2(dy, dx);
+      const s = 3;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      this.minimapGfx.beginFill(color, 0.4 + pulse * 0.3);
+      this.minimapGfx.moveTo(edgeX + cos * s, edgeY + sin * s);
+      this.minimapGfx.lineTo(edgeX + (-sin * s * 0.7 - cos * s * 0.5), edgeY + (cos * s * 0.7 - sin * s * 0.5));
+      this.minimapGfx.lineTo(edgeX + (sin * s * 0.7 - cos * s * 0.5), edgeY + (-cos * s * 0.7 - sin * s * 0.5));
+      this.minimapGfx.closePath();
+      this.minimapGfx.endFill();
+
+      qx = edgeX;
+      qy = edgeY;
+    } else {
+      return; // off-bounds in full map — skip
+    }
+
+    // Show label in full map mode
+    if (objective.label && full && inside) {
+      this._drawMinimapLabel(objective.label, qx, qy - r - 2, color);
+    }
   }
 
   // --- Quest waypoint drawing helper (used by both iso and top-down minimap) ---

@@ -43,6 +43,7 @@
       "label": "Choose Your Path",
       "description": "The evidence is in. The factions are aligned. Three paths lie ahead: shut down the Array, broker a symbiosis, or seize control. The choice is yours.",
       "prerequisiteSteps": ["return_compound_to_asha"],
+      "objective": { "roomId": "meridian_civic", "targetNpc": "councillor_asha" },
       "completionConditions": [
         { "or": [
           { "hasFlag": "chose_path_shutdown" },
