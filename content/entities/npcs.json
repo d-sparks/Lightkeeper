@@ -54,6 +54,10 @@
         { "speaker": "Old Keeper", "text": "The Meridian Archives. You've been to the city and back, then." },
         { "speaker": "Old Keeper", "text": "Archivist Solen has been studying the old pre-settlement surveys for years. The Council thinks he's chasing ghosts. I'm not so sure." },
         { "speaker": "Old Keeper", "text": "Whatever he tells you about the thermal readings and the anomalies — listen carefully. The things I've seen come out of these crypts suggest the old ones weren't just seeing things." }
+      ],
+      "key_was_used": [
+        { "speaker": "Old Keeper", "text": "So you used the iron key. Good. That door's been shut for a long time." },
+        { "speaker": "Old Keeper", "text": "Whatever you found on the other side — I hope it was worth the trouble. Those locks don't yield to much." }
       ]
     },
     "dialogueRules": [
@@ -84,6 +88,10 @@
       {
         "conditions": [{ "hasFlag": "visited_meridian_archives" }],
         "use": "visited_archives_lore"
+      },
+      {
+        "conditions": [{ "hasFlag": "picked_up_iron_key" }, { "not": { "hasItem": "iron_key" } }],
+        "use": "key_was_used"
       },
       {
         "conditions": [{ "hasItem": "iron_key" }],
