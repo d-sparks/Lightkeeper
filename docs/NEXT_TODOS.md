@@ -7,7 +7,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 Chunk-based map streaming and fog of war are implemented. Outstanding work:
 
 - ~~Create 10x bigger dungeon content (200x120+ tile maps) to take advantage of the streaming system.~~ — DONE: `outer_expanse` created (200x120, 104 chunks, 27 monster spawns, 17 items, 6 triggers). Reachable via new east exit added to `deep_perimeter_east`. Generator script at `scripts/gen_outer_expanse.js`.
-- **outer_expanse east exit** — The east stairs at (198,60) in outer_expanse currently have no exit destination. Wire to a future Act III area or create a bidirectional loop back to the map.
+- ~~**outer_expanse east exit**~~ — DONE: East stairs at (198,60) now lead to `void_flats`, a new stub dungeon (25×18, outpost tileset) representing the far eastern desolation. `void_flats` exits back to outer_expanse at (196,60). Future Act III content can expand this area eastward.
 - **outer_expanse patrol paths** — Many monster spawns lack explicit patrolPath waypoints. Add them to improve AI variety across the large map's distinct zones.
 - Optimize iso rendering for very large maps: skip iteration of unrevealed chunk regions entirely instead of checking each tile.
 - Add a smooth fog-of-war edge effect at the border of revealed/unrevealed chunks (gradient or dithered fade).

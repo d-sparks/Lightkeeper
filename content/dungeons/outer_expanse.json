@@ -24402,6 +24402,14 @@
       "type": "stairs_up",
       "spawnX": 28,
       "spawnY": 8
+    },
+    {
+      "x": 198,
+      "y": 60,
+      "leadsTo": "void_flats",
+      "type": "stairs_down",
+      "spawnX": 2,
+      "spawnY": 8
     }
   ],
   "triggers": [
