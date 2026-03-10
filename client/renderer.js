@@ -1340,6 +1340,50 @@ class Renderer {
     return this.revealedChunks[cy * this.chunkCols + cx] === 1;
   }
 
+  // Get fog-of-war edge alpha for a tile (gradient at revealed/unrevealed boundaries)
+  _getFogEdgeAlpha(tx, ty) {
+    if (!this.chunked || !this.revealedChunks) return 1.0;
+
+    const cs = CONSTANTS.CHUNK_SIZE || 16;
+    const cx = Math.floor(tx / cs);
+    const cy = Math.floor(ty / cs);
+    const fadeDepth = 3;
+    let minDist = fadeDepth + 1;
+
+    const localX = tx - cx * cs;
+    const localY = ty - cy * cs;
+
+    // Check 8 neighboring chunks for unrevealed boundaries
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        const ncx = cx + dx;
+        const ncy = cy + dy;
+        if (ncx < 0 || ncy < 0 || ncx >= this.chunkCols || ncy >= this.chunkRows) continue;
+        if (this.revealedChunks[ncy * this.chunkCols + ncx] === 1) continue;
+
+        // Neighbor is unrevealed — compute distance to that edge
+        let dist;
+        if (dx === 0) {
+          dist = dy < 0 ? localY : (cs - 1 - localY);
+        } else if (dy === 0) {
+          dist = dx < 0 ? localX : (cs - 1 - localX);
+        } else {
+          // Diagonal: use min of both axis distances
+          const distX = dx < 0 ? localX : (cs - 1 - localX);
+          const distY = dy < 0 ? localY : (cs - 1 - localY);
+          dist = Math.min(distX, distY);
+        }
+        minDist = Math.min(minDist, dist);
+      }
+    }
+
+    if (minDist >= fadeDepth) return 1.0;
+    // Smooth fade: 0.15 at the very edge, 1.0 at fadeDepth tiles in
+    const t = minDist / fadeDepth;
+    return 0.15 + 0.85 * t;
+  }
+
   buildTileColors() {
     if (!this.tileset) return;
     const theme = this._getIsoTheme();
@@ -1670,6 +1714,7 @@ class Renderer {
         sprite.y = ty * ts;
         sprite.width = ts;
         sprite.height = ts;
+        sprite.alpha = this._getFogEdgeAlpha(tx, ty);
 
         if (this.tilesetLoaded && this.tileTextures[tileId]) {
           sprite.texture = this.tileTextures[tileId];
@@ -1744,6 +1789,7 @@ class Renderer {
 
           sprite.visible = true;
           sprite.tint = 0xffffff;
+          sprite.alpha = this._getFogEdgeAlpha(tx, ty);
 
           if (this.isoTileLoaded && this.isoTileTextures[isoKey]) {
             sprite.texture = this.isoTileTextures[isoKey];
@@ -1789,6 +1835,7 @@ class Renderer {
 
           sprite.visible = true;
           sprite.tint = 0xffffff;
+          sprite.alpha = this._getFogEdgeAlpha(tx, ty);
 
           if (this.isoTileLoaded && this.isoTileTextures[isoKey]) {
             sprite.texture = this.isoTileTextures[isoKey];

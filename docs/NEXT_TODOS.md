@@ -10,7 +10,7 @@ Chunk-based map streaming and fog of war are implemented. Outstanding work:
 - ~~**outer_expanse east exit**~~ — DONE: East stairs at (198,60) now lead to `void_flats`, a new stub dungeon (25×18, outpost tileset) representing the far eastern desolation. `void_flats` exits back to outer_expanse at (196,60). Future Act III content can expand this area eastward.
 - **outer_expanse patrol paths** — Many monster spawns lack explicit patrolPath waypoints. Add them to improve AI variety across the large map's distinct zones.
 - Optimize iso rendering for very large maps: skip iteration of unrevealed chunk regions entirely instead of checking each tile.
-- Add a smooth fog-of-war edge effect at the border of revealed/unrevealed chunks (gradient or dithered fade).
+- ~~Add a smooth fog-of-war edge effect at the border of revealed/unrevealed chunks (gradient or dithered fade).~~ — DONE: `_getFogEdgeAlpha()` method computes per-tile alpha based on distance to nearest unrevealed chunk boundary (3-tile fade depth, checks all 8 neighbors including diagonals). Applied in both flat and iso renderers.
 - Editor reload paths still send full map data (no fog of war). Consider chunking those too if needed.
 - Consider reducing chunk reveal radius (currently 3 chunks = 48 tiles) for bigger maps to increase exploration feel.
 - Tune the `getOverlayedMapData` call frequency — currently checked every tick for every player; could throttle to every N ticks.
