@@ -1037,11 +1037,14 @@ class InputHandler {
     if (this.renderer && this.renderer.bossIntro) return;
 
     const threshold = 0.3;
+    // Rotate joystick 45° before computing binary keys, matching the analog rotation below
+    const joyWorldX = this.joyDX + this.joyDY;
+    const joyWorldY = -this.joyDX + this.joyDY;
     const joyKeys = {
-      up:    this.joyDY < -threshold,
-      down:  this.joyDY > threshold,
-      left:  this.joyDX < -threshold,
-      right: this.joyDX > threshold,
+      up:    joyWorldY < -threshold,
+      down:  joyWorldY > threshold,
+      left:  joyWorldX < -threshold,
+      right: joyWorldX > threshold,
     };
 
     // Merge all sources: keyboard/click-to-move + touch joystick + gamepad
@@ -1069,13 +1072,14 @@ class InputHandler {
       if (this.keys.right) { dx += 1; dy -= 1; }
     }
 
-    // Touch joystick (analog)
-    dx += this.joyDX;
-    dy += this.joyDY;
+    // Touch joystick (analog) — rotate 45° for isometric (screen-space → world-space)
+    // Matches WASD: screen-right → world (+1,-1), screen-up → world (-1,-1)
+    dx += this.joyDX + this.joyDY;
+    dy += -this.joyDX + this.joyDY;
 
-    // Gamepad (analog)
-    dx += this.gamepadDX;
-    dy += this.gamepadDY;
+    // Gamepad (analog) — same 45° isometric rotation
+    dx += this.gamepadDX + this.gamepadDY;
+    dy += -this.gamepadDX + this.gamepadDY;
 
     // Normalize to unit vector if magnitude > 1
     const mag = Math.sqrt(dx * dx + dy * dy);

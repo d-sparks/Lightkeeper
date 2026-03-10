@@ -28,7 +28,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 ## Controls
 
-- Touch joystick and gamepad analog sticks send raw screen-space dx/dy — they should be rotated 45° for isometric screen-orthogonal movement, same as the WASD fix applied in `client/input.js`.
+- ~~Touch joystick and gamepad analog sticks send raw screen-space dx/dy — they should be rotated 45° for isometric screen-orthogonal movement, same as the WASD fix applied in `client/input.js`.~~ — DONE: `sendInput()` now rotates joystick and gamepad analog inputs with `(worldX = screenX + screenY, worldY = -screenX + screenY)` before accumulating into dx/dy, matching the existing WASD isometric rotation.
 
 ## Game Feel (Critical Gap)
 
