@@ -1,15 +1,20 @@
 TODOs
 
-- [opus] Fix headless sim board_train failure: the bot clears station_junction and gets a transit pass but cannot board the train at the (12,0) exit in train_station. This blocks CI mainline testing past step 11 of 22. Debug bot pathfinding to the train exit tile, verify exit tile properties, and check for soft-lock conditions
-- [opus] Implement automation dungeon sync (Phase 4): structures placed in the automation grid should appear as real tiles when visiting dayside_solar_fields. Merge player automation placements into MAP data at room-join time using the grid-to-dungeon coordinate offset. Spawn visual-only harvester entities at mapped positions
-- [opus] Design and document an endgame loop in docs/endgame-loop.md: after choosing an ending path, players need repeatable content. Consider escalating procedural dungeon tiers, legendary modifier chase runs, automation scaling milestones, and cooperative challenges. This is the biggest missing system for long-term retention
-- [sonnet] Wire post-ending world state changes: after choosing shutdown/merge/control, NPC ambient dialogue, room descriptions, and environmental details should shift to reflect the new reality. Currently the world is static after the climactic choice
-- [sonnet] Add autotroph low-trust Sable reaction: current autotroph dialogue rules require the helped_sable flag. Add fallback variants so Sable has a response even if the player skipped her side content, preventing a silent NPC at a key story moment
-- [sonnet] Add frost biome loot to deeper static nightside dungeons: nightside_depths and nightside_passage only have story chests. Add loot crate interactables referencing frost_biome_uncommon/rare tables so exploration is rewarded throughout the frost zone
-- [sonnet] Rebalance late-game monster XP rewards: magma_brute (240 HP), frost_warden (280 HP), and elder_sporecap (320 HP) had their HP scaled 1.8-2.3x in the balance pass but XP rewards were not proportionally increased, making them feel unrewarding to fight
-- [opus] Add combat visual polish: lunge trail effect showing the attack path, ground slam shockwave ring animation expanding outward, and stun stars above stunned entities instead of plain dots. These are the remaining combat juice items
-- [sonnet] Persist automation and dayside state in session saves: automation grid placements and resource counts are lost on disconnect because the save system only persists core player data. Add automation state to the save/load cycle
-- [sonnet] Add automation milestone reward notification: when a player reaches a new automation level threshold (2/4/6/10/15 structures), there is no visual feedback. Add a toast or flash notification so the reward moment lands
-- [sonnet] Add Wren Alcott placeholder sprite: wren_alcott NPC exists in outpost_comms with full dialogue but uses no unique sprite. Generate a placeholder following the art style guide palette
-- [sonnet] Visualize extended adjacency ranges in the sol grid UI: when hovering or selecting a legendary modifier, highlight the affected cells in the radius-2/row/column pattern so players can plan grid placement strategically
-- [sonnet] Wire orphaned content flags to gameplay effects: 9 flags (picked_up_iron_key, visited_meridian_archives, used_watchtower_scope, found_watchtower_journal, received_medipac, found_dead_lightkeeper, found_crystallized_umbracite, void_flats_entered) are set but never checked. Add NPC dialogue variants or conditional triggers that reference them to reward exploration
+- Fix headless sim visit_civic_center blocker: bot reaches meridian_civic but cannot interact with registrar_hollis, blocking CI mainline testing past step 12. Debug NPC pathfinding/interaction radius logic in the bot brain
+- Wire the picked_up_iron_key flag to gameplay: content validator reports this flag is set in crypt_01 but never checked anywhere. Add an Old Keeper or NPC dialogue variant that reacts to it
+- Spawn feral_hound_alpha and frostfang_alpha in dungeons: pack_leader AI and aura buffs are fully implemented but neither alpha monster is placed in any dungeon. Add them as rare spawns in nightside_caverns and frost-themed proc templates
+- Spawn skeleton_archer in dungeons and add a loot table: defined monster with no dungeon placement and no loot table. Place in crypt_01/crypt_02 and add a common-tier loot entry
+- Rebalance late-game monster XP rewards: magma_brute (240 HP), frost_warden (280 HP), and elder_sporecap (320 HP) had HP scaled 1.8-2.3x but XP was not proportionally adjusted
+- Add minimap quest waypoints: no spatial guidance exists for quest objectives. Show colored dots on the minimap for active quest goal locations
+- Add explicit patrolPath waypoints to remaining patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, and crypt_02
+- Implement Expedition Tier 1-3 system: the endgame loop spec is complete (docs/endgame-loop.md) but nothing is implemented. Start with expedition board NPC, tier config JSONs, and monster stat scaling at spawn time
+- Add endgame_active flag wiring: chose_path_* flags in meridian_station room triggers should set endgame_active to gate expedition and post-ending content
+- Add post-ending MERIDIAN-7 dialogue for endgame expedition access and modifier crafting introduction
+- Implement modifier crafting (reforge/fuse) at MERIDIAN-7: add a craft action type to server/scripting/actions.js and create content/entities/crafting.json with recipes
+- Add periodic auto-save during play: currently sessions only save on disconnect, risking progress loss on crashes
+- Add a delete character button on the session select screen
+- Playtest and tune energy pacing at mid-game: improved_generator at 5/s may make Sol Beam trivial, and Pulse Rifle DPS (60) is close to Sol Beam (~84) making the rare weapon feel unrewarding
+- Automation Phase 5 polish: add tooltips showing structure stats, placement sound effects, and mobile/touch grid interaction support
+- Add outer_expanse patrol paths: many monster spawns in the 200x120 map lack explicit patrolPath waypoints, making AI behavior static across the large map
+- Create ending-path-specific legendary modifiers: add the 6 path-specific legendaries defined in endgame-loop.md to sol_components.json with proper unlock gating
+- Optimize iso renderer for very large maps: skip iteration of unrevealed chunk regions entirely instead of checking each tile individually

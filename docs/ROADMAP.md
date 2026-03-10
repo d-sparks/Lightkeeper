@@ -25,7 +25,7 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Item Rarity UI | Done | Rarity colors (common to legendary) displayed in inventory and sol grid |
 | Art Style Guide | Done | Master palette, sprite conventions, zone color identity documented |
 | Content Validation CI | Done | `npm test` runs content-validator.js + headless-sim.js --mainline |
-| Automation System | Partial | Server grid state + client CSS grid UI done (Phases 1-2). Phase 3 done (openAutomation action + MERIDIAN-7 trigger + client handler). Dungeon sync (Phase 4) still needed. See docs/automation_screen.md |
+| Automation System | Partial | Phases 1-4 done (grid state, UI, MERIDIAN-7 wiring, dungeon sync). Phase 5 (tooltips, sound, mobile) still needed. See docs/automation_screen.md |
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons |
 | Act II Content | Partial | Dayside, Array complex, Crystal Guardian boss, MERIDIAN-7 quest, quest steps 19-22 bridge to Act III. Deeper questlines needed |
 | Act III Content | Partial | All three ending dungeons built (shutdown, merge, control). Post-choice NPC dialogue and Unbounded elder NPC still needed |
@@ -53,10 +53,11 @@ Focus: **Connect disconnected systems, fix testing gaps, implement death penalty
 
 1. ~~**Death penalty polish**~~ — DONE. Respawn teleport + death screen overlay implemented.
 2. ~~**Automation grid Phase 3**~~ — DONE. `openAutomation` action, MERIDIAN-7 trigger, and client handler all wired.
-3. **Fix headless sim board_train** — Bot clears junction and gets transit pass but can't navigate to train exit at (12,0). Blocks CI mainline testing past step 11.
+3. ~~**Fix headless sim board_train**~~ — DONE. Bot navigates to train exit and boards successfully.
+4. **Fix headless sim visit_civic_center** — Bot reaches meridian_civic but can't interact with registrar_hollis. Blocks CI mainline testing past step 12.
 4. ~~**Post-choice NPC dialogue**~~ — DONE. Asha, Sable, MERIDIAN-7, Wren all have post-choice variants.
 5. **Minimap quest waypoints** — No spatial guidance for quest objectives currently.
-6. **Automation dungeon sync (Phase 4)** — Player-placed structures should appear as tiles in dayside_solar_fields.
+6. ~~**Automation dungeon sync (Phase 4)**~~ — DONE. `getOverlayedMapData()` merges placements into MAP chunks; harvester entities spawn in dayside_solar_fields.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
@@ -65,7 +66,7 @@ Focus: **Content polish, quest feel, endgame depth**
 7. **Minimap quest waypoints** — Colored dots on minimap for active quest objectives. No spatial guidance currently.
 8. ~~**Wren Alcott dialogue expansion**~~ — DONE. Wren reacts to elder_sporecap_defeated, magma_core_cleared, arrived_meridian, array_secret_discovered, act3_asha_alliance_activated.
 9. ~~**Sable trust escalation**~~ — DONE. Trust increments to 2 (guide role) and 3 (Listening Floor). companion_bond gates on sable_trust > 2.
-10. **Automation Phase 4 (dungeon sync)** — Structures placed in grid appear as tiles in dayside_solar_fields.
+10. ~~**Automation Phase 4 (dungeon sync)**~~ — DONE.
 11. ~~**Pack leader AI variant**~~ — DONE. pack_leader AI type with data-driven aura buffs. feral_hound_alpha and frostfang_alpha added.
 12. ~~**Touch/gamepad 45° rotation**~~ — DONE. sendInput() rotates joystick and gamepad inputs for isometric movement.
 
@@ -166,13 +167,19 @@ These are done and don't need further investment:
 - **Touch/gamepad 45° rotation** — Joystick and gamepad analog inputs rotated for isometric movement
 - **Room lifecycle tests** — Tier 4 integration tests for createRoom → join → transition → cleanup (304 total tests)
 - **Placeholder sprites** — sable_nightside_guide, sable_threshold, unbounded_elder all have sprites
+- **Headless sim board_train fix** — buildQuestGoals handles targetExit in quest objectives, bot boards train successfully
+- **Automation Phase 4 (dungeon sync)** — getOverlayedMapData() merges player automation placements into MAP chunks; harvester entities spawn in dayside_solar_fields
+- **Automation milestone notifications** — Toast notification on milestone thresholds (2/4/6/10/15)
+- **Wren Alcott sprite** — Placeholder sprite generated
+- **Extended adjacency visualization** — Sol grid UI highlights legendary modifier ranges on hover/placement
+- **Orphaned flags batch 1** — 9 exploration flags wired to NPC dialogue and XP rewards
 
 ## Active Design Docs
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
 | docs/progression-system.md | Active | Core decisions resolved. Remaining: battery math, harvester scaling |
-| docs/automation_screen.md | Active | Phases 1-3 done. Next: Phase 4 (dungeon sync) |
+| docs/automation_screen.md | Active | Phases 1-4 done. Next: Phase 5 (tooltips, sound, mobile) |
 | docs/storyboard.md | Active | Act I done, Act II partial, Act III endings built. Post-choice dialogue done. Remaining: registrar_hollis reactions, post-ending world state |
 | docs/testing-design.md | Done | Both tools built and functional. 304 tests passing |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented. Fog-of-war streaming working |

@@ -84,13 +84,13 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 - ~~Headless sim perimeter_gate fix~~ — DONE: Path state bug resolved.
 - ~~Headless sim stuck at junction_cleared~~ — DONE: `doInteractNearest` now scans for interactable tiles and navigates to them. `buildQuestGoals` detects `door_interacted` triggers via `findDoorThatSetsFlag()` and generates `kill_monsters` + `move_to_position` goals. Bot now clears station_junction successfully.
 - ~~Headless sim stuck at board_train~~ — DONE: `buildQuestGoals` now handles `targetExit` in quest step objectives, finding the matching exit tile and generating a `move_to_position` goal. Bot boards train and reaches meridian_station.
-- **Headless sim stuck at visit_civic_center** — bot reaches meridian_civic but can't interact with registrar_hollis. Next blockage after board_train fix.
+- **Headless sim stuck at visit_civic_center** — bot reaches meridian_civic but can't interact with registrar_hollis. Next blockage after board_train fix. This is the current CI mainline blocker.
 
 ## Automation Grid (Phases 3-5)
 
 Phase 3: DONE — `openAutomation` action in actions.js, `meridian_open_automation` trigger in train_station.json (fires on npc_interacted for meridian_7 when `traded_umbracite_meridian` flag is set), client AUTO_STATE handler with openScreen in main.js.
-~~Phase 4: Dungeon sync — merge automation placements into tile data for dayside_solar_fields.~~ — DONE: `getOverlayedMapData()` merges player placements into MAP chunks at room-join, floor-transition, and post-build. `getHarvesterEntities()` spawns visual-only `scrap_drone` NPCs at silicon_harvester positions (per-player, decorative flag skips "[E] Talk" prompt). State broadcast injects harvester entities into npcs array when player is in dayside_solar_fields.
-Phase 5: Tooltips, sound effects, mobile/touch, controller support.
+~~Phase 4: Dungeon sync~~ — DONE: `getOverlayedMapData()` merges player placements into MAP chunks at room-join, floor-transition, and post-build. `getHarvesterEntities()` spawns visual-only `scrap_drone` NPCs at silicon_harvester positions.
+Phase 5: Tooltips, sound effects, mobile/touch, controller support. This is the remaining automation UI work.
 
 ## Sol Grid
 
