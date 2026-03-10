@@ -96,7 +96,7 @@ Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 
 - Light Sentry enhancements: multiple sentries, light/mirror puzzles, lifetime/duration, range indicator, upgrade paths, replace placeholder sprite.
 - ~~Extended-adjacency modifiers~~ — DONE: radius2, row, column patterns for legendary tier.
-- Client sol grid UI: visualize extended adjacency ranges when hovering/selecting a legendary modifier (highlight affected cells in radius2/row/column pattern).
+- ~~Client sol grid UI: visualize extended adjacency ranges when hovering/selecting a legendary modifier (highlight affected cells in radius2/row/column pattern).~~ — DONE: Placed legendary modifiers highlight their reach (amber glow on range cells, bright border on source) on mouseenter. When a legendary modifier is selected from inventory for placement, hovering over any grid cell previews the range from that origin.
 - Battery math: capacity per tier, energy costs per ability, casts per full charge.
 - Harvester scaling: silicon rate, max harvesters, late-game upgrades.
 - Multiplayer implications: shared grid builds? Specialization?

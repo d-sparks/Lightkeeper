@@ -1935,7 +1935,7 @@
 
     solGridContainer.appendChild(grid);
 
-    // Highlight adjacency connections
+    // Highlight adjacency connections (standard: green glow on modifier cells adjacent to abilities)
     const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
     for (let cy = 0; cy < size; cy++) {
       for (let cx = 0; cx < size; cx++) {
@@ -1947,11 +1947,95 @@
           if (nx < 0 || ny < 0 || nx >= size || ny >= size) continue;
           const ni = ny * size + nx;
           const neighbor = solGridState.cells[ni];
-          if (neighbor && neighbor.modifierId) {
+          if (neighbor && neighbor.modifierId && !neighbor.adjacencyPattern) {
             const neighborCell = grid.children[ni];
             if (neighborCell) neighborCell.style.boxShadow = '0 0 6px rgba(76,175,80,0.4)';
           }
         }
+      }
+    }
+
+    // Helper: compute which cell indices fall within an adjacency pattern centered at (ox, oy)
+    function getAdjRangeCells(ox, oy, pattern) {
+      const indices = [];
+      for (let ny = 0; ny < size; ny++) {
+        for (let nx = 0; nx < size; nx++) {
+          if (nx === ox && ny === oy) continue;
+          const dist = Math.abs(nx - ox) + Math.abs(ny - oy);
+          let inRange = false;
+          if (pattern === 'radius2') inRange = dist <= 2;
+          else if (pattern === 'row') inRange = ny === oy;
+          else if (pattern === 'column') inRange = nx === ox;
+          if (inRange) indices.push(ny * size + nx);
+        }
+      }
+      return indices;
+    }
+
+    // Helper: clear all adj-range / adj-source classes from the grid
+    function clearAdjHighlight() {
+      for (let i = 0; i < size * size; i++) {
+        const el = grid.children[i];
+        if (el) { el.classList.remove('adj-range', 'adj-source'); }
+      }
+    }
+
+    // Hover on placed legendary modifier cells → show their reach
+    for (let i = 0; i < size * size; i++) {
+      const comp = solGridState.cells[i];
+      if (!comp || !comp.modifierId || !comp.adjacencyPattern) continue;
+      const mx = i % size, my = Math.floor(i / size);
+      // Find origin cell of this placement (for multi-cell shapes, use originX/Y)
+      const originX = comp.originX !== undefined ? comp.originX : mx;
+      const originY = comp.originY !== undefined ? comp.originY : my;
+      const pattern = comp.adjacencyPattern;
+
+      // Collect all cells belonging to this placement
+      const placementCells = [];
+      for (let j = 0; j < size * size; j++) {
+        const c = solGridState.cells[j];
+        if (c && c.placementId === comp.placementId) placementCells.push(j);
+      }
+
+      const addHover = (enterIdx) => {
+        const el = grid.children[enterIdx];
+        if (!el) return;
+        el.addEventListener('mouseenter', () => {
+          clearAdjHighlight();
+          // Mark all cells of this placement as source
+          for (const pi of placementCells) {
+            const src = grid.children[pi];
+            if (src) src.classList.add('adj-source');
+          }
+          // Mark range cells
+          for (const ri of getAdjRangeCells(originX, originY, pattern)) {
+            const r = grid.children[ri];
+            if (r) r.classList.add('adj-range');
+          }
+        });
+        el.addEventListener('mouseleave', clearAdjHighlight);
+      };
+
+      for (const pi of placementCells) addHover(pi);
+    }
+
+    // Hovering empty grid cells when a legendary modifier is selected from inventory
+    const selItem = solGridSelectedComponent !== null ? inventoryItems[solGridSelectedComponent] : null;
+    const selPattern = selItem && selItem.adjacencyPattern ? selItem.adjacencyPattern : null;
+    if (selPattern) {
+      for (let i = 0; i < size * size; i++) {
+        const cellEl = grid.children[i];
+        if (!cellEl) continue;
+        const hx = i % size, hy = Math.floor(i / size);
+        cellEl.addEventListener('mouseenter', () => {
+          clearAdjHighlight();
+          cellEl.classList.add('adj-source');
+          for (const ri of getAdjRangeCells(hx, hy, selPattern)) {
+            const r = grid.children[ri];
+            if (r) r.classList.add('adj-range');
+          }
+        });
+        cellEl.addEventListener('mouseleave', clearAdjHighlight);
       }
     }
 

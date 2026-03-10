@@ -929,11 +929,14 @@ class GameLoop {
             };
           }
         }
-        // For modifier cells, include bonus info for tooltip display
+        // For modifier cells, include bonus info and adjacency pattern for UI display
         if (cell.modifierId) {
           const compDef = this.content.getSolComponent(cell.modifierId);
           if (compDef && compDef.bonus) {
             clientCell.bonus = compDef.bonus;
+          }
+          if (compDef && compDef.adjacencyPattern) {
+            clientCell.adjacencyPattern = compDef.adjacencyPattern;
           }
         }
         // For generator cells, include regen info with adjacency boost
@@ -1382,12 +1385,19 @@ class GameLoop {
 
     // Add item back to inventory
     const itemDef = this.content.getItem(itemType);
-    player.inventory.push({
+    const returnedItem = {
       type: itemType,
       name: itemDef.name,
       rarity: itemDef.rarity || 'common',
       category: itemDef.type || 'misc',
-    });
+    };
+    if (itemDef.solComponentId) {
+      const solComp = this.content.getSolComponent(itemDef.solComponentId);
+      if (solComp && solComp.adjacencyPattern) {
+        returnedItem.adjacencyPattern = solComp.adjacencyPattern;
+      }
+    }
+    player.inventory.push(returnedItem);
 
     this._rebuildAbilities(player);
     return true;
@@ -3833,12 +3843,19 @@ class GameLoop {
         // Medical supplies go to medipac charges, not inventory
         player.medipacCharges = (player.medipacCharges || 0) + 1;
       } else {
-        player.inventory.push({
+        const invItem = {
           type: closestItem.type,
           name: closestItem.name,
           rarity: closestItem.rarity,
           category: closestItemDef ? closestItemDef.type : 'misc',
-        });
+        };
+        if (closestItemDef && closestItemDef.solComponentId) {
+          const solComp = this.content.getSolComponent(closestItemDef.solComponentId);
+          if (solComp && solComp.adjacencyPattern) {
+            invItem.adjacencyPattern = solComp.adjacencyPattern;
+          }
+        }
+        player.inventory.push(invItem);
       }
       room.events.push({
         type: 'pickup',
