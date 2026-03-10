@@ -83,7 +83,8 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 - ~~Physics dt fix~~ — DONE: dt clamping + substep movement.
 - ~~Headless sim perimeter_gate fix~~ — DONE: Path state bug resolved.
 - ~~Headless sim stuck at junction_cleared~~ — DONE: `doInteractNearest` now scans for interactable tiles and navigates to them. `buildQuestGoals` detects `door_interacted` triggers via `findDoorThatSetsFlag()` and generates `kill_monsters` + `move_to_position` goals. Bot now clears station_junction successfully.
-- **Headless sim stuck at board_train** — bot clears junction and gets transit pass but can't board the train. Next blockage after junction fix.
+- ~~Headless sim stuck at board_train~~ — DONE: `buildQuestGoals` now handles `targetExit` in quest step objectives, finding the matching exit tile and generating a `move_to_position` goal. Bot boards train and reaches meridian_station.
+- **Headless sim stuck at visit_civic_center** — bot reaches meridian_civic but can't interact with registrar_hollis. Next blockage after board_train fix.
 
 ## Automation Grid (Phases 3-5)
 

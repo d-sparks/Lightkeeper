@@ -1558,6 +1558,16 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
         if (step.objective.tileX != null && step.objective.tileY != null) {
           goals.push({ type: 'move_to_position', tileX: step.objective.tileX, tileY: step.objective.tileY, tolerance: 0, stepId, questId });
         }
+        // If the objective specifies a target exit, navigate to its tile
+        if (step.objective.targetExit) {
+          const dungeon = content.getDungeon(roomId);
+          if (dungeon && dungeon.exits) {
+            const exit = dungeon.exits.find(e => e.leadsTo === step.objective.targetExit);
+            if (exit) {
+              goals.push({ type: 'move_to_position', tileX: exit.x, tileY: exit.y, tolerance: 0, stepId, questId });
+            }
+          }
+        }
       }
     }
 
