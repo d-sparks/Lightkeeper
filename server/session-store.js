@@ -69,6 +69,7 @@ class SessionStore {
     const filepath = this._filepath(playerData.name);
     const data = {
       name: playerData.name,
+      sessionToken: playerData.sessionToken,
       room: playerData.room,
       x: playerData.x,
       y: playerData.y,

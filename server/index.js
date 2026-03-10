@@ -1,4 +1,5 @@
 const http = require('http');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
@@ -443,6 +444,26 @@ wss.on('connection', (ws) => {
         const savedSession = msg.name ? sessionStore.load(msg.name) : null;
         ws.playerName = msg.name || `Player ${nextPlayerId}`;
 
+        // --- Session auth: prevent character hijacking ---
+        if (savedSession) {
+          // Reject if session has a token and client didn't provide the right one
+          if (savedSession.sessionToken && savedSession.sessionToken !== msg.sessionToken) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Session token mismatch — this character belongs to another player.' }));
+            return;
+          }
+          // Prevent concurrent logins to the same character
+          for (const client of wss.clients) {
+            if (client !== ws && client.readyState === 1 && client.playerName === ws.playerName && client.playerRoom) {
+              ws.send(JSON.stringify({ type: 'error', message: 'This character is already logged in from another session.' }));
+              return;
+            }
+          }
+        }
+
+        // Generate session token for new characters (or backfill old saves without one)
+        const sessionToken = (savedSession && savedSession.sessionToken) || crypto.randomBytes(24).toString('hex');
+        ws.sessionToken = sessionToken;
+
         // Determine spawn room: saved session room or default
         const targetRoom = (savedSession && savedSession.room) || getDefaultRoom();
         gameLoop.getOrCreateRoom(targetRoom);
@@ -518,6 +539,7 @@ wss.on('connection', (ws) => {
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.WELCOME,
           playerId,
+          sessionToken,
           map: mapMeta,
           tileset: content.getTileset(room.dungeon.tileset),
           itemCatalog: content.getAllItems(),
@@ -994,6 +1016,7 @@ wss.on('connection', (ws) => {
 
         sessionStore.save({
           name: ws.playerName,
+          sessionToken: ws.sessionToken,
           room: ws.playerRoom,
           x: player.x,
           y: player.y,

@@ -2267,8 +2267,14 @@
   // --- Session / Join flow ---
   const sessionListEl = document.getElementById('session-list');
 
+  let pendingJoinName = null;
+
   function joinWithName(name) {
-    net.send({ type: CONSTANTS.MSG.JOIN, name });
+    pendingJoinName = name;
+    // Send session token if we have one stored for this character
+    const tokenKey = `lk_session_${name}`;
+    const sessionToken = localStorage.getItem(tokenKey) || undefined;
+    net.send({ type: CONSTANTS.MSG.JOIN, name, sessionToken });
 
     // Initialize audio on first user gesture
     audio.init();
@@ -2342,8 +2348,19 @@
   });
 
   // --- Network handlers ---
+  net.on('error', (msg) => {
+    console.error('[Game] Server error:', msg.message);
+    net.setStatus(msg.message || 'Connection error');
+    pendingJoinName = null;
+  });
+
   net.on(CONSTANTS.MSG.WELCOME, (msg) => {
     console.log('[Game] Welcome!', msg.playerId);
+
+    // Store session token for reconnection auth
+    if (msg.sessionToken && pendingJoinName) {
+      localStorage.setItem(`lk_session_${pendingJoinName}`, msg.sessionToken);
+    }
 
     renderer.setMyId(msg.playerId);
     // Chunk-based map streaming: create empty data array, fill from chunks

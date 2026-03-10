@@ -19,7 +19,7 @@ Chunk-based map streaming and fog of war are implemented. Outstanding work:
 
 Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
-- Add authentication or simple password protection to prevent session hijacking (anyone can resume any character by name).
+- ~~Add authentication or simple password protection to prevent session hijacking (anyone can resume any character by name).~~ — DONE: Session tokens (48-char hex via crypto.randomBytes) generated on character creation, stored in save files and client localStorage. Token required to resume existing characters; concurrent logins blocked. Old saves without tokens are backfilled on first login.
 - Add a delete character button on the session select screen.
 - Save automation/dayside state per session (currently not persisted).
 - Periodic auto-save during play (currently only saves on disconnect).
