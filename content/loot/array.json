@@ -20,7 +20,8 @@
       { "item": "photon_regulator_chip", "weight": 3 },
       { "item": "efficiency_core_chip", "weight": 2 },
       { "item": "solar_capacitor_chip", "weight": 1 },
-      { "item": "improved_generator_chip", "weight": 1 }
+      { "item": "improved_generator_chip", "weight": 1 },
+      { "item": "rechargeable_battery_chip", "weight": 1 }
     ]
   },
   "array_overseer": {
@@ -31,7 +32,8 @@
       { "item": "solar_capacitor_chip", "weight": 3 },
       { "item": "efficiency_core_chip", "weight": 2 },
       { "item": "photon_regulator_chip", "weight": 2 },
-      { "item": "improved_generator_chip", "weight": 2 }
+      { "item": "improved_generator_chip", "weight": 2 },
+      { "item": "rechargeable_battery_chip", "weight": 2 }
     ]
   }
 }

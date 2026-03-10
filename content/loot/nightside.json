@@ -128,7 +128,8 @@
       { "item": "resonant_umbracite_core", "weight": 3 },
       { "item": "symbiotic_compound", "weight": 2 },
       { "item": "void_resonator_chip", "weight": 2 },
-      { "item": "underlumen_nexus", "weight": 1 }
+      { "item": "underlumen_nexus", "weight": 1 },
+      { "item": "rechargeable_battery_chip", "weight": 1 }
     ]
   }
 }
