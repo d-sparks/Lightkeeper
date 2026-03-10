@@ -58,6 +58,7 @@ any public release:
 - `content/sprites/sable_nightside_guide.png`
 - `content/sprites/sable_threshold.png`
 - `content/sprites/unbounded_elder.png`
+- `content/sprites/wren_alcott.png`
 
 ### Item Sprites (16x16 each)
 - `content/sprites/health_potion.png`

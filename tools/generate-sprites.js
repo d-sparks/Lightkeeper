@@ -1294,6 +1294,30 @@ function generateNPCSprites() {
     [_, _, _, _, b,lp,lp, _, _,lp,lp, b, _, _, _, _],
   ]);
   savePNG(elder, path.join(CONTENT_DIR, 'sprites', 'unbounded_elder.png'));
+
+  // --- Commander Wren Alcott: military field commander, teal uniform, dark hair, rank insignia ---
+  const dt = C.darkTeal;
+  const Og = C.orange;
+  const wren = createPNG(16, 16);
+  drawPixelArt(wren, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, n, n, S, S, n, n, _, _, _, _, _],
+    [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Te,Te,Te,Te, _, _, _, _, _, _],
+    [_, _, dt,Te,Te,Te,Te,Te,Te,Te,Te,Te, dt, _, _, _],
+    [_, _, dt,Te,Te,Te,Og,Te,Te,Og,Te,Te, dt, _, _, _],
+    [_, _, _, _,Te,Te,Te,Te,Te,Te,Te,Te, _, _, _, _],
+    [_, _, _, _, _,Te,Te,Te,Te,Te,Te, _, _, _, _, _],
+    [_, _, _, _, _,dt,Te,Te,Te,Te, dt, _, _, _, _, _],
+    [_, _, _, _, _,dt, dt,Te,Te, dt, dt, _, _, _, _, _],
+    [_, _, _, _, _,dt, dt, _, _, dt, dt, _, _, _, _, _],
+    [_, _, _, _, _,dt, dt, _, _, dt, dt, _, _, _, _, _],
+    [_, _, _, _, n, dt, dt, _, _, dt, dt, n, _, _, _, _],
+  ]);
+  savePNG(wren, path.join(CONTENT_DIR, 'sprites', 'wren_alcott.png'));
 }
 
 // ============================================================================
