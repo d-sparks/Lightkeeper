@@ -792,27 +792,59 @@ class GameLoop {
     }
   }
 
-  // Get modifier components adjacent to a grid position (4-directional, Manhattan distance 1 by default)
+  // Get modifier components adjacent to a grid position
+  // Standard modifiers use 4-directional Manhattan distance 1.
+  // Extended-adjacency modifiers (legendary tier) use their adjacencyPattern:
+  //   "radius2" — Manhattan distance <= 2
+  //   "row"     — any cell in the same row
+  //   "column"  — any cell in the same column
   // Deduplicates by placementId so multi-cell shapes only count once
   _getAdjacentModifiers(solGrid, x, y) {
     const size = solGrid.size;
     const modifiers = [];
     const seenPlacements = new Set();
-    const dirs = [[-1,0],[1,0],[0,-1],[0,1]]; // 4-directional
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx;
-      const ny = y + dy;
-      if (nx < 0 || ny < 0 || nx >= size || ny >= size) continue;
+
+    // Helper: check a cell at (nx, ny) and add its modifier if valid and unseen
+    const _tryCell = (nx, ny) => {
+      if (nx < 0 || ny < 0 || nx >= size || ny >= size) return;
+      if (nx === x && ny === y) return; // skip self
       const cell = solGrid.cells[ny * size + nx];
-      if (cell && cell.modifierId) {
-        if (cell.placementId && seenPlacements.has(cell.placementId)) continue;
-        if (cell.placementId) seenPlacements.add(cell.placementId);
-        const compDef = this.content.getSolComponent(cell.modifierId);
-        if (compDef && compDef.type === 'modifier' && compDef.bonus) {
-          modifiers.push(compDef);
-        }
+      if (!cell || !cell.modifierId) return;
+      if (cell.placementId && seenPlacements.has(cell.placementId)) return;
+      if (cell.placementId) seenPlacements.add(cell.placementId);
+      const compDef = this.content.getSolComponent(cell.modifierId);
+      if (!compDef || compDef.type !== 'modifier' || !compDef.bonus) return;
+      const pattern = compDef.adjacencyPattern;
+      // Determine if this modifier can reach (x, y) from (nx, ny)
+      const dist = Math.abs(nx - x) + Math.abs(ny - y);
+      if (!pattern) {
+        // Standard modifier: Manhattan distance 1 only
+        if (dist <= 1) modifiers.push(compDef);
+      } else if (pattern === 'radius2') {
+        if (dist <= 2) modifiers.push(compDef);
+      } else if (pattern === 'row') {
+        if (ny === y) modifiers.push(compDef);
+      } else if (pattern === 'column') {
+        if (nx === x) modifiers.push(compDef);
       }
+    };
+
+    // Scan standard adjacency (distance 1) — covers all non-extended modifiers
+    for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+      _tryCell(x + dx, y + dy);
     }
+
+    // Scan extended range for radius2 modifiers (distance 2, not already covered)
+    for (const [dx, dy] of [[-2,0],[2,0],[0,-2],[0,2],[-1,-1],[-1,1],[1,-1],[1,1]]) {
+      _tryCell(x + dx, y + dy);
+    }
+
+    // Scan entire row and column for row/column modifiers (skip already-checked cells)
+    for (let i = 0; i < size; i++) {
+      if (Math.abs(i - x) > 2) _tryCell(i, y);  // row cells not yet checked
+      if (Math.abs(i - y) > 2) _tryCell(x, i);  // column cells not yet checked
+    }
+
     return modifiers;
   }
 

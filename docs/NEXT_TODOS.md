@@ -95,7 +95,8 @@ Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 ## Sol Grid
 
 - Light Sentry enhancements: multiple sentries, light/mirror puzzles, lifetime/duration, range indicator, upgrade paths, replace placeholder sprite.
-- Extended-adjacency modifiers (radius 2, row/column) for rare/legendary tier.
+- ~~Extended-adjacency modifiers (radius 2, row/column) for rare/legendary tier.~~ — DONE: Engine supports `adjacencyPattern` field on modifiers (`radius2`, `row`, `column`). Four legendary modifiers added: Abyssal Nexus (Nightside, radius2, 2×2), Verdant Overgrowth (Greenway, column, 1×3), Solar Array Beacon (Dayside, row, 3×1), Convergence Matrix (generic, radius2, 2×2). Standard modifiers unchanged (4-directional distance 1).
+- Client sol grid UI: visualize extended adjacency ranges when hovering/selecting a legendary modifier (highlight affected cells in radius2/row/column pattern).
 - Battery math: capacity per tier, energy costs per ability, casts per full charge.
 - Harvester scaling: silicon rate, max harvesters, late-game upgrades.
 - Multiplayer implications: shared grid builds? Specialization?

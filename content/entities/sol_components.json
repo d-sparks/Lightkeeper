@@ -225,6 +225,45 @@
     "description": "A precision Array instrument that harmonizes energy flow, drastically reducing waste while amplifying output to adjacent components.",
     "shape": [[1, 1]]
   },
+  "abyssal_nexus": {
+    "type": "modifier",
+    "name": "Abyssal Nexus",
+    "rarity": "legendary",
+    "faction": "nightside",
+    "adjacencyPattern": "radius2",
+    "bonus": { "damageMultiplier": 0.70, "cooldownReduction": 0.20 },
+    "description": "A fragment of the deep void, its destructive resonance reaches abilities two steps away in every direction.",
+    "shape": [[1, 1], [1, 1]]
+  },
+  "verdant_overgrowth": {
+    "type": "modifier",
+    "name": "Verdant Overgrowth",
+    "rarity": "legendary",
+    "faction": "greenway",
+    "adjacencyPattern": "column",
+    "bonus": { "healOnHit": 12, "damageMultiplier": 0.30 },
+    "description": "A towering column of living biotech whose tendrils extend through the entire grid column, feeding all abilities along its vertical path.",
+    "shape": [[1], [1], [1]]
+  },
+  "solar_array_beacon": {
+    "type": "modifier",
+    "name": "Solar Array Beacon",
+    "rarity": "legendary",
+    "faction": "dayside",
+    "adjacencyPattern": "row",
+    "bonus": { "energyCostReduction": 0.50, "cooldownReduction": 0.15 },
+    "description": "A miniaturized Array relay that broadcasts efficiency harmonics across its entire grid row, optimizing every ability in its horizontal path.",
+    "shape": [[1, 1, 1]]
+  },
+  "convergence_matrix": {
+    "type": "modifier",
+    "name": "Convergence Matrix",
+    "rarity": "legendary",
+    "adjacencyPattern": "radius2",
+    "bonus": { "damageMultiplier": 0.40, "cooldownReduction": 0.25, "energyCostReduction": 0.25 },
+    "description": "A rare tri-stat component salvaged from a pre-Collapse facility, its influence radiates outward to all nearby components within two steps.",
+    "shape": [[1, 1], [1, 1]]
+  },
   "hover_thruster": {
     "type": "ability",
     "abilityId": "hover",
