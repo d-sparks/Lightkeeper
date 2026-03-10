@@ -1486,9 +1486,22 @@
         { "speaker": "Land Registrar Hollis", "text": "Now that you've met Yun, you've got the skills to build. But you should see what you're building against." },
         { "speaker": "Land Registrar Hollis", "text": "The Dayside Solar Fields. Everything the Array has built — harvesters, panels, processing labs — it's all out there on the sunward side." },
         { "speaker": "Land Registrar Hollis", "text": "Gives you perspective on what 'self-sufficient' really means when your competition never sleeps." }
+      ],
+      "array_secret_discovered": [
+        { "speaker": "Land Registrar Hollis", "text": "Hollis sets down a thick ledger and does not look up immediately. There are red tab markers bristling from a dozen pages." },
+        { "speaker": "Land Registrar Hollis", "text": "'I'll tell you what nobody upstairs is talking about. If the Council fractures — I mean actually fractures, Stewards splitting from the Compact — I have eighteen hundred active deeds with Array-affiliated co-signatories.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Leasehold agreements. Infrastructure easements. The relay conduits running under half of East Terrace are officially Array property, licensed to us. If that licensing authority ceases to be recognized... I don't have a form for that.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'The Stewards are already asking me to flag Array-linked property. Flag it for what? Seizure? Renegotiation? They won't say. The Compact tells me to continue normal processing as if nothing happened.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'So here I sit. Normal processing. Eighteen hundred open questions and a stack of new applications from people who just watched the Council session and are very suddenly very interested in self-sufficient solar lots.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Your Lot 7 deed is clean — no Array co-signature, no easement overlap. You filed at the right time. Whatever comes next, that property is yours by clear title.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Build something that doesn't depend on anyone else's infrastructure. That's my professional advice and my personal one.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "has_yard_deed" }],
+        "use": "array_secret_discovered"
+      },
       {
         "conditions": [{ "hasFlag": "has_yard_deed" }, { "hasFlag": "met_crafter_yun" }, { "not": { "hasFlag": "visited_dayside" } }],
         "use": "post_yun_dayside"
