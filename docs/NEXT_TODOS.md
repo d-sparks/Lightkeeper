@@ -132,7 +132,7 @@ Critical gaps in the quest graph where content exists but isn't reachable from t
 - Phase 3 investigation quest after Autotroph confrontation — still needed to make the choice *mechanically* meaningful beyond dialogue.
 - Map markers for Nightside Caverns entrance.
 - **Wren Alcott sprite** — `wren_alcott` NPC added to outpost_comms but has no unique sprite. Add placeholder or reuse existing outpost sprite.
-- **Wren low-trust/post-Meridian variants** — Wren currently has only one non-default state (`post_frost_warden`). Add reactions for `elder_sporecap_defeated`, `magma_core_cleared`, and post-Meridian story beats to complete her arc as mentor figure.
+- ~~**Wren low-trust/post-Meridian variants**~~ — DONE: Wren now reacts to `elder_sporecap_defeated`, `magma_core_cleared`, `arrived_meridian`, `array_secret_discovered`, and `act3_asha_alliance_activated` in priority order, completing her mentor arc from field ops briefing through Act III coalition.
 - **sable_trust numeric escalation** — `sable_trust` flag is currently set once to 1 and then never incremented. Wire additional trust-building interactions (e.g., completing Sable's Nightside guide mission) to increment the value, enabling future `flagGreaterThan` checks for deeper relationship stages.
 - **autotroph low-trust Sable reaction** — Current autotroph rules require `helped_sable`. Add low-trust variants so Sable has a response even if the player didn't help her earlier.
 - **Remaining orphaned flags** — Content validator may still report other orphaned flags not in this batch (e.g., any flags set by side quests without corresponding checks). Run validator post-merge to confirm remaining count.

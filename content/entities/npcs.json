@@ -230,6 +230,44 @@
         { "speaker": "Commander Wren Alcott", "text": "Councillor Asha's team has been mapping subsurface thermal signatures. I'm going to flag this for her — the timing lines up with something they've been tracking." },
         { "speaker": "Commander Wren Alcott", "text": "Good work. We needed this. Don't get comfortable." }
       ],
+      "post_elder_sporecap_defeated": [
+        { "speaker": "Commander Wren Alcott", "text": "The Elder Sporecap. That's the second apex off our tracking list." },
+        { "speaker": "Commander Wren Alcott", "text": "Fungal forests have been impassable since the colony cluster spread north. Deep-zone survey teams couldn't get through. That changes things." },
+        { "speaker": "Commander Wren Alcott", "text": "Same pattern as the Frost Warden, though. It wasn't where we expected it. It was higher in the canopy — closer to the surface, away from the deep root network. That's not normal territorial behavior." },
+        { "speaker": "Commander Wren Alcott", "text": "Two apex predators retreating toward the light. I don't like what that's starting to look like." },
+        { "speaker": "Commander Wren Alcott", "text": "There's one more zone. The geothermal tunnels. I want eyes on what's down there." }
+      ],
+      "post_magma_core_cleared": [
+        { "speaker": "Commander Wren Alcott", "text": "All three zones. You cleared all three." },
+        { "speaker": "Commander Wren Alcott", "text": "The Frost Crypt, the fungal forest, the geothermal tunnels. I sent one Lightkeeper to do what three squads couldn't." },
+        { "speaker": "Commander Wren Alcott", "text": "And the pattern holds. Every apex predator — displaced. Moving up, moving out, away from the deep zones. Whatever is down there, it's bigger than any of the creatures we're tracking." },
+        { "speaker": "Commander Wren Alcott", "text": "I've submitted a full threat assessment to the Council. They're calling it inconclusive. 'Insufficient data to establish causation.' That's Council-speak for 'we don't want to deal with it yet.'" },
+        { "speaker": "Commander Wren Alcott", "text": "We'll deal with it anyway. That's what Lightkeepers do." },
+        { "speaker": "Commander Wren Alcott", "text": "You've earned a rotation at Meridian. Go. Report in. I'll be here when you get back." }
+      ],
+      "post_arrived_meridian": [
+        { "speaker": "Commander Wren Alcott", "text": "You made it to Meridian." },
+        { "speaker": "Commander Wren Alcott", "text": "I've been to the capital twice in fifteen years. Both times for mandatory Council reviews. Both times I left early." },
+        { "speaker": "Commander Wren Alcott", "text": "The city is — a lot. After field rotations, the crowds take some adjustment. The noise. The light." },
+        { "speaker": "Commander Wren Alcott", "text": "Don't lose the habits you built out here. The city has its own kind of danger. Slower. More political. But the cost of a wrong move is just as real." },
+        { "speaker": "Commander Wren Alcott", "text": "Whatever you find in Meridian — bring it back. I mean that. We need field people with Council access. That's been the gap for a long time." }
+      ],
+      "post_array_secret": [
+        { "speaker": "Commander Wren Alcott", "text": "I've read your report. Twice." },
+        { "speaker": "Commander Wren Alcott", "text": "What the Array has been doing in the deep processing zones — that's not a malfunction. That's policy. Hidden policy. Which means somewhere in that machine's decision tree, it calculated that we shouldn't know." },
+        { "speaker": "Commander Wren Alcott", "text": "I've been flagging Array opacity to the Council for six years. Every time: 'our partnership is strong,' 'the Array has always honored its agreements.' Fine. It has. But agreements are not the same as alignment." },
+        { "speaker": "Commander Wren Alcott", "text": "The question now is what we do with it. Panic does nothing. Containment might already be past the point of relevance. We need leverage — real leverage, not diplomatic language." },
+        { "speaker": "Commander Wren Alcott", "text": "Councillor Asha is the right person to move on this. She'll want evidence, not inference. Make sure she has what she needs." },
+        { "speaker": "Commander Wren Alcott", "text": "And watch the deep perimeter. If the Array's doing something it doesn't want us to see, it's doing it down there." }
+      ],
+      "post_act3_asha_alliance": [
+        { "speaker": "Commander Wren Alcott", "text": "Asha's building a coalition. You, her team, the Sable contact. A multi-faction operation against something none of you fully understand yet." },
+        { "speaker": "Commander Wren Alcott", "text": "I've run joint operations before. The first casualty is always command clarity. Everyone has different chains, different priorities, different definitions of acceptable loss. You need to know whose order you're following when it matters." },
+        { "speaker": "Commander Wren Alcott", "text": "That said — Asha is good. She's not a field commander, but she reads situations accurately, and she doesn't waste people. I trust her judgment more than most in that building." },
+        { "speaker": "Commander Wren Alcott", "text": "You've come a long way from the first deployment. I don't say that often. I'm saying it now because what comes next is going to test what you're actually made of." },
+        { "speaker": "Commander Wren Alcott", "text": "Stay sharp. Stay yours. Don't let anyone else's agenda replace your own judgment." },
+        { "speaker": "Commander Wren Alcott", "text": "Whatever you need from Field Operations — you have it." }
+      ],
       "post_shutdown": [
         { "speaker": "Commander Wren Alcott", "text": "The Array is offline." },
         { "speaker": "Commander Wren Alcott", "text": "I've run drills for grid failure. Twenty-year contingency plans. The real thing is... different." },
@@ -267,6 +305,26 @@
       {
         "conditions": [{ "hasFlag": "chose_path_control" }],
         "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "act3_asha_alliance_activated" }],
+        "use": "post_act3_asha_alliance"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }],
+        "use": "post_array_secret"
+      },
+      {
+        "conditions": [{ "hasFlag": "arrived_meridian" }],
+        "use": "post_arrived_meridian"
+      },
+      {
+        "conditions": [{ "hasFlag": "magma_core_cleared" }],
+        "use": "post_magma_core_cleared"
+      },
+      {
+        "conditions": [{ "hasFlag": "elder_sporecap_defeated" }],
+        "use": "post_elder_sporecap_defeated"
       },
       {
         "conditions": [{ "hasFlag": "frost_warden_defeated" }],
