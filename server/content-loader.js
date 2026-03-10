@@ -17,6 +17,7 @@ class ContentLoader {
     this.structures = {};
     this.lootTables = {};
     this.expeditions = {};
+    this.crafting = {};
     this.worldmap = null;
     this.settings = {};
   }
@@ -36,6 +37,7 @@ class ContentLoader {
     this.loadStructures();
     this.loadLootTables();
     this.loadExpeditions();
+    this.loadCrafting();
     this.loadWorldmap();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
@@ -47,7 +49,8 @@ class ContentLoader {
                 `${Object.keys(this.templates).length} template(s), ` +
                 `${Object.keys(this.structures).length} structure(s), ` +
                 `${Object.keys(this.lootTables).length} loot table(s), ` +
-                `${Object.keys(this.expeditions).length} expedition(s)`);
+                `${Object.keys(this.expeditions).length} expedition(s), ` +
+                `${Object.keys(this.crafting).length} crafting recipe(s)`);
   }
 
   loadJSON(filePath) {
@@ -277,6 +280,24 @@ class ContentLoader {
 
   getAllExpeditions() {
     return this.expeditions;
+  }
+
+  loadCrafting() {
+    const filePath = path.join(this.contentDir, 'entities', 'crafting.json');
+    if (!fs.existsSync(filePath)) {
+      this.crafting = {};
+      return;
+    }
+    this.crafting = this.loadJSON(filePath);
+    console.log(`[Content]   Crafting: ${Object.keys(this.crafting).length} recipes`);
+  }
+
+  getCraftingRecipe(id) {
+    return this.crafting[id] || null;
+  }
+
+  getAllCraftingRecipes() {
+    return this.crafting;
   }
 
   loadLootTables() {

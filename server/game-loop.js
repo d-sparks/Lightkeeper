@@ -4091,6 +4091,13 @@ class GameLoop {
     const player = room.players.get(playerId);
     if (!player) return;
 
+    // Intercept crafting choices — handled directly by the action executor
+    if (choiceId === 'meridian_craft') {
+      const ctx = this._scriptContext(playerId, roomId);
+      this.actions.executeCraftRecipe(value, ctx);
+      return;
+    }
+
     const ctx = this._scriptContext(playerId, roomId);
     this._emitGameEvent(EventBus.Events.CHOICE_MADE, {
       playerId, roomId, choiceId, value,

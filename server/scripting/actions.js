@@ -23,6 +23,7 @@
 //   { type: "openAutomation" }
 //   { type: "rollLootTable", lootTable: "frost_biome_common", x: 5, y: 3 }  // roll from loot table, spawn result; x/y optional
 //   { type: "spawnNpc",    npcType: "outpost_warden", x: 4, y: 10 }  // spawns NPC at tile coords if not already present
+//   { type: "craft" }  // opens crafting menu with available recipes from crafting.json
 
 const CONSTANTS = require('../../shared/constants');
 
@@ -115,6 +116,9 @@ class ActionExecutor {
         break;
       case 'startExpedition':
         this.doStartExpedition(action, context);
+        break;
+      case 'craft':
+        this.doCraft(action, context);
         break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
@@ -575,6 +579,151 @@ class ActionExecutor {
         tileId: tileDef.togglesTo,
       });
     }
+  }
+
+  // Open crafting menu: { type: "craft" }
+  // Shows available recipes from crafting.json filtered by player inventory.
+  // Player selects a recipe via choice menu; the craft is executed in executeCraftRecipe().
+  doCraft(action, context) {
+    const player = context.player;
+    if (!player || !this.sendToPlayer) return;
+
+    const recipes = this.content.getAllCraftingRecipes();
+    if (!recipes || Object.keys(recipes).length === 0) {
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.DIALOGUE,
+        dialogue: [{ speaker: 'MERIDIAN-7', text: 'No fabrication recipes available.' }],
+      });
+      return;
+    }
+
+    // Build options for recipes the player can afford
+    const options = [];
+    for (const [recipeId, recipe] of Object.entries(recipes)) {
+      if (this._playerHasIngredients(context.playerId, player, recipe.ingredients)) {
+        options.push({
+          label: recipe.name,
+          description: recipe.description || '',
+          value: recipeId,
+        });
+      }
+    }
+
+    if (options.length === 0) {
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.DIALOGUE,
+        dialogue: [{ speaker: 'MERIDIAN-7', text: 'You lack the required components for any available fabrication. Return when you have gathered more materials.' }],
+      });
+      return;
+    }
+
+    options.push({ label: 'Cancel', description: '', value: '_cancel' });
+
+    this.sendToPlayer(context.playerId, {
+      type: CONSTANTS.MSG.CHOICE_MENU,
+      choiceId: 'meridian_craft',
+      prompt: 'Select a fabrication recipe:',
+      options,
+    });
+  }
+
+  // Check if a player has all required ingredients in inventory
+  _playerHasIngredients(playerId, player, ingredients) {
+    for (const req of ingredients) {
+      if (req.itemType === 'silicon') {
+        // Silicon is tracked via automation resources
+        if (this.automation) {
+          const have = this.automation.getResource(playerId, 'silicon') || 0;
+          if (have < (req.count || 1)) return false;
+        } else {
+          // Fallback: count silicon in inventory
+          const count = player.inventory.filter(i => i.type === 'silicon').length;
+          if (count < (req.count || 1)) return false;
+        }
+      } else {
+        const needed = req.count || 1;
+        const have = player.inventory.filter(i => i.type === req.itemType).length;
+        if (have < needed) return false;
+      }
+    }
+    return true;
+  }
+
+  // Execute a crafting recipe after player selects it from the craft menu.
+  // Called from game-loop handleChoiceSelect when choiceId === 'meridian_craft'.
+  executeCraftRecipe(recipeId, context) {
+    const player = context.player;
+    if (!player || !this.sendToPlayer) return false;
+
+    if (recipeId === '_cancel') return true;
+
+    const recipe = this.content.getCraftingRecipe(recipeId);
+    if (!recipe) {
+      console.warn(`[Actions] Unknown craft recipe: ${recipeId}`);
+      return false;
+    }
+
+    // Re-validate ingredients (in case inventory changed)
+    if (!this._playerHasIngredients(context.playerId, player, recipe.ingredients)) {
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.DIALOGUE,
+        dialogue: [{ speaker: 'MERIDIAN-7', text: 'Insufficient components. Fabrication aborted.' }],
+      });
+      return false;
+    }
+
+    // Remove ingredients
+    for (const req of recipe.ingredients) {
+      const count = req.count || 1;
+      if (req.itemType === 'silicon' && this.automation) {
+        this.automation.addResource(context.playerId, 'silicon', -count);
+      } else {
+        for (let i = 0; i < count; i++) {
+          const idx = player.inventory.findIndex(item => item.type === req.itemType);
+          if (idx !== -1) player.inventory.splice(idx, 1);
+        }
+      }
+    }
+
+    // Give result item(s)
+    const resultCount = recipe.result.count || 1;
+    const resultDef = this.content.getItem(recipe.result.itemType);
+    if (!resultDef) {
+      console.warn(`[Actions] Craft recipe ${recipeId} result item not found: ${recipe.result.itemType}`);
+      return false;
+    }
+
+    for (let i = 0; i < resultCount; i++) {
+      player.inventory.push({
+        type: recipe.result.itemType,
+        name: resultDef.name,
+        rarity: resultDef.rarity || 'common',
+        category: resultDef.type || 'misc',
+      });
+    }
+
+    // Notify client
+    this.sendToPlayer(context.playerId, {
+      type: CONSTANTS.MSG.INVENTORY,
+      items: player.inventory,
+      equipment: player.equipment,
+      medipacCharges: player.medipacCharges,
+    });
+
+    // Send silicon update if automation is active
+    if (this.automation) {
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.AUTO_STATE,
+        auto: this.automation.getStateForClient(context.playerId),
+      });
+    }
+
+    this.sendToPlayer(context.playerId, {
+      type: CONSTANTS.MSG.DIALOGUE,
+      dialogue: [{ speaker: 'MERIDIAN-7', text: `Fabrication complete: ${resultDef.name}.` }],
+    });
+
+    return true;
   }
 
   // Start an expedition: { type: "startExpedition", tier: 1 }

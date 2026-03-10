@@ -541,6 +541,21 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "meridian_craft_menu",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "or": [
+          { "hasFlag": "chose_path_shutdown" },
+          { "hasFlag": "chose_path_merge" },
+          { "hasFlag": "chose_path_control" }
+        ]}
+      ],
+      "actions": [
+        { "type": "craft" }
+      ]
     }
   ]
 }
