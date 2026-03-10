@@ -65,7 +65,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 ## Balance
 
-- Late-game monsters (magma_brute 240 HP, frost_warden 280 HP, elder_sporecap 320 HP) may need XP increases to match their post-balance-pass durability.
+- ~~Late-game monsters (magma_brute 240 HP, frost_warden 280 HP, elder_sporecap 320 HP) may need XP increases to match their post-balance-pass durability.~~ — DONE: XP scaled ~2x to match HP scaling (magma_brute 85→170, frost_warden 95→190, elder_sporecap 110→220).
 - Playtest energy pacing at mid-game (improved_generator @ 5/s) to confirm Sol Beam spam isn't trivial.
 - Crystal Guardian at 700 HP — verify this feels epic, not grindy.
 - Pulse Rifle DPS (60) close to Sol Beam DPS (~84) — monitor whether rare weapon feels unrewarding.
