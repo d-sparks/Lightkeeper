@@ -16,6 +16,7 @@ class ContentLoader {
     this.templates = {};
     this.structures = {};
     this.lootTables = {};
+    this.expeditions = {};
     this.worldmap = null;
     this.settings = {};
   }
@@ -34,6 +35,7 @@ class ContentLoader {
     this.loadTemplates();
     this.loadStructures();
     this.loadLootTables();
+    this.loadExpeditions();
     this.loadWorldmap();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
@@ -44,7 +46,8 @@ class ContentLoader {
                 `${Object.keys(this.quests).length} quest(s), ` +
                 `${Object.keys(this.templates).length} template(s), ` +
                 `${Object.keys(this.structures).length} structure(s), ` +
-                `${Object.keys(this.lootTables).length} loot table(s)`);
+                `${Object.keys(this.lootTables).length} loot table(s), ` +
+                `${Object.keys(this.expeditions).length} expedition(s)`);
   }
 
   loadJSON(filePath) {
@@ -248,6 +251,32 @@ class ContentLoader {
 
   getStructures() {
     return this.structures;
+  }
+
+  loadExpeditions() {
+    const dir = path.join(this.contentDir, 'expeditions');
+    if (!fs.existsSync(dir)) return;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.json')) continue;
+      const data = this.loadJSON(path.join(dir, file));
+      this.expeditions[data.id] = data;
+      console.log(`[Content]   Expedition: ${data.id} (tier ${data.tier})`);
+    }
+  }
+
+  getExpedition(id) {
+    return this.expeditions[id] || null;
+  }
+
+  getExpeditionByTier(tier) {
+    for (const exp of Object.values(this.expeditions)) {
+      if (exp.tier === tier) return exp;
+    }
+    return null;
+  }
+
+  getAllExpeditions() {
+    return this.expeditions;
   }
 
   loadLootTables() {

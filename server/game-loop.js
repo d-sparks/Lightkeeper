@@ -40,6 +40,7 @@ class GameLoop {
     this.conditions = new ConditionEvaluator(this.flagStore);
     this.actions = new ActionExecutor(this.flagStore, this.eventBus, content);
     this.actions.automation = this.automation;
+    this.actions.gameLoop = this;
     this.triggers = new TriggerRegistry(this.eventBus, this.conditions, this.actions, this.flagStore);
     this.questTracker = new QuestTracker(content, this.conditions, this.actions);
 
@@ -159,6 +160,7 @@ class GameLoop {
       nextItemId,
       nextProjectileId: 0,
       nextSentryId: 0,
+      expeditionScaling: null, // Set when room is part of an expedition { hpMult, damageMult, xpMult }
     };
 
     // Initialize beam objects (mirrors, photosensors) for sentry beam puzzles
@@ -231,6 +233,10 @@ class GameLoop {
         // Determine spawn tile elevation
         const spawnTileDef = this.content.getTileDef(room.dungeon, validTile.x, validTile.y);
         const spawnElevation = spawnTileDef ? (spawnTileDef.elevation || 0) : 0;
+        // Apply expedition scaling multipliers if present
+        const scaling = room.expeditionScaling;
+        const scaledHealth = scaling ? Math.round(def.health * scaling.hpMult) : def.health;
+        const scaledDamage = scaling ? Math.round(def.damage * scaling.damageMult) : def.damage;
         const mob = {
           id,
           spawnKey,
@@ -241,16 +247,17 @@ class GameLoop {
           spawnX,
           spawnY,
           elevation: spawnElevation,
-          health: def.health,
-          maxHealth: def.health,
+          health: scaledHealth,
+          maxHealth: scaledHealth,
           speed: def.speed,
-          damage: def.damage,
+          damage: scaledDamage,
           attackRange: (def.attackRange || 1) * CONSTANTS.TILE_SIZE,
           attackCooldown: 1 / (def.attackSpeed || 1),
           attackTimer: 0,
           ai: def.ai,
           facing: 0,
           idleMode: spawn.patrol || 'stationary',
+          xpMult: scaling ? scaling.xpMult : 1,
         };
         // Ambush: start hidden until player is close
         if (def.ai === 'ambush') {
@@ -426,6 +433,73 @@ class GameLoop {
     // 4. Normal dungeon from content
     room = this.createRoom(dungeonId, dungeonId);
     return room;
+  }
+
+  // Start an expedition for a player: generate the first floor and transition them
+  // Returns { roomId, room } on success, or null on failure
+  startExpedition(playerId, tier) {
+    const expedition = this.content.getExpeditionByTier(tier);
+    if (!expedition) {
+      console.error(`[GameLoop] No expedition config for tier ${tier}`);
+      return null;
+    }
+
+    // Validate unlock condition
+    if (expedition.unlockCondition) {
+      const ctx = { playerId };
+      if (!this.conditions.evaluate(expedition.unlockCondition, ctx)) {
+        console.log(`[GameLoop] Player ${playerId} does not meet expedition tier ${tier} unlock conditions`);
+        return null;
+      }
+    }
+
+    // Pick a random template from the pool
+    const pool = expedition.templatePool || [];
+    if (pool.length === 0) {
+      console.error(`[GameLoop] Expedition tier ${tier} has no template pool`);
+      return null;
+    }
+    const templateId = pool[Math.floor(Math.random() * pool.length)];
+    const template = this.content.getTemplate(templateId);
+    if (!template) {
+      console.error(`[GameLoop] Template "${templateId}" not found for expedition tier ${tier}`);
+      return null;
+    }
+
+    // Generate the first floor
+    const genContext = {
+      fromDungeon: 'expedition_start',
+      exitX: 0,
+      exitY: 0,
+      depth: 0,
+      serverEpoch: this.serverEpoch,
+    };
+    const result = this.generator.generate(template, genContext);
+    if (!result) {
+      console.error(`[GameLoop] Failed to generate expedition floor for tier ${tier}`);
+      return null;
+    }
+
+    this.generatedDungeons.set(result.instanceId, result.dungeon);
+    const room = this.createRoom(result.instanceId, result.instanceId, result.dungeon);
+    if (!room) return null;
+
+    // Apply expedition scaling to the room
+    room.expeditionScaling = expedition.monsterScaling;
+
+    // Re-spawn monsters with scaling applied (they were spawned without it in createRoom)
+    room.monsters.clear();
+    room.nextMonsterId = 0;
+    this.killedMonsters.delete(room.id);
+    this.spawnMonsters(room);
+
+    // Set expedition tracking flags on the player
+    this.flagStore.setPlayerFlag(playerId, 'expedition_active', true);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_tier', tier);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_floor', 1);
+
+    console.log(`[GameLoop] Started tier ${tier} expedition for player ${playerId} (room: ${room.id}, template: ${templateId})`);
+    return { roomId: room.id, room };
   }
 
   addPlayer(roomId, playerId, name) {
@@ -1589,10 +1663,10 @@ class GameLoop {
           this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
         }
 
-        // Grant XP for kill
+        // Grant XP for kill (with expedition scaling)
         const monsterDef = this.content.getMonster(mob.type);
         if (monsterDef && monsterDef.xp) {
-          this.grantXp(player, monsterDef.xp, room);
+          this.grantXp(player, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
         }
 
         this._rollLoot(room, mob);
@@ -1708,10 +1782,10 @@ class GameLoop {
         this.killedMonsters.get(room.dungeonId).add(nearestMob.spawnKey);
       }
 
-      // Grant XP for kill
+      // Grant XP for kill (with expedition scaling)
       const monsterDef = this.content.getMonster(nearestMob.type);
       if (monsterDef && monsterDef.xp) {
-        this.grantXp(player, monsterDef.xp, room);
+        this.grantXp(player, Math.round(monsterDef.xp * (nearestMob.xpMult || 1)), room);
       }
 
       this._rollLoot(room, nearestMob);
@@ -2111,7 +2185,7 @@ class GameLoop {
         if (killer) {
           const monsterDef = this.content.getMonster(mob.type);
           if (monsterDef && monsterDef.xp) {
-            this.grantXp(killer, monsterDef.xp, room);
+            this.grantXp(killer, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
           }
         }
 
@@ -3669,12 +3743,12 @@ class GameLoop {
               this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
             }
 
-            // Grant XP for kill
+            // Grant XP for kill (with expedition scaling)
             const killer = room.players.get(proj.ownerId);
             if (killer) {
               const monsterDef = this.content.getMonster(mob.type);
               if (monsterDef && monsterDef.xp) {
-                this.grantXp(killer, monsterDef.xp, room);
+                this.grantXp(killer, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
               }
             }
 
@@ -4267,12 +4341,12 @@ class GameLoop {
       this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
     }
 
-    // Grant XP for kill
+    // Grant XP for kill (with expedition scaling)
     const killer = room.players.get(killerId);
     if (killer) {
       const monsterDef = this.content.getMonster(mob.type);
       if (monsterDef && monsterDef.xp) {
-        this.grantXp(killer, monsterDef.xp, room);
+        this.grantXp(killer, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
       }
     }
 

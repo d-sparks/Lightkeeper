@@ -37,7 +37,8 @@
   ],
   "monsterSpawns": [],
   "npcSpawns": [
-    { "type": "station_master_calloway", "x": 10, "y": 10 }
+    { "type": "station_master_calloway", "x": 10, "y": 10 },
+    { "type": "expedition_board", "x": 20, "y": 10 }
   ],
   "itemSpawns": [],
   "exits": [
@@ -169,6 +170,72 @@
         ]}
       ],
       "once": true
+    },
+
+    {
+      "id": "expedition_board_tier_select",
+      "event": "npc_interacted",
+      "filter": { "npcType": "expedition_board" },
+      "conditions": [
+        { "or": [
+          { "hasFlag": "chose_path_shutdown" },
+          { "hasFlag": "chose_path_merge" },
+          { "hasFlag": "chose_path_control" }
+        ]},
+        { "not": { "hasFlag": "expedition_active" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "expedition_tier_select", "prompt": "Select an expedition tier to begin a Nightside breach operation.", "options": [
+          { "label": "Tier 1 — Nightside Breach", "description": "Standard containment sweep. 3-4 floors. Cost: 5 silicon.", "value": "tier_1" },
+          { "label": "Tier 2 — Deep Breach", "description": "Timed darkness waves. 3-5 floors. Cost: 10 silicon. Requires Tier 1 cleared.", "value": "tier_2" },
+          { "label": "Tier 3 — Corruption Breach", "description": "Energy drain zones. 4-5 floors. Cost: 20 silicon. Requires Tier 2 cleared + automation level 3.", "value": "tier_3" },
+          { "label": "Cancel", "description": "Return to the station.", "value": "cancel" }
+        ]}
+      ]
+    },
+    {
+      "id": "expedition_start_tier_1",
+      "event": "choice_made",
+      "filter": { "choiceId": "expedition_tier_select", "value": "tier_1" },
+      "actions": [
+        { "type": "showMessage", "text": "Initiating Tier 1 Nightside Breach expedition..." },
+        { "type": "startExpedition", "tier": 1 }
+      ]
+    },
+    {
+      "id": "expedition_start_tier_2",
+      "event": "choice_made",
+      "filter": { "choiceId": "expedition_tier_select", "value": "tier_2" },
+      "actions": [
+        { "type": "showMessage", "text": "Initiating Tier 2 Deep Breach expedition..." },
+        { "type": "startExpedition", "tier": 2 }
+      ]
+    },
+    {
+      "id": "expedition_start_tier_3",
+      "event": "choice_made",
+      "filter": { "choiceId": "expedition_tier_select", "value": "tier_3" },
+      "actions": [
+        { "type": "showMessage", "text": "Initiating Tier 3 Corruption Breach expedition..." },
+        { "type": "startExpedition", "tier": 3 }
+      ]
+    },
+    {
+      "id": "expedition_board_cancel",
+      "event": "choice_made",
+      "filter": { "choiceId": "expedition_tier_select", "value": "cancel" },
+      "actions": [
+        { "type": "showMessage", "text": "You step away from the expedition board." }
+      ]
+    },
+    {
+      "id": "expedition_board_active",
+      "event": "npc_interacted",
+      "filter": { "npcType": "expedition_board" },
+      "conditions": [{ "hasFlag": "expedition_active" }],
+      "actions": [
+        { "type": "showMessage", "text": "You already have an active expedition. Complete or abandon it before starting another." }
+      ]
     }
   ]
 }

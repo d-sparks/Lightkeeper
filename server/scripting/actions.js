@@ -113,6 +113,9 @@ class ActionExecutor {
       case 'rollLootTable':
         this.doRollLootTable(action, context);
         break;
+      case 'startExpedition':
+        this.doStartExpedition(action, context);
+        break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
     }
@@ -572,6 +575,36 @@ class ActionExecutor {
         tileId: tileDef.togglesTo,
       });
     }
+  }
+
+  // Start an expedition: { type: "startExpedition", tier: 1 }
+  // Generates a procedural dungeon with tier-scaled monsters and transitions the player
+  doStartExpedition(action, context) {
+    if (!this.gameLoop) {
+      console.warn('[Actions] startExpedition requires gameLoop reference');
+      return;
+    }
+    const tier = action.tier;
+    if (!tier) {
+      console.warn('[Actions] startExpedition missing tier');
+      return;
+    }
+    const result = this.gameLoop.startExpedition(context.playerId, tier);
+    if (!result) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.NPC_DIALOGUE,
+          lines: [{ speaker: 'System', text: 'You do not meet the requirements for this expedition.' }],
+        });
+      }
+      return;
+    }
+    // Queue a transition to the expedition room
+    this.gameLoop.pendingTransitions.push({
+      playerId: context.playerId,
+      fromRoom: context.roomId,
+      toRoom: result.roomId,
+    });
   }
 }
 

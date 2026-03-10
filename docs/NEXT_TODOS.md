@@ -152,11 +152,18 @@ Priority-ordered implementation tasks:
 - Consider post-ending changes to outpost_entrance and outpost_comms (Wren already has dialogue, but no room-level atmospheric changes).
 
 ### Phase 2 — Expedition Tiers 1-3 (Small engine + content)
-- Create `content/expeditions/` directory with tier config JSON files.
-- Add expedition loot tables to `content/loot/expeditions.json`.
-- Engine: Add monster stat scaling multiplier at spawn time (read from expedition context).
-- Engine: Add expedition state tracking to flag store (tier, floor, banked loot).
-- Add expedition board NPC/interactable in meridian_station (post-ending).
+- ~~Create `content/expeditions/` directory with tier config JSON files.~~ — DONE: tier_1.json, tier_2.json, tier_3.json with scaling multipliers, template pools, unlock conditions.
+- ~~Add expedition loot tables to `content/loot/expeditions.json`.~~ — DONE: 6 loot tables (floor + boss for each tier).
+- ~~Engine: Add monster stat scaling multiplier at spawn time (read from expedition context).~~ — DONE: `room.expeditionScaling` applied in `spawnMonsters()` to HP, damage; `xpMult` stored on mob and applied at all 5 XP grant sites.
+- ~~Engine: Add expedition state tracking to flag store (tier, floor, banked loot).~~ — DONE: `startExpedition()` sets `expedition_active`, `expedition_tier`, `expedition_floor` flags.
+- ~~Add expedition board NPC/interactable in meridian_station (post-ending).~~ — DONE: `expedition_board` NPC with tier-aware dialogueRules, choice-based tier selection triggers, `startExpedition` action type.
+- ~~Engine: `startExpedition` action type in actions.js.~~ — DONE: Generates procedural floor from template pool, applies scaling, queues transition.
+- **Remaining**: Multi-floor expedition progression (floor exit → next floor with same scaling). Currently only generates floor 1.
+- **Remaining**: Expedition completion detection (all floors cleared → set `expedition_tier_N_cleared` flag, clear `expedition_active`).
+- **Remaining**: Silicon cost deduction at expedition start.
+- **Remaining**: Boss spawning on final floor from `bossPool`.
+- **Remaining**: Mid-run loot banking checkpoints.
+- **Remaining**: Death penalty (forfeit floor loot, return to meridian_station).
 - Create new procedural dungeon templates for expedition variants if needed.
 
 ### Phase 3 — Modifier Crafting (Small engine + content)

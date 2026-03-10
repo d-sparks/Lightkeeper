@@ -3433,5 +3433,67 @@
         "use": "low_trust"
       }
     ]
+  },
+
+  "expedition_board": {
+    "name": "Expedition Board",
+    "dialogue": [
+      { "speaker": "Expedition Board", "text": "The board is dark. It flickers occasionally, but no expeditions are listed." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Expedition Board", "text": "The board is dark. It flickers occasionally, but no expeditions are listed." }
+      ],
+      "endgame_no_tier": [
+        { "speaker": "Expedition Board", "text": "— EXPEDITION BOARD — Nightside Breach Operations" },
+        { "speaker": "Expedition Board", "text": "The Nightside is destabilizing. Procedural breach points are opening across the frontier. Qualified personnel needed for containment and reconnaissance." },
+        { "speaker": "Expedition Board", "text": "TIER 1 — Nightside Breach: Standard containment sweep. 3-4 floors. Entry cost: 5 silicon. [Available]" }
+      ],
+      "endgame_tier_1_cleared": [
+        { "speaker": "Expedition Board", "text": "— EXPEDITION BOARD — Nightside Breach Operations" },
+        { "speaker": "Expedition Board", "text": "TIER 1 — Nightside Breach: Standard containment sweep. 3-4 floors. Entry cost: 5 silicon. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 2 — Deep Breach: Increased hostiles, timed darkness waves. 3-5 floors. Entry cost: 10 silicon. [Available]" }
+      ],
+      "endgame_tier_2_cleared": [
+        { "speaker": "Expedition Board", "text": "— EXPEDITION BOARD — Nightside Breach Operations" },
+        { "speaker": "Expedition Board", "text": "TIER 1 — Nightside Breach: Standard containment sweep. 3-4 floors. Entry cost: 5 silicon. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 2 — Deep Breach: Increased hostiles, timed darkness waves. 3-5 floors. Entry cost: 10 silicon. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 3 — Corruption Breach: Energy drain zones, extreme hostiles. 4-5 floors. Entry cost: 20 silicon. Requires automation level 3. [Available]" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [
+          { "hasFlag": "expedition_tier_2_cleared" },
+          { "or": [
+            { "hasFlag": "chose_path_shutdown" },
+            { "hasFlag": "chose_path_merge" },
+            { "hasFlag": "chose_path_control" }
+          ]}
+        ],
+        "use": "endgame_tier_2_cleared"
+      },
+      {
+        "conditions": [
+          { "hasFlag": "expedition_tier_1_cleared" },
+          { "or": [
+            { "hasFlag": "chose_path_shutdown" },
+            { "hasFlag": "chose_path_merge" },
+            { "hasFlag": "chose_path_control" }
+          ]}
+        ],
+        "use": "endgame_tier_1_cleared"
+      },
+      {
+        "conditions": [
+          { "or": [
+            { "hasFlag": "chose_path_shutdown" },
+            { "hasFlag": "chose_path_merge" },
+            { "hasFlag": "chose_path_control" }
+          ]}
+        ],
+        "use": "endgame_no_tier"
+      }
+    ]
   }
 }
