@@ -1754,18 +1754,63 @@ class Renderer {
     let wallIdx = 0;
     const w = this.map.width;
     const h = this.map.height;
+    const cs = CONSTANTS.CHUNK_SIZE || 16;
+    const hasChunks = this.chunked && this.revealedChunks;
+
+    // Build set of chunks that are both revealed and potentially visible,
+    // so we can skip entire unrevealed/off-screen chunk regions.
+    let visibleChunkSet = null;
+    if (hasChunks) {
+      visibleChunkSet = new Set();
+      for (let cy = 0; cy < this.chunkRows; cy++) {
+        for (let cx = 0; cx < this.chunkCols; cx++) {
+          if (this.revealedChunks[cy * this.chunkCols + cx] !== 1) continue;
+
+          // Compute iso bounding box for this chunk's 4 corners
+          const x0 = cx * cs, y0 = cy * cs;
+          const x1 = Math.min(x0 + cs, w), y1 = Math.min(y0 + cs, h);
+          const corners = [
+            this.worldToIso(x0 * ts, y0 * ts),
+            this.worldToIso(x1 * ts, y0 * ts),
+            this.worldToIso(x0 * ts, y1 * ts),
+            this.worldToIso(x1 * ts, y1 * ts),
+          ];
+          let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+          for (const c of corners) {
+            if (c.x < minX) minX = c.x;
+            if (c.x > maxX) maxX = c.x;
+            if (c.y < minY) minY = c.y;
+            if (c.y > maxY) maxY = c.y;
+          }
+          // Account for wall rise in vertical bounds
+          minY -= wallRise * 4;
+
+          // Skip chunk if entirely outside viewport
+          if (maxX < cullL || minX > cullR || maxY < cullT || minY > cullB) continue;
+
+          visibleChunkSet.add(cy * this.chunkCols + cx);
+        }
+      }
+    }
 
     // Iterate in diagonal order for back-to-front depth
     for (let diag = 0; diag < w + h - 1; diag++) {
       for (let tx = Math.max(0, diag - h + 1); tx <= Math.min(diag, w - 1); tx++) {
         const ty = diag - tx;
 
+        // Skip tiles in unrevealed or off-screen chunks
+        if (visibleChunkSet) {
+          const cx = (tx / cs) | 0;
+          const cy = (ty / cs) | 0;
+          if (!visibleChunkSet.has(cy * this.chunkCols + cx)) continue;
+        }
+
         // Get iso position for tile center
         const wcx = (tx + 0.5) * ts;
         const wcy = (ty + 0.5) * ts;
         const iso = this.worldToIso(wcx, wcy);
 
-        // Cull outside viewport
+        // Cull outside viewport (per-tile for chunk-edge precision)
         if (iso.x < cullL || iso.x > cullR || iso.y < cullT || iso.y > cullB) {
           continue;
         }
