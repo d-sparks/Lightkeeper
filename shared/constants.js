@@ -68,6 +68,7 @@ const CONSTANTS = {
   PROJECTILE_SPEED: 300,     // Pixels per second
   PROJECTILE_LIFETIME: 2.0,  // Seconds before despawning
   PROJECTILE_RADIUS: 4,      // Collision radius in pixels
+  PROJECTILE_HIT_BONUS: 6,   // Extra pixels added to projectile-vs-entity hitbox (forgiving hits)
 
   // Network message types
   MSG: {

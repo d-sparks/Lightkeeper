@@ -3536,7 +3536,7 @@ class GameLoop {
             const mdx = mob.x - proj.x;
             const mdy = mob.y - proj.y;
             const dist = Math.sqrt(mdx * mdx + mdy * mdy);
-            if (dist < CONSTANTS.MONSTER_COLLISION_RADIUS + radius) {
+            if (dist < CONSTANTS.MONSTER_COLLISION_RADIUS + radius + CONSTANTS.PROJECTILE_HIT_BONUS) {
               detonate = true;
               break;
             }
@@ -3553,10 +3553,11 @@ class GameLoop {
       // Check monster collision (only for player-fired projectiles)
       // Uses swept line test (segment from prevPos to curPos vs monster circle)
       // to prevent fast projectiles from tunnelling through monsters.
+      // PROJECTILE_HIT_BONUS adds forgiveness so shots overlapping the sprite visually connect.
       let hitMonster = false;
       if (!proj.isMonsterProjectile) for (const [mid, mob] of room.monsters) {
         if (mob.hidden) continue;
-        const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius;
+        const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius + CONSTANTS.PROJECTILE_HIT_BONUS;
 
         // Find closest point on segment [prev->cur] to monster center
         const segDx = proj.x - prevX;
@@ -3647,7 +3648,7 @@ class GameLoop {
       if (proj.isMonsterProjectile) {
         let hitPlayer = false;
         for (const [pid, player] of room.players) {
-          const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius;
+          const hitRadius = CONSTANTS.PLAYER_RADIUS + radius + CONSTANTS.PROJECTILE_HIT_BONUS;
           const segDx = proj.x - prevX;
           const segDy = proj.y - prevY;
           const segLen2 = segDx * segDx + segDy * segDy;
