@@ -340,12 +340,12 @@ All items done: `openAutomation` scripting action added to actions.js, MERIDIAN-
 19. **Grid-to-dungeon coordinate conversion** — use the offset from grid config.
 20. **Visual-only harvester entities** — spawn non-interactive entity markers at harvester positions when player enters the room.
 
-### Phase 5: Polish
+### Phase 5: Polish — DONE
 
-21. **Tooltip system** — hover/click on placed structures for detail panel.
-22. **Sound effects** — placement confirmation sound, level-up sound.
-23. **Mobile/touch support** — tap to select, tap to place (same as sol grid).
-24. **Controller support** — d-pad navigation of grid cells, A to place, B to cancel.
+21. ~~**Tooltip system**~~ — DONE. Hover/click shows name, description, placement preview, cost.
+22. ~~**Sound effects**~~ — DONE. auto_place and auto_level_up fanfare wired.
+23. ~~**Mobile/touch support**~~ — DONE. touchend handlers, grid cell interaction, no 300ms tap delay.
+24. **Controller support** — d-pad navigation of grid cells, A to place, B to cancel. (Not yet implemented.)
 
 ---
 

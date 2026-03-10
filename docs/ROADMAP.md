@@ -25,12 +25,12 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Item Rarity UI | Done | Rarity colors (common to legendary) displayed in inventory and sol grid |
 | Art Style Guide | Done | Master palette, sprite conventions, zone color identity documented |
 | Content Validation CI | Done | `npm test` runs content-validator.js + headless-sim.js --mainline |
-| Automation System | Partial | Phases 1-4 done (grid state, UI, MERIDIAN-7 wiring, dungeon sync). Phase 5 (tooltips, sound, mobile) still needed. See docs/automation_screen.md |
+| Automation System | Done (Phases 1-5) | All phases complete: grid state, UI, MERIDIAN-7 wiring, dungeon sync, tooltips, placement sounds, touch support. See docs/automation_screen.md |
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons |
 | Act II Content | Partial | Dayside, Array complex, Crystal Guardian boss, MERIDIAN-7 quest, quest steps 19-22 bridge to Act III. Deeper questlines needed |
 | Act III Content | Partial | All three ending dungeons built (shutdown, merge, control). Post-choice NPC dialogue and Unbounded elder NPC still needed |
 | Game Feel | Done | Sound effects (24 SFX), combat juice, death penalty (energy drain + item drop + respawn teleport + death screen overlay) all done |
-| Game Balance | Partial | Initial balance pass done. Further playtesting needed |
+| Game Balance | Done | Mid-game energy pacing tuned, Pulse Rifle reward feel improved, combat balance pass complete |
 | Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
 | Unit Tests | Done | Tiers 1-4: 304 tests (flag-store, event-bus, automation, conditions, actions, trigger-registry, physics, combat, equipment, sol-grid, room-lifecycle). All passing |
 | Per-Biome Music | Done | Ambient music definitions and tileset-based track selection wired |
@@ -49,26 +49,33 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Connect disconnected systems, fix testing gaps, implement death penalty**
+Focus: **Fix testing blockers, connect disconnected content, build endgame loop**
 
-1. ~~**Death penalty polish**~~ — DONE. Respawn teleport + death screen overlay implemented.
-2. ~~**Automation grid Phase 3**~~ — DONE. `openAutomation` action, MERIDIAN-7 trigger, and client handler all wired.
-3. ~~**Fix headless sim board_train**~~ — DONE. Bot navigates to train exit and boards successfully.
-4. **Fix headless sim visit_civic_center** — Bot reaches meridian_civic but can't interact with registrar_hollis. Blocks CI mainline testing past step 12.
-4. ~~**Post-choice NPC dialogue**~~ — DONE. Asha, Sable, MERIDIAN-7, Wren all have post-choice variants.
-5. **Minimap quest waypoints** — No spatial guidance for quest objectives currently.
-6. ~~**Automation dungeon sync (Phase 4)**~~ — DONE. `getOverlayedMapData()` merges placements into MAP chunks; harvester entities spawn in dayside_solar_fields.
+1. ~~**Death penalty polish**~~ — DONE.
+2. ~~**Automation grid Phase 3**~~ — DONE.
+3. ~~**Fix headless sim board_train**~~ — DONE.
+4. ~~**Fix headless sim visit_civic_center**~~ — DONE.
+5. ~~**Post-choice NPC dialogue**~~ — DONE.
+6. ~~**Automation dungeon sync (Phase 4)**~~ — DONE.
+7. **Fix headless sim discover_array_secret** — Bot stuck in dayside_solar_fields, can't navigate to array_deep_processing. Blocks CI mainline past step ~20.
+8. **Fix content validator expedition flag errors** — expedition_active, expedition_tier_1_cleared, expedition_tier_2_cleared checked but never set.
+9. **Minimap quest waypoints** — No spatial guidance for quest objectives.
+10. **Place alpha monsters and skeleton_archer** — Defined content with no dungeon placement.
+11. **Implement expedition multi-floor system** — Endgame loop spec 70% done, needs multi-floor progression, boss spawning, completion detection.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
-Focus: **Content polish, quest feel, endgame depth**
+Focus: **Endgame depth, modifier crafting, cooperative play**
 
-7. **Minimap quest waypoints** — Colored dots on minimap for active quest objectives. No spatial guidance currently.
-8. ~~**Wren Alcott dialogue expansion**~~ — DONE. Wren reacts to elder_sporecap_defeated, magma_core_cleared, arrived_meridian, array_secret_discovered, act3_asha_alliance_activated.
-9. ~~**Sable trust escalation**~~ — DONE. Trust increments to 2 (guide role) and 3 (Listening Floor). companion_bond gates on sable_trust > 2.
-10. ~~**Automation Phase 4 (dungeon sync)**~~ — DONE.
-11. ~~**Pack leader AI variant**~~ — DONE. pack_leader AI type with data-driven aura buffs. feral_hound_alpha and frostfang_alpha added.
-12. ~~**Touch/gamepad 45° rotation**~~ — DONE. sendInput() rotates joystick and gamepad inputs for isometric movement.
+7. ~~**Wren Alcott dialogue expansion**~~ — DONE.
+8. ~~**Sable trust escalation**~~ — DONE.
+9. ~~**Automation Phase 4 (dungeon sync)**~~ — DONE.
+10. ~~**Pack leader AI variant**~~ — DONE.
+11. ~~**Touch/gamepad 45° rotation**~~ — DONE.
+12. **Modifier crafting system** — Reforge/fuse at MERIDIAN-7 with crafting.json recipes. Endgame build diversity.
+13. **Automation levels 6-10** — New structures, milestone rewards, adjacency bonuses.
+14. **Boss affixes (Tier 4+)** — Data-driven affix pool applied to expedition bosses.
+15. **Periodic auto-save** — Currently only saves on disconnect; risk of progress loss on crashes.
 
 ## Long-Term Vision (3+ Months)
 
@@ -173,13 +180,19 @@ These are done and don't need further investment:
 - **Wren Alcott sprite** — Placeholder sprite generated
 - **Extended adjacency visualization** — Sol grid UI highlights legendary modifier ranges on hover/placement
 - **Orphaned flags batch 1** — 9 exploration flags wired to NPC dialogue and XP rewards
+- **Automation Phase 5 (polish)** — Tooltips, placement sounds, touch/mobile support all implemented
+- **Ending-path legendary modifiers** — 6 path-specific legendaries with unlock gating in sol_components.json
+- **Iso renderer optimization** — Skip unrevealed/off-screen chunks entirely
+- **Delete character button** — Session select screen delete functionality
+- **Mid-game energy pacing** — Energy generation tuning and Pulse Rifle reward feel improved
+- **Headless sim visit_civic_center fix** — tryInteract compares door vs NPC distance
 
 ## Active Design Docs
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
 | docs/progression-system.md | Active | Core decisions resolved. Remaining: battery math, harvester scaling |
-| docs/automation_screen.md | Active | Phases 1-4 done. Next: Phase 5 (tooltips, sound, mobile) |
+| docs/automation_screen.md | Done | All 5 phases implemented (grid, UI, MERIDIAN-7, dungeon sync, polish) |
 | docs/storyboard.md | Active | Act I done, Act II partial, Act III endings built. Post-choice dialogue done. Remaining: registrar_hollis reactions, post-ending world state |
 | docs/testing-design.md | Done | Both tools built and functional. 304 tests passing |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented. Fog-of-war streaming working |

@@ -1,18 +1,19 @@
 TODOs
 
-- [opus] Fix headless sim visit_civic_center blocker: bot reaches meridian_civic but cannot interact with registrar_hollis, blocking CI mainline testing past step 12. Debug NPC pathfinding/interaction radius logic in the bot brain
-- [sonnet] Wire the picked_up_iron_key flag to gameplay: content validator reports this flag is set in crypt_01 but never checked anywhere. Add an Old Keeper or NPC dialogue variant that reacts to it
-- [sonnet] Spawn feral_hound_alpha and frostfang_alpha in dungeons: pack_leader AI and aura buffs are fully implemented but neither alpha monster is placed in any dungeon. Add them as rare spawns in nightside_caverns and frost-themed proc templates
-- [sonnet] Spawn skeleton_archer in dungeons and add a loot table: defined monster with no dungeon placement and no loot table. Place in crypt_01/crypt_02 and add a common-tier loot entry
-- [sonnet] Rebalance late-game monster XP rewards: magma_brute (240 HP), frost_warden (280 HP), and elder_sporecap (320 HP) had HP scaled 1.8-2.3x but XP was not proportionally adjusted
-- [opus] Add minimap quest waypoints: no spatial guidance exists for quest objectives. Show colored dots on the minimap for active quest goal locations
-- [opus] Implement Expedition Tier 1-3 system: the endgame loop spec is complete (docs/endgame-loop.md) but nothing is implemented. Start with expedition board NPC, tier config JSONs, and monster stat scaling at spawn time
-- [sonnet] Add endgame_active flag wiring: chose_path_* flags in meridian_station room triggers should set endgame_active to gate expedition and post-ending content
-- [sonnet] Add post-ending MERIDIAN-7 dialogue for endgame expedition access and modifier crafting introduction
-- [opus] Implement modifier crafting (reforge/fuse) at MERIDIAN-7: add a craft action type to server/scripting/actions.js and create content/entities/crafting.json with recipes
-- [opus] Add periodic auto-save during play: currently sessions only save on disconnect, risking progress loss on crashes
-- [sonnet] Add a delete character button on the session select screen
-- [opus] Playtest and tune energy pacing at mid-game: improved_generator at 5/s may make Sol Beam trivial, and Pulse Rifle DPS (60) is close to Sol Beam (~84) making the rare weapon feel unrewarding
-- [sonnet] Automation Phase 5 polish: add tooltips showing structure stats, placement sound effects, and mobile/touch grid interaction support
-- [sonnet] Create ending-path-specific legendary modifiers: add the 6 path-specific legendaries defined in endgame-loop.md to sol_components.json with proper unlock gating
-- [opus] Optimize iso renderer for very large maps: skip iteration of unrevealed chunk regions entirely instead of checking each tile individually
+- Fix headless sim discover_array_secret blocker so CI mainline testing can validate the full quest through Act III
+- Implement expedition multi-floor progression: floor exits chain to next generated floor with the same scaling, final floor spawns a boss from bossPool, completion sets expedition_tier_N_cleared and clears expedition_active
+- Add minimap quest waypoints showing colored dots for active quest objective locations to give players spatial guidance
+- Place feral_hound_alpha and frostfang_alpha as rare spawns in nightside_caverns and frost-themed procedural templates
+- Place skeleton_archer in crypt_01 and crypt_02 with a new loot table entry in content/loot/outpost.json
+- Wire new tilesets (dark_city, quarantine, outpost) that exist as PNGs into tileset JSON definitions and assign them to appropriate dungeons
+- Add periodic auto-save during play so crashes don't lose progress (currently only saves on disconnect)
+- Implement modifier crafting system: craft action type in actions.js, crafting.json recipes for reforge/fuse/attune, MERIDIAN-7 dialogue branch gated on endgame_active
+- Add expedition silicon cost deduction at start and death penalty (forfeit floor loot, return to meridian_station)
+- Add explicit patrolPath waypoints to monsters in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, and crypt_02 that have patrol AI but no paths
+- Wire unlockFlag checking in the loot resolver so path-specific legendary modifiers only drop when the player has chosen the corresponding ending path
+- Add post-ending Sable expedition dialogue for Shutdown and Merge paths where she serves as expedition quest-giver
+- Implement boss affixes system: data-driven affix pool in content/expeditions/affixes.json applied to expedition bosses at Tier 4+
+- Throttle getOverlayedMapData calls from every tick to every N ticks to reduce per-player server load on large maps
+- Add Phase 3 investigation quest after Autotroph confrontation to make the path choice mechanically meaningful beyond NPC dialogue
+- Replace placeholder sprites with proper pixel art following docs/art-style-guide.md, starting with the most-seen entities (player characters, common outpost monsters, key NPCs)
+- Design and implement automation levels 6-10 with new structures (silicon_refinery, auto_turret, fabricator, expedition_beacon) and milestone rewards
