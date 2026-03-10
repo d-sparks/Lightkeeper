@@ -188,6 +188,14 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "chest_loot_nightside_passage",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_rare" }
+      ]
     }
   ]
 }

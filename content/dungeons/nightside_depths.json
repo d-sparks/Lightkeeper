@@ -170,6 +170,14 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "chest_loot_nightside_depths",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_uncommon" }
+      ]
     }
   ]
 }

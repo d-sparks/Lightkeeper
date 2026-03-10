@@ -46,7 +46,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 ## Content Completion
 
-- **Frost biome** loot is wired to `nightside_caverns` and `proc_frost_crypt` (all three tiers by depth). Consider adding `frost_biome_uncommon/rare` to deeper static nightside dungeons (nightside_depths, nightside_passage) if story chests are supplemented with loot crates.
+- ~~**Frost biome** loot is wired to `nightside_caverns` and `proc_frost_crypt` (all three tiers by depth). Consider adding `frost_biome_uncommon/rare` to deeper static nightside dungeons (nightside_depths, nightside_passage) if story chests are supplemented with loot crates.~~ — DONE: `chest_loot_nightside_depths` rolls `frost_biome_uncommon` on any `chest_closed` tile; `chest_loot_nightside_passage` rolls `frost_biome_rare` (deepest pre-Underlumen floor).
 - ~~Loot tables for Act III monsters: threshold_watcher, abyssal_tendril, threshold_keeper have no loot tables.~~ — DONE: Added to `content/loot/nightside.json` with umbracite/underlumen-themed drops. threshold_keeper (boss) has 0.9 drop chance with epic/legendary items including underlumen_nexus.
 - ~~Three ending path dungeons~~ — DONE: All three built (shutdown: array_control_center, merge: merge_nexus, control: array_command_throne).
 - ~~Post-choice NPC dialogue~~ — DONE: Asha, Sable, MERIDIAN-7, and Wren all have post_shutdown/post_merge/post_control dialogue variants reacting to chose_path_* flags. Wren and MERIDIAN-7 (trade terminal) added alongside the existing Asha and Sable meridian NPCs.
