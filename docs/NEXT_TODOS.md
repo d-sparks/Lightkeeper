@@ -77,7 +77,9 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 ## Testing
 
-- Integration tests (Tier 4): combat flow, equipment system, sol grid adjacency, room lifecycle.
+- ~~Integration tests (Tier 4): combat flow, equipment system, sol grid adjacency.~~ — DONE: 61 integration tests added across `tests/integration/combat.test.js` (20 tests), `tests/integration/equipment.test.js` (21 tests), and `tests/integration/sol-grid.test.js` (20 tests). All pass.
+- Integration tests (Tier 4) — remaining: room lifecycle (`createRoom` → join → transition → cleanup). Needs heavier mocking of dungeon/tileset loading; deferred.
+- ~~Pre-existing physics bug: "large dt does not skip through walls" test fails~~ — DONE: Fixed in previous commit (dt clamping + substep movement).
 - ~~Headless sim bot stuck at perimeter_gate (can't interact with Sgt. Fenn NPC).~~ — DONE: Fixed shared `currentPath`/`pathIndex` state on bot causing sub-goal `move_to_position` for NPC to reuse stale path pointing at blast door, creating an infinite door-detection loop. Paths are now stored per-goal (`goal._path`, `goal._pathIndex`).
 - **Headless sim stuck at junction_cleared** — bot reaches station_junction but can't clear it. `doInteractNearest` doesn't navigate to the junction box tile (7,7); `wait_for_flag` retries `tryInteract` from the wrong position. Either fix `doInteractNearest` to navigate before interacting, or add `kill_monsters` + `move_to_position` goals for door-interacted steps in `buildQuestGoals`.
 - Pre-existing physics bug: "large dt does not skip through walls" test fails — player teleports through wall at high dt values. Needs dt clamping or substep logic in movePlayer.
