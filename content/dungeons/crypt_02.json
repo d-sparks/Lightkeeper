@@ -40,6 +40,9 @@
     ] },
     { "type": "tunnel_creeper", "x": 18, "y": 11, "count": 2, "patrol": "patrol", "patrolPath": [
       {"x": 6, "y": 6}, {"x": 12, "y": 6}, {"x": 12, "y": 10}, {"x": 6, "y": 10}
+    ] },
+    { "type": "skeleton_archer", "x": 18, "y": 7, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 14, "y": 4}, {"x": 20, "y": 4}, {"x": 20, "y": 10}, {"x": 14, "y": 10}
     ] }
   ],
   "npcSpawns": [],

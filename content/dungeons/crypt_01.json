@@ -447,6 +447,13 @@
       "patrol": "guard"
     },
     {
+      "type": "skeleton_archer",
+      "x": 20,
+      "y": 6,
+      "count": 1,
+      "patrol": "wander"
+    },
+    {
       "type": "tunnel_creeper",
       "x": 14,
       "y": 10,

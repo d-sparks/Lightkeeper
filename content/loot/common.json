@@ -8,6 +8,15 @@
       { "item": "damage_booster_chip", "weight": 1 }
     ]
   },
+  "skeleton_archer": {
+    "dropChance": 0.4,
+    "rolls": [
+      { "item": "bandage", "weight": 10 },
+      { "item": "ration_pack", "weight": 8 },
+      { "item": "damage_booster_chip", "weight": 2 },
+      { "item": "reinforced_battery_chip", "weight": 1 }
+    ]
+  },
   "luddite_common": {
     "dropChance": 0.35,
     "rolls": [

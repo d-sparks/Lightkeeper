@@ -26,7 +26,7 @@
     "attackSpeed": 0.7,
     "projectile": "arrow_bone",
     "ai": "ranged_kite",
-    "lootTable": "skeleton_common",
+    "lootTable": "skeleton_archer",
     "xp": 15
   },
   "luddite_brawler": {
