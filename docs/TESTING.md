@@ -1,6 +1,6 @@
 # Automated Testing Plan
 
-> **STATUS: TIERS 1-4 (PARTIAL) IMPLEMENTED.** The static content validator (`tools/content-validator.js`) and headless game simulator (`tools/headless-sim.js`) are both built and functional. Unit tests cover Tier 1 (flag-store, event-bus, automation), Tier 2 (conditions, actions, trigger-registry), and Tier 3 (physics). Integration tests cover Tier 4 combat flow, equipment system, and sol-grid adjacency. Total: **284 tests, all pass** via `node --test`. Remaining Tier 4 gap: room-lifecycle tests.
+> **STATUS: TIERS 1-4 COMPLETE.** The static content validator (`tools/content-validator.js`) and headless game simulator (`tools/headless-sim.js`) are both built and functional. Unit tests cover Tier 1 (flag-store, event-bus, automation), Tier 2 (conditions, actions, trigger-registry), and Tier 3 (physics). Integration tests cover Tier 4 combat flow, equipment system, sol-grid adjacency, and room lifecycle. Total: **304 tests, all pass** via `node --test`.
 
 ## Framework
 
@@ -22,7 +22,7 @@ tests/
 │   ├── combat.test.js             Attack damage, XP, death, loot drop       ✅ (20 tests)
 │   ├── equipment.test.js          Equip/unequip, slot swap, ability rebuild  ✅ (21 tests)
 │   ├── sol-grid.test.js           Adjacency modifiers, compute overrides     ✅ (20 tests)
-│   └── room-lifecycle.test.js     Create → join → transition → cleanup       🔲 (planned)
+│   └── room-lifecycle.test.js     Create → join → transition → cleanup       ✅
 └── fixtures/
     └── (inline mocks — each test file defines its own minimal content mock)
 ```

@@ -6,9 +6,9 @@ Last updated: 2026-03-09 (refreshed: task audit, completed items moved)
 
 Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, complete Act I, and deep progression systems. The game needs three things to go from "tech demo" to "fun, complete game":
 
-1. **Death penalty & game feel** — Death penalty is the single biggest missing mechanic. Sound effects and combat juice are done
-2. **Automation access** — The automation grid UI is fully built but players can never open it (Phase 3 not wired)
-3. **Story polish** — Act III ending dungeons exist but post-choice dialogue and NPC reactions are missing
+1. ~~**Death penalty & game feel**~~ — DONE. Energy drain, item drop, respawn teleport, death screen overlay all implemented
+2. ~~**Automation access**~~ — DONE. Phase 3 wired (openAutomation action + MERIDIAN-7 trigger + client handler)
+3. **Story polish** — Act III ending dungeons and post-choice NPC dialogue exist. Remaining: registrar_hollis reactions, post-ending world state changes
 
 ## Project Status Overview
 
@@ -29,10 +29,10 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons |
 | Act II Content | Partial | Dayside, Array complex, Crystal Guardian boss, MERIDIAN-7 quest, quest steps 19-22 bridge to Act III. Deeper questlines needed |
 | Act III Content | Partial | All three ending dungeons built (shutdown, merge, control). Post-choice NPC dialogue and Unbounded elder NPC still needed |
-| Game Feel | Partial | Sound effects (24 SFX), combat juice, death penalty core (energy drain + item drop) done. Needs: respawn teleport, death screen overlay |
+| Game Feel | Done | Sound effects (24 SFX), combat juice, death penalty (energy drain + item drop + respawn teleport + death screen overlay) all done |
 | Game Balance | Partial | Initial balance pass done. Further playtesting needed |
 | Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
-| Unit Tests | Done | Tiers 1-4: 284 tests (flag-store, event-bus, automation, conditions, actions, trigger-registry, physics, combat, equipment, sol-grid). All passing |
+| Unit Tests | Done | Tiers 1-4: 304 tests (flag-store, event-bus, automation, conditions, actions, trigger-registry, physics, combat, equipment, sol-grid, room-lifecycle). All passing |
 | Per-Biome Music | Done | Ambient music definitions and tileset-based track selection wired |
 | Monster Sprites | Done | Placeholder sprites for all monsters, palette aligned to art style guide |
 | Crystal Guardian Boss | Done | 3-phase boss AI, boss health bar, phase transition VFX, intro presentation |
@@ -51,10 +51,10 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 
 Focus: **Connect disconnected systems, fix testing gaps, implement death penalty**
 
-1. **Death penalty polish** — Energy drain and item drops are coded. Still needs: respawn-at-entrance teleport and death screen overlay so players feel the penalty.
+1. ~~**Death penalty polish**~~ — DONE. Respawn teleport + death screen overlay implemented.
 2. ~~**Automation grid Phase 3**~~ — DONE. `openAutomation` action, MERIDIAN-7 trigger, and client handler all wired.
 3. **Fix headless sim board_train** — Bot clears junction and gets transit pass but can't navigate to train exit at (12,0). Blocks CI mainline testing past step 11.
-4. **Post-choice NPC dialogue** — Asha, Sable, MERIDIAN-7, Wren dialogue variants reacting to chosen ending path.
+4. ~~**Post-choice NPC dialogue**~~ — DONE. Asha, Sable, MERIDIAN-7, Wren all have post-choice variants.
 5. **Minimap quest waypoints** — No spatial guidance for quest objectives currently.
 6. **Automation dungeon sync (Phase 4)** — Player-placed structures should appear as tiles in dayside_solar_fields.
 
@@ -63,11 +63,11 @@ Focus: **Connect disconnected systems, fix testing gaps, implement death penalty
 Focus: **Content polish, quest feel, endgame depth**
 
 7. **Minimap quest waypoints** — Colored dots on minimap for active quest objectives. No spatial guidance currently.
-8. **Wren Alcott dialogue expansion** — Add post-quest reactions for major bosses and story beats beyond frost_warden.
-9. **Sable trust escalation** — Wire incremental trust-building so flagGreaterThan checks can gate deeper relationship stages.
+8. ~~**Wren Alcott dialogue expansion**~~ — DONE. Wren reacts to elder_sporecap_defeated, magma_core_cleared, arrived_meridian, array_secret_discovered, act3_asha_alliance_activated.
+9. ~~**Sable trust escalation**~~ — DONE. Trust increments to 2 (guide role) and 3 (Listening Floor). companion_bond gates on sable_trust > 2.
 10. **Automation Phase 4 (dungeon sync)** — Structures placed in grid appear as tiles in dayside_solar_fields.
-11. **Pack leader AI variant** — Pack monster that buffs nearby pack members with damage/speed aura.
-12. **Touch/gamepad 45° rotation** — Joystick and analog input needs isometric correction like WASD.
+11. ~~**Pack leader AI variant**~~ — DONE. pack_leader AI type with data-driven aura buffs. feral_hound_alpha and frostfang_alpha added.
+12. ~~**Touch/gamepad 45° rotation**~~ — DONE. sendInput() rotates joystick and gamepad inputs for isometric movement.
 
 ## Long-Term Vision (3+ Months)
 
@@ -158,16 +158,24 @@ These are done and don't need further investment:
 - **signal_coordinates item** — Added to items.json for outer_expanse discovery
 - **Death penalty core** — 25% energy drain + non-quest item drop on death implemented
 - **Automation Phase 3 complete** — openAutomation action, MERIDIAN-7 npc_interacted trigger, and client AUTO_STATE/openScreen handler all wired
+- **Death penalty complete** — 25% energy drain + non-quest item drop + respawn-at-entrance teleport + death screen overlay
+- **Post-choice NPC dialogue** — Asha, Sable, MERIDIAN-7, Wren all react to chose_path_shutdown/merge/control flags
+- **Wren Alcott dialogue expansion** — Reacts to elder_sporecap_defeated, magma_core_cleared, arrived_meridian, array_secret_discovered, act3 coalition
+- **Sable trust escalation** — Trust increments to 2/3, companion_bond gates on sable_trust > 2
+- **Pack leader AI** — pack_leader AI type with data-driven aura buffs, feral_hound_alpha and frostfang_alpha
+- **Touch/gamepad 45° rotation** — Joystick and gamepad analog inputs rotated for isometric movement
+- **Room lifecycle tests** — Tier 4 integration tests for createRoom → join → transition → cleanup (304 total tests)
+- **Placeholder sprites** — sable_nightside_guide, sable_threshold, unbounded_elder all have sprites
 
 ## Active Design Docs
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
 | docs/progression-system.md | Active | Core decisions resolved. Remaining: battery math, harvester scaling |
-| docs/automation_screen.md | Active | Phases 1-2 done. Next: Phase 3 (screen access via MERIDIAN-7) |
-| docs/storyboard.md | Active | Act I done, Act II partial, Act III endings built. Post-choice dialogue needed |
-| docs/testing-design.md | Done | Both tools built and functional. 284 tests passing |
+| docs/automation_screen.md | Active | Phases 1-3 done. Next: Phase 4 (dungeon sync) |
+| docs/storyboard.md | Active | Act I done, Act II partial, Act III endings built. Post-choice dialogue done. Remaining: registrar_hollis reactions, post-ending world state |
+| docs/testing-design.md | Done | Both tools built and functional. 304 tests passing |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented. Fog-of-war streaming working |
-| docs/TESTING.md | Done | Tiers 1-4 complete (284 tests). Room-lifecycle tests deferred |
+| docs/TESTING.md | Done | Tiers 1-4 complete (304 tests including room-lifecycle) |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
 | docs/game-scripting.md | Done | TCA system fully implemented and documented |
