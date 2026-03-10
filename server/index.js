@@ -512,6 +512,11 @@ wss.on('connection', (ws) => {
             }
           }
 
+          // Restore automation state (structures, resources, production timers)
+          if (savedSession.automationState) {
+            gameLoop.automation.restoreState(playerId, savedSession.automationState);
+          }
+
           console.log(`[Session] Restored saved session for "${ws.playerName}"`);
         }
 
@@ -1056,6 +1061,7 @@ wss.on('connection', (ws) => {
           xpToNextLevel: player.xpToNextLevel,
           medipacCharges: player.medipacCharges,
           revealedChunks,
+          automationState: gameLoop.automation.serializeState(playerId),
         });
       }
     }

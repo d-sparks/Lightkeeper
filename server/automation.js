@@ -512,6 +512,28 @@ class Automation {
     return entities;
   }
 
+  // Serialize automation state for persistence (returns plain JSON-safe object)
+  serializeState(playerId) {
+    if (!this.playerStates.has(playerId)) return null;
+    return JSON.parse(JSON.stringify(this.playerStates.get(playerId)));
+  }
+
+  // Restore automation state from a saved session
+  restoreState(playerId, data) {
+    if (!data) return;
+    this.playerStates.set(playerId, {
+      resources: data.resources || { silicon: 0 },
+      structures: data.structures || {},
+      productionTimers: data.productionTimers || {},
+      claimedMilestones: data.claimedMilestones || [],
+      stats: data.stats || {
+        totalSiliconProduced: 0,
+        totalSiliconSpent: 0,
+        totalEnergyGenerated: 0,
+      },
+    });
+  }
+
   // Remove player state on disconnect
   removePlayer(playerId) {
     // Keep state so it persists across disconnects within the same server session

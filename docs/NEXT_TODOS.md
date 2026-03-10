@@ -21,7 +21,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 - ~~Add authentication or simple password protection to prevent session hijacking (anyone can resume any character by name).~~ — DONE: Session tokens (48-char hex via crypto.randomBytes) generated on character creation, stored in save files and client localStorage. Token required to resume existing characters; concurrent logins blocked. Old saves without tokens are backfilled on first login.
 - Add a delete character button on the session select screen.
-- Save automation/dayside state per session (currently not persisted).
+- ~~Save automation/dayside state per session (currently not persisted).~~ — DONE: `automation.serializeState`/`restoreState` added; disconnect handler serializes full state (resources, structures, placements, timers, milestones, stats) into save file; join handler restores it.
 - Periodic auto-save during play (currently only saves on disconnect).
 - Handle name collisions more gracefully (warn if creating a character with an existing name).
 - Consider a database backend (SQLite) for deployed environments where filesystem is ephemeral.

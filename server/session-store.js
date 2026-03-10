@@ -88,6 +88,7 @@ class SessionStore {
       xpToNextLevel: playerData.xpToNextLevel || 100,
       medipacCharges: playerData.medipacCharges || 0,
       revealedChunks: playerData.revealedChunks || {},
+      automationState: playerData.automationState ? JSON.parse(JSON.stringify(playerData.automationState)) : null,
       lastSaved: new Date().toISOString(),
     };
     fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
