@@ -116,7 +116,7 @@
   "improved_generator": {
     "type": "generator",
     "name": "Improved Generator",
-    "energyRegen": 5,
+    "energyRegen": 4,
     "shape": [[1]]
   },
   "uranium_generator": {

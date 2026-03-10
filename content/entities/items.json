@@ -259,11 +259,11 @@
   },
   "pulse_rifle": {
     "name": "Pulse Rifle",
-    "description": "Military-grade energy weapon. Fires concentrated pulses that punch through targets.",
+    "description": "Military-grade energy weapon. Fires powerful concentrated pulses that punch through targets.",
     "type": "weapon",
     "rarity": "rare",
     "slot": "weapon",
-    "stats": { "attackDamage": 5, "projectile": true, "projectileType": "pulse_bolt" },
+    "stats": { "attackDamage": 8, "projectile": true, "projectileType": "pulse_bolt" },
     "ability": { "id": "pulse_shot" }
   },
   "efficiency_core_chip": {
@@ -498,7 +498,7 @@
   },
   "basic_generator_chip": {
     "name": "Basic Generator",
-    "description": "A salvaged power cell that provides modest passive energy regeneration. Restores 2 energy per second. Better than nothing.",
+    "description": "A salvaged power cell that provides modest passive energy regeneration. Restores 3 energy per second. Better than nothing.",
     "type": "sol_component",
     "rarity": "uncommon",
     "solComponentId": "basic_generator"

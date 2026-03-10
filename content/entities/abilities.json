@@ -32,7 +32,7 @@
     "projectileRadius": 8,
     "projectileSpeed": 300,
     "cooldown": 0.8,
-    "energyCost": 6,
+    "energyCost": 8,
     "defaultSlot": 2
   },
   "sol_cone": {
