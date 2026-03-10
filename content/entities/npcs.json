@@ -2271,7 +2271,7 @@
         "use": "array_secret_low_trust"
       },
       {
-        "conditions": [{ "hasFlag": "sable_trust" }, { "hasFlag": "sable_guiding" }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "conditions": [{ "flagGreaterThan": { "flag": "sable_trust", "value": 2 } }, { "hasFlag": "sable_guiding" }, { "not": { "hasFlag": "array_secret_discovered" } }],
         "use": "companion_bond"
       },
       {

@@ -93,6 +93,7 @@
       "actions": [
         { "type": "setFlag", "flag": "nightside_expedition_started" },
         { "type": "setFlag", "flag": "sable_guiding" },
+        { "type": "incrementFlag", "flag": "sable_trust" },
         { "type": "grantXp", "amount": 40 },
         { "type": "showMessage", "lines": [
           "Sable steps out of the shadows. She's wearing Unbounded deep-travel gear — insulated layers, bioluminescent markers sewn into the seams.",

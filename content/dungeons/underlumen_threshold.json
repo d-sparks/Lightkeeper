@@ -114,6 +114,7 @@
       ],
       "actions": [
         { "type": "setFlag", "flag": "sable_threshold_spoken" },
+        { "type": "incrementFlag", "flag": "sable_trust" },
         { "type": "grantXp", "amount": 30 },
         { "type": "showMessage", "lines": [
           "Sable kneels at the edge of the crystal floor, one hand pressed flat against the stone. Her eyes are closed. When she speaks, her voice is barely a whisper.",
