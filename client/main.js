@@ -2035,6 +2035,8 @@
           if (pattern === 'radius2') inRange = dist <= 2;
           else if (pattern === 'row') inRange = ny === oy;
           else if (pattern === 'column') inRange = nx === ox;
+          else if (pattern === 'cross') inRange = ny === oy || nx === ox;
+          else if (pattern === 'area3x3') inRange = Math.max(Math.abs(nx - ox), Math.abs(ny - oy)) <= 1;
           if (inRange) indices.push(ny * size + nx);
         }
       }

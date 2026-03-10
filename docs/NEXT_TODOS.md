@@ -181,7 +181,9 @@ Priority-ordered implementation tasks:
 - Define boss affix data format and affix pool in `content/expeditions/affixes.json`.
 - Engine: Apply affix buffs to boss entities at spawn (extend existing buff system from pack_leader auras).
 - Add Tier 4-5 expedition configs requiring multiple players.
-- Create 6 path-specific legendary modifiers in `content/entities/sol_components.json`.
+- ~~Create 6 path-specific legendary modifiers in `content/entities/sol_components.json`.~~ — DONE: `underlumen_heart` (cross, +0.60 dmg), `autonomy_core` (radius2, +0.45 efficiency) for Shutdown; `symbiosis_matrix` (area3x3, +0.35 dmg +6 heal), `convergence_lens` (cross, -0.35 cd) for Merge; `array_command_node` (column, +0.65 dmg -0.25 cd), `efficiency_overseer` (row, +0.55 efficiency +4 heal) for Control. All gated by `unlockFlag`. Chip items added to `items.json`. Path-specific Tier 3 boss loot tables added to `content/loot/expeditions.json`. Engine extended with `cross` and `area3x3` adjacency patterns in `game-loop.js` and `client/main.js`.
+- **Remaining**: Wire path-specific boss loot table selection in expedition boss spawning logic (check `chose_path_*` flag and use `expedition_tier_3_boss_<path>` table instead of generic `expedition_tier_3_boss`).
+- **Remaining**: The `unlockFlag` field on chip items is declarative metadata — the loot resolver and inventory rendering don't yet filter by it. Engine needs to check `unlockFlag` when resolving legendary drops from pool.
 
 ### Phase 6 — Cooperative Challenges (Moderate engine)
 - Engine: Wave defense system (timed monster spawns, shared objective tracking).

@@ -264,6 +264,72 @@
     "description": "A rare tri-stat component salvaged from a pre-Collapse facility, its influence radiates outward to all nearby components within two steps.",
     "shape": [[1, 1], [1, 1]]
   },
+  "underlumen_heart": {
+    "type": "modifier",
+    "name": "Underlumen Heart",
+    "rarity": "legendary",
+    "path": "shutdown",
+    "unlockFlag": "chose_path_shutdown",
+    "adjacencyPattern": "cross",
+    "bonus": { "damageMultiplier": 0.60 },
+    "description": "Pulses with freed Underlumen energy.",
+    "shape": [[1, 1], [1, 1]]
+  },
+  "autonomy_core": {
+    "type": "modifier",
+    "name": "Autonomy Core",
+    "rarity": "legendary",
+    "path": "shutdown",
+    "unlockFlag": "chose_path_shutdown",
+    "adjacencyPattern": "radius2",
+    "bonus": { "energyCostReduction": 0.45 },
+    "description": "Independence has its own power.",
+    "shape": [[1, 1], [1, 1]]
+  },
+  "symbiosis_matrix": {
+    "type": "modifier",
+    "name": "Symbiosis Matrix",
+    "rarity": "legendary",
+    "path": "merge",
+    "unlockFlag": "chose_path_merge",
+    "adjacencyPattern": "area3x3",
+    "bonus": { "damageMultiplier": 0.35, "healOnHit": 6 },
+    "description": "Two systems as one.",
+    "shape": [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+  },
+  "convergence_lens": {
+    "type": "modifier",
+    "name": "Convergence Lens",
+    "rarity": "legendary",
+    "path": "merge",
+    "unlockFlag": "chose_path_merge",
+    "adjacencyPattern": "cross",
+    "bonus": { "cooldownReduction": 0.35 },
+    "description": "All paths meet here.",
+    "shape": [[0, 1, 0], [1, 1, 1], [0, 1, 0]]
+  },
+  "array_command_node": {
+    "type": "modifier",
+    "name": "Array Command Node",
+    "rarity": "legendary",
+    "path": "control",
+    "unlockFlag": "chose_path_control",
+    "adjacencyPattern": "column",
+    "bonus": { "damageMultiplier": 0.65, "cooldownReduction": 0.25 },
+    "description": "Total control, total power.",
+    "shape": [[1], [1], [1]]
+  },
+  "efficiency_overseer": {
+    "type": "modifier",
+    "name": "Efficiency Overseer",
+    "rarity": "legendary",
+    "path": "control",
+    "unlockFlag": "chose_path_control",
+    "adjacencyPattern": "row",
+    "bonus": { "energyCostReduction": 0.55, "healOnHit": 4 },
+    "description": "Optimized beyond design parameters.",
+    "shape": [[1, 1, 1]]
+  },
   "hover_thruster": {
     "type": "ability",
     "abilityId": "hover",

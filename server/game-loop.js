@@ -875,9 +875,11 @@ class GameLoop {
   // Get modifier components adjacent to a grid position
   // Standard modifiers use 4-directional Manhattan distance 1.
   // Extended-adjacency modifiers (legendary tier) use their adjacencyPattern:
-  //   "radius2" — Manhattan distance <= 2
-  //   "row"     — any cell in the same row
-  //   "column"  — any cell in the same column
+  //   "radius2"  — Manhattan distance <= 2
+  //   "row"      — any cell in the same row
+  //   "column"   — any cell in the same column
+  //   "cross"    — full row AND full column (orthogonal cross, unlimited range)
+  //   "area3x3"  — all 8 cells within Chebyshev distance 1 (full 3x3 neighborhood)
   // Deduplicates by placementId so multi-cell shapes only count once
   _getAdjacentModifiers(solGrid, x, y) {
     const size = solGrid.size;
@@ -906,6 +908,12 @@ class GameLoop {
         if (ny === y) modifiers.push(compDef);
       } else if (pattern === 'column') {
         if (nx === x) modifiers.push(compDef);
+      } else if (pattern === 'cross') {
+        // Full row AND full column (orthogonal cross, unlimited range)
+        if (ny === y || nx === x) modifiers.push(compDef);
+      } else if (pattern === 'area3x3') {
+        // All 8 neighbors within Chebyshev distance 1
+        if (Math.max(Math.abs(nx - x), Math.abs(ny - y)) <= 1) modifiers.push(compDef);
       }
     };
 
