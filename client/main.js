@@ -270,6 +270,7 @@
   let abilityState = [null, null, null, null, null, null];
   let cooldownState = [0, 0, 0, 0, 0, 0];
   let medipacCharges = 0;
+  let playerCredits = 0;
   let slot1InteractMode = null; // null or interact label string when slot 1 is overridden
   const SLOT_DISPLAY_NAMES = { arms: 'Arms', sol_unit: 'Sol Unit', medipac: 'Medipac', accessory: 'Accessory' };
 
@@ -1374,24 +1375,24 @@
     resTitle.textContent = 'Resources';
     resSection.appendChild(resTitle);
 
-    const siliconRow = document.createElement('div');
-    siliconRow.className = 'auto-stat-row';
-    siliconRow.innerHTML = '\u26cf Silicon: <span class="stat-value">' +
-      (autoState.resources.silicon || 0) + '</span>';
-    resSection.appendChild(siliconRow);
+    const salvageRow = document.createElement('div');
+    salvageRow.className = 'auto-stat-row';
+    salvageRow.innerHTML = '\u26cf Salvage: <span class="stat-value">' +
+      (autoState.resources.salvage || 0) + '</span>';
+    resSection.appendChild(salvageRow);
 
     if (autoState.stats) {
-      if (autoState.stats.siliconPerMinute > 0) {
+      if (autoState.stats.salvagePerMinute > 0) {
         const rateRow = document.createElement('div');
         rateRow.className = 'auto-stat-row';
         rateRow.innerHTML = '\u25b8 <span class="stat-value">+' +
-          autoState.stats.siliconPerMinute.toFixed(1) + '</span>/min';
+          autoState.stats.salvagePerMinute.toFixed(1) + '</span>/min';
         resSection.appendChild(rateRow);
       }
-      if (autoState.stats.totalSiliconProduced > 0) {
+      if (autoState.stats.totalSalvageProduced > 0) {
         const totalRow = document.createElement('div');
         totalRow.className = 'auto-stat-row';
-        totalRow.innerHTML = '\u25b8 ' + autoState.stats.totalSiliconProduced +
+        totalRow.innerHTML = '\u25b8 ' + autoState.stats.totalSalvageProduced +
           ' total<span class="stat-sub">harvested</span>';
         resSection.appendChild(totalRow);
       }
@@ -1707,6 +1708,14 @@
     const label = equipmentSlots.querySelector('.equip-label');
     equipmentSlots.innerHTML = '';
     equipmentSlots.appendChild(label);
+
+    // Show credits if player has any
+    if (playerCredits > 0) {
+      const creditsDiv = document.createElement('div');
+      creditsDiv.className = 'credits-display';
+      creditsDiv.textContent = playerCredits + ' credits';
+      equipmentSlots.appendChild(creditsDiv);
+    }
 
     for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
       const div = document.createElement('div');
@@ -2962,6 +2971,9 @@
     }
     if (msg.medipacCharges !== undefined) {
       medipacCharges = msg.medipacCharges;
+    }
+    if (msg.credits !== undefined) {
+      playerCredits = msg.credits;
     }
     updateActionBar();
     if (menuOpen && (menuTab === 'equipment' || menuTab === 'inventory')) {

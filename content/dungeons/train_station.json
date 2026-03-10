@@ -132,10 +132,26 @@
       "event": "npc_interacted",
       "filter": { "npcType": "meridian_7" },
       "conditions": [
-        { "hasFlag": "traded_umbracite_meridian" }
+        { "hasFlag": "traded_umbracite_meridian" },
+        { "not": { "hasFlag": "automation_established" } }
       ],
       "actions": [
         { "type": "openAutomation" }
+      ]
+    },
+    {
+      "id": "meridian_menu",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7" },
+      "conditions": [
+        { "hasFlag": "traded_umbracite_meridian" },
+        { "hasFlag": "automation_established" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "meridian_menu", "prompt": "MERIDIAN-7: SELECT INTERFACE", "speaker": "MERIDIAN-7", "options": [
+          { "label": "Manage Automation", "value": "open_automation" },
+          { "label": "Exchange (Buy / Sell)", "value": "open_shop" }
+        ]}
       ]
     },
     {

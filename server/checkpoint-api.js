@@ -107,6 +107,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
         inventory: JSON.parse(JSON.stringify(player.inventory)),
         equipment: JSON.parse(JSON.stringify(player.equipment)),
         solGrid: player.solGrid ? JSON.parse(JSON.stringify(player.solGrid)) : null,
+        credits: player.credits || 0,
         flags: JSON.parse(JSON.stringify(gameLoop.flagStore.getPlayerFlags(playerId))),
         questState: gameLoop.questTracker.serializePlayerState(playerId),
       };
@@ -161,6 +162,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
       player.maxHealth = checkpoint.maxHealth || player.maxHealth;
       player.energy = checkpoint.energy || 0;
       player.maxEnergy = checkpoint.maxEnergy || 0;
+      player.credits = checkpoint.credits || 0;
 
       // Replace flags
       if (checkpoint.flags) {
@@ -761,9 +763,9 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
 
       const giveCount = Math.max(1, Math.floor(count || 1));
 
-      // Silicon goes to automation resources
-      if (resolvedType === 'silicon' && gameLoop.automation) {
-        gameLoop.automation.addResource(playerId, 'silicon', giveCount);
+      // Salvage goes to automation resources
+      if (resolvedType === 'salvage' && gameLoop.automation) {
+        gameLoop.automation.addResource(playerId, 'salvage', giveCount);
         ws.send(JSON.stringify({
           type: 'auto_state',
           auto: gameLoop.automation.getStateForClient(playerId),

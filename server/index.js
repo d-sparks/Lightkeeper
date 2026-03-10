@@ -515,6 +515,7 @@ wss.on('connection', (ws) => {
           player.level = savedSession.level || 1;
           player.xpToNextLevel = savedSession.xpToNextLevel || gameLoop._xpForLevel(player.level);
           player.medipacCharges = savedSession.medipacCharges || 0;
+          player.credits = savedSession.credits || 0;
 
           // Restore flags
           if (savedSession.flags) {
@@ -585,6 +586,7 @@ wss.on('connection', (ws) => {
           items: player.inventory,
           equipment: player.equipment,
           medipacCharges: player.medipacCharges,
+          credits: player.credits || 0,
         }));
 
         // Send ability state
@@ -683,9 +685,10 @@ wss.on('connection', (ws) => {
             items: result.inventory,
             equipment: result.equipment,
             medipacCharges: pickupPlayer ? pickupPlayer.medipacCharges : 0,
+            credits: pickupPlayer ? pickupPlayer.credits || 0 : 0,
           }));
-          // If silicon was picked up, also send updated automation state
-          if (result.item && result.item.type === 'silicon') {
+          // If salvage was picked up, also send updated automation state
+          if (result.item && result.item.type === 'salvage') {
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.AUTO_STATE,
               auto: gameLoop.automation.getStateForClient(playerId),
@@ -714,6 +717,7 @@ wss.on('connection', (ws) => {
             items: equipResult.inventory,
             equipment: equipResult.equipment,
             medipacCharges: equipPlayer ? equipPlayer.medipacCharges : 0,
+            credits: equipPlayer ? equipPlayer.credits || 0 : 0,
           }));
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.ABILITY_STATE,
@@ -742,6 +746,7 @@ wss.on('connection', (ws) => {
             items: unequipResult.inventory,
             equipment: unequipResult.equipment,
             medipacCharges: unequipPlayer2 ? unequipPlayer2.medipacCharges : 0,
+            credits: unequipPlayer2 ? unequipPlayer2.credits || 0 : 0,
           }));
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.ABILITY_STATE,
@@ -770,6 +775,7 @@ wss.on('connection', (ws) => {
             items: useResult.inventory,
             equipment: useResult.equipment,
             medipacCharges: usePlayer ? usePlayer.medipacCharges : 0,
+            credits: usePlayer ? usePlayer.credits || 0 : 0,
           }));
         }
         break;
@@ -810,6 +816,7 @@ wss.on('connection', (ws) => {
               items: healPlayer.inventory,
               equipment: healPlayer.equipment,
               medipacCharges: healPlayer.medipacCharges,
+              credits: healPlayer.credits || 0,
             }));
           }
         }
@@ -878,6 +885,7 @@ wss.on('connection', (ws) => {
               items: p2.inventory,
               equipment: p2.equipment,
               medipacCharges: p2.medipacCharges,
+              credits: p2.credits || 0,
             }));
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.ABILITY_STATE,
@@ -907,6 +915,7 @@ wss.on('connection', (ws) => {
               items: p3.inventory,
               equipment: p3.equipment,
               medipacCharges: p3.medipacCharges,
+              credits: p3.credits || 0,
             }));
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.ABILITY_STATE,
@@ -922,6 +931,13 @@ wss.on('connection', (ws) => {
         if (!ws.playerRoom) break;
         const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY);
         if (built) {
+          // Set automation_established flag once player has built 2+ structures
+          if (!gameLoop.flagStore.getPlayerFlag(playerId, 'automation_established')) {
+            const autoState = gameLoop.automation.getStateForClient(playerId);
+            if (autoState.stats && autoState.stats.totalStructures >= 2) {
+              gameLoop.flagStore.setPlayerFlag(playerId, 'automation_established', true);
+            }
+          }
           // Check for milestone rewards
           const milestoneRewards = gameLoop.automation.checkMilestones(playerId);
           if (milestoneRewards.length > 0) {
@@ -954,6 +970,7 @@ wss.on('connection', (ws) => {
                 items: player.inventory,
                 equipment: player.equipment,
                 medipacCharges: player.medipacCharges,
+          credits: player.credits || 0,
               }));
               // Notify client of each milestone reached
               for (const reward of milestoneRewards) {
@@ -1034,6 +1051,7 @@ wss.on('connection', (ws) => {
               items: player.inventory,
               equipment: player.equipment,
               medipacCharges: player.medipacCharges,
+          credits: player.credits || 0,
             }));
           }
           ws.send(JSON.stringify({
@@ -1120,6 +1138,7 @@ function gatherPlayerSaveData(ws) {
     level: player.level,
     xpToNextLevel: player.xpToNextLevel,
     medipacCharges: player.medipacCharges,
+    credits: player.credits || 0,
     revealedChunks,
     automationState: gameLoop.automation.serializeState(ws.playerId),
   };
@@ -1287,6 +1306,7 @@ setInterval(() => {
       items: dp.inventory,
       equipment: dp.equipment,
       medipacCharges: dp.medipacCharges,
+      credits: dp.credits || 0,
     }));
 
     // Send death screen notification so the player knows what they lost

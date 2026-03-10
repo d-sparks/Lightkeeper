@@ -95,6 +95,13 @@
     "rarity": "uncommon",
     "solComponentId": "damage_booster"
   },
+  "salvage": {
+    "name": "Salvage",
+    "description": "Scrap circuitry and corroded components stripped from Nightside creatures. MERIDIAN-7 exchanges these for credits.",
+    "type": "misc",
+    "rarity": "common",
+    "stackable": true
+  },
   "silicon": {
     "name": "Silicon",
     "description": "Refined silicon crystal harvested from the dayside. Used for construction and trade with the Array.",

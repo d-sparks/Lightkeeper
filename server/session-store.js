@@ -87,6 +87,7 @@ class SessionStore {
       level: playerData.level || 1,
       xpToNextLevel: playerData.xpToNextLevel || 100,
       medipacCharges: playerData.medipacCharges || 0,
+      credits: playerData.credits || 0,
       revealedChunks: playerData.revealedChunks || {},
       automationState: playerData.automationState ? JSON.parse(JSON.stringify(playerData.automationState)) : null,
       lastSaved: new Date().toISOString(),

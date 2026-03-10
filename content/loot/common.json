@@ -2,6 +2,7 @@
   "skeleton_common": {
     "dropChance": 0.4,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "bandage", "weight": 10 },
       { "item": "ration_pack", "weight": 8 },
       { "item": "rusty_sword", "weight": 2 },
@@ -11,6 +12,7 @@
   "skeleton_archer": {
     "dropChance": 0.4,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "bandage", "weight": 10 },
       { "item": "ration_pack", "weight": 8 },
       { "item": "damage_booster_chip", "weight": 2 },
@@ -20,6 +22,7 @@
   "luddite_common": {
     "dropChance": 0.35,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "bandage", "weight": 10 },
       { "item": "ration_pack", "weight": 8 },
       { "item": "health_potion", "weight": 4 },
@@ -29,6 +32,7 @@
   "luddite_warlord": {
     "dropChance": 0.8,
     "rolls": [
+      { "item": "salvage", "weight": 6 },
       { "item": "health_potion", "weight": 6 },
       { "item": "supply_crate_key", "weight": 2 },
       { "item": "tempered_blade", "weight": 1 },
@@ -40,6 +44,7 @@
   "dusk_crawler": {
     "dropChance": 0.2,
     "rolls": [
+      { "item": "salvage", "weight": 12 },
       { "item": "bandage", "weight": 10 },
       { "item": "ration_pack", "weight": 5 },
       { "item": "damage_booster_chip", "weight": 1 }
@@ -48,6 +53,7 @@
   "shade_stalker": {
     "dropChance": 0.35,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "health_potion", "weight": 8 },
       { "item": "bandage", "weight": 10 },
       { "item": "umbracite_shard", "weight": 2 },
@@ -57,6 +63,7 @@
   "nest_mother": {
     "dropChance": 0.75,
     "rolls": [
+      { "item": "salvage", "weight": 6 },
       { "item": "health_potion", "weight": 6 },
       { "item": "chitin_plate", "weight": 3 },
       { "item": "field_medkit", "weight": 2 },
@@ -67,6 +74,7 @@
   "scrap_drone": {
     "dropChance": 0.15,
     "rolls": [
+      { "item": "salvage", "weight": 12 },
       { "item": "bandage", "weight": 10 },
       { "item": "reinforced_battery_chip", "weight": 1 }
     ]
@@ -74,6 +82,7 @@
   "gloom_wraith": {
     "dropChance": 0.4,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "health_potion", "weight": 8 },
       { "item": "umbracite_shard", "weight": 3 },
       { "item": "flare", "weight": 5 },
@@ -83,6 +92,7 @@
   "ravine_lurker": {
     "dropChance": 0.5,
     "rolls": [
+      { "item": "salvage", "weight": 8 },
       { "item": "health_potion", "weight": 6 },
       { "item": "lurker_hide", "weight": 3 },
       { "item": "field_medkit", "weight": 2 },
@@ -92,6 +102,7 @@
   "crystal_guardian": {
     "dropChance": 0.7,
     "rolls": [
+      { "item": "salvage", "weight": 6 },
       { "item": "field_medkit", "weight": 5 },
       { "item": "frozen_core", "weight": 3 },
       { "item": "guardian_core_chip", "weight": 1 },

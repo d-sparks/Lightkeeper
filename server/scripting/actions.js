@@ -24,6 +24,7 @@
 //   { type: "rollLootTable", lootTable: "frost_biome_common", x: 5, y: 3 }  // roll from loot table, spawn result; x/y optional
 //   { type: "spawnNpc",    npcType: "outpost_warden", x: 4, y: 10 }  // spawns NPC at tile coords if not already present
 //   { type: "craft" }  // opens crafting menu with available recipes from crafting.json
+//   { type: "shop",      shopId: "meridian_7_shop" }  // opens buy/sell menu from shops.json
 
 const CONSTANTS = require('../../shared/constants');
 
@@ -119,6 +120,9 @@ class ActionExecutor {
         break;
       case 'craft':
         this.doCraft(action, context);
+        break;
+      case 'shop':
+        this.doShop(action, context);
         break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
@@ -272,9 +276,9 @@ class ActionExecutor {
 
     const count = action.count || 1;
 
-    // Silicon goes to automation resources instead of inventory
-    if (action.itemType === 'silicon' && this.automation) {
-      this.automation.addResource(context.playerId, 'silicon', count);
+    // Salvage goes to automation resources instead of inventory
+    if (action.itemType === 'salvage' && this.automation) {
+      this.automation.addResource(context.playerId, 'salvage', count);
       if (this.sendToPlayer) {
         this.sendToPlayer(context.playerId, {
           type: CONSTANTS.MSG.AUTO_STATE,
@@ -293,6 +297,7 @@ class ActionExecutor {
           items: player.inventory,
           equipment: player.equipment,
           medipacCharges: player.medipacCharges,
+      credits: player.credits || 0,
         });
       }
       return;
@@ -314,6 +319,7 @@ class ActionExecutor {
         items: player.inventory,
         equipment: player.equipment,
         medipacCharges: player.medipacCharges,
+      credits: player.credits || 0,
       });
     }
   }
@@ -339,6 +345,7 @@ class ActionExecutor {
         items: player.inventory,
         equipment: player.equipment,
         medipacCharges: player.medipacCharges,
+      credits: player.credits || 0,
       });
     }
   }
@@ -387,6 +394,7 @@ class ActionExecutor {
         items: player.inventory,
         equipment: player.equipment,
         medipacCharges: player.medipacCharges,
+      credits: player.credits || 0,
       });
       this.sendToPlayer(context.playerId, {
         type: CONSTANTS.MSG.ABILITY_STATE,
@@ -487,6 +495,22 @@ class ActionExecutor {
 
   doOpenAutomation(action, context) {
     if (!this.automation || !this.sendToPlayer) return;
+    // Migrate any salvage sitting in inventory to automation resources
+    const player = context.player;
+    if (player) {
+      const legacySalvage = player.inventory.filter(i => i.type === 'salvage').length;
+      if (legacySalvage > 0) {
+        player.inventory = player.inventory.filter(i => i.type !== 'salvage');
+        this.automation.addResource(context.playerId, 'salvage', legacySalvage);
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.INVENTORY,
+          items: player.inventory,
+          equipment: player.equipment,
+          medipacCharges: player.medipacCharges,
+          credits: player.credits || 0,
+        });
+      }
+    }
     this.sendToPlayer(context.playerId, {
       type: CONSTANTS.MSG.AUTO_STATE,
       auto: this.automation.getStateForClient(context.playerId),
@@ -630,14 +654,14 @@ class ActionExecutor {
   // Check if a player has all required ingredients in inventory
   _playerHasIngredients(playerId, player, ingredients) {
     for (const req of ingredients) {
-      if (req.itemType === 'silicon') {
-        // Silicon is tracked via automation resources
+      if (req.itemType === 'salvage') {
+        // Salvage is tracked via automation resources
         if (this.automation) {
-          const have = this.automation.getResource(playerId, 'silicon') || 0;
+          const have = this.automation.getResource(playerId, 'salvage') || 0;
           if (have < (req.count || 1)) return false;
         } else {
-          // Fallback: count silicon in inventory
-          const count = player.inventory.filter(i => i.type === 'silicon').length;
+          // Fallback: count salvage in inventory
+          const count = player.inventory.filter(i => i.type === 'salvage').length;
           if (count < (req.count || 1)) return false;
         }
       } else {
@@ -675,8 +699,8 @@ class ActionExecutor {
     // Remove ingredients
     for (const req of recipe.ingredients) {
       const count = req.count || 1;
-      if (req.itemType === 'silicon' && this.automation) {
-        this.automation.addResource(context.playerId, 'silicon', -count);
+      if (req.itemType === 'salvage' && this.automation) {
+        this.automation.addResource(context.playerId, 'salvage', -count);
       } else {
         for (let i = 0; i < count; i++) {
           const idx = player.inventory.findIndex(item => item.type === req.itemType);
@@ -708,6 +732,7 @@ class ActionExecutor {
       items: player.inventory,
       equipment: player.equipment,
       medipacCharges: player.medipacCharges,
+      credits: player.credits || 0,
     });
 
     // Send silicon update if automation is active
@@ -724,6 +749,222 @@ class ActionExecutor {
     });
 
     return true;
+  }
+
+  // Open shop menu: { type: "shop", shopId: "meridian_7_shop" }
+  // Shows buy/sell options filtered by player inventory and credits.
+  // Player selects an option via choice menu; the transaction is executed in executeShopTransaction().
+  doShop(action, context) {
+    const player = context.player;
+    if (!player || !this.sendToPlayer) return;
+
+    // Migrate any salvage sitting in inventory to automation resources
+    if (this.automation) {
+      const legacySalvage = player.inventory.filter(i => i.type === 'salvage').length;
+      if (legacySalvage > 0) {
+        player.inventory = player.inventory.filter(i => i.type !== 'salvage');
+        this.automation.addResource(context.playerId, 'salvage', legacySalvage);
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.INVENTORY,
+          items: player.inventory,
+          equipment: player.equipment,
+          medipacCharges: player.medipacCharges,
+          credits: player.credits || 0,
+        });
+      }
+    }
+
+    const shop = this.content.getShop(action.shopId);
+    if (!shop) {
+      console.warn(`[Actions] Unknown shop: ${action.shopId}`);
+      return;
+    }
+
+    const options = [];
+    const credits = player.credits || 0;
+
+    // Sell options — show only if player has the item
+    for (const entry of (shop.buys || [])) {
+      // Salvage is tracked via automation resources, not inventory
+      const count = (entry.item === 'salvage' && this.automation)
+        ? this.automation.getResource(context.playerId, 'salvage') || 0
+        : player.inventory.filter(i => i.type === entry.item).length;
+      if (count <= 0) continue;
+      if (entry.sellAll && count > 1) {
+        const totalReward = count * entry.creditsReward;
+        options.push({
+          label: `Sell All ${count} Salvage (${totalReward} cr)`,
+          description: `You have ${count}. ${entry.creditsReward} cr each.`,
+          value: `sell_all_${entry.item}`,
+        });
+      } else if (count > 0) {
+        options.push({
+          label: entry.label + (count > 1 ? ` (have ${count})` : ''),
+          description: `You have ${count}.`,
+          value: `sell_${entry.item}`,
+        });
+      }
+    }
+
+    // Buy options — show all, indicate if player can afford
+    for (const entry of (shop.sells || [])) {
+      const affordable = credits >= entry.creditsCost;
+      options.push({
+        label: entry.label + (affordable ? '' : ' [insufficient credits]'),
+        description: affordable ? `You have ${credits} cr.` : `Need ${entry.creditsCost} cr, have ${credits} cr.`,
+        value: affordable ? `buy_${entry.item}` : '_cannot_afford',
+      });
+    }
+
+    if (options.length === 0) {
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.DIALOGUE,
+        dialogue: [{ speaker: shop.speaker || 'Shop', text: 'No trades available at this time.' }],
+      });
+      return;
+    }
+
+    options.push({ label: 'Cancel', description: '', value: '_cancel' });
+
+    this.sendToPlayer(context.playerId, {
+      type: CONSTANTS.MSG.CHOICE_MENU,
+      choiceId: `shop_${action.shopId}`,
+      prompt: `// ${(shop.name || 'EXCHANGE').toUpperCase()} // ${credits} CREDITS AVAILABLE //`,
+      options,
+    });
+  }
+
+  // Execute a shop transaction after player selects from the shop menu.
+  // Called from game-loop handleChoiceSelect when choiceId starts with 'shop_'.
+  executeShopTransaction(shopId, transactionValue, context) {
+    const player = context.player;
+    if (!player || !this.sendToPlayer) return;
+
+    if (transactionValue === '_cancel' || transactionValue === '_cannot_afford') return;
+
+    const shop = this.content.getShop(shopId);
+    if (!shop) return;
+
+    const speaker = shop.speaker || 'Shop';
+
+    if (transactionValue.startsWith('sell_all_')) {
+      // Sell all of an item type
+      const itemType = transactionValue.replace('sell_all_', '');
+      const buyEntry = (shop.buys || []).find(b => b.item === itemType);
+      if (!buyEntry) return;
+
+      // Salvage is tracked via automation resources
+      if (itemType === 'salvage' && this.automation) {
+        const count = this.automation.getResource(context.playerId, 'salvage') || 0;
+        if (count <= 0) return;
+        this.automation.addResource(context.playerId, 'salvage', -count);
+        const totalReward = count * buyEntry.creditsReward;
+        player.credits = (player.credits || 0) + totalReward;
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.AUTO_STATE,
+          auto: this.automation.getStateForClient(context.playerId),
+        });
+      } else {
+        const count = player.inventory.filter(i => i.type === itemType).length;
+        if (count <= 0) return;
+        player.inventory = player.inventory.filter(i => i.type !== itemType);
+        const totalReward = count * buyEntry.creditsReward;
+        player.credits = (player.credits || 0) + totalReward;
+      }
+
+      const count = (itemType === 'salvage' && this.automation)
+        ? 0  // already handled above
+        : player.inventory.filter(i => i.type === itemType).length;
+      const totalReward = (player.credits || 0);  // credits already updated
+
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.INVENTORY,
+        items: player.inventory,
+        equipment: player.equipment,
+        medipacCharges: player.medipacCharges,
+        credits: player.credits || 0,
+      });
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.DIALOGUE,
+        dialogue: [{ speaker, text: `// EXCHANGE COMPLETE // CREDITS DEPOSITED // Balance: ${player.credits} //` }],
+      });
+    } else if (transactionValue.startsWith('sell_')) {
+      // Sell one item
+      const itemType = transactionValue.replace('sell_', '');
+      const buyEntry = (shop.buys || []).find(b => b.item === itemType);
+      if (!buyEntry) return;
+
+      // Salvage is tracked via automation resources
+      if (itemType === 'salvage' && this.automation) {
+        const have = this.automation.getResource(context.playerId, 'salvage') || 0;
+        if (have <= 0) return;
+        this.automation.addResource(context.playerId, 'salvage', -1);
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.AUTO_STATE,
+          auto: this.automation.getStateForClient(context.playerId),
+        });
+      } else {
+        const idx = player.inventory.findIndex(i => i.type === itemType);
+        if (idx === -1) return;
+        player.inventory.splice(idx, 1);
+      }
+      player.credits = (player.credits || 0) + buyEntry.creditsReward;
+
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.INVENTORY,
+        items: player.inventory,
+        equipment: player.equipment,
+        medipacCharges: player.medipacCharges,
+        credits: player.credits || 0,
+      });
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.DIALOGUE,
+        dialogue: [{ speaker, text: `// EXCHANGE COMPLETE // ${buyEntry.creditsReward} CREDITS DEPOSITED // Balance: ${player.credits} //` }],
+      });
+    } else if (transactionValue.startsWith('buy_')) {
+      // Buy an item
+      const itemType = transactionValue.replace('buy_', '');
+      const sellEntry = (shop.sells || []).find(s => s.item === itemType);
+      if (!sellEntry) return;
+      if ((player.credits || 0) < sellEntry.creditsCost) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.DIALOGUE,
+          dialogue: [{ speaker, text: '// INSUFFICIENT CREDITS // Transaction denied. //' }],
+        });
+        return;
+      }
+
+      player.credits -= sellEntry.creditsCost;
+
+      // Special handling for medical supplies
+      if (itemType === 'medical_supplies') {
+        player.medipacCharges = (player.medipacCharges || 0) + 1;
+      } else {
+        const itemDef = this.content.getItem(itemType);
+        if (!itemDef) return;
+        player.inventory.push({
+          type: itemType,
+          name: itemDef.name,
+          rarity: itemDef.rarity || 'common',
+          category: itemDef.type || 'misc',
+        });
+      }
+
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.INVENTORY,
+        items: player.inventory,
+        equipment: player.equipment,
+        medipacCharges: player.medipacCharges,
+        credits: player.credits || 0,
+      });
+
+      const itemDef = this.content.getItem(itemType);
+      const itemName = itemDef ? itemDef.name : itemType;
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.DIALOGUE,
+        dialogue: [{ speaker, text: `// FABRICATION COMPLETE // ${itemName} delivered // ${sellEntry.creditsCost} CREDITS DEDUCTED // Balance: ${player.credits} //` }],
+      });
+    }
   }
 
   // Start an expedition: { type: "startExpedition", tier: 1 }

@@ -1,0 +1,17 @@
+{
+  "meridian_7_shop": {
+    "name": "MERIDIAN-7 Exchange",
+    "speaker": "MERIDIAN-7",
+    "sells": [
+      { "item": "single_use_battery_chip", "creditsCost": 15, "label": "Single-Use Battery (15 cr)" },
+      { "item": "battery_chip", "creditsCost": 30, "label": "Battery Chip (30 cr)" },
+      { "item": "medical_supplies", "creditsCost": 10, "label": "Medical Supplies (10 cr)" },
+      { "item": "health_potion", "creditsCost": 20, "label": "Health Potion (20 cr)" },
+      { "item": "field_medkit", "creditsCost": 40, "label": "Field Medkit (40 cr)" },
+      { "item": "flare", "creditsCost": 25, "label": "Flare (25 cr)" }
+    ],
+    "buys": [
+      { "item": "salvage", "creditsReward": 5, "label": "Sell Salvage (5 cr each)", "sellAll": true }
+    ]
+  }
+}

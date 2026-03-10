@@ -14,13 +14,13 @@ class Automation {
   getState(playerId) {
     if (!this.playerStates.has(playerId)) {
       this.playerStates.set(playerId, {
-        resources: { silicon: 0 },
+        resources: { salvage: 0 },
         structures: {},       // structureId -> { count, placements: [{x,y}] }
         productionTimers: {}, // structureId -> seconds accumulated
         claimedMilestones: [],// indices of milestones already claimed
         stats: {
-          totalSiliconProduced: 0,
-          totalSiliconSpent: 0,
+          totalSalvageProduced: 0,
+          totalSalvageSpent: 0,
           totalEnergyGenerated: 0,
         },
       });
@@ -28,13 +28,13 @@ class Automation {
     return this.playerStates.get(playerId);
   }
 
-  // Add resources (called when player picks up silicon or production ticks)
+  // Add resources (called when player picks up salvage or production ticks)
   addResource(playerId, resourceType, amount) {
     const state = this.getState(playerId);
     if (!state.resources[resourceType]) state.resources[resourceType] = 0;
     state.resources[resourceType] += amount;
-    if (resourceType === 'silicon') {
-      state.stats.totalSiliconProduced += amount;
+    if (resourceType === 'salvage') {
+      state.stats.totalSalvageProduced += amount;
     }
   }
 
@@ -54,8 +54,8 @@ class Automation {
     // Deduct
     for (const [resource, amount] of Object.entries(costs)) {
       state.resources[resource] -= amount;
-      if (resource === 'silicon') {
-        state.stats.totalSiliconSpent += amount;
+      if (resource === 'salvage') {
+        state.stats.totalSalvageSpent += amount;
       }
     }
     return true;
@@ -241,8 +241,8 @@ class Automation {
   // Execute a trade with MERIDIAN-7
   trade(playerId, tradeId) {
     const trades = {
-      damage_booster: { cost: { silicon: 5 }, gives: [{ type: 'item', itemId: 'damage_booster_chip', count: 1 }] },
-      medical_supplies: { cost: { silicon: 10 }, gives: [{ type: 'item', itemId: 'medical_supplies', count: 5 }] },
+      damage_booster: { cost: { salvage: 5 }, gives: [{ type: 'item', itemId: 'damage_booster_chip', count: 1 }] },
+      medical_supplies: { cost: { salvage: 10 }, gives: [{ type: 'item', itemId: 'medical_supplies', count: 5 }] },
     };
 
     const tradeDef = trades[tradeId];
@@ -378,7 +378,7 @@ class Automation {
     }
 
     // Compute production rates
-    let siliconPerMinute = 0;
+    let salvagePerMinute = 0;
     let energyRegenPerSecond = 0;
     for (const [id, def] of Object.entries(structures)) {
       if (id.startsWith('_')) continue;
@@ -387,7 +387,7 @@ class Automation {
       if (count <= 0 || !def.effect) continue;
 
       if (def.effect.type === 'resource_production') {
-        siliconPerMinute += (def.effect.amount * count * 60) / def.effect.intervalSeconds;
+        salvagePerMinute += (def.effect.amount * count * 60) / def.effect.intervalSeconds;
       }
       if (def.effect.type === 'energy_regen') {
         energyRegenPerSecond += (def.effect.amount * count) / def.effect.intervalSeconds;
@@ -395,8 +395,8 @@ class Automation {
     }
 
     const trades = [
-      { id: 'damage_booster', name: 'Damage Booster Chip', cost: { silicon: 5 } },
-      { id: 'medical_supplies', name: 'Medical Supplies x5', cost: { silicon: 10 } },
+      { id: 'damage_booster', name: 'Damage Booster Chip', cost: { salvage: 5 } },
+      { id: 'medical_supplies', name: 'Medical Supplies x5', cost: { salvage: 10 } },
     ];
 
     // Build milestone rewards list with claimed status
@@ -415,10 +415,10 @@ class Automation {
       trades,
       milestones,
       stats: {
-        totalSiliconProduced: state.stats.totalSiliconProduced,
-        totalSiliconSpent: state.stats.totalSiliconSpent,
+        totalSalvageProduced: state.stats.totalSalvageProduced,
+        totalSalvageSpent: state.stats.totalSalvageSpent,
         totalEnergyGenerated: state.stats.totalEnergyGenerated,
-        siliconPerMinute,
+        salvagePerMinute,
         energyRegenPerSecond,
         automationLevel,
         automationLevelName,
@@ -475,8 +475,8 @@ class Automation {
       if (p.structureId === 'solar_panel') {
         overlayed.data[idx] = 7;
       }
-      // Silicon harvesters become tile 2 (feature/sand) as a visible marker
-      if (p.structureId === 'silicon_harvester') {
+      // Salvage harvesters become tile 2 (feature/sand) as a visible marker
+      if (p.structureId === 'salvage_harvester') {
         overlayed.data[idx] = 2;
       }
     }
@@ -485,13 +485,12 @@ class Automation {
   }
 
   // Get visual-only harvester entity data for state broadcast
-  // Returns NPC-like entries for silicon_harvester placements
   getHarvesterEntities(playerId) {
     const config = this.getGridConfig();
     if (!config) return [];
 
     const state = this.getState(playerId);
-    const harvesterData = state.structures.silicon_harvester;
+    const harvesterData = state.structures.salvage_harvester;
     if (!harvesterData || !harvesterData.placements || harvesterData.placements.length === 0) return [];
 
     const ts = CONSTANTS.TILE_SIZE;
@@ -503,7 +502,7 @@ class Automation {
       entities.push({
         id: `harvester_${playerId}_${i}`,
         type: 'scrap_drone',
-        name: 'Silicon Harvester',
+        name: 'Salvage Harvester',
         x: (dungeonX + 0.5) * ts,
         y: (dungeonY + 0.5) * ts,
         decorative: true,
@@ -522,13 +521,13 @@ class Automation {
   restoreState(playerId, data) {
     if (!data) return;
     this.playerStates.set(playerId, {
-      resources: data.resources || { silicon: 0 },
+      resources: data.resources || { salvage: 0 },
       structures: data.structures || {},
       productionTimers: data.productionTimers || {},
       claimedMilestones: data.claimedMilestones || [],
       stats: data.stats || {
-        totalSiliconProduced: 0,
-        totalSiliconSpent: 0,
+        totalSalvageProduced: 0,
+        totalSalvageSpent: 0,
         totalEnergyGenerated: 0,
       },
     });

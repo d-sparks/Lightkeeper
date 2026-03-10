@@ -18,6 +18,7 @@ class ContentLoader {
     this.lootTables = {};
     this.expeditions = {};
     this.crafting = {};
+    this.shops = {};
     this.worldmap = null;
     this.settings = {};
   }
@@ -38,6 +39,7 @@ class ContentLoader {
     this.loadLootTables();
     this.loadExpeditions();
     this.loadCrafting();
+    this.loadShops();
     this.loadWorldmap();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
@@ -50,7 +52,8 @@ class ContentLoader {
                 `${Object.keys(this.structures).length} structure(s), ` +
                 `${Object.keys(this.lootTables).length} loot table(s), ` +
                 `${Object.keys(this.expeditions).length} expedition(s), ` +
-                `${Object.keys(this.crafting).length} crafting recipe(s)`);
+                `${Object.keys(this.crafting).length} crafting recipe(s), ` +
+                `${Object.keys(this.shops).length} shop(s)`);
   }
 
   loadJSON(filePath) {
@@ -298,6 +301,20 @@ class ContentLoader {
 
   getAllCraftingRecipes() {
     return this.crafting;
+  }
+
+  loadShops() {
+    const filePath = path.join(this.contentDir, 'entities', 'shops.json');
+    if (!fs.existsSync(filePath)) {
+      this.shops = {};
+      return;
+    }
+    this.shops = this.loadJSON(filePath);
+    console.log(`[Content]   Shops: ${Object.keys(this.shops).length} shops`);
+  }
+
+  getShop(id) {
+    return this.shops[id] || null;
   }
 
   loadLootTables() {

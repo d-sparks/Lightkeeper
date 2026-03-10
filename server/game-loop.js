@@ -604,6 +604,7 @@ class GameLoop {
       level: 1,
       xpToNextLevel: this._xpForLevel(1),
       medipacCharges: 0,
+      credits: 0,
     };
 
     room.players.set(playerId, player);
@@ -3639,6 +3640,7 @@ class GameLoop {
         inventory: player.inventory,
         equipment: player.equipment,
         medipacCharges: player.medipacCharges || 0,
+        credits: player.credits || 0,
         energyLost,
         droppedItems: droppedNames,
       });
@@ -4034,9 +4036,15 @@ class GameLoop {
         this.pickedUpItems.get(room.dungeonId).add(closestItem.spawnIndex);
       }
       const closestItemDef = this.content.getItem(closestItem.type);
-      // Silicon goes to automation resources instead of inventory
-      if (closestItem.type === 'silicon') {
-        this.automation.addResource(playerId, 'silicon', 1);
+      // Salvage goes to automation resources instead of inventory
+      if (closestItem.type === 'salvage') {
+        this.automation.addResource(playerId, 'salvage', 1);
+        // Migrate any legacy salvage sitting in inventory to automation resources
+        const legacySalvage = player.inventory.filter(i => i.type === 'salvage').length;
+        if (legacySalvage > 0) {
+          player.inventory = player.inventory.filter(i => i.type !== 'salvage');
+          this.automation.addResource(playerId, 'salvage', legacySalvage);
+        }
       } else if (closestItem.type === 'medical_supplies') {
         // Medical supplies go to medipac charges, not inventory
         player.medipacCharges = (player.medipacCharges || 0) + 1;
@@ -4219,6 +4227,25 @@ class GameLoop {
     if (choiceId === 'meridian_craft') {
       const ctx = this._scriptContext(playerId, roomId);
       this.actions.executeCraftRecipe(value, ctx);
+      return;
+    }
+
+    // Intercept meridian menu choices — open automation or shop
+    if (choiceId === 'meridian_menu') {
+      const ctx = this._scriptContext(playerId, roomId);
+      if (value === 'open_automation') {
+        this.actions.execute({ type: 'openAutomation' }, ctx);
+      } else if (value === 'open_shop') {
+        this.actions.execute({ type: 'shop', shopId: 'meridian_7_shop' }, ctx);
+      }
+      return;
+    }
+
+    // Intercept shop choices — handled directly by the action executor
+    if (choiceId.startsWith('shop_')) {
+      const shopId = choiceId.replace('shop_', '');
+      const ctx = this._scriptContext(playerId, roomId);
+      this.actions.executeShopTransaction(shopId, value, ctx);
       return;
     }
 
