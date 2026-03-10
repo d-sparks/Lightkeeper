@@ -477,6 +477,12 @@
     "type": "key",
     "rarity": "uncommon"
   },
+  "signal_coordinates": {
+    "name": "Signal Coordinates",
+    "description": "A corroded data chip bearing active Array transmission coordinates. Someone left this deliberately in the outer expanse — they wanted it found.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
   "umbral_extract": {
     "name": "Umbral Extract",
     "description": "A dark, viscous substance produced by the Gloomvine — the transformed Umbral Seed. It pulses faintly with bioluminescence. A rare material for advanced crafting.",
