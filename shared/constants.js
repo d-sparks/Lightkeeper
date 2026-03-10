@@ -100,6 +100,8 @@ const CONSTANTS = {
     SOL_GRID:      'sol_grid',
     CHOICE_MENU:   'choice_menu',
 
+    DEATH_SCREEN:  'death_screen',
+
     QUEST_OBJECTIVE: 'quest_objective',
     QUEST_STATE: 'quest_state',
     QUEST_STEP_COMPLETE: 'quest_step_complete',

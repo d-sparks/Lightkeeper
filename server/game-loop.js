@@ -3394,17 +3394,35 @@ class GameLoop {
       }
       player.inventory = keptItems;
 
-      // Respawn at floor spawn
+      // Reset player state
       player.health = player.maxHealth;
       player.hovering = false;
       player.hoverTime = 0;
       player.elevation = 0;
-      const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
-      player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
-      player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
+
+      // Determine respawn destination: always go to global spawn room
+      const spawnRoomId = this.content.getSpawnRoom() || 'outpost_entrance';
+      const needsTransition = room.id !== spawnRoomId;
+
+      if (needsTransition) {
+        // Queue a room transition to the spawn room
+        this.pendingTransitions.push({
+          playerId: player.id,
+          fromRoom: room.id,
+          toDungeon: spawnRoomId,
+          deathRespawn: true,
+        });
+      } else {
+        // Already in spawn room — just move to spawn point
+        const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
+        player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
+        player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
+      }
+
       room.events.push({
         type: 'death', targetId: player.id,
-        x: player.x, y: player.y,
+        x: deathX, y: deathY,
+        respawnRoom: needsTransition ? spawnRoomId : null,
       });
 
       // Queue inventory update for the client

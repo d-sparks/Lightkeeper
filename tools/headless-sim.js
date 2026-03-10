@@ -130,7 +130,8 @@ function processTransitions(gameLoop, botState) {
 
     // Check if this transition would move the bot in the wrong direction
     // in a proc room (e.g., going up when we need to go deeper)
-    if (t.fromRoom.startsWith('proc:')) {
+    // Death respawns always go through — never block them
+    if (!t.deathRespawn && t.fromRoom.startsWith('proc:')) {
       // Use the most specific depth goal: traverse_procedural (active navigation) takes
       // priority, otherwise fall back to wait_for_item's expected depth
       let targetDepth = null;
@@ -1874,8 +1875,9 @@ function runSimulation(gameLoop, bot, maxGameSeconds, label) {
     // 2. Advance engine one tick
     gameLoop.update(DT);
 
-    // 3. Process floor transitions
+    // 3. Process floor transitions and drain death penalties
     processTransitions(gameLoop, bot);
+    gameLoop.consumeDeathPenalties();
 
     // 4. Track combat events
     trackCombatEvents(gameLoop, bot);

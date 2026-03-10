@@ -32,7 +32,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 ## Game Feel (Critical Gap)
 
-- ~~Death penalty: when the player dies, drain energy, drop non-quest items (per dropBehavior rules in architecture-plan.md), respawn at room entrance.~~ — DONE: 25% energy drain + non-quest item drop implemented. Remaining: respawn-at-entrance teleport and death screen overlay for player-facing feedback.
+- ~~Death penalty: when the player dies, drain energy, drop non-quest items (per dropBehavior rules in architecture-plan.md), respawn at room entrance.~~ — DONE: 25% energy drain + non-quest item drop + respawn-at-entrance teleport + death screen overlay all implemented.
 - ~~Sound effects~~ — DONE: All 24 SFX wired.
 - ~~Combat juice~~ — DONE: Screen shake, death anims, projectile tinting, ambush reveal.
 

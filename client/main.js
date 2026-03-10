@@ -44,6 +44,8 @@
   const bossBarText = document.getElementById('boss-bar-text');
   const bossBarPhase = document.getElementById('boss-bar-phase');
   const partyFrames = document.getElementById('party-frames');
+  const deathOverlay = document.getElementById('death-overlay');
+  const deathDetails = document.getElementById('death-details');
   const PARTY_COLORS = ['#4fc3f7', '#ef5350', '#66bb6a', '#ffa726'];
 
   // --- Instances ---
@@ -2418,7 +2420,7 @@
           audio.play('ambush_reveal');
         } else if (ev.type === 'death' && ev.targetId === renderer.myId) {
           input.clearMoveTarget();
-          audio.play('death_player');
+          // Audio + overlay handled by DEATH_SCREEN message
         } else if (ev.type === 'death') {
           audio.play('death_monster');
         } else if (ev.type === 'damage') {
@@ -2586,6 +2588,20 @@
     const tilesetId = msg.map.tileset || '';
     currentAmbientTrack = audio.resolveAmbientTrack(roomName, tilesetId);
     audio.playMusic(currentAmbientTrack);
+  });
+
+  net.on(CONSTANTS.MSG.DEATH_SCREEN, (msg) => {
+    // Show death overlay with penalty details
+    deathDetails.innerHTML = (msg.details || []).map(l => l.replace(/</g, '&lt;')).join('<br>');
+    deathOverlay.classList.remove('active');
+    void deathOverlay.offsetWidth; // reflow to restart animation
+    deathOverlay.classList.add('active');
+    audio.play('death_player');
+    input.clearMoveTarget();
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+      deathOverlay.classList.remove('active');
+    }, 3000);
   });
 
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {
