@@ -330,6 +330,46 @@
         { "type": "grantXp", "amount": 5 },
         { "type": "showMessage", "text": "Mira hands over a small device with a mesh speaker. 'Tuned to the frequency that mites hate. Give it to Sera — she'll know what to do with it.'" }
       ]
+    },
+
+    {
+      "id": "post_shutdown_market",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_shutdown_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Market Quarter is quieter than you've ever seen it. Reva's holographic price displays have gone dark — the Array's ad network is offline.",
+          "Vendors have broken out handwritten signs. Somebody is selling candles in bulk near the west entrance. The automated stock systems are silent.",
+          "People are talking more. Bartering. Adapting. It's slower, messier, and more human than anything the Array ever optimized."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_merge_market",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_merge_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Market Quarter has changed. Alongside the usual stalls, new traders have set up — Unbounded guides selling bioluminescent cultivation kits, Array-licensed vendors offering symbiotic component blends.",
+          "The holographic displays now cycle between Ring city news, Array efficiency summaries, and unfamiliar glyphs that the Underlumen coalition uses for trade acknowledgment.",
+          "It shouldn't work. Somehow it does."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_control_market",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_control_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Market Quarter has new signage. Ring Authority price stabilization notices are posted at each stall — maximum margins, minimum stock requirements, mandatory registration.",
+          "Military requisition officers walk the rows with tablets, logging available goods. Most vendors look resigned. A few look quietly relieved.",
+          "Supply is steady. The Array's production capacity is running at full output under Ring direction. Whatever else you can say about control — it's efficient."
+        ]}
+      ],
+      "once": true
     }
   ]
 }

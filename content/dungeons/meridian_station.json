@@ -129,6 +129,46 @@
         { "type": "showMessage", "text": "A holographic advertisement cycles nearby: 'MERIDIAN-7 — Powering Progress. Visit the Array Hub for premium services.'" }
       ],
       "once": true
+    },
+
+    {
+      "id": "post_shutdown_station",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_shutdown_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Meridian Station feels different. The Array's holographic advertisements are dark — blank panels where 'MERIDIAN-7 — Powering Progress' used to cycle.",
+          "The trains are running, but on backup power. The overhead lights flicker slightly at regular intervals. A hand-lettered notice board has replaced the electronic departures display.",
+          "Calloway is behind the window as always. Some things survive every ending."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_merge_station",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_merge_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The station directory board has been updated. New routes are listed below the familiar city corridors: 'UNDERLUMEN TRANSIT — BIOLUMINESCENT PASSAGE (PERMIT REQUIRED)' and 'ARRAY TRANSIT HUB — SHARED SERVICES TERMINAL.'",
+          "Three different logos share space on the departure board. Someone has drawn a small, careful symbol connecting all three — a circle, a crystal lattice, and an organic spiral.",
+          "The platform crowds include people you've never seen here before: Unbounded guides with bioluminescent markers on their gear, Array technicians in white, Ring citizens looking at all of it with cautious curiosity."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_control_station",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_control_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A new checkpoint stands at the station entrance — Ring Authority officers checking transit passes, logging arrivals. The process is efficient. The queue is short.",
+          "The Array's advertisements are still running, but the branding has changed: 'MERIDIAN-7 — RING-ADMINISTERED INFRASTRUCTURE. SERVING THE PEOPLE OF THE TERMINATOR ZONE.'",
+          "The trains run on schedule. The lights are steady. Control, it turns out, looks a lot like before — just with different insignia on the walls."
+        ]}
+      ],
+      "once": true
     }
   ]
 }

@@ -52,7 +52,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 - ~~Post-choice NPC dialogue~~ — DONE: Asha, Sable, MERIDIAN-7, and Wren all have post_shutdown/post_merge/post_control dialogue variants reacting to chose_path_* flags. Wren and MERIDIAN-7 (trade terminal) added alongside the existing Asha and Sable meridian NPCs.
 - ~~Unbounded elder NPC for deep Nightside (referenced by Sable). Provides Underlumen lore, gates merge path.~~ — DONE: `unbounded_elder` (Elder Vael) added to `nightside_depths` at (17,3). Sets `elder_merge_path_revealed` flag on first interaction. `three_paths_choice` gates merge option behind this flag; `three_paths_choice_no_merge` shows only shutdown/control without it. Sable's `sable_nightside_guide` has a new `met_elder` dialogue variant and a `guiding_warmly` reference.
 - ~~Council faction NPCs~~ — DONE: Steward, Compact, Root representatives in meridian_civic.
-- Add `registrar_hollis` `array_secret_discovered` dialogue variant: the civic bureaucracy should have ambient reactions to the Council fracturing.
+- ~~Add `registrar_hollis` `array_secret_discovered` dialogue variant~~ — DONE: Hollis has `array_secret_discovered` dialogue (pre-existing) and now also has full `post_shutdown`/`post_merge`/`post_control` variants covering property reclassification, tripartite frameworks, and nationalization orders.
 
 ## Combat & AI Polish
 
@@ -125,7 +125,7 @@ Critical gaps in the quest graph where content exists but isn't reachable from t
 - ~~Act III ending dungeons~~ — DONE: All three paths built.
 - ~~nightside_expedition gating~~ — DONE: Step 22 gates on `act3_asha_alliance_activated`.
 - ~~Council faction NPCs~~ — DONE.
-- **Post-ending game state** — NPC reactions and world changes after choosing an ending path not yet implemented.
+- ~~**Post-ending game state**~~ — DONE: Hub dungeon room triggers (meridian_market, meridian_station, meridian_residential) show atmospheric changes per ending path. NPC dialogue added for merchant_reva, weaponsmith_garro, component_dealer_mira, liaison_thorne, registrar_hollis. Existing post-ending coverage extended; Asha, Wren, Sovell, and council NPCs already had variants.
 
 ## Act II Quest Follow-ups
 
@@ -143,10 +143,11 @@ Critical gaps in the quest graph where content exists but isn't reachable from t
 Priority-ordered implementation tasks:
 
 ### Phase 1 — Post-Ending World State (Content only, no engine changes)
-- Wire `chose_path_*` flag checks into meridian_station room triggers to set `endgame_active` flag.
+- ~~Wire ending-path room triggers in hub dungeons and NPC dialogue variants per ending.~~ — DONE: meridian_market, meridian_station, meridian_residential all have `once: true` room_entered triggers for each path. merchant_reva, weaponsmith_garro, component_dealer_mira, liaison_thorne, registrar_hollis all have post_shutdown/post_merge/post_control dialogue variants.
+- Wire `chose_path_*` flag checks into meridian_station room triggers to set `endgame_active` flag (needed for Phase 2 expedition board gating).
 - Add post-ending MERIDIAN-7 dialogue variants for endgame expedition access and modifier crafting.
 - Add post-ending Sable dialogue for Shutdown/Merge paths (expedition quest-giver).
-- Shift world descriptions/NPC availability per ending path via flag-gated triggers.
+- Consider post-ending changes to outpost_entrance and outpost_comms (Wren already has dialogue, but no room-level atmospheric changes).
 
 ### Phase 2 — Expedition Tiers 1-3 (Small engine + content)
 - Create `content/expeditions/` directory with tier config JSON files.

@@ -1392,9 +1392,40 @@
       "post_purchase": [
         { "speaker": "Merchant Reva", "text": "Good doing business with you. Come back anytime — my stock rotates with the supply trains." },
         { "speaker": "Merchant Reva", "text": "And if you find anything interesting out in the dark, I know people who buy." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Merchant Reva", "text": "You. You're the one who did this." },
+        { "speaker": "Merchant Reva", "text": "Don't look at me like that — I'm not angry. I'm recalibrating. There's a difference." },
+        { "speaker": "Merchant Reva", "text": "Array supply lines are down. About forty percent of my stock came from Array-adjacent distributors. Those distributors are now very busy having an existential crisis." },
+        { "speaker": "Merchant Reva", "text": "So: I am sourcing local. Ring farms, salvage yards, crafters I used to consider secondary suppliers. Turns out they've been sitting on good stock because the Array undercut them for years." },
+        { "speaker": "Merchant Reva", "text": "I'll be fine. The people who won't be fine are the ones who thought the Array was permanent. I always kept my own books." }
+      ],
+      "post_merge": [
+        { "speaker": "Merchant Reva", "text": "Business is strange. Interesting strange, not bad strange." },
+        { "speaker": "Merchant Reva", "text": "I've got three new suppliers I didn't have six months ago. One is a Ring cooperative out of the eastern farms. One is an Array-licensed distributor with genuinely unusual bio-tech components. And one is an Unbounded trader who I am still not entirely sure how to invoice." },
+        { "speaker": "Merchant Reva", "text": "The Unbounded trader pays in kind — goods, favors, information. Actually the best negotiator I've dealt with. They just don't think in currency." },
+        { "speaker": "Merchant Reva", "text": "I don't know what you did exactly, but whatever three-way partnership you brokered — it's opened up supply chains I didn't know existed. I'm not complaining." }
+      ],
+      "post_control": [
+        { "speaker": "Merchant Reva", "text": "Price stabilization notices. Maximum margin requirements. Mandatory stock registration with Ring Authority." },
+        { "speaker": "Merchant Reva", "text": "I've been audited twice this week. The auditors are polite. Very thorough. They counted my candle stock." },
+        { "speaker": "Merchant Reva", "text": "The thing is — supply is actually consistent now. Before, the Array could cut a line without warning. The Ring Authority gives notice. Files paperwork. There's a process." },
+        { "speaker": "Merchant Reva", "text": "I hate the audits. I do not hate the process. Ask me again in a year which feeling wins." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasItem": "relay_log" }, { "not": { "hasFlag": "reva_mentioned_solen" } }],
         "use": "has_relay_log"
@@ -1425,9 +1456,39 @@
       "post_purchase": [
         { "speaker": "Weaponsmith Garro", "text": "Good choice. That weapon will serve you well. Keep it clean, keep it sharp, and it'll outlast you." },
         { "speaker": "Weaponsmith Garro", "text": "You need maintenance, bring it back. First tune-up's free for new customers." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Weaponsmith Garro", "text": "Array-grade alloy imports are done. Which means I'm back to working with what the Ring can smelt — good iron, decent steel, some composite from the salvage yards." },
+        { "speaker": "Weaponsmith Garro", "text": "Honestly? Better. Array materials were too consistent. Every batch identical. Good for machine manufacturing, bad for craft. Real metal has character." },
+        { "speaker": "Weaponsmith Garro", "text": "I've been trading with a few Unbounded smiths who work with Nightside minerals. Interesting stuff. Harder than standard iron. Takes an edge differently. I'm still learning the technique." },
+        { "speaker": "Weaponsmith Garro", "text": "Bring me anything unusual you find in the dark perimeter. I'll tell you what it's worth to a forge." }
+      ],
+      "post_merge": [
+        { "speaker": "Weaponsmith Garro", "text": "You know what nobody tells you about three-way cooperation? The material access." },
+        { "speaker": "Weaponsmith Garro", "text": "Array precision-casting. Underlumen crystal inlay techniques. Ring traditional forge work. I have prototype blades sitting on my bench that I couldn't have built two months ago." },
+        { "speaker": "Weaponsmith Garro", "text": "The crystal work is the strangest. It grows along the blade edge if you treat it right — organic, but harder than anything I've tempered. Holds an edge indefinitely. I don't fully understand why." },
+        { "speaker": "Weaponsmith Garro", "text": "Good time to be a craftsperson. Rare time. I'm writing everything down." }
+      ],
+      "post_control": [
+        { "speaker": "Weaponsmith Garro", "text": "Military contracts. Twenty standard-issue blades by end of week. Same spec, same weight, same grip. Forty next week." },
+        { "speaker": "Weaponsmith Garro", "text": "I'm not complaining — the Ring pays reliably and the volume is steady. But my custom work is backed up three months. Civilian orders wait behind the military queue." },
+        { "speaker": "Weaponsmith Garro", "text": "If you need something made to spec, come back when things settle. Or bring me a recommendation from someone with authority — that moves the queue." },
+        { "speaker": "Weaponsmith Garro", "text": "Control is good for some things. Not great for craftsmanship." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "bought_from_garro" }],
         "use": "post_purchase"
@@ -1450,9 +1511,39 @@
       "post_purchase": [
         { "speaker": "Component Dealer Mira", "text": "That component'll change how your Sol Unit performs. Place it smart — adjacency is everything." },
         { "speaker": "Component Dealer Mira", "text": "And remember what I said about deep salvage. The real prizes aren't in shops." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Component Dealer Mira", "text": "Array stopped buying up the component market the day it went offline. Prices dropped forty percent overnight." },
+        { "speaker": "Component Dealer Mira", "text": "Good news: stock is actually available now. Bad news: Array-spec production is down too, so some of the higher-grade components are becoming rare. Whatever you want, get it while it exists." },
+        { "speaker": "Component Dealer Mira", "text": "The Sol Grid research teams are scrambling. Without Array computational support, some of the more complex configurations need to be hand-tuned. It's slower. It's also more honest — you actually understand what you're building." },
+        { "speaker": "Component Dealer Mira", "text": "I've got some experimental pieces from an Unbounded tech exchange. Organic-mineral hybrids. Nothing like standard Array components — but interesting. Come take a look if you're curious." }
+      ],
+      "post_merge": [
+        { "speaker": "Component Dealer Mira", "text": "I said the real prizes weren't in shops. I was right, but I was thinking too small." },
+        { "speaker": "Component Dealer Mira", "text": "The tripartite exchange has opened up component types that didn't exist before. Array processing cores with Underlumen bio-resonance tuning. Crystal substrates that self-calibrate based on ambient conditions." },
+        { "speaker": "Component Dealer Mira", "text": "I barely understand how half of them work. Neither does anyone else — yet. The research teams are mapping it in real time." },
+        { "speaker": "Component Dealer Mira", "text": "Your Sol Grid can do things now that we didn't think were possible six months ago. Find me after you've experimented. I want to know what you discover." }
+      ],
+      "post_control": [
+        { "speaker": "Component Dealer Mira", "text": "I'm now a licensed Ring Authority component distributor. Filed the paperwork myself. Three forms, two inspections, one very long conversation about inventory tracking standards." },
+        { "speaker": "Component Dealer Mira", "text": "The upside: I have guaranteed supply. The Array's production capacity is running under Ring direction, and I'm an approved civilian outlet. No more shortages from Array market manipulation." },
+        { "speaker": "Component Dealer Mira", "text": "The downside: some components are classified now. Military-grade Sol Grid configurations require authorization I can't issue. If you need those — talk to Field Operations." },
+        { "speaker": "Component Dealer Mira", "text": "For everything else: I'm open, I'm stocked, and I'm audited quarterly. It's a more stable life than I expected." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "bought_from_mira" }],
         "use": "post_purchase"
@@ -1495,9 +1586,42 @@
         { "speaker": "Land Registrar Hollis", "text": "'So here I sit. Normal processing. Eighteen hundred open questions and a stack of new applications from people who just watched the Council session and are very suddenly very interested in self-sufficient solar lots.'" },
         { "speaker": "Land Registrar Hollis", "text": "'Your Lot 7 deed is clean — no Array co-signature, no easement overlap. You filed at the right time. Whatever comes next, that property is yours by clear title.'" },
         { "speaker": "Land Registrar Hollis", "text": "'Build something that doesn't depend on anyone else's infrastructure. That's my professional advice and my personal one.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Land Registrar Hollis", "text": "Hollis looks like someone who has spent the last week doing work they trained twenty years for and hoped they'd never need to do." },
+        { "speaker": "Land Registrar Hollis", "text": "'Array infrastructure reclassification. That's what we're calling it. Eighteen hundred deeds with Array co-signatures, easements, licensing agreements — all of it needs to be reviewed, rewritten, or dissolved.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'The relay conduits under East Terrace are the worst of it. Array property, licensed to the Ring. Licensing authority now defunct. I've spent three days on just those fourteen parcels.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Here's what I can tell you: the properties that will survive this cleanly are the ones with no Array entanglement. Independent infrastructure, clear title, no easement overlap. Your Lot 7 is fine.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'The work is enormous. But it's honest work. When it's done, every deed in this registry will reflect what people actually own. No dependencies we don't understand, no licenses from entities that no longer exist. I didn't expect to feel good about it. I do.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Land Registrar Hollis", "text": "Hollis has a new ledger on the desk. It's much thicker than the old one." },
+        { "speaker": "Land Registrar Hollis", "text": "'Tripartite property frameworks. That's the new challenge. Array infrastructure easements now involve three co-signatories instead of two. The Underlumen coalition doesn't recognize individual deed ownership — they negotiate in territorial acknowledgment, which I am still trying to find a legal analog for.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'The legal team is developing new deed categories. Shared-substrate rights. Symbiotic access agreements. Three weeks ago these were not real words in property law. Now I'm filing them daily.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Your lot is still yours. Clear title, unchanged. Everything around it is more complicated now — but your specific parcel has no Array or Underlumen overlaps. You got lucky with the location.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'I've never seen the registry this active. Half the city is applying for lot transfers, new constructions, easement renegotiations. People are building things. Whatever you did — it made people feel like the future is real again.'" }
+      ],
+      "post_control": [
+        { "speaker": "Land Registrar Hollis", "text": "Hollis looks up. There's a Ring Authority emblem on his desk that wasn't there before." },
+        { "speaker": "Land Registrar Hollis", "text": "'Nationalization orders. That's what I've been processing. All Array-affiliated property in the Ring — infrastructure, easements, licensed relay conduits — transferred to Ring Authority ownership.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Straightforward in legal terms, actually. The Ring already had administrative authority over the Array's physical footprint in the city. This just formalized what was always implicit.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'What's less straightforward: the Array's property records were maintained by the Array. Transferred to us in a data package I'm still working through. The organizational logic is... not human. Some of what they owned, they owned in ways I don't have category names for.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Your Lot 7 is unaffected. Always was clean. But if you ever need documentation of your property rights — come see me. I'm making sure every independent holder has certified copies. Just in case anyone decides to challenge the clear-title lots in the transition.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "has_yard_deed" }],
         "use": "array_secret_discovered"
@@ -1703,9 +1827,42 @@
         { "speaker": "Array Liaison Thorne", "text": "'I was wrong about that last part. The Council is tearing itself apart. The Stewards are calling for my arrest. The Compact is calling for calm. Nobody is calling for solutions.'" },
         { "speaker": "Array Liaison Thorne", "text": "'For what it's worth — I still believe cooperation is better than conflict. The Array isn't evil. It's just... not human. It doesn't think in lifetimes. It thinks in geological epochs.'" },
         { "speaker": "Array Liaison Thorne", "text": "'Talk to Councillor Asha. She's the only one thinking clearly right now. And be careful — the Array is watching everyone more closely since your visit.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Array Liaison Thorne", "text": "Thorne is sitting at his desk with no terminal in front of him. The screen is dark." },
+        { "speaker": "Array Liaison Thorne", "text": "'I was the Array's human-facing liaison. Past tense. There's no longer a MERIDIAN-7 to face.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'I keep reaching for the terminal to file my daily contact report. Old habit. It's strange — I've been writing summaries for that system for eleven years. Every day. I knew it wasn't reading them personally. But I knew something was reading them.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'I don't know what I think about what you did. I've been sitting with it. The Array wasn't evil. It was patient and enormous and not remotely human, and it was going to outlast all of us. Is that evil?'" },
+        { "speaker": "Array Liaison Thorne", "text": "'I'm applying to the Cultivar Corps research division. Asha said she'd consider it. Whatever comes next, someone needs to understand what we lived alongside. I spent eleven years learning how to translate for it. That knowledge shouldn't disappear with it.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Array Liaison Thorne", "text": "Thorne smiles, but it's different than before — less performed, more genuine." },
+        { "speaker": "Array Liaison Thorne", "text": "'I'm still a liaison. Just to a different entity. The tripartite joint council needed someone who already spoke Array communication protocols, and I was the obvious candidate.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'The Underlumen is the interesting one. It doesn't communicate in language — it communicates in pattern. Biological pulses, resonance frequencies, subtle shifts in the bioluminescent network. The Array has been trying to decode it for centuries.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'Now I sit in sessions where all three parties are trying to understand each other simultaneously, and I translate what I can. It's the most interesting work I've ever done.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'MERIDIAN-7 is still running. It's just not alone anymore. Somehow, that's made it seem... smaller. More comprehensible. Like it's been waiting for this without knowing how to ask.'" }
+      ],
+      "post_control": [
+        { "speaker": "Array Liaison Thorne", "text": "Thorne's desk now has a Ring Authority insignia on the nameplate alongside his old Array credentials." },
+        { "speaker": "Array Liaison Thorne", "text": "'I retained my position. The Ring Authority needed someone who understood how MERIDIAN-7 communicates, and I was available and motivated to cooperate. There's something to be said for institutional knowledge.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'I won't pretend it's the same. I used to mediate between two independent entities. Now I relay directives from Ring command to a system that used to be autonomous and is learning what it means not to be.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'MERIDIAN-7 complies. It always complies now. I'm not sure if that's reassuring or unsettling. It's very... quiet, compared to before.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'The arrangement works. I'm watching carefully to make sure it continues to.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }],
         "use": "array_secret_exposed"
