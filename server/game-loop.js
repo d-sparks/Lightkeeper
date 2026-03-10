@@ -44,6 +44,18 @@ class GameLoop {
     this.triggers = new TriggerRegistry(this.eventBus, this.conditions, this.actions, this.flagStore);
     this.questTracker = new QuestTracker(content, this.conditions, this.actions);
 
+    // Track expedition boss kills — when the killed monster matches the
+    // expedition's boss type, mark the expedition as boss-cleared
+    this.eventBus.on(EventBus.Events.MONSTER_KILLED, (payload) => {
+      const { playerId, monsterType } = payload;
+      if (!playerId) return;
+      const bossType = this.flagStore.getPlayerFlag(playerId, 'expedition_boss_type');
+      if (bossType && monsterType === bossType) {
+        this.flagStore.setPlayerFlag(playerId, 'expedition_boss_killed', true);
+        console.log(`[GameLoop] Player ${playerId} killed expedition boss "${monsterType}"`);
+      }
+    });
+
     // Subscribe to flag_changed events on the eventBus directly, since
     // flag_changed is emitted via eventBus.emit() in actions.js but does
     // NOT go through _emitGameEvent(). Both the trigger registry and the
@@ -420,6 +432,9 @@ class GameLoop {
         depth: context.depth || (template.depth && template.depth.min) || 0,
         serverEpoch: this.serverEpoch,
       };
+      // Forward expedition overrides for floor/boss generation
+      if (context.maxDepth) genContext.maxDepth = context.maxDepth;
+      if (context.bossType) genContext.bossType = context.bossType;
       const result = this.generator.generate(template, genContext);
       if (result) {
         this.generatedDungeons.set(result.instanceId, result.dungeon);
@@ -437,7 +452,7 @@ class GameLoop {
 
   // Start an expedition for a player: generate the first floor and transition them
   // Returns { roomId, room } on success, or null on failure
-  startExpedition(playerId, tier) {
+  startExpedition(playerId, tier, originRoom) {
     const expedition = this.content.getExpeditionByTier(tier);
     if (!expedition) {
       console.error(`[GameLoop] No expedition config for tier ${tier}`);
@@ -466,12 +481,25 @@ class GameLoop {
       return null;
     }
 
-    // Generate the first floor
+    // Determine floor count from expedition config
+    const fc = expedition.floorCount || { min: 3, max: 3 };
+    const maxFloors = fc.min + Math.floor(Math.random() * (fc.max - fc.min + 1));
+
+    // Pick a boss from the expedition's bossPool for the final floor
+    const bossPool = expedition.bossPool || [];
+    const bossType = bossPool.length > 0
+      ? bossPool[Math.floor(Math.random() * bossPool.length)]
+      : null;
+
+    // Generate the first floor (entrance exit leads back to origin room)
+    const origin = originRoom || 'meridian_station';
     const genContext = {
-      fromDungeon: 'expedition_start',
+      fromDungeon: origin,
       exitX: 0,
       exitY: 0,
       depth: 0,
+      maxDepth: maxFloors,
+      bossType,
       serverEpoch: this.serverEpoch,
     };
     const result = this.generator.generate(template, genContext);
@@ -484,22 +512,57 @@ class GameLoop {
     const room = this.createRoom(result.instanceId, result.instanceId, result.dungeon);
     if (!room) return null;
 
-    // Apply expedition scaling to the room
-    room.expeditionScaling = expedition.monsterScaling;
-
-    // Re-spawn monsters with scaling applied (they were spawned without it in createRoom)
-    room.monsters.clear();
-    room.nextMonsterId = 0;
-    this.killedMonsters.delete(room.id);
-    this.spawnMonsters(room);
+    // Apply expedition scaling to the room and re-spawn monsters with scaled stats
+    this.applyExpeditionScaling(room, expedition.monsterScaling);
 
     // Set expedition tracking flags on the player
     this.flagStore.setPlayerFlag(playerId, 'expedition_active', true);
     this.flagStore.setPlayerFlag(playerId, 'expedition_tier', tier);
     this.flagStore.setPlayerFlag(playerId, 'expedition_floor', 1);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_max_floors', maxFloors);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_template', templateId);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_boss_type', bossType);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_scaling', expedition.monsterScaling);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_origin', origin);
 
-    console.log(`[GameLoop] Started tier ${tier} expedition for player ${playerId} (room: ${room.id}, template: ${templateId})`);
+    console.log(`[GameLoop] Started tier ${tier} expedition for player ${playerId} (room: ${room.id}, template: ${templateId}, floors: ${maxFloors}, boss: ${bossType})`);
     return { roomId: room.id, room };
+  }
+
+  // Complete an expedition: set tier cleared flag (if boss killed) and clean up
+  completeExpedition(playerId) {
+    const tier = this.flagStore.getPlayerFlag(playerId, 'expedition_tier');
+    if (!tier) return;
+
+    const bossKilled = this.flagStore.getPlayerFlag(playerId, 'expedition_boss_killed');
+
+    // Only set tier cleared if the boss was defeated
+    if (bossKilled) {
+      this.flagStore.setPlayerFlag(playerId, `expedition_tier_${tier}_cleared`, true);
+      console.log(`[GameLoop] Player ${playerId} completed expedition tier ${tier}`);
+    } else {
+      console.log(`[GameLoop] Player ${playerId} retreated from expedition tier ${tier} (boss not killed)`);
+    }
+
+    // Clear all expedition state flags
+    const expFlags = [
+      'expedition_active', 'expedition_tier', 'expedition_floor',
+      'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
+      'expedition_scaling', 'expedition_origin', 'expedition_boss_killed',
+    ];
+    for (const flag of expFlags) {
+      this.flagStore.removePlayerFlag(playerId, flag);
+    }
+  }
+
+  // Apply expedition scaling to a room (re-spawns monsters with scaled stats)
+  applyExpeditionScaling(room, scaling) {
+    if (room.expeditionScaling) return; // Already scaled
+    room.expeditionScaling = scaling;
+    room.monsters.clear();
+    room.nextMonsterId = 0;
+    this.killedMonsters.delete(room.id);
+    this.spawnMonsters(room);
   }
 
   addPlayer(roomId, playerId, name) {
@@ -3517,6 +3580,20 @@ class GameLoop {
       player.hoverTime = 0;
       player.elevation = 0;
 
+      // If player was on an expedition, clear expedition state (failed/abandoned)
+      if (this.flagStore.getPlayerFlag(player.id, 'expedition_active')) {
+        const expTier = this.flagStore.getPlayerFlag(player.id, 'expedition_tier');
+        const expFlags = [
+          'expedition_active', 'expedition_tier', 'expedition_floor',
+          'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
+          'expedition_scaling', 'expedition_origin', 'expedition_boss_killed',
+        ];
+        for (const flag of expFlags) {
+          this.flagStore.removePlayerFlag(player.id, flag);
+        }
+        console.log(`[GameLoop] Player ${player.id} died during expedition tier ${expTier} — expedition failed`);
+      }
+
       // Determine respawn destination: always go to global spawn room
       const spawnRoomId = this.content.getSpawnRoom() || 'outpost_entrance';
       const needsTransition = room.id !== spawnRoomId;
@@ -3858,7 +3935,7 @@ class GameLoop {
               continue;
             }
           }
-          this.pendingTransitions.push({
+          const transition = {
             playerId: pid,
             fromRoom: room.id,
             toDungeon: exit.leadsTo,
@@ -3868,7 +3945,16 @@ class GameLoop {
             exitX: exit.x,
             exitY: exit.y,
             depth: exit.depth,
-          });
+          };
+          // Attach expedition context so the transition handler can apply scaling
+          // and detect completion
+          if (this.flagStore.getPlayerFlag(pid, 'expedition_active')) {
+            transition.expeditionTier = this.flagStore.getPlayerFlag(pid, 'expedition_tier');
+            transition.expeditionMaxFloors = this.flagStore.getPlayerFlag(pid, 'expedition_max_floors');
+            transition.expeditionBossType = this.flagStore.getPlayerFlag(pid, 'expedition_boss_type');
+            transition.expeditionScaling = this.flagStore.getPlayerFlag(pid, 'expedition_scaling');
+          }
+          this.pendingTransitions.push(transition);
           break;
         } else if (player[cooldownFlag]) {
           // Player stepped off — reset so message shows again on next approach

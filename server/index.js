@@ -1173,16 +1173,27 @@ setInterval(() => {
     const player = gameLoop.removePlayer(t.fromRoom, t.playerId);
     if (!player) continue;
 
-    const targetRoom = gameLoop.getOrCreateRoom(t.toDungeon, {
+    // Build generation context, including expedition overrides if present
+    const genContext = {
       fromDungeon: t.fromRoom,
       exitX: t.exitX,
       exitY: t.exitY,
       depth: t.depth,
-    });
+    };
+    if (t.expeditionMaxFloors) {
+      genContext.maxDepth = t.expeditionMaxFloors;
+      genContext.bossType = t.expeditionBossType;
+    }
+    const targetRoom = gameLoop.getOrCreateRoom(t.toDungeon, genContext);
     if (!targetRoom) continue;
 
     // Use the room's actual ID (may differ from t.toDungeon for procedural instances)
     const targetRoomId = targetRoom.id;
+
+    // Apply expedition scaling to newly created rooms
+    if (t.expeditionScaling) {
+      gameLoop.applyExpeditionScaling(targetRoom, t.expeditionScaling);
+    }
 
     // Resolve spawn position: targetId > spawnX/Y > first player_start > fallback (2,2)
     let spawnX = t.spawnX;
@@ -1222,6 +1233,21 @@ setInterval(() => {
       chunked: true,
       chunks: floorChunks,
     }));
+
+    // Track expedition floor progression and detect completion
+    if (t.expeditionTier != null) {
+      if (targetRoom.expeditionScaling) {
+        // Advancing to next expedition floor — update floor counter
+        const currentFloor = gameLoop.flagStore.getPlayerFlag(t.playerId, 'expedition_floor') || 1;
+        const newFloor = (t.depth || 0) + 1;
+        if (newFloor > currentFloor) {
+          gameLoop.flagStore.setPlayerFlag(t.playerId, 'expedition_floor', newFloor);
+        }
+      } else {
+        // Returned to a non-expedition room — expedition complete
+        gameLoop.completeExpedition(t.playerId);
+      }
+    }
 
     // Emit room_entered AFTER sending FLOOR_CHANGE so that any triggered
     // dialogue (e.g. showMessage) arrives after the client has the new map

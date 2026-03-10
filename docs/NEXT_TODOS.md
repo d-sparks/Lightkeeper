@@ -5,18 +5,19 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 ## Testing
 
 - **Headless sim stuck at discover_array_secret** — bot can't navigate to `array_deep_processing` room. Gets stuck in `dayside_solar_fields`. Next CI mainline blocker.
-- Content validator: 3 expedition flag errors (expedition_active, expedition_tier_1_cleared, expedition_tier_2_cleared checked but never set by triggers). Will resolve naturally when expedition completion detection is implemented.
+- Content validator: expedition flag errors now resolved — expedition_active, expedition_tier_N_cleared flags are set/cleared by engine code in game-loop.js completeExpedition().
 - Run content validator grep for remaining orphaned flags (setFlag without matching hasFlag consumers).
 
 ## Endgame Loop (see docs/endgame-loop.md)
 
 ### Phase 2 — Expedition Tiers 1-3 (Remaining)
-- Multi-floor expedition progression (floor exit → next floor with same scaling). Currently only generates floor 1.
-- Expedition completion detection (all floors cleared → set `expedition_tier_N_cleared` flag, clear `expedition_active`).
+- ~~Multi-floor expedition progression~~ ✓ Implemented — floor exits chain with scaling, boss from bossPool on final floor.
+- ~~Expedition completion detection~~ ✓ Implemented — sets expedition_tier_N_cleared on boss kill, clears expedition_active.
+- ~~Boss spawning on final floor from bossPool~~ ✓ Implemented — generator overrides boss type from expedition config.
 - Silicon cost deduction at expedition start.
-- Boss spawning on final floor from `bossPool`.
 - Mid-run loot banking checkpoints.
-- Death penalty (forfeit floor loot, return to meridian_station).
+- Death penalty (forfeit floor loot, return to meridian_station) — partial: death clears expedition state but doesn't have special loot forfeit logic yet.
+- Expedition boss loot table selection (expedition_tier_N_boss table should be rolled on boss kill).
 
 ### Phase 3 — Modifier Crafting
 - Add `craft` action type to `server/scripting/actions.js`.

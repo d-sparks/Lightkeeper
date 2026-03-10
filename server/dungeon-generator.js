@@ -57,7 +57,7 @@ class DungeonGenerator {
     const data = new Array(W * H).fill(grid.wallTile);
 
     // 2. Place rooms (depth-filtered)
-    const rooms = this._placeRooms(template, rng, W, H, depth);
+    const rooms = this._placeRooms(template, rng, W, H, depth, context);
     if (!rooms) return null;
 
     // 3. Carve rooms into grid
@@ -142,7 +142,12 @@ class DungeonGenerator {
             x = room.x + 1 + Math.floor(rng() * (room.w - 2));
             y = room.y + 1 + Math.floor(rng() * (room.h - 2));
           }
-          const entry = { type: spawn.type, x, y, count: 1 };
+          // Override boss room monster type with expedition bossType if provided
+          let type = spawn.type;
+          if (room.tag === 'boss' && context.bossType) {
+            type = context.bossType;
+          }
+          const entry = { type, x, y, count: 1 };
           if (spawn.patrol) entry.patrol = spawn.patrol;
           if (spawn.patrolPath) {
             // Offset waypoints relative to room position
@@ -160,18 +165,35 @@ class DungeonGenerator {
     return dungeon;
   }
 
-  _placeRooms(template, rng, W, H, depth) {
+  _placeRooms(template, rng, W, H, depth, context) {
     const roomsCfg = template.rooms;
     const allRequired = template.requiredRooms || [];
     const padding = roomsCfg.padding || 1;
     const maxAttempts = roomsCfg.maxPlacementAttempts || 200;
     const rooms = [];
+    const ctxMaxDepth = context && context.maxDepth;
 
     // Filter required rooms by depth
+    // When an expedition overrides maxDepth, remap depth filters so that
+    // boss rooms appear on the expedition's final floor and exit rooms
+    // appear on all non-final floors, regardless of the template's original depth.max.
+    const templateMaxDepth = (template.depth && template.depth.max) || 10;
     const required = allRequired.filter(req => {
-      if (req.depth != null && req.depth !== depth) return false;
+      let effectiveDepth = req.depth;
+      let effectiveMaxDepth = req.maxDepth;
+      if (ctxMaxDepth) {
+        // Boss room: remap fixed depth from template max to expedition max
+        if (req.tag === 'boss' && effectiveDepth != null && effectiveDepth === templateMaxDepth) {
+          effectiveDepth = ctxMaxDepth;
+        }
+        // Exit room: remap maxDepth cap so it appears on all non-final floors
+        if (req.tag === 'exit_room' && effectiveMaxDepth != null && effectiveMaxDepth === templateMaxDepth - 1) {
+          effectiveMaxDepth = ctxMaxDepth - 1;
+        }
+      }
+      if (effectiveDepth != null && effectiveDepth !== depth) return false;
       if (req.minDepth != null && depth < req.minDepth) return false;
-      if (req.maxDepth != null && depth > req.maxDepth) return false;
+      if (effectiveMaxDepth != null && depth > effectiveMaxDepth) return false;
       return true;
     });
 
@@ -419,7 +441,8 @@ class DungeonGenerator {
 
     const exits = [];
     const depth = context.depth || 0;
-    const maxDepth = (template.depth && template.depth.max) || 10;
+    // context.maxDepth (from expedition) overrides the template's depth.max
+    const maxDepth = context.maxDepth || (template.depth && template.depth.max) || 10;
 
     // Entrance exit (stairs back to source)
     if (exitsCfg.entrance && entranceRoom) {
@@ -587,10 +610,18 @@ class DungeonGenerator {
       }
     }
 
+    // Remap trigger depth filters when expedition overrides maxDepth
+    const templateMaxDepth = (template.depth && template.depth.max) || 10;
+    const ctxMaxDepth = context && context.maxDepth;
+
     const output = [];
     for (const t of template.triggers) {
-      // Filter by depth
-      if (t.depth != null && t.depth !== depth) continue;
+      // Filter by depth (remap boss-floor triggers to expedition's final floor)
+      let trigDepth = t.depth;
+      if (ctxMaxDepth && trigDepth != null && trigDepth === templateMaxDepth) {
+        trigDepth = ctxMaxDepth;
+      }
+      if (trigDepth != null && trigDepth !== depth) continue;
       if (t.minDepth != null && depth < t.minDepth) continue;
       if (t.maxDepth != null && depth > t.maxDepth) continue;
 

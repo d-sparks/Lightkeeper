@@ -738,7 +738,7 @@ class ActionExecutor {
       console.warn('[Actions] startExpedition missing tier');
       return;
     }
-    const result = this.gameLoop.startExpedition(context.playerId, tier);
+    const result = this.gameLoop.startExpedition(context.playerId, tier, context.roomId);
     if (!result) {
       if (this.sendToPlayer) {
         this.sendToPlayer(context.playerId, {
@@ -752,7 +752,7 @@ class ActionExecutor {
     this.gameLoop.pendingTransitions.push({
       playerId: context.playerId,
       fromRoom: context.roomId,
-      toRoom: result.roomId,
+      toDungeon: result.roomId,
     });
   }
 }
