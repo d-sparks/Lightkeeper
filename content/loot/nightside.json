@@ -103,5 +103,32 @@
       { "item": "bio_leech_node_chip", "weight": 3 },
       { "item": "symbiotic_core_chip", "weight": 1 }
     ]
+  },
+  "abyssal_tendril": {
+    "dropChance": 0.35,
+    "rolls": [
+      { "item": "bandage", "weight": 8 },
+      { "item": "umbracite_shard", "weight": 4 },
+      { "item": "resonance_fragment", "weight": 1 }
+    ]
+  },
+  "threshold_watcher": {
+    "dropChance": 0.45,
+    "rolls": [
+      { "item": "health_potion", "weight": 6 },
+      { "item": "umbracite_shard", "weight": 4 },
+      { "item": "shadow_conduit_chip", "weight": 2 },
+      { "item": "umbral_amplifier_chip", "weight": 1 }
+    ]
+  },
+  "threshold_keeper": {
+    "dropChance": 0.9,
+    "rolls": [
+      { "item": "field_medkit", "weight": 4 },
+      { "item": "resonant_umbracite_core", "weight": 3 },
+      { "item": "symbiotic_compound", "weight": 2 },
+      { "item": "void_resonator_chip", "weight": 2 },
+      { "item": "underlumen_nexus", "weight": 1 }
+    ]
   }
 }

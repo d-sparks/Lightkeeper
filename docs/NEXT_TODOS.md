@@ -47,7 +47,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 ## Content Completion
 
 - **Frost biome** loot is wired to `nightside_caverns` and `proc_frost_crypt` (all three tiers by depth). Consider adding `frost_biome_uncommon/rare` to deeper static nightside dungeons (nightside_depths, nightside_passage) if story chests are supplemented with loot crates.
-- Loot tables for Act III monsters: threshold_watcher, abyssal_tendril, threshold_keeper have no loot tables. Create nightside/underlumen loot tables with thematic drops.
+- ~~Loot tables for Act III monsters: threshold_watcher, abyssal_tendril, threshold_keeper have no loot tables.~~ — DONE: Added to `content/loot/nightside.json` with umbracite/underlumen-themed drops. threshold_keeper (boss) has 0.9 drop chance with epic/legendary items including underlumen_nexus.
 - ~~Three ending path dungeons~~ — DONE: All three built (shutdown: array_control_center, merge: merge_nexus, control: array_command_throne).
 - Post-choice NPC dialogue: Asha, Sable, and MERIDIAN-7 dialogue variants reacting to the player's chosen ending path (chose_path_shutdown/merge/control flags).
 - ~~Unbounded elder NPC for deep Nightside (referenced by Sable). Provides Underlumen lore, gates merge path.~~ — DONE: `unbounded_elder` (Elder Vael) added to `nightside_depths` at (17,3). Sets `elder_merge_path_revealed` flag on first interaction. `three_paths_choice` gates merge option behind this flag; `three_paths_choice_no_merge` shows only shutdown/control without it. Sable's `sable_nightside_guide` has a new `met_elder` dialogue variant and a `guiding_warmly` reference.
