@@ -49,7 +49,9 @@
     { "type": "ration_pack", "x": 7, "y": 3 },
     { "type": "bandage", "x": 20, "y": 4 },
     { "type": "ration_pack", "x": 4, "y": 11 },
-    { "type": "medical_supplies", "x": 24, "y": 10 }
+    { "type": "medical_supplies", "x": 24, "y": 10 },
+    { "type": "battery_chip", "x": 10, "y": 8 },
+    { "type": "battery_chip", "x": 22, "y": 13 }
   ],
   "exits": [
     { "x": 14, "y": 0, "leadsTo": "station_approach", "type": "stairs_down", "spawnX": 9, "spawnY": 10 },

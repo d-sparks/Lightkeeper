@@ -100,7 +100,7 @@ Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 - Harvester scaling: silicon rate, max harvesters, late-game upgrades.
 - Multiplayer implications: shared grid builds? Specialization?
 - Tech Maren now gives `single_use_battery_chip` on each visit (if player doesn't already have one) instead of charging the sol unit directly. Players install the chip, deplete it, return for another — creating a battery loop. The `received_first_battery` flag gates quest progression.
-- Place additional single-use battery chips as item spawns in longer dungeons as energy checkpoints (as described in task — "piece single use batteries throughout as sort of checkpoints").
+- ~~Place battery chips as item spawns in longer dungeons as energy checkpoints~~ — DONE: `battery_chip` consumable added (restores 25 rechargeable energy). Placed 2 chips each in: nightside_passage, nightside_depths, underlumen_threshold, merge_nexus, deep_perimeter_east, dead_road, perimeter_outer_ring, nightside_caverns, void_flats, crypt_01, crypt_02. Four chips spread across outpost_perimeter (50×45).
 - Wire rechargeable_battery_chip into loot tables so players can obtain permanent battery upgrades.
 - Playtest single-use battery degradation feel — 100 capacity may need tuning based on ability costs.
 - Consider visual/audio feedback when a single-use battery degrades or is fully consumed.

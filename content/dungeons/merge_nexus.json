@@ -60,7 +60,9 @@
     { "type": "symbiotic_compound", "x": 5, "y": 8 },
     { "type": "health_potion", "x": 20, "y": 8 },
     { "type": "field_medkit", "x": 12, "y": 15 },
-    { "type": "flare", "x": 4, "y": 19 }
+    { "type": "flare", "x": 4, "y": 19 },
+    { "type": "battery_chip", "x": 15, "y": 4 },
+    { "type": "battery_chip", "x": 9, "y": 14 }
   ],
   "exits": [
     { "x": 1, "y": 20, "leadsTo": "underlumen_threshold", "type": "root_stairs_up", "spawnX": 23, "spawnY": 20 },

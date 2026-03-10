@@ -714,7 +714,9 @@
       "type": "bandage",
       "x": 2,
       "y": 15
-    }
+    },
+    { "type": "battery_chip", "x": 16, "y": 14 },
+    { "type": "battery_chip", "x": 8, "y": 4 }
   ],
   "exits": [
     {

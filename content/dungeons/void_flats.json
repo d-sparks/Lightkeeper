@@ -50,7 +50,9 @@
   "itemSpawns": [
     { "type": "umbracite", "x": 20, "y": 8 },
     { "type": "bandage", "x": 13, "y": 3 },
-    { "type": "umbracite_shard", "x": 8, "y": 14 }
+    { "type": "umbracite_shard", "x": 8, "y": 14 },
+    { "type": "battery_chip", "x": 16, "y": 5 },
+    { "type": "battery_chip", "x": 5, "y": 12 }
   ],
   "exits": [
     { "x": 0, "y": 8, "leadsTo": "outer_expanse", "type": "stairs_up", "spawnX": 196, "spawnY": 60 }

@@ -87,7 +87,9 @@
     { "type": "umbracite", "x": 16, "y": 10 },
     { "type": "umbracite", "x": 3, "y": 2 },
     { "type": "bandage", "x": 20, "y": 3 },
-    { "type": "field_medkit", "x": 7, "y": 14 }
+    { "type": "field_medkit", "x": 7, "y": 14 },
+    { "type": "battery_chip", "x": 13, "y": 7 },
+    { "type": "battery_chip", "x": 24, "y": 15 }
   ],
   "exits": [
     { "x": 27, "y": 19, "leadsTo": "dead_road", "type": "stairs_up", "spawnX": 2, "spawnY": 8 },

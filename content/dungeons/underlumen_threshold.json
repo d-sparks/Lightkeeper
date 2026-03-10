@@ -64,7 +64,9 @@
     { "type": "health_potion", "x": 8, "y": 14 },
     { "type": "field_medkit", "x": 19, "y": 15 },
     { "type": "umbracite", "x": 23, "y": 19 },
-    { "type": "flare", "x": 15, "y": 17 }
+    { "type": "flare", "x": 15, "y": 17 },
+    { "type": "battery_chip", "x": 5, "y": 10 },
+    { "type": "battery_chip", "x": 26, "y": 7 }
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "nightside_passage", "type": "stairs_up", "spawnX": 24, "spawnY": 18 },

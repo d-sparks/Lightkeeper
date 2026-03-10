@@ -777,5 +777,12 @@
     "type": "sol_component",
     "rarity": "rare",
     "solComponentId": "light_sentry_emitter"
+  },
+  "battery_chip": {
+    "name": "Battery Chip",
+    "description": "A salvaged single-use power chip. Cracking open the casing releases a quick burst of stored energy — restores 25 energy to your Sol Unit's rechargeable pool.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": { "energy": 25 }
   }
 }

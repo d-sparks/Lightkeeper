@@ -522,7 +522,9 @@
       "type": "circuit_board",
       "x": 20,
       "y": 2
-    }
+    },
+    { "type": "battery_chip", "x": 7, "y": 4 },
+    { "type": "battery_chip", "x": 15, "y": 13 }
   ],
   "triggers": [
     {
