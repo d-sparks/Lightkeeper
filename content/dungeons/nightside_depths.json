@@ -79,7 +79,7 @@
     { "type": "unbounded_elder", "x": 17, "y": 3 }
   ],
   "itemSpawns": [
-    { "type": "refined_umbrasite", "x": 19, "y": 18 },
+    { "type": "refined_umbrasite", "x": 17, "y": 17 },
     { "type": "umbracite", "x": 3, "y": 9 },
     { "type": "umbracite", "x": 12, "y": 14 },
     { "type": "field_medkit", "x": 18, "y": 9 },

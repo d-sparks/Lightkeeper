@@ -2875,6 +2875,7 @@ function QuestEditor({ questId, onBack }) {
         </div>
       </div>
 
+      <div style="flex:1;overflow-y:auto">
       <div style="padding:16px 20px">
         <div class="field">
           <label>Quest Name</label>
@@ -2904,6 +2905,7 @@ function QuestEditor({ questId, onBack }) {
           setQuest(parsed);
           setDirty(true);
         }} />
+      </div>
       </div>
 
       ${editingStep && html`<${StepEditorModal}

@@ -264,6 +264,7 @@ function buildExitGraph() {
         exitY: exit.y,
         spawnX: exit.spawnX,
         spawnY: exit.spawnY,
+        conditions: exit.conditions || null,
       });
     }
   }
@@ -295,7 +296,7 @@ function findRoomPath(exitGraph, from, to) {
     for (const exit of exits) {
       if (visited.has(exit.leadsTo)) continue;
       visited.add(exit.leadsTo);
-      const newPath = [...path, { from: room, to: exit.leadsTo, exitX: exit.exitX, exitY: exit.exitY }];
+      const newPath = [...path, { from: room, to: exit.leadsTo, exitX: exit.exitX, exitY: exit.exitY, conditions: exit.conditions }];
       if (exit.leadsTo === to) return newPath;
       queue.push({ room: exit.leadsTo, path: newPath });
     }
@@ -741,8 +742,62 @@ class Bot {
       return;
     }
 
-    // Push sub-goal: move to the exit tile of the first hop
+    // Check if first hop's exit has conditions that aren't met yet
     const firstHop = path[0];
+    if (firstHop.conditions && goal._lastResolvedHop !== `${firstHop.from}:${firstHop.to}`) {
+      const flags = this.gameLoop.flagStore.getPlayerFlags(PLAYER_ID);
+      const playerObj = this.getPlayer();
+      const inventory = playerObj ? playerObj.inventory : [];
+
+      for (const cond of firstHop.conditions) {
+        if (cond.hasFlag && !flags[cond.hasFlag]) {
+          // Flag not set — find and run the quest that sets it
+          const questId = findQuestThatSetsFlag(cond.hasFlag);
+          if (questId && !this.questsCompleted.has(questId)) {
+            console.log(`[Bot] Exit ${firstHop.from} → ${firstHop.to} blocked by flag "${cond.hasFlag}"; running quest "${questId}" first`);
+            const prereqGoals = buildQuestGoals(questId, this.gameLoop, this.exitGraph);
+            // Mark so we don't re-detect on next tick
+            goal._lastResolvedHop = `${firstHop.from}:${firstHop.to}`;
+            // Push current navigate goal back, then prereq goals on top
+            this.popGoal();
+            this.pushGoal(goal);
+            for (let i = prereqGoals.length - 1; i >= 0; i--) {
+              this.pushGoal(prereqGoals[i]);
+            }
+            return;
+          }
+          // No quest found — try finding the room/trigger that sets it
+          const roomInfo = findRoomThatSetsFlag(cond.hasFlag);
+          if (roomInfo) {
+            console.log(`[Bot] Exit blocked by flag "${cond.hasFlag}"; navigating to ${roomInfo.roomId} to resolve`);
+            goal._lastResolvedHop = `${firstHop.from}:${firstHop.to}`;
+            // Push in reverse order (stack — last pushed = first executed)
+            this.pushGoal({ type: 'wait_for_flag', flag: cond.hasFlag, retryInteract: true, retryTicks: 15 });
+            this.pushGoal({ type: 'explore_room' });
+            if (roomInfo.npcType) {
+              this.pushGoal({ type: 'interact_with_npc', npcType: roomInfo.npcType, room: roomInfo.roomId });
+            }
+            this.pushGoal({ type: 'navigate_to_room', room: roomInfo.roomId });
+            return;
+          }
+        }
+        if (cond.hasItem && !inventory.some(i => i.type === cond.hasItem)) {
+          // Item not in inventory — find where it spawns
+          const itemLoc = findGroundItem(cond.hasItem);
+          if (itemLoc) {
+            console.log(`[Bot] Exit blocked by item "${cond.hasItem}"; navigating to ${itemLoc.roomId} to pick it up`);
+            goal._lastResolvedHop = `${firstHop.from}:${firstHop.to}`;
+            // Push in reverse order (stack — last pushed = first executed)
+            this.pushGoal({ type: 'wait_for_item', itemType: cond.hasItem });
+            this.pushGoal({ type: 'pick_up_item', itemType: cond.hasItem, room: itemLoc.roomId });
+            this.pushGoal({ type: 'navigate_to_room', room: itemLoc.roomId });
+            return;
+          }
+        }
+      }
+    }
+
+    // Push sub-goal: move to the exit tile of the first hop
     this.popGoal();
     // Re-push navigate goal (in case we need multiple hops)
     this.pushGoal(goal);
@@ -953,15 +1008,17 @@ class Bot {
 
     const pickupRange = CONSTANTS.ITEM_PICKUP_RANGE * TILE_SIZE;
     if (targetDist > pickupRange) {
-      // Use A* pathfinding to navigate to item through corridors
-      const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
+      // Delegate to move_to_position which handles doors and pathfinding
       const itemTile = pixelToTile(targetItem.x, targetItem.y);
-      const path = astarPath(room.dungeon, ptx, pty, itemTile.tx, itemTile.ty);
-      if (path && path.length > 0) {
-        this.moveTowardTile(player, path[0].x, path[0].y);
-      } else {
-        this.moveTowardTile(player, itemTile.tx, itemTile.ty);
+      if (!goal._moveAttempts) goal._moveAttempts = 0;
+      if (goal._moveAttempts < 3) {
+        goal._moveAttempts++;
+        this.pushGoal({ type: 'move_to_position', tileX: itemTile.tx, tileY: itemTile.ty, tolerance: 0 });
+        return;
       }
+      // All move attempts exhausted — try direct approach and interact
+      this.moveTowardTile(player, itemTile.tx, itemTile.ty);
+      this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
     } else {
       this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
       this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
@@ -1548,6 +1605,8 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
   // Topological sort of steps
   const stepOrder = topoSort(quest.steps, quest.startStep);
   const goals = [];
+  // Track flags that earlier steps' prereqs already plan to resolve
+  const prereqVisited = new Set();
 
   for (const stepId of stepOrder) {
     const step = quest.steps[stepId];
@@ -1592,22 +1651,32 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
 
         // Check for prerequisite flags needed before this flag can be set
         if (roomId && !isTemplate) {
-          const prereqs = findPrereqGoals(cond.hasFlag, roomId);
+          const prereqs = findPrereqGoals(cond.hasFlag, roomId, prereqVisited);
           goals.push(...prereqs.map(g => ({ ...g, stepId, questId })));
         }
 
         if (npcType) {
           goals.push({ type: 'interact_with_npc', npcType, room: roomId, stepId, questId });
         } else if (roomId && !isTemplate) {
-          // Check if a door_interacted trigger sets this flag (has tile coordinates)
-          const doorInfo = findDoorThatSetsFlag(cond.hasFlag, roomId);
-          if (doorInfo) {
-            // Clear monsters first (they may block the path), then navigate to the door
-            goals.push({ type: 'kill_monsters', stepId, questId });
-            goals.push({ type: 'move_to_position', tileX: doorInfo.tileX, tileY: doorInfo.tileY, tolerance: 1, stepId, questId });
+          // Flag not set by an NPC in the objective room — search globally
+          const globalFlagSource = findRoomThatSetsFlag(cond.hasFlag);
+          if (globalFlagSource && globalFlagSource.roomId !== roomId) {
+            // Navigate to the room that sets this flag
+            goals.push({ type: 'navigate_to_room', room: globalFlagSource.roomId, stepId, questId });
+            if (globalFlagSource.npcType) {
+              goals.push({ type: 'interact_with_npc', npcType: globalFlagSource.npcType, room: globalFlagSource.roomId, stepId, questId });
+            }
+            goals.push({ type: 'explore_room', stepId, questId });
+          } else {
+            // Check if a door_interacted trigger sets this flag (has tile coordinates)
+            const doorInfo = findDoorThatSetsFlag(cond.hasFlag, roomId);
+            if (doorInfo) {
+              goals.push({ type: 'kill_monsters', stepId, questId });
+              goals.push({ type: 'move_to_position', tileX: doorInfo.tileX, tileY: doorInfo.tileY, tolerance: 1, stepId, questId });
+            }
+            // General interaction fallback
+            goals.push({ type: 'interact_nearest', room: roomId, stepId, questId });
           }
-          // General interaction fallback
-          goals.push({ type: 'interact_nearest', room: roomId, stepId, questId });
         }
 
         // Special handling for sol grid steps
@@ -1701,10 +1770,16 @@ function findNpcThatSetsFlag(flagName, roomId) {
 }
 
 // Find prerequisite goals needed to set a flag (traces trigger condition chains)
-function findPrereqGoals(flagName, roomId) {
+function findPrereqGoals(flagName, roomId, _visited) {
+  if (!_visited) _visited = new Set();
+  if (_visited.has(flagName)) return [];
+  _visited.add(flagName);
   const goals = [];
   const dungeon = content.getDungeon(roomId);
   if (!dungeon || !dungeon.triggers) return goals;
+
+  // Collect all conditions that gate this flag (including choice chains)
+  const allConditions = [];
 
   // Find the trigger that sets this flag
   for (const trigger of dungeon.triggers) {
@@ -1715,26 +1790,111 @@ function findPrereqGoals(flagName, roomId) {
     );
     if (!setsFlag) continue;
 
-    // Extract only the positive (non-negated) flag conditions
+    // Direct conditions on the flag-setting trigger
     if (trigger.conditions) {
-      const positiveFlags = extractPositiveFlags(trigger.conditions);
-      for (const reqFlag of positiveFlags) {
-        // Skip self-reference
-        if (reqFlag === flagName) continue;
-        // Find which room/trigger sets this prerequisite flag
-        const prereqRoom = findRoomThatSetsFlag(reqFlag);
-        if (prereqRoom && prereqRoom.roomId !== roomId) {
-          goals.push({ type: 'navigate_to_room', room: prereqRoom.roomId });
-          if (prereqRoom.npcType) {
-            goals.push({ type: 'interact_with_npc', npcType: prereqRoom.npcType, room: prereqRoom.roomId });
-          }
-          goals.push({ type: 'kill_monsters' });
-          // Also try interacting after killing monsters (for door-based triggers)
-          goals.push({ type: 'explore_room' });
-          goals.push({ type: 'wait_for_flag', flag: reqFlag, retryInteract: true, retryTicks: 15 });
-          goals.push({ type: 'navigate_to_room', room: roomId });
+      allConditions.push(...extractPositiveFlags(trigger.conditions));
+    }
+
+    // If this is a choice_made trigger, trace back to the showChoice trigger
+    // that creates the choice, and extract its conditions too
+    if (trigger.event === 'choice_made' && trigger.filter && trigger.filter.choiceId) {
+      const choiceId = trigger.filter.choiceId;
+      for (const offerTrigger of dungeon.triggers) {
+        if (!offerTrigger.actions) continue;
+        const showsChoice = offerTrigger.actions.some(a =>
+          a.type === 'showChoice' && a.choiceId === choiceId
+        );
+        if (showsChoice && offerTrigger.conditions) {
+          allConditions.push(...extractPositiveFlags(offerTrigger.conditions));
         }
       }
+    }
+  }
+
+  // Also search all dungeons if no conditions found in the specified room
+  if (allConditions.length === 0) {
+    const globalResult = findRoomThatSetsFlag(flagName);
+    if (globalResult && globalResult.trigger) {
+      const trigger = globalResult.trigger;
+      if (trigger.conditions) {
+        allConditions.push(...extractPositiveFlags(trigger.conditions));
+      }
+      if (trigger.event === 'choice_made' && trigger.filter && trigger.filter.choiceId) {
+        const choiceId = trigger.filter.choiceId;
+        const globalDungeon = content.getDungeon(globalResult.roomId);
+        if (globalDungeon && globalDungeon.triggers) {
+          for (const offerTrigger of globalDungeon.triggers) {
+            if (!offerTrigger.actions) continue;
+            const showsChoice = offerTrigger.actions.some(a =>
+              a.type === 'showChoice' && a.choiceId === choiceId
+            );
+            if (showsChoice && offerTrigger.conditions) {
+              allConditions.push(...extractPositiveFlags(offerTrigger.conditions));
+            }
+          }
+        }
+      }
+      // Use the global room if different from the specified room
+      if (globalResult.roomId !== roomId) {
+        roomId = globalResult.roomId;
+      }
+    }
+  }
+
+  // Also extract hasItem conditions from the same triggers
+  const allItemConditions = [];
+  for (const trigger of (dungeon ? dungeon.triggers : [])) {
+    if (!trigger.actions) continue;
+    const setsFlag = trigger.actions.some(a =>
+      (a.type === 'setFlag' && a.flag === flagName) ||
+      (a.type === 'giveItem' && a.itemType === flagName)
+    );
+    if (!setsFlag) continue;
+    if (trigger.conditions) allItemConditions.push(...extractPositiveItems(trigger.conditions));
+    // Trace choice chains for item conditions too
+    if (trigger.event === 'choice_made' && trigger.filter && trigger.filter.choiceId) {
+      for (const offerTrigger of (dungeon ? dungeon.triggers : [])) {
+        if (!offerTrigger.actions) continue;
+        if (offerTrigger.actions.some(a => a.type === 'showChoice' && a.choiceId === trigger.filter.choiceId)) {
+          if (offerTrigger.conditions) allItemConditions.push(...extractPositiveItems(offerTrigger.conditions));
+        }
+      }
+    }
+  }
+
+  // Generate goals for prerequisite items (pick them up before going to the NPC)
+  const seenItems = new Set();
+  for (const reqItem of allItemConditions) {
+    if (seenItems.has(reqItem)) continue;
+    seenItems.add(reqItem);
+    const itemLoc = findGroundItem(reqItem, roomId);
+    if (itemLoc) {
+      goals.push({ type: 'navigate_to_room', room: itemLoc.roomId });
+      goals.push({ type: 'pick_up_item', itemType: reqItem, room: itemLoc.roomId });
+      goals.push({ type: 'wait_for_item', itemType: reqItem });
+    }
+  }
+
+  // Generate goals for each prerequisite flag
+  const seen = new Set();
+  for (const reqFlag of allConditions) {
+    if (reqFlag === flagName || seen.has(reqFlag)) continue;
+    seen.add(reqFlag);
+    // Find which room/trigger sets this prerequisite flag
+    const prereqRoom = findRoomThatSetsFlag(reqFlag);
+    if (prereqRoom) {
+      const targetRoom = prereqRoom.roomId;
+      // Check if this prerequisite flag's trigger also needs items
+      const nestedPrereqs = findPrereqGoals(reqFlag, targetRoom, _visited);
+      goals.push(...nestedPrereqs);
+      goals.push({ type: 'navigate_to_room', room: targetRoom });
+      if (prereqRoom.npcType) {
+        goals.push({ type: 'interact_with_npc', npcType: prereqRoom.npcType, room: targetRoom });
+      }
+      goals.push({ type: 'kill_monsters' });
+      goals.push({ type: 'explore_room' });
+      goals.push({ type: 'wait_for_flag', flag: reqFlag, retryInteract: true, retryTicks: 15 });
+      goals.push({ type: 'navigate_to_room', room: roomId });
     }
   }
   return goals;
@@ -1757,6 +1917,20 @@ function extractPositiveFlags(conditions) {
   return flags;
 }
 
+// Extract positive (non-negated) hasItem values from conditions
+function extractPositiveItems(conditions) {
+  const items = [];
+  if (!conditions) return items;
+  if (Array.isArray(conditions)) {
+    for (const c of conditions) items.push(...extractPositiveItems(c));
+    return items;
+  }
+  if (conditions.hasItem) items.push(conditions.hasItem);
+  if (conditions.and) items.push(...extractPositiveItems(conditions.and));
+  if (conditions.or) items.push(...extractPositiveItems(conditions.or));
+  return items;
+}
+
 // Find which room contains a trigger that sets a given flag
 function findRoomThatSetsFlag(flagName) {
   const dungeons = content.getAllDungeons();
@@ -1771,6 +1945,44 @@ function findRoomThatSetsFlag(flagName) {
           return { roomId, npcType, trigger };
         }
       }
+    }
+  }
+  return null;
+}
+
+// Find which quest has a step whose completion sets a given flag (via trigger/action)
+function findQuestThatSetsFlag(flagName) {
+  // First check: does a quest step's completionConditions reference this flag?
+  // (meaning some trigger sets it and the quest step monitors it)
+  const quests = content.getAllQuests();
+  for (const [questId, quest] of Object.entries(quests)) {
+    if (!quest.steps) continue;
+    for (const [stepId, step] of Object.entries(quest.steps)) {
+      if (!step.completionConditions) continue;
+      for (const cond of step.completionConditions) {
+        if (cond.hasFlag === flagName) return questId;
+      }
+    }
+  }
+  return null;
+}
+
+// Find where a ground item spawns (returns { roomId, x, y } or null)
+// preferRoom: check this room first (useful when item is consumed in the same room)
+function findGroundItem(itemType, preferRoom) {
+  if (preferRoom) {
+    const dungeon = content.getDungeon(preferRoom);
+    if (dungeon && dungeon.itemSpawns) {
+      for (const spawn of dungeon.itemSpawns) {
+        if (spawn.type === itemType) return { roomId: preferRoom, x: spawn.x, y: spawn.y };
+      }
+    }
+  }
+  const dungeons = content.getAllDungeons();
+  for (const [roomId, dungeon] of Object.entries(dungeons)) {
+    if (!dungeon.itemSpawns) continue;
+    for (const spawn of dungeon.itemSpawns) {
+      if (spawn.type === itemType) return { roomId, x: spawn.x, y: spawn.y };
     }
   }
   return null;
