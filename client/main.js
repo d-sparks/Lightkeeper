@@ -398,6 +398,7 @@
   let autoState = null;
   let automationScreenOpen = false;
   let automationSelectedStructure = null; // structureId selected for placement
+  let prevAutoLevel = null; // tracks previous automation level for level-up sound
 
   // --- Worldmap state ---
   let worldmapData = null;          // Full worldmap JSON from server
@@ -1184,16 +1185,60 @@
               cell.textContent = def.gridIcon || '?';
               cell.style.color = def.gridColor || '#888';
               cell.style.background = 'rgba(255, 167, 38, 0.08)';
-              cell.title = def.name;
+
+              // Build tooltip content
+              const tipLines = [
+                '<strong style="color:' + (def.gridColor || '#ffa726') + '">' + def.name + '</strong>',
+                def.description ? '<span class="auto-tip-desc">' + def.description + '</span>' : null,
+              ].filter(Boolean);
+
+              let pinned = false;
+              const tip = document.createElement('div');
+              tip.className = 'auto-cell-tooltip';
+              tip.innerHTML = tipLines.join('<br>');
+
+              cell.addEventListener('mouseenter', () => {
+                if (!cell.contains(tip)) cell.appendChild(tip);
+              });
+              cell.addEventListener('mouseleave', () => {
+                if (!pinned && cell.contains(tip)) cell.removeChild(tip);
+              });
+
+              // Click / tap to pin tooltip (useful on touch)
+              const togglePin = () => {
+                pinned = !pinned;
+                if (pinned) {
+                  if (!cell.contains(tip)) cell.appendChild(tip);
+                } else {
+                  if (cell.contains(tip)) cell.removeChild(tip);
+                }
+              };
+              cell.addEventListener('click', togglePin);
+              cell.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                togglePin();
+              }, { passive: false });
             }
-            cell.addEventListener('click', () => {
-              // Show structure info (future: allow removal)
-            });
           } else if (preBuilt) {
             // Array infrastructure
             cell.classList.add('prebuilt');
             cell.textContent = '\u25a0';
-            cell.title = preBuilt.label;
+
+            const prebuiltTip = document.createElement('div');
+            prebuiltTip.className = 'auto-cell-tooltip';
+            prebuiltTip.innerHTML = '<strong style="color:#777">' + preBuilt.label + '</strong>' +
+              '<br><span class="auto-tip-desc">Output: classified.</span>';
+            cell.addEventListener('mouseenter', () => {
+              if (!cell.contains(prebuiltTip)) cell.appendChild(prebuiltTip);
+            });
+            cell.addEventListener('mouseleave', () => {
+              if (cell.contains(prebuiltTip)) cell.removeChild(prebuiltTip);
+            });
+            cell.addEventListener('touchend', (e) => {
+              e.preventDefault();
+              if (cell.contains(prebuiltTip)) cell.removeChild(prebuiltTip);
+              else cell.appendChild(prebuiltTip);
+            }, { passive: false });
           } else if (isBlocked) {
             // Wall / non-buildable
             cell.classList.add('blocked');
@@ -1208,14 +1253,33 @@
               const isMaxed = selDef && selDef.maxCount > 0 && selDef.count >= selDef.maxCount;
               if (canAfford && !isMaxed) {
                 cell.classList.add('can-build');
-                cell.addEventListener('click', () => {
+
+                // Hover tooltip: placement preview
+                const costText = Object.entries(selDef.cost).map(([, amt]) => amt + '\u26cf').join(' ');
+                const buildTip = document.createElement('div');
+                buildTip.className = 'auto-cell-tooltip';
+                buildTip.innerHTML = '<strong style="color:' + (selDef.gridColor || '#ffa726') + '">Place ' + selDef.name + '</strong>' +
+                  '<br><span class="auto-tip-desc">Cost: ' + costText + '</span>';
+                cell.addEventListener('mouseenter', () => {
+                  if (!cell.contains(buildTip)) cell.appendChild(buildTip);
+                });
+                cell.addEventListener('mouseleave', () => {
+                  if (cell.contains(buildTip)) cell.removeChild(buildTip);
+                });
+
+                const doBuild = () => {
                   net.send({
                     type: CONSTANTS.MSG.AUTO_BUILD,
                     structureId: automationSelectedStructure,
                     gridX: cx,
                     gridY: cy,
                   });
-                });
+                };
+                cell.addEventListener('click', doBuild);
+                cell.addEventListener('touchend', (e) => {
+                  e.preventDefault();
+                  doBuild();
+                }, { passive: false });
               }
             }
           }
@@ -1273,10 +1337,15 @@
       item.appendChild(count);
 
       if (!isMaxed) {
-        item.addEventListener('click', () => {
+        const doSelect = () => {
           automationSelectedStructure = (automationSelectedStructure === s.id) ? null : s.id;
           renderAutomationScreen();
-        });
+        };
+        item.addEventListener('click', doSelect);
+        item.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          doSelect();
+        }, { passive: false });
       }
 
       palItems.appendChild(item);
@@ -2856,9 +2925,19 @@
   net.on(CONSTANTS.MSG.AUTO_STATE, (msg) => {
     autoState = msg.auto || null;
 
-    // Handle build result flash animation
+    // Handle build result flash animation and placement sound
     if (msg.buildResult && msg.buildX !== undefined) {
       flashAutomationCell(msg.buildX, msg.buildY, msg.buildResult === 'success');
+      if (msg.buildResult === 'success') audio.play('auto_place');
+    }
+
+    // Detect automation level-up and play fanfare
+    if (autoState && autoState.stats) {
+      const newLevel = autoState.stats.automationLevel || 0;
+      if (prevAutoLevel !== null && newLevel > prevAutoLevel) {
+        audio.play('auto_level_up');
+      }
+      prevAutoLevel = newLevel;
     }
 
     // Open full-screen automation overlay if server says so

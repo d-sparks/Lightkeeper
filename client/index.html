@@ -1635,6 +1635,7 @@
       border: 1px solid rgba(255, 167, 38, 0.12);
       border-radius: 4px;
       padding: 2px;
+      touch-action: none;
     }
 
     .auto-grid-cell {
@@ -1848,9 +1849,19 @@
       padding: 6px 10px;
       font-size: 11px;
       color: #ccc;
-      white-space: nowrap;
+      white-space: normal;
+      max-width: 200px;
+      min-width: 120px;
+      line-height: 1.5;
       z-index: 10;
       pointer-events: none;
+    }
+
+    .auto-tip-desc {
+      font-size: 10px;
+      color: #888;
+      display: block;
+      margin-top: 2px;
     }
 
     /* Rewards track */
