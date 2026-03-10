@@ -122,8 +122,10 @@ const CONSTANTS = {
 
     // Sessions (Client -> Server)
     SESSION_LIST: 'session_list',
+    SESSION_DELETE: 'session_delete',
     // Sessions (Server -> Client)
     SESSION_LIST_RESPONSE: 'session_list_response',
+    SESSION_DELETE_RESPONSE: 'session_delete_response',
 
     // Chat (Client -> Server)
     CHAT: 'chat',

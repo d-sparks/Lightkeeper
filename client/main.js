@@ -2431,6 +2431,18 @@
         joinWithName(session.name);
       });
 
+      const delBtn = document.createElement('button');
+      delBtn.className = 'session-delete-btn';
+      delBtn.textContent = '✕';
+      delBtn.title = 'Delete character';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!confirm(`Delete "${session.name}"? This cannot be undone.`)) return;
+        const token = localStorage.getItem(`lk_session_${session.name}`) || '';
+        net.send({ type: CONSTANTS.MSG.SESSION_DELETE, name: session.name, token });
+      });
+      entry.appendChild(delBtn);
+
       sessionListEl.appendChild(entry);
     }
   }
@@ -2442,6 +2454,18 @@
 
   net.on(CONSTANTS.MSG.SESSION_LIST_RESPONSE, (msg) => {
     renderSessionList(msg.sessions);
+  });
+
+  net.on(CONSTANTS.MSG.SESSION_DELETE_RESPONSE, (msg) => {
+    if (msg.success) {
+      localStorage.removeItem(`lk_session_${msg.name}`);
+      net.send({ type: CONSTANTS.MSG.SESSION_LIST });
+    } else {
+      const reason = msg.error === 'online' ? 'That character is currently online.'
+        : msg.error === 'unauthorized' ? 'You do not own that character.'
+        : 'Could not delete character.';
+      alert(reason);
+    }
   });
 
   joinBtn.addEventListener('click', doJoin);

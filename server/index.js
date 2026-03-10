@@ -440,6 +440,30 @@ wss.on('connection', (ws) => {
         break;
       }
 
+      case CONSTANTS.MSG.SESSION_DELETE: {
+        const delName = msg.name;
+        const delSession = delName ? sessionStore.load(delName) : null;
+        if (!delSession) {
+          ws.send(JSON.stringify({ type: CONSTANTS.MSG.SESSION_DELETE_RESPONSE, success: false, name: delName, error: 'not_found' }));
+          break;
+        }
+        // Require the correct session token to delete
+        const storedToken = delSession.sessionToken;
+        if (storedToken && msg.token !== storedToken) {
+          ws.send(JSON.stringify({ type: CONSTANTS.MSG.SESSION_DELETE_RESPONSE, success: false, name: delName, error: 'unauthorized' }));
+          break;
+        }
+        // Reject if the character is currently online
+        const isOnline = [...wss.clients].some(c => c !== ws && c.playerName === delName);
+        if (isOnline) {
+          ws.send(JSON.stringify({ type: CONSTANTS.MSG.SESSION_DELETE_RESPONSE, success: false, name: delName, error: 'online' }));
+          break;
+        }
+        sessionStore.delete(delName);
+        ws.send(JSON.stringify({ type: CONSTANTS.MSG.SESSION_DELETE_RESPONSE, success: true, name: delName }));
+        break;
+      }
+
       case CONSTANTS.MSG.JOIN: {
         const savedSession = msg.name ? sessionStore.load(msg.name) : null;
         ws.playerName = msg.name || `Player ${nextPlayerId}`;
