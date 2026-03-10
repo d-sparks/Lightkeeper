@@ -892,15 +892,25 @@ class Bot {
 
     if (dist > interactRange) {
       // Use move_to_position sub-goal for proper pathfinding with door handling
+      // Tolerance 0: stand ON the NPC tile so we're not near doors that would
+      // steal the interaction (tryInteract checks doors before NPCs)
       const npcTile = pixelToTile(targetNpc.x, targetNpc.y);
-      this.pushGoal({ type: 'move_to_position', tileX: npcTile.tx, tileY: npcTile.ty, tolerance: 1 });
+      this.pushGoal({ type: 'move_to_position', tileX: npcTile.tx, tileY: npcTile.ty, tolerance: 0 });
       return;
     } else {
       // Close enough — interact
       this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
       const result = this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
-      // If we picked up an item or toggled a door instead of talking to the NPC, retry next tick
-      if (result && (result.interactType === 'pickup' || result.interactType === 'door')) return;
+      // If we picked up an item or toggled a door instead of talking to the NPC,
+      // move closer to the NPC to get out of door/item range
+      if (result && (result.interactType === 'pickup' || result.interactType === 'door')) {
+        if (!goal._retryCloser) {
+          goal._retryCloser = true;
+          const npcTile = pixelToTile(targetNpc.x, targetNpc.y);
+          this.pushGoal({ type: 'move_to_position', tileX: npcTile.tx, tileY: npcTile.ty, tolerance: 0 });
+        }
+        return;
+      }
       this.stats.exploration.npcsInteracted.add(targetNpc.type);
       this.popGoal();
     }

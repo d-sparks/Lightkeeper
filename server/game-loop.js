@@ -3914,6 +3914,31 @@ class GameLoop {
         }
       }
 
+      // 3. Check for nearby NPCs (dialogue) — before committing to door,
+      // since an NPC closer than the door should win the interaction
+      const npcRange = CONSTANTS.NPC_INTERACT_RANGE * ts;
+      let closestNPC = null;
+      let closestNPCDist = Infinity;
+      for (const [npcId, npc] of room.npcs) {
+        const dx = npc.x - player.x;
+        const dy = npc.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < npcRange && dist < closestNPCDist) {
+          closestNPC = npc;
+          closestNPCDist = dist;
+        }
+      }
+
+      // If an NPC is closer than the door, prefer talking to the NPC
+      if (closestNPC && closestDoor && closestDoor.tileDef.togglesTo != null && closestNPCDist < closestDoorDist) {
+        const ctx = this._scriptContext(playerId, roomId);
+        const dialogue = this._resolveDialogue(closestNPC, ctx);
+        this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
+          playerId, roomId, npcType: closestNPC.type, npcId: closestNPC.id,
+        }, ctx);
+        return { interactType: 'dialogue', npcId: closestNPC.id, dialogue };
+      }
+
       if (closestDoor && closestDoor.tileDef.togglesTo != null) {
         const ctx = this._scriptContext(playerId, roomId);
 
@@ -3948,31 +3973,38 @@ class GameLoop {
           tileId: newTileId,
         };
       }
-    }
 
-    // 3. Check for nearby NPCs (dialogue)
-    const npcRange = CONSTANTS.NPC_INTERACT_RANGE * ts;
-    let closestNPC = null;
-    let closestNPCDist = Infinity;
-    for (const [npcId, npc] of room.npcs) {
-      const dx = npc.x - player.x;
-      const dy = npc.y - player.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < npcRange && dist < closestNPCDist) {
-        closestNPC = npc;
-        closestNPCDist = dist;
+      // No door found — check NPC without door comparison
+      if (closestNPC) {
+        const ctx = this._scriptContext(playerId, roomId);
+        const dialogue = this._resolveDialogue(closestNPC, ctx);
+        this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
+          playerId, roomId, npcType: closestNPC.type, npcId: closestNPC.id,
+        }, ctx);
+        return { interactType: 'dialogue', npcId: closestNPC.id, dialogue };
       }
-    }
-    if (closestNPC) {
-      const ctx = this._scriptContext(playerId, roomId);
-      const dialogue = this._resolveDialogue(closestNPC, ctx);
-
-      // Emit npc_interacted scripting event
-      this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
-        playerId, roomId, npcType: closestNPC.type, npcId: closestNPC.id,
-      }, ctx);
-
-      return { interactType: 'dialogue', npcId: closestNPC.id, dialogue };
+    } else {
+      // No tileset — still check NPCs
+      const npcRange = CONSTANTS.NPC_INTERACT_RANGE * ts;
+      let closestNPC = null;
+      let closestNPCDist = Infinity;
+      for (const [npcId, npc] of room.npcs) {
+        const dx = npc.x - player.x;
+        const dy = npc.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < npcRange && dist < closestNPCDist) {
+          closestNPC = npc;
+          closestNPCDist = dist;
+        }
+      }
+      if (closestNPC) {
+        const ctx = this._scriptContext(playerId, roomId);
+        const dialogue = this._resolveDialogue(closestNPC, ctx);
+        this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
+          playerId, roomId, npcType: closestNPC.type, npcId: closestNPC.id,
+        }, ctx);
+        return { interactType: 'dialogue', npcId: closestNPC.id, dialogue };
+      }
     }
 
     return null;
