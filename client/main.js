@@ -26,6 +26,8 @@
   const questBtn = document.getElementById('quest-btn');
   const questLabel = document.getElementById('quest-label');
   const questToast = document.getElementById('quest-toast');
+  const milestonToast = document.getElementById('automation-milestone-toast');
+  const milestoneText = document.getElementById('automation-milestone-text');
   const questPanelContent = document.getElementById('quest-panel-content');
   const solGridContainer = document.getElementById('sol-grid-container');
   const solGridInfo = document.getElementById('sol-grid-info');
@@ -279,6 +281,7 @@
   let questState = [];
   let partyQuestsState = [];
   let questToastTimeout = null;
+  let milestoneToastTimeout = null;
 
   // Tutorial arrow state (driven by quest uiHint)
   let tutorialPhase = null;  // null | 'open_menu' | 'click_sol_tab' | 'select_component' | 'place_component'
@@ -1487,6 +1490,19 @@
     questToastTimeout = setTimeout(() => {
       questToast.style.display = 'none';
     }, 3000);
+  }
+
+  function showMilestoneToast(icon, name, threshold) {
+    milestoneText.textContent = icon + ' ' + name + ' — ' + threshold + ' structures';
+    milestonToast.style.display = 'block';
+    // Re-trigger animation by briefly removing and re-adding the element
+    milestonToast.style.animation = 'none';
+    void milestonToast.offsetWidth; // force reflow
+    milestonToast.style.animation = '';
+    if (milestoneToastTimeout) clearTimeout(milestoneToastTimeout);
+    milestoneToastTimeout = setTimeout(() => {
+      milestonToast.style.display = 'none';
+    }, 4000);
   }
 
   // --- Tab click handlers ---
@@ -2744,6 +2760,10 @@
       renderAutomationScreen();
     }
 
+  });
+
+  net.on(CONSTANTS.MSG.AUTOMATION_MILESTONE, (msg) => {
+    showMilestoneToast(msg.milestoneIcon || '★', msg.milestoneName || 'Milestone', msg.milestoneThreshold || 0);
   });
 
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {

@@ -112,6 +112,7 @@ const CONSTANTS = {
     AUTO_TRADE: 'auto_trade',
     // Automation (Server -> Client)
     AUTO_STATE: 'auto_state',
+    AUTOMATION_MILESTONE: 'automation_milestone',
 
     // Map chunk streaming (Server -> Client)
     MAP_CHUNKS: 'map_chunks',

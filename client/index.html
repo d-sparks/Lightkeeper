@@ -1404,6 +1404,39 @@
       to   { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 
+    /* Automation milestone toast notification */
+    #automation-milestone-toast {
+      display: none;
+      position: fixed;
+      top: 56px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 10, 26, 0.95);
+      border: 1px solid rgba(255, 193, 7, 0.6);
+      border-radius: 6px;
+      padding: 10px 20px;
+      color: #ffd54f;
+      font-size: 13px;
+      font-family: inherit;
+      z-index: 110;
+      pointer-events: none;
+      text-align: center;
+      animation: milestone-toast-in 0.4s ease-out;
+    }
+
+    #automation-milestone-toast .milestone-label {
+      font-size: 10px;
+      color: #ffb300;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+    }
+
+    @keyframes milestone-toast-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.95); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
+
     #character-menu .quest-header {
       display: flex;
       align-items: center;
@@ -2349,6 +2382,10 @@
   </div>
 
   <div id="quest-toast"></div>
+  <div id="automation-milestone-toast">
+    <div class="milestone-label">Automation Milestone</div>
+    <div id="automation-milestone-text"></div>
+  </div>
 
   <!-- Onboarding hints (dismissed on first input/interaction) -->
   <div id="onboard-move" class="onboard-hint" style="display:none">

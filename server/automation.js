@@ -232,7 +232,7 @@ class Automation {
       if (totalStructures >= milestones[i].threshold) {
         state.claimedMilestones.push(i);
         const m = milestones[i];
-        newRewards.push({ type: 'item', itemId: m.itemId, count: m.count || 1 });
+        newRewards.push({ type: 'item', itemId: m.itemId, count: m.count || 1, milestoneName: m.name, milestoneThreshold: m.threshold, milestoneIcon: m.icon || '★' });
       }
     }
     return newRewards;

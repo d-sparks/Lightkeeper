@@ -929,6 +929,16 @@ wss.on('connection', (ws) => {
                 equipment: player.equipment,
                 medipacCharges: player.medipacCharges,
               }));
+              // Notify client of each milestone reached
+              for (const reward of milestoneRewards) {
+                ws.send(JSON.stringify({
+                  type: CONSTANTS.MSG.AUTOMATION_MILESTONE,
+                  milestoneName: reward.milestoneName,
+                  milestoneThreshold: reward.milestoneThreshold,
+                  milestoneIcon: reward.milestoneIcon,
+                  rewardName: reward.milestoneName,
+                }));
+              }
             }
           }
         }
