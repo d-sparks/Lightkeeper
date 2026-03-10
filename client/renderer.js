@@ -2116,8 +2116,8 @@ class Renderer {
       healthBg.clear();
       healthFill.clear();
 
-      // Talk prompt
-      if (me) {
+      // Talk prompt (skip for decorative entities like harvesters)
+      if (me && !npc.decorative) {
         const dx = npc.x - me.x;
         const dy = npc.y - me.y;
         const dist = Math.sqrt(dx * dx + dy * dy);

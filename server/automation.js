@@ -1,6 +1,8 @@
 // Per-player automation state: structures, resources, production timers
 // Data-driven: reads structure definitions from content/entities/structures.json
 
+const CONSTANTS = require('../shared/constants');
+
 class Automation {
   constructor(content) {
     this.content = content;
@@ -480,6 +482,34 @@ class Automation {
     }
 
     return overlayed;
+  }
+
+  // Get visual-only harvester entity data for state broadcast
+  // Returns NPC-like entries for silicon_harvester placements
+  getHarvesterEntities(playerId) {
+    const config = this.getGridConfig();
+    if (!config) return [];
+
+    const state = this.getState(playerId);
+    const harvesterData = state.structures.silicon_harvester;
+    if (!harvesterData || !harvesterData.placements || harvesterData.placements.length === 0) return [];
+
+    const ts = CONSTANTS.TILE_SIZE;
+    const entities = [];
+    for (let i = 0; i < harvesterData.placements.length; i++) {
+      const p = harvesterData.placements[i];
+      const dungeonX = p.x + config.dungeonOffsetX;
+      const dungeonY = p.y + config.dungeonOffsetY;
+      entities.push({
+        id: `harvester_${playerId}_${i}`,
+        type: 'scrap_drone',
+        name: 'Silicon Harvester',
+        x: (dungeonX + 0.5) * ts,
+        y: (dungeonY + 0.5) * ts,
+        decorative: true,
+      });
+    }
+    return entities;
   }
 
   // Remove player state on disconnect

@@ -1234,6 +1234,8 @@ setInterval(() => {
   for (const [roomId, room] of gameLoop.rooms) {
     const state = gameLoop.getRoomState(roomId);
     if (!state) continue;
+    const gridConfig = gameLoop.automation.getGridConfig();
+    const isDaysideRoom = gridConfig && roomId === gridConfig.dungeonId;
     // Send per-player state with their own cooldowns
     wss.clients.forEach((client) => {
       if (client.readyState === 1 && client.playerRoom === roomId) {
@@ -1241,7 +1243,19 @@ setInterval(() => {
         if (player) {
           state.myCooldowns = player.cooldowns;
         }
-        client.send(JSON.stringify(state));
+        // Inject per-player harvester entities when in the automation dungeon
+        if (isDaysideRoom && client.playerId) {
+          const harvesters = gameLoop.automation.getHarvesterEntities(client.playerId);
+          if (harvesters.length > 0) {
+            state.npcs = [...state.npcs, ...harvesters];
+            client.send(JSON.stringify(state));
+            state.npcs = state.npcs.slice(0, state.npcs.length - harvesters.length);
+          } else {
+            client.send(JSON.stringify(state));
+          }
+        } else {
+          client.send(JSON.stringify(state));
+        }
       }
     });
   }

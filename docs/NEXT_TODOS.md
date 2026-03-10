@@ -89,7 +89,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 ## Automation Grid (Phases 3-5)
 
 Phase 3: DONE — `openAutomation` action in actions.js, `meridian_open_automation` trigger in train_station.json (fires on npc_interacted for meridian_7 when `traded_umbracite_meridian` flag is set), client AUTO_STATE handler with openScreen in main.js.
-Phase 4: Dungeon sync — merge automation placements into tile data for dayside_solar_fields.
+~~Phase 4: Dungeon sync — merge automation placements into tile data for dayside_solar_fields.~~ — DONE: `getOverlayedMapData()` merges player placements into MAP chunks at room-join, floor-transition, and post-build. `getHarvesterEntities()` spawns visual-only `scrap_drone` NPCs at silicon_harvester positions (per-player, decorative flag skips "[E] Talk" prompt). State broadcast injects harvester entities into npcs array when player is in dayside_solar_fields.
 Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 
 ## Sol Grid

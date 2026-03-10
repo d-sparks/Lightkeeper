@@ -347,4 +347,42 @@ describe('Automation', () => {
       assert.equal(clientState.stats.totalStructures, 1);
     });
   });
+
+  describe('getHarvesterEntities', () => {
+    it('returns empty array with no harvesters', () => {
+      const auto = makeAutoWithGrid();
+      auto._gridConfig.dungeonOffsetX = 9;
+      auto._gridConfig.dungeonOffsetY = 3;
+      const entities = auto.getHarvesterEntities('p1');
+      assert.deepEqual(entities, []);
+    });
+
+    it('returns entities at correct dungeon positions', () => {
+      const auto = makeAutoWithGrid();
+      auto._gridConfig.dungeonOffsetX = 9;
+      auto._gridConfig.dungeonOffsetY = 3;
+      auto.addResource('p1', 'silicon', 100);
+      auto.build('p1', 'silicon_harvester', 2, 4);
+      const entities = auto.getHarvesterEntities('p1');
+      assert.equal(entities.length, 1);
+      assert.equal(entities[0].type, 'scrap_drone');
+      assert.equal(entities[0].name, 'Silicon Harvester');
+      assert.equal(entities[0].decorative, true);
+      // Grid (2,4) + offset (9,3) = dungeon (11,7), centered at (11.5*32, 7.5*32)
+      assert.equal(entities[0].x, (11 + 0.5) * 32);
+      assert.equal(entities[0].y, (7 + 0.5) * 32);
+    });
+
+    it('returns multiple entities for multiple placements', () => {
+      const auto = makeAutoWithGrid();
+      auto._gridConfig.dungeonOffsetX = 9;
+      auto._gridConfig.dungeonOffsetY = 3;
+      auto.addResource('p1', 'silicon', 100);
+      auto.build('p1', 'silicon_harvester', 0, 0);
+      auto.build('p1', 'silicon_harvester', 1, 1);
+      const entities = auto.getHarvesterEntities('p1');
+      assert.equal(entities.length, 2);
+      assert.notEqual(entities[0].id, entities[1].id);
+    });
+  });
 });
