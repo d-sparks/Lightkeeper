@@ -20,7 +20,7 @@
   "medipac_heal": {
     "name": "Medipac Heal",
     "type": "heal",
-    "heal": 30,
+    "heal": 90,
     "cooldown": 25.0,
     "consumesItem": "medical_supplies",
     "defaultSlot": 6

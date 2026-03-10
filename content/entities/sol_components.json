@@ -125,6 +125,12 @@
     "energyRegen": 8,
     "shape": [[1]]
   },
+  "starter_battery": {
+    "type": "battery",
+    "name": "Worn Battery",
+    "energyCapacity": 30,
+    "shape": [[1]]
+  },
   "rechargeable_battery": {
     "type": "battery",
     "name": "Rechargeable Battery",

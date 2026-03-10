@@ -1166,7 +1166,7 @@
         { "speaker": "Apprentice Sol Engineer", "text": "You found them! Let me see... yes, perfect. Undamaged." },
         { "speaker": "Apprentice Sol Engineer", "text": "Give me just a moment..." },
         { "speaker": "Apprentice Sol Engineer", "text": "There — your Sol Unit's ready. Channels concentrated solar energy. She'll keep you alive out there." },
-        { "speaker": "Apprentice Sol Engineer", "text": "I've mounted a Sol Cone emitter in the center — that's your main attack." },
+        { "speaker": "Apprentice Sol Engineer", "text": "I've mounted a Sol Cone emitter in the center — that's your main attack. There's a worn battery in there too, but it won't last long." },
         { "speaker": "Apprentice Sol Engineer", "text": "Here, take this Damage Booster chip too. It's a modifier — slot it next to the Sol Cone to power it up." },
         { "speaker": "Apprentice Sol Engineer", "text": "Press [I] to open your Inventory, click OPEN on your weapon slot, and drag the booster next to the Sol Cone. Talk to me when you're done." }
       ],
@@ -1177,12 +1177,12 @@
       "after_booster": [
         { "speaker": "Apprentice Sol Engineer", "text": "Feel the difference? Adjacent modifiers power up nearby abilities — that's how you build." },
         { "speaker": "Apprentice Sol Engineer", "text": "As you find more components, think about what goes next to what. Grid placement is everything." },
-        { "speaker": "Apprentice Sol Engineer", "text": "One more thing — energy is precious out here. Every shot costs power, and recharging isn't easy." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Head south to the training range. Put a few rounds downrange, then see Tech Maren at the Power Station to recharge." }
+        { "speaker": "Apprentice Sol Engineer", "text": "That worn battery has just enough juice for a couple of Sol Cone blasts. After that, you'll need a real power source." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Head south to the training range. Fire the Sol Cone, see what it does — then we'll get you a proper battery." }
       ],
       "go_train": [
-        { "speaker": "Apprentice Sol Engineer", "text": "The training range is through the south door. Go put a few rounds downrange — get a feel for the Sol Beam." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Energy's hard to come by, so don't waste it. But you've got enough for some training — hit the Power Station afterward to recharge." }
+        { "speaker": "Apprentice Sol Engineer", "text": "The training range is through the south door. Fire the Sol Cone at the targets — you've got enough for two shots." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Your blaster still works without energy, so use that to finish anything the cone doesn't kill." }
       ],
       "training_done": [
         { "speaker": "Apprentice Sol Engineer", "text": "Nice shooting. The Sol Beam packs a punch, doesn't it?" },

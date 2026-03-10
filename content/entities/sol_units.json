@@ -3,11 +3,11 @@
     "name": "Sol Unit Mk1",
     "description": "Standard-issue Lightkeeper sol unit. A reliable 5x5 grid with balanced energy capacity. Nothing fancy, but it keeps the lights on.",
     "gridSize": 5,
-    "maxCharge": 100,
-    "initialEnergy": 40,
+    "maxCharge": 0,
+    "initialEnergy": 30,
     "initialComponents": [
       { "abilityId": "sol_cone", "gridX": 2, "gridY": 2 },
-      { "generatorId": "basic_generator", "gridX": 0, "gridY": 0 }
+      { "batteryId": "starter_battery", "gridX": 4, "gridY": 0 }
     ]
   },
   "sol_unit_mk1_plus": {

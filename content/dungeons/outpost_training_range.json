@@ -640,33 +640,61 @@
           "type": "showMessage",
           "lines": [
             "The training range. Reinforced walls and scoring panels line the far end.",
-            "Three training targets are set up across the room. Use your Sol Beam [key 1] to take them out."
+            "Training targets are set up across the room. Fire your Sol Cone [key 2] at them — then finish off any survivors with your blaster."
           ]
         }
       ],
       "once": true
     },
     {
-      "id": "training_first_kill",
-      "event": "monster_killed",
+      "id": "training_cone_used",
+      "event": "ability_used",
       "filter": {
-        "monsterType": "training_target"
+        "abilityId": "sol_cone"
+      },
+      "actions": [
+        {
+          "type": "incrementFlag",
+          "flag": "training_cone_uses"
+        }
+      ]
+    },
+    {
+      "id": "training_first_cone",
+      "event": "flag_changed",
+      "filter": {
+        "flag": "training_cone_uses"
       },
       "conditions": [
         {
-          "not": {
-            "hasFlag": "training_targets_killed"
-          }
+          "hasFlag": "training_cone_uses",
+          "value": 1
         }
       ],
       "actions": [
         {
-          "type": "incrementFlag",
-          "flag": "training_targets_killed"
-        },
+          "type": "showMessage",
+          "text": "Direct hit. The Sol Cone channels concentrated solar energy in a wide blast — but it drains your battery fast. Fire it once more."
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "training_second_cone",
+      "event": "flag_changed",
+      "filter": {
+        "flag": "training_cone_uses"
+      },
+      "conditions": [
+        {
+          "hasFlag": "training_cone_uses",
+          "value": 2
+        }
+      ],
+      "actions": [
         {
           "type": "showMessage",
-          "text": "Direct hit. The Sol Beam channels concentrated solar energy — nothing on this rock can take many of those."
+          "text": "Your battery is empty. Sol abilities need energy — and you just burned through yours. Use your blaster to finish off the remaining targets."
         }
       ],
       "once": true
@@ -677,37 +705,12 @@
       "filter": {
         "monsterType": "training_target"
       },
-      "conditions": [
-        {
-          "hasFlag": "training_targets_killed"
-        }
-      ],
       "actions": [
         {
           "type": "incrementFlag",
           "flag": "training_targets_killed"
         }
       ]
-    },
-    {
-      "id": "training_second_kill",
-      "event": "flag_changed",
-      "filter": {
-        "flag": "training_targets_killed"
-      },
-      "conditions": [
-        {
-          "hasFlag": "training_targets_killed",
-          "value": 2
-        }
-      ],
-      "actions": [
-        {
-          "type": "showMessage",
-          "text": "Good shot. One more target. Watch your energy — the Sol Beam draws from your unit's reserves."
-        }
-      ],
-      "once": true
     },
     {
       "id": "training_complete",
@@ -719,7 +722,13 @@
         {
           "flagGreaterThan": {
             "flag": "training_targets_killed",
-            "value": 2
+            "value": 1
+          }
+        },
+        {
+          "flagGreaterThan": {
+            "flag": "training_cone_uses",
+            "value": 1
           }
         }
       ],
@@ -731,9 +740,48 @@
         {
           "type": "showMessage",
           "lines": [
-            "All targets down. But your Sol Unit's energy is critically low.",
-            "That unit was running on fumes when you got it. You need a proper charge before heading into the field.",
-            "Head to the Power Station — back through the workshop, then south through the main hall. Tech Maren runs the charging terminals."
+            "Training complete. You felt the difference — the Sol Cone hits hard but empties your reserves.",
+            "Out in the field, energy management is life and death. Your blaster costs nothing, but your sol abilities need power.",
+            "Head to the Power Station — Tech Maren can set you up with a field battery. Back through the workshop, then south."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "training_complete_from_cone",
+      "event": "flag_changed",
+      "filter": {
+        "flag": "training_cone_uses"
+      },
+      "conditions": [
+        {
+          "flagGreaterThan": {
+            "flag": "training_targets_killed",
+            "value": 1
+          }
+        },
+        {
+          "flagGreaterThan": {
+            "flag": "training_cone_uses",
+            "value": 1
+          }
+        },
+        {
+          "not": { "hasFlag": "sol_training_complete" }
+        }
+      ],
+      "actions": [
+        {
+          "type": "setFlag",
+          "flag": "sol_training_complete"
+        },
+        {
+          "type": "showMessage",
+          "lines": [
+            "Training complete. You felt the difference — the Sol Cone hits hard but empties your reserves.",
+            "Out in the field, energy management is life and death. Your blaster costs nothing, but your sol abilities need power.",
+            "Head to the Power Station — Tech Maren can set you up with a field battery. Back through the workshop, then south."
           ]
         }
       ],

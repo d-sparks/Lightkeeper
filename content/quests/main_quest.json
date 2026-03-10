@@ -68,7 +68,7 @@
     },
     "training_range": {
       "label": "Complete Sol Training",
-      "description": "Head to the training range and destroy the targets.",
+      "description": "Head to the training range. Fire your Sol Cone twice and destroy two targets to prove you can handle the unit.",
       "prerequisiteSteps": ["engineer_briefing"],
       "objective": { "roomId": "outpost_training_range", "tileX": 9, "tileY": 6 },
       "completionConditions": [{ "hasFlag": "sol_training_complete" }],

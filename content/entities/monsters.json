@@ -35,14 +35,15 @@
     "size": [16, 16],
     "health": 70,
     "speed": 1.5,
-    "damage": 7,
+    "damage": 9,
     "attackRange": 1,
     "attackSpeed": 1.2,
     "ai": "melee_chase",
     "lootTable": "luddite_common",
     "xp": 8,
     "specialAttacks": [
-      { "type": "lunge", "cooldown": 6, "range": 3.5, "damage": 1.5, "speed": 8, "duration": 0.2 }
+      { "type": "lunge", "cooldown": 6, "range": 3.5, "damage": 1.5, "speed": 8, "duration": 0.2 },
+      { "type": "ground_slam", "cooldown": 9, "range": 1.8, "damage": 1.2, "knockback": 80 }
     ]
   },
   "luddite_scrapper": {
@@ -50,8 +51,8 @@
     "sprite": "sprites/luddite_scrapper.png",
     "size": [16, 16],
     "health": 75,
-    "speed": 0.8,
-    "damage": 10,
+    "speed": 1.0,
+    "damage": 12,
     "attackRange": 6,
     "attackSpeed": 0.8,
     "ai": "ranged_kite",
@@ -244,7 +245,7 @@
     "size": [16, 16],
     "health": 65,
     "speed": 2.2,
-    "damage": 11,
+    "damage": 8,
     "attackRange": 1.5,
     "attackSpeed": 1.0,
     "ai": "ambush",

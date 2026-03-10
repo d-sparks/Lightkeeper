@@ -1190,7 +1190,7 @@ class GameLoop {
     let singleUseMaxEnergy = 0;
     if (player.solGrid) {
       // Reset maxEnergy to sol unit base charge so battery capacity doesn't accumulate across calls
-      player.maxEnergy = player.solGrid.maxCharge || 100;
+      player.maxEnergy = player.solGrid.maxCharge !== undefined ? player.solGrid.maxCharge : 100;
       for (let y = 0; y < player.solGrid.size; y++) {
         for (let x = 0; x < player.solGrid.size; x++) {
           const cell = player.solGrid.cells[y * player.solGrid.size + x];
@@ -1344,9 +1344,12 @@ class GameLoop {
 
     if (solUnitDef.initialComponents) {
       for (const comp of solUnitDef.initialComponents) {
-        const compDef = comp.abilityId
-          ? this._findSolComponentByAbility(comp.abilityId)
-          : null;
+        // Look up component definition for shape
+        let compDef = null;
+        if (comp.abilityId) compDef = this._findSolComponentByAbility(comp.abilityId);
+        else if (comp.modifierId) compDef = this.content.getSolComponent(comp.modifierId);
+        else if (comp.batteryId) compDef = this.content.getSolComponent(comp.batteryId);
+        else if (comp.generatorId) compDef = this.content.getSolComponent(comp.generatorId);
         const shape = (compDef && compDef.shape) || [[1]];
         const pid = nextPlacementId++;
         for (let sy = 0; sy < shape.length; sy++) {
@@ -1363,6 +1366,8 @@ class GameLoop {
             };
             if (comp.abilityId) cell.abilityId = comp.abilityId;
             if (comp.modifierId) cell.modifierId = comp.modifierId;
+            if (comp.batteryId) cell.batteryId = comp.batteryId;
+            if (comp.generatorId) cell.generatorId = comp.generatorId;
             if (sx !== 0 || sy !== 0) cell.isExtension = true;
             cells[idx] = cell;
           }
@@ -1370,9 +1375,9 @@ class GameLoop {
       }
     }
 
-    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null, unitName: solUnitDef.name || null, unitDescription: solUnitDef.description || null, maxCharge: solUnitDef.maxCharge || 100 };
+    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null, unitName: solUnitDef.name || null, unitDescription: solUnitDef.description || null, maxCharge: solUnitDef.maxCharge !== undefined ? solUnitDef.maxCharge : 100 };
     // Set charge capacity from sol unit definition
-    player.maxEnergy = solUnitDef.maxCharge || 100;
+    player.maxEnergy = solUnitDef.maxCharge !== undefined ? solUnitDef.maxCharge : 100;
     player.energy = solUnitDef.initialEnergy !== undefined
       ? solUnitDef.initialEnergy
       : player.maxEnergy;
@@ -1578,26 +1583,34 @@ class GameLoop {
     // Check cooldown
     if (player.cooldowns[slotIdx] > 0) return false;
 
+    let success = false;
     switch (abilityDef.type) {
       case 'projectile':
-        return this._fireProjectile(room, player, abilityDef, aimAngle, slotIdx);
+        success = this._fireProjectile(room, player, abilityDef, aimAngle, slotIdx); break;
       case 'cone':
-        return this._fireCone(room, player, abilityDef, aimAngle, slotIdx);
+        success = this._fireCone(room, player, abilityDef, aimAngle, slotIdx); break;
       case 'melee_strike':
-        return this._useMeleeStrike(room, player, abilityDef, slotIdx);
+        success = this._useMeleeStrike(room, player, abilityDef, slotIdx); break;
       case 'heal':
-        return this._useHeal(room, player, abilityDef, slotIdx);
+        success = this._useHeal(room, player, abilityDef, slotIdx); break;
       case 'teleport':
-        return this._useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData);
+        success = this._useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData); break;
       case 'hover':
-        return this._useHover(room, player, abilityDef, slotIdx);
+        success = this._useHover(room, player, abilityDef, slotIdx); break;
       case 'sentry':
-        return this._placeSentry(room, player, abilityDef, slotIdx);
+        success = this._placeSentry(room, player, abilityDef, slotIdx); break;
       case 'pulse_cannon':
-        return this._usePulseCannon(room, player, abilityDef, aimAngle, slotIdx);
+        success = this._usePulseCannon(room, player, abilityDef, aimAngle, slotIdx); break;
       default:
         return false;
     }
+    if (success) {
+      const ctx = this._scriptContext(playerId, roomId);
+      this._emitGameEvent(EventBus.Events.ABILITY_USED, {
+        playerId, roomId, abilityId, slot,
+      }, ctx);
+    }
+    return success;
   }
 
   _fireProjectile(room, player, abilityDef, aimAngle, slotIdx) {
@@ -3734,9 +3747,26 @@ class GameLoop {
         continue;
       }
 
-      // Check wall collision
+      // Check wall collision (swept: sample along path to prevent tunneling through walls)
       const radius = proj.radius || CONSTANTS.PROJECTILE_RADIUS;
-      if (this.physics.collidesAt(proj.x, proj.y, room.dungeon, radius)) {
+      let hitWall = false;
+      const dxW = proj.x - prevX;
+      const dyW = proj.y - prevY;
+      const dist = Math.sqrt(dxW * dxW + dyW * dyW);
+      const stepSize = CONSTANTS.TILE_SIZE * 0.5;
+      if (dist > stepSize) {
+        const steps = Math.ceil(dist / stepSize);
+        for (let s = 1; s <= steps; s++) {
+          const t = s / steps;
+          if (this.physics.collidesAt(prevX + dxW * t, prevY + dyW * t, room.dungeon, radius)) {
+            hitWall = true;
+            break;
+          }
+        }
+      } else {
+        hitWall = this.physics.collidesAt(proj.x, proj.y, room.dungeon, radius);
+      }
+      if (hitWall) {
         if (proj.projectileType === 'pulse_cannon') {
           this._detonatePulseCannon(room, proj);
         }
