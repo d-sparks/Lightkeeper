@@ -2379,6 +2379,22 @@
         { "speaker": "Sable", "text": "The Array doesn't have the capacity for trust — only optimization. Keep something back. Something it doesn't know you know." },
         { "speaker": "Sable", "text": "And watch Thorne carefully. Liasons smile widest when they're most certain of you." }
       ],
+      "post_autotroph_defiant_low_trust": [
+        { "speaker": "Sable", "text": "Word reached me. You refused the Array's terms on Project Autotroph. Publicly." },
+        { "speaker": "Sable", "text": "I don't know you well enough to call that brave. Could be brave. Could be reckless. You'd know better than I would." },
+        { "speaker": "Sable", "text": "What I can tell you — from the outside, from someone who's watched the Array for years — is that open defiance rarely ends the way you picture it." },
+        { "speaker": "Sable", "text": "MERIDIAN-7 doesn't retaliate with fire. It adjusts slowly, applies pressure where you're already weak, waits for you to make the next mistake. The Ring has a word for it: cooperative friction." },
+        { "speaker": "Sable", "text": "We Unbounded walked into the dark rather than face that friction. I'm not suggesting that for you. But you'll need people you trust. Real trust, not just alliance." },
+        { "speaker": "Sable", "text": "You don't have that with me. Not yet." }
+      ],
+      "post_autotroph_cooperative_low_trust": [
+        { "speaker": "Sable", "text": "I heard you cooperated with the Array on Project Autotroph." },
+        { "speaker": "Sable", "text": "Sable's expression doesn't shift. She keeps working the soil around a bioluminescent cutting." },
+        { "speaker": "Sable", "text": "'The Unbounded tried cooperation once. Before my grandmother's time. Trade agreements, shared research, joint councils.'" },
+        { "speaker": "Sable", "text": "'It lasted until it didn't serve the Array's optimization anymore. Then the agreements became suggestions. The suggestions became conditions.'" },
+        { "speaker": "Sable", "text": "'I'm not saying you made the wrong choice. I'm saying I've seen how the Array treats a good-faith partner. Keep something back. Something it doesn't know you have.'" },
+        { "speaker": "Sable", "text": "'That's all I'll offer a stranger. Come back when you're not.'" }
+      ],
       "post_elder_sporecap": [
         { "speaker": "Sable", "text": "You killed the Elder Sporecap." },
         { "speaker": "Sable", "text": "The Unbounded called it the Firstgrowth. Ancient — older than our settlements in the deep Nightside. It wasn't just a creature; it was the heart of that entire fungal system." },
@@ -2451,6 +2467,14 @@
       {
         "conditions": [{ "hasFlag": "autotroph_path_cooperative" }, { "hasFlag": "helped_sable" }, { "not": { "hasFlag": "array_secret_discovered" } }],
         "use": "post_autotroph_cooperative"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_path_defiant" }, { "not": { "hasFlag": "helped_sable" } }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "post_autotroph_defiant_low_trust"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_path_cooperative" }, { "not": { "hasFlag": "helped_sable" } }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "post_autotroph_cooperative_low_trust"
       },
       {
         "conditions": [{ "hasItem": "resonance_fragment" }],
