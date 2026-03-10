@@ -254,6 +254,7 @@
       "filter": { "npcType": "councillor_asha" },
       "conditions": [
         { "hasFlag": "asha_received_compound" },
+        { "hasFlag": "elder_merge_path_revealed" },
         { "not": { "hasFlag": "chose_path_shutdown" } },
         { "not": { "hasFlag": "chose_path_merge" } },
         { "not": { "hasFlag": "chose_path_control" } }
@@ -262,6 +263,23 @@
         { "type": "showChoice", "choiceId": "three_paths", "prompt": "The evidence is before the Council. Three paths forward. The choice shapes the future of all three factions — and the planet itself.", "options": [
           { "label": "Shut Down the Array", "description": "Side with the Unbounded. Restore the Underlumen. Accept a harder world, but a free one.", "value": "shutdown" },
           { "label": "Broker Symbiosis", "description": "Merge Array, Underlumen, and Ring biology into a genuine partnership. The hardest path, but the most hopeful.", "value": "merge" },
+          { "label": "Seize Control", "description": "Take the Array's infrastructure for humanity. Suppress both the Underlumen and Array autonomy. Power at a cost.", "value": "control" }
+        ]}
+      ]
+    },
+    {
+      "id": "three_paths_choice_no_merge",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "asha_received_compound" },
+        { "not": { "hasFlag": "elder_merge_path_revealed" } },
+        { "not": { "hasFlag": "chose_path_shutdown" } },
+        { "not": { "hasFlag": "chose_path_control" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "three_paths", "prompt": "The evidence is before the Council. Two paths forward — a third path exists, known only to those who have walked the deep Nightside and listened. The choice shapes the future of all three factions — and the planet itself.", "options": [
+          { "label": "Shut Down the Array", "description": "Side with the Unbounded. Restore the Underlumen. Accept a harder world, but a free one.", "value": "shutdown" },
           { "label": "Seize Control", "description": "Take the Array's infrastructure for humanity. Suppress both the Underlumen and Array autonomy. Power at a cost.", "value": "control" }
         ]}
       ]

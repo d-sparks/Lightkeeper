@@ -59,7 +59,9 @@
       {"x": 5, "y": 12}, {"x": 8, "y": 12}, {"x": 8, "y": 16}, {"x": 5, "y": 16}
     ] }
   ],
-  "npcSpawns": [],
+  "npcSpawns": [
+    { "type": "unbounded_elder", "x": 17, "y": 3 }
+  ],
   "itemSpawns": [
     { "type": "refined_umbrasite", "x": 19, "y": 18 },
     { "type": "umbracite", "x": 3, "y": 9 },
@@ -114,6 +116,24 @@
           "The sealed chest cracks open, releasing a wave of deep subsonic vibration that you feel in your bones more than hear.",
           "Inside, nestled in crystalline formations, sits a massive umbracite core. Its resonance pattern is unlike anything you've encountered — rhythmic, almost purposeful.",
           "This is what MERIDIAN-7 wants. The question is whether giving it to the Array is wise."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "elder_first_meeting",
+      "event": "npc_interacted",
+      "filter": { "npcType": "unbounded_elder" },
+      "conditions": [
+        { "not": { "hasFlag": "met_unbounded_elder" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "met_unbounded_elder" },
+        { "type": "setFlag", "flag": "elder_merge_path_revealed" },
+        { "type": "grantXp", "amount": 60 },
+        { "type": "showMessage", "lines": [
+          "The figure barely moves as you approach. Ancient eyes open — adapted to near-total darkness, pupils wide as coins.",
+          "A voice like slow water over crystal: 'I wondered when one of the Ring's wanderers would find their way here.'"
         ]}
       ],
       "once": true

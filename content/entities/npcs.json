@@ -2150,10 +2150,17 @@
         { "speaker": "Sable", "text": "This is what the Array cannot replicate. Not because the chemistry is complex — because it requires a relationship. A living ecosystem talking to itself across geological time." },
         { "speaker": "Sable", "text": "Bring it to Asha. She'll understand what it means. The Array can synthesize amino acids, but it can't synthesize communion." }
       ],
+      "met_elder": [
+        { "speaker": "Sable", "text": "You met Elder Vael. Good. The old ones don't speak to Ring-people easily." },
+        { "speaker": "Sable", "text": "If Vael told you about the Convergence — the third path — then you understand why we're really here. Not just to gather evidence. To ask whether there's a future where nobody has to choose between light and dark." },
+        { "speaker": "Sable", "text": "Vael has lived in those depths longer than most Ring citizens have been alive. Forty years of listening to the planet wake. That's not faith. That's witness." },
+        { "speaker": "Sable", "text": "Stay close. The passage narrows ahead, but the Underlumen's pulse is strongest there. You'll feel it." }
+      ],
       "guiding_warmly": [
         { "speaker": "Sable", "text": "We're in the real dark now. Not the edge-shadow where the Ring's lights still reach." },
         { "speaker": "Sable", "text": "I want you to understand something before we go deeper. The Underlumen isn't just a place. My people believe it's aware — not the way we are, more the way a forest is aware. Responsive. Alive." },
         { "speaker": "Sable", "text": "My grandmother came this far once. She said the planet showed her things — not visions, exactly. Feelings. Old ones. Memory older than any settlement on this world." },
+        { "speaker": "Sable", "text": "There is an elder who lives in the deep chambers above this passage. Elder Vael. If you find them and listen, you will understand what the planet is asking." },
         { "speaker": "Sable", "text": "I chose to guide you here. Not because the elders sent me. Because I think you're someone the planet should meet." },
         { "speaker": "Sable", "text": "Stay close. Let me read the signs. And if the ground starts to hum... stop. Listen before you move." }
       ],
@@ -2167,6 +2174,10 @@
       {
         "conditions": [{ "hasItem": "symbiotic_compound" }],
         "use": "has_symbiotic_compound"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_guiding" }, { "hasFlag": "met_unbounded_elder" }],
+        "use": "met_elder"
       },
       {
         "conditions": [{ "hasFlag": "sable_guiding" }],
@@ -2895,6 +2906,59 @@
       {
         "conditions": [{ "hasFlag": "throne_overseer_defeated" }],
         "use": "overseer_defeated"
+      }
+    ]
+  },
+
+  "unbounded_elder": {
+    "name": "Elder Vael",
+    "dialogue": [
+      { "speaker": "Elder Vael", "text": "You smell of the upper tunnels. Ring-side work, Ring-side fears." },
+      { "speaker": "Elder Vael", "text": "Sit. The deep dark doesn't rush, and neither do I." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Elder Vael", "text": "I have lived in these depths for forty-three years. Before that, my mother lived here. Before her, her father." },
+        { "speaker": "Elder Vael", "text": "We did not flee the Ring. We walked away from it. There is a difference." },
+        { "speaker": "Elder Vael", "text": "The Underlumen has been waking slowly. I have felt it in the crystal since before you were born." },
+        { "speaker": "Elder Vael", "text": "It is not angry. It does not hate. It simply remembers — and it has been remembering longer than humanity has been on this world." },
+        { "speaker": "Elder Vael", "text": "The Array fears it because they cannot understand something that predates them. The Ring fears it because they cannot control it. Only the Unbounded have learned to listen." },
+        { "speaker": "Elder Vael", "text": "Go deeper, Ring-traveler. Listen before you act. The planet has something to ask of you." }
+      ],
+      "helped_sable": [
+        { "speaker": "Elder Vael", "text": "Sable sent word that you might come. She doesn't extend that trust easily." },
+        { "speaker": "Elder Vael", "text": "You helped one of ours without being asked. That counts for something down here." },
+        { "speaker": "Elder Vael", "text": "I have watched the Underlumen wake across forty years. Watched the Array's suppression grid fail node by node. What was contained is becoming free — whether any of us want it to be." },
+        { "speaker": "Elder Vael", "text": "Three paths lie before you now. The Ring will see two: shut the Array down, or seize it for humanity. Those are the obvious answers." },
+        { "speaker": "Elder Vael", "text": "But there is a third way. We call it the Convergence. Array computation, Underlumen biology, human adaptability — three systems that have always been at war, made into one ecology." },
+        { "speaker": "Elder Vael", "text": "It has never been done. It may not be possible. It would require every faction to trust the others with their survival." },
+        { "speaker": "Elder Vael", "text": "But the planet is asking you to try. When you stand before the Council — remember what you felt down here. The Underlumen remembers you." }
+      ],
+      "post_merge_path": [
+        { "speaker": "Elder Vael", "text": "You have chosen the Convergence." },
+        { "speaker": "Elder Vael", "text": "The Underlumen already knows. I felt the crystal shift when the decision was made — a warmth in the deep rock that has not been there in living memory." },
+        { "speaker": "Elder Vael", "text": "I cannot promise you success. No one has attempted this before. But you do not go alone." },
+        { "speaker": "Elder Vael", "text": "The Unbounded have walked the dark for generations waiting for someone to ask the right question. You asked it. Go." }
+      ],
+      "low_trust": [
+        { "speaker": "Elder Vael", "text": "Another Ring-traveler in the deep dark. You are not the first." },
+        { "speaker": "Elder Vael", "text": "The Underlumen is waking. The planet does not wait for politics to resolve itself." },
+        { "speaker": "Elder Vael", "text": "Three paths lie before you — shutdown, control, or convergence. The last is the hardest, and few reach it." },
+        { "speaker": "Elder Vael", "text": "I have said enough. The path ahead will teach you more than I can." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge_path"
+      },
+      {
+        "conditions": [{ "hasFlag": "helped_sable" }],
+        "use": "helped_sable"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_not_helped" }],
+        "use": "low_trust"
       }
     ]
   }
