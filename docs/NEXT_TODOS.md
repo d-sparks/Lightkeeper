@@ -82,7 +82,8 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 - Integration tests (Tier 4) — remaining: room lifecycle (`createRoom` → join → transition → cleanup). Needs heavier mocking of dungeon/tileset loading; deferred.
 - ~~Physics dt fix~~ — DONE: dt clamping + substep movement.
 - ~~Headless sim perimeter_gate fix~~ — DONE: Path state bug resolved.
-- **Headless sim stuck at junction_cleared** — bot reaches station_junction but can't clear it. `doInteractNearest` doesn't navigate to the junction box tile (7,7); `wait_for_flag` retries `tryInteract` from the wrong position. Either fix `doInteractNearest` to navigate before interacting, or add `kill_monsters` + `move_to_position` goals for door-interacted steps in `buildQuestGoals`.
+- ~~Headless sim stuck at junction_cleared~~ — DONE: `doInteractNearest` now scans for interactable tiles and navigates to them. `buildQuestGoals` detects `door_interacted` triggers via `findDoorThatSetsFlag()` and generates `kill_monsters` + `move_to_position` goals. Bot now clears station_junction successfully.
+- **Headless sim stuck at board_train** — bot clears junction and gets transit pass but can't board the train. Next blockage after junction fix.
 
 ## Automation Grid (Phases 3-5)
 

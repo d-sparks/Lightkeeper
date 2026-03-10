@@ -1119,7 +1119,55 @@ class Bot {
 
   doInteractNearest(goal, player, room) {
     if (!room) { this.popGoal(); return; }
-    this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+
+    // First attempt: try interacting at current position
+    const result = this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+    if (result && result.interactType) {
+      this.popGoal();
+      return;
+    }
+
+    // Nothing in range — find nearest interactable tile and navigate to it
+    if (!goal._navigating) {
+      const tileset = content.getTileset(room.dungeon.tileset);
+      if (!tileset) { this.popGoal(); return; }
+
+      const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
+      let bestTile = null;
+      let bestDist = Infinity;
+
+      for (let y = 0; y < room.dungeon.height; y++) {
+        for (let x = 0; x < room.dungeon.width; x++) {
+          const tileId = room.dungeon.data[y * room.dungeon.width + x];
+          const tileDef = tileset.tiles[String(tileId)];
+          if (!tileDef || !tileDef.interactable) continue;
+          const dist = Math.abs(x - ptx) + Math.abs(y - pty);
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestTile = { x, y };
+          }
+        }
+      }
+
+      if (bestTile) {
+        goal._navigating = true;
+        // Push move_to_position with tolerance 1 (adjacent to the tile)
+        this.pushGoal({ type: 'move_to_position', tileX: bestTile.x, tileY: bestTile.y, tolerance: 1 });
+        return;
+      }
+
+      // No interactable tiles found
+      this.popGoal();
+      return;
+    }
+
+    // Already navigated but still no interaction — retry once more then give up
+    const retry = this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+    if (retry && retry.interactType) {
+      this.popGoal();
+      return;
+    }
+    // Give up after navigation + retry
     this.popGoal();
   }
 
@@ -1530,7 +1578,14 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
         if (npcType) {
           goals.push({ type: 'interact_with_npc', npcType, room: roomId, stepId, questId });
         } else if (roomId && !isTemplate) {
-          // Try general interaction in the room
+          // Check if a door_interacted trigger sets this flag (has tile coordinates)
+          const doorInfo = findDoorThatSetsFlag(cond.hasFlag, roomId);
+          if (doorInfo) {
+            // Clear monsters first (they may block the path), then navigate to the door
+            goals.push({ type: 'kill_monsters', stepId, questId });
+            goals.push({ type: 'move_to_position', tileX: doorInfo.tileX, tileY: doorInfo.tileY, tolerance: 1, stepId, questId });
+          }
+          // General interaction fallback
           goals.push({ type: 'interact_nearest', room: roomId, stepId, questId });
         }
 
@@ -1560,6 +1615,28 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
   }
 
   return goals;
+}
+
+// Find a door_interacted trigger that sets a given flag, returning tile coordinates
+function findDoorThatSetsFlag(flagName, roomId) {
+  const dungeon = content.getDungeon(roomId);
+  if (!dungeon || !dungeon.triggers) return null;
+
+  for (const trigger of dungeon.triggers) {
+    if (trigger.event !== 'door_interacted') continue;
+    if (!trigger.actions) continue;
+
+    const setsFlag = trigger.actions.some(a =>
+      (a.type === 'setFlag' && a.flag === flagName) ||
+      (a.type === 'incrementFlag' && a.flag === flagName)
+    );
+
+    if (setsFlag && trigger.filter && trigger.filter.tileX != null && trigger.filter.tileY != null) {
+      return { tileX: trigger.filter.tileX, tileY: trigger.filter.tileY };
+    }
+  }
+
+  return null;
 }
 
 function findNpcThatSetsFlag(flagName, roomId) {
