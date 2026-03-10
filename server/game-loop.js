@@ -2470,7 +2470,11 @@ class GameLoop {
         // Tick down stun time
         if (player.stunTime > 0) {
           player.stunTime -= dt;
-          if (player.stunTime <= 0) player.stunTime = 0;
+          if (player.stunTime <= 0) {
+            player.stunTime = 0;
+            // Grant immunity window after stun expires to prevent stun-lock
+            player.stunImmunityTime = Math.max(player.stunImmunityTime || 0, 1.5);
+          }
         }
         // Apply player knockback (from ground slam etc.)
         if (player.knockbackTime > 0) {
@@ -2484,7 +2488,14 @@ class GameLoop {
             player.knockbackVx = 0;
             player.knockbackVy = 0;
             player.knockbackTime = 0;
+            // Grant immunity window after knockback expires
+            player.stunImmunityTime = Math.max(player.stunImmunityTime || 0, 0.75);
           }
+        }
+        // Tick down stun/knockback immunity window
+        if ((player.stunImmunityTime || 0) > 0) {
+          player.stunImmunityTime -= dt;
+          if (player.stunImmunityTime <= 0) player.stunImmunityTime = 0;
         }
         // Tick channeling (pulse cannon etc.)
         if (player.channeling) {
@@ -3238,18 +3249,23 @@ class GameLoop {
         if (dist <= mob.attackRange && mob.attackTimer <= 0) {
           const stunDmg = Math.round(mob.damage * (sa.damage || 0.5));
           target.health -= stunDmg;
-          target.stunTime = sa.duration || 1.0;
+          // Respect immunity window — still deal damage but skip stun effect
+          if (!(target.stunImmunityTime > 0)) {
+            target.stunTime = sa.duration || 1.0;
+          }
           mob.attackTimer = mob.attackCooldown;
           sa.timer = sa.cooldown;
           room.events.push({
             type: 'damage', targetId: target.id,
             amount: stunDmg, x: target.x, y: target.y,
           });
-          room.events.push({
-            type: 'stun', targetId: target.id,
-            duration: sa.duration || 1.0,
-            x: target.x, y: target.y,
-          });
+          if (!(target.stunImmunityTime > 0)) {
+            room.events.push({
+              type: 'stun', targetId: target.id,
+              duration: sa.duration || 1.0,
+              x: target.x, y: target.y,
+            });
+          }
           this._checkPlayerDeath(target, room);
           return true;
         }
@@ -3267,10 +3283,12 @@ class GameLoop {
             const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
             if (pdist <= saRange && pdist > 0) {
               player.health -= slamDmg;
-              // Apply knockback to player
-              player.knockbackVx = (pdx / pdist) * knockback;
-              player.knockbackVy = (pdy / pdist) * knockback;
-              player.knockbackTime = 0.3;
+              // Apply knockback only if not immune
+              if (!(player.stunImmunityTime > 0)) {
+                player.knockbackVx = (pdx / pdist) * knockback;
+                player.knockbackVy = (pdy / pdist) * knockback;
+                player.knockbackTime = 0.3;
+              }
               room.events.push({
                 type: 'damage', targetId: player.id,
                 amount: slamDmg, x: player.x, y: player.y,
