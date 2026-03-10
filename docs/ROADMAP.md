@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-09
+Last updated: 2026-03-09 (refreshed: task audit, completed items moved)
 
 ## Big Picture
 
@@ -25,11 +25,11 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Item Rarity UI | Done | Rarity colors (common to legendary) displayed in inventory and sol grid |
 | Art Style Guide | Done | Master palette, sprite conventions, zone color identity documented |
 | Content Validation CI | Done | `npm test` runs content-validator.js + headless-sim.js --mainline |
-| Automation System | Partial | Server grid state + client CSS grid UI done (Phases 1-2). In-game access not yet wired (Phase 3+). See docs/automation_screen.md |
+| Automation System | Partial | Server grid state + client CSS grid UI done (Phases 1-2). openAutomation action exists (Phase 3 partial). Gameplay trigger + dungeon sync still needed. See docs/automation_screen.md |
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons |
 | Act II Content | Partial | Dayside, Array complex, Crystal Guardian boss, MERIDIAN-7 quest, quest steps 19-22 bridge to Act III. Deeper questlines needed |
 | Act III Content | Partial | All three ending dungeons built (shutdown, merge, control). Post-choice NPC dialogue and Unbounded elder NPC still needed |
-| Game Feel | Partial | Sound effects (24 SFX) and combat juice (screen shake, death anims, projectile tinting, ambush reveal) done. Death penalty NOT implemented |
+| Game Feel | Partial | Sound effects (24 SFX), combat juice, death penalty core (energy drain + item drop) done. Needs: respawn teleport, death screen overlay |
 | Game Balance | Partial | Initial balance pass done. Further playtesting needed |
 | Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
 | Unit Tests | Done | Tiers 1-4: 284 tests (flag-store, event-bus, automation, conditions, actions, trigger-registry, physics, combat, equipment, sol-grid). All passing |
@@ -39,7 +39,7 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Array Complex Gating | Done | Exit conditions gate synthesis lab and deep processing behind quest/item progression |
 | Session Auth | Done | Token-based session auth prevents character hijacking |
 | Stun/Knockback Immunity | Done | Immunity windows prevent stun-locks |
-| Map Streaming / Fog of War | Done | Chunk-based streaming for large maps (outer_expanse 200x120) |
+| Map Streaming / Fog of War | Done | Chunk-based streaming for large maps (outer_expanse 200x120), edge gradient fade |
 | Extended Adjacency Modifiers | Done | Radius-2, row, column patterns for legendary tier |
 | Quest Graph Connectivity | Done | Main quest extended to step 22, NPC breadcrumbs, boss-kill flags, autotroph paths all wired |
 | Generator Wiring | Done | basic_generator via Tech Maren, improved_generator in Array loot tables |
@@ -51,23 +51,23 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 
 Focus: **Connect disconnected systems, fix testing gaps, implement death penalty**
 
-1. **Death penalty** — When the player dies, drain energy and drop non-quest items. Respawn at entrance. Biggest missing game mechanic.
-2. **Automation grid Phase 3** — Wire `openAutomation` action so players can access the grid UI via MERIDIAN-7 interaction. Phases 1-2 are done but the screen isn't reachable.
-3. **Fix headless sim junction_cleared** — Bot stuck at station_junction; can't clear the junction box. Blocks CI mainline testing.
-4. **Fix content validator error** — `signal_coordinates` item referenced in outer_expanse but missing from items.json.
-5. **Assign correct tilesets to dungeons** — outpost_*, station_*, meridian_* dungeons using generic "crypt" tileset. Fixing activates per-biome music already wired.
-6. **Post-choice NPC dialogue** — Asha, Sable, MERIDIAN-7 dialogue variants reacting to chosen ending path.
+1. **Death penalty polish** — Energy drain and item drops are coded. Still needs: respawn-at-entrance teleport and death screen overlay so players feel the penalty.
+2. **Automation grid Phase 3** — `openAutomation` action exists in engine. Need a MERIDIAN-7 gameplay trigger that fires it so players can reach the fully-built grid UI.
+3. **Fix headless sim board_train** — Bot clears junction and gets transit pass but can't navigate to train exit at (12,0). Blocks CI mainline testing past step 11.
+4. **Post-choice NPC dialogue** — Asha, Sable, MERIDIAN-7, Wren dialogue variants reacting to chosen ending path.
+5. **Minimap quest waypoints** — No spatial guidance for quest objectives currently.
+6. **Automation dungeon sync (Phase 4)** — Player-placed structures should appear as tiles in dayside_solar_fields.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
 Focus: **Content polish, quest feel, endgame depth**
 
 7. **Minimap quest waypoints** — Colored dots on minimap for active quest objectives. No spatial guidance currently.
-8. **Unbounded elder NPC** — Referenced by Sable for deep Nightside. Provides Underlumen lore, gates merge path.
-9. **Act III monster loot tables** — threshold_watcher, abyssal_tendril, threshold_keeper have no drops. Need nightside/underlumen loot.
-10. **Automation Phases 4-5** — Dungeon sync (structures appear on dayside), polish (tooltips, sounds, mobile).
-11. **Wire outer_expanse east exit** — Dangling stairs at (198,60) with no destination.
-12. **Fog-of-war edge gradient** — Smooth transition at revealed/unrevealed boundary.
+8. **Wren Alcott dialogue expansion** — Add post-quest reactions for major bosses and story beats beyond frost_warden.
+9. **Sable trust escalation** — Wire incremental trust-building so flagGreaterThan checks can gate deeper relationship stages.
+10. **Automation Phase 4 (dungeon sync)** — Structures placed in grid appear as tiles in dayside_solar_fields.
+11. **Pack leader AI variant** — Pack monster that buffs nearby pack members with damage/speed aura.
+12. **Touch/gamepad 45° rotation** — Joystick and analog input needs isometric correction like WASD.
 
 ## Long-Term Vision (3+ Months)
 
@@ -148,6 +148,16 @@ These are done and don't need further investment:
 - **Tier 4 integration tests** — 61 tests for combat, equipment, sol-grid (284 total)
 - **Physics dt fix** — dt clamping + substep movement prevents wall-skipping
 - **Headless sim perimeter_gate fix** — Path state bug resolved
+- **Headless sim junction_cleared fix** — doInteractNearest navigates to interactable tiles; buildQuestGoals generates door interaction goals
+- **Fog-of-war edge gradient** — 3-tile fade depth with 8-neighbor checking in flat and iso renderers
+- **Battery visual feedback** — Flash and sound cue on single-use battery depletion
+- **Guard Pell dialogue update** — Battery terminology replaces "charge" references
+- **Battery chip energy checkpoints** — battery_chip consumables placed in 12 longer dungeons
+- **Rechargeable battery loot wiring** — rechargeable_battery_chip in boss and biome rare loot tables
+- **Tileset assignments** — All outpost/station/meridian dungeons using correct themed tilesets
+- **signal_coordinates item** — Added to items.json for outer_expanse discovery
+- **Death penalty core** — 25% energy drain + non-quest item drop on death implemented
+- **openAutomation action** — Scripting action added to actions.js (Phase 3 partial)
 
 ## Active Design Docs
 

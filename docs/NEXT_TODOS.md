@@ -32,7 +32,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 ## Game Feel (Critical Gap)
 
-- Death penalty: when the player dies, drain energy, drop non-quest items (per dropBehavior rules in architecture-plan.md), respawn at room entrance. Completes the core risk/reward loop.
+- ~~Death penalty: when the player dies, drain energy, drop non-quest items (per dropBehavior rules in architecture-plan.md), respawn at room entrance.~~ — DONE: 25% energy drain + non-quest item drop implemented. Remaining: respawn-at-entrance teleport and death screen overlay for player-facing feedback.
 - ~~Sound effects~~ — DONE: All 24 SFX wired.
 - ~~Combat juice~~ — DONE: Screen shake, death anims, projectile tinting, ambush reveal.
 
@@ -87,7 +87,7 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 ## Automation Grid (Phases 3-5)
 
-Phase 3: Add `openAutomation` scripting action, MERIDIAN-7 trigger, client handler for AUTO_STATE with openScreen.
+Phase 3: ~~Add `openAutomation` scripting action~~ (DONE — exists in actions.js). Still needed: MERIDIAN-7 gameplay trigger that fires it during normal play, client handler for AUTO_STATE with openScreen.
 Phase 4: Dungeon sync — merge automation placements into tile data for dayside_solar_fields.
 Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 
@@ -103,8 +103,8 @@ Phase 5: Tooltips, sound effects, mobile/touch, controller support.
 - ~~Place battery chips as item spawns in longer dungeons as energy checkpoints~~ — DONE: `battery_chip` consumable added (restores 25 rechargeable energy). Placed 2 chips each in: nightside_passage, nightside_depths, underlumen_threshold, merge_nexus, deep_perimeter_east, dead_road, perimeter_outer_ring, nightside_caverns, void_flats, crypt_01, crypt_02. Four chips spread across outpost_perimeter (50×45).
 - ~~Wire rechargeable_battery_chip into loot tables so players can obtain permanent battery upgrades.~~ — DONE: Added weight-1 drops to `luddite_warlord`, `crystal_guardian` (common), `array_fabricator` (weight 1) and `array_overseer` (weight 2) (array), `threshold_keeper` (nightside), `outpost_biome_uncommon` (outpost), `geothermal_biome_rare` (geothermal), and `frost_biome_rare` (frost). Rarer than reinforced_battery_chip given its regeneration bonus.
 - Playtest single-use battery degradation feel — 100 capacity may need tuning based on ability costs.
-- Consider visual/audio feedback when a single-use battery degrades or is fully consumed.
-- Update Guard Pell's dialogue: he currently says "You need a charge, you talk to her" — update to say "field cells" or "battery" instead of "charge".
+- ~~Consider visual/audio feedback when a single-use battery degrades or is fully consumed.~~ — DONE: Flash and sound cue added when single-use battery is fully depleted.
+- ~~Update Guard Pell's dialogue: he currently says "You need a charge, you talk to her" — update to say "field cells" or "battery" instead of "charge".~~ — DONE: Dialogue updated to use battery terminology.
 
 ## Art & Sprites
 
