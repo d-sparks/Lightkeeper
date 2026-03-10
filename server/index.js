@@ -1,4 +1,5 @@
 const http = require('http');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
@@ -439,9 +440,53 @@ wss.on('connection', (ws) => {
         break;
       }
 
+      case CONSTANTS.MSG.SESSION_DELETE: {
+        const delName = msg.name;
+        const delSession = delName ? sessionStore.load(delName) : null;
+        if (!delSession) {
+          ws.send(JSON.stringify({ type: CONSTANTS.MSG.SESSION_DELETE_RESPONSE, success: false, name: delName, error: 'not_found' }));
+          break;
+        }
+        // Require the correct session token to delete
+        const storedToken = delSession.sessionToken;
+        if (storedToken && msg.token !== storedToken) {
+          ws.send(JSON.stringify({ type: CONSTANTS.MSG.SESSION_DELETE_RESPONSE, success: false, name: delName, error: 'unauthorized' }));
+          break;
+        }
+        // Reject if the character is currently online
+        const isOnline = [...wss.clients].some(c => c !== ws && c.playerName === delName);
+        if (isOnline) {
+          ws.send(JSON.stringify({ type: CONSTANTS.MSG.SESSION_DELETE_RESPONSE, success: false, name: delName, error: 'online' }));
+          break;
+        }
+        sessionStore.delete(delName);
+        ws.send(JSON.stringify({ type: CONSTANTS.MSG.SESSION_DELETE_RESPONSE, success: true, name: delName }));
+        break;
+      }
+
       case CONSTANTS.MSG.JOIN: {
         const savedSession = msg.name ? sessionStore.load(msg.name) : null;
         ws.playerName = msg.name || `Player ${nextPlayerId}`;
+
+        // --- Session auth: prevent character hijacking ---
+        if (savedSession) {
+          // Reject if session has a token and client didn't provide the right one
+          if (savedSession.sessionToken && savedSession.sessionToken !== msg.sessionToken) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Session token mismatch — this character belongs to another player.' }));
+            return;
+          }
+          // Prevent concurrent logins to the same character
+          for (const client of wss.clients) {
+            if (client !== ws && client.readyState === 1 && client.playerName === ws.playerName && client.playerRoom) {
+              ws.send(JSON.stringify({ type: 'error', message: 'This character is already logged in from another session.' }));
+              return;
+            }
+          }
+        }
+
+        // Generate session token for new characters (or backfill old saves without one)
+        const sessionToken = (savedSession && savedSession.sessionToken) || crypto.randomBytes(24).toString('hex');
+        ws.sessionToken = sessionToken;
 
         // Determine spawn room: saved session room or default
         const targetRoom = (savedSession && savedSession.room) || getDefaultRoom();
@@ -470,6 +515,7 @@ wss.on('connection', (ws) => {
           player.level = savedSession.level || 1;
           player.xpToNextLevel = savedSession.xpToNextLevel || gameLoop._xpForLevel(player.level);
           player.medipacCharges = savedSession.medipacCharges || 0;
+          player.credits = savedSession.credits || 0;
 
           // Restore flags
           if (savedSession.flags) {
@@ -478,7 +524,9 @@ wss.on('connection', (ws) => {
 
           // Restore quest state
           if (savedSession.questState) {
-            gameLoop.questTracker.restorePlayerState(playerId, savedSession.questState);
+            const restoreRoom = gameLoop.getRoom(ws.playerRoom);
+            const restoreCtx = { playerId, roomId: ws.playerRoom, room: restoreRoom, player };
+            gameLoop.questTracker.restorePlayerState(playerId, savedSession.questState, restoreCtx);
           }
 
           // Rebuild abilities from restored equipment/solGrid
@@ -489,6 +537,11 @@ wss.on('connection', (ws) => {
             for (const [roomId, chunkKeys] of Object.entries(savedSession.revealedChunks)) {
               chunkManager.markSent(playerId, roomId, chunkKeys);
             }
+          }
+
+          // Restore automation state (structures, resources, production timers)
+          if (savedSession.automationState) {
+            gameLoop.automation.restoreState(playerId, savedSession.automationState);
           }
 
           console.log(`[Session] Restored saved session for "${ws.playerName}"`);
@@ -518,6 +571,7 @@ wss.on('connection', (ws) => {
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.WELCOME,
           playerId,
+          sessionToken,
           map: mapMeta,
           tileset: content.getTileset(room.dungeon.tileset),
           itemCatalog: content.getAllItems(),
@@ -532,6 +586,7 @@ wss.on('connection', (ws) => {
           items: player.inventory,
           equipment: player.equipment,
           medipacCharges: player.medipacCharges,
+          credits: player.credits || 0,
         }));
 
         // Send ability state
@@ -630,9 +685,10 @@ wss.on('connection', (ws) => {
             items: result.inventory,
             equipment: result.equipment,
             medipacCharges: pickupPlayer ? pickupPlayer.medipacCharges : 0,
+            credits: pickupPlayer ? pickupPlayer.credits || 0 : 0,
           }));
-          // If silicon was picked up, also send updated automation state
-          if (result.item && result.item.type === 'silicon') {
+          // If salvage was picked up, also send updated automation state
+          if (result.item && result.item.type === 'salvage') {
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.AUTO_STATE,
               auto: gameLoop.automation.getStateForClient(playerId),
@@ -661,6 +717,7 @@ wss.on('connection', (ws) => {
             items: equipResult.inventory,
             equipment: equipResult.equipment,
             medipacCharges: equipPlayer ? equipPlayer.medipacCharges : 0,
+            credits: equipPlayer ? equipPlayer.credits || 0 : 0,
           }));
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.ABILITY_STATE,
@@ -689,6 +746,7 @@ wss.on('connection', (ws) => {
             items: unequipResult.inventory,
             equipment: unequipResult.equipment,
             medipacCharges: unequipPlayer2 ? unequipPlayer2.medipacCharges : 0,
+            credits: unequipPlayer2 ? unequipPlayer2.credits || 0 : 0,
           }));
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.ABILITY_STATE,
@@ -717,6 +775,7 @@ wss.on('connection', (ws) => {
             items: useResult.inventory,
             equipment: useResult.equipment,
             medipacCharges: usePlayer ? usePlayer.medipacCharges : 0,
+            credits: usePlayer ? usePlayer.credits || 0 : 0,
           }));
         }
         break;
@@ -757,6 +816,7 @@ wss.on('connection', (ws) => {
               items: healPlayer.inventory,
               equipment: healPlayer.equipment,
               medipacCharges: healPlayer.medipacCharges,
+              credits: healPlayer.credits || 0,
             }));
           }
         }
@@ -825,6 +885,7 @@ wss.on('connection', (ws) => {
               items: p2.inventory,
               equipment: p2.equipment,
               medipacCharges: p2.medipacCharges,
+              credits: p2.credits || 0,
             }));
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.ABILITY_STATE,
@@ -854,6 +915,7 @@ wss.on('connection', (ws) => {
               items: p3.inventory,
               equipment: p3.equipment,
               medipacCharges: p3.medipacCharges,
+              credits: p3.credits || 0,
             }));
             ws.send(JSON.stringify({
               type: CONSTANTS.MSG.ABILITY_STATE,
@@ -868,6 +930,61 @@ wss.on('connection', (ws) => {
       case CONSTANTS.MSG.AUTO_BUILD: {
         if (!ws.playerRoom) break;
         const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY);
+        if (built) {
+          // Set automation_established flag once player has built 2+ structures
+          if (!gameLoop.flagStore.getPlayerFlag(playerId, 'automation_established')) {
+            const autoState = gameLoop.automation.getStateForClient(playerId);
+            if (autoState.stats && autoState.stats.totalStructures >= 2) {
+              gameLoop.flagStore.setPlayerFlag(playerId, 'automation_established', true);
+            }
+          }
+          // Check for milestone rewards
+          const milestoneRewards = gameLoop.automation.checkMilestones(playerId);
+          if (milestoneRewards.length > 0) {
+            const room = gameLoop.getRoom(ws.playerRoom);
+            const player = room && room.players.get(playerId);
+            if (player) {
+              for (const give of milestoneRewards) {
+                if (give.type === 'item') {
+                  if (give.itemId === 'medical_supplies') {
+                    player.medipacCharges = (player.medipacCharges || 0) + (give.count || 1);
+                  } else {
+                    const itemDef = content.getItem(give.itemId);
+                    if (itemDef) {
+                      for (let i = 0; i < (give.count || 1); i++) {
+                        player.inventory.push({
+                          name: itemDef.name,
+                          type: give.itemId,
+                          category: itemDef.type,
+                          rarity: itemDef.rarity || 'common',
+                          slot: itemDef.slot || null,
+                          stackable: itemDef.stackable || false,
+                        });
+                      }
+                    }
+                  }
+                }
+              }
+              ws.send(JSON.stringify({
+                type: CONSTANTS.MSG.INVENTORY,
+                items: player.inventory,
+                equipment: player.equipment,
+                medipacCharges: player.medipacCharges,
+          credits: player.credits || 0,
+              }));
+              // Notify client of each milestone reached
+              for (const reward of milestoneRewards) {
+                ws.send(JSON.stringify({
+                  type: CONSTANTS.MSG.AUTOMATION_MILESTONE,
+                  milestoneName: reward.milestoneName,
+                  milestoneThreshold: reward.milestoneThreshold,
+                  milestoneIcon: reward.milestoneIcon,
+                  rewardName: reward.milestoneName,
+                }));
+              }
+            }
+          }
+        }
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.AUTO_STATE,
           auto: gameLoop.automation.getStateForClient(playerId),
@@ -875,6 +992,27 @@ wss.on('connection', (ws) => {
           buildX: msg.gridX,
           buildY: msg.gridY,
         }));
+
+        // Sync dungeon tiles: if the player is in the automation dungeon,
+        // re-send the affected chunk so the new structure appears as a real tile
+        if (built) {
+          const gridConfig = gameLoop.automation.getGridConfig();
+          if (gridConfig && ws.playerRoom === gridConfig.dungeonId) {
+            const room = gameLoop.getRoom(ws.playerRoom);
+            if (room) {
+              const overlayed = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
+              const dungeonX = msg.gridX + gridConfig.dungeonOffsetX;
+              const dungeonY = msg.gridY + gridConfig.dungeonOffsetY;
+              const cx = Math.floor(dungeonX / CONSTANTS.CHUNK_SIZE);
+              const cy = Math.floor(dungeonY / CONSTANTS.CHUNK_SIZE);
+              const chunk = chunkManager.extractChunk(overlayed, cx, cy);
+              ws.send(JSON.stringify({
+                type: CONSTANTS.MSG.MAP_CHUNKS,
+                chunks: [chunk],
+              }));
+            }
+          }
+        }
         break;
       }
 
@@ -913,6 +1051,7 @@ wss.on('connection', (ws) => {
               items: player.inventory,
               equipment: player.equipment,
               medipacCharges: player.medipacCharges,
+          credits: player.credits || 0,
             }));
           }
           ws.send(JSON.stringify({
@@ -920,6 +1059,19 @@ wss.on('connection', (ws) => {
             auto: gameLoop.automation.getStateForClient(playerId),
           }));
         }
+        break;
+      }
+
+      case CONSTANTS.MSG.CHAT: {
+        if (!ws.playerRoom) break;
+        const text = typeof msg.text === 'string' ? msg.text.trim().slice(0, 200) : '';
+        if (!text) break;
+        broadcast(ws.playerRoom, {
+          type: CONSTANTS.MSG.CHAT_BROADCAST,
+          playerId,
+          name: ws.playerName,
+          text,
+        });
         break;
       }
     }
@@ -930,39 +1082,9 @@ wss.on('connection', (ws) => {
 
     // Save session before cleanup
     if (ws.playerRoom && ws.playerName) {
-      const room = gameLoop.getRoom(ws.playerRoom);
-      const player = room && room.players.get(playerId);
-      if (player) {
-        // Serialize revealed chunks from chunk manager
-        const revealedChunks = {};
-        const playerChunkMap = chunkManager.playerChunks.get(playerId);
-        if (playerChunkMap) {
-          for (const [roomId, chunkSet] of playerChunkMap) {
-            revealedChunks[roomId] = [...chunkSet];
-          }
-        }
-
-        sessionStore.save({
-          name: ws.playerName,
-          room: ws.playerRoom,
-          x: player.x,
-          y: player.y,
-          health: player.health,
-          maxHealth: player.maxHealth,
-          inventory: player.inventory,
-          equipment: player.equipment,
-          solGrid: player.solGrid,
-          energy: player.energy,
-          maxEnergy: player.maxEnergy,
-          solGridEnergyRegen: player.solGridEnergyRegen,
-          flags: gameLoop.flagStore.getPlayerFlags(playerId),
-          questState: gameLoop.questTracker.serializePlayerState(playerId),
-          xp: player.xp,
-          level: player.level,
-          xpToNextLevel: player.xpToNextLevel,
-          medipacCharges: player.medipacCharges,
-          revealedChunks,
-        });
+      const saveData = gatherPlayerSaveData(ws);
+      if (saveData) {
+        sessionStore.save(saveData);
       }
     }
 
@@ -981,6 +1103,64 @@ wss.on('connection', (ws) => {
     console.error(`[WS] Error for ${playerId}:`, err.message);
   });
 });
+
+// --- Helper: gather save data for a connected player ---
+function gatherPlayerSaveData(ws) {
+  const room = gameLoop.getRoom(ws.playerRoom);
+  const player = room && room.players.get(ws.playerId);
+  if (!player) return null;
+
+  const revealedChunks = {};
+  const playerChunkMap = chunkManager.playerChunks.get(ws.playerId);
+  if (playerChunkMap) {
+    for (const [roomId, chunkSet] of playerChunkMap) {
+      revealedChunks[roomId] = [...chunkSet];
+    }
+  }
+
+  return {
+    name: ws.playerName,
+    sessionToken: ws.sessionToken,
+    room: ws.playerRoom,
+    x: player.x,
+    y: player.y,
+    health: player.health,
+    maxHealth: player.maxHealth,
+    inventory: player.inventory,
+    equipment: player.equipment,
+    solGrid: player.solGrid,
+    energy: player.energy,
+    maxEnergy: player.maxEnergy,
+    solGridEnergyRegen: player.solGridEnergyRegen,
+    flags: gameLoop.flagStore.getPlayerFlags(ws.playerId),
+    questState: gameLoop.questTracker.serializePlayerState(ws.playerId),
+    xp: player.xp,
+    level: player.level,
+    xpToNextLevel: player.xpToNextLevel,
+    medipacCharges: player.medipacCharges,
+    credits: player.credits || 0,
+    revealedChunks,
+    automationState: gameLoop.automation.serializeState(ws.playerId),
+  };
+}
+
+// --- Periodic auto-save (every 5 minutes) ---
+const AUTO_SAVE_INTERVAL = 5 * 60 * 1000;
+setInterval(() => {
+  let count = 0;
+  wss.clients.forEach((client) => {
+    if (client.readyState === 1 && client.playerRoom && client.playerName) {
+      const saveData = gatherPlayerSaveData(client);
+      if (saveData) {
+        sessionStore.save(saveData);
+        count++;
+      }
+    }
+  });
+  if (count > 0) {
+    console.log(`[AutoSave] Saved ${count} player(s)`);
+  }
+}, AUTO_SAVE_INTERVAL);
 
 // Broadcast to all clients in a room, optionally excluding one
 function broadcast(roomId, message, excludeId) {
@@ -1014,16 +1194,27 @@ setInterval(() => {
     const player = gameLoop.removePlayer(t.fromRoom, t.playerId);
     if (!player) continue;
 
-    const targetRoom = gameLoop.getOrCreateRoom(t.toDungeon, {
+    // Build generation context, including expedition overrides if present
+    const genContext = {
       fromDungeon: t.fromRoom,
       exitX: t.exitX,
       exitY: t.exitY,
       depth: t.depth,
-    });
+    };
+    if (t.expeditionMaxFloors) {
+      genContext.maxDepth = t.expeditionMaxFloors;
+      genContext.bossType = t.expeditionBossType;
+    }
+    const targetRoom = gameLoop.getOrCreateRoom(t.toDungeon, genContext);
     if (!targetRoom) continue;
 
     // Use the room's actual ID (may differ from t.toDungeon for procedural instances)
     const targetRoomId = targetRoom.id;
+
+    // Apply expedition scaling to newly created rooms
+    if (t.expeditionScaling) {
+      gameLoop.applyExpeditionScaling(targetRoom, t.expeditionScaling);
+    }
 
     // Resolve spawn position: targetId > spawnX/Y > first player_start > fallback (2,2)
     let spawnX = t.spawnX;
@@ -1064,6 +1255,21 @@ setInterval(() => {
       chunks: floorChunks,
     }));
 
+    // Track expedition floor progression and detect completion
+    if (t.expeditionTier != null) {
+      if (targetRoom.expeditionScaling) {
+        // Advancing to next expedition floor — update floor counter
+        const currentFloor = gameLoop.flagStore.getPlayerFlag(t.playerId, 'expedition_floor') || 1;
+        const newFloor = (t.depth || 0) + 1;
+        if (newFloor > currentFloor) {
+          gameLoop.flagStore.setPlayerFlag(t.playerId, 'expedition_floor', newFloor);
+        }
+      } else {
+        // Returned to a non-expedition room — expedition complete
+        gameLoop.completeExpedition(t.playerId);
+      }
+    }
+
     // Emit room_entered AFTER sending FLOOR_CHANGE so that any triggered
     // dialogue (e.g. showMessage) arrives after the client has the new map
     // and won't be immediately closed by the FLOOR_CHANGE handler.
@@ -1100,15 +1306,18 @@ setInterval(() => {
       items: dp.inventory,
       equipment: dp.equipment,
       medipacCharges: dp.medipacCharges,
+      credits: dp.credits || 0,
     }));
 
-    // Send death penalty notification so the player knows what they lost
-    const lines = ['You died.'];
+    // Send death screen notification so the player knows what they lost
+    const lines = [];
     if (dp.energyLost > 0) lines.push(`Lost ${dp.energyLost} energy.`);
-    if (dp.droppedItem) lines.push(`Dropped: ${dp.droppedItem}`);
+    if (dp.droppedItems && dp.droppedItems.length > 0) {
+      lines.push(`Dropped: ${dp.droppedItems.join(', ')}`);
+    }
     ws.send(JSON.stringify({
-      type: CONSTANTS.MSG.DIALOGUE,
-      dialogue: lines.map(text => ({ speaker: '', text })),
+      type: CONSTANTS.MSG.DEATH_SCREEN,
+      details: lines,
     }));
   }
 
@@ -1138,6 +1347,8 @@ setInterval(() => {
   for (const [roomId, room] of gameLoop.rooms) {
     const state = gameLoop.getRoomState(roomId);
     if (!state) continue;
+    const gridConfig = gameLoop.automation.getGridConfig();
+    const isDaysideRoom = gridConfig && roomId === gridConfig.dungeonId;
     // Send per-player state with their own cooldowns
     wss.clients.forEach((client) => {
       if (client.readyState === 1 && client.playerRoom === roomId) {
@@ -1145,7 +1356,19 @@ setInterval(() => {
         if (player) {
           state.myCooldowns = player.cooldowns;
         }
-        client.send(JSON.stringify(state));
+        // Inject per-player harvester entities when in the automation dungeon
+        if (isDaysideRoom && client.playerId) {
+          const harvesters = gameLoop.automation.getHarvesterEntities(client.playerId);
+          if (harvesters.length > 0) {
+            state.npcs = [...state.npcs, ...harvesters];
+            client.send(JSON.stringify(state));
+            state.npcs = state.npcs.slice(0, state.npcs.length - harvesters.length);
+          } else {
+            client.send(JSON.stringify(state));
+          }
+        } else {
+          client.send(JSON.stringify(state));
+        }
       }
     });
   }

@@ -118,7 +118,12 @@
       "actions": [
         { "type": "removeItem", "itemType": "umbracite" },
         { "type": "giveStructure", "structureId": "solar_panel" },
-        { "type": "setFlag", "flag": "traded_umbracite_meridian" }
+        { "type": "giveItem", "itemType": "sol_shield_chip" },
+        { "type": "setFlag", "flag": "traded_umbracite_meridian" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7 accepts the umbracite. A solar panel deploys on the dayside.",
+          "The terminal also produces a crystalline chip — a Sol Shield Emitter. Your second ability."
+        ]}
       ],
       "once": true
     },
@@ -127,10 +132,26 @@
       "event": "npc_interacted",
       "filter": { "npcType": "meridian_7" },
       "conditions": [
-        { "hasFlag": "traded_umbracite_meridian" }
+        { "hasFlag": "traded_umbracite_meridian" },
+        { "not": { "hasFlag": "automation_established" } }
       ],
       "actions": [
         { "type": "openAutomation" }
+      ]
+    },
+    {
+      "id": "meridian_menu",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7" },
+      "conditions": [
+        { "hasFlag": "traded_umbracite_meridian" },
+        { "hasFlag": "automation_established" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "meridian_menu", "prompt": "MERIDIAN-7: SELECT INTERFACE", "speaker": "MERIDIAN-7", "options": [
+          { "label": "Manage Automation", "value": "open_automation" },
+          { "label": "Exchange (Buy / Sell)", "value": "open_shop" }
+        ]}
       ]
     },
     {

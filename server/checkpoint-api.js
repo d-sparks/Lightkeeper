@@ -107,6 +107,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
         inventory: JSON.parse(JSON.stringify(player.inventory)),
         equipment: JSON.parse(JSON.stringify(player.equipment)),
         solGrid: player.solGrid ? JSON.parse(JSON.stringify(player.solGrid)) : null,
+        credits: player.credits || 0,
         flags: JSON.parse(JSON.stringify(gameLoop.flagStore.getPlayerFlags(playerId))),
         questState: gameLoop.questTracker.serializePlayerState(playerId),
       };
@@ -161,6 +162,7 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
       player.maxHealth = checkpoint.maxHealth || player.maxHealth;
       player.energy = checkpoint.energy || 0;
       player.maxEnergy = checkpoint.maxEnergy || 0;
+      player.credits = checkpoint.credits || 0;
 
       // Replace flags
       if (checkpoint.flags) {
@@ -169,7 +171,8 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
 
       // Restore quest state
       if (checkpoint.questState) {
-        gameLoop.questTracker.restorePlayerState(playerId, checkpoint.questState);
+        const ctx = { playerId, roomId: ws.playerRoom, room, player };
+        gameLoop.questTracker.restorePlayerState(playerId, checkpoint.questState, ctx);
       }
 
       // Rebuild abilities from restored equipment/solGrid
@@ -456,7 +459,9 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
           };
         }
       }
-      gameLoop.questTracker.restorePlayerState(playerId, questState);
+      const jumpRoom = gameLoop.getRoom(ws.playerRoom);
+      const jumpCtx = { playerId, roomId: ws.playerRoom, room: jumpRoom, player };
+      gameLoop.questTracker.restorePlayerState(playerId, questState, jumpCtx);
 
       // Resync client
       ws.send(JSON.stringify({
@@ -695,6 +700,33 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
     }).catch(() => json(res, 400, { error: 'Invalid request' }));
   }
 
+  // --- List all known flag names from dungeon content ---
+  if (url === '/api/checkpoint/known-flags' && method === 'GET') {
+    const dungeons = content.getAllDungeons();
+    const flags = new Set();
+    const scanConditions = (cond) => {
+      if (!cond) return;
+      if (Array.isArray(cond)) { cond.forEach(scanConditions); return; }
+      if (cond.hasFlag) flags.add(cond.hasFlag);
+      if (cond.flag) flags.add(cond.flag);
+      if (cond.flagGreaterThan && cond.flagGreaterThan.flag) flags.add(cond.flagGreaterThan.flag);
+      if (cond.not) scanConditions(cond.not);
+      if (cond.and) scanConditions(cond.and);
+      if (cond.or) scanConditions(cond.or);
+      if (cond.condition) scanConditions(cond.condition);
+    };
+    for (const dungeon of Object.values(dungeons)) {
+      for (const trigger of (dungeon.triggers || [])) {
+        scanConditions(trigger.condition);
+        for (const a of (trigger.actions || [])) {
+          if (a.flag) flags.add(a.flag);
+        }
+        if (trigger.filter && trigger.filter.flag) flags.add(trigger.filter.flag);
+      }
+    }
+    return json(res, 200, [...flags].sort());
+  }
+
   // --- List all item types (for give-item UI) ---
   if (url === '/api/checkpoint/items' && method === 'GET') {
     const items = content.getAllItems();
@@ -731,9 +763,9 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
 
       const giveCount = Math.max(1, Math.floor(count || 1));
 
-      // Silicon goes to automation resources
-      if (resolvedType === 'silicon' && gameLoop.automation) {
-        gameLoop.automation.addResource(playerId, 'silicon', giveCount);
+      // Salvage goes to automation resources
+      if (resolvedType === 'salvage' && gameLoop.automation) {
+        gameLoop.automation.addResource(playerId, 'salvage', giveCount);
         ws.send(JSON.stringify({
           type: 'auto_state',
           auto: gameLoop.automation.getStateForClient(playerId),

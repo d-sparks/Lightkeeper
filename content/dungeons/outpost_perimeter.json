@@ -2,7 +2,7 @@
   "id": "outpost_perimeter",
   "name": "The Dark Perimeter",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "dark_perimeter",
   "tileSize": 32,
   "ambientLight": 0.08,
@@ -2453,7 +2453,11 @@
       "type": "ration_pack",
       "x": 6,
       "y": 35
-    }
+    },
+    { "type": "battery_chip", "x": 20, "y": 10 },
+    { "type": "battery_chip", "x": 38, "y": 22 },
+    { "type": "battery_chip", "x": 10, "y": 30 },
+    { "type": "battery_chip", "x": 44, "y": 38 }
   ],
   "exits": [
     {

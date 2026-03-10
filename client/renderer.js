@@ -83,6 +83,7 @@ class Renderer {
     this.projectileSprites = new Map();
     this.sentrySprites = new Map();
     this.beamObjectSprites = new Map();
+    this.extractionPointSprites = new Map();
 
     // Sprite texture cache: path -> PIXI.Texture
     this.textureCache = {};
@@ -1100,9 +1101,9 @@ class Renderer {
     }
 
     // --- Full wall (taller, blocks all levels) ---
-    const fullWallH = dh + wallRise * 2;
+    const fullWallH = dh + wallRise * 4;
     this.isoTileTextures['full_wall'] = this._createIsoTexture(dw, fullWallH, (ctx, w, h) => {
-      const rise = wallRise * 2;
+      const rise = wallRise * 4;
       // Top diamond face
       ctx.beginPath();
       ctx.moveTo(hw, 0);
@@ -1339,6 +1340,50 @@ class Renderer {
     return this.revealedChunks[cy * this.chunkCols + cx] === 1;
   }
 
+  // Get fog-of-war edge alpha for a tile (gradient at revealed/unrevealed boundaries)
+  _getFogEdgeAlpha(tx, ty) {
+    if (!this.chunked || !this.revealedChunks) return 1.0;
+
+    const cs = CONSTANTS.CHUNK_SIZE || 16;
+    const cx = Math.floor(tx / cs);
+    const cy = Math.floor(ty / cs);
+    const fadeDepth = 3;
+    let minDist = fadeDepth + 1;
+
+    const localX = tx - cx * cs;
+    const localY = ty - cy * cs;
+
+    // Check 8 neighboring chunks for unrevealed boundaries
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        const ncx = cx + dx;
+        const ncy = cy + dy;
+        if (ncx < 0 || ncy < 0 || ncx >= this.chunkCols || ncy >= this.chunkRows) continue;
+        if (this.revealedChunks[ncy * this.chunkCols + ncx] === 1) continue;
+
+        // Neighbor is unrevealed — compute distance to that edge
+        let dist;
+        if (dx === 0) {
+          dist = dy < 0 ? localY : (cs - 1 - localY);
+        } else if (dy === 0) {
+          dist = dx < 0 ? localX : (cs - 1 - localX);
+        } else {
+          // Diagonal: use min of both axis distances
+          const distX = dx < 0 ? localX : (cs - 1 - localX);
+          const distY = dy < 0 ? localY : (cs - 1 - localY);
+          dist = Math.min(distX, distY);
+        }
+        minDist = Math.min(minDist, dist);
+      }
+    }
+
+    if (minDist >= fadeDepth) return 1.0;
+    // Smooth fade: 0.15 at the very edge, 1.0 at fadeDepth tiles in
+    const t = minDist / fadeDepth;
+    return 0.15 + 0.85 * t;
+  }
+
   buildTileColors() {
     if (!this.tileset) return;
     const theme = this._getIsoTheme();
@@ -1436,9 +1481,12 @@ class Renderer {
     this.renderMonsters();
     this.renderProjectiles();
     this.renderBeamObjects();
+    this.renderExtractionPoints();
     this.renderSentries();
     this.renderConeEffects();
     this.renderExplosionEffects();
+    this.renderLungeTrails();
+    this.renderShockwaveEffects();
     this.renderChannelingIndicators();
     this.renderMeleeEffects();
     this.renderPlayers();
@@ -1668,6 +1716,7 @@ class Renderer {
         sprite.y = ty * ts;
         sprite.width = ts;
         sprite.height = ts;
+        sprite.alpha = this._getFogEdgeAlpha(tx, ty);
 
         if (this.tilesetLoaded && this.tileTextures[tileId]) {
           sprite.texture = this.tileTextures[tileId];
@@ -1705,18 +1754,63 @@ class Renderer {
     let wallIdx = 0;
     const w = this.map.width;
     const h = this.map.height;
+    const cs = CONSTANTS.CHUNK_SIZE || 16;
+    const hasChunks = this.chunked && this.revealedChunks;
+
+    // Build set of chunks that are both revealed and potentially visible,
+    // so we can skip entire unrevealed/off-screen chunk regions.
+    let visibleChunkSet = null;
+    if (hasChunks) {
+      visibleChunkSet = new Set();
+      for (let cy = 0; cy < this.chunkRows; cy++) {
+        for (let cx = 0; cx < this.chunkCols; cx++) {
+          if (this.revealedChunks[cy * this.chunkCols + cx] !== 1) continue;
+
+          // Compute iso bounding box for this chunk's 4 corners
+          const x0 = cx * cs, y0 = cy * cs;
+          const x1 = Math.min(x0 + cs, w), y1 = Math.min(y0 + cs, h);
+          const corners = [
+            this.worldToIso(x0 * ts, y0 * ts),
+            this.worldToIso(x1 * ts, y0 * ts),
+            this.worldToIso(x0 * ts, y1 * ts),
+            this.worldToIso(x1 * ts, y1 * ts),
+          ];
+          let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+          for (const c of corners) {
+            if (c.x < minX) minX = c.x;
+            if (c.x > maxX) maxX = c.x;
+            if (c.y < minY) minY = c.y;
+            if (c.y > maxY) maxY = c.y;
+          }
+          // Account for wall rise in vertical bounds
+          minY -= wallRise * 4;
+
+          // Skip chunk if entirely outside viewport
+          if (maxX < cullL || minX > cullR || maxY < cullT || minY > cullB) continue;
+
+          visibleChunkSet.add(cy * this.chunkCols + cx);
+        }
+      }
+    }
 
     // Iterate in diagonal order for back-to-front depth
     for (let diag = 0; diag < w + h - 1; diag++) {
       for (let tx = Math.max(0, diag - h + 1); tx <= Math.min(diag, w - 1); tx++) {
         const ty = diag - tx;
 
+        // Skip tiles in unrevealed or off-screen chunks
+        if (visibleChunkSet) {
+          const cx = (tx / cs) | 0;
+          const cy = (ty / cs) | 0;
+          if (!visibleChunkSet.has(cy * this.chunkCols + cx)) continue;
+        }
+
         // Get iso position for tile center
         const wcx = (tx + 0.5) * ts;
         const wcy = (ty + 0.5) * ts;
         const iso = this.worldToIso(wcx, wcy);
 
-        // Cull outside viewport
+        // Cull outside viewport (per-tile for chunk-edge precision)
         if (iso.x < cullL || iso.x > cullR || iso.y < cullT || iso.y > cullB) {
           continue;
         }
@@ -1742,6 +1836,7 @@ class Renderer {
 
           sprite.visible = true;
           sprite.tint = 0xffffff;
+          sprite.alpha = this._getFogEdgeAlpha(tx, ty);
 
           if (this.isoTileLoaded && this.isoTileTextures[isoKey]) {
             sprite.texture = this.isoTileTextures[isoKey];
@@ -1753,7 +1848,7 @@ class Renderer {
           // Determine sprite height based on tile type
           let spriteH = dh + wallRise;
           if (isoKey === 'full_wall') {
-            spriteH = dh + wallRise * 2;
+            spriteH = dh + wallRise * 4;
           } else if (isoKey === 'elevated_floor') {
             // Flat floor tile — no wall rise, use floor-style anchor
             spriteH = dh;
@@ -1787,6 +1882,7 @@ class Renderer {
 
           sprite.visible = true;
           sprite.tint = 0xffffff;
+          sprite.alpha = this._getFogEdgeAlpha(tx, ty);
 
           if (this.isoTileLoaded && this.isoTileTextures[isoKey]) {
             sprite.texture = this.isoTileTextures[isoKey];
@@ -1934,6 +2030,29 @@ class Renderer {
     }
   }
 
+  _getDiamondTexture() {
+    if (this._diamondTex) return this._diamondTex;
+    const size = 32;
+    const half = size / 2;
+    const g = new PIXI.Graphics();
+    g.beginFill(0xffffff);
+    g.moveTo(half, 0);
+    g.lineTo(size, half);
+    g.lineTo(half, size);
+    g.lineTo(0, half);
+    g.closePath();
+    g.endFill();
+    g.lineStyle(1.5, 0xffffff, 0.4);
+    g.moveTo(half, 0);
+    g.lineTo(size, half);
+    g.lineTo(half, size);
+    g.lineTo(0, half);
+    g.closePath();
+    this._diamondTex = this.app.renderer.generateTexture(g);
+    g.destroy();
+    return this._diamondTex;
+  }
+
   _setSpriteTexture(sprite, spritePath, fallbackSize) {
     const tex = this.loadTexture(spritePath);
     const sz = this.isoMode ? 36 : CONSTANTS.TILE_SIZE;
@@ -1946,8 +2065,8 @@ class Renderer {
       sprite.y = this.isoMode ? -sz / 2 : 0;
       return true;
     }
-    // Texture is loading — use fallback (white square tinted)
-    sprite.texture = PIXI.Texture.WHITE;
+    // Texture is loading — use diamond fallback (matches old Canvas 2D style)
+    sprite.texture = this._getDiamondTexture();
     const fsz = fallbackSize || 20;
     sprite.width = fsz;
     sprite.height = fsz;
@@ -2052,9 +2171,12 @@ class Renderer {
 
       this._positionEntity(container, npc.x, npc.y);
 
-      // Sprite
-      const spritePath = 'sprites/npc_default.png';
-      const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+      // Sprite (per-type if available, else npc_default)
+      const spritePath = npc.type ? 'sprites/' + npc.type + '.png' : 'sprites/npc_default.png';
+      let loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+      if (!loaded && npc.type) {
+        loaded = this._setSpriteTexture(sprite, 'sprites/npc_default.png', r * 2);
+      }
       if (!loaded) sprite.tint = 0x64b5f6;
 
       // Name tag (above sprite top)
@@ -2067,8 +2189,8 @@ class Renderer {
       healthBg.clear();
       healthFill.clear();
 
-      // Talk prompt
-      if (me) {
+      // Talk prompt (skip for decorative entities like harvesters)
+      if (me && !npc.decorative) {
         const dx = npc.x - me.x;
         const dy = npc.y - me.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -2127,6 +2249,12 @@ class Renderer {
       } else if (mob.slowed) {
         // Light blue tint when slowed by sentry beam
         sprite.tint = 0x4fc3f7;
+      } else if (mob.packLeader) {
+        // Orange tint for pack leaders (aura source)
+        sprite.tint = 0xff9800;
+      } else if (mob.auraBuff) {
+        // Warm yellow tint for aura-buffed pack members
+        sprite.tint = 0xffd54f;
       }
 
       // Name tag (above sprite top)
@@ -2156,7 +2284,12 @@ class Renderer {
       if (this.ambushFadeIns.has(mob.id)) {
         const remaining = this.ambushFadeIns.get(mob.id);
         const fadeTotal = 0.5;
-        container.alpha = Math.max(0, 1 - remaining / fadeTotal);
+        const progress = 1 - remaining / fadeTotal; // 0=just revealed, 1=fully visible
+        container.alpha = Math.max(0, progress);
+        // Reveal flash: briefly show white tint in first 20% of fade-in
+        if (progress < 0.2 && !this.hitFlashes.has(mob.id)) {
+          sprite.tint = 0xffffff;
+        }
       } else {
         container.alpha = 1;
       }
@@ -2203,12 +2336,16 @@ class Renderer {
           sprite.height = r * 2;
           // Tint by projectile type
           const projColors = {
+            // Monster projectile types
             arrow_bone: 0xbcaaa4,    // bone/tan
             shadow_bolt: 0x7c4dff,   // dark purple
-            magma_glob: 0xff6e40,    // fiery orange
-            spore_cloud: 0x69f0ae,   // sickly green
-            crystal_shard_bolt: 0x80deea, // icy cyan
+            magma_glob: 0xff6e40,    // fire → orange
+            spore_cloud: 0x69f0ae,   // acid → green
+            crystal_shard_bolt: 0x80deea, // ice → blue
             energy_bolt: 0xffab40,   // amber/orange
+            // Player weapon projectile types
+            blaster_bolt: 0x40c4ff,  // bright cyan (energy)
+            pulse_bolt: 0xffd740,    // amber gold (high-energy pulse)
           };
           sprite.tint = projColors[proj.projectileType] || 0x4fc3f7;
           container.addChild(sprite);
@@ -2343,6 +2480,66 @@ class Renderer {
     }
 
     this._cleanupPool(this.beamObjectSprites, activeIds);
+  }
+
+  renderExtractionPoints() {
+    if (!this.state || !this.state.extractionPoints) return;
+
+    const activeIds = new Set();
+    const time = performance.now() / 1000;
+
+    for (const ep of this.state.extractionPoints) {
+      activeIds.add(ep.id);
+
+      let entry = this.extractionPointSprites.get(ep.id);
+      if (!entry) {
+        const container = new PIXI.Container();
+
+        // Outer fire glow
+        const glow = new PIXI.Graphics();
+        container.addChild(glow);
+
+        // Inner fire core
+        const core = new PIXI.Graphics();
+        container.addChild(core);
+
+        this.entityContainer.addChild(container);
+        entry = { container, glow, core };
+        this.extractionPointSprites.set(ep.id, entry);
+      }
+
+      const { container, glow, core } = entry;
+      this._positionEntity(container, ep.x, ep.y);
+
+      // Animate fire effect
+      const flicker1 = Math.sin(time * 8) * 0.15;
+      const flicker2 = Math.sin(time * 13 + 1.7) * 0.1;
+      const pulse = 0.6 + flicker1 + flicker2;
+
+      // Outer glow (orange/red)
+      glow.clear();
+      glow.beginFill(0xff6600, 0.12 * pulse);
+      glow.drawCircle(0, 0, 24);
+      glow.endFill();
+      glow.beginFill(0xff4400, 0.2 * pulse);
+      glow.drawCircle(0, 0, 16);
+      glow.endFill();
+
+      // Inner fire core (yellow/white)
+      core.clear();
+      core.beginFill(0xff8800, 0.5 * pulse);
+      const coreH = 10 + Math.sin(time * 10) * 2;
+      core.drawEllipse(0, -coreH / 2, 5, coreH / 2);
+      core.endFill();
+      core.beginFill(0xffcc00, 0.7);
+      core.drawEllipse(0, -3, 3, 5);
+      core.endFill();
+      core.beginFill(0xffffff, 0.4);
+      core.drawEllipse(0, -2, 1.5, 3);
+      core.endFill();
+    }
+
+    this._cleanupPool(this.extractionPointSprites, activeIds);
   }
 
   renderSentries() {
@@ -2569,7 +2766,7 @@ class Renderer {
         entry.hoverGfx.drawCircle(0, isoOff, r + 16);
       }
 
-      // Stun indicator (spinning dots)
+      // Stun indicator (spinning stars)
       if (!entry.stunGfx) {
         entry.stunGfx = new PIXI.Graphics();
         container.addChild(entry.stunGfx);
@@ -2580,10 +2777,23 @@ class Renderer {
         const stunY = this.isoMode ? -30 : -r - 2;
         for (let s = 0; s < 3; s++) {
           const a = stunAngle + (s * Math.PI * 2 / 3);
-          const sx = Math.cos(a) * 10;
-          const sy = Math.sin(a) * 4 + stunY;
+          const cx = Math.cos(a) * 10;
+          const cy = Math.sin(a) * 4 + stunY;
+          // Draw a 4-pointed star
+          const starAngle = stunAngle * 1.5 + s;
           entry.stunGfx.beginFill(0xffeb3b, 0.9);
-          entry.stunGfx.drawCircle(sx, sy, 2.5);
+          const outerStar = 3.5;
+          const innerStar = 1.2;
+          entry.stunGfx.moveTo(
+            cx + Math.cos(starAngle) * outerStar,
+            cy + Math.sin(starAngle) * outerStar
+          );
+          for (let p = 1; p < 8; p++) {
+            const pr = p % 2 === 0 ? outerStar : innerStar;
+            const pa = starAngle + (p * Math.PI / 4);
+            entry.stunGfx.lineTo(cx + Math.cos(pa) * pr, cy + Math.sin(pa) * pr);
+          }
+          entry.stunGfx.closePath();
           entry.stunGfx.endFill();
         }
       }
@@ -2846,6 +3056,84 @@ class Renderer {
       this.coneGfx.drawCircle(c.x, c.y, outerR);
       this.coneGfx.lineStyle(0);
 
+      return true;
+    });
+  }
+
+  renderLungeTrails() {
+    if (!this.lungeTrails || this.lungeTrails.length === 0) return;
+    const dt = 1 / 60;
+    const toScreen = (wx, wy) => {
+      return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+    };
+
+    this.lungeTrails = this.lungeTrails.filter(trail => {
+      trail.age += dt;
+      if (trail.age >= trail.maxAge) return false;
+
+      const t = trail.age / trail.maxAge;
+      const fadeAlpha = 1.0 - t;
+      const s = toScreen(trail.sx, trail.sy);
+      const e = toScreen(trail.tx, trail.ty);
+
+      // Draw a tapered trail line from start to target
+      // Leading edge progresses along the path
+      const lead = Math.min(t / 0.3, 1.0);
+      const tailProg = Math.max(0, (t - 0.1) / 0.25);
+      const lx = s.x + (e.x - s.x) * lead;
+      const ly = s.y + (e.y - s.y) * lead;
+      const tx = s.x + (e.x - s.x) * tailProg;
+      const ty = s.y + (e.y - s.y) * tailProg;
+
+      // Bright core trail
+      this.coneGfx.lineStyle(4, 0xff5722, 0.8 * fadeAlpha);
+      this.coneGfx.moveTo(tx, ty);
+      this.coneGfx.lineTo(lx, ly);
+
+      // Outer glow
+      this.coneGfx.lineStyle(8, 0xff8a65, 0.25 * fadeAlpha);
+      this.coneGfx.moveTo(tx, ty);
+      this.coneGfx.lineTo(lx, ly);
+
+      this.coneGfx.lineStyle(0);
+      return true;
+    });
+  }
+
+  renderShockwaveEffects() {
+    if (!this.shockwaveEffects || this.shockwaveEffects.length === 0) return;
+    const dt = 1 / 60;
+    const toScreen = (wx, wy) => {
+      return this.isoMode ? this.worldToIso(wx, wy) : { x: wx, y: wy };
+    };
+
+    this.shockwaveEffects = this.shockwaveEffects.filter(sw => {
+      sw.age += dt;
+      if (sw.age >= sw.maxAge) return false;
+
+      const t = sw.age / sw.maxAge;
+      const c = toScreen(sw.x, sw.y);
+      // Ease-out expansion
+      const expand = 1.0 - (1.0 - t) * (1.0 - t);
+      const outerR = sw.range * expand;
+      const innerR = sw.range * Math.max(0, expand - 0.15);
+      const fadeAlpha = t < 0.3 ? 1.0 : Math.max(0, 1.0 - (t - 0.3) / 0.7);
+
+      // Thick expanding ring band
+      const ringWidth = Math.max(2, (outerR - innerR));
+      const midR = (outerR + innerR) / 2;
+      this.coneGfx.lineStyle(ringWidth, 0xff7043, 0.2 * fadeAlpha);
+      this.coneGfx.drawCircle(c.x, c.y, midR);
+
+      // Bright leading-edge ring
+      this.coneGfx.lineStyle(2.5, 0xff7043, 0.7 * fadeAlpha);
+      this.coneGfx.drawCircle(c.x, c.y, outerR);
+
+      // Inner edge ring (dimmer)
+      this.coneGfx.lineStyle(1.5, 0xffab91, 0.3 * fadeAlpha);
+      this.coneGfx.drawCircle(c.x, c.y, innerR);
+
+      this.coneGfx.lineStyle(0);
       return true;
     });
   }
@@ -3131,7 +3419,7 @@ class Renderer {
     this.entityContainer.addChild(container);
 
     const style = this._getDeathStyle(monsterType);
-    const maxAge = style === 'crumble' ? 0.5 : style === 'shatter' ? 0.3 : 0.4;
+    const maxAge = style === 'crumble' ? 0.5 : 0.3;
 
     this.deathAnims.push({
       container, sprite, x, y, style,
@@ -3246,6 +3534,13 @@ class Renderer {
           age: 0, maxAge: 1.0,
           color: '#4caf50',
         });
+      } else if (ev.type === 'extraction_placed') {
+        this.damageNumbers.push({
+          text: 'EXTRACTION SET',
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.5,
+          color: '#ff8800',
+        });
       } else if (ev.type === 'pickup') {
         this.damageNumbers.push({
           text: `+${ev.itemName}`,
@@ -3315,6 +3610,14 @@ class Renderer {
           age: 0, maxAge: 1.5,
           color: '#ce93d8',
         });
+      } else if (ev.type === 'battery_depleted' && ev.targetId === this.myId) {
+        // Single-use battery fully drained — floating warning text
+        this.damageNumbers.push({
+          text: 'BATTERY LOST',
+          x: ev.x, y: ev.y - 20,
+          age: 0, maxAge: 1.5,
+          color: '#ff6e26',
+        });
       } else if (ev.type === 'stun' && ev.targetId === this.myId) {
         // Player got stunned — screen shake + floating text
         this.screenShake = { intensity: 6, duration: 0.3, elapsed: 0 };
@@ -3325,23 +3628,34 @@ class Renderer {
           color: '#ffeb3b',
         });
       } else if (ev.type === 'lunge_start' && ev.targetId) {
-        // Monster lunge — brief visual indicator
+        // Monster lunge — brief visual indicator + trail effect
         this.damageNumbers.push({
           text: 'LUNGE!',
           x: ev.x, y: ev.y - 16,
           age: 0, maxAge: 0.8,
           color: '#ff5722',
         });
+        if (!this.lungeTrails) this.lungeTrails = [];
+        this.lungeTrails.push({
+          sx: ev.x, sy: ev.y, tx: ev.tx, ty: ev.ty,
+          age: 0, maxAge: 0.35,
+        });
       } else if (ev.type === 'lunge_hit' && ev.targetId) {
         this.screenShake = { intensity: 5, duration: 0.2, elapsed: 0 };
       } else if (ev.type === 'ground_slam') {
-        // AOE ground slam — screen shake for everyone
+        // AOE ground slam — screen shake + shockwave ring
         this.screenShake = { intensity: 7, duration: 0.4, elapsed: 0 };
         this.damageNumbers.push({
           text: 'SLAM!',
           x: ev.x, y: ev.y - 16,
           age: 0, maxAge: 1.0,
           color: '#ff7043',
+        });
+        if (!this.shockwaveEffects) this.shockwaveEffects = [];
+        this.shockwaveEffects.push({
+          x: ev.x, y: ev.y,
+          range: ev.range || 128,
+          age: 0, maxAge: 0.5,
         });
       } else if (ev.type === 'photosensor_activated') {
         this.damageNumbers.push({
@@ -3577,7 +3891,7 @@ class Renderer {
         for (const secObj of this.secondaryQuestObjectives) {
           if (secObj.tileX != null) {
             const sp = isoPx((secObj.tileX + 0.5) * ts, (secObj.tileY + 0.5) * ts);
-            this._drawSecondaryWaypoint(sp.x, sp.y, questDotR, secObj, mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2);
+            this._drawSecondaryWaypoint(sp.x, sp.y, questDotR, secObj, mmX - pad, mmY - pad, mmW + pad * 2, mmH + pad * 2, full);
           }
         }
       }
@@ -3701,7 +4015,7 @@ class Renderer {
           if (secObj.tileX != null) {
             const sx = Math.round(mmX + secObj.tileX * scale);
             const sy = Math.round(mmY + secObj.tileY * scale);
-            this._drawSecondaryWaypoint(sx, sy, questDotR, secObj, mmX - 2, mmY - 2, mmW + 4, mmH + 4);
+            this._drawSecondaryWaypoint(sx, sy, questDotR, secObj, mmX - 2, mmY - 2, mmW + 4, mmH + 4, full);
           }
         }
       }
@@ -3776,24 +4090,61 @@ class Renderer {
 
   // --- Secondary quest waypoint (dimmer dot for non-tracked quests) ---
 
-  _drawSecondaryWaypoint(qx, qy, baseR, objective, mmLeft, mmTop, mmWidth, mmHeight) {
+  _drawSecondaryWaypoint(qx, qy, baseR, objective, mmLeft, mmTop, mmWidth, mmHeight, full) {
     const inside = qx >= mmLeft && qx <= mmLeft + mmWidth &&
                    qy >= mmTop && qy <= mmTop + mmHeight;
-    if (!inside) return; // skip edge indicators for secondary — only show when visible
 
     const pulse = 0.3 + 0.2 * Math.sin(Date.now() / 500);
     const r = Math.max(baseR - 1, 2);
     const color = 0x90caf9; // light blue to distinguish from primary orange
 
-    // Small circle dot
-    this.minimapGfx.beginFill(color, 0.5 + pulse);
-    this.minimapGfx.drawCircle(qx, qy, r);
-    this.minimapGfx.endFill();
+    if (inside) {
+      // Small circle dot
+      this.minimapGfx.beginFill(color, 0.5 + pulse);
+      this.minimapGfx.drawCircle(qx, qy, r);
+      this.minimapGfx.endFill();
 
-    // Subtle pulsing ring
-    this.minimapGfx.lineStyle(1, color, pulse * 0.5);
-    this.minimapGfx.drawCircle(qx, qy, r + 2);
-    this.minimapGfx.lineStyle(0);
+      // Subtle pulsing ring
+      this.minimapGfx.lineStyle(1, color, pulse * 0.5);
+      this.minimapGfx.drawCircle(qx, qy, r + 2);
+      this.minimapGfx.lineStyle(0);
+    } else if (!full) {
+      // Edge indicator: clamp to minimap border and draw a small arrow
+      const cx = mmLeft + mmWidth / 2;
+      const cy = mmTop + mmHeight / 2;
+      const dx = qx - cx;
+      const dy = qy - cy;
+      const halfW = mmWidth / 2 - 4;
+      const halfH = mmHeight / 2 - 4;
+      const scale = Math.min(
+        Math.abs(halfW / (dx || 0.001)),
+        Math.abs(halfH / (dy || 0.001))
+      );
+      const edgeX = cx + dx * scale;
+      const edgeY = cy + dy * scale;
+
+      // Draw small triangle pointing outward
+      const angle = Math.atan2(dy, dx);
+      const s = 3;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      this.minimapGfx.beginFill(color, 0.4 + pulse * 0.3);
+      this.minimapGfx.moveTo(edgeX + cos * s, edgeY + sin * s);
+      this.minimapGfx.lineTo(edgeX + (-sin * s * 0.7 - cos * s * 0.5), edgeY + (cos * s * 0.7 - sin * s * 0.5));
+      this.minimapGfx.lineTo(edgeX + (sin * s * 0.7 - cos * s * 0.5), edgeY + (-cos * s * 0.7 - sin * s * 0.5));
+      this.minimapGfx.closePath();
+      this.minimapGfx.endFill();
+
+      qx = edgeX;
+      qy = edgeY;
+    } else {
+      return; // off-bounds in full map — skip
+    }
+
+    // Show label in full map mode
+    if (objective.label && full && inside) {
+      this._drawMinimapLabel(objective.label, qx, qy - r - 2, color);
+    }
   }
 
   // --- Quest waypoint drawing helper (used by both iso and top-down minimap) ---

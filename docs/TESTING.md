@@ -1,6 +1,6 @@
 # Automated Testing Plan
 
-> **STATUS: TIERS 1-3 IMPLEMENTED.** The static content validator (`tools/content-validator.js`) and headless game simulator (`tools/headless-sim.js`) are both built and functional. The unit test suite has Tier 1 (flag-store, event-bus, automation), Tier 2 (conditions, actions, trigger-registry), and Tier 3 (physics) complete via `node --test` (223 tests, 222 pass). Tier 4 (integration) remains for future work. Note: 1 pre-existing physics test failure (large dt wall skip).
+> **STATUS: TIERS 1-4 COMPLETE.** The static content validator (`tools/content-validator.js`) and headless game simulator (`tools/headless-sim.js`) are both built and functional. Unit tests cover Tier 1 (flag-store, event-bus, automation), Tier 2 (conditions, actions, trigger-registry), and Tier 3 (physics). Integration tests cover Tier 4 combat flow, equipment system, sol-grid adjacency, and room lifecycle. Total: **304 tests, all pass** via `node --test`.
 
 ## Framework
 
@@ -11,24 +11,20 @@
 ```
 tests/
 ├── unit/
-│   ├── flag-store.test.js         Flag read/write/clear isolation
-│   ├── event-bus.test.js          Subscribe/emit/unsubscribe
-│   ├── conditions.test.js         All condition types + logical operators
-│   ├── actions.test.js            Each action type with mocked game state
-│   ├── trigger-registry.test.js   Event matching, filtering, once-flags
-│   ├── quest-tracker.test.js      DAG progression, prerequisites, completion
-│   ├── physics.test.js            Collision detection + resolution
-│   ├── automation.test.js         Resources, building, production
-│   └── content-validation.test.js Schema checks on all JSON content
+│   ├── flag-store.test.js         Flag read/write/clear isolation            ✅
+│   ├── event-bus.test.js          Subscribe/emit/unsubscribe                 ✅
+│   ├── conditions.test.js         All condition types + logical operators     ✅
+│   ├── actions.test.js            Each action type with mocked game state    ✅
+│   ├── trigger-registry.test.js   Event matching, filtering, once-flags      ✅
+│   ├── physics.test.js            Collision detection + resolution           ✅
+│   └── automation.test.js         Resources, building, production            ✅
 ├── integration/
-│   ├── combat.test.js             Attack → damage → death → loot flow
-│   ├── equipment.test.js          Equip/unequip → ability rebuild
-│   ├── sol-grid.test.js           Placement, adjacency bonuses, energy
-│   └── room-lifecycle.test.js     Create → join → transition → cleanup
+│   ├── combat.test.js             Attack damage, XP, death, loot drop       ✅ (20 tests)
+│   ├── equipment.test.js          Equip/unequip, slot swap, ability rebuild  ✅ (21 tests)
+│   ├── sol-grid.test.js           Adjacency modifiers, compute overrides     ✅ (20 tests)
+│   └── room-lifecycle.test.js     Create → join → transition → cleanup       ✅
 └── fixtures/
-    ├── dungeon.json               Small test dungeon with known layout
-    ├── entities.json               Minimal monsters, items, abilities
-    └── helpers.js                  Mock factories (player, room, content)
+    └── (inline mocks — each test file defines its own minimal content mock)
 ```
 
 ## Priority Tiers

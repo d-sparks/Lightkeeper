@@ -2,7 +2,7 @@
   "id": "meridian_station",
   "name": "Meridian Station",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "meridian",
   "theme": "meridian_city",
   "tileSize": 32,
   "width": 30,
@@ -37,7 +37,8 @@
   ],
   "monsterSpawns": [],
   "npcSpawns": [
-    { "type": "station_master_calloway", "x": 10, "y": 10 }
+    { "type": "station_master_calloway", "x": 10, "y": 10 },
+    { "type": "expedition_board", "x": 20, "y": 10 }
   ],
   "itemSpawns": [],
   "exits": [
@@ -129,6 +130,124 @@
         { "type": "showMessage", "text": "A holographic advertisement cycles nearby: 'MERIDIAN-7 — Powering Progress. Visit the Array Hub for premium services.'" }
       ],
       "once": true
+    },
+
+    {
+      "id": "post_shutdown_station",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_shutdown_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Meridian Station feels different. The Array's holographic advertisements are dark — blank panels where 'MERIDIAN-7 — Powering Progress' used to cycle.",
+          "The trains are running, but on backup power. The overhead lights flicker slightly at regular intervals. A hand-lettered notice board has replaced the electronic departures display.",
+          "Calloway is behind the window as always. Some things survive every ending."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_merge_station",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_merge_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The station directory board has been updated. New routes are listed below the familiar city corridors: 'UNDERLUMEN TRANSIT — BIOLUMINESCENT PASSAGE (PERMIT REQUIRED)' and 'ARRAY TRANSIT HUB — SHARED SERVICES TERMINAL.'",
+          "Three different logos share space on the departure board. Someone has drawn a small, careful symbol connecting all three — a circle, a crystal lattice, and an organic spiral.",
+          "The platform crowds include people you've never seen here before: Unbounded guides with bioluminescent markers on their gear, Array technicians in white, Ring citizens looking at all of it with cautious curiosity."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_control_station",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_control_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A new checkpoint stands at the station entrance — Ring Authority officers checking transit passes, logging arrivals. The process is efficient. The queue is short.",
+          "The Array's advertisements are still running, but the branding has changed: 'MERIDIAN-7 — RING-ADMINISTERED INFRASTRUCTURE. SERVING THE PEOPLE OF THE TERMINATOR ZONE.'",
+          "The trains run on schedule. The lights are steady. Control, it turns out, looks a lot like before — just with different insignia on the walls."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "expedition_board_tier_select",
+      "event": "npc_interacted",
+      "filter": { "npcType": "expedition_board" },
+      "conditions": [
+        { "hasFlag": "endgame_active" },
+        { "not": { "hasFlag": "expedition_active" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "expedition_tier_select", "prompt": "Select an expedition tier to begin a Nightside breach operation.", "options": [
+          { "label": "Tier 1 — Nightside Breach", "description": "Standard containment sweep. 3-4 floors. Cost: 5 silicon.", "value": "tier_1" },
+          { "label": "Tier 2 — Deep Breach", "description": "Timed darkness waves. 3-5 floors. Cost: 10 silicon. Requires Tier 1 cleared.", "value": "tier_2" },
+          { "label": "Tier 3 — Corruption Breach", "description": "Energy drain zones. 4-5 floors. Cost: 20 silicon. Requires Tier 2 cleared + automation level 3.", "value": "tier_3" },
+          { "label": "Cancel", "description": "Return to the station.", "value": "cancel" }
+        ]}
+      ]
+    },
+    {
+      "id": "expedition_start_tier_1",
+      "event": "choice_made",
+      "filter": { "choiceId": "expedition_tier_select", "value": "tier_1" },
+      "actions": [
+        { "type": "showMessage", "text": "Initiating Tier 1 Nightside Breach expedition..." },
+        { "type": "startExpedition", "tier": 1 }
+      ]
+    },
+    {
+      "id": "expedition_start_tier_2",
+      "event": "choice_made",
+      "filter": { "choiceId": "expedition_tier_select", "value": "tier_2" },
+      "actions": [
+        { "type": "showMessage", "text": "Initiating Tier 2 Deep Breach expedition..." },
+        { "type": "startExpedition", "tier": 2 }
+      ]
+    },
+    {
+      "id": "expedition_start_tier_3",
+      "event": "choice_made",
+      "filter": { "choiceId": "expedition_tier_select", "value": "tier_3" },
+      "actions": [
+        { "type": "showMessage", "text": "Initiating Tier 3 Corruption Breach expedition..." },
+        { "type": "startExpedition", "tier": 3 }
+      ]
+    },
+    {
+      "id": "expedition_board_cancel",
+      "event": "choice_made",
+      "filter": { "choiceId": "expedition_tier_select", "value": "cancel" },
+      "actions": [
+        { "type": "showMessage", "text": "You step away from the expedition board." }
+      ]
+    },
+    {
+      "id": "expedition_board_active",
+      "event": "npc_interacted",
+      "filter": { "npcType": "expedition_board" },
+      "conditions": [{ "hasFlag": "expedition_active" }],
+      "actions": [
+        { "type": "showMessage", "text": "You already have an active expedition. Complete or abandon it before starting another." }
+      ]
+    },
+    {
+      "id": "expedition_board_locked",
+      "event": "npc_interacted",
+      "filter": { "npcType": "expedition_board" },
+      "conditions": [
+        { "not": { "hasFlag": "endgame_active" } },
+        { "not": { "hasFlag": "expedition_active" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The expedition board is dark. A notice reads: 'NIGHTSIDE BREACH OPERATIONS — AUTHORIZATION REQUIRED.'",
+          "'Expeditions into the Nightside perimeter are classified operations. Authorization requires a formal faction mandate from the Civic Council.'",
+          "The Council has not yet reached a decision on the Lightkeeper mandate. The path forward isn't clear yet."
+        ]}
+      ]
     }
   ]
 }

@@ -2,7 +2,7 @@
   "id": "station_approach",
   "name": "Station Approach",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "station",
   "theme": "transit_infrastructure",
   "tileSize": 32,
   "ambientLight": 0.40,

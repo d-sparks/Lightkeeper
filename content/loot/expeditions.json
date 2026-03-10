@@ -1,0 +1,102 @@
+{
+  "expedition_tier_1": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "health_potion", "weight": 20 },
+      { "item": "ration_pack", "weight": 15 },
+      { "item": "bandage", "weight": 15 },
+      { "item": "damage_booster_chip", "weight": 10 },
+      { "item": "reinforced_battery_chip", "weight": 10 },
+      { "item": "signal_booster_chip", "weight": 8 },
+      { "item": "rechargeable_battery_chip", "weight": 5 },
+      { "item": "single_use_battery_chip", "weight": 5 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 2 }
+    ]
+  },
+  "expedition_tier_1_boss": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "health_potion", "weight": 10 },
+      { "item": "damage_booster_chip", "weight": 15 },
+      { "item": "reinforced_battery_chip", "weight": 15 },
+      { "item": "signal_booster_chip", "weight": 12 },
+      { "item": "rechargeable_battery_chip", "weight": 10 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 8 }
+    ]
+  },
+  "expedition_tier_2": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "health_potion", "weight": 15 },
+      { "item": "damage_booster_chip", "weight": 12 },
+      { "item": "reinforced_battery_chip", "weight": 12 },
+      { "item": "signal_booster_chip", "weight": 10 },
+      { "item": "rechargeable_battery_chip", "weight": 10 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 8 },
+      { "item": "single_use_battery_chip", "weight": 8 }
+    ]
+  },
+  "expedition_tier_2_boss": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "damage_booster_chip", "weight": 12 },
+      { "item": "reinforced_battery_chip", "weight": 12 },
+      { "item": "signal_booster_chip", "weight": 12 },
+      { "item": "rechargeable_battery_chip", "weight": 12 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 12 }
+    ]
+  },
+  "expedition_tier_3": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "health_potion", "weight": 10 },
+      { "item": "damage_booster_chip", "weight": 10 },
+      { "item": "reinforced_battery_chip", "weight": 10 },
+      { "item": "signal_booster_chip", "weight": 10 },
+      { "item": "rechargeable_battery_chip", "weight": 12 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 12 },
+      { "item": "single_use_battery_chip", "weight": 8 }
+    ]
+  },
+  "expedition_tier_3_boss": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "signal_booster_chip", "weight": 10 },
+      { "item": "rechargeable_battery_chip", "weight": 15 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 15 }
+    ]
+  },
+  "expedition_tier_3_boss_shutdown": {
+    "dropChance": 1.0,
+    "note": "Path-specific Tier 3 boss table for Shutdown path. Legendary pool includes path-specific modifiers.",
+    "rolls": [
+      { "item": "signal_booster_chip", "weight": 8 },
+      { "item": "rechargeable_battery_chip", "weight": 12 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 12 },
+      { "item": "underlumen_heart_chip", "weight": 8 },
+      { "item": "autonomy_core_chip", "weight": 8 }
+    ]
+  },
+  "expedition_tier_3_boss_merge": {
+    "dropChance": 1.0,
+    "note": "Path-specific Tier 3 boss table for Merge path. Legendary pool includes path-specific modifiers.",
+    "rolls": [
+      { "item": "signal_booster_chip", "weight": 8 },
+      { "item": "rechargeable_battery_chip", "weight": 12 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 12 },
+      { "item": "symbiosis_matrix_chip", "weight": 8 },
+      { "item": "convergence_lens_chip", "weight": 8 }
+    ]
+  },
+  "expedition_tier_3_boss_control": {
+    "dropChance": 1.0,
+    "note": "Path-specific Tier 3 boss table for Control path. Legendary pool includes path-specific modifiers.",
+    "rolls": [
+      { "item": "signal_booster_chip", "weight": 8 },
+      { "item": "rechargeable_battery_chip", "weight": 12 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 12 },
+      { "item": "array_command_node_chip", "weight": 8 },
+      { "item": "efficiency_overseer_chip", "weight": 8 }
+    ]
+  }
+}

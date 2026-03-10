@@ -2,7 +2,7 @@
   "id": "outpost_charging_station",
   "name": "Outpost Balor - Power Station",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "outpost_military",
   "tileSize": 32,
   "width": 32,
@@ -708,7 +708,29 @@
       "once": true
     },
     {
-      "id": "charge_sol_unit",
+      "id": "give_generator_chip",
+      "event": "npc_interacted",
+      "filter": {
+        "npcType": "charging_tech_maren"
+      },
+      "conditions": [
+        { "hasFlag": "received_first_battery" },
+        { "not": { "hasFlag": "received_generator_chip" } }
+      ],
+      "actions": [
+        {
+          "type": "giveItem",
+          "itemType": "basic_generator_chip"
+        },
+        {
+          "type": "setFlag",
+          "flag": "received_generator_chip"
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "give_battery_chip",
       "event": "npc_interacted",
       "filter": {
         "npcType": "charging_tech_maren"
@@ -719,24 +741,23 @@
         },
         {
           "not": {
-            "hasFlag": "sol_unit_charged"
+            "hasItem": "single_use_battery_chip"
           }
         }
       ],
       "actions": [
         {
-          "type": "setEnergy",
-          "percent": 100
+          "type": "giveItem",
+          "itemType": "single_use_battery_chip"
         },
         {
           "type": "setFlag",
-          "flag": "sol_unit_charged"
+          "flag": "received_first_battery"
         }
-      ],
-      "once": true
+      ]
     },
     {
-      "id": "enter_power_station_needs_charge",
+      "id": "enter_power_station_needs_battery",
       "event": "room_entered",
       "conditions": [
         {
@@ -744,17 +765,16 @@
         },
         {
           "not": {
-            "hasFlag": "sol_unit_charged"
+            "hasItem": "single_use_battery_chip"
           }
         }
       ],
       "actions": [
         {
           "type": "showMessage",
-          "text": "Your Sol Unit's energy indicator is flashing red. Talk to Tech Maren at the charging terminals."
+          "text": "Your Sol Unit's energy reserve is drained. Talk to Tech Maren — she keeps field cells for deployment."
         }
-      ],
-      "once": true
+      ]
     }
   ]
 }

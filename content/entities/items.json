@@ -27,7 +27,7 @@
     "type": "weapon",
     "rarity": "common",
     "slot": "weapon",
-    "stats": { "attackDamage": 3, "projectile": true },
+    "stats": { "attackDamage": 3, "projectile": true, "projectileType": "blaster_bolt" },
     "ability": { "id": "blaster_shot" }
   },
   "combat_baton": {
@@ -94,6 +94,13 @@
     "type": "sol_component",
     "rarity": "uncommon",
     "solComponentId": "damage_booster"
+  },
+  "salvage": {
+    "name": "Salvage",
+    "description": "Scrap circuitry and corroded components stripped from Nightside creatures. MERIDIAN-7 exchanges these for credits.",
+    "type": "misc",
+    "rarity": "common",
+    "stackable": true
   },
   "silicon": {
     "name": "Silicon",
@@ -168,10 +175,17 @@
   },
   "flare": {
     "name": "Flare",
-    "description": "A single-use emergency flare. The burst of light drives back the dark and soothes frayed nerves. Restores 15 health.",
+    "description": "A single-use emergency flare. Light it to mark an extraction point — a burning beacon you can return to.",
     "type": "consumable",
     "rarity": "uncommon",
-    "effect": { "heal": 15 }
+    "effect": { "createExtraction": true }
+  },
+  "extraction_protocol": {
+    "name": "Extraction Protocol",
+    "description": "An active extraction beacon burns somewhere in the dark. Use this to warp back to it.",
+    "type": "consumable",
+    "rarity": "uncommon",
+    "effect": { "teleportToExtraction": true }
   },
   "relay_log": {
     "name": "Relay Log",
@@ -238,7 +252,7 @@
     "type": "weapon",
     "rarity": "uncommon",
     "slot": "weapon",
-    "stats": { "attackDamage": 6, "projectile": true },
+    "stats": { "attackDamage": 6, "projectile": true, "projectileType": "blaster_bolt" },
     "ability": { "id": "precision_shot" }
   },
   "shock_baton": {
@@ -252,11 +266,11 @@
   },
   "pulse_rifle": {
     "name": "Pulse Rifle",
-    "description": "Military-grade energy weapon. Fires concentrated pulses that punch through targets.",
+    "description": "Military-grade energy weapon. Fires powerful concentrated pulses that punch through targets.",
     "type": "weapon",
     "rarity": "rare",
     "slot": "weapon",
-    "stats": { "attackDamage": 5, "projectile": true },
+    "stats": { "attackDamage": 8, "projectile": true, "projectileType": "pulse_bolt" },
     "ability": { "id": "pulse_shot" }
   },
   "efficiency_core_chip": {
@@ -470,6 +484,12 @@
     "type": "key",
     "rarity": "uncommon"
   },
+  "signal_coordinates": {
+    "name": "Signal Coordinates",
+    "description": "A corroded data chip bearing active Array transmission coordinates. Someone left this deliberately in the outer expanse — they wanted it found.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
   "umbral_extract": {
     "name": "Umbral Extract",
     "description": "A dark, viscous substance produced by the Gloomvine — the transformed Umbral Seed. It pulses faintly with bioluminescence. A rare material for advanced crafting.",
@@ -485,7 +505,7 @@
   },
   "basic_generator_chip": {
     "name": "Basic Generator",
-    "description": "A salvaged power cell that provides modest passive energy regeneration. Restores 2 energy per second. Better than nothing.",
+    "description": "A salvaged power cell that provides modest passive energy regeneration. Restores 3 energy per second. Better than nothing.",
     "type": "sol_component",
     "rarity": "uncommon",
     "solComponentId": "basic_generator"
@@ -503,6 +523,20 @@
     "type": "sol_component",
     "rarity": "legendary",
     "solComponentId": "uranium_generator"
+  },
+  "rechargeable_battery_chip": {
+    "name": "Rechargeable Battery",
+    "description": "A standard rechargeable power cell that adds 100 energy capacity to your Sol Unit. Energy drawn from this battery regenerates over time.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "rechargeable_battery"
+  },
+  "single_use_battery_chip": {
+    "name": "Single-Use Battery",
+    "description": "A disposable power cell that adds 100 energy capacity to your Sol Unit. Energy drawn from this battery is lost permanently — smallest battery drains first.",
+    "type": "sol_component",
+    "rarity": "common",
+    "solComponentId": "single_use_battery"
   },
   "advanced_rechargeable_battery_chip": {
     "name": "Advanced Rechargeable Battery",
@@ -750,5 +784,60 @@
     "type": "sol_component",
     "rarity": "rare",
     "solComponentId": "light_sentry_emitter"
+  },
+  "battery_chip": {
+    "name": "Battery Chip",
+    "description": "A salvaged single-use power chip. Cracking open the casing releases a quick burst of stored energy — restores 25 energy to your Sol Unit's rechargeable pool.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": { "energy": 25 }
+  },
+  "underlumen_heart_chip": {
+    "name": "Underlumen Heart",
+    "description": "A pulsing crystalline node salvaged from the Underlumen network after Shutdown. Its freed energy radiates outward in a cross through your Sol Grid, massively amplifying everything it touches. Shutdown path only.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "underlumen_heart",
+    "unlockFlag": "chose_path_shutdown"
+  },
+  "autonomy_core_chip": {
+    "name": "Autonomy Core",
+    "description": "A self-sustaining energy cell born from the Array's disconnection. Its influence radiates to all components within two steps, reducing the energy toll of every ability in its wake. Shutdown path only.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "autonomy_core",
+    "unlockFlag": "chose_path_shutdown"
+  },
+  "symbiosis_matrix_chip": {
+    "name": "Symbiosis Matrix",
+    "description": "A fused Array-Underlumen substrate from the Merge. The merged circuitry blankets its entire 3x3 neighborhood, amplifying damage and healing simultaneously. Merge path only.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "symbiosis_matrix",
+    "unlockFlag": "chose_path_merge"
+  },
+  "convergence_lens_chip": {
+    "name": "Convergence Lens",
+    "description": "A focal point where two systems became one. Its harmonic resonance extends down the full row and column, slashing the cooldown of every ability in its cross. Merge path only.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "convergence_lens",
+    "unlockFlag": "chose_path_merge"
+  },
+  "array_command_node_chip": {
+    "name": "Array Command Node",
+    "description": "The pinnacle of Array authority, wrested from a rogue overseer. Its command signal dominates the entire grid column, turning raw damage and precision into an instrument of total control. Control path only.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "array_command_node",
+    "unlockFlag": "chose_path_control"
+  },
+  "efficiency_overseer_chip": {
+    "name": "Efficiency Overseer",
+    "description": "Reclaimed from the Array's highest-priority production line. Its optimization protocols sweep across the full grid row, cutting energy costs and recovering health on every strike. Control path only.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "efficiency_overseer",
+    "unlockFlag": "chose_path_control"
   }
 }

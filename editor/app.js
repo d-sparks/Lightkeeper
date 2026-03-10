@@ -710,7 +710,7 @@ function Editor({ dungeonId, onBack }) {
 
   const panelContent = html`
     <${ToolSelector} tool=${tool} setTool=${setTool} />
-    ${tool === 'paint' && html`<${TilePalette} tiles=${tiles} selected=${selectedTile} onSelect=${setSelectedTile} />`}
+    ${(tool === 'paint' || tool === 'fill') && html`<${TilePalette} tiles=${tiles} selected=${selectedTile} onSelect=${setSelectedTile} />`}
     ${tool === 'move' && html`<${MovePanel} dungeon=${dungeon} updateDungeon=${updateDungeon}
       selectedSpawn=${selectedSpawn} setSelectedSpawn=${setSelectedSpawn}
       onEditNPC=${(type) => setShowNPCEditor(type || true)}
@@ -792,6 +792,7 @@ function ToolSelector({ tool, setTool }) {
       <div class="tool-bar">
         <button class="tool-btn ${tool === 'paint' ? 'selected' : ''}" onClick=${() => setTool('paint')}>Paint</button>
         <button class="tool-btn ${tool === 'erase' ? 'selected' : ''}" onClick=${() => setTool('erase')}>Erase</button>
+        <button class="tool-btn ${tool === 'fill' ? 'selected' : ''}" onClick=${() => setTool('fill')}>Fill</button>
         <button class="tool-btn ${tool === 'spawn' ? 'selected' : ''}" onClick=${() => setTool('spawn')}>Spawn</button>
         <button class="tool-btn ${tool === 'move' ? 'selected' : ''}" onClick=${() => setTool('move')}>Move</button>
       </div>
@@ -1291,6 +1292,22 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
         data[idx] = 0;
         return { ...prev, data };
       });
+    } else if (tool === 'fill') {
+      updateDungeon(prev => {
+        const targetTile = prev.data[cell.y * prev.width + cell.x];
+        if (targetTile === selectedTile) return prev;
+        const data = [...prev.data];
+        const stack = [{ x: cell.x, y: cell.y }];
+        while (stack.length > 0) {
+          const { x, y } = stack.pop();
+          if (x < 0 || y < 0 || x >= prev.width || y >= prev.height) continue;
+          const i = y * prev.width + x;
+          if (data[i] !== targetTile) continue;
+          data[i] = selectedTile;
+          stack.push({ x: x + 1, y }, { x: x - 1, y }, { x, y: y + 1 }, { x, y: y - 1 });
+        }
+        return { ...prev, data };
+      });
     } else if (tool === 'spawn') {
       updateDungeon(prev => {
         const d = { ...prev };
@@ -1389,10 +1406,12 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
       e.preventDefault();
       return;
     }
-    if (tool === 'spawn' || tool === 'move') {
-      // Single tap for spawns and move
+    if (tool === 'spawn' || tool === 'move' || tool === 'fill') {
+      // Single tap for spawns, move, and fill
       const cell = screenToCell(e.clientX, e.clientY);
+      if (tool === 'fill') onStrokeStart();
       applyTool(cell);
+      if (tool === 'fill') onStrokeEnd();
     } else {
       onStrokeStart();
       st.isPainting = true;
@@ -1439,9 +1458,11 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
     }
     if (e.touches.length === 1) {
       const t = e.touches[0];
-      if (tool === 'spawn' || tool === 'move') {
+      if (tool === 'spawn' || tool === 'move' || tool === 'fill') {
         const cell = screenToCell(t.clientX, t.clientY);
+        if (tool === 'fill') onStrokeStart();
         applyTool(cell);
+        if (tool === 'fill') onStrokeEnd();
       } else {
         onStrokeStart();
         st.isPainting = true;
@@ -2854,6 +2875,7 @@ function QuestEditor({ questId, onBack }) {
         </div>
       </div>
 
+      <div style="flex:1;overflow-y:auto">
       <div style="padding:16px 20px">
         <div class="field">
           <label>Quest Name</label>
@@ -2883,6 +2905,7 @@ function QuestEditor({ questId, onBack }) {
           setQuest(parsed);
           setDirty(true);
         }} />
+      </div>
       </div>
 
       ${editingStep && html`<${StepEditorModal}

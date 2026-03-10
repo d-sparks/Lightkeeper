@@ -15,7 +15,8 @@
     "perimeter": "ambient_perimeter",
     "underlumen": "ambient_underlumen",
     "array": "ambient_array",
-    "station": "ambient_station"
+    "station": "ambient_station",
+    "meridian": "ambient_meridian"
   },
 
   "name_overrides": {

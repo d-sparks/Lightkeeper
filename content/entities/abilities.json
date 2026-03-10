@@ -3,7 +3,7 @@
     "name": "Blaster Shot",
     "type": "projectile",
     "damageMultiplier": 1.0,
-    "projectileRadius": 4,
+    "projectileRadius": 8,
     "projectileSpeed": 300,
     "cooldown": 0.5,
     "defaultSlot": 1
@@ -20,7 +20,7 @@
   "medipac_heal": {
     "name": "Medipac Heal",
     "type": "heal",
-    "heal": 30,
+    "heal": 90,
     "cooldown": 25.0,
     "consumesItem": "medical_supplies",
     "defaultSlot": 6
@@ -32,7 +32,7 @@
     "projectileRadius": 8,
     "projectileSpeed": 300,
     "cooldown": 0.8,
-    "energyCost": 6,
+    "energyCost": 8,
     "defaultSlot": 2
   },
   "sol_cone": {
@@ -50,7 +50,7 @@
     "name": "Precision Shot",
     "type": "projectile",
     "damageMultiplier": 1.2,
-    "projectileRadius": 4,
+    "projectileRadius": 6,
     "projectileSpeed": 400,
     "cooldown": 0.5,
     "defaultSlot": 1

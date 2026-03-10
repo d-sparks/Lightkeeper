@@ -41,6 +41,137 @@
       "togglesTo": 5,
       "conditions": [{ "hasFlag": "talked_to_warden" }],
       "failMessage": "The gate is sealed. Talk to Warden Holt first."
+    },
+    "13": {
+      "name": "sealed_gate_workshop",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "received_weapon" }],
+      "failMessage": "The gate is sealed. Get a weapon from the Quartermaster first."
+    },
+    "14": {
+      "name": "sealed_gate_charger",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "received_sol_unit" }],
+      "failMessage": "The gate is sealed. Get your Sol Unit from the engineer first."
+    },
+    "15": {
+      "name": "hidden_passage",
+      "solid": true,
+      "togglesTo": 6
+    },
+    "16": {
+      "name": "blast_door",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "fenn_opened_gate" }],
+      "failMessage": "The blast door is sealed. Talk to Gate Sergeant Fenn."
+    },
+    "17": {
+      "name": "junction_box_b",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "junction_a_activated" }],
+      "failMessage": "This junction box won't activate. Reroute power from Junction A first."
+    },
+    "18": {
+      "name": "maintenance_hatch",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "relay_junction_complete" }],
+      "failMessage": "The maintenance hatch is sealed. Both power junctions need to be active."
+    },
+    "19": {
+      "name": "transit_gate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "has_transit_pass" }],
+      "failMessage": "The platform gate is locked. You need a Transit Pass to board."
+    },
+    "20": {
+      "name": "garden_plot",
+      "solid": false,
+      "interactable": "door",
+      "togglesTo": 20
+    },
+    "21": {
+      "name": "notice_board",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 21
+    },
+    "22": {
+      "name": "seed_pot",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 22
+    },
+    "23": {
+      "name": "personal_log",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 23
+    },
+    "24": {
+      "name": "homestead_gate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "has_yard_deed" }],
+      "failMessage": "This path leads to the East Terrace salvage lots. You need a Salvage Yard Deed from the Land Registry."
+    },
+    "25": {
+      "name": "cache_entrance",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "fen_letter_accepted" }],
+      "failMessage": "A collapsed passage, half-buried in rubble. You'd need to know exactly where to dig to get through."
+    },
+    "26": {
+      "name": "resonance_point",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 26
+    },
+    "27": {
+      "name": "survey_marker",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 27
+    },
+    "28": {
+      "name": "sealed_gate_briefing",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "engineer_briefing_complete" }],
+      "failMessage": "Slot the Damage Booster in your Sol Grid first, then talk to the engineer."
+    },
+    "29": {
+      "name": "sealed_gate_training",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "engineer_briefing_complete" }],
+      "failMessage": "The gate is sealed. Talk to the Sol Engineer first."
+    },
+    "30": {
+      "name": "crate_closed",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 31
+    },
+    "31": {
+      "name": "crate_opened",
+      "solid": false
     }
   }
 }

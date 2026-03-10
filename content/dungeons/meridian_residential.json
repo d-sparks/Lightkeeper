@@ -2,7 +2,7 @@
   "id": "meridian_residential",
   "name": "Residential Quarter",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "meridian",
   "theme": "meridian_city",
   "tileSize": 32,
   "width": 25,
@@ -128,6 +128,45 @@
           "They close their eyes for a long moment. When they open them again, something has shifted.",
           "'You brought their memory back. That's... that's enough. Thank you.'",
           "'I know these perimeters better than anyone alive. If you need a guide, or someone to watch your back out there — I'm ready.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_shutdown_residential",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_shutdown_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Residential Quarter is darker than before. The Array's automated street lighting is down to essential power only — warm pools of lamplight instead of the even grid-glow.",
+          "Groups of people cluster on the stoops, talking. You catch fragments: contingency plans, food sharing arrangements, who has what skills for what the Ring now has to do for itself.",
+          "Unbounded traders have set up a small exchange near the corner. They look less out of place now than they used to."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_merge_residential",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_merge_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Residential Quarter has changed in small ways. Bioluminescent plant cuttings — new cultivars, grown from Underlumen-adjacent root stock — sit in window boxes, glowing faintly blue-green.",
+          "A shared notice board has been set up at the corner: Ring community postings sit alongside Unbounded trade announcements and, in one corner, a small Array advisory in clean typeset.",
+          "Nobody who lives here looks entirely comfortable with the new arrangement. Nobody looks unhappy enough to leave."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_control_residential",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_control_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Residential Quarter has a new feature: a Ring Authority monitoring post at the main corner, staffed by two officers who check transit credentials with polite efficiency.",
+          "The streets are cleaner. There are fewer people out — or perhaps the same number, moving faster, with less time to linger.",
+          "The bioluminescent signals that Sable's people used to mark safe passages in the dark are gone. Painted over, or simply left to fade."
         ]}
       ],
       "once": true

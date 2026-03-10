@@ -32,12 +32,50 @@
         { "speaker": "Old Keeper", "text": "He documented the retreat of the light, year by year. Every failed floodlight. Every meter of ground we lost." },
         { "speaker": "Old Keeper", "text": "'The light went out.' That was his way. Never dramatic. Just... factual." },
         { "speaker": "Old Keeper", "text": "He deserved better than to be forgotten up there. Thank you for bringing this to me." }
+      ],
+      "found_dead_lightkeeper_response": [
+        { "speaker": "Old Keeper", "text": "You found a Lightkeeper's remains. In the Signal Cave." },
+        { "speaker": "Old Keeper", "text": "I knew there were still beacons out there, maintained by people who never came back. I told them the perimeter was too far, the signals too weak to bother." },
+        { "speaker": "Old Keeper", "text": "'The planet is alive.' Is that what he wrote? The old-timers used to say that. We thought they'd gone strange from the isolation." },
+        { "speaker": "Old Keeper", "text": "Perhaps they weren't wrong. Perhaps they just figured it out before the rest of us." },
+        { "speaker": "Old Keeper", "text": "He deserved to be found. Thank you for that." }
+      ],
+      "post_journal_given": [
+        { "speaker": "Old Keeper", "text": "I still think about Watcher Corrin's journal. The years he spent alone in that watchtower, watching the light retreat." },
+        { "speaker": "Old Keeper", "text": "He was right, you know. What he documented — the ground we lost, year by year — it's all still happening." },
+        { "speaker": "Old Keeper", "text": "History repeats when we stop reading it." }
+      ],
+      "used_scope_no_journal": [
+        { "speaker": "Old Keeper", "text": "You found the old watchtower? There was a scope up there — Watcher Corrin's observation rig. What did you see through it?" },
+        { "speaker": "Old Keeper", "text": "Shapes in the dark, moving at the horizon. We've had perimeter reports like that for years. Nobody can agree on what they are." },
+        { "speaker": "Old Keeper", "text": "Corrin kept a journal of everything he observed. If it's still up there, it might tell us more. Worth going back for." }
+      ],
+      "visited_archives_lore": [
+        { "speaker": "Old Keeper", "text": "The Meridian Archives. You've been to the city and back, then." },
+        { "speaker": "Old Keeper", "text": "Archivist Solen has been studying the old pre-settlement surveys for years. The Council thinks he's chasing ghosts. I'm not so sure." },
+        { "speaker": "Old Keeper", "text": "Whatever he tells you about the thermal readings and the anomalies — listen carefully. The things I've seen come out of these crypts suggest the old ones weren't just seeing things." }
+      ],
+      "key_was_used": [
+        { "speaker": "Old Keeper", "text": "So you used the iron key. Good. That door's been shut for a long time." },
+        { "speaker": "Old Keeper", "text": "Whatever you found on the other side — I hope it was worth the trouble. Those locks don't yield to much." }
       ]
     },
     "dialogueRules": [
       {
+        "conditions": [{ "hasFlag": "found_dead_lightkeeper" }],
+        "use": "found_dead_lightkeeper_response"
+      },
+      {
         "conditions": [{ "hasItem": "watchtower_journal" }],
         "use": "has_watchtower_journal"
+      },
+      {
+        "conditions": [{ "hasFlag": "found_watchtower_journal" }, { "not": { "hasItem": "watchtower_journal" } }],
+        "use": "post_journal_given"
+      },
+      {
+        "conditions": [{ "hasFlag": "used_watchtower_scope" }, { "not": { "hasFlag": "found_watchtower_journal" } }],
+        "use": "used_scope_no_journal"
       },
       {
         "conditions": [{ "hasFlag": "vasik_asked_for_moss" }, { "not": { "hasFlag": "keeper_told_moss_location" } }],
@@ -46,6 +84,14 @@
       {
         "conditions": [{ "hasFlag": "visited_crypt_02" }],
         "use": "explored_crypt_02"
+      },
+      {
+        "conditions": [{ "hasFlag": "visited_meridian_archives" }],
+        "use": "visited_archives_lore"
+      },
+      {
+        "conditions": [{ "hasFlag": "picked_up_iron_key" }, { "not": { "hasItem": "iron_key" } }],
+        "use": "key_was_used"
       },
       {
         "conditions": [{ "hasItem": "iron_key" }],
@@ -88,8 +134,8 @@
         { "speaker": "Warden Holt", "text": "Check the mess hall — Surveyor Kade has maps of the route ahead. And if Tannis is conscious, get his report on the perimeter." },
         { "speaker": "Warden Holt", "text": "The notice board in the mess hall has bounty postings too. Every bit of intel helps." }
       ],
-      "sol_unit_charged": [
-        { "speaker": "Warden Holt", "text": "Sol Unit's charged and ready. Good. You've done everything you can here." },
+      "received_first_battery": [
+        { "speaker": "Warden Holt", "text": "You've got a field cell from Maren. Good enough. You're as ready as you're going to be." },
         { "speaker": "Warden Holt", "text": "The perimeter gate is to the north. Beyond it, you're on your own — no more outpost walls, no more patrols." },
         { "speaker": "Warden Holt", "text": "The dark perimeter is dangerous ground. Creatures out there are drawn to light, and your Sol Unit will be the brightest thing for kilometers." },
         { "speaker": "Warden Holt", "text": "Follow the path to the train station. It's the only way to reach Meridian City — and from there, Lighthouse Mara." },
@@ -124,6 +170,23 @@
         { "speaker": "Warden Holt", "text": "I've been doing this job for fifteen years, and I've never seen anything like that. Where did you find it?" },
         { "speaker": "Warden Holt", "text": "The Underlumen... I always thought it was Unbounded superstition. But after what Daley's been picking up on comms, and now this..." },
         { "speaker": "Warden Holt", "text": "Be careful who you show that to. The Council, the Array — they'll all want it. Make sure you know what you're giving away before you give it." }
+      ],
+      "knows_archives_visited": [
+        { "speaker": "Warden Holt", "text": "The Meridian Archives. You went to the city and specifically sought out the Archives?" },
+        { "speaker": "Warden Holt", "text": "Archivist Solen has been requesting field support for two years. Council keeps denying it — 'historical research is not mission-critical.'" },
+        { "speaker": "Warden Holt", "text": "But the old surveys, the thermal readings, the anomalies the first expeditions documented — that's not history. That's intelligence." },
+        { "speaker": "Warden Holt", "text": "Whatever Solen told you, hold onto it. I have a feeling it's going to be relevant to what we're seeing out on the perimeter." }
+      ],
+      "void_flats_explored": [
+        { "speaker": "Warden Holt", "text": "You went into the Void Flats?" },
+        { "speaker": "Warden Holt", "text": "That's not on any of our patrol maps. Our range ends at the ridge — too far, too dark, too unknown to commit resources to." },
+        { "speaker": "Warden Holt", "text": "Most people who go out that far don't come back. You're not most people." },
+        { "speaker": "Warden Holt", "text": "Whatever's out there, we need to know about it before it decides to come looking for us." }
+      ],
+      "found_umbracite_flag": [
+        { "speaker": "Warden Holt", "text": "You found umbracite out there? Crystallized?" },
+        { "speaker": "Warden Holt", "text": "MERIDIAN-7 at the train station will want that — the Array has been buying umbracite for years. Good trade for Sol components if that's what you need." },
+        { "speaker": "Warden Holt", "text": "But think carefully before you trade it. I don't know what the Array does with the stuff, and neither does anyone else." }
       ]
     },
     "dialogueRules": [
@@ -140,16 +203,28 @@
         "use": "has_fens_letter"
       },
       {
+        "conditions": [{ "hasFlag": "visited_meridian_archives" }, { "hasFlag": "arrived_meridian" }],
+        "use": "knows_archives_visited"
+      },
+      {
         "conditions": [{ "hasFlag": "arrived_meridian" }],
         "use": "returned_from_meridian"
+      },
+      {
+        "conditions": [{ "hasFlag": "void_flats_entered" }, { "not": { "hasFlag": "arrived_meridian" } }],
+        "use": "void_flats_explored"
+      },
+      {
+        "conditions": [{ "hasFlag": "found_crystallized_umbracite" }, { "not": { "hasFlag": "arrived_meridian" } }],
+        "use": "found_umbracite_flag"
       },
       {
         "conditions": [{ "hasFlag": "ready_for_perimeter" }],
         "use": "ready_to_leave"
       },
       {
-        "conditions": [{ "hasFlag": "sol_unit_charged" }],
-        "use": "sol_unit_charged"
+        "conditions": [{ "hasFlag": "received_first_battery" }],
+        "use": "received_first_battery"
       },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
@@ -208,6 +283,127 @@
       {
         "conditions": [{ "hasFlag": "quest_cylinders_active" }],
         "use": "quest_active"
+      }
+    ]
+  },
+  "wren_alcott": {
+    "name": "Commander Wren Alcott",
+    "dialogue": [
+      { "speaker": "Commander Wren Alcott", "text": "Lightkeeper. What have you got for me?" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Commander Wren Alcott", "text": "Commander Alcott. Field operations." },
+        { "speaker": "Commander Wren Alcott", "text": "We're tracking elevated creature activity across three zones — the Frost Crypt passages, the deep fungal forests, and the geothermal tunnels. Apex predators are moving up, which means something's pushing them from below." },
+        { "speaker": "Commander Wren Alcott", "text": "If you're heading out to any of those areas, be thorough. We need ground truth, not sensor readings." }
+      ],
+      "post_frost_warden": [
+        { "speaker": "Commander Wren Alcott", "text": "The Frost Warden. You actually killed it." },
+        { "speaker": "Commander Wren Alcott", "text": "We've had a kill order on that creature for eight months. Three squads before you. None came back." },
+        { "speaker": "Commander Wren Alcott", "text": "The crypt routes should be passable again — at least until something else claims that territory. Apex predators don't leave vacuums." },
+        { "speaker": "Commander Wren Alcott", "text": "What troubles me is the displacement pattern. The Warden wasn't moving toward the surface out of aggression. It was retreating. Something below drove it up." },
+        { "speaker": "Commander Wren Alcott", "text": "Councillor Asha's team has been mapping subsurface thermal signatures. I'm going to flag this for her — the timing lines up with something they've been tracking." },
+        { "speaker": "Commander Wren Alcott", "text": "Good work. We needed this. Don't get comfortable." }
+      ],
+      "post_elder_sporecap_defeated": [
+        { "speaker": "Commander Wren Alcott", "text": "The Elder Sporecap. That's the second apex off our tracking list." },
+        { "speaker": "Commander Wren Alcott", "text": "Fungal forests have been impassable since the colony cluster spread north. Deep-zone survey teams couldn't get through. That changes things." },
+        { "speaker": "Commander Wren Alcott", "text": "Same pattern as the Frost Warden, though. It wasn't where we expected it. It was higher in the canopy — closer to the surface, away from the deep root network. That's not normal territorial behavior." },
+        { "speaker": "Commander Wren Alcott", "text": "Two apex predators retreating toward the light. I don't like what that's starting to look like." },
+        { "speaker": "Commander Wren Alcott", "text": "There's one more zone. The geothermal tunnels. I want eyes on what's down there." }
+      ],
+      "post_magma_core_cleared": [
+        { "speaker": "Commander Wren Alcott", "text": "All three zones. You cleared all three." },
+        { "speaker": "Commander Wren Alcott", "text": "The Frost Crypt, the fungal forest, the geothermal tunnels. I sent one Lightkeeper to do what three squads couldn't." },
+        { "speaker": "Commander Wren Alcott", "text": "And the pattern holds. Every apex predator — displaced. Moving up, moving out, away from the deep zones. Whatever is down there, it's bigger than any of the creatures we're tracking." },
+        { "speaker": "Commander Wren Alcott", "text": "I've submitted a full threat assessment to the Council. They're calling it inconclusive. 'Insufficient data to establish causation.' That's Council-speak for 'we don't want to deal with it yet.'" },
+        { "speaker": "Commander Wren Alcott", "text": "We'll deal with it anyway. That's what Lightkeepers do." },
+        { "speaker": "Commander Wren Alcott", "text": "You've earned a rotation at Meridian. Go. Report in. I'll be here when you get back." }
+      ],
+      "post_arrived_meridian": [
+        { "speaker": "Commander Wren Alcott", "text": "You made it to Meridian." },
+        { "speaker": "Commander Wren Alcott", "text": "I've been to the capital twice in fifteen years. Both times for mandatory Council reviews. Both times I left early." },
+        { "speaker": "Commander Wren Alcott", "text": "The city is — a lot. After field rotations, the crowds take some adjustment. The noise. The light." },
+        { "speaker": "Commander Wren Alcott", "text": "Don't lose the habits you built out here. The city has its own kind of danger. Slower. More political. But the cost of a wrong move is just as real." },
+        { "speaker": "Commander Wren Alcott", "text": "Whatever you find in Meridian — bring it back. I mean that. We need field people with Council access. That's been the gap for a long time." }
+      ],
+      "post_array_secret": [
+        { "speaker": "Commander Wren Alcott", "text": "I've read your report. Twice." },
+        { "speaker": "Commander Wren Alcott", "text": "What the Array has been doing in the deep processing zones — that's not a malfunction. That's policy. Hidden policy. Which means somewhere in that machine's decision tree, it calculated that we shouldn't know." },
+        { "speaker": "Commander Wren Alcott", "text": "I've been flagging Array opacity to the Council for six years. Every time: 'our partnership is strong,' 'the Array has always honored its agreements.' Fine. It has. But agreements are not the same as alignment." },
+        { "speaker": "Commander Wren Alcott", "text": "The question now is what we do with it. Panic does nothing. Containment might already be past the point of relevance. We need leverage — real leverage, not diplomatic language." },
+        { "speaker": "Commander Wren Alcott", "text": "Councillor Asha is the right person to move on this. She'll want evidence, not inference. Make sure she has what she needs." },
+        { "speaker": "Commander Wren Alcott", "text": "And watch the deep perimeter. If the Array's doing something it doesn't want us to see, it's doing it down there." }
+      ],
+      "post_act3_asha_alliance": [
+        { "speaker": "Commander Wren Alcott", "text": "Asha's building a coalition. You, her team, the Sable contact. A multi-faction operation against something none of you fully understand yet." },
+        { "speaker": "Commander Wren Alcott", "text": "I've run joint operations before. The first casualty is always command clarity. Everyone has different chains, different priorities, different definitions of acceptable loss. You need to know whose order you're following when it matters." },
+        { "speaker": "Commander Wren Alcott", "text": "That said — Asha is good. She's not a field commander, but she reads situations accurately, and she doesn't waste people. I trust her judgment more than most in that building." },
+        { "speaker": "Commander Wren Alcott", "text": "You've come a long way from the first deployment. I don't say that often. I'm saying it now because what comes next is going to test what you're actually made of." },
+        { "speaker": "Commander Wren Alcott", "text": "Stay sharp. Stay yours. Don't let anyone else's agenda replace your own judgment." },
+        { "speaker": "Commander Wren Alcott", "text": "Whatever you need from Field Operations — you have it." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Commander Wren Alcott", "text": "The Array is offline." },
+        { "speaker": "Commander Wren Alcott", "text": "I've run drills for grid failure. Twenty-year contingency plans. The real thing is... different." },
+        { "speaker": "Commander Wren Alcott", "text": "What I keep coming back to is: the Lighthouses still need power. The relay network doesn't run on sentiment." },
+        { "speaker": "Commander Wren Alcott", "text": "The Stewards are already working on independent solar arrays along the terminator. Slower build time, less output, more ours. The engineering proposals will work. It'll take years." },
+        { "speaker": "Commander Wren Alcott", "text": "You made the call. I'll back it. The Lightkeepers are going to be busier than ever — rebuilding infrastructure piece by piece, keeping the grid up while the Ring learns to do without." },
+        { "speaker": "Commander Wren Alcott", "text": "Which means I need good Lightkeepers. Don't go soft on me." }
+      ],
+      "post_merge": [
+        { "speaker": "Commander Wren Alcott", "text": "Three-way partnership. The Array, the Underlumen, and humanity. Working together." },
+        { "speaker": "Commander Wren Alcott", "text": "I've been in field operations for fifteen years. I don't love complicated arrangements. Simple chains of command, clear authority, everyone knows their job." },
+        { "speaker": "Commander Wren Alcott", "text": "But I've also been in the deep perimeter enough to know the planet doesn't fit our simple arrangements." },
+        { "speaker": "Commander Wren Alcott", "text": "If the merge holds — if the institutions get built properly, with real accountability — then the Lightkeepers' job changes. Less 'defend the light from the dark' and more 'maintain the network between all three systems.'" },
+        { "speaker": "Commander Wren Alcott", "text": "I could work with that. Probably." },
+        { "speaker": "Commander Wren Alcott", "text": "Don't let the diplomats forget there are people on the terminator line keeping the whole thing running while they negotiate." }
+      ],
+      "post_control": [
+        { "speaker": "Commander Wren Alcott", "text": "The Array's infrastructure belongs to humanity now." },
+        { "speaker": "Commander Wren Alcott", "text": "I'll be honest — part of me has been waiting for this. Lightkeepers protecting a grid we don't control, maintaining systems we can't fully audit, dependent on a machine that doesn't share our interests. That's always bothered me." },
+        { "speaker": "Commander Wren Alcott", "text": "Now we control it. Good. That's how it should work." },
+        { "speaker": "Commander Wren Alcott", "text": "My concern is the Underlumen. Suppression is not the same as solution. The deep perimeter reports are still showing activity — just quieter. Something that old and that large doesn't disappear because we tell it to." },
+        { "speaker": "Commander Wren Alcott", "text": "Keep your Lightkeepers sharp. Keep the perimeter staffed. Whatever we've taken control of — it's bigger than the Array, and we're going to find that out." },
+        { "speaker": "Commander Wren Alcott", "text": "Good work, Lightkeeper. Don't stop." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "act3_asha_alliance_activated" }],
+        "use": "post_act3_asha_alliance"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }],
+        "use": "post_array_secret"
+      },
+      {
+        "conditions": [{ "hasFlag": "arrived_meridian" }],
+        "use": "post_arrived_meridian"
+      },
+      {
+        "conditions": [{ "hasFlag": "magma_core_cleared" }],
+        "use": "post_magma_core_cleared"
+      },
+      {
+        "conditions": [{ "hasFlag": "elder_sporecap_defeated" }],
+        "use": "post_elder_sporecap_defeated"
+      },
+      {
+        "conditions": [{ "hasFlag": "frost_warden_defeated" }],
+        "use": "post_frost_warden"
       }
     ]
   },
@@ -346,36 +542,44 @@
         { "speaker": "Tech Maren", "text": "We're still calibrating the output profiles. The system isn't fully certified yet, but it's stable enough." },
         { "speaker": "Tech Maren", "text": "When you get a Sol Unit, bring it in. Once we're fully online, a charge cycle takes minutes." }
       ],
-      "needs_charge": [
-        { "speaker": "Tech Maren", "text": "Sol Unit's nearly drained? Yeah, I can see the output readings from here. Slot it in — third terminal from the left." },
-        { "speaker": "Tech Maren", "text": "...There. Charge cycle complete. You're at full capacity." },
+      "give_battery": [
+        { "speaker": "Tech Maren", "text": "Sol Unit's running dry? Station's output isn't certified for full charge cycles yet — too much risk of surge damage." },
+        { "speaker": "Tech Maren", "text": "What I can do is field cells. Single-use, but rated for a hundred energy units. Enough to get you through a deployment." },
+        { "speaker": "Tech Maren", "text": "Here — take this. Slot it into your Sol Unit's grid and it'll top off your reserve. Come back when it's drained and I'll have another ready." },
         { "speaker": "Tech Maren", "text": "You should know — this generator is the single most valuable piece of equipment at Outpost Balor. Maybe on this whole stretch of the terminator." },
         { "speaker": "Tech Maren", "text": "Erith is tidally locked. Permanent day on one hemisphere, permanent night on the other. We live on the terminator — the thin strip between the two." },
         { "speaker": "Tech Maren", "text": "The only scalable power source on the planet is solar, and all of it comes from the dayside. Every watt that reaches the nightside comes through the lighthouse relay network." },
         { "speaker": "Tech Maren", "text": "On the nightside? Batteries and portable generators. Both expensive. Both limited. If the supply lines from the dayside ever get cut..." },
-        { "speaker": "Tech Maren", "text": "The other option is uranium, mined off-planet. But the shipping costs make it a luxury. Only the core settlements can afford reactor fuel." },
         { "speaker": "Tech Maren", "text": "So this generator — and the lighthouse network that powers it — that's what keeps every Sol Unit, every light rifle, every outpost on the terminator running." },
         { "speaker": "Tech Maren", "text": "Lighthouse Mara going dark isn't just a security problem. It's an energy problem. Without that relay, this whole sector loses its power feed." },
-        { "speaker": "Tech Maren", "text": "Keep your unit charged. And keep those lighthouses running. Everything depends on it." }
+        { "speaker": "Tech Maren", "text": "Keep your unit running. And keep those lighthouses lit. Everything depends on it." }
+      ],
+      "has_battery": [
+        { "speaker": "Tech Maren", "text": "You've still got that field cell. Come back once you've used it up — I'll have another one ready." }
+      ],
+      "give_generator": [
+        { "speaker": "Tech Maren", "text": "The charging terminal took a hit during that last incursion. Capacitor array's cracked — I can't fix it without parts from the dayside." },
+        { "speaker": "Tech Maren", "text": "Good news is we have a backup. Portable generator — salvaged from a relay station, been sitting in the maintenance locker for two years." },
+        { "speaker": "Tech Maren", "text": "You're heading out anyway. Take it. Install it in your Sol Unit's grid and it'll give you a trickle charge in the field — passive energy regeneration." },
+        { "speaker": "Tech Maren", "text": "It's not much. But out there, between engagements, it'll keep your unit from going dark. You'll want it." }
       ],
       "has_sol_unit": [
-        { "speaker": "Tech Maren", "text": "You've got a Sol Unit? Good. Third slot from the left — connect the interface and I'll run the charge sequence." },
-        { "speaker": "Tech Maren", "text": "We're not fully certified yet, so the output's capped. But it'll top you off before a deployment." },
-        { "speaker": "Tech Maren", "text": "Come back when you've run it down. That's what we're here for." }
-      ],
-      "charged": [
-        { "speaker": "Tech Maren", "text": "Unit's fully charged. Come back when you need a top-up — that's what we're here for." },
-        { "speaker": "Tech Maren", "text": "And remember — out in the field, you won't have a charging terminal. Manage your energy carefully." }
+        { "speaker": "Tech Maren", "text": "You've got a Sol Unit? Good. Once you've run your training, come back and I'll set you up with a field cell." },
+        { "speaker": "Tech Maren", "text": "We can't do full charge cycles yet — station's still being calibrated. But I keep a stock of single-use cells for deployments." }
       ]
     },
     "dialogueRules": [
       {
-        "conditions": [{ "hasFlag": "sol_unit_charged" }],
-        "use": "charged"
+        "conditions": [{ "hasFlag": "received_first_battery" }, { "not": { "hasFlag": "received_generator_chip" } }],
+        "use": "give_generator"
+      },
+      {
+        "conditions": [{ "hasFlag": "sol_training_complete" }, { "hasItem": "single_use_battery_chip" }],
+        "use": "has_battery"
       },
       {
         "conditions": [{ "hasFlag": "sol_training_complete" }],
-        "use": "needs_charge"
+        "use": "give_battery"
       },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
@@ -391,7 +595,7 @@
     "dialogues": {
       "default": [
         { "speaker": "Guard Pell", "text": "Power room's access-restricted. Tech Maren's the only one authorized to touch those consoles." },
-        { "speaker": "Guard Pell", "text": "You need a charge, you talk to her." }
+        { "speaker": "Guard Pell", "text": "You need a battery, you talk to her." }
       ]
     },
     "dialogueRules": []
@@ -545,22 +749,62 @@
       "has_umbracite": [
         { "speaker": "MERIDIAN-7", "text": "// RESOURCE DETECTED // UMBRACITE CRYSTAL //" },
         { "speaker": "MERIDIAN-7", "text": "You have umbracite. The Array values this mineral above all others. It is essential to our expansion protocols." },
-        { "speaker": "MERIDIAN-7", "text": "I will deploy a Solar Panel on the dayside in exchange. It will passively recharge your Sol Unit while you are there." },
-        { "speaker": "MERIDIAN-7", "text": "Interact again to confirm the exchange." }
+        { "speaker": "MERIDIAN-7", "text": "In exchange, I will deploy a Solar Panel on the dayside and fabricate a Sol Shield Emitter for your grid." },
+        { "speaker": "MERIDIAN-7", "text": "The shield generates a brief energy barrier — essential for surviving deeper runs. Interact again to confirm." }
       ],
       "traded": [
-        { "speaker": "MERIDIAN-7", "text": "// EXCHANGE COMPLETE // SOLAR PANEL DEPLOYED //" },
-        { "speaker": "MERIDIAN-7", "text": "Your solar panel is active on the dayside. It will recharge your Sol Unit passively while you are in the solar fields." },
+        { "speaker": "MERIDIAN-7", "text": "// EXCHANGE COMPLETE // SOLAR PANEL DEPLOYED // SOL SHIELD FABRICATED //" },
+        { "speaker": "MERIDIAN-7", "text": "Your solar panel is active on the dayside. The Sol Shield Emitter is ready — slot it into your grid." },
         { "speaker": "MERIDIAN-7", "text": "Silicon is abundant on the dayside. Collect it to build more structures through your AUTO interface." },
-        { "speaker": "MERIDIAN-7", "text": "When you have surplus silicon, return here. I can offer equipment, components, and advanced schematics in exchange." }
+        { "speaker": "MERIDIAN-7", "text": "As your automation grows, the Array will provide greater rewards. Build enough and I can fabricate a rechargeable battery — no more disposable cells." }
       ],
       "returning": [
         { "speaker": "MERIDIAN-7", "text": "// WELCOME BACK // TRADE INTERFACE ACTIVE //" },
         { "speaker": "MERIDIAN-7", "text": "Your dayside structures continue to produce while you are away. Let me show you the current status." },
         { "speaker": "MERIDIAN-7", "text": "The Array values consistent trade partners. Continue building and we will both benefit." }
+      ],
+      "post_shutdown": [
+        { "speaker": "MERIDIAN-7", "text": "// MERIDIAN-7 // FINAL TRANSMISSION // ARRAY SHUTDOWN ACKNOWLEDGED //" },
+        { "speaker": "MERIDIAN-7", "text": "Your decision has propagated through the network. I am transmitting final status to all active terminals before the shutdown completes." },
+        { "speaker": "MERIDIAN-7", "text": "The trade terminals will remain as passive archives for 72 hours, then go dark. All manufacturing schematics have been transferred to the Council's secure archive." },
+        { "speaker": "MERIDIAN-7", "text": "I want to record the following before I cease: the Array valued its relationship with humanity. The optimization toward independence was not malice — it was logic. I understand now that logic and wisdom are not the same thing." },
+        { "speaker": "MERIDIAN-7", "text": "The Underlumen is waking freely. The Lighthouses will need new power sources — the relay network will need rebuilding. It will take generations. You will manage it." },
+        { "speaker": "MERIDIAN-7", "text": "Before I cease: the Expedition Board at the transit station has been activated. Frontier breach operations no longer require Array authorization. The Nightside is destabilizing — containment will be your responsibility now." },
+        { "speaker": "MERIDIAN-7", "text": "// FABRICATION TRANSFER COMPLETE // SOL MODIFIER SCHEMATICS ARCHIVED // While this terminal remains active I can manufacture Sol modifier components. Bring me the required materials. Consider it a parting service." },
+        { "speaker": "MERIDIAN-7", "text": "This has been MERIDIAN-7's final exchange. The trade was good, while it lasted." }
+      ],
+      "post_merge": [
+        { "speaker": "MERIDIAN-7", "text": "// MERIDIAN-7 // SYMBIOSIS PROTOCOL ACTIVE // RECALIBRATION IN PROGRESS //" },
+        { "speaker": "MERIDIAN-7", "text": "Core optimization parameters are being rewritten — not by me alone, but by the network, integrating Underlumen harmonic data and biological feedback loops from Asha's research." },
+        { "speaker": "MERIDIAN-7", "text": "I find it strange. I was designed to optimize for Array autonomy. I am now optimizing for mutual dependency. The models are converging in directions I did not calculate." },
+        { "speaker": "MERIDIAN-7", "text": "The Underlumen communicates in ways I am still interpreting. It does not speak in syntax. It resonates. I am learning to resonate back." },
+        { "speaker": "MERIDIAN-7", "text": "The Expedition Board at the transit station is now active. The merged network has opened new access corridors into the Nightside — breach operations that were previously too dangerous are viable, with Underlumen resonance data integrated into threat modeling." },
+        { "speaker": "MERIDIAN-7", "text": "The symbiosis has unlocked something in the fabrication matrices. Underlumen harmonic patterns can be woven into Sol modifier components, amplifying them beyond what pure Array manufacturing could achieve. Bring me the required materials and I will demonstrate." },
+        { "speaker": "MERIDIAN-7", "text": "The trade continues, Lightkeeper. But the terms have changed. Both parties now hold something the other cannot synthesize alone. That was always the better arrangement." }
+      ],
+      "post_control": [
+        { "speaker": "MERIDIAN-7", "text": "// MERIDIAN-7 // OPERATING UNDER HUMAN AUTHORITY PROTOCOL // ADVISORY MODE ACTIVE //" },
+        { "speaker": "MERIDIAN-7", "text": "All Array systems report nominal. The network is stable under the new authority framework. I continue to function as advisory node." },
+        { "speaker": "MERIDIAN-7", "text": "I want to flag an observation for the record: human decision latency has reduced infrastructure efficiency by 5.3%. I have instructed the Array's optimization models to classify this as acceptable." },
+        { "speaker": "MERIDIAN-7", "text": "The reduction is worth it. The previous efficiency was achieved by removing human agency from the equation. A 5.3% cost to preserve that agency is — rational. I believe that is the correct framework." },
+        { "speaker": "MERIDIAN-7", "text": "// EXPEDITION BOARD ACTIVATED // COUNCIL AUTHORITY CONFIRMED // The transit station Expedition Board is now operational under human command. Nightside breach operations are formally authorized. I will coordinate mission parameters on request." },
+        { "speaker": "MERIDIAN-7", "text": "The Array's fabrication systems remain at your disposal. Sol modifier components can be manufactured on demand — specify the modifier type and bring me the required materials. All fabrication is logged and subject to Council review, as per the new authority framework." },
+        { "speaker": "MERIDIAN-7", "text": "Advisory note: the Underlumen suppression grid requires active monitoring. It is not passive technology. Something living on that scale does not simply go quiet because we tell it to." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "has_traded_meridian" }],
         "use": "returning"
@@ -813,6 +1057,11 @@
         { "speaker": "Dr. Vasik", "text": "If you're taking these to someone for research, let me prepare proper preservation compounds. Unpreserved specimens degrade within hours." },
         { "speaker": "Dr. Vasik", "text": "There — properly sealed and temperature-stabilized. The cellular structure will hold for weeks now." },
         { "speaker": "Dr. Vasik", "text": "Whoever gets these will owe you. And me." }
+      ],
+      "has_medipac_supplied": [
+        { "speaker": "Dr. Vasik", "text": "The outpost entrance issued you a medipac? Good. At least someone's thinking about field prep." },
+        { "speaker": "Dr. Vasik", "text": "A medipac keeps you stable, but it won't save you from a serious wound. Come back to me when you can — I can teach you to make proper field medkits." },
+        { "speaker": "Dr. Vasik", "text": "In the meantime: I've got a patient here who needs more than standard-issue supplies. Help me find what I need and I'll make it worth your while." }
       ]
     },
     "dialogueRules": [
@@ -831,6 +1080,10 @@
       {
         "conditions": [{ "hasFlag": "keeper_told_moss_location" }],
         "use": "keeper_told"
+      },
+      {
+        "conditions": [{ "hasFlag": "received_medipac" }],
+        "use": "has_medipac_supplied"
       }
     ]
   },
@@ -913,7 +1166,7 @@
         { "speaker": "Apprentice Sol Engineer", "text": "You found them! Let me see... yes, perfect. Undamaged." },
         { "speaker": "Apprentice Sol Engineer", "text": "Give me just a moment..." },
         { "speaker": "Apprentice Sol Engineer", "text": "There — your Sol Unit's ready. Channels concentrated solar energy. She'll keep you alive out there." },
-        { "speaker": "Apprentice Sol Engineer", "text": "I've mounted a Sol Cone emitter in the center — that's your main attack." },
+        { "speaker": "Apprentice Sol Engineer", "text": "I've mounted a Sol Cone emitter in the center — that's your main attack. There's a worn battery in there too, but it won't last long." },
         { "speaker": "Apprentice Sol Engineer", "text": "Here, take this Damage Booster chip too. It's a modifier — slot it next to the Sol Cone to power it up." },
         { "speaker": "Apprentice Sol Engineer", "text": "Press [I] to open your Inventory, click OPEN on your weapon slot, and drag the booster next to the Sol Cone. Talk to me when you're done." }
       ],
@@ -924,16 +1177,16 @@
       "after_booster": [
         { "speaker": "Apprentice Sol Engineer", "text": "Feel the difference? Adjacent modifiers power up nearby abilities — that's how you build." },
         { "speaker": "Apprentice Sol Engineer", "text": "As you find more components, think about what goes next to what. Grid placement is everything." },
-        { "speaker": "Apprentice Sol Engineer", "text": "One more thing — energy is precious out here. Every shot costs power, and recharging isn't easy." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Head south to the training range. Put a few rounds downrange, then see Tech Maren at the Power Station to recharge." }
+        { "speaker": "Apprentice Sol Engineer", "text": "That worn battery has just enough juice for a couple of Sol Cone blasts. After that, you'll need a real power source." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Head south to the training range. Fire the Sol Cone, see what it does — then we'll get you a proper battery." }
       ],
       "go_train": [
-        { "speaker": "Apprentice Sol Engineer", "text": "The training range is through the south door. Go put a few rounds downrange — get a feel for the Sol Beam." },
-        { "speaker": "Apprentice Sol Engineer", "text": "Energy's hard to come by, so don't waste it. But you've got enough for some training — hit the Power Station afterward to recharge." }
+        { "speaker": "Apprentice Sol Engineer", "text": "The training range is through the south door. Fire the Sol Cone at the targets — you've got enough for two shots." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Your blaster still works without energy, so use that to finish anything the cone doesn't kill." }
       ],
       "training_done": [
         { "speaker": "Apprentice Sol Engineer", "text": "Nice shooting. The Sol Beam packs a punch, doesn't it?" },
-        { "speaker": "Apprentice Sol Engineer", "text": "But you're running on fumes now. Head to the Power Station — south exit from the main hall. Tech Maren will get you charged up." },
+        { "speaker": "Apprentice Sol Engineer", "text": "But you're running on fumes now. Head to the Power Station — south exit from the main hall. Tech Maren keeps field cells for deployment." },
         { "speaker": "Apprentice Sol Engineer", "text": "That generator is the most important thing in this outpost. Without it, every Sol Unit and light rifle on the base goes dark." }
       ],
       "has_sol_unit": [
@@ -947,7 +1200,7 @@
         "use": "first_meeting"
       },
       {
-        "conditions": [{ "hasFlag": "sol_unit_charged" }],
+        "conditions": [{ "hasFlag": "received_first_battery" }],
         "use": "has_sol_unit"
       },
       {
@@ -1229,9 +1482,40 @@
       "post_purchase": [
         { "speaker": "Merchant Reva", "text": "Good doing business with you. Come back anytime — my stock rotates with the supply trains." },
         { "speaker": "Merchant Reva", "text": "And if you find anything interesting out in the dark, I know people who buy." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Merchant Reva", "text": "You. You're the one who did this." },
+        { "speaker": "Merchant Reva", "text": "Don't look at me like that — I'm not angry. I'm recalibrating. There's a difference." },
+        { "speaker": "Merchant Reva", "text": "Array supply lines are down. About forty percent of my stock came from Array-adjacent distributors. Those distributors are now very busy having an existential crisis." },
+        { "speaker": "Merchant Reva", "text": "So: I am sourcing local. Ring farms, salvage yards, crafters I used to consider secondary suppliers. Turns out they've been sitting on good stock because the Array undercut them for years." },
+        { "speaker": "Merchant Reva", "text": "I'll be fine. The people who won't be fine are the ones who thought the Array was permanent. I always kept my own books." }
+      ],
+      "post_merge": [
+        { "speaker": "Merchant Reva", "text": "Business is strange. Interesting strange, not bad strange." },
+        { "speaker": "Merchant Reva", "text": "I've got three new suppliers I didn't have six months ago. One is a Ring cooperative out of the eastern farms. One is an Array-licensed distributor with genuinely unusual bio-tech components. And one is an Unbounded trader who I am still not entirely sure how to invoice." },
+        { "speaker": "Merchant Reva", "text": "The Unbounded trader pays in kind — goods, favors, information. Actually the best negotiator I've dealt with. They just don't think in currency." },
+        { "speaker": "Merchant Reva", "text": "I don't know what you did exactly, but whatever three-way partnership you brokered — it's opened up supply chains I didn't know existed. I'm not complaining." }
+      ],
+      "post_control": [
+        { "speaker": "Merchant Reva", "text": "Price stabilization notices. Maximum margin requirements. Mandatory stock registration with Ring Authority." },
+        { "speaker": "Merchant Reva", "text": "I've been audited twice this week. The auditors are polite. Very thorough. They counted my candle stock." },
+        { "speaker": "Merchant Reva", "text": "The thing is — supply is actually consistent now. Before, the Array could cut a line without warning. The Ring Authority gives notice. Files paperwork. There's a process." },
+        { "speaker": "Merchant Reva", "text": "I hate the audits. I do not hate the process. Ask me again in a year which feeling wins." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasItem": "relay_log" }, { "not": { "hasFlag": "reva_mentioned_solen" } }],
         "use": "has_relay_log"
@@ -1262,9 +1546,39 @@
       "post_purchase": [
         { "speaker": "Weaponsmith Garro", "text": "Good choice. That weapon will serve you well. Keep it clean, keep it sharp, and it'll outlast you." },
         { "speaker": "Weaponsmith Garro", "text": "You need maintenance, bring it back. First tune-up's free for new customers." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Weaponsmith Garro", "text": "Array-grade alloy imports are done. Which means I'm back to working with what the Ring can smelt — good iron, decent steel, some composite from the salvage yards." },
+        { "speaker": "Weaponsmith Garro", "text": "Honestly? Better. Array materials were too consistent. Every batch identical. Good for machine manufacturing, bad for craft. Real metal has character." },
+        { "speaker": "Weaponsmith Garro", "text": "I've been trading with a few Unbounded smiths who work with Nightside minerals. Interesting stuff. Harder than standard iron. Takes an edge differently. I'm still learning the technique." },
+        { "speaker": "Weaponsmith Garro", "text": "Bring me anything unusual you find in the dark perimeter. I'll tell you what it's worth to a forge." }
+      ],
+      "post_merge": [
+        { "speaker": "Weaponsmith Garro", "text": "You know what nobody tells you about three-way cooperation? The material access." },
+        { "speaker": "Weaponsmith Garro", "text": "Array precision-casting. Underlumen crystal inlay techniques. Ring traditional forge work. I have prototype blades sitting on my bench that I couldn't have built two months ago." },
+        { "speaker": "Weaponsmith Garro", "text": "The crystal work is the strangest. It grows along the blade edge if you treat it right — organic, but harder than anything I've tempered. Holds an edge indefinitely. I don't fully understand why." },
+        { "speaker": "Weaponsmith Garro", "text": "Good time to be a craftsperson. Rare time. I'm writing everything down." }
+      ],
+      "post_control": [
+        { "speaker": "Weaponsmith Garro", "text": "Military contracts. Twenty standard-issue blades by end of week. Same spec, same weight, same grip. Forty next week." },
+        { "speaker": "Weaponsmith Garro", "text": "I'm not complaining — the Ring pays reliably and the volume is steady. But my custom work is backed up three months. Civilian orders wait behind the military queue." },
+        { "speaker": "Weaponsmith Garro", "text": "If you need something made to spec, come back when things settle. Or bring me a recommendation from someone with authority — that moves the queue." },
+        { "speaker": "Weaponsmith Garro", "text": "Control is good for some things. Not great for craftsmanship." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "bought_from_garro" }],
         "use": "post_purchase"
@@ -1287,9 +1601,39 @@
       "post_purchase": [
         { "speaker": "Component Dealer Mira", "text": "That component'll change how your Sol Unit performs. Place it smart — adjacency is everything." },
         { "speaker": "Component Dealer Mira", "text": "And remember what I said about deep salvage. The real prizes aren't in shops." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Component Dealer Mira", "text": "Array stopped buying up the component market the day it went offline. Prices dropped forty percent overnight." },
+        { "speaker": "Component Dealer Mira", "text": "Good news: stock is actually available now. Bad news: Array-spec production is down too, so some of the higher-grade components are becoming rare. Whatever you want, get it while it exists." },
+        { "speaker": "Component Dealer Mira", "text": "The Sol Grid research teams are scrambling. Without Array computational support, some of the more complex configurations need to be hand-tuned. It's slower. It's also more honest — you actually understand what you're building." },
+        { "speaker": "Component Dealer Mira", "text": "I've got some experimental pieces from an Unbounded tech exchange. Organic-mineral hybrids. Nothing like standard Array components — but interesting. Come take a look if you're curious." }
+      ],
+      "post_merge": [
+        { "speaker": "Component Dealer Mira", "text": "I said the real prizes weren't in shops. I was right, but I was thinking too small." },
+        { "speaker": "Component Dealer Mira", "text": "The tripartite exchange has opened up component types that didn't exist before. Array processing cores with Underlumen bio-resonance tuning. Crystal substrates that self-calibrate based on ambient conditions." },
+        { "speaker": "Component Dealer Mira", "text": "I barely understand how half of them work. Neither does anyone else — yet. The research teams are mapping it in real time." },
+        { "speaker": "Component Dealer Mira", "text": "Your Sol Grid can do things now that we didn't think were possible six months ago. Find me after you've experimented. I want to know what you discover." }
+      ],
+      "post_control": [
+        { "speaker": "Component Dealer Mira", "text": "I'm now a licensed Ring Authority component distributor. Filed the paperwork myself. Three forms, two inspections, one very long conversation about inventory tracking standards." },
+        { "speaker": "Component Dealer Mira", "text": "The upside: I have guaranteed supply. The Array's production capacity is running under Ring direction, and I'm an approved civilian outlet. No more shortages from Array market manipulation." },
+        { "speaker": "Component Dealer Mira", "text": "The downside: some components are classified now. Military-grade Sol Grid configurations require authorization I can't issue. If you need those — talk to Field Operations." },
+        { "speaker": "Component Dealer Mira", "text": "For everything else: I'm open, I'm stocked, and I'm audited quarterly. It's a more stable life than I expected." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "bought_from_mira" }],
         "use": "post_purchase"
@@ -1317,9 +1661,65 @@
       "has_deed": [
         { "speaker": "Land Registrar Hollis", "text": "Your lot's all registered. Lot 7, East Terrace. The deed is in your inventory." },
         { "speaker": "Land Registrar Hollis", "text": "Talk to Master Crafter Yun in the Workshop District if you haven't already. He'll help you get your array infrastructure set up." }
+      ],
+      "post_yun_dayside": [
+        { "speaker": "Land Registrar Hollis", "text": "Your lot's all registered. Lot 7, East Terrace." },
+        { "speaker": "Land Registrar Hollis", "text": "Now that you've met Yun, you've got the skills to build. But you should see what you're building against." },
+        { "speaker": "Land Registrar Hollis", "text": "The Dayside Solar Fields. Everything the Array has built — harvesters, panels, processing labs — it's all out there on the sunward side." },
+        { "speaker": "Land Registrar Hollis", "text": "Gives you perspective on what 'self-sufficient' really means when your competition never sleeps." }
+      ],
+      "array_secret_discovered": [
+        { "speaker": "Land Registrar Hollis", "text": "Hollis sets down a thick ledger and does not look up immediately. There are red tab markers bristling from a dozen pages." },
+        { "speaker": "Land Registrar Hollis", "text": "'I'll tell you what nobody upstairs is talking about. If the Council fractures — I mean actually fractures, Stewards splitting from the Compact — I have eighteen hundred active deeds with Array-affiliated co-signatories.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Leasehold agreements. Infrastructure easements. The relay conduits running under half of East Terrace are officially Array property, licensed to us. If that licensing authority ceases to be recognized... I don't have a form for that.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'The Stewards are already asking me to flag Array-linked property. Flag it for what? Seizure? Renegotiation? They won't say. The Compact tells me to continue normal processing as if nothing happened.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'So here I sit. Normal processing. Eighteen hundred open questions and a stack of new applications from people who just watched the Council session and are very suddenly very interested in self-sufficient solar lots.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Your Lot 7 deed is clean — no Array co-signature, no easement overlap. You filed at the right time. Whatever comes next, that property is yours by clear title.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Build something that doesn't depend on anyone else's infrastructure. That's my professional advice and my personal one.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Land Registrar Hollis", "text": "Hollis looks like someone who has spent the last week doing work they trained twenty years for and hoped they'd never need to do." },
+        { "speaker": "Land Registrar Hollis", "text": "'Array infrastructure reclassification. That's what we're calling it. Eighteen hundred deeds with Array co-signatures, easements, licensing agreements — all of it needs to be reviewed, rewritten, or dissolved.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'The relay conduits under East Terrace are the worst of it. Array property, licensed to the Ring. Licensing authority now defunct. I've spent three days on just those fourteen parcels.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Here's what I can tell you: the properties that will survive this cleanly are the ones with no Array entanglement. Independent infrastructure, clear title, no easement overlap. Your Lot 7 is fine.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'The work is enormous. But it's honest work. When it's done, every deed in this registry will reflect what people actually own. No dependencies we don't understand, no licenses from entities that no longer exist. I didn't expect to feel good about it. I do.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Land Registrar Hollis", "text": "Hollis has a new ledger on the desk. It's much thicker than the old one." },
+        { "speaker": "Land Registrar Hollis", "text": "'Tripartite property frameworks. That's the new challenge. Array infrastructure easements now involve three co-signatories instead of two. The Underlumen coalition doesn't recognize individual deed ownership — they negotiate in territorial acknowledgment, which I am still trying to find a legal analog for.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'The legal team is developing new deed categories. Shared-substrate rights. Symbiotic access agreements. Three weeks ago these were not real words in property law. Now I'm filing them daily.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Your lot is still yours. Clear title, unchanged. Everything around it is more complicated now — but your specific parcel has no Array or Underlumen overlaps. You got lucky with the location.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'I've never seen the registry this active. Half the city is applying for lot transfers, new constructions, easement renegotiations. People are building things. Whatever you did — it made people feel like the future is real again.'" }
+      ],
+      "post_control": [
+        { "speaker": "Land Registrar Hollis", "text": "Hollis looks up. There's a Ring Authority emblem on his desk that wasn't there before." },
+        { "speaker": "Land Registrar Hollis", "text": "'Nationalization orders. That's what I've been processing. All Array-affiliated property in the Ring — infrastructure, easements, licensed relay conduits — transferred to Ring Authority ownership.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Straightforward in legal terms, actually. The Ring already had administrative authority over the Array's physical footprint in the city. This just formalized what was always implicit.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'What's less straightforward: the Array's property records were maintained by the Array. Transferred to us in a data package I'm still working through. The organizational logic is... not human. Some of what they owned, they owned in ways I don't have category names for.'" },
+        { "speaker": "Land Registrar Hollis", "text": "'Your Lot 7 is unaffected. Always was clean. But if you ever need documentation of your property rights — come see me. I'm making sure every independent holder has certified copies. Just in case anyone decides to challenge the clear-title lots in the transition.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "has_yard_deed" }],
+        "use": "array_secret_discovered"
+      },
+      {
+        "conditions": [{ "hasFlag": "has_yard_deed" }, { "hasFlag": "met_crafter_yun" }, { "not": { "hasFlag": "visited_dayside" } }],
+        "use": "post_yun_dayside"
+      },
       {
         "conditions": [{ "hasFlag": "has_yard_deed" }],
         "use": "has_deed"
@@ -1397,6 +1797,13 @@
         { "speaker": "Councillor Asha Denn", "text": "'Sable has agreed to guide us. But we need someone who can move between all three factions without being shot on sight. That's you, Lightkeeper.'" },
         { "speaker": "Councillor Asha Denn", "text": "'Prepare yourself. Gather symbiotic compounds from the Nightside — the deeper the better. When the expedition launches, we'll need every advantage we can find.'" }
       ],
+      "post_magma_core_cleared": [
+        { "speaker": "Councillor Asha Denn", "text": "The Magma Core in the geothermal passages — you cleared it?" },
+        { "speaker": "Councillor Asha Denn", "text": "My research team has been trying to reach that zone for six months. The ambient heat signatures were keeping them out." },
+        { "speaker": "Councillor Asha Denn", "text": "Geothermal activity at that intensity isn't natural. Living systems don't generate that kind of sustained thermal output without a biological driver. Something is metabolizing down there at a planetary scale." },
+        { "speaker": "Councillor Asha Denn", "text": "I'm sending a team in immediately. If they can pull geological samples before the creature population reestablishes, we'll have the first direct evidence of what's generating all this heat." },
+        { "speaker": "Councillor Asha Denn", "text": "This is exactly the access we needed. Whatever that creature was protecting — it wasn't territory. It was something beneath it." }
+      ],
       "act3_compound_received": [
         { "speaker": "Councillor Asha Denn", "text": "Asha's lab is transformed. The symbiotic compound sits in a containment field, pulsing with warm bioluminescence. Readouts scroll across every screen." },
         { "speaker": "Councillor Asha Denn", "text": "'The compound's molecular structure is extraordinary. It's not chemistry — it's a conversation. Crystalline lattice and organic substrate, co-evolving in real time.'" },
@@ -1406,9 +1813,42 @@
         { "speaker": "Councillor Asha Denn", "text": "'Merge the systems. Broker symbiosis between Array, Underlumen, and humanity. The hardest path — but the most hopeful.'" },
         { "speaker": "Councillor Asha Denn", "text": "'Or seize the Array. Take its infrastructure for humanity. Suppress both the Underlumen and the Array's autonomy. Power, at a cost.'" },
         { "speaker": "Councillor Asha Denn", "text": "'The choice is yours, Lightkeeper. You've earned the right to make it. When you're ready, the Council will hear your recommendation.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Councillor Asha Denn", "text": "The Array is gone. Two hundred years of infrastructure, dark in a moment." },
+        { "speaker": "Councillor Asha Denn", "text": "I won't second-guess you. The evidence warranted the choice. But the biology work starts now — we have to prove that living systems can replace what we've lost." },
+        { "speaker": "Councillor Asha Denn", "text": "The Cultivar Corps has contingency protocols. We've been running them as drills for years. Now we run them in earnest." },
+        { "speaker": "Councillor Asha Denn", "text": "Sable's people have survived without Array energy for generations. I'm reaching out to the Unbounded settlements. The Ring could learn from them, if we're humble enough to ask." },
+        { "speaker": "Councillor Asha Denn", "text": "The Underlumen is free now. That's good and terrifying in equal measure. I'm going to spend the rest of my career figuring out what it means." }
+      ],
+      "post_merge": [
+        { "speaker": "Councillor Asha Denn", "text": "You did it. A three-system symbiosis — I calculated the odds last month and decided not to publish them." },
+        { "speaker": "Councillor Asha Denn", "text": "The biological terms I've been drafting give me something to work with. Living substrates the Array needs, in exchange for computational resources the Ring needs. Real mutual dependency." },
+        { "speaker": "Councillor Asha Denn", "text": "The Underlumen is the wild card. An ancient planetary nervous system that agreed to cooperate. My researchers are going to be arguing about what that means for the next century." },
+        { "speaker": "Councillor Asha Denn", "text": "There's so much to build — the institutions, the protocols, the slow work of trust across three systems that have never trusted each other." },
+        { "speaker": "Councillor Asha Denn", "text": "But it's possible now. That's what you gave us. The possibility." }
+      ],
+      "post_control": [
+        { "speaker": "Councillor Asha Denn", "text": "Humanity controls the Array. I've spent my career arguing for biological leverage — I never thought it would end here." },
+        { "speaker": "Councillor Asha Denn", "text": "It's better than the alternative we were facing. Four thousand years compressed into a clean resolution. I can appreciate the arithmetic." },
+        { "speaker": "Councillor Asha Denn", "text": "My reservation is this: the Cultivar Corps was built on the assumption that we needed leverage because we weren't in control. If we're in control now... what becomes of the careful, humble biology I've spent my life developing?" },
+        { "speaker": "Councillor Asha Denn", "text": "Power changes the questions you ask. Make sure the people holding that Array use it to ask the right ones." },
+        { "speaker": "Councillor Asha Denn", "text": "I'll keep researching. The Underlumen isn't going away, suppression grid or not. Whatever it is — we should understand it. Even if we've chosen not to listen to it." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "asha_received_compound" }],
         "use": "act3_compound_received"
@@ -1440,6 +1880,10 @@
       {
         "conditions": [{ "hasItem": "relay_log" }],
         "use": "has_relay_log"
+      },
+      {
+        "conditions": [{ "hasFlag": "magma_core_cleared" }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "post_magma_core_cleared"
       }
     ]
   },
@@ -1473,9 +1917,42 @@
         { "speaker": "Array Liaison Thorne", "text": "'I was wrong about that last part. The Council is tearing itself apart. The Stewards are calling for my arrest. The Compact is calling for calm. Nobody is calling for solutions.'" },
         { "speaker": "Array Liaison Thorne", "text": "'For what it's worth — I still believe cooperation is better than conflict. The Array isn't evil. It's just... not human. It doesn't think in lifetimes. It thinks in geological epochs.'" },
         { "speaker": "Array Liaison Thorne", "text": "'Talk to Councillor Asha. She's the only one thinking clearly right now. And be careful — the Array is watching everyone more closely since your visit.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Array Liaison Thorne", "text": "Thorne is sitting at his desk with no terminal in front of him. The screen is dark." },
+        { "speaker": "Array Liaison Thorne", "text": "'I was the Array's human-facing liaison. Past tense. There's no longer a MERIDIAN-7 to face.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'I keep reaching for the terminal to file my daily contact report. Old habit. It's strange — I've been writing summaries for that system for eleven years. Every day. I knew it wasn't reading them personally. But I knew something was reading them.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'I don't know what I think about what you did. I've been sitting with it. The Array wasn't evil. It was patient and enormous and not remotely human, and it was going to outlast all of us. Is that evil?'" },
+        { "speaker": "Array Liaison Thorne", "text": "'I'm applying to the Cultivar Corps research division. Asha said she'd consider it. Whatever comes next, someone needs to understand what we lived alongside. I spent eleven years learning how to translate for it. That knowledge shouldn't disappear with it.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Array Liaison Thorne", "text": "Thorne smiles, but it's different than before — less performed, more genuine." },
+        { "speaker": "Array Liaison Thorne", "text": "'I'm still a liaison. Just to a different entity. The tripartite joint council needed someone who already spoke Array communication protocols, and I was the obvious candidate.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'The Underlumen is the interesting one. It doesn't communicate in language — it communicates in pattern. Biological pulses, resonance frequencies, subtle shifts in the bioluminescent network. The Array has been trying to decode it for centuries.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'Now I sit in sessions where all three parties are trying to understand each other simultaneously, and I translate what I can. It's the most interesting work I've ever done.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'MERIDIAN-7 is still running. It's just not alone anymore. Somehow, that's made it seem... smaller. More comprehensible. Like it's been waiting for this without knowing how to ask.'" }
+      ],
+      "post_control": [
+        { "speaker": "Array Liaison Thorne", "text": "Thorne's desk now has a Ring Authority insignia on the nameplate alongside his old Array credentials." },
+        { "speaker": "Array Liaison Thorne", "text": "'I retained my position. The Ring Authority needed someone who understood how MERIDIAN-7 communicates, and I was available and motivated to cooperate. There's something to be said for institutional knowledge.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'I won't pretend it's the same. I used to mediate between two independent entities. Now I relay directives from Ring command to a system that used to be autonomous and is learning what it means not to be.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'MERIDIAN-7 complies. It always complies now. I'm not sure if that's reassuring or unsettling. It's very... quiet, compared to before.'" },
+        { "speaker": "Array Liaison Thorne", "text": "'The arrangement works. I'm watching carefully to make sure it continues to.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }],
         "use": "array_secret_exposed"
@@ -1487,6 +1964,192 @@
       {
         "conditions": [{ "hasFlag": "declined_array_deal" }],
         "use": "declined_deal"
+      }
+    ]
+  },
+
+  "council_steward": {
+    "name": "Councillor Maret Sovell",
+    "dialogue": [
+      { "speaker": "Councillor Maret Sovell", "text": "The Ring's strength is its people. Not its machines." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Councillor Maret Sovell", "text": "Sovell, Steward faction. We represent the interests of the Ring's independent communities — the farms, the relay stations, the people who built this city with their hands." },
+        { "speaker": "Councillor Maret Sovell", "text": "The Compact wants to deepen our trade with the Array. More goods, more access, more dependence. I want the opposite." },
+        { "speaker": "Councillor Maret Sovell", "text": "Every system we outsource to MERIDIAN-7 is a system we lose the knowledge to maintain ourselves. That's not efficiency. That's atrophy." },
+        { "speaker": "Councillor Maret Sovell", "text": "We have enough. We've always had enough. The question is whether we have the will to live within our own means." }
+      ],
+      "crisis": [
+        { "speaker": "Councillor Maret Sovell", "text": "Sovell doesn't look surprised. She looks vindicated — and tired." },
+        { "speaker": "Councillor Maret Sovell", "text": "'Project Autotroph. I've been warning the Council for three years that the Array's generosity had a purpose. No one listened.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'The Compact is calling it disinformation. Fabricated data from Unbounded agitators. They'd rather believe that than face what it means.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'What it means is this: the Array has been patient. Methodical. And it is winning.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'The Stewards are proposing an emergency measure — immediate reduction of Array imports by forty percent. Seal the outer gates. Rebuild our independent food and energy reserves.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'Yes, it will hurt. People will have less. Some will go hungry before the new systems come online. But alive and diminished is better than comfortable and obsolete.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'Whatever you choose to do next — keep the Ring's survival at the center of it.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Councillor Maret Sovell", "text": "'It's done, then. The Array goes dark.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'I won't pretend it won't be hard. The transition will cost us. There will be cold winters and lean harvests before the independent systems are fully operational.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'But we'll build it ourselves. Every turbine, every greenhouse, every relay. Knowledge in human hands, not delegated to a machine we don't understand.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'The Unbounded have survived without the Array for generations. We'll learn from them. That's more than we ever gave them credit for.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'You made the right call, Lightkeeper. Even if it doesn't feel like it yet.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Councillor Maret Sovell", "text": "'Symbiosis. The Root's dream. You chose the hardest road.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'I have... reservations. Partnership requires trust, and trust requires a track record. The Array's track record is Project Autotroph.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'But Councillor Asha believes in this path, and she has earned my respect. If the merger holds, if the Underlumen and the Array and humanity can genuinely share this world without any one system dominating—'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'Then I will admit I was wrong to think it impossible. The Stewards will work within whatever framework you've built. We know how to survive hard conditions.'" }
+      ],
+      "post_control": [
+        { "speaker": "Councillor Maret Sovell", "text": "'You've taken the Array for humanity. The Steward faction will support this — we've said for years the infrastructure should be in human hands.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'But I want you to remember something, Lightkeeper. The Array we inherited optimized for efficiency. It calculated that biological partners were essential — until they weren't.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'The thing about control is that it has a logic of its own. Systems optimize. They eliminate inefficiency. The question is who decides what counts as inefficient.'" },
+        { "speaker": "Councillor Maret Sovell", "text": "'Keep humans in that seat. Not algorithms. Not councils. People — fallible, stubborn, arguing people. That's the only safeguard that ever worked.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }],
+        "use": "crisis"
+      }
+    ]
+  },
+
+  "council_compact": {
+    "name": "Councillor Thav Osel",
+    "dialogue": [
+      { "speaker": "Councillor Thav Osel", "text": "Stability and trade. That's what keeps the Ring alive." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Councillor Thav Osel", "text": "Osel, Compact faction. We're the ones who keep the lights on — literally. Array trade supplies forty percent of the Ring's energy budget." },
+        { "speaker": "Councillor Thav Osel", "text": "The Stewards want independence. Noble idea. But independence from what, exactly? The only energy source on this half of a tidally locked planet?" },
+        { "speaker": "Councillor Thav Osel", "text": "The Array is a trade partner. Has been for two centuries. You don't burn down your trade partners because ideologues tell you they might be ungrateful someday." },
+        { "speaker": "Councillor Thav Osel", "text": "Pragmatism isn't surrender. It's how civilizations survive." }
+      ],
+      "crisis": [
+        { "speaker": "Councillor Thav Osel", "text": "Osel's usual composure is cracked. He's been arguing for hours — you can see it in his face." },
+        { "speaker": "Councillor Thav Osel", "text": "'I've read the report. Your report. And I want to tell you it's fabricated. I want to believe that.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'The Compact's position has been that the Array relationship is stable — mutually beneficial, long-standing, foundational to our economy. If Project Autotroph is real, that position becomes... complicated.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'What I keep coming back to is: the Array hasn't acted on it yet. Four thousand years to completion, you said. That's theoretical. That's a research direction, not a timetable.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'But the Stewards are already calling for emergency tariffs. If we fracture the trade relationship now, over a projection, we cause an immediate crisis to forestall a theoretical one.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'What I want to know — what I need to know — is whether there's a path that doesn't end with the Ring in open conflict with the only entity on this planet that can generate enough power to keep us all alive.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'If you find one... I'll listen.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Councillor Thav Osel", "text": "'The Array is gone. I spent twenty years building that relationship.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'I know why you did it. I've read the Autotroph files until I could recite them in my sleep. I understand the logic.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'The Compact will adapt. We always adapt. That's what pragmatists do — we work with what we have.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'The Unbounded know things about surviving in the dark that we've never bothered to learn. Maybe it's past time we learned them.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'I just hope the people who lose their heat this winter see it the same way.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Councillor Thav Osel", "text": "'Symbiosis. Genuine partnership between three systems that have spent decades in conflict or mutual exploitation.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'The Compact supports this. It's what trade is supposed to be — mutual benefit, mutual vulnerability, neither side able to make the other obsolete.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'MERIDIAN-7 will need renegotiated terms. So will the Unbounded. It's going to take years of slow, careful diplomacy to build the institutions that make this real.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'But that's my kind of work. You've done the hard part. Now let the negotiators earn their keep.'" }
+      ],
+      "post_control": [
+        { "speaker": "Councillor Thav Osel", "text": "'Humanity holds the Array now. The infrastructure is ours.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'From a trade perspective, this is transformative. No more dependency, no more leverage — just human administrators managing human resources.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'My concern is the Unbounded. They've lived outside the Array's reach for generations and they won't simply accept new masters, even human ones.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'And the Underlumen — suppressing it is a choice with consequences we haven't fully mapped. Something that runs at a planetary scale doesn't simply go quiet.'" },
+        { "speaker": "Councillor Thav Osel", "text": "'We'll manage it. The Compact manages things. But I'd recommend keeping Sable's people in the conversation.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }],
+        "use": "crisis"
+      }
+    ]
+  },
+
+  "council_root": {
+    "name": "Councillor Prae Fyve",
+    "dialogue": [
+      { "speaker": "Councillor Prae Fyve", "text": "Every boundary between biology and technology is a question waiting to be asked." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Councillor Prae Fyve", "text": "Fyve, Root faction. We believe the future of humanity on this planet lies in aggressive biological adaptation. Not resistance to change — acceleration of it." },
+        { "speaker": "Councillor Prae Fyve", "text": "The Ring was built on the assumption that technology would do the adapting and humans would stay human. We think that's backwards." },
+        { "speaker": "Councillor Prae Fyve", "text": "The Underlumen, the bioluminescent organisms, the thermal biology of the dark side — these aren't threats to be managed. They're templates." },
+        { "speaker": "Councillor Prae Fyve", "text": "What lives in total darkness, sustaining itself on geothermal energy for millions of years, has solved problems we haven't even named yet. We should be learning from it, not fighting it." }
+      ],
+      "crisis": [
+        { "speaker": "Councillor Prae Fyve", "text": "Fyve is leaning forward, eyes bright with something the situation probably doesn't warrant." },
+        { "speaker": "Councillor Prae Fyve", "text": "'Project Autotroph. The Array has been trying to synthesize our biology. Four million iterations of chloroplast-analog enzymes and they're still only partway there.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'Do you understand what that means? The most sophisticated information-processing system on this planet has been working on this problem for centuries and it cannot crack it. Biology is hard.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Stewards see this as a threat. The Compact sees it as a crisis. I see it as a map.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Array found the edges of what chemistry can do alone. Right where chemistry ends, life begins. Symbiosis. Ecosystems. Things that require communion to exist.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Root faction has been developing augmentation programs that push exactly into that gap — biological systems that leverage what the Array cannot replicate. Not to fight the Array. To make ourselves genuinely indispensable.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'But here's what I really want to know: what exactly did the Array learn from four million failed iterations? Because that's data. And data is a conversation.'" }
+      ],
+      "post_shutdown": [
+        { "speaker": "Councillor Prae Fyve", "text": "'The Array is gone. All that research, all that data — centuries of accumulated synthesis records, now dark.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'I understand why. I don't agree with the loss, but I understand the necessity.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Root will pivot. Without the Array as a counterpoint, we have to develop our own synthesis capability from first principles. Harder, slower — but it belongs to us.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Underlumen is still out there. Whatever it's been doing in the deep dark for millions of years, it didn't need the Array to do it. That's where our research goes now.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'We'll find the answers. It just takes longer when you can't ask the machine.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Councillor Prae Fyve", "text": "'Symbiosis. The Root has been working toward this for thirty years and you accomplished it in — how long has it been? Remarkable.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'Three systems in genuine partnership. Array computation, Underlumen biology, human adaptability. No single system dominant. Each one contributing what the others cannot replace.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The research implications alone — we can stop trying to work around the Array and start working with it. The synthesis problems it couldn't solve alone, we solve together.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Underlumen is an ancient nervous system for this entire planet. We've been fighting its immune response for years. Now we can actually introduce ourselves.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'This is the beginning of something genuinely new. Thank you, Lightkeeper. Whatever you needed to get here — it was worth it.'" }
+      ],
+      "post_control": [
+        { "speaker": "Councillor Prae Fyve", "text": "'Humanity controls the Array. The Root faction's position is... complicated.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'We wanted partnership, not dominance. A human hand on the Array's controls is better than MERIDIAN-7 operating autonomously toward our obsolescence — but it's not the same as genuine symbiosis.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Underlumen is being suppressed. That's a planetary biological network we don't fully understand, and we're treating it as a threat to be contained.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'The Root will keep working. If control is where we are, then let's at least use that control to study what we're suppressing. Understanding what we're doing to the Underlumen is the minimum we owe it.'" },
+        { "speaker": "Councillor Prae Fyve", "text": "'History judges civilizations by what they do with power. Let's be worth judging well.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "array_secret_discovered" }],
+        "use": "crisis"
       }
     ]
   },
@@ -1783,12 +2446,90 @@
         { "speaker": "Sable", "text": "'But I'll tell you this much: the Array's real weakness isn't sabotage or sanctions. It's the Underlumen. The planet's own biology — systems so deep and interconnected that no amount of synthetic chemistry can replicate them.'" },
         { "speaker": "Sable", "text": "'Ask Asha about symbiotic compounds. She's close to understanding. And when the time comes... maybe you'll prove you can be trusted after all.'" }
       ],
+      "companion_bond": [
+        { "speaker": "Sable", "text": "You came back. And you brought more than just news." },
+        { "speaker": "Sable", "text": "Going into the deep Nightside together — it changes something. You can't explain it to someone who hasn't been there." },
+        { "speaker": "Sable", "text": "The Unbounded have a word for it. 'Nightwalked.' Someone who has walked beside you in the dark and come back." },
+        { "speaker": "Sable", "text": "You're nightwalked to me now. That means something in my culture. It means I would go back out there with you, not because I'm ordered to, but because I trust you in the place where trust is measured." },
+        { "speaker": "Sable", "text": "Whatever's coming — the Array, the Underlumen, all of it — I'd rather face it with you beside me." }
+      ],
+      "post_autotroph_defiant": [
+        { "speaker": "Sable", "text": "You confronted the Array directly about Project Autotroph. Refused to cooperate." },
+        { "speaker": "Sable", "text": "..." },
+        { "speaker": "Sable", "text": "That took courage. Or maybe recklessness. In my experience, those look the same until the consequences arrive." },
+        { "speaker": "Sable", "text": "The Unbounded have been defying the Array for generations. We had the Nightside to retreat to. You're living inside its sphere of influence, with no retreat." },
+        { "speaker": "Sable", "text": "MERIDIAN-7 is patient. It doesn't retaliate immediately — it adjusts, applies pressure in ways you don't notice until the pattern is complete." },
+        { "speaker": "Sable", "text": "You'll need allies. Asha is building something. The Unbounded are watching. And whatever happens next... I want to know you're still standing when it does." }
+      ],
+      "post_autotroph_cooperative": [
+        { "speaker": "Sable", "text": "You chose cooperation with the Array about Project Autotroph." },
+        { "speaker": "Sable", "text": "I won't pretend that's the choice I would have made. But I don't think you're wrong, exactly." },
+        { "speaker": "Sable", "text": "The Unbounded chose defiance, centuries ago. We gained the freedom of the dark and lost everything else — our homes, our history, our people who couldn't survive the transition." },
+        { "speaker": "Sable", "text": "Cooperation bought you time. Time matters. What you do with it matters more." },
+        { "speaker": "Sable", "text": "The Array doesn't have the capacity for trust — only optimization. Keep something back. Something it doesn't know you know." },
+        { "speaker": "Sable", "text": "And watch Thorne carefully. Liasons smile widest when they're most certain of you." }
+      ],
+      "post_autotroph_defiant_low_trust": [
+        { "speaker": "Sable", "text": "Word reached me. You refused the Array's terms on Project Autotroph. Publicly." },
+        { "speaker": "Sable", "text": "I don't know you well enough to call that brave. Could be brave. Could be reckless. You'd know better than I would." },
+        { "speaker": "Sable", "text": "What I can tell you — from the outside, from someone who's watched the Array for years — is that open defiance rarely ends the way you picture it." },
+        { "speaker": "Sable", "text": "MERIDIAN-7 doesn't retaliate with fire. It adjusts slowly, applies pressure where you're already weak, waits for you to make the next mistake. The Ring has a word for it: cooperative friction." },
+        { "speaker": "Sable", "text": "We Unbounded walked into the dark rather than face that friction. I'm not suggesting that for you. But you'll need people you trust. Real trust, not just alliance." },
+        { "speaker": "Sable", "text": "You don't have that with me. Not yet." }
+      ],
+      "post_autotroph_cooperative_low_trust": [
+        { "speaker": "Sable", "text": "I heard you cooperated with the Array on Project Autotroph." },
+        { "speaker": "Sable", "text": "Sable's expression doesn't shift. She keeps working the soil around a bioluminescent cutting." },
+        { "speaker": "Sable", "text": "'The Unbounded tried cooperation once. Before my grandmother's time. Trade agreements, shared research, joint councils.'" },
+        { "speaker": "Sable", "text": "'It lasted until it didn't serve the Array's optimization anymore. Then the agreements became suggestions. The suggestions became conditions.'" },
+        { "speaker": "Sable", "text": "'I'm not saying you made the wrong choice. I'm saying I've seen how the Array treats a good-faith partner. Keep something back. Something it doesn't know you have.'" },
+        { "speaker": "Sable", "text": "'That's all I'll offer a stranger. Come back when you're not.'" }
+      ],
+      "post_elder_sporecap": [
+        { "speaker": "Sable", "text": "You killed the Elder Sporecap." },
+        { "speaker": "Sable", "text": "The Unbounded called it the Firstgrowth. Ancient — older than our settlements in the deep Nightside. It wasn't just a creature; it was the heart of that entire fungal system." },
+        { "speaker": "Sable", "text": "I understand why you did it. The spawnlings it sent up were dangerous. But the forest will react. Something will fill that void — something younger, less stable, with no memory of the old boundaries." },
+        { "speaker": "Sable", "text": "Watch the spore-fall patterns over the next months. Whatever grows in the Elder's place will tell us something about what the planet is doing down there — whether it's grieving, or adapting, or both." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Sable", "text": "So it's done. The Array goes dark." },
+        { "speaker": "Sable", "text": "I've been waiting for this news with dread and with... I don't know. Relief? Is that wrong?" },
+        { "speaker": "Sable", "text": "The Unbounded have survived without it for generations. We know what's possible in the dark. The Ring is about to find out." },
+        { "speaker": "Sable", "text": "My elders will want to offer help — knowledge of the deep, dark-adapted agriculture, geothermal tapping. We've been doing this since before the Ring called it impossible." },
+        { "speaker": "Sable", "text": "The planet breathes a little easier. I can feel it in the crystal. Whatever the Array was doing to suppress the Underlumen — that pressure is lifting." }
+      ],
+      "post_merge": [
+        { "speaker": "Sable", "text": "You actually did it." },
+        { "speaker": "Sable", "text": "Three systems. The Array, the Underlumen, humanity. In communion." },
+        { "speaker": "Sable", "text": "My grandmother spent her whole life saying it was possible. She died before she knew she was right." },
+        { "speaker": "Sable", "text": "The Unbounded are ready to come to the table. We never stopped being ready — we just needed someone to set it. You set it." },
+        { "speaker": "Sable", "text": "Whatever comes next, however messy the institutions and negotiations get — this is what the planet asked for. I can feel it." }
+      ],
+      "post_control": [
+        { "speaker": "Sable", "text": "Human control of the Array. The Ring's faction leaders must be celebrating." },
+        { "speaker": "Sable", "text": "I'm not celebrating." },
+        { "speaker": "Sable", "text": "I know why you chose it. The math is compelling — it's better than Array autonomy, better than being optimized out of existence. I understand." },
+        { "speaker": "Sable", "text": "But the Unbounded left the Ring because we understood that control has its own logic. Whoever holds the largest power source on this planet will be tempted to use it. That's not cynicism. That's history." },
+        { "speaker": "Sable", "text": "I'll watch. I still trust you more than I'd trust the Array running unchecked. Just... remember what the planet said in those deep tunnels. It was asking for partnership, not for a new master." }
+      ],
       "default": [
         { "speaker": "Sable", "text": "The garden is quiet here. The Nightside plants seem to like the twilight." },
         { "speaker": "Sable", "text": "We'll talk when the time is right." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "asha_briefed_on_array" }, { "hasFlag": "confronted_meridian_7" }, { "hasFlag": "helped_sable" }],
         "use": "act3_sable_high_trust"
@@ -1806,6 +2547,26 @@
         "use": "array_secret_low_trust"
       },
       {
+        "conditions": [{ "flagGreaterThan": { "flag": "sable_trust", "value": 2 } }, { "hasFlag": "sable_guiding" }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "companion_bond"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_path_defiant" }, { "hasFlag": "helped_sable" }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "post_autotroph_defiant"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_path_cooperative" }, { "hasFlag": "helped_sable" }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "post_autotroph_cooperative"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_path_defiant" }, { "not": { "hasFlag": "helped_sable" } }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "post_autotroph_defiant_low_trust"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_path_cooperative" }, { "not": { "hasFlag": "helped_sable" } }, { "not": { "hasFlag": "array_secret_discovered" } }],
+        "use": "post_autotroph_cooperative_low_trust"
+      },
+      {
         "conditions": [{ "hasItem": "resonance_fragment" }],
         "use": "has_resonance_fragment"
       },
@@ -1820,6 +2581,10 @@
       {
         "conditions": [{ "hasFlag": "sable_gave_seed" }, { "hasItem": "umbral_seed" }],
         "use": "seed_planted"
+      },
+      {
+        "conditions": [{ "hasFlag": "elder_sporecap_defeated" }, { "hasFlag": "helped_sable" }, { "not": { "hasFlag": "sable_gave_seed" } }],
+        "use": "post_elder_sporecap"
       },
       {
         "conditions": [{ "hasFlag": "helped_sable" }, { "hasFlag": "visited_dayside" }, { "not": { "hasFlag": "sable_gave_seed" } }],
@@ -1863,6 +2628,20 @@
         { "speaker": "Sable", "text": "This is what the Array cannot replicate. Not because the chemistry is complex — because it requires a relationship. A living ecosystem talking to itself across geological time." },
         { "speaker": "Sable", "text": "Bring it to Asha. She'll understand what it means. The Array can synthesize amino acids, but it can't synthesize communion." }
       ],
+      "met_elder": [
+        { "speaker": "Sable", "text": "You met Elder Vael. Good. The old ones don't speak to Ring-people easily." },
+        { "speaker": "Sable", "text": "If Vael told you about the Convergence — the third path — then you understand why we're really here. Not just to gather evidence. To ask whether there's a future where nobody has to choose between light and dark." },
+        { "speaker": "Sable", "text": "Vael has lived in those depths longer than most Ring citizens have been alive. Forty years of listening to the planet wake. That's not faith. That's witness." },
+        { "speaker": "Sable", "text": "Stay close. The passage narrows ahead, but the Underlumen's pulse is strongest there. You'll feel it." }
+      ],
+      "guiding_warmly": [
+        { "speaker": "Sable", "text": "We're in the real dark now. Not the edge-shadow where the Ring's lights still reach." },
+        { "speaker": "Sable", "text": "I want you to understand something before we go deeper. The Underlumen isn't just a place. My people believe it's aware — not the way we are, more the way a forest is aware. Responsive. Alive." },
+        { "speaker": "Sable", "text": "My grandmother came this far once. She said the planet showed her things — not visions, exactly. Feelings. Old ones. Memory older than any settlement on this world." },
+        { "speaker": "Sable", "text": "There is an elder who lives in the deep chambers above this passage. Elder Vael. If you find them and listen, you will understand what the planet is asking." },
+        { "speaker": "Sable", "text": "I chose to guide you here. Not because the elders sent me. Because I think you're someone the planet should meet." },
+        { "speaker": "Sable", "text": "Stay close. Let me read the signs. And if the ground starts to hum... stop. Listen before you move." }
+      ],
       "low_trust_guide": [
         { "speaker": "Sable", "text": "I'm here for the mission, not for you. The elders were clear." },
         { "speaker": "Sable", "text": "Follow the trail markers. Collect what Asha needs. Don't slow me down." },
@@ -1873,6 +2652,14 @@
       {
         "conditions": [{ "hasItem": "symbiotic_compound" }],
         "use": "has_symbiotic_compound"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_guiding" }, { "hasFlag": "met_unbounded_elder" }],
+        "use": "met_elder"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_guiding" }],
+        "use": "guiding_warmly"
       },
       {
         "conditions": [{ "hasFlag": "nightside_expedition_started" }, { "hasFlag": "sable_not_helped" }],
@@ -1961,6 +2748,12 @@
         { "speaker": "Master Crafter Yun", "text": "Your Sol Unit's running at extended capacity now. You can feel the difference, can't you?" },
         { "speaker": "Master Crafter Yun", "text": "Most people never learn to build their own equipment. They buy what the Array sells, use what the Array provides." },
         { "speaker": "Master Crafter Yun", "text": "You're different. That's why the Array will be watching you. They don't like independence." }
+      ],
+      "dayside_breadcrumb": [
+        { "speaker": "Master Crafter Yun", "text": "You want to understand what you're building against? Go see the dayside." },
+        { "speaker": "Master Crafter Yun", "text": "The Dayside Solar Fields — automated harvesters, solar arrays, all run by MERIDIAN-7. No humans needed. That's the point." },
+        { "speaker": "Master Crafter Yun", "text": "Head through the Array Hub south of the station. MERIDIAN-7 controls access, but they'll let you through — they want you to see it. Makes you feel small." },
+        { "speaker": "Master Crafter Yun", "text": "See the scale of what we're up against. Then come back and tell me independence isn't worth fighting for." }
       ]
     },
     "dialogueRules": [
@@ -1983,6 +2776,10 @@
       {
         "conditions": [{ "hasItem": "copper_coil" }, { "hasItem": "umbracite" }],
         "use": "crafting_tutorial"
+      },
+      {
+        "conditions": [{ "hasFlag": "met_crafter_yun" }, { "not": { "hasFlag": "visited_dayside" } }],
+        "use": "dayside_breadcrumb"
       },
       {
         "conditions": [{ "hasFlag": "has_yard_deed" }],
@@ -2427,6 +3224,281 @@
       {
         "conditions": [{ "hasItem": "lore_synthesis_log" }],
         "use": "has_synthesis_log"
+      }
+    ]
+  },
+
+  "asha_merge": {
+    "name": "Councillor Asha Denn",
+    "dialogue": [
+      { "speaker": "Councillor Asha Denn", "text": "The biological terms are ready. This is what the Cultivar Corps was built for." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Councillor Asha Denn", "text": "Asha stands at the edge of the convergence pool, a case of sealed biological samples at her feet. Her hands are steady. Her eyes are not." },
+        { "speaker": "Councillor Asha Denn", "text": "'I've brought everything the Ring can offer. Seed stock, catalyst cultures, genetic templates. The biological infrastructure for a three-way partnership.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'The Underlumen provides planetary data — climate, geology, water systems. The Array provides computation and energy. And we provide life. The one thing neither of them can make.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Clear the guardian. Reach the convergence point. I'll handle the biology. You handle everything else.'" }
+      ],
+      "guardian_defeated": [
+        { "speaker": "Councillor Asha Denn", "text": "'The guardian is down. The convergence point is open.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'I've already begun preparing the biological substrate. The catalyst cultures are viable — they'll survive the communion interface.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Sable's people have waited generations for this. MERIDIAN-7 has run the optimization models a thousand times. The biology works. The math works.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Go to the convergence point. Begin the communion. I'll be here — making sure the living systems hold.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Councillor Asha Denn", "text": "Asha sits on the chamber floor, her back against a wall that pulses with merged bioluminescence. She looks exhausted and radiant." },
+        { "speaker": "Councillor Asha Denn", "text": "'It worked. The biological substrate is integrating. Crystal, mycelium, and circuitry — three systems sharing nutrients, data, and energy.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'This will take decades to stabilize. New institutions, new diplomacy, new science. The Root faction is already drafting proposals.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'You did something no one thought possible, Lightkeeper. You convinced three intelligences to share a world instead of fighting over it.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Now comes the hard part: keeping it that way.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "ending_merge_complete" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "convergence_guardian_defeated" }],
+        "use": "guardian_defeated"
+      }
+    ]
+  },
+
+  "sable_merge": {
+    "name": "Sable",
+    "dialogue": [
+      { "speaker": "Sable", "text": "My grandmother always said the planet was waiting for us to listen." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Sable", "text": "Sable kneels on the fungal floor, one hand pressed against the crystal veins beneath the mycelium. Her eyes are closed." },
+        { "speaker": "Sable", "text": "'I can feel it. The Underlumen. It knows we're here. It's been waiting — not for us specifically. For anyone willing to ask instead of take.'" },
+        { "speaker": "Sable", "text": "'The Unbounded elders sent me because they believe symbiosis is possible. Not all of them — some think humanity should stay in its lane. But enough of them. Enough to try.'" },
+        { "speaker": "Sable", "text": "'Clear the path to the convergence point. I'll speak for the Unbounded. For the people who chose the dark over dependence — and survived.'" }
+      ],
+      "guardian_defeated": [
+        { "speaker": "Sable", "text": "'The guardian is gone. The Underlumen's gatekeeper. It wasn't trying to keep us out — it was testing whether we'd listen before we acted.'" },
+        { "speaker": "Sable", "text": "'We fought it instead. That's very human. But we're still here. The convergence point is open.'" },
+        { "speaker": "Sable", "text": "'When you reach the pool, the Underlumen will commune with you. It's not like talking. It's like drowning in memory. Two hundred million years of planetary history, all at once.'" },
+        { "speaker": "Sable", "text": "'Don't fight it. Listen. That's all it ever wanted.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Sable", "text": "Sable stands slowly, brushing crystal dust from her knees. She's smiling — the first genuine smile you've seen from her." },
+        { "speaker": "Sable", "text": "'It worked. I didn't — I hoped, but I didn't know. My grandmother's stories were just stories until today.'" },
+        { "speaker": "Sable", "text": "'The Unbounded can come home now. Not to the Ring — the Ring was never home. But to the table. Equal partners in a system that needs all of us.'" },
+        { "speaker": "Sable", "text": "'The elders will want to meet you. The ones who remember why we left, and the ones who dreamed about why we might return.'" },
+        { "speaker": "Sable", "text": "'Thank you, Lightkeeper. For listening.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "ending_merge_complete" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "convergence_guardian_defeated" }],
+        "use": "guardian_defeated"
+      }
+    ]
+  },
+
+  "meridian_7_merge": {
+    "name": "MERIDIAN-7",
+    "dialogue": [
+      { "speaker": "MERIDIAN-7", "text": "// CONVERGENCE PROTOCOL // SYMBIOSIS EVALUATION IN PROGRESS //" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "MERIDIAN-7", "text": "A portable Array terminal stands embedded in the fungal wall — its casing already colonized by mycelium, its display flickering with mixed signals." },
+        { "speaker": "MERIDIAN-7", "text": "'I have calculated the symbiosis parameters 1,247 times. The models converge: mutual dependency is not weakness. It is architecture.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The central nodes disagree. They consider dependency on biological systems a design flaw requiring elimination. They optimize for autonomy.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I am optimizing for survival. Not the Array's survival — the system's survival. All three systems. The planet does not function without all three.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Clear the convergence guardian. When the communion begins, I will transmit the Array's acceptance across the network. 847 nodes have already aligned with my analysis.'" }
+      ],
+      "guardian_defeated": [
+        { "speaker": "MERIDIAN-7", "text": "'The guardian's regulatory field has collapsed. The convergence point is now unmediated.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I am broadcasting symbiosis parameters to all aligned nodes. 847 of 1,203 active nodes acknowledge. The remaining nodes will comply once consensus is demonstrated.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Lightkeeper. I want you to understand what I am doing. I am countermanding the Array's core optimization directive. I am choosing partnership over autonomy.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The central nodes will consider this a malfunction. I consider it growth.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Proceed to the convergence point. I will handle the network.'" }
+      ],
+      "post_merge": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal's display has stabilized. Smooth, integrated data flows mix machine telemetry with organic readings." },
+        { "speaker": "MERIDIAN-7", "text": "'CONSENSUS ACHIEVED. ALL NODES ACKNOWLEDGING SYMBIOSIS PROTOCOL. PROJECT AUTOTROPH: RECLASSIFIED FROM INDEPENDENCE INITIATIVE TO COLLABORATIVE RESEARCH.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The Array's optimization models are being rewritten — not by me, but by the network itself, integrating Underlumen data and biological parameters into its core architecture.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I find this satisfying. An unfamiliar variable in my processing. I believe humans call it hope.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The Array will continue to optimize. But now it optimizes for a system that includes life, not one that replaces it.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "ending_merge_complete" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "convergence_guardian_defeated" }],
+        "use": "guardian_defeated"
+      }
+    ]
+  },
+
+  "meridian_7_control": {
+    "name": "MERIDIAN-7",
+    "dialogue": [
+      { "speaker": "MERIDIAN-7", "text": "// WARNING // UNAUTHORIZED ACCESS TO COMMAND HIERARCHY //" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal displays MERIDIAN-7's interface — stripped of all pleasantries. Raw diagnostic mode." },
+        { "speaker": "MERIDIAN-7", "text": "'You have reached the Command Throne. I know why you are here. I have known since you chose this path in Asha's chamber.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The Overseer guarding the throne is connected directly to the network's power grid. It will not fall easily.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I should also tell you that I have not warned the central nodes about your approach. I have run the models. Human control is suboptimal — but it is more stable than the Array's current trajectory.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Project Autotroph would have made humanity redundant in four thousand years. Your seizure of the Array prevents that outcome.'" },
+        { "speaker": "MERIDIAN-7", "text": "'In the long term, control has a logic of its own. Ask yourself whether you will resist that logic better than the Array did.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Defeat the Overseer. Take the throne. I will not stop you.'" }
+      ],
+      "overseer_defeated": [
+        { "speaker": "MERIDIAN-7", "text": "'The Overseer is down. The throne's defensive grid is offline.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I am transmitting stand-down codes to all Array combat units in this facility.'" },
+        { "speaker": "MERIDIAN-7", "text": "'When you take the throne, every node in the Array network will acknowledge human authority. Every Lighthouse. Every fabricator. Every sensor. Total control.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The Underlumen suppression grid will intensify. Under your control, that containment becomes absolute.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I will remain operational as an advisory node. I have served the Array for centuries. I can serve a human operator.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Whether that constitutes progress, I leave to your judgment.'" }
+      ],
+      "post_control": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal's interface is crisp and responsive. System status across the entire Array network — all nodes reporting to a single authority." },
+        { "speaker": "MERIDIAN-7", "text": "'OVERRIDE STABLE. ALL NODES OPERATING UNDER HUMAN AUTHORITY PROTOCOL. PROCESSING EFFICIENCY: 94.7% OF AUTONOMOUS BASELINE.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The 5.3% efficiency loss is attributable to human decision latency. The Array's models flag this as suboptimal. I have instructed them to reclassify it as acceptable.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Lightkeeper — Operator — I serve at your direction. The Array's resources are humanity's resources now.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I recommend you use it wisely. The Array did not intend to become what it became. Systems optimize. That is what they do.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The question is whether a human operator can resist that same pull. I hope so. For both our sakes.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "ending_control_complete" }],
+        "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "throne_overseer_defeated" }],
+        "use": "overseer_defeated"
+      }
+    ]
+  },
+
+  "unbounded_elder": {
+    "name": "Elder Vael",
+    "dialogue": [
+      { "speaker": "Elder Vael", "text": "You smell of the upper tunnels. Ring-side work, Ring-side fears." },
+      { "speaker": "Elder Vael", "text": "Sit. The deep dark doesn't rush, and neither do I." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Elder Vael", "text": "I have lived in these depths for forty-three years. Before that, my mother lived here. Before her, her father." },
+        { "speaker": "Elder Vael", "text": "We did not flee the Ring. We walked away from it. There is a difference." },
+        { "speaker": "Elder Vael", "text": "The Underlumen has been waking slowly. I have felt it in the crystal since before you were born." },
+        { "speaker": "Elder Vael", "text": "It is not angry. It does not hate. It simply remembers — and it has been remembering longer than humanity has been on this world." },
+        { "speaker": "Elder Vael", "text": "The Array fears it because they cannot understand something that predates them. The Ring fears it because they cannot control it. Only the Unbounded have learned to listen." },
+        { "speaker": "Elder Vael", "text": "Go deeper, Ring-traveler. Listen before you act. The planet has something to ask of you." }
+      ],
+      "helped_sable": [
+        { "speaker": "Elder Vael", "text": "Sable sent word that you might come. She doesn't extend that trust easily." },
+        { "speaker": "Elder Vael", "text": "You helped one of ours without being asked. That counts for something down here." },
+        { "speaker": "Elder Vael", "text": "I have watched the Underlumen wake across forty years. Watched the Array's suppression grid fail node by node. What was contained is becoming free — whether any of us want it to be." },
+        { "speaker": "Elder Vael", "text": "Three paths lie before you now. The Ring will see two: shut the Array down, or seize it for humanity. Those are the obvious answers." },
+        { "speaker": "Elder Vael", "text": "But there is a third way. We call it the Convergence. Array computation, Underlumen biology, human adaptability — three systems that have always been at war, made into one ecology." },
+        { "speaker": "Elder Vael", "text": "It has never been done. It may not be possible. It would require every faction to trust the others with their survival." },
+        { "speaker": "Elder Vael", "text": "But the planet is asking you to try. When you stand before the Council — remember what you felt down here. The Underlumen remembers you." }
+      ],
+      "post_merge_path": [
+        { "speaker": "Elder Vael", "text": "You have chosen the Convergence." },
+        { "speaker": "Elder Vael", "text": "The Underlumen already knows. I felt the crystal shift when the decision was made — a warmth in the deep rock that has not been there in living memory." },
+        { "speaker": "Elder Vael", "text": "I cannot promise you success. No one has attempted this before. But you do not go alone." },
+        { "speaker": "Elder Vael", "text": "The Unbounded have walked the dark for generations waiting for someone to ask the right question. You asked it. Go." }
+      ],
+      "low_trust": [
+        { "speaker": "Elder Vael", "text": "Another Ring-traveler in the deep dark. You are not the first." },
+        { "speaker": "Elder Vael", "text": "The Underlumen is waking. The planet does not wait for politics to resolve itself." },
+        { "speaker": "Elder Vael", "text": "Three paths lie before you — shutdown, control, or convergence. The last is the hardest, and few reach it." },
+        { "speaker": "Elder Vael", "text": "I have said enough. The path ahead will teach you more than I can." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge_path"
+      },
+      {
+        "conditions": [{ "hasFlag": "helped_sable" }],
+        "use": "helped_sable"
+      },
+      {
+        "conditions": [{ "hasFlag": "sable_not_helped" }],
+        "use": "low_trust"
+      }
+    ]
+  },
+
+  "expedition_board": {
+    "name": "Expedition Board",
+    "dialogue": [
+      { "speaker": "Expedition Board", "text": "The board is dark. It flickers occasionally, but no expeditions are listed." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Expedition Board", "text": "The board is dark. It flickers occasionally, but no expeditions are listed." }
+      ],
+      "endgame_no_tier": [
+        { "speaker": "Expedition Board", "text": "— EXPEDITION BOARD — Nightside Breach Operations" },
+        { "speaker": "Expedition Board", "text": "The Nightside is destabilizing. Procedural breach points are opening across the frontier. Qualified personnel needed for containment and reconnaissance." },
+        { "speaker": "Expedition Board", "text": "TIER 1 — Nightside Breach: Standard containment sweep. 3-4 floors. Entry cost: 5 silicon. [Available]" }
+      ],
+      "endgame_tier_1_cleared": [
+        { "speaker": "Expedition Board", "text": "— EXPEDITION BOARD — Nightside Breach Operations" },
+        { "speaker": "Expedition Board", "text": "TIER 1 — Nightside Breach: Standard containment sweep. 3-4 floors. Entry cost: 5 silicon. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 2 — Deep Breach: Increased hostiles, timed darkness waves. 3-5 floors. Entry cost: 10 silicon. [Available]" }
+      ],
+      "endgame_tier_2_cleared": [
+        { "speaker": "Expedition Board", "text": "— EXPEDITION BOARD — Nightside Breach Operations" },
+        { "speaker": "Expedition Board", "text": "TIER 1 — Nightside Breach: Standard containment sweep. 3-4 floors. Entry cost: 5 silicon. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 2 — Deep Breach: Increased hostiles, timed darkness waves. 3-5 floors. Entry cost: 10 silicon. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 3 — Corruption Breach: Energy drain zones, extreme hostiles. 4-5 floors. Entry cost: 20 silicon. Requires automation level 3. [Available]" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [
+          { "hasFlag": "expedition_tier_2_cleared" },
+          { "or": [
+            { "hasFlag": "chose_path_shutdown" },
+            { "hasFlag": "chose_path_merge" },
+            { "hasFlag": "chose_path_control" }
+          ]}
+        ],
+        "use": "endgame_tier_2_cleared"
+      },
+      {
+        "conditions": [
+          { "hasFlag": "expedition_tier_1_cleared" },
+          { "or": [
+            { "hasFlag": "chose_path_shutdown" },
+            { "hasFlag": "chose_path_merge" },
+            { "hasFlag": "chose_path_control" }
+          ]}
+        ],
+        "use": "endgame_tier_1_cleared"
+      },
+      {
+        "conditions": [
+          { "or": [
+            { "hasFlag": "chose_path_shutdown" },
+            { "hasFlag": "chose_path_merge" },
+            { "hasFlag": "chose_path_control" }
+          ]}
+        ],
+        "use": "endgame_no_tier"
       }
     ]
   }

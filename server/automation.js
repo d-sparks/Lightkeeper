@@ -1,6 +1,8 @@
 // Per-player automation state: structures, resources, production timers
 // Data-driven: reads structure definitions from content/entities/structures.json
 
+const CONSTANTS = require('../shared/constants');
+
 class Automation {
   constructor(content) {
     this.content = content;
@@ -12,12 +14,13 @@ class Automation {
   getState(playerId) {
     if (!this.playerStates.has(playerId)) {
       this.playerStates.set(playerId, {
-        resources: { silicon: 0 },
+        resources: { salvage: 0 },
         structures: {},       // structureId -> { count, placements: [{x,y}] }
         productionTimers: {}, // structureId -> seconds accumulated
+        claimedMilestones: [],// indices of milestones already claimed
         stats: {
-          totalSiliconProduced: 0,
-          totalSiliconSpent: 0,
+          totalSalvageProduced: 0,
+          totalSalvageSpent: 0,
           totalEnergyGenerated: 0,
         },
       });
@@ -25,13 +28,13 @@ class Automation {
     return this.playerStates.get(playerId);
   }
 
-  // Add resources (called when player picks up silicon or production ticks)
+  // Add resources (called when player picks up salvage or production ticks)
   addResource(playerId, resourceType, amount) {
     const state = this.getState(playerId);
     if (!state.resources[resourceType]) state.resources[resourceType] = 0;
     state.resources[resourceType] += amount;
-    if (resourceType === 'silicon') {
-      state.stats.totalSiliconProduced += amount;
+    if (resourceType === 'salvage') {
+      state.stats.totalSalvageProduced += amount;
     }
   }
 
@@ -51,8 +54,8 @@ class Automation {
     // Deduct
     for (const [resource, amount] of Object.entries(costs)) {
       state.resources[resource] -= amount;
-      if (resource === 'silicon') {
-        state.stats.totalSiliconSpent += amount;
+      if (resource === 'salvage') {
+        state.stats.totalSalvageSpent += amount;
       }
     }
     return true;
@@ -210,11 +213,36 @@ class Automation {
     return null;
   }
 
+  // Check for newly unlocked milestone rewards (returns array of gives)
+  checkMilestones(playerId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const milestones = structures._milestoneRewards || [];
+    const state = this.getState(playerId);
+    if (!state.claimedMilestones) state.claimedMilestones = [];
+
+    // Count total structures
+    let totalStructures = 0;
+    for (const [id, structData] of Object.entries(state.structures)) {
+      totalStructures += typeof structData === 'object' ? structData.count : structData;
+    }
+
+    const newRewards = [];
+    for (let i = 0; i < milestones.length; i++) {
+      if (state.claimedMilestones.includes(i)) continue;
+      if (totalStructures >= milestones[i].threshold) {
+        state.claimedMilestones.push(i);
+        const m = milestones[i];
+        newRewards.push({ type: 'item', itemId: m.itemId, count: m.count || 1, milestoneName: m.name, milestoneThreshold: m.threshold, milestoneIcon: m.icon || '★' });
+      }
+    }
+    return newRewards;
+  }
+
   // Execute a trade with MERIDIAN-7
   trade(playerId, tradeId) {
     const trades = {
-      damage_booster: { cost: { silicon: 5 }, gives: [{ type: 'item', itemId: 'damage_booster_chip', count: 1 }] },
-      medical_supplies: { cost: { silicon: 10 }, gives: [{ type: 'item', itemId: 'medical_supplies', count: 5 }] },
+      damage_booster: { cost: { salvage: 5 }, gives: [{ type: 'item', itemId: 'damage_booster_chip', count: 1 }] },
+      medical_supplies: { cost: { salvage: 10 }, gives: [{ type: 'item', itemId: 'medical_supplies', count: 5 }] },
     };
 
     const tradeDef = trades[tradeId];
@@ -350,7 +378,7 @@ class Automation {
     }
 
     // Compute production rates
-    let siliconPerMinute = 0;
+    let salvagePerMinute = 0;
     let energyRegenPerSecond = 0;
     for (const [id, def] of Object.entries(structures)) {
       if (id.startsWith('_')) continue;
@@ -359,7 +387,7 @@ class Automation {
       if (count <= 0 || !def.effect) continue;
 
       if (def.effect.type === 'resource_production') {
-        siliconPerMinute += (def.effect.amount * count * 60) / def.effect.intervalSeconds;
+        salvagePerMinute += (def.effect.amount * count * 60) / def.effect.intervalSeconds;
       }
       if (def.effect.type === 'energy_regen') {
         energyRegenPerSecond += (def.effect.amount * count) / def.effect.intervalSeconds;
@@ -367,19 +395,30 @@ class Automation {
     }
 
     const trades = [
-      { id: 'damage_booster', name: 'Damage Booster Chip', cost: { silicon: 5 } },
-      { id: 'medical_supplies', name: 'Medical Supplies x5', cost: { silicon: 10 } },
+      { id: 'damage_booster', name: 'Damage Booster Chip', cost: { salvage: 5 } },
+      { id: 'medical_supplies', name: 'Medical Supplies x5', cost: { salvage: 10 } },
     ];
+
+    // Build milestone rewards list with claimed status
+    const milestones = (structures._milestoneRewards || []).map((m, i) => ({
+      threshold: m.threshold,
+      name: m.name,
+      description: m.description,
+      icon: m.icon || '?',
+      claimed: (state.claimedMilestones || []).includes(i),
+      unlocked: totalStructures >= m.threshold,
+    }));
 
     const result = {
       resources: { ...state.resources },
       structures: structureList,
       trades,
+      milestones,
       stats: {
-        totalSiliconProduced: state.stats.totalSiliconProduced,
-        totalSiliconSpent: state.stats.totalSiliconSpent,
+        totalSalvageProduced: state.stats.totalSalvageProduced,
+        totalSalvageSpent: state.stats.totalSalvageSpent,
         totalEnergyGenerated: state.stats.totalEnergyGenerated,
-        siliconPerMinute,
+        salvagePerMinute,
         energyRegenPerSecond,
         automationLevel,
         automationLevelName,
@@ -436,13 +475,62 @@ class Automation {
       if (p.structureId === 'solar_panel') {
         overlayed.data[idx] = 7;
       }
-      // Silicon harvesters become tile 2 (feature/sand) as a visible marker
-      if (p.structureId === 'silicon_harvester') {
+      // Salvage harvesters become tile 2 (feature/sand) as a visible marker
+      if (p.structureId === 'salvage_harvester') {
         overlayed.data[idx] = 2;
       }
     }
 
     return overlayed;
+  }
+
+  // Get visual-only harvester entity data for state broadcast
+  getHarvesterEntities(playerId) {
+    const config = this.getGridConfig();
+    if (!config) return [];
+
+    const state = this.getState(playerId);
+    const harvesterData = state.structures.salvage_harvester;
+    if (!harvesterData || !harvesterData.placements || harvesterData.placements.length === 0) return [];
+
+    const ts = CONSTANTS.TILE_SIZE;
+    const entities = [];
+    for (let i = 0; i < harvesterData.placements.length; i++) {
+      const p = harvesterData.placements[i];
+      const dungeonX = p.x + config.dungeonOffsetX;
+      const dungeonY = p.y + config.dungeonOffsetY;
+      entities.push({
+        id: `harvester_${playerId}_${i}`,
+        type: 'scrap_drone',
+        name: 'Salvage Harvester',
+        x: (dungeonX + 0.5) * ts,
+        y: (dungeonY + 0.5) * ts,
+        decorative: true,
+      });
+    }
+    return entities;
+  }
+
+  // Serialize automation state for persistence (returns plain JSON-safe object)
+  serializeState(playerId) {
+    if (!this.playerStates.has(playerId)) return null;
+    return JSON.parse(JSON.stringify(this.playerStates.get(playerId)));
+  }
+
+  // Restore automation state from a saved session
+  restoreState(playerId, data) {
+    if (!data) return;
+    this.playerStates.set(playerId, {
+      resources: data.resources || { salvage: 0 },
+      structures: data.structures || {},
+      productionTimers: data.productionTimers || {},
+      claimedMilestones: data.claimedMilestones || [],
+      stats: data.stats || {
+        totalSalvageProduced: 0,
+        totalSalvageSpent: 0,
+        totalEnergyGenerated: 0,
+      },
+    });
   }
 
   // Remove player state on disconnect

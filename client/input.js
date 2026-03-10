@@ -39,6 +39,9 @@ class InputHandler {
     this.dialogueActive = false;
     this.choiceActive = false;
     this.menuOpen = false;
+    this.chatActive = false;
+    this.onChatOpen = null;   // () => void — open chat input
+    this.onChatClose = null;  // () => void — close chat input
 
     // Diablo-style ability selection
     this.selectedAbility = 2;  // right-click defaults to slot 2
@@ -108,6 +111,27 @@ class InputHandler {
   onKeyDown(e) {
     if (!this.active) return;
 
+    // Chat input is focused — let it handle keys, only intercept Escape/Enter
+    if (this.chatActive) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        if (this.onChatClose) this.onChatClose();
+      }
+      // Enter is handled by the chat input's own event listener
+      return;
+    }
+
+    // Enter → open chat (unless in dialogue/choice/menu)
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (this.dialogueActive || this.choiceActive || this.menuOpen) {
+        if (this.onInteract) this.onInteract();
+      } else {
+        if (this.onChatOpen) this.onChatOpen();
+      }
+      return;
+    }
+
     // Shift tracking
     if (e.key === 'Shift') {
       this.shiftHeld = true;
@@ -157,8 +181,8 @@ class InputHandler {
       return;
     }
 
-    // E / Enter → interact
-    if (e.key === 'e' || e.key === 'E' || e.key === 'Enter') {
+    // E → interact
+    if (e.key === 'e' || e.key === 'E') {
       e.preventDefault();
       if (this.onInteract) this.onInteract();
       return;
@@ -441,13 +465,8 @@ class InputHandler {
       if (Math.sqrt(dx * dx + dy * dy) > 15) {
         aimAngle = Math.atan2(dy, dx);
       }
-    } else if (this.joystickActive) {
-      // Tap without drag: use joystick direction if actively held
-      const jLen = Math.sqrt(this.joyDX * this.joyDX + this.joyDY * this.joyDY);
-      if (jLen > 0.2) {
-        aimAngle = Math.atan2(this.joyDY, this.joyDX);
-      }
     }
+    // Tap without drag and no manual aim: leave aimAngle null for auto-aim
 
     if (this.onAbility) this.onAbility(drag.slot, aimAngle);
   }
@@ -574,11 +593,7 @@ class InputHandler {
         this.aimIndicator.angle = gamepadAimAngle;
       }
     } else {
-      // Fallback: use left stick direction for aiming when right stick is idle
-      const lLen = Math.sqrt(lx * lx + ly * ly);
-      if (lLen > 0.3) {
-        gamepadAimAngle = Math.atan2(ly, lx);
-      }
+      // Right stick idle — leave gamepadAimAngle null so auto-aim kicks in
       if (!this.abilityDrag) {
         this.aimIndicator.active = false;
       }
@@ -997,6 +1012,7 @@ class InputHandler {
 
   stopMovement() {
     this.keys = { up: false, down: false, left: false, right: false };
+    this.combatTarget = null;
     this.clearMoveTarget();
     this.sendInput();
   }
@@ -1012,11 +1028,14 @@ class InputHandler {
     if (this.renderer && this.renderer.bossIntro) return;
 
     const threshold = 0.3;
+    // Rotate joystick 45° before computing binary keys, matching the analog rotation below
+    const joyWorldX = this.joyDX + this.joyDY;
+    const joyWorldY = -this.joyDX + this.joyDY;
     const joyKeys = {
-      up:    this.joyDY < -threshold,
-      down:  this.joyDY > threshold,
-      left:  this.joyDX < -threshold,
-      right: this.joyDX > threshold,
+      up:    joyWorldY < -threshold,
+      down:  joyWorldY > threshold,
+      left:  joyWorldX < -threshold,
+      right: joyWorldX > threshold,
     };
 
     // Merge all sources: keyboard/click-to-move + touch joystick + gamepad
@@ -1044,13 +1063,14 @@ class InputHandler {
       if (this.keys.right) { dx += 1; dy -= 1; }
     }
 
-    // Touch joystick (analog)
-    dx += this.joyDX;
-    dy += this.joyDY;
+    // Touch joystick (analog) — rotate 45° for isometric (screen-space → world-space)
+    // Matches WASD: screen-right → world (+1,-1), screen-up → world (-1,-1)
+    dx += this.joyDX + this.joyDY;
+    dy += -this.joyDX + this.joyDY;
 
-    // Gamepad (analog)
-    dx += this.gamepadDX;
-    dy += this.gamepadDY;
+    // Gamepad (analog) — same 45° isometric rotation
+    dx += this.gamepadDX + this.gamepadDY;
+    dy += -this.gamepadDX + this.gamepadDY;
 
     // Normalize to unit vector if magnitude > 1
     const mag = Math.sqrt(dx * dx + dy * dy);

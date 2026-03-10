@@ -68,6 +68,7 @@ const CONSTANTS = {
   PROJECTILE_SPEED: 300,     // Pixels per second
   PROJECTILE_LIFETIME: 2.0,  // Seconds before despawning
   PROJECTILE_RADIUS: 4,      // Collision radius in pixels
+  PROJECTILE_HIT_BONUS: 10,  // Extra pixels added to projectile-vs-entity hitbox (forgiving hits)
 
   // Network message types
   MSG: {
@@ -99,6 +100,8 @@ const CONSTANTS = {
     SOL_GRID:      'sol_grid',
     CHOICE_MENU:   'choice_menu',
 
+    DEATH_SCREEN:  'death_screen',
+
     QUEST_OBJECTIVE: 'quest_objective',
     QUEST_STATE: 'quest_state',
     QUEST_STEP_COMPLETE: 'quest_step_complete',
@@ -109,6 +112,7 @@ const CONSTANTS = {
     AUTO_TRADE: 'auto_trade',
     // Automation (Server -> Client)
     AUTO_STATE: 'auto_state',
+    AUTOMATION_MILESTONE: 'automation_milestone',
 
     // Map chunk streaming (Server -> Client)
     MAP_CHUNKS: 'map_chunks',
@@ -118,8 +122,15 @@ const CONSTANTS = {
 
     // Sessions (Client -> Server)
     SESSION_LIST: 'session_list',
+    SESSION_DELETE: 'session_delete',
     // Sessions (Server -> Client)
     SESSION_LIST_RESPONSE: 'session_list_response',
+    SESSION_DELETE_RESPONSE: 'session_delete_response',
+
+    // Chat (Client -> Server)
+    CHAT: 'chat',
+    // Chat (Server -> Client)
+    CHAT_BROADCAST: 'chat_broadcast',
 
     // Bidirectional
     SOL_GRID_MOVE: 'sol_grid_move',

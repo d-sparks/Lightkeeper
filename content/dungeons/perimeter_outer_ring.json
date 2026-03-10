@@ -52,7 +52,9 @@
     { "type": "bandage", "x": 8, "y": 3 },
     { "type": "ration_pack", "x": 13, "y": 6 },
     { "type": "medical_supplies", "x": 26, "y": 13 },
-    { "type": "lore_scorched_notebook", "x": 2, "y": 13 }
+    { "type": "lore_scorched_notebook", "x": 2, "y": 13 },
+    { "type": "battery_chip", "x": 18, "y": 9 },
+    { "type": "battery_chip", "x": 6, "y": 18 }
   ],
   "exits": [
     { "x": 15, "y": 21, "leadsTo": "perimeter_gate", "type": "stairs_up", "spawnX": 9, "spawnY": 2 },

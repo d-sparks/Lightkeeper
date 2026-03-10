@@ -1,0 +1,132 @@
+{
+  "reforge_night_vision_to_damage_booster": {
+    "type": "reforge",
+    "name": "Reforge: Night Vision Lens → Damage Booster",
+    "description": "Refine a common damage modifier into a stronger uncommon variant.",
+    "ingredients": [
+      { "itemType": "night_vision_lens_chip", "count": 1 },
+      { "itemType": "silicon", "count": 3 }
+    ],
+    "result": { "itemType": "damage_booster_chip", "count": 1 }
+  },
+  "reforge_reinforced_battery_to_signal_booster": {
+    "type": "reforge",
+    "name": "Reforge: Reinforced Battery → Signal Booster",
+    "description": "Refine a common cooldown modifier into a stronger uncommon variant.",
+    "ingredients": [
+      { "itemType": "reinforced_battery_chip", "count": 1 },
+      { "itemType": "silicon", "count": 3 }
+    ],
+    "result": { "itemType": "signal_booster_chip", "count": 1 }
+  },
+  "reforge_damage_booster_to_cooldown_mk2": {
+    "type": "reforge",
+    "name": "Reforge: Damage Booster → Cooldown Reducer Mk2",
+    "description": "Recalibrate an uncommon damage modifier into a rare cooldown module.",
+    "ingredients": [
+      { "itemType": "damage_booster_chip", "count": 1 },
+      { "itemType": "silicon", "count": 5 }
+    ],
+    "result": { "itemType": "cooldown_reducer_mk2_chip", "count": 1 }
+  },
+  "reforge_shadow_conduit_to_umbral_amplifier": {
+    "type": "reforge",
+    "name": "Reforge: Shadow Conduit → Umbral Amplifier",
+    "description": "Channel deeper void frequencies to upgrade a Nightside modifier.",
+    "ingredients": [
+      { "itemType": "shadow_conduit_chip", "count": 1 },
+      { "itemType": "silicon", "count": 5 }
+    ],
+    "result": { "itemType": "umbral_amplifier_chip", "count": 1 }
+  },
+  "reforge_umbral_amplifier_to_void_resonator": {
+    "type": "reforge",
+    "name": "Reforge: Umbral Amplifier → Void Resonator",
+    "description": "Push a Nightside amplifier to its limits, achieving epic-tier void resonance.",
+    "ingredients": [
+      { "itemType": "umbral_amplifier_chip", "count": 1 },
+      { "itemType": "silicon", "count": 8 }
+    ],
+    "result": { "itemType": "void_resonator_chip", "count": 1 }
+  },
+  "reforge_bio_leech_to_symbiotic_core": {
+    "type": "reforge",
+    "name": "Reforge: Bio-Leech Node → Symbiotic Core",
+    "description": "Cultivate a Greenway bio-leech into a living symbiote.",
+    "ingredients": [
+      { "itemType": "bio_leech_node_chip", "count": 1 },
+      { "itemType": "silicon", "count": 5 }
+    ],
+    "result": { "itemType": "symbiotic_core_chip", "count": 1 }
+  },
+  "reforge_symbiotic_core_to_mycelial_matrix": {
+    "type": "reforge",
+    "name": "Reforge: Symbiotic Core → Mycelial Matrix",
+    "description": "Grow a symbiote into a full mycelial network for epic-tier bio-healing.",
+    "ingredients": [
+      { "itemType": "symbiotic_core_chip", "count": 1 },
+      { "itemType": "silicon", "count": 8 }
+    ],
+    "result": { "itemType": "mycelial_matrix_chip", "count": 1 }
+  },
+  "reforge_photon_regulator_to_solar_capacitor": {
+    "type": "reforge",
+    "name": "Reforge: Photon Regulator → Solar Capacitor",
+    "description": "Supercharge a Dayside regulator into a high-capacity solar capacitor.",
+    "ingredients": [
+      { "itemType": "photon_regulator_chip", "count": 1 },
+      { "itemType": "silicon", "count": 5 }
+    ],
+    "result": { "itemType": "solar_capacitor_chip", "count": 1 }
+  },
+  "reforge_solar_capacitor_to_harmonic_stabilizer": {
+    "type": "reforge",
+    "name": "Reforge: Solar Capacitor → Array Harmonic Stabilizer",
+    "description": "Tune a solar capacitor to Array harmonic frequencies for epic-tier efficiency.",
+    "ingredients": [
+      { "itemType": "solar_capacitor_chip", "count": 1 },
+      { "itemType": "silicon", "count": 8 }
+    ],
+    "result": { "itemType": "array_harmonic_stabilizer_chip", "count": 1 }
+  },
+  "fuse_damage_and_cooldown": {
+    "type": "fuse",
+    "name": "Fuse: Power Tap",
+    "description": "Merge damage and cooldown modifiers into a rare dual-stat component.",
+    "ingredients": [
+      { "itemType": "damage_booster_chip", "count": 1 },
+      { "itemType": "signal_booster_chip", "count": 1 }
+    ],
+    "result": { "itemType": "power_tap_chip", "count": 1 }
+  },
+  "fuse_damage_and_bio": {
+    "type": "fuse",
+    "name": "Fuse: Bio-Resonance Amplifier",
+    "description": "Merge damage and bio-healing modifiers into a rare dual-stat component.",
+    "ingredients": [
+      { "itemType": "damage_booster_chip", "count": 1 },
+      { "itemType": "bio_leech_node_chip", "count": 1 }
+    ],
+    "result": { "itemType": "bio_resonance_amplifier_chip", "count": 1 }
+  },
+  "fuse_cooldown_and_efficiency": {
+    "type": "fuse",
+    "name": "Fuse: Resonance Detector",
+    "description": "Merge cooldown and efficiency modifiers into a rare dual-stat component.",
+    "ingredients": [
+      { "itemType": "signal_booster_chip", "count": 1 },
+      { "itemType": "photon_regulator_chip", "count": 1 }
+    ],
+    "result": { "itemType": "resonance_detector_chip", "count": 1 }
+  },
+  "fuse_guardian_core": {
+    "type": "fuse",
+    "name": "Fuse: Guardian Core",
+    "description": "Merge two rare dual-stat components into an epic Guardian Core.",
+    "ingredients": [
+      { "itemType": "power_tap_chip", "count": 1 },
+      { "itemType": "resonance_detector_chip", "count": 1 }
+    ],
+    "result": { "itemType": "guardian_core_chip", "count": 1 }
+  }
+}

@@ -330,12 +330,9 @@ All items done: automation.js tracks placements with {x, y} coordinates, build()
 
 All items done: renderAutoTab() replaced with full-screen CSS grid UI, 12x12 cells with build palette, structure selection + placement flow, resource/stats sidebar, progress bar with automation levels, placement animations.
 
-### Phase 3: Automation Screen Access (Engine + Content)
+### Phase 3: Automation Screen Access (Engine + Content) -- COMPLETE
 
-14. **Add `openAutomation` scripting action** to `server/scripting/actions.js`.
-15. **Add MERIDIAN-7 interaction trigger** that opens the automation screen (fire `openAutomation` action on `npc_interacted` for meridian_7).
-16. **Client handler** for `AUTO_STATE` with `openScreen: true` — open full-screen automation overlay.
-17. **Remove** the auto tab from the menu (or keep it as a read-only summary).
+All items done: `openAutomation` scripting action added to actions.js, MERIDIAN-7 `npc_interacted` trigger fires `openAutomation` when `traded_umbracite_meridian` flag is set, client AUTO_STATE handler with `openScreen` opens full-screen overlay.
 
 ### Phase 4: Dungeon Sync (Engine)
 
@@ -343,12 +340,12 @@ All items done: renderAutoTab() replaced with full-screen CSS grid UI, 12x12 cel
 19. **Grid-to-dungeon coordinate conversion** — use the offset from grid config.
 20. **Visual-only harvester entities** — spawn non-interactive entity markers at harvester positions when player enters the room.
 
-### Phase 5: Polish
+### Phase 5: Polish — DONE
 
-21. **Tooltip system** — hover/click on placed structures for detail panel.
-22. **Sound effects** — placement confirmation sound, level-up sound.
-23. **Mobile/touch support** — tap to select, tap to place (same as sol grid).
-24. **Controller support** — d-pad navigation of grid cells, A to place, B to cancel.
+21. ~~**Tooltip system**~~ — DONE. Hover/click shows name, description, placement preview, cost.
+22. ~~**Sound effects**~~ — DONE. auto_place and auto_level_up fanfare wired.
+23. ~~**Mobile/touch support**~~ — DONE. touchend handlers, grid cell interaction, no 300ms tap delay.
+24. **Controller support** — d-pad navigation of grid cells, A to place, B to cancel. (Not yet implemented.)
 
 ---
 

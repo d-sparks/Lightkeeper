@@ -2,7 +2,7 @@
   "id": "meridian_civic",
   "name": "Civic Center",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "meridian",
   "theme": "meridian_city",
   "tileSize": 32,
   "width": 25,
@@ -37,7 +37,10 @@
   "npcSpawns": [
     { "type": "registrar_hollis", "x": 6, "y": 5 },
     { "type": "councillor_asha", "x": 17, "y": 5 },
-    { "type": "liaison_thorne", "x": 6, "y": 14 }
+    { "type": "liaison_thorne", "x": 6, "y": 14 },
+    { "type": "council_steward", "x": 21, "y": 10 },
+    { "type": "council_compact", "x": 12, "y": 10 },
+    { "type": "council_root", "x": 18, "y": 13 }
   ],
   "itemSpawns": [],
   "exits": [
@@ -251,6 +254,7 @@
       "filter": { "npcType": "councillor_asha" },
       "conditions": [
         { "hasFlag": "asha_received_compound" },
+        { "hasFlag": "elder_merge_path_revealed" },
         { "not": { "hasFlag": "chose_path_shutdown" } },
         { "not": { "hasFlag": "chose_path_merge" } },
         { "not": { "hasFlag": "chose_path_control" } }
@@ -264,11 +268,29 @@
       ]
     },
     {
+      "id": "three_paths_choice_no_merge",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "asha_received_compound" },
+        { "not": { "hasFlag": "elder_merge_path_revealed" } },
+        { "not": { "hasFlag": "chose_path_shutdown" } },
+        { "not": { "hasFlag": "chose_path_control" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "three_paths", "prompt": "The evidence is before the Council. Two paths forward — a third path exists, known only to those who have walked the deep Nightside and listened. The choice shapes the future of all three factions — and the planet itself.", "options": [
+          { "label": "Shut Down the Array", "description": "Side with the Unbounded. Restore the Underlumen. Accept a harder world, but a free one.", "value": "shutdown" },
+          { "label": "Seize Control", "description": "Take the Array's infrastructure for humanity. Suppress both the Underlumen and Array autonomy. Power at a cost.", "value": "control" }
+        ]}
+      ]
+    },
+    {
       "id": "path_shutdown_chosen",
       "event": "choice_made",
       "filter": { "choiceId": "three_paths", "value": "shutdown" },
       "actions": [
         { "type": "setFlag", "flag": "chose_path_shutdown" },
+        { "type": "setFlag", "flag": "endgame_active" },
         { "type": "grantXp", "amount": 100 },
         { "type": "showMessage", "lines": [
           "Asha nods slowly. 'The hardest road. But the most honest.'",
@@ -284,6 +306,7 @@
       "filter": { "choiceId": "three_paths", "value": "merge" },
       "actions": [
         { "type": "setFlag", "flag": "chose_path_merge" },
+        { "type": "setFlag", "flag": "endgame_active" },
         { "type": "grantXp", "amount": 100 },
         { "type": "showMessage", "lines": [
           "Asha's eyes widen. 'Symbiosis. You want to merge them all.'",
@@ -300,6 +323,7 @@
       "filter": { "choiceId": "three_paths", "value": "control" },
       "actions": [
         { "type": "setFlag", "flag": "chose_path_control" },
+        { "type": "setFlag", "flag": "endgame_active" },
         { "type": "grantXp", "amount": 100 },
         { "type": "showMessage", "lines": [
           "Asha stiffens. Her voice is careful. 'You want to seize the Array. Take its power for humanity.'",

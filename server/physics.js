@@ -17,7 +17,6 @@ class Physics {
     // Players channeling an ability cannot move
     if (player.channeling) return;
 
-    const speed = CONSTANTS.PLAYER_SPEED * CONSTANTS.TILE_SIZE * dt;
     let dx = 0;
     let dy = 0;
 
@@ -42,10 +41,24 @@ class Physics {
       dy /= len;
     }
 
-    // Move to desired position, then resolve overlaps with solid tiles
-    player.x += dx * speed;
-    player.y += dy * speed;
-    this.resolveCollisions(player, dungeon);
+    // Clamp dt to 4x normal tick to cap maximum movement on lag spikes.
+    const MAX_DT = 4 / CONSTANTS.TICK_RATE;
+    const clampedDt = Math.min(dt, MAX_DT);
+    const speed = CONSTANTS.PLAYER_SPEED * CONSTANTS.TILE_SIZE * clampedDt;
+
+    // Substep: move at most PLAYER_RADIUS pixels per step so the player's center
+    // can never pass fully through a wall tile.  resolveCollisions' push-out
+    // algorithm requires the center to approach a tile from outside the AABB;
+    // without substeps, large dt lets the center land deep inside a tile and the
+    // "nearest edge" heuristic ejects the player in the wrong direction.
+    const steps = Math.max(1, Math.ceil(speed / CONSTANTS.PLAYER_RADIUS));
+    const stepDx = dx * speed / steps;
+    const stepDy = dy * speed / steps;
+    for (let i = 0; i < steps; i++) {
+      player.x += stepDx;
+      player.y += stepDy;
+      this.resolveCollisions(player, dungeon);
+    }
 
     // Check for ramp transitions (update player elevation)
     this.checkRampTransition(player, dungeon);

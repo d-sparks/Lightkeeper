@@ -2,7 +2,7 @@
   "id": "outpost_comms",
   "name": "Outpost Balor - Comms Room",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "outpost_military",
   "tileSize": 32,
   "width": 18,
@@ -289,6 +289,11 @@
       "type": "comms_officer_daley",
       "x": 6,
       "y": 5
+    },
+    {
+      "type": "wren_alcott",
+      "x": 10,
+      "y": 7
     }
   ],
   "itemSpawns": [

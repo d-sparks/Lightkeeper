@@ -842,7 +842,7 @@ function generateMonsterSprites() {
   const rlurk = createPNG(16, 16);
   const Rl = C.brown;
   const Rd = C.darkBrown;
-  const Rr = C.rust;
+  const Rrs = C.rust;
   const Re = C.orange;
   drawPixelArt(rlurk, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -850,11 +850,11 @@ function generateMonsterSprites() {
     [_, _, _, _, _, _, Rd, Rd, Rd, Rd, _, _, _, _, _, _],
     [_, _, _, _, _, Rd, Rl, Rl, Rl, Rl, Rd, _, _, _, _, _],
     [_, _, _, _, Rd, Rl, Re, Rl, Rl, Re, Rl, Rd, _, _, _, _],
-    [_, _, _, _, Rd, Rl, Rl, Rr, Rr, Rl, Rl, Rd, _, _, _, _],
+    [_, _, _, _, Rd, Rl, Rl, Rrs, Rrs, Rl, Rl, Rd, _, _, _, _],
     [_, _, _, _, _, Rd, Rl, Rl, Rl, Rl, Rd, _, _, _, _, _],
     [_, _, Rd, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rd, _, _],
     [_, Rd, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rd, _],
-    [_, _, Rd, Rl, Rr, Rl, Rl, Rl, Rl, Rl, Rl, Rr, Rl, Rd, _, _],
+    [_, _, Rd, Rl, Rrs, Rl, Rl, Rl, Rl, Rl, Rl, Rrs, Rl, Rd, _, _],
     [_, _, _, Rd, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rl, Rd, _, _, _],
     [_, _, _, _, Rd, Rd, Rl, Rl, Rl, Rl, Rd, Rd, _, _, _, _],
     [_, _, _, Rd, _, _, Rd, Rl, Rl, Rd, _, _, Rd, _, _, _],
@@ -1220,6 +1220,104 @@ function generateNPCSprites() {
     [_, _, _, _, n,bl,bl, _, _,bl,bl, n, _, _, _, _],
   ]);
   savePNG(npc, path.join(CONTENT_DIR, 'sprites', 'npc_default.png'));
+
+  // --- Sable (nightside guide): dark-hooded figure, purple cloak, teal accent ---
+  const Pu = C.purple;
+  const pu = C.darkPurple;
+  const Lt = C.lightPurple;
+  const Te = C.teal;
+  const sable = createPNG(16, 16);
+  drawPixelArt(sable, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
+    [_, _, _, _, _,pu, S, S, S, S,pu, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _,pu,pu, S, S,pu,pu, _, _, _, _, _],
+    [_, _, _, _, _, _,pu,Pu,Pu,pu, _, _, _, _, _, _],
+    [_, _, _, _,pu,Pu,Pu,Pu,Pu,Pu,Pu,pu, _, _, _, _],
+    [_, _, _, _,Pu,Pu,Pu,Pu,Pu,Pu,Pu,Pu, _, _, _, _],
+    [_, _, _, _,Pu,Pu,Pu,Te,Te,Pu,Pu,Pu, _, _, _, _],
+    [_, _, _, _, _,Pu,Pu,Pu,Pu,Pu,Pu, _, _, _, _, _],
+    [_, _, _, _, _,pu,Pu,Pu,Pu,Pu,pu, _, _, _, _, _],
+    [_, _, _, _, _,pu,pu,Pu,Pu,pu,pu, _, _, _, _, _],
+    [_, _, _, _, _,pu,pu, _, _,pu,pu, _, _, _, _, _],
+    [_, _, _, _, _,pu,pu, _, _,pu,pu, _, _, _, _, _],
+    [_, _, _, _, n,pu,pu, _, _,pu,pu, n, _, _, _, _],
+  ]);
+  savePNG(sable, path.join(CONTENT_DIR, 'sprites', 'sable_nightside_guide.png'));
+
+  // --- Sable at threshold: same character, slightly different pose (teal glow shifted) ---
+  const sableT = createPNG(16, 16);
+  drawPixelArt(sableT, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
+    [_, _, _, _, _,pu, S, S, S, S,pu, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _,pu,pu, S, S,pu,pu, _, _, _, _, _],
+    [_, _, _, _, _, _,pu,Pu,Pu,pu, _, _, _, _, _, _],
+    [_, _, _, _,pu,Pu,Pu,Pu,Pu,Pu,Pu,pu, _, _, _, _],
+    [_, _, _, _,Pu,Pu,Pu,Pu,Pu,Pu,Pu,Pu, _, _, _, _],
+    [_, _, _, _,Pu,Te,Pu,Pu,Pu,Pu,Te,Pu, _, _, _, _],
+    [_, _, _, _, _,Pu,Pu,Pu,Pu,Pu,Pu, _, _, _, _, _],
+    [_, _, _, _, _,pu,Pu,Pu,Pu,Pu,pu, _, _, _, _, _],
+    [_, _, _, _, _,pu,pu,Pu,Pu,pu,pu, _, _, _, _, _],
+    [_, _, _, _, _,pu,pu, _, _,pu,pu, _, _, _, _, _],
+    [_, _, _, _, _,pu,pu, _, _,pu,pu, _, _, _, _, _],
+    [_, _, _, _, n,pu,pu, _, _,pu,pu, n, _, _, _, _],
+  ]);
+  savePNG(sableT, path.join(CONTENT_DIR, 'sprites', 'sable_threshold.png'));
+
+  // --- Elder Vael (unbounded_elder): ancient hooded elder, pale/silver with light-purple aura ---
+  const Lg = C.lightGray;
+  const Pg = C.paleGray;
+  const Lp = C.lightPurple;
+  const lp = C.purple;
+  const elder = createPNG(16, 16);
+  drawPixelArt(elder, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, B, B, B, B, _, _, _, _, _, _],
+    [_, _, _, _, _, B, B, B, B, B, B, _, _, _, _, _],
+    [_, _, _, _, _,Pg, B, B, B, B,Pg, _, _, _, _, _],
+    [_, _, _, _, _, B, B, b, b, B, B, _, _, _, _, _],
+    [_, _, _, _, _,Pg,Pg, B, B,Pg,Pg, _, _, _, _, _],
+    [_, _, _, _, _, _,Pg,Lp,Lp,Pg, _, _, _, _, _, _],
+    [_, _, _, _,Pg,Lp,Lp,Lp,Lp,Lp,Lp,Pg, _, _, _, _],
+    [_, _, _, _,Lp,Lp,Lg,Lp,Lp,Lg,Lp,Lp, _, _, _, _],
+    [_, _, _, _,Lp,Lp,Lp,Lp,Lp,Lp,Lp,Lp, _, _, _, _],
+    [_, _, _, _, _,Lp,Lp,Lp,Lp,Lp,Lp, _, _, _, _, _],
+    [_, _, _, _, _,lp,Lp,Lp,Lp,Lp,lp, _, _, _, _, _],
+    [_, _, _, _, _,lp,lp,Lp,Lp,lp,lp, _, _, _, _, _],
+    [_, _, _, _, _,lp,lp, _, _,lp,lp, _, _, _, _, _],
+    [_, _, _, _, _,lp,lp, _, _,lp,lp, _, _, _, _, _],
+    [_, _, _, _, b,lp,lp, _, _,lp,lp, b, _, _, _, _],
+  ]);
+  savePNG(elder, path.join(CONTENT_DIR, 'sprites', 'unbounded_elder.png'));
+
+  // --- Commander Wren Alcott: military field commander, teal uniform, dark hair, rank insignia ---
+  const dt = C.darkTeal;
+  const Og = C.orange;
+  const wren = createPNG(16, 16);
+  drawPixelArt(wren, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, n, n, S, S, n, n, _, _, _, _, _],
+    [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _,Te,Te,Te,Te, _, _, _, _, _, _],
+    [_, _, dt,Te,Te,Te,Te,Te,Te,Te,Te,Te, dt, _, _, _],
+    [_, _, dt,Te,Te,Te,Og,Te,Te,Og,Te,Te, dt, _, _, _],
+    [_, _, _, _,Te,Te,Te,Te,Te,Te,Te,Te, _, _, _, _],
+    [_, _, _, _, _,Te,Te,Te,Te,Te,Te, _, _, _, _, _],
+    [_, _, _, _, _,dt,Te,Te,Te,Te, dt, _, _, _, _, _],
+    [_, _, _, _, _,dt, dt,Te,Te, dt, dt, _, _, _, _, _],
+    [_, _, _, _, _,dt, dt, _, _, dt, dt, _, _, _, _, _],
+    [_, _, _, _, _,dt, dt, _, _, dt, dt, _, _, _, _, _],
+    [_, _, _, _, n, dt, dt, _, _, dt, dt, n, _, _, _, _],
+  ]);
+  savePNG(wren, path.join(CONTENT_DIR, 'sprites', 'wren_alcott.png'));
 }
 
 // ============================================================================

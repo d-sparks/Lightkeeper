@@ -35,14 +35,21 @@
     { "type": "skeleton", "x": 8, "y": 7, "count": 2, "patrol": "patrol", "patrolPath": [
       {"x": 5, "y": 5}, {"x": 9, "y": 5}, {"x": 9, "y": 10}, {"x": 5, "y": 10}
     ] },
-    { "type": "skeleton", "x": 11, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "skeleton", "x": 11, "y": 9, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 9, "y": 6}, {"x": 12, "y": 6}, {"x": 12, "y": 10}, {"x": 9, "y": 10}
+    ] },
     { "type": "tunnel_creeper", "x": 18, "y": 11, "count": 2, "patrol": "patrol", "patrolPath": [
       {"x": 6, "y": 6}, {"x": 12, "y": 6}, {"x": 12, "y": 10}, {"x": 6, "y": 10}
+    ] },
+    { "type": "skeleton_archer", "x": 18, "y": 7, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 14, "y": 4}, {"x": 20, "y": 4}, {"x": 20, "y": 10}, {"x": 14, "y": 10}
     ] }
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "torch", "x": 12, "y": 9 }
+    { "type": "torch", "x": 12, "y": 9 },
+    { "type": "battery_chip", "x": 5, "y": 7 },
+    { "type": "battery_chip", "x": 19, "y": 12 }
   ],
   "exits": [
     { "x": 2, "y": 2, "leadsTo": "crypt_01", "type": "stairs_up", "spawnX": 17, "spawnY": 12 }

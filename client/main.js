@@ -10,6 +10,7 @@
   const healthFill = document.getElementById('health-fill');
   const energyBar = document.getElementById('energy-bar');
   const energyFill = document.getElementById('energy-fill');
+  const energySingleUseFill = document.getElementById('energy-single-use-fill');
   const energyText = document.getElementById('energy-text');
   const hudName = document.getElementById('hud-name');
   const xpFill = document.getElementById('xp-fill');
@@ -25,6 +26,8 @@
   const questBtn = document.getElementById('quest-btn');
   const questLabel = document.getElementById('quest-label');
   const questToast = document.getElementById('quest-toast');
+  const milestonToast = document.getElementById('automation-milestone-toast');
+  const milestoneText = document.getElementById('automation-milestone-text');
   const questPanelContent = document.getElementById('quest-panel-content');
   const solGridContainer = document.getElementById('sol-grid-container');
   const solGridInfo = document.getElementById('sol-grid-info');
@@ -43,6 +46,8 @@
   const bossBarText = document.getElementById('boss-bar-text');
   const bossBarPhase = document.getElementById('boss-bar-phase');
   const partyFrames = document.getElementById('party-frames');
+  const deathOverlay = document.getElementById('death-overlay');
+  const deathDetails = document.getElementById('death-details');
   const PARTY_COLORS = ['#4fc3f7', '#ef5350', '#66bb6a', '#ffa726'];
 
   // --- Instances ---
@@ -83,6 +88,7 @@
 
   // --- State ---
   let joined = false;
+  let currentAmbientTrack = 'dungeon'; // Track biome ambient so boss defeat restores correctly
 
   // --- Onboarding state ---
   let onboardMoveShown = false;
@@ -264,6 +270,7 @@
   let abilityState = [null, null, null, null, null, null];
   let cooldownState = [0, 0, 0, 0, 0, 0];
   let medipacCharges = 0;
+  let playerCredits = 0;
   let slot1InteractMode = null; // null or interact label string when slot 1 is overridden
   const SLOT_DISPLAY_NAMES = { arms: 'Arms', sol_unit: 'Sol Unit', medipac: 'Medipac', accessory: 'Accessory' };
 
@@ -275,6 +282,7 @@
   let questState = [];
   let partyQuestsState = [];
   let questToastTimeout = null;
+  let milestoneToastTimeout = null;
 
   // Tutorial arrow state (driven by quest uiHint)
   let tutorialPhase = null;  // null | 'open_menu' | 'click_sol_tab' | 'select_component' | 'place_component'
@@ -391,6 +399,7 @@
   let autoState = null;
   let automationScreenOpen = false;
   let automationSelectedStructure = null; // structureId selected for placement
+  let prevAutoLevel = null; // tracks previous automation level for level-up sound
 
   // --- Worldmap state ---
   let worldmapData = null;          // Full worldmap JSON from server
@@ -895,6 +904,7 @@
     // Skip disabled solgrid tab
     if (tab === 'solgrid' && !solGridState) return;
 
+    if (menuOpen) audio.play('menu_navigate');
     menuTab = tab;
     // Update tab UI
     document.querySelectorAll('#character-menu .inv-tab').forEach(t => {
@@ -1072,6 +1082,57 @@
       screen.appendChild(prog);
     }
 
+    // Milestone rewards track
+    if (autoState.milestones && autoState.milestones.length > 0) {
+      const track = document.createElement('div');
+      track.className = 'auto-rewards-track';
+      const trackTitle = document.createElement('div');
+      trackTitle.className = 'auto-rewards-title';
+      trackTitle.textContent = 'Automation Rewards';
+      track.appendChild(trackTitle);
+
+      const trackRow = document.createElement('div');
+      trackRow.className = 'auto-rewards-row';
+
+      for (let i = 0; i < autoState.milestones.length; i++) {
+        const m = autoState.milestones[i];
+
+        // Connector line between milestones (except before first)
+        if (i > 0) {
+          const connector = document.createElement('div');
+          connector.className = 'auto-reward-connector';
+          if (m.unlocked) connector.classList.add('filled');
+          trackRow.appendChild(connector);
+        }
+
+        const node = document.createElement('div');
+        node.className = 'auto-reward-node';
+        if (m.claimed) node.classList.add('claimed');
+        else if (m.unlocked) node.classList.add('unlocked');
+
+        const icon = document.createElement('div');
+        icon.className = 'auto-reward-icon';
+        icon.textContent = m.icon;
+
+        const label = document.createElement('div');
+        label.className = 'auto-reward-label';
+        label.textContent = m.name;
+
+        const thresh = document.createElement('div');
+        thresh.className = 'auto-reward-thresh';
+        thresh.textContent = m.threshold + ' structures';
+
+        node.title = m.description;
+        node.appendChild(icon);
+        node.appendChild(label);
+        node.appendChild(thresh);
+        trackRow.appendChild(node);
+      }
+
+      track.appendChild(trackRow);
+      screen.appendChild(track);
+    }
+
     // Body: grid + sidebar
     const body = document.createElement('div');
     body.className = 'auto-body';
@@ -1125,16 +1186,60 @@
               cell.textContent = def.gridIcon || '?';
               cell.style.color = def.gridColor || '#888';
               cell.style.background = 'rgba(255, 167, 38, 0.08)';
-              cell.title = def.name;
+
+              // Build tooltip content
+              const tipLines = [
+                '<strong style="color:' + (def.gridColor || '#ffa726') + '">' + def.name + '</strong>',
+                def.description ? '<span class="auto-tip-desc">' + def.description + '</span>' : null,
+              ].filter(Boolean);
+
+              let pinned = false;
+              const tip = document.createElement('div');
+              tip.className = 'auto-cell-tooltip';
+              tip.innerHTML = tipLines.join('<br>');
+
+              cell.addEventListener('mouseenter', () => {
+                if (!cell.contains(tip)) cell.appendChild(tip);
+              });
+              cell.addEventListener('mouseleave', () => {
+                if (!pinned && cell.contains(tip)) cell.removeChild(tip);
+              });
+
+              // Click / tap to pin tooltip (useful on touch)
+              const togglePin = () => {
+                pinned = !pinned;
+                if (pinned) {
+                  if (!cell.contains(tip)) cell.appendChild(tip);
+                } else {
+                  if (cell.contains(tip)) cell.removeChild(tip);
+                }
+              };
+              cell.addEventListener('click', togglePin);
+              cell.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                togglePin();
+              }, { passive: false });
             }
-            cell.addEventListener('click', () => {
-              // Show structure info (future: allow removal)
-            });
           } else if (preBuilt) {
             // Array infrastructure
             cell.classList.add('prebuilt');
             cell.textContent = '\u25a0';
-            cell.title = preBuilt.label;
+
+            const prebuiltTip = document.createElement('div');
+            prebuiltTip.className = 'auto-cell-tooltip';
+            prebuiltTip.innerHTML = '<strong style="color:#777">' + preBuilt.label + '</strong>' +
+              '<br><span class="auto-tip-desc">Output: classified.</span>';
+            cell.addEventListener('mouseenter', () => {
+              if (!cell.contains(prebuiltTip)) cell.appendChild(prebuiltTip);
+            });
+            cell.addEventListener('mouseleave', () => {
+              if (cell.contains(prebuiltTip)) cell.removeChild(prebuiltTip);
+            });
+            cell.addEventListener('touchend', (e) => {
+              e.preventDefault();
+              if (cell.contains(prebuiltTip)) cell.removeChild(prebuiltTip);
+              else cell.appendChild(prebuiltTip);
+            }, { passive: false });
           } else if (isBlocked) {
             // Wall / non-buildable
             cell.classList.add('blocked');
@@ -1149,14 +1254,33 @@
               const isMaxed = selDef && selDef.maxCount > 0 && selDef.count >= selDef.maxCount;
               if (canAfford && !isMaxed) {
                 cell.classList.add('can-build');
-                cell.addEventListener('click', () => {
+
+                // Hover tooltip: placement preview
+                const costText = Object.entries(selDef.cost).map(([, amt]) => amt + '\u26cf').join(' ');
+                const buildTip = document.createElement('div');
+                buildTip.className = 'auto-cell-tooltip';
+                buildTip.innerHTML = '<strong style="color:' + (selDef.gridColor || '#ffa726') + '">Place ' + selDef.name + '</strong>' +
+                  '<br><span class="auto-tip-desc">Cost: ' + costText + '</span>';
+                cell.addEventListener('mouseenter', () => {
+                  if (!cell.contains(buildTip)) cell.appendChild(buildTip);
+                });
+                cell.addEventListener('mouseleave', () => {
+                  if (cell.contains(buildTip)) cell.removeChild(buildTip);
+                });
+
+                const doBuild = () => {
                   net.send({
                     type: CONSTANTS.MSG.AUTO_BUILD,
                     structureId: automationSelectedStructure,
                     gridX: cx,
                     gridY: cy,
                   });
-                });
+                };
+                cell.addEventListener('click', doBuild);
+                cell.addEventListener('touchend', (e) => {
+                  e.preventDefault();
+                  doBuild();
+                }, { passive: false });
               }
             }
           }
@@ -1214,10 +1338,15 @@
       item.appendChild(count);
 
       if (!isMaxed) {
-        item.addEventListener('click', () => {
+        const doSelect = () => {
           automationSelectedStructure = (automationSelectedStructure === s.id) ? null : s.id;
           renderAutomationScreen();
-        });
+        };
+        item.addEventListener('click', doSelect);
+        item.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          doSelect();
+        }, { passive: false });
       }
 
       palItems.appendChild(item);
@@ -1246,24 +1375,24 @@
     resTitle.textContent = 'Resources';
     resSection.appendChild(resTitle);
 
-    const siliconRow = document.createElement('div');
-    siliconRow.className = 'auto-stat-row';
-    siliconRow.innerHTML = '\u26cf Silicon: <span class="stat-value">' +
-      (autoState.resources.silicon || 0) + '</span>';
-    resSection.appendChild(siliconRow);
+    const salvageRow = document.createElement('div');
+    salvageRow.className = 'auto-stat-row';
+    salvageRow.innerHTML = '\u26cf Salvage: <span class="stat-value">' +
+      (autoState.resources.salvage || 0) + '</span>';
+    resSection.appendChild(salvageRow);
 
     if (autoState.stats) {
-      if (autoState.stats.siliconPerMinute > 0) {
+      if (autoState.stats.salvagePerMinute > 0) {
         const rateRow = document.createElement('div');
         rateRow.className = 'auto-stat-row';
         rateRow.innerHTML = '\u25b8 <span class="stat-value">+' +
-          autoState.stats.siliconPerMinute.toFixed(1) + '</span>/min';
+          autoState.stats.salvagePerMinute.toFixed(1) + '</span>/min';
         resSection.appendChild(rateRow);
       }
-      if (autoState.stats.totalSiliconProduced > 0) {
+      if (autoState.stats.totalSalvageProduced > 0) {
         const totalRow = document.createElement('div');
         totalRow.className = 'auto-stat-row';
-        totalRow.innerHTML = '\u25b8 ' + autoState.stats.totalSiliconProduced +
+        totalRow.innerHTML = '\u25b8 ' + autoState.stats.totalSalvageProduced +
           ' total<span class="stat-sub">harvested</span>';
         resSection.appendChild(totalRow);
       }
@@ -1433,6 +1562,19 @@
     }, 3000);
   }
 
+  function showMilestoneToast(icon, name, threshold) {
+    milestoneText.textContent = icon + ' ' + name + ' — ' + threshold + ' structures';
+    milestonToast.style.display = 'block';
+    // Re-trigger animation by briefly removing and re-adding the element
+    milestonToast.style.animation = 'none';
+    void milestonToast.offsetWidth; // force reflow
+    milestonToast.style.animation = '';
+    if (milestoneToastTimeout) clearTimeout(milestoneToastTimeout);
+    milestoneToastTimeout = setTimeout(() => {
+      milestonToast.style.display = 'none';
+    }, 4000);
+  }
+
   // --- Tab click handlers ---
   document.querySelectorAll('#character-menu .inv-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -1566,6 +1708,14 @@
     const label = equipmentSlots.querySelector('.equip-label');
     equipmentSlots.innerHTML = '';
     equipmentSlots.appendChild(label);
+
+    // Show credits if player has any
+    if (playerCredits > 0) {
+      const creditsDiv = document.createElement('div');
+      creditsDiv.className = 'credits-display';
+      creditsDiv.textContent = playerCredits + ' credits';
+      equipmentSlots.appendChild(creditsDiv);
+    }
 
     for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
       const div = document.createElement('div');
@@ -1804,7 +1954,11 @@
           if (!comp.isExtension) {
             let html = '<div class="sol-cell-name" style="color:' + compRarityColor + '">' + (comp.componentName || comp.batteryId.replace(/_/g, ' ')) + '</div>';
             if (comp.energyCapacity) {
-              html += '<div class="sol-mod-tag">+' + comp.energyCapacity + ' cap</div>';
+              if (comp.singleUse) {
+                html += '<div class="sol-mod-tag" style="color:#ffab40">+' + comp.energyCapacity + '/' + (comp.maxCapacity || comp.energyCapacity) + ' cap (1x)</div>';
+              } else {
+                html += '<div class="sol-mod-tag">+' + comp.energyCapacity + ' cap</div>';
+              }
             }
             cell.innerHTML = html;
           }
@@ -1859,7 +2013,7 @@
 
     solGridContainer.appendChild(grid);
 
-    // Highlight adjacency connections
+    // Highlight adjacency connections (standard: green glow on modifier cells adjacent to abilities)
     const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
     for (let cy = 0; cy < size; cy++) {
       for (let cx = 0; cx < size; cx++) {
@@ -1871,11 +2025,97 @@
           if (nx < 0 || ny < 0 || nx >= size || ny >= size) continue;
           const ni = ny * size + nx;
           const neighbor = solGridState.cells[ni];
-          if (neighbor && neighbor.modifierId) {
+          if (neighbor && neighbor.modifierId && !neighbor.adjacencyPattern) {
             const neighborCell = grid.children[ni];
             if (neighborCell) neighborCell.style.boxShadow = '0 0 6px rgba(76,175,80,0.4)';
           }
         }
+      }
+    }
+
+    // Helper: compute which cell indices fall within an adjacency pattern centered at (ox, oy)
+    function getAdjRangeCells(ox, oy, pattern) {
+      const indices = [];
+      for (let ny = 0; ny < size; ny++) {
+        for (let nx = 0; nx < size; nx++) {
+          if (nx === ox && ny === oy) continue;
+          const dist = Math.abs(nx - ox) + Math.abs(ny - oy);
+          let inRange = false;
+          if (pattern === 'radius2') inRange = dist <= 2;
+          else if (pattern === 'row') inRange = ny === oy;
+          else if (pattern === 'column') inRange = nx === ox;
+          else if (pattern === 'cross') inRange = ny === oy || nx === ox;
+          else if (pattern === 'area3x3') inRange = Math.max(Math.abs(nx - ox), Math.abs(ny - oy)) <= 1;
+          if (inRange) indices.push(ny * size + nx);
+        }
+      }
+      return indices;
+    }
+
+    // Helper: clear all adj-range / adj-source classes from the grid
+    function clearAdjHighlight() {
+      for (let i = 0; i < size * size; i++) {
+        const el = grid.children[i];
+        if (el) { el.classList.remove('adj-range', 'adj-source'); }
+      }
+    }
+
+    // Hover on placed legendary modifier cells → show their reach
+    for (let i = 0; i < size * size; i++) {
+      const comp = solGridState.cells[i];
+      if (!comp || !comp.modifierId || !comp.adjacencyPattern) continue;
+      const mx = i % size, my = Math.floor(i / size);
+      // Find origin cell of this placement (for multi-cell shapes, use originX/Y)
+      const originX = comp.originX !== undefined ? comp.originX : mx;
+      const originY = comp.originY !== undefined ? comp.originY : my;
+      const pattern = comp.adjacencyPattern;
+
+      // Collect all cells belonging to this placement
+      const placementCells = [];
+      for (let j = 0; j < size * size; j++) {
+        const c = solGridState.cells[j];
+        if (c && c.placementId === comp.placementId) placementCells.push(j);
+      }
+
+      const addHover = (enterIdx) => {
+        const el = grid.children[enterIdx];
+        if (!el) return;
+        el.addEventListener('mouseenter', () => {
+          clearAdjHighlight();
+          // Mark all cells of this placement as source
+          for (const pi of placementCells) {
+            const src = grid.children[pi];
+            if (src) src.classList.add('adj-source');
+          }
+          // Mark range cells
+          for (const ri of getAdjRangeCells(originX, originY, pattern)) {
+            const r = grid.children[ri];
+            if (r) r.classList.add('adj-range');
+          }
+        });
+        el.addEventListener('mouseleave', clearAdjHighlight);
+      };
+
+      for (const pi of placementCells) addHover(pi);
+    }
+
+    // Hovering empty grid cells when a legendary modifier is selected from inventory
+    const selItem = solGridSelectedComponent !== null ? inventoryItems[solGridSelectedComponent] : null;
+    const selPattern = selItem && selItem.adjacencyPattern ? selItem.adjacencyPattern : null;
+    if (selPattern) {
+      for (let i = 0; i < size * size; i++) {
+        const cellEl = grid.children[i];
+        if (!cellEl) continue;
+        const hx = i % size, hy = Math.floor(i / size);
+        cellEl.addEventListener('mouseenter', () => {
+          clearAdjHighlight();
+          cellEl.classList.add('adj-source');
+          for (const ri of getAdjRangeCells(hx, hy, selPattern)) {
+            const r = grid.children[ri];
+            if (r) r.classList.add('adj-range');
+          }
+        });
+        cellEl.addEventListener('mouseleave', clearAdjHighlight);
       }
     }
 
@@ -1988,17 +2228,17 @@
     }
 
     // Slot 1 interact override: override slot 1 to show the interact action.
-    // Items always override slot 1 (pickup should work even in combat).
-    // Doors/NPCs only override when no monsters are nearby.
+    // Items and doors always override slot 1 (pickup/doors should work even in combat).
+    // NPCs only override when no monsters are nearby.
     const prevMode = slot1InteractMode;
     slot1InteractMode = null;
 
     if (label) {
-      if (label === 'Pick up') {
-        // Items always take priority — pickup should work even in combat
+      if (label === 'Pick up' || label === 'Open' || label === 'Close') {
+        // Items and doors always take priority
         slot1InteractMode = label;
       } else {
-        // Doors/NPCs: only override when no monsters are nearby
+        // NPCs: only override when no monsters are nearby
         let monstersNearby = false;
         if (renderer.state.monsters) {
           const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * ts;
@@ -2209,8 +2449,14 @@
   // --- Session / Join flow ---
   const sessionListEl = document.getElementById('session-list');
 
+  let pendingJoinName = null;
+
   function joinWithName(name) {
-    net.send({ type: CONSTANTS.MSG.JOIN, name });
+    pendingJoinName = name;
+    // Send session token if we have one stored for this character
+    const tokenKey = `lk_session_${name}`;
+    const sessionToken = localStorage.getItem(tokenKey) || undefined;
+    net.send({ type: CONSTANTS.MSG.JOIN, name, sessionToken });
 
     // Initialize audio on first user gesture
     audio.init();
@@ -2265,6 +2511,18 @@
         joinWithName(session.name);
       });
 
+      const delBtn = document.createElement('button');
+      delBtn.className = 'session-delete-btn';
+      delBtn.textContent = '✕';
+      delBtn.title = 'Delete character';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!confirm(`Delete "${session.name}"? This cannot be undone.`)) return;
+        const token = localStorage.getItem(`lk_session_${session.name}`) || '';
+        net.send({ type: CONSTANTS.MSG.SESSION_DELETE, name: session.name, token });
+      });
+      entry.appendChild(delBtn);
+
       sessionListEl.appendChild(entry);
     }
   }
@@ -2278,14 +2536,37 @@
     renderSessionList(msg.sessions);
   });
 
+  net.on(CONSTANTS.MSG.SESSION_DELETE_RESPONSE, (msg) => {
+    if (msg.success) {
+      localStorage.removeItem(`lk_session_${msg.name}`);
+      net.send({ type: CONSTANTS.MSG.SESSION_LIST });
+    } else {
+      const reason = msg.error === 'online' ? 'That character is currently online.'
+        : msg.error === 'unauthorized' ? 'You do not own that character.'
+        : 'Could not delete character.';
+      alert(reason);
+    }
+  });
+
   joinBtn.addEventListener('click', doJoin);
   nameInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') doJoin();
   });
 
   // --- Network handlers ---
+  net.on('error', (msg) => {
+    console.error('[Game] Server error:', msg.message);
+    net.setStatus(msg.message || 'Connection error');
+    pendingJoinName = null;
+  });
+
   net.on(CONSTANTS.MSG.WELCOME, (msg) => {
     console.log('[Game] Welcome!', msg.playerId);
+
+    // Store session token for reconnection auth
+    if (msg.sessionToken && pendingJoinName) {
+      localStorage.setItem(`lk_session_${pendingJoinName}`, msg.sessionToken);
+    }
 
     renderer.setMyId(msg.playerId);
     // Chunk-based map streaming: create empty data array, fill from chunks
@@ -2320,7 +2601,8 @@
     audio.resume();
     const roomName = (msg.map && msg.map.name || '');
     const tileset = (msg.map && msg.map.tileset || '');
-    audio.playMusic(audio.resolveAmbientTrack(roomName, tileset));
+    currentAmbientTrack = audio.resolveAmbientTrack(roomName, tileset);
+    audio.playMusic(currentAmbientTrack);
   });
 
   net.on(CONSTANTS.MSG.STATE, (msg) => {
@@ -2337,9 +2619,12 @@
       for (const ev of msg.events) {
         if (ev.type === 'teleport' && ev.targetId === renderer.myId) {
           input.clearMoveTarget();
+          audio.play('teleport');
+        } else if (ev.type === 'ambush_reveal') {
+          audio.play('ambush_reveal');
         } else if (ev.type === 'death' && ev.targetId === renderer.myId) {
           input.clearMoveTarget();
-          audio.play('death_player');
+          // Audio + overlay handled by DEATH_SCREEN message
         } else if (ev.type === 'death') {
           audio.play('death_monster');
         } else if (ev.type === 'damage') {
@@ -2354,6 +2639,14 @@
           audio.play('pickup');
         } else if (ev.type === 'level_up') {
           audio.play('level_up');
+        } else if (ev.type === 'battery_depleted' && ev.targetId === renderer.myId) {
+          audio.play('battery_depleted');
+          const bar = document.getElementById('energy-bar');
+          if (bar) {
+            bar.classList.remove('battery-depleted-flash');
+            void bar.offsetWidth; // reflow to restart animation
+            bar.classList.add('battery-depleted-flash');
+          }
         } else if (ev.type === 'boss_intro' && ev.playerId === renderer.myId) {
           audio.play('boss_intro');
           audio.playMusic(ev.bossMusic || 'boss_combat');
@@ -2369,8 +2662,15 @@
         healthFill.style.width = `${pct}%`;
         if (me.maxEnergy > 0) {
           energyBar.style.display = 'block';
-          const ePct = (me.energy / me.maxEnergy) * 100;
-          energyFill.style.width = `${ePct}%`;
+          const suEnergy = me.singleUseEnergy || 0;
+          const suMax = me.singleUseMaxEnergy || 0;
+          const rechargeableEnergy = me.energy - suEnergy;
+          const rechargeablePct = (rechargeableEnergy / me.maxEnergy) * 100;
+          const suPct = (suEnergy / me.maxEnergy) * 100;
+          energyFill.style.width = `${rechargeablePct}%`;
+          energySingleUseFill.style.left = `${rechargeablePct}%`;
+          energySingleUseFill.style.width = `${suPct}%`;
+          energySingleUseFill.style.display = suMax > 0 ? 'block' : 'none';
           energyText.textContent = `SOL ${Math.round(me.energy)}/${me.maxEnergy}`;
         } else {
           energyBar.style.display = 'none';
@@ -2446,7 +2746,7 @@
       bossBarPhase.textContent = phaseLabels[boss.bossPhase] || '';
     } else {
       if (bossBar.style.display !== 'none' && audio.musicId && audio.musicId.startsWith('boss_')) {
-        audio.playMusic('dungeon');
+        audio.playMusic(currentAmbientTrack || 'dungeon');
       }
       bossBar.style.display = 'none';
     }
@@ -2478,7 +2778,7 @@
     renderer.setMap(msg.map, msg.tileset, msg.chunked);
     if (msg.chunks) renderer.applyChunks(msg.chunks);
     renderer.fullMap = false;
-    input.clearMoveTarget();
+    input.stopMovement();
     // Close any open dialogue, choice menu, worldmap, or automation screen
     closeDialogue();
     closeChoiceMenu();
@@ -2486,14 +2786,26 @@
     closeWorldmap();
     // Hide boss bar when changing floors
     bossBar.style.display = 'none';
-    // Play floor change SFX and switch music based on room name
+    // Play floor change SFX and switch music based on room name/tileset biome
     audio.play('floor_change');
     const roomName = (msg.map.name || '').toLowerCase();
-    if (roomName.includes('outpost') || roomName.includes('town') || roomName.includes('hub')) {
-      audio.playMusic('outpost');
-    } else {
-      audio.playMusic('dungeon');
-    }
+    const tilesetId = msg.map.tileset || '';
+    currentAmbientTrack = audio.resolveAmbientTrack(roomName, tilesetId);
+    audio.playMusic(currentAmbientTrack);
+  });
+
+  net.on(CONSTANTS.MSG.DEATH_SCREEN, (msg) => {
+    // Show death overlay with penalty details
+    deathDetails.innerHTML = (msg.details || []).map(l => l.replace(/</g, '&lt;')).join('<br>');
+    deathOverlay.classList.remove('active');
+    void deathOverlay.offsetWidth; // reflow to restart animation
+    deathOverlay.classList.add('active');
+    audio.play('death_player');
+    input.clearMoveTarget();
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+      deathOverlay.classList.remove('active');
+    }, 3000);
   });
 
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {
@@ -2521,7 +2833,9 @@
       const idx = msg.y * renderer.map.width + msg.x;
       renderer.map.data[idx] = msg.tileId;
     }
-    audio.play('door_open');
+    // Determine if the new tile is solid (closing) or passable (opening)
+    const tileDef = renderer.tileset && renderer.tileset.tiles && renderer.tileset.tiles[String(msg.tileId)];
+    audio.play(tileDef && tileDef.solid ? 'door_close' : 'door_open');
   });
 
   // Chunk-based map streaming: receive new map chunks as player explores
@@ -2622,9 +2936,19 @@
   net.on(CONSTANTS.MSG.AUTO_STATE, (msg) => {
     autoState = msg.auto || null;
 
-    // Handle build result flash animation
+    // Handle build result flash animation and placement sound
     if (msg.buildResult && msg.buildX !== undefined) {
       flashAutomationCell(msg.buildX, msg.buildY, msg.buildResult === 'success');
+      if (msg.buildResult === 'success') audio.play('auto_place');
+    }
+
+    // Detect automation level-up and play fanfare
+    if (autoState && autoState.stats) {
+      const newLevel = autoState.stats.automationLevel || 0;
+      if (prevAutoLevel !== null && newLevel > prevAutoLevel) {
+        audio.play('auto_level_up');
+      }
+      prevAutoLevel = newLevel;
     }
 
     // Open full-screen automation overlay if server says so
@@ -2636,6 +2960,10 @@
 
   });
 
+  net.on(CONSTANTS.MSG.AUTOMATION_MILESTONE, (msg) => {
+    showMilestoneToast(msg.milestoneIcon || '★', msg.milestoneName || 'Milestone', msg.milestoneThreshold || 0);
+  });
+
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {
     inventoryItems = msg.items || [];
     if (msg.equipment) {
@@ -2643,6 +2971,9 @@
     }
     if (msg.medipacCharges !== undefined) {
       medipacCharges = msg.medipacCharges;
+    }
+    if (msg.credits !== undefined) {
+      playerCredits = msg.credits;
     }
     updateActionBar();
     if (menuOpen && (menuTab === 'equipment' || menuTab === 'inventory')) {
@@ -2658,10 +2989,130 @@
 
   net.on(CONSTANTS.MSG.PLAYER_JOIN, (msg) => {
     console.log(`[Game] ${msg.name} joined`);
+    addChatLine(msg.name + ' joined', true);
   });
 
   net.on(CONSTANTS.MSG.PLAYER_LEAVE, (msg) => {
     console.log(`[Game] ${msg.playerId} left`);
+    addChatLine('A player left', true);
+  });
+
+  // --- Chat system ---
+  const chatLog = document.getElementById('chat-log');
+  const chatInputRow = document.getElementById('chat-input-row');
+  const chatInput = document.getElementById('chat-input');
+  const voiceIndicator = document.getElementById('voice-indicator');
+  const CHAT_FADE_MS = 8000;
+
+  function addChatLine(text, isSystem) {
+    const el = document.createElement('div');
+    el.className = 'chat-line' + (isSystem ? ' system' : '');
+    el.textContent = text;
+    chatLog.appendChild(el);
+    // Keep max 50 lines
+    while (chatLog.children.length > 50) chatLog.removeChild(chatLog.firstChild);
+    // Auto-fade after delay
+    setTimeout(() => { el.classList.add('faded'); }, CHAT_FADE_MS);
+  }
+
+  net.on(CONSTANTS.MSG.CHAT_BROADCAST, (msg) => {
+    const el = document.createElement('div');
+    el.className = 'chat-line';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'chat-name';
+    nameSpan.textContent = msg.name + ': ';
+    el.appendChild(nameSpan);
+    el.appendChild(document.createTextNode(msg.text));
+    chatLog.appendChild(el);
+    while (chatLog.children.length > 50) chatLog.removeChild(chatLog.firstChild);
+    setTimeout(() => { el.classList.add('faded'); }, CHAT_FADE_MS);
+  });
+
+  function openChat() {
+    input.chatActive = true;
+    chatInputRow.classList.add('active');
+    chatInput.value = '';
+    chatInput.focus();
+    // Unfade recent messages while chat is open
+    for (const line of chatLog.children) line.classList.remove('faded');
+  }
+
+  function closeChat() {
+    input.chatActive = false;
+    chatInputRow.classList.remove('active');
+    chatInput.blur();
+  }
+
+  function sendChat() {
+    const text = chatInput.value.trim();
+    if (text) {
+      net.send({ type: CONSTANTS.MSG.CHAT, text });
+    }
+    closeChat();
+  }
+
+  chatInput.addEventListener('keydown', (e) => {
+    e.stopPropagation(); // Prevent game input handler from seeing these keys
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendChat();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      closeChat();
+    }
+  });
+
+  // Prevent keyup events from game when chat was active
+  chatInput.addEventListener('keyup', (e) => { e.stopPropagation(); });
+
+  input.onChatOpen = openChat;
+  input.onChatClose = closeChat;
+
+  // --- Voice chat (hold V to speak) ---
+  let voiceRecognition = null;
+  let voiceActive = false;
+
+  function startVoice() {
+    if (voiceActive) return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+    voiceActive = true;
+    voiceIndicator.classList.add('active');
+    voiceRecognition = new SpeechRecognition();
+    voiceRecognition.continuous = false;
+    voiceRecognition.interimResults = false;
+    voiceRecognition.lang = 'en-US';
+    voiceRecognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.trim();
+      if (transcript) {
+        net.send({ type: CONSTANTS.MSG.CHAT, text: transcript });
+      }
+    };
+    voiceRecognition.onerror = () => { stopVoice(); };
+    voiceRecognition.onend = () => { stopVoice(); };
+    voiceRecognition.start();
+  }
+
+  function stopVoice() {
+    voiceActive = false;
+    voiceIndicator.classList.remove('active');
+    if (voiceRecognition) {
+      try { voiceRecognition.stop(); } catch (e) {}
+      voiceRecognition = null;
+    }
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (input.chatActive) return;
+    if ((e.key === 'v' || e.key === 'V') && !e.repeat) {
+      startVoice();
+    }
+  });
+
+  window.addEventListener('keyup', (e) => {
+    if (e.key === 'v' || e.key === 'V') {
+      stopVoice();
+    }
   });
 
   // --- Render loop ---

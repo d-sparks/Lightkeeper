@@ -40,8 +40,21 @@ class GameLoop {
     this.conditions = new ConditionEvaluator(this.flagStore);
     this.actions = new ActionExecutor(this.flagStore, this.eventBus, content);
     this.actions.automation = this.automation;
+    this.actions.gameLoop = this;
     this.triggers = new TriggerRegistry(this.eventBus, this.conditions, this.actions, this.flagStore);
     this.questTracker = new QuestTracker(content, this.conditions, this.actions);
+
+    // Track expedition boss kills — when the killed monster matches the
+    // expedition's boss type, mark the expedition as boss-cleared
+    this.eventBus.on(EventBus.Events.MONSTER_KILLED, (payload) => {
+      const { playerId, monsterType } = payload;
+      if (!playerId) return;
+      const bossType = this.flagStore.getPlayerFlag(playerId, 'expedition_boss_type');
+      if (bossType && monsterType === bossType) {
+        this.flagStore.setPlayerFlag(playerId, 'expedition_boss_killed', true);
+        console.log(`[GameLoop] Player ${playerId} killed expedition boss "${monsterType}"`);
+      }
+    });
 
     // Subscribe to flag_changed events on the eventBus directly, since
     // flag_changed is emitted via eventBus.emit() in actions.js but does
@@ -159,6 +172,7 @@ class GameLoop {
       nextItemId,
       nextProjectileId: 0,
       nextSentryId: 0,
+      expeditionScaling: null, // Set when room is part of an expedition { hpMult, damageMult, xpMult }
     };
 
     // Initialize beam objects (mirrors, photosensors) for sentry beam puzzles
@@ -231,6 +245,10 @@ class GameLoop {
         // Determine spawn tile elevation
         const spawnTileDef = this.content.getTileDef(room.dungeon, validTile.x, validTile.y);
         const spawnElevation = spawnTileDef ? (spawnTileDef.elevation || 0) : 0;
+        // Apply expedition scaling multipliers if present
+        const scaling = room.expeditionScaling;
+        const scaledHealth = scaling ? Math.round(def.health * scaling.hpMult) : def.health;
+        const scaledDamage = scaling ? Math.round(def.damage * scaling.damageMult) : def.damage;
         const mob = {
           id,
           spawnKey,
@@ -241,16 +259,17 @@ class GameLoop {
           spawnX,
           spawnY,
           elevation: spawnElevation,
-          health: def.health,
-          maxHealth: def.health,
+          health: scaledHealth,
+          maxHealth: scaledHealth,
           speed: def.speed,
-          damage: def.damage,
+          damage: scaledDamage,
           attackRange: (def.attackRange || 1) * CONSTANTS.TILE_SIZE,
           attackCooldown: 1 / (def.attackSpeed || 1),
           attackTimer: 0,
           ai: def.ai,
           facing: 0,
           idleMode: spawn.patrol || 'stationary',
+          xpMult: scaling ? scaling.xpMult : 1,
         };
         // Ambush: start hidden until player is close
         if (def.ai === 'ambush') {
@@ -276,6 +295,10 @@ class GameLoop {
           } else {
             mob.patrolAngle = Math.random() * Math.PI * 2;
           }
+        }
+        // Pack leader: store aura definition
+        if (def.ai === 'pack_leader' && def.aura) {
+          mob.aura = def.aura;
         }
         // Ranged kite: store projectile type from definition
         if (def.ai === 'ranged_kite' && def.projectile) {
@@ -409,6 +432,9 @@ class GameLoop {
         depth: context.depth || (template.depth && template.depth.min) || 0,
         serverEpoch: this.serverEpoch,
       };
+      // Forward expedition overrides for floor/boss generation
+      if (context.maxDepth) genContext.maxDepth = context.maxDepth;
+      if (context.bossType) genContext.bossType = context.bossType;
       const result = this.generator.generate(template, genContext);
       if (result) {
         this.generatedDungeons.set(result.instanceId, result.dungeon);
@@ -422,6 +448,121 @@ class GameLoop {
     // 4. Normal dungeon from content
     room = this.createRoom(dungeonId, dungeonId);
     return room;
+  }
+
+  // Start an expedition for a player: generate the first floor and transition them
+  // Returns { roomId, room } on success, or null on failure
+  startExpedition(playerId, tier, originRoom) {
+    const expedition = this.content.getExpeditionByTier(tier);
+    if (!expedition) {
+      console.error(`[GameLoop] No expedition config for tier ${tier}`);
+      return null;
+    }
+
+    // Validate unlock condition
+    if (expedition.unlockCondition) {
+      const ctx = { playerId };
+      if (!this.conditions.evaluate(expedition.unlockCondition, ctx)) {
+        console.log(`[GameLoop] Player ${playerId} does not meet expedition tier ${tier} unlock conditions`);
+        return null;
+      }
+    }
+
+    // Pick a random template from the pool
+    const pool = expedition.templatePool || [];
+    if (pool.length === 0) {
+      console.error(`[GameLoop] Expedition tier ${tier} has no template pool`);
+      return null;
+    }
+    const templateId = pool[Math.floor(Math.random() * pool.length)];
+    const template = this.content.getTemplate(templateId);
+    if (!template) {
+      console.error(`[GameLoop] Template "${templateId}" not found for expedition tier ${tier}`);
+      return null;
+    }
+
+    // Determine floor count from expedition config
+    const fc = expedition.floorCount || { min: 3, max: 3 };
+    const maxFloors = fc.min + Math.floor(Math.random() * (fc.max - fc.min + 1));
+
+    // Pick a boss from the expedition's bossPool for the final floor
+    const bossPool = expedition.bossPool || [];
+    const bossType = bossPool.length > 0
+      ? bossPool[Math.floor(Math.random() * bossPool.length)]
+      : null;
+
+    // Generate the first floor (entrance exit leads back to origin room)
+    const origin = originRoom || 'meridian_station';
+    const genContext = {
+      fromDungeon: origin,
+      exitX: 0,
+      exitY: 0,
+      depth: 0,
+      maxDepth: maxFloors,
+      bossType,
+      serverEpoch: this.serverEpoch,
+    };
+    const result = this.generator.generate(template, genContext);
+    if (!result) {
+      console.error(`[GameLoop] Failed to generate expedition floor for tier ${tier}`);
+      return null;
+    }
+
+    this.generatedDungeons.set(result.instanceId, result.dungeon);
+    const room = this.createRoom(result.instanceId, result.instanceId, result.dungeon);
+    if (!room) return null;
+
+    // Apply expedition scaling to the room and re-spawn monsters with scaled stats
+    this.applyExpeditionScaling(room, expedition.monsterScaling);
+
+    // Set expedition tracking flags on the player
+    this.flagStore.setPlayerFlag(playerId, 'expedition_active', true);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_tier', tier);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_floor', 1);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_max_floors', maxFloors);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_template', templateId);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_boss_type', bossType);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_scaling', expedition.monsterScaling);
+    this.flagStore.setPlayerFlag(playerId, 'expedition_origin', origin);
+
+    console.log(`[GameLoop] Started tier ${tier} expedition for player ${playerId} (room: ${room.id}, template: ${templateId}, floors: ${maxFloors}, boss: ${bossType})`);
+    return { roomId: room.id, room };
+  }
+
+  // Complete an expedition: set tier cleared flag (if boss killed) and clean up
+  completeExpedition(playerId) {
+    const tier = this.flagStore.getPlayerFlag(playerId, 'expedition_tier');
+    if (!tier) return;
+
+    const bossKilled = this.flagStore.getPlayerFlag(playerId, 'expedition_boss_killed');
+
+    // Only set tier cleared if the boss was defeated
+    if (bossKilled) {
+      this.flagStore.setPlayerFlag(playerId, `expedition_tier_${tier}_cleared`, true);
+      console.log(`[GameLoop] Player ${playerId} completed expedition tier ${tier}`);
+    } else {
+      console.log(`[GameLoop] Player ${playerId} retreated from expedition tier ${tier} (boss not killed)`);
+    }
+
+    // Clear all expedition state flags
+    const expFlags = [
+      'expedition_active', 'expedition_tier', 'expedition_floor',
+      'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
+      'expedition_scaling', 'expedition_origin', 'expedition_boss_killed',
+    ];
+    for (const flag of expFlags) {
+      this.flagStore.removePlayerFlag(playerId, flag);
+    }
+  }
+
+  // Apply expedition scaling to a room (re-spawns monsters with scaled stats)
+  applyExpeditionScaling(room, scaling) {
+    if (room.expeditionScaling) return; // Already scaled
+    room.expeditionScaling = scaling;
+    room.monsters.clear();
+    room.nextMonsterId = 0;
+    this.killedMonsters.delete(room.id);
+    this.spawnMonsters(room);
   }
 
   addPlayer(roomId, playerId, name) {
@@ -455,12 +596,15 @@ class GameLoop {
       solGrid: null,
       energy: 0,
       maxEnergy: 0,
+      singleUseEnergy: 0,
+      singleUseMaxEnergy: 0,
       solGridEnergyRegen: 0,
       questObjective: null,
       xp: 0,
       level: 1,
       xpToNextLevel: this._xpForLevel(1),
       medipacCharges: 0,
+      credits: 0,
     };
 
     room.players.set(playerId, player);
@@ -492,6 +636,8 @@ class GameLoop {
     player.hovering = false;
     player.hoverTime = 0;
     player.elevation = 0;
+    // Clear movement input so click-to-move from the previous room doesn't carry over
+    player.input = {};
 
     room.players.set(player.id, player);
 
@@ -537,6 +683,10 @@ class GameLoop {
     // Remove any sentries owned by this player
     if (room.sentries) {
       room.sentries = room.sentries.filter(s => s.ownerId !== playerId);
+    }
+    // Remove any extraction points owned by this player
+    if (room.extractionPoints) {
+      room.extractionPoints = room.extractionPoints.filter(ep => ep.ownerId !== playerId);
     }
     room.players.delete(playerId);
     console.log(`[GameLoop] Player ${playerId} left room "${roomId}"`);
@@ -786,27 +936,67 @@ class GameLoop {
     }
   }
 
-  // Get modifier components adjacent to a grid position (4-directional, Manhattan distance 1 by default)
+  // Get modifier components adjacent to a grid position
+  // Standard modifiers use 4-directional Manhattan distance 1.
+  // Extended-adjacency modifiers (legendary tier) use their adjacencyPattern:
+  //   "radius2"  — Manhattan distance <= 2
+  //   "row"      — any cell in the same row
+  //   "column"   — any cell in the same column
+  //   "cross"    — full row AND full column (orthogonal cross, unlimited range)
+  //   "area3x3"  — all 8 cells within Chebyshev distance 1 (full 3x3 neighborhood)
   // Deduplicates by placementId so multi-cell shapes only count once
   _getAdjacentModifiers(solGrid, x, y) {
     const size = solGrid.size;
     const modifiers = [];
     const seenPlacements = new Set();
-    const dirs = [[-1,0],[1,0],[0,-1],[0,1]]; // 4-directional
-    for (const [dx, dy] of dirs) {
-      const nx = x + dx;
-      const ny = y + dy;
-      if (nx < 0 || ny < 0 || nx >= size || ny >= size) continue;
+
+    // Helper: check a cell at (nx, ny) and add its modifier if valid and unseen
+    const _tryCell = (nx, ny) => {
+      if (nx < 0 || ny < 0 || nx >= size || ny >= size) return;
+      if (nx === x && ny === y) return; // skip self
       const cell = solGrid.cells[ny * size + nx];
-      if (cell && cell.modifierId) {
-        if (cell.placementId && seenPlacements.has(cell.placementId)) continue;
-        if (cell.placementId) seenPlacements.add(cell.placementId);
-        const compDef = this.content.getSolComponent(cell.modifierId);
-        if (compDef && compDef.type === 'modifier' && compDef.bonus) {
-          modifiers.push(compDef);
-        }
+      if (!cell || !cell.modifierId) return;
+      if (cell.placementId && seenPlacements.has(cell.placementId)) return;
+      if (cell.placementId) seenPlacements.add(cell.placementId);
+      const compDef = this.content.getSolComponent(cell.modifierId);
+      if (!compDef || compDef.type !== 'modifier' || !compDef.bonus) return;
+      const pattern = compDef.adjacencyPattern;
+      // Determine if this modifier can reach (x, y) from (nx, ny)
+      const dist = Math.abs(nx - x) + Math.abs(ny - y);
+      if (!pattern) {
+        // Standard modifier: Manhattan distance 1 only
+        if (dist <= 1) modifiers.push(compDef);
+      } else if (pattern === 'radius2') {
+        if (dist <= 2) modifiers.push(compDef);
+      } else if (pattern === 'row') {
+        if (ny === y) modifiers.push(compDef);
+      } else if (pattern === 'column') {
+        if (nx === x) modifiers.push(compDef);
+      } else if (pattern === 'cross') {
+        // Full row AND full column (orthogonal cross, unlimited range)
+        if (ny === y || nx === x) modifiers.push(compDef);
+      } else if (pattern === 'area3x3') {
+        // All 8 neighbors within Chebyshev distance 1
+        if (Math.max(Math.abs(nx - x), Math.abs(ny - y)) <= 1) modifiers.push(compDef);
       }
+    };
+
+    // Scan standard adjacency (distance 1) — covers all non-extended modifiers
+    for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+      _tryCell(x + dx, y + dy);
     }
+
+    // Scan extended range for radius2 modifiers (distance 2, not already covered)
+    for (const [dx, dy] of [[-2,0],[2,0],[0,-2],[0,2],[-1,-1],[-1,1],[1,-1],[1,1]]) {
+      _tryCell(x + dx, y + dy);
+    }
+
+    // Scan entire row and column for row/column modifiers (skip already-checked cells)
+    for (let i = 0; i < size; i++) {
+      if (Math.abs(i - x) > 2) _tryCell(i, y);  // row cells not yet checked
+      if (Math.abs(i - y) > 2) _tryCell(x, i);  // column cells not yet checked
+    }
+
     return modifiers;
   }
 
@@ -885,11 +1075,14 @@ class GameLoop {
             };
           }
         }
-        // For modifier cells, include bonus info for tooltip display
+        // For modifier cells, include bonus info and adjacency pattern for UI display
         if (cell.modifierId) {
           const compDef = this.content.getSolComponent(cell.modifierId);
           if (compDef && compDef.bonus) {
             clientCell.bonus = compDef.bonus;
+          }
+          if (compDef && compDef.adjacencyPattern) {
+            clientCell.adjacencyPattern = compDef.adjacencyPattern;
           }
         }
         // For generator cells, include regen info with adjacency boost
@@ -919,7 +1112,12 @@ class GameLoop {
           const compDef = this.content.getSolComponent(cell.batteryId);
           if (compDef) {
             clientCell.componentName = compDef.name;
-            clientCell.energyCapacity = compDef.energyCapacity;
+            clientCell.energyCapacity = compDef.singleUse && cell.remainingCapacity !== undefined
+              ? cell.remainingCapacity : compDef.energyCapacity;
+            if (compDef.singleUse) {
+              clientCell.singleUse = true;
+              clientCell.maxCapacity = compDef.energyCapacity;
+            }
           }
         }
       }
@@ -941,6 +1139,8 @@ class GameLoop {
     if (!player.solGrid) {
       player.energy = 0;
       player.maxEnergy = 0;
+      player.singleUseEnergy = 0;
+      player.singleUseMaxEnergy = 0;
     }
 
     // Arms slot: provides attack ability
@@ -988,7 +1188,10 @@ class GameLoop {
     // Sol grid: scan for abilities, generators, and batteries
     player.solGridEnergyRegen = 0;
     let extraMaxEnergy = 0;
+    let singleUseMaxEnergy = 0;
     if (player.solGrid) {
+      // Reset maxEnergy to sol unit base charge so battery capacity doesn't accumulate across calls
+      player.maxEnergy = player.solGrid.maxCharge !== undefined ? player.solGrid.maxCharge : 100;
       for (let y = 0; y < player.solGrid.size; y++) {
         for (let x = 0; x < player.solGrid.size; x++) {
           const cell = player.solGrid.cells[y * player.solGrid.size + x];
@@ -1035,13 +1238,103 @@ class GameLoop {
           if (cell.batteryId) {
             const compDef = this.content.getSolComponent(cell.batteryId);
             if (compDef && compDef.energyCapacity) {
-              extraMaxEnergy += compDef.energyCapacity;
+              // Single-use batteries may have degraded remaining capacity
+              const capacity = compDef.singleUse && cell.remainingCapacity !== undefined
+                ? cell.remainingCapacity : compDef.energyCapacity;
+              extraMaxEnergy += capacity;
+              if (compDef.singleUse) {
+                singleUseMaxEnergy += capacity;
+              }
             }
           }
         }
       }
       player.maxEnergy += extraMaxEnergy;
+      player.singleUseMaxEnergy = singleUseMaxEnergy;
+      // Clamp single-use energy to its max
+      if (player.singleUseEnergy > player.singleUseMaxEnergy) {
+        player.singleUseEnergy = player.singleUseMaxEnergy;
+      }
+      // Clamp current energy to new max in case capacity was reduced (e.g. battery removed)
+      if (player.energy > player.maxEnergy) player.energy = player.maxEnergy;
     }
+  }
+
+  // Consume energy from a player, drawing from rechargeable pool first, then single-use.
+  // When single-use energy is consumed, permanently degrades the smallest single-use battery.
+  // Returns true if energy was successfully consumed, false if insufficient.
+  _consumeEnergy(player, cost, room) {
+    if (player.energy < cost) return false;
+
+    const rechargeableCurrent = player.energy - player.singleUseEnergy;
+    player.energy -= cost;
+
+    if (rechargeableCurrent >= cost) {
+      // Entirely from rechargeable pool
+      return true;
+    }
+
+    // Some or all from single-use pool
+    const fromSingleUse = cost - Math.max(0, rechargeableCurrent);
+    player.singleUseEnergy -= fromSingleUse;
+
+    // Permanently degrade single-use batteries (smallest first)
+    this._degradeSingleUseBatteries(player, fromSingleUse, room);
+    return true;
+  }
+
+  // Permanently reduce capacity of single-use batteries in the sol grid, smallest first.
+  _degradeSingleUseBatteries(player, amount, room) {
+    if (!player.solGrid || amount <= 0) return;
+
+    // Collect single-use battery cells with their remaining capacity
+    const batteries = [];
+    const grid = player.solGrid;
+    for (let i = 0; i < grid.cells.length; i++) {
+      const cell = grid.cells[i];
+      if (!cell || cell.isExtension || !cell.batteryId) continue;
+      const compDef = this.content.getSolComponent(cell.batteryId);
+      if (!compDef || !compDef.singleUse) continue;
+      if (cell.remainingCapacity === undefined) {
+        cell.remainingCapacity = compDef.energyCapacity;
+      }
+      if (cell.remainingCapacity > 0) {
+        batteries.push({ cell, index: i, capacity: cell.remainingCapacity });
+      }
+    }
+
+    // Sort smallest first
+    batteries.sort((a, b) => a.capacity - b.capacity);
+
+    let remaining = amount;
+    for (const bat of batteries) {
+      if (remaining <= 0) break;
+      const drain = Math.min(remaining, bat.cell.remainingCapacity);
+      bat.cell.remainingCapacity -= drain;
+      remaining -= drain;
+
+      // If battery is fully drained, remove it from the grid
+      if (bat.cell.remainingCapacity <= 0) {
+        const pid = bat.cell.placementId;
+        for (let j = 0; j < grid.cells.length; j++) {
+          if (grid.cells[j] && grid.cells[j].placementId === pid) {
+            grid.cells[j] = null;
+          }
+        }
+        // Notify client so it can show visual feedback
+        if (room) {
+          room.events.push({
+            type: 'battery_depleted',
+            targetId: player.id,
+            x: player.x,
+            y: player.y,
+          });
+        }
+      }
+    }
+
+    // Rebuild to update maxEnergy/singleUseMaxEnergy
+    this._rebuildAbilities(player);
   }
 
   // Initialize a sol grid for a player when they equip a sol unit
@@ -1052,9 +1345,12 @@ class GameLoop {
 
     if (solUnitDef.initialComponents) {
       for (const comp of solUnitDef.initialComponents) {
-        const compDef = comp.abilityId
-          ? this._findSolComponentByAbility(comp.abilityId)
-          : null;
+        // Look up component definition for shape
+        let compDef = null;
+        if (comp.abilityId) compDef = this._findSolComponentByAbility(comp.abilityId);
+        else if (comp.modifierId) compDef = this.content.getSolComponent(comp.modifierId);
+        else if (comp.batteryId) compDef = this.content.getSolComponent(comp.batteryId);
+        else if (comp.generatorId) compDef = this.content.getSolComponent(comp.generatorId);
         const shape = (compDef && compDef.shape) || [[1]];
         const pid = nextPlacementId++;
         for (let sy = 0; sy < shape.length; sy++) {
@@ -1071,6 +1367,8 @@ class GameLoop {
             };
             if (comp.abilityId) cell.abilityId = comp.abilityId;
             if (comp.modifierId) cell.modifierId = comp.modifierId;
+            if (comp.batteryId) cell.batteryId = comp.batteryId;
+            if (comp.generatorId) cell.generatorId = comp.generatorId;
             if (sx !== 0 || sy !== 0) cell.isExtension = true;
             cells[idx] = cell;
           }
@@ -1078,12 +1376,14 @@ class GameLoop {
       }
     }
 
-    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null, unitName: solUnitDef.name || null, unitDescription: solUnitDef.description || null };
+    player.solGrid = { size, cells, nextPlacementId, innateBonus: solUnitDef.innateBonus || null, unitName: solUnitDef.name || null, unitDescription: solUnitDef.description || null, maxCharge: solUnitDef.maxCharge !== undefined ? solUnitDef.maxCharge : 100 };
     // Set charge capacity from sol unit definition
-    player.maxEnergy = solUnitDef.maxCharge || 100;
+    player.maxEnergy = solUnitDef.maxCharge !== undefined ? solUnitDef.maxCharge : 100;
     player.energy = solUnitDef.initialEnergy !== undefined
       ? solUnitDef.initialEnergy
       : player.maxEnergy;
+    player.singleUseEnergy = 0;
+    player.singleUseMaxEnergy = 0;
   }
 
   // Find sol component definition by abilityId
@@ -1153,7 +1453,12 @@ class GameLoop {
         if (compDef.type === 'ability' && compDef.abilityId) cell.abilityId = compDef.abilityId;
         if (compDef.type === 'modifier') cell.modifierId = itemDef.solComponentId;
         if (compDef.type === 'generator') cell.generatorId = itemDef.solComponentId;
-        if (compDef.type === 'battery') cell.batteryId = itemDef.solComponentId;
+        if (compDef.type === 'battery') {
+          cell.batteryId = itemDef.solComponentId;
+          if (compDef.singleUse) {
+            cell.remainingCapacity = compDef.energyCapacity;
+          }
+        }
         cell.componentRarity = item.rarity || compDef.rarity || 'common';
         if (sx !== 0 || sy !== 0) cell.isExtension = true;
         player.solGrid.cells[cy * size + cx] = cell;
@@ -1162,6 +1467,13 @@ class GameLoop {
 
     // Remove from inventory
     player.inventory.splice(inventoryIndex, 1);
+
+    // If placing a single-use battery, fill its energy pool
+    if (compDef.type === 'battery' && compDef.singleUse && compDef.energyCapacity) {
+      player.singleUseEnergy += compDef.energyCapacity;
+      player.energy += compDef.energyCapacity;
+    }
+
     this._rebuildAbilities(player);
     return { ok: true, itemType: item.type };
   }
@@ -1203,6 +1515,17 @@ class GameLoop {
     const itemType = this._findItemTypeForSolComponent(solComponentId);
     if (!itemType) return false;
 
+    // If removing a single-use battery, subtract its remaining energy from single-use pool
+    if (clickedCell.batteryId) {
+      const compDef = this.content.getSolComponent(clickedCell.batteryId);
+      if (compDef && compDef.singleUse) {
+        const remaining = clickedCell.remainingCapacity !== undefined
+          ? clickedCell.remainingCapacity : compDef.energyCapacity;
+        player.singleUseEnergy = Math.max(0, player.singleUseEnergy - remaining);
+        player.energy = Math.max(0, player.energy - remaining);
+      }
+    }
+
     // Clear all cells with this placementId
     for (let i = 0; i < size * size; i++) {
       const c = player.solGrid.cells[i];
@@ -1213,12 +1536,19 @@ class GameLoop {
 
     // Add item back to inventory
     const itemDef = this.content.getItem(itemType);
-    player.inventory.push({
+    const returnedItem = {
       type: itemType,
       name: itemDef.name,
       rarity: itemDef.rarity || 'common',
       category: itemDef.type || 'misc',
-    });
+    };
+    if (itemDef.solComponentId) {
+      const solComp = this.content.getSolComponent(itemDef.solComponentId);
+      if (solComp && solComp.adjacencyPattern) {
+        returnedItem.adjacencyPattern = solComp.adjacencyPattern;
+      }
+    }
+    player.inventory.push(returnedItem);
 
     this._rebuildAbilities(player);
     return true;
@@ -1254,33 +1584,40 @@ class GameLoop {
     // Check cooldown
     if (player.cooldowns[slotIdx] > 0) return false;
 
+    let success = false;
     switch (abilityDef.type) {
       case 'projectile':
-        return this._fireProjectile(room, player, abilityDef, aimAngle, slotIdx);
+        success = this._fireProjectile(room, player, abilityDef, aimAngle, slotIdx); break;
       case 'cone':
-        return this._fireCone(room, player, abilityDef, aimAngle, slotIdx);
+        success = this._fireCone(room, player, abilityDef, aimAngle, slotIdx); break;
       case 'melee_strike':
-        return this._useMeleeStrike(room, player, abilityDef, slotIdx);
+        success = this._useMeleeStrike(room, player, abilityDef, slotIdx); break;
       case 'heal':
-        return this._useHeal(room, player, abilityDef, slotIdx);
+        success = this._useHeal(room, player, abilityDef, slotIdx); break;
       case 'teleport':
-        return this._useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData);
+        success = this._useTeleport(room, player, abilityDef, aimAngle, slotIdx, extraData); break;
       case 'hover':
-        return this._useHover(room, player, abilityDef, slotIdx);
+        success = this._useHover(room, player, abilityDef, slotIdx); break;
       case 'sentry':
-        return this._placeSentry(room, player, abilityDef, slotIdx);
+        success = this._placeSentry(room, player, abilityDef, slotIdx); break;
       case 'pulse_cannon':
-        return this._usePulseCannon(room, player, abilityDef, aimAngle, slotIdx);
+        success = this._usePulseCannon(room, player, abilityDef, aimAngle, slotIdx); break;
       default:
         return false;
     }
+    if (success) {
+      const ctx = this._scriptContext(playerId, roomId);
+      this._emitGameEvent(EventBus.Events.ABILITY_USED, {
+        playerId, roomId, abilityId, slot,
+      }, ctx);
+    }
+    return success;
   }
 
   _fireProjectile(room, player, abilityDef, aimAngle, slotIdx) {
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     let dirX, dirY;
@@ -1339,8 +1676,7 @@ class GameLoop {
   _fireCone(room, player, abilityDef, aimAngle, slotIdx) {
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     // Use aim angle if provided, otherwise fall back to player facing direction
@@ -1412,10 +1748,10 @@ class GameLoop {
           this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
         }
 
-        // Grant XP for kill
+        // Grant XP for kill (with expedition scaling)
         const monsterDef = this.content.getMonster(mob.type);
         if (monsterDef && monsterDef.xp) {
-          this.grantXp(player, monsterDef.xp, room);
+          this.grantXp(player, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
         }
 
         this._rollLoot(room, mob);
@@ -1531,10 +1867,10 @@ class GameLoop {
         this.killedMonsters.get(room.dungeonId).add(nearestMob.spawnKey);
       }
 
-      // Grant XP for kill
+      // Grant XP for kill (with expedition scaling)
       const monsterDef = this.content.getMonster(nearestMob.type);
       if (monsterDef && monsterDef.xp) {
-        this.grantXp(player, monsterDef.xp, room);
+        this.grantXp(player, Math.round(monsterDef.xp * (nearestMob.xpMult || 1)), room);
       }
 
       this._rollLoot(room, nearestMob);
@@ -1568,8 +1904,7 @@ class GameLoop {
 
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     const healAmount = Math.min(abilityDef.heal || 0, player.maxHealth - player.health);
@@ -1651,7 +1986,7 @@ class GameLoop {
     }
 
     // Deduct energy
-    player.energy -= abilityDef.energyCost;
+    this._consumeEnergy(player, abilityDef.energyCost, room);
 
     const fromX = player.x;
     const fromY = player.y;
@@ -1693,8 +2028,7 @@ class GameLoop {
 
     // Activate hover
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     player.hovering = true;
@@ -1712,8 +2046,7 @@ class GameLoop {
   _placeSentry(room, player, abilityDef, slotIdx) {
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     // Remove any existing sentry owned by this player
@@ -1762,8 +2095,7 @@ class GameLoop {
 
     // Check energy cost
     if (abilityDef.energyCost) {
-      if (player.energy < abilityDef.energyCost) return false;
-      player.energy -= abilityDef.energyCost;
+      if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
     // Find target position: use aim angle to pick a point at maxRange
@@ -1938,7 +2270,7 @@ class GameLoop {
         if (killer) {
           const monsterDef = this.content.getMonster(mob.type);
           if (monsterDef && monsterDef.xp) {
-            this.grantXp(killer, monsterDef.xp, room);
+            this.grantXp(killer, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
           }
         }
 
@@ -2354,7 +2686,11 @@ class GameLoop {
         // Tick down stun time
         if (player.stunTime > 0) {
           player.stunTime -= dt;
-          if (player.stunTime <= 0) player.stunTime = 0;
+          if (player.stunTime <= 0) {
+            player.stunTime = 0;
+            // Grant immunity window after stun expires to prevent stun-lock
+            player.stunImmunityTime = Math.max(player.stunImmunityTime || 0, 1.5);
+          }
         }
         // Apply player knockback (from ground slam etc.)
         if (player.knockbackTime > 0) {
@@ -2368,7 +2704,14 @@ class GameLoop {
             player.knockbackVx = 0;
             player.knockbackVy = 0;
             player.knockbackTime = 0;
+            // Grant immunity window after knockback expires
+            player.stunImmunityTime = Math.max(player.stunImmunityTime || 0, 0.75);
           }
+        }
+        // Tick down stun/knockback immunity window
+        if ((player.stunImmunityTime || 0) > 0) {
+          player.stunImmunityTime -= dt;
+          if (player.stunImmunityTime <= 0) player.stunImmunityTime = 0;
         }
         // Tick channeling (pulse cannon etc.)
         if (player.channeling) {
@@ -2415,12 +2758,15 @@ class GameLoop {
         }
 
         // Energy regeneration: solar panels (dayside) + sol grid generators
+        // Only regenerates the rechargeable portion (not single-use)
         if (player.maxEnergy > 0) {
           const autoRegenRate = this.automation.getEnergyRegenRate(pid, room.dungeon.id);
           let regenRate = autoRegenRate;
           if (player.solGridEnergyRegen > 0) regenRate += player.solGridEnergyRegen;
           if (regenRate > 0) {
-            player.energy = Math.min(player.maxEnergy, player.energy + regenRate * dt);
+            const rechargeableMax = player.maxEnergy - player.singleUseMaxEnergy;
+            const regenCap = rechargeableMax + player.singleUseEnergy;
+            player.energy = Math.min(regenCap, player.energy + regenRate * dt);
           }
           if (autoRegenRate > 0) {
             this.automation.trackEnergyGenerated(pid, autoRegenRate * dt);
@@ -2545,6 +2891,25 @@ class GameLoop {
       const origSpeed = mob.speed;
       if (mob.sentrySlowFactor && mob.sentrySlowFactor < 1.0) {
         mob.speed = mob.speed * mob.sentrySlowFactor;
+      }
+
+      // Pack leader aura: buff nearby pack monsters' speed and damage
+      const origDamage = mob.damage;
+      mob._auraBuff = false;
+      if (mob.ai === 'pack' || mob.ai === 'pack_leader') {
+        for (const [lid, leader] of room.monsters) {
+          if (lid === mid || leader.ai !== 'pack_leader' || leader.health <= 0) continue;
+          if (!leader.aura) continue;
+          const adx = leader.x - mob.x;
+          const ady = leader.y - mob.y;
+          const auraRange = (leader.aura.range || 5) * CONSTANTS.TILE_SIZE;
+          if (adx * adx + ady * ady <= auraRange * auraRange) {
+            mob.speed *= (leader.aura.speedMult || 1.0);
+            mob.damage = Math.round(mob.damage * (leader.aura.damageMult || 1.0));
+            mob._auraBuff = true;
+            break; // Only one aura applies at a time
+          }
+        }
       }
 
       // Tick down special attack cooldowns
@@ -2679,13 +3044,13 @@ class GameLoop {
         continue;
       }
 
-      if (mob.ai === 'melee_chase' || mob.ai === 'ambush' || mob.ai === 'patrol' || mob.ai === 'pack') {
-        // Pack: when aggroing, alert nearby pack monsters
-        if (mob.ai === 'pack' && nearest && !mob._packAlerted) {
+      if (mob.ai === 'melee_chase' || mob.ai === 'ambush' || mob.ai === 'patrol' || mob.ai === 'pack' || mob.ai === 'pack_leader') {
+        // Pack: when aggroing, alert nearby pack monsters (pack_leader also triggers pack alert)
+        if ((mob.ai === 'pack' || mob.ai === 'pack_leader') && nearest && !mob._packAlerted) {
           mob._packAlerted = true;
           const packRange = 8 * CONSTANTS.TILE_SIZE;
           for (const [otherId, other] of room.monsters) {
-            if (otherId === mid || other.ai !== 'pack') continue;
+            if (otherId === mid || (other.ai !== 'pack' && other.ai !== 'pack_leader')) continue;
             const pdx = other.x - mob.x;
             const pdy = other.y - mob.y;
             if (Math.sqrt(pdx * pdx + pdy * pdy) <= packRange) {
@@ -2785,8 +3150,9 @@ class GameLoop {
         this._updateBossCrystal(mob, nearest, nearestDist, room, dt);
       }
 
-      // Restore original speed after movement calculations
+      // Restore original speed and damage after movement calculations
       mob.speed = origSpeed;
+      mob.damage = origDamage;
     }
   }
 
@@ -3110,6 +3476,7 @@ class GameLoop {
             room.events.push({
               type: 'lunge_start', targetId: mob.id,
               x: mob.x, y: mob.y,
+              tx: target.x, ty: target.y,
             });
             return true;
           }
@@ -3119,18 +3486,23 @@ class GameLoop {
         if (dist <= mob.attackRange && mob.attackTimer <= 0) {
           const stunDmg = Math.round(mob.damage * (sa.damage || 0.5));
           target.health -= stunDmg;
-          target.stunTime = sa.duration || 1.0;
+          // Respect immunity window — still deal damage but skip stun effect
+          if (!(target.stunImmunityTime > 0)) {
+            target.stunTime = sa.duration || 1.0;
+          }
           mob.attackTimer = mob.attackCooldown;
           sa.timer = sa.cooldown;
           room.events.push({
             type: 'damage', targetId: target.id,
             amount: stunDmg, x: target.x, y: target.y,
           });
-          room.events.push({
-            type: 'stun', targetId: target.id,
-            duration: sa.duration || 1.0,
-            x: target.x, y: target.y,
-          });
+          if (!(target.stunImmunityTime > 0)) {
+            room.events.push({
+              type: 'stun', targetId: target.id,
+              duration: sa.duration || 1.0,
+              x: target.x, y: target.y,
+            });
+          }
           this._checkPlayerDeath(target, room);
           return true;
         }
@@ -3148,10 +3520,12 @@ class GameLoop {
             const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
             if (pdist <= saRange && pdist > 0) {
               player.health -= slamDmg;
-              // Apply knockback to player
-              player.knockbackVx = (pdx / pdist) * knockback;
-              player.knockbackVy = (pdy / pdist) * knockback;
-              player.knockbackTime = 0.3;
+              // Apply knockback only if not immune
+              if (!(player.stunImmunityTime > 0)) {
+                player.knockbackVx = (pdx / pdist) * knockback;
+                player.knockbackVy = (pdy / pdist) * knockback;
+                player.knockbackTime = 0.3;
+              }
               room.events.push({
                 type: 'damage', targetId: player.id,
                 amount: slamDmg, x: player.x, y: player.y,
@@ -3172,59 +3546,103 @@ class GameLoop {
 
   _checkPlayerDeath(player, room) {
     if (player.health <= 0) {
-      // Death penalty: drain 25-50% of current energy
-      const drainPct = 0.25 + Math.random() * 0.25;
-      const energyLost = Math.floor(player.energy * drainPct);
-      player.energy = Math.max(0, player.energy - energyLost);
+      const deathX = player.x;
+      const deathY = player.y;
 
-      // Death penalty: drop one random non-quest item on the ground
-      // Quest items = keys and sol_components (progression-critical)
-      const droppableItems = [];
-      for (let i = 0; i < player.inventory.length; i++) {
-        const item = player.inventory[i];
-        if (item.category !== 'key' && item.category !== 'sol_component') {
-          droppableItems.push(i);
+      // Death penalty: drain 25% of current energy
+      const energyLost = Math.floor(player.energy * 0.25);
+      if (energyLost > 0) {
+        this._consumeEnergy(player, energyLost, room);
+      }
+
+      // Death penalty: drop non-quest inventory items based on dropBehavior
+      // dropBehavior per item definition: "keep" = retained, "destroy" = removed,
+      // "drop" (default) = spawned on ground. Quest items (key, sol_component) always kept.
+      const droppedItems = [];
+      const keptItems = [];
+      for (const item of player.inventory) {
+        if (item.category === 'key' || item.category === 'sol_component') {
+          keptItems.push(item);
+          continue;
+        }
+        const itemDef = this.content.getItem(item.type);
+        const behavior = (itemDef && itemDef.dropBehavior) || 'drop';
+        if (behavior === 'keep') {
+          keptItems.push(item);
+        } else if (behavior === 'destroy') {
+          // Item is destroyed — not kept, not spawned
+        } else {
+          // Default "drop": spawn on ground at death position
+          droppedItems.push(item);
+          const itemId = `item_${room.nextItemId++}`;
+          room.items.set(itemId, {
+            id: itemId,
+            type: item.type,
+            name: item.name,
+            rarity: item.rarity || 'common',
+            category: item.category || 'misc',
+            x: deathX,
+            y: deathY,
+          });
         }
       }
-      let droppedItem = null;
-      if (droppableItems.length > 0) {
-        const dropIdx = droppableItems[Math.floor(Math.random() * droppableItems.length)];
-        droppedItem = player.inventory[dropIdx];
-        player.inventory.splice(dropIdx, 1);
-        // Spawn item on the ground at the player's death position
-        const itemId = `item_${room.nextItemId++}`;
-        room.items.set(itemId, {
-          id: itemId,
-          type: droppedItem.type,
-          name: droppedItem.name,
-          rarity: droppedItem.rarity || 'common',
-          category: droppedItem.category || 'misc',
-          x: player.x,
-          y: player.y,
-        });
-      }
+      player.inventory = keptItems;
 
-      // Respawn at floor spawn
+      // Reset player state
       player.health = player.maxHealth;
       player.hovering = false;
       player.hoverTime = 0;
       player.elevation = 0;
-      const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
-      player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
-      player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
+
+      // If player was on an expedition, clear expedition state (failed/abandoned)
+      if (this.flagStore.getPlayerFlag(player.id, 'expedition_active')) {
+        const expTier = this.flagStore.getPlayerFlag(player.id, 'expedition_tier');
+        const expFlags = [
+          'expedition_active', 'expedition_tier', 'expedition_floor',
+          'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
+          'expedition_scaling', 'expedition_origin', 'expedition_boss_killed',
+        ];
+        for (const flag of expFlags) {
+          this.flagStore.removePlayerFlag(player.id, flag);
+        }
+        console.log(`[GameLoop] Player ${player.id} died during expedition tier ${expTier} — expedition failed`);
+      }
+
+      // Determine respawn destination: always go to global spawn room
+      const spawnRoomId = this.content.getSpawnRoom() || 'outpost_entrance';
+      const needsTransition = room.id !== spawnRoomId;
+
+      if (needsTransition) {
+        // Queue a room transition to the spawn room
+        this.pendingTransitions.push({
+          playerId: player.id,
+          fromRoom: room.id,
+          toDungeon: spawnRoomId,
+          deathRespawn: true,
+        });
+      } else {
+        // Already in spawn room — just move to spawn point
+        const spawn = room.dungeon.spawns[0] || { x: 2, y: 2 };
+        player.x = (spawn.x + 0.5) * CONSTANTS.TILE_SIZE;
+        player.y = (spawn.y + 0.5) * CONSTANTS.TILE_SIZE;
+      }
+
       room.events.push({
         type: 'death', targetId: player.id,
-        x: player.x, y: player.y,
+        x: deathX, y: deathY,
+        respawnRoom: needsTransition ? spawnRoomId : null,
       });
 
       // Queue inventory update for the client
+      const droppedNames = droppedItems.map(i => i.name);
       this.pendingDeathPenalties.push({
         playerId: player.id,
         inventory: player.inventory,
         equipment: player.equipment,
         medipacCharges: player.medipacCharges || 0,
+        credits: player.credits || 0,
         energyLost,
-        droppedItem: droppedItem ? droppedItem.name : null,
+        droppedItems: droppedNames,
       });
 
       const deathCtx = this._scriptContext(player.id, room.id);
@@ -3303,6 +3721,7 @@ class GameLoop {
       vy: dirY * CONSTANTS.PROJECTILE_SPEED,
       damage: damage,
       lifetime: CONSTANTS.PROJECTILE_LIFETIME,
+      projectileType: weapon.stats.projectileType || null,
     });
 
     // Set attack cooldown
@@ -3317,7 +3736,9 @@ class GameLoop {
     for (let i = 0; i < room.projectiles.length; i++) {
       const proj = room.projectiles[i];
 
-      // Update position
+      // Update position (save old position for swept collision)
+      const prevX = proj.x;
+      const prevY = proj.y;
       proj.x += proj.vx * dt;
       proj.y += proj.vy * dt;
 
@@ -3328,9 +3749,26 @@ class GameLoop {
         continue;
       }
 
-      // Check wall collision
+      // Check wall collision (swept: sample along path to prevent tunneling through walls)
       const radius = proj.radius || CONSTANTS.PROJECTILE_RADIUS;
-      if (this.physics.collidesAt(proj.x, proj.y, room.dungeon, radius)) {
+      let hitWall = false;
+      const dxW = proj.x - prevX;
+      const dyW = proj.y - prevY;
+      const dist = Math.sqrt(dxW * dxW + dyW * dyW);
+      const stepSize = CONSTANTS.TILE_SIZE * 0.5;
+      if (dist > stepSize) {
+        const steps = Math.ceil(dist / stepSize);
+        for (let s = 1; s <= steps; s++) {
+          const t = s / steps;
+          if (this.physics.collidesAt(prevX + dxW * t, prevY + dyW * t, room.dungeon, radius)) {
+            hitWall = true;
+            break;
+          }
+        }
+      } else {
+        hitWall = this.physics.collidesAt(proj.x, proj.y, room.dungeon, radius);
+      }
+      if (hitWall) {
         if (proj.projectileType === 'pulse_cannon') {
           this._detonatePulseCannon(room, proj);
         }
@@ -3353,7 +3791,7 @@ class GameLoop {
             const mdx = mob.x - proj.x;
             const mdy = mob.y - proj.y;
             const dist = Math.sqrt(mdx * mdx + mdy * mdy);
-            if (dist < CONSTANTS.MONSTER_COLLISION_RADIUS + radius) {
+            if (dist < CONSTANTS.MONSTER_COLLISION_RADIUS + radius + CONSTANTS.PROJECTILE_HIT_BONUS) {
               detonate = true;
               break;
             }
@@ -3368,13 +3806,28 @@ class GameLoop {
       }
 
       // Check monster collision (only for player-fired projectiles)
+      // Uses swept line test (segment from prevPos to curPos vs monster circle)
+      // to prevent fast projectiles from tunnelling through monsters.
+      // PROJECTILE_HIT_BONUS adds forgiveness so shots overlapping the sprite visually connect.
       let hitMonster = false;
       if (!proj.isMonsterProjectile) for (const [mid, mob] of room.monsters) {
         if (mob.hidden) continue;
-        const dx = mob.x - proj.x;
-        const dy = mob.y - proj.y;
+        const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius + CONSTANTS.PROJECTILE_HIT_BONUS;
+
+        // Find closest point on segment [prev->cur] to monster center
+        const segDx = proj.x - prevX;
+        const segDy = proj.y - prevY;
+        const segLen2 = segDx * segDx + segDy * segDy;
+        let t = 0;
+        if (segLen2 > 0) {
+          t = ((mob.x - prevX) * segDx + (mob.y - prevY) * segDy) / segLen2;
+          t = Math.max(0, Math.min(1, t));
+        }
+        const closestX = prevX + t * segDx;
+        const closestY = prevY + t * segDy;
+        const dx = mob.x - closestX;
+        const dy = mob.y - closestY;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius;
 
         if (dist < hitRadius) {
           // Hit monster — force aggro on the attacker
@@ -3407,12 +3860,12 @@ class GameLoop {
               this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
             }
 
-            // Grant XP for kill
+            // Grant XP for kill (with expedition scaling)
             const killer = room.players.get(proj.ownerId);
             if (killer) {
               const monsterDef = this.content.getMonster(mob.type);
               if (monsterDef && monsterDef.xp) {
-                this.grantXp(killer, monsterDef.xp, room);
+                this.grantXp(killer, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
               }
             }
 
@@ -3446,13 +3899,24 @@ class GameLoop {
       if (hitMonster) continue;
 
       // Check player collision (for monster-fired projectiles)
+      // Also uses swept line test to prevent tunnelling.
       if (proj.isMonsterProjectile) {
         let hitPlayer = false;
         for (const [pid, player] of room.players) {
-          const dx = player.x - proj.x;
-          const dy = player.y - proj.y;
+          const hitRadius = CONSTANTS.PLAYER_RADIUS + radius + CONSTANTS.PROJECTILE_HIT_BONUS;
+          const segDx = proj.x - prevX;
+          const segDy = proj.y - prevY;
+          const segLen2 = segDx * segDx + segDy * segDy;
+          let t = 0;
+          if (segLen2 > 0) {
+            t = ((player.x - prevX) * segDx + (player.y - prevY) * segDy) / segLen2;
+            t = Math.max(0, Math.min(1, t));
+          }
+          const closestX = prevX + t * segDx;
+          const closestY = prevY + t * segDy;
+          const dx = player.x - closestX;
+          const dy = player.y - closestY;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          const hitRadius = CONSTANTS.MONSTER_COLLISION_RADIUS + radius;
           if (dist < hitRadius) {
             player.health -= proj.damage;
             room.events.push({
@@ -3503,7 +3967,7 @@ class GameLoop {
               continue;
             }
           }
-          this.pendingTransitions.push({
+          const transition = {
             playerId: pid,
             fromRoom: room.id,
             toDungeon: exit.leadsTo,
@@ -3513,7 +3977,16 @@ class GameLoop {
             exitX: exit.x,
             exitY: exit.y,
             depth: exit.depth,
-          });
+          };
+          // Attach expedition context so the transition handler can apply scaling
+          // and detect completion
+          if (this.flagStore.getPlayerFlag(pid, 'expedition_active')) {
+            transition.expeditionTier = this.flagStore.getPlayerFlag(pid, 'expedition_tier');
+            transition.expeditionMaxFloors = this.flagStore.getPlayerFlag(pid, 'expedition_max_floors');
+            transition.expeditionBossType = this.flagStore.getPlayerFlag(pid, 'expedition_boss_type');
+            transition.expeditionScaling = this.flagStore.getPlayerFlag(pid, 'expedition_scaling');
+          }
+          this.pendingTransitions.push(transition);
           break;
         } else if (player[cooldownFlag]) {
           // Player stepped off — reset so message shows again on next approach
@@ -3563,19 +4036,32 @@ class GameLoop {
         this.pickedUpItems.get(room.dungeonId).add(closestItem.spawnIndex);
       }
       const closestItemDef = this.content.getItem(closestItem.type);
-      // Silicon goes to automation resources instead of inventory
-      if (closestItem.type === 'silicon') {
-        this.automation.addResource(playerId, 'silicon', 1);
+      // Salvage goes to automation resources instead of inventory
+      if (closestItem.type === 'salvage') {
+        this.automation.addResource(playerId, 'salvage', 1);
+        // Migrate any legacy salvage sitting in inventory to automation resources
+        const legacySalvage = player.inventory.filter(i => i.type === 'salvage').length;
+        if (legacySalvage > 0) {
+          player.inventory = player.inventory.filter(i => i.type !== 'salvage');
+          this.automation.addResource(playerId, 'salvage', legacySalvage);
+        }
       } else if (closestItem.type === 'medical_supplies') {
         // Medical supplies go to medipac charges, not inventory
         player.medipacCharges = (player.medipacCharges || 0) + 1;
       } else {
-        player.inventory.push({
+        const invItem = {
           type: closestItem.type,
           name: closestItem.name,
           rarity: closestItem.rarity,
           category: closestItemDef ? closestItemDef.type : 'misc',
-        });
+        };
+        if (closestItemDef && closestItemDef.solComponentId) {
+          const solComp = this.content.getSolComponent(closestItemDef.solComponentId);
+          if (solComp && solComp.adjacencyPattern) {
+            invItem.adjacencyPattern = solComp.adjacencyPattern;
+          }
+        }
+        player.inventory.push(invItem);
       }
       room.events.push({
         type: 'pickup',
@@ -3634,6 +4120,31 @@ class GameLoop {
         }
       }
 
+      // 3. Check for nearby NPCs (dialogue) — before committing to door,
+      // since an NPC closer than the door should win the interaction
+      const npcRange = CONSTANTS.NPC_INTERACT_RANGE * ts;
+      let closestNPC = null;
+      let closestNPCDist = Infinity;
+      for (const [npcId, npc] of room.npcs) {
+        const dx = npc.x - player.x;
+        const dy = npc.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < npcRange && dist < closestNPCDist) {
+          closestNPC = npc;
+          closestNPCDist = dist;
+        }
+      }
+
+      // If an NPC is closer than the door, prefer talking to the NPC
+      if (closestNPC && closestDoor && closestDoor.tileDef.togglesTo != null && closestNPCDist < closestDoorDist) {
+        const ctx = this._scriptContext(playerId, roomId);
+        const dialogue = this._resolveDialogue(closestNPC, ctx);
+        this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
+          playerId, roomId, npcType: closestNPC.type, npcId: closestNPC.id,
+        }, ctx);
+        return { interactType: 'dialogue', npcId: closestNPC.id, dialogue };
+      }
+
       if (closestDoor && closestDoor.tileDef.togglesTo != null) {
         const ctx = this._scriptContext(playerId, roomId);
 
@@ -3668,31 +4179,38 @@ class GameLoop {
           tileId: newTileId,
         };
       }
-    }
 
-    // 3. Check for nearby NPCs (dialogue)
-    const npcRange = CONSTANTS.NPC_INTERACT_RANGE * ts;
-    let closestNPC = null;
-    let closestNPCDist = Infinity;
-    for (const [npcId, npc] of room.npcs) {
-      const dx = npc.x - player.x;
-      const dy = npc.y - player.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < npcRange && dist < closestNPCDist) {
-        closestNPC = npc;
-        closestNPCDist = dist;
+      // No door found — check NPC without door comparison
+      if (closestNPC) {
+        const ctx = this._scriptContext(playerId, roomId);
+        const dialogue = this._resolveDialogue(closestNPC, ctx);
+        this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
+          playerId, roomId, npcType: closestNPC.type, npcId: closestNPC.id,
+        }, ctx);
+        return { interactType: 'dialogue', npcId: closestNPC.id, dialogue };
       }
-    }
-    if (closestNPC) {
-      const ctx = this._scriptContext(playerId, roomId);
-      const dialogue = this._resolveDialogue(closestNPC, ctx);
-
-      // Emit npc_interacted scripting event
-      this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
-        playerId, roomId, npcType: closestNPC.type, npcId: closestNPC.id,
-      }, ctx);
-
-      return { interactType: 'dialogue', npcId: closestNPC.id, dialogue };
+    } else {
+      // No tileset — still check NPCs
+      const npcRange = CONSTANTS.NPC_INTERACT_RANGE * ts;
+      let closestNPC = null;
+      let closestNPCDist = Infinity;
+      for (const [npcId, npc] of room.npcs) {
+        const dx = npc.x - player.x;
+        const dy = npc.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < npcRange && dist < closestNPCDist) {
+          closestNPC = npc;
+          closestNPCDist = dist;
+        }
+      }
+      if (closestNPC) {
+        const ctx = this._scriptContext(playerId, roomId);
+        const dialogue = this._resolveDialogue(closestNPC, ctx);
+        this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
+          playerId, roomId, npcType: closestNPC.type, npcId: closestNPC.id,
+        }, ctx);
+        return { interactType: 'dialogue', npcId: closestNPC.id, dialogue };
+      }
     }
 
     return null;
@@ -3704,6 +4222,32 @@ class GameLoop {
     if (!room) return;
     const player = room.players.get(playerId);
     if (!player) return;
+
+    // Intercept crafting choices — handled directly by the action executor
+    if (choiceId === 'meridian_craft') {
+      const ctx = this._scriptContext(playerId, roomId);
+      this.actions.executeCraftRecipe(value, ctx);
+      return;
+    }
+
+    // Intercept meridian menu choices — open automation or shop
+    if (choiceId === 'meridian_menu') {
+      const ctx = this._scriptContext(playerId, roomId);
+      if (value === 'open_automation') {
+        this.actions.execute({ type: 'openAutomation' }, ctx);
+      } else if (value === 'open_shop') {
+        this.actions.execute({ type: 'shop', shopId: 'meridian_7_shop' }, ctx);
+      }
+      return;
+    }
+
+    // Intercept shop choices — handled directly by the action executor
+    if (choiceId.startsWith('shop_')) {
+      const shopId = choiceId.replace('shop_', '');
+      const ctx = this._scriptContext(playerId, roomId);
+      this.actions.executeShopTransaction(shopId, value, ctx);
+      return;
+    }
 
     const ctx = this._scriptContext(playerId, roomId);
     this._emitGameEvent(EventBus.Events.CHOICE_MADE, {
@@ -3833,11 +4377,12 @@ class GameLoop {
       });
     }
 
-    // Energy effect (e.g. rechargeable batteries)
+    // Energy effect (e.g. rechargeable batteries) — only restores rechargeable pool
     if (itemDef.effect.energy && player.energy !== undefined) {
-      const maxEnergy = player.maxEnergy || 100;
-      if (player.energy < maxEnergy) {
-        const restoreAmount = Math.min(itemDef.effect.energy, maxEnergy - player.energy);
+      const rechargeableMax = (player.maxEnergy || 100) - (player.singleUseMaxEnergy || 0);
+      const rechargeableCurrent = player.energy - (player.singleUseEnergy || 0);
+      if (rechargeableCurrent < rechargeableMax) {
+        const restoreAmount = Math.min(itemDef.effect.energy, rechargeableMax - rechargeableCurrent);
         player.energy += restoreAmount;
         used = true;
 
@@ -3848,11 +4393,92 @@ class GameLoop {
       }
     }
 
+    // Create extraction point (flare)
+    if (itemDef.effect.createExtraction) {
+      // Remove any previous extraction point owned by this player
+      this._removeExtractionPoint(playerId);
+
+      // Create extraction point at player's current position
+      const epId = `ep_${playerId}_${Date.now()}`;
+      const ep = {
+        id: epId,
+        ownerId: playerId,
+        roomId: roomId,
+        x: player.x,
+        y: player.y,
+      };
+      if (!room.extractionPoints) room.extractionPoints = [];
+      room.extractionPoints.push(ep);
+
+      // Store reference on the player for cross-room lookup
+      player.extractionPoint = ep;
+
+      // Replace the flare with an extraction protocol item
+      player.inventory.splice(inventoryIndex, 1, { type: 'extraction_protocol' });
+
+      room.events.push({
+        type: 'extraction_placed', x: player.x, y: player.y, ownerId: playerId,
+      });
+
+      return { inventory: player.inventory, equipment: player.equipment };
+    }
+
+    // Teleport to extraction point
+    if (itemDef.effect.teleportToExtraction) {
+      if (!player.extractionPoint) return null;
+
+      const ep = player.extractionPoint;
+      const targetRoomId = ep.roomId;
+
+      // Remove the extraction point
+      this._removeExtractionPoint(playerId);
+      player.extractionPoint = null;
+
+      // Remove the consumed item
+      player.inventory.splice(inventoryIndex, 1);
+
+      if (targetRoomId === roomId) {
+        // Same room — just teleport
+        player.x = ep.x;
+        player.y = ep.y;
+        room.events.push({
+          type: 'teleport', targetId: playerId, x: ep.x, y: ep.y,
+        });
+      } else {
+        // Different room — queue a floor transition
+        this.pendingTransitions.push({
+          playerId: playerId,
+          fromRoom: roomId,
+          toDungeon: targetRoomId,
+          spawnX: (ep.x / CONSTANTS.TILE_SIZE) - 0.5,
+          spawnY: (ep.y / CONSTANTS.TILE_SIZE) - 0.5,
+          targetId: null,
+          exitX: null,
+          exitY: null,
+          depth: null,
+        });
+      }
+
+      return { inventory: player.inventory, equipment: player.equipment };
+    }
+
     if (!used) return null;
 
     // Remove the consumed item
     player.inventory.splice(inventoryIndex, 1);
     return { inventory: player.inventory, equipment: player.equipment };
+  }
+
+  // Remove extraction point for a player from whatever room it's in
+  _removeExtractionPoint(playerId) {
+    for (const [, room] of this.rooms) {
+      if (!room.extractionPoints) continue;
+      const idx = room.extractionPoints.findIndex(ep => ep.ownerId === playerId);
+      if (idx !== -1) {
+        room.extractionPoints.splice(idx, 1);
+        return;
+      }
+    }
   }
 
   // Get total attack damage for a player (base + equipment bonuses)
@@ -3873,12 +4499,12 @@ class GameLoop {
       this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
     }
 
-    // Grant XP for kill
+    // Grant XP for kill (with expedition scaling)
     const killer = room.players.get(killerId);
     if (killer) {
       const monsterDef = this.content.getMonster(mob.type);
       if (monsterDef && monsterDef.xp) {
-        this.grantXp(killer, monsterDef.xp, room);
+        this.grantXp(killer, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
       }
     }
 
@@ -4030,6 +4656,7 @@ class GameLoop {
         facing: Math.round(p.facing * 100) / 100,
         health: p.health, maxHealth: p.maxHealth,
         energy: Math.round(p.energy), maxEnergy: p.maxEnergy,
+        singleUseEnergy: Math.round(p.singleUseEnergy || 0), singleUseMaxEnergy: p.singleUseMaxEnergy || 0,
         xp: p.xp, level: p.level, xpToNextLevel: p.xpToNextLevel,
         colorIndex: p.colorIndex,
         elevation: Math.round((p.elevation || 0) * 100) / 100,
@@ -4075,6 +4702,12 @@ class GameLoop {
       }
       if (m.sentrySlowTime > 0) {
         mData.slowed = true;
+      }
+      if (m._auraBuff) {
+        mData.auraBuff = true;
+      }
+      if (m.aura) {
+        mData.packLeader = true;
       }
       monsters.push(mData);
     }
@@ -4139,6 +4772,18 @@ class GameLoop {
       });
     }
 
+    const extractionPoints = [];
+    if (room.extractionPoints) {
+      for (const ep of room.extractionPoints) {
+        extractionPoints.push({
+          id: ep.id,
+          ownerId: ep.ownerId,
+          x: Math.round(ep.x * 10) / 10,
+          y: Math.round(ep.y * 10) / 10,
+        });
+      }
+    }
+
     // Party quest progress summaries (name, color, active step labels)
     const partyQuests = [];
     for (const [pid, p] of room.players) {
@@ -4160,7 +4805,7 @@ class GameLoop {
     return {
       type: CONSTANTS.MSG.STATE,
       tick: room.tick,
-      players, npcs, monsters, items, projectiles, sentries, beamObjects, events, partyQuests,
+      players, npcs, monsters, items, projectiles, sentries, beamObjects, extractionPoints, events, partyQuests,
     };
   }
 }

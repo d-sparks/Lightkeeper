@@ -447,6 +447,13 @@
       "patrol": "guard"
     },
     {
+      "type": "skeleton_archer",
+      "x": 20,
+      "y": 6,
+      "count": 1,
+      "patrol": "wander"
+    },
+    {
       "type": "tunnel_creeper",
       "x": 14,
       "y": 10,
@@ -522,7 +529,9 @@
       "type": "circuit_board",
       "x": 20,
       "y": 2
-    }
+    },
+    { "type": "battery_chip", "x": 7, "y": 4 },
+    { "type": "battery_chip", "x": 15, "y": 13 }
   ],
   "triggers": [
     {
@@ -540,6 +549,10 @@
         {
           "type": "showMessage",
           "text": "You found an iron key. It feels cold to the touch."
+        },
+        {
+          "type": "grantXp",
+          "amount": 15
         }
       ],
       "once": true

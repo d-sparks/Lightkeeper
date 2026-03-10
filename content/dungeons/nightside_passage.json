@@ -62,7 +62,9 @@
     { "type": "refined_umbrasite", "x": 8, "y": 13 },
     { "type": "health_potion", "x": 15, "y": 9 },
     { "type": "field_medkit", "x": 20, "y": 12 },
-    { "type": "flare", "x": 14, "y": 17 }
+    { "type": "flare", "x": 14, "y": 17 },
+    { "type": "battery_chip", "x": 6, "y": 17 },
+    { "type": "battery_chip", "x": 22, "y": 5 }
   ],
   "exits": [
     { "x": 1, "y": 3, "leadsTo": "nightside_depths", "type": "stairs_up", "spawnX": 19, "spawnY": 18 },
@@ -91,6 +93,7 @@
       "actions": [
         { "type": "setFlag", "flag": "nightside_expedition_started" },
         { "type": "setFlag", "flag": "sable_guiding" },
+        { "type": "incrementFlag", "flag": "sable_trust" },
         { "type": "grantXp", "amount": 40 },
         { "type": "showMessage", "lines": [
           "Sable steps out of the shadows. She's wearing Unbounded deep-travel gear — insulated layers, bioluminescent markers sewn into the seams.",
@@ -185,6 +188,14 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "chest_loot_nightside_passage",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_rare" }
+      ]
     }
   ]
 }

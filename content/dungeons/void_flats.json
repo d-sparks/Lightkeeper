@@ -1,0 +1,82 @@
+{
+  "id": "void_flats",
+  "name": "The Void Flats",
+  "depth": 0,
+  "tileset": "outpost",
+  "theme": "dark_perimeter",
+  "tileSize": 32,
+  "ambientLight": 0.04,
+  "environmentalHazard": { "type": "cold", "damage": 1, "interval": 3 },
+  "width": 25,
+  "height": 18,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,3,
+    3,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    8,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 2, "y": 8, "type": "player_start" },
+    { "x": 3, "y": 8, "type": "player_start" },
+    { "x": 2, "y": 7, "type": "player_start" },
+    { "x": 3, "y": 7, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "gloom_wraith", "x": 12, "y": 4, "count": 1, "patrol": "wander" },
+    { "type": "gloom_wraith", "x": 20, "y": 13, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 18, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "shade_stalker", "x": 7, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "rime_stalker", "x": 22, "y": 9, "count": 1, "patrol": "patrol", "patrolPath": [
+      { "x": 19, "y": 5 }, { "x": 23, "y": 5 }, { "x": 23, "y": 15 }, { "x": 19, "y": 15 }
+    ]},
+    { "type": "dusk_crawler", "x": 10, "y": 2, "count": 2, "patrol": "wander" },
+    { "type": "dusk_crawler", "x": 14, "y": 15, "count": 2, "patrol": "wander" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "umbracite", "x": 20, "y": 8 },
+    { "type": "bandage", "x": 13, "y": 3 },
+    { "type": "umbracite_shard", "x": 8, "y": 14 },
+    { "type": "battery_chip", "x": 16, "y": 5 },
+    { "type": "battery_chip", "x": 5, "y": 12 }
+  ],
+  "exits": [
+    { "x": 0, "y": 8, "leadsTo": "outer_expanse", "type": "stairs_up", "spawnX": 196, "spawnY": 60 }
+  ],
+  "triggers": [
+    {
+      "id": "void_flats_enter",
+      "event": "room_entered",
+      "actions": [
+        {
+          "type": "setFlag",
+          "flag": "void_flats_entered"
+        },
+        {
+          "type": "showMessage",
+          "lines": [
+            "The terrain flattens into an absolute stillness. No ruins. No markers. No evidence that anyone has been here since before the Collapse.",
+            "The eastern horizon offers nothing — just dark land receding into a void the old surveys never reached.",
+            "Whatever is out there, it hasn't been named yet."
+          ]
+        },
+        { "type": "grantXp", "amount": 20 }
+      ],
+      "once": true
+    }
+  ]
+}

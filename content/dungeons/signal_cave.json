@@ -57,7 +57,8 @@
           "\"I should go deeper. I should report this. But my legs won't carry me anymore. If you're reading this, go where I couldn't.\"",
           "\"The planet is alive.\""
         ]},
-        { "type": "setFlag", "flag": "found_dead_lightkeeper" }
+        { "type": "setFlag", "flag": "found_dead_lightkeeper" },
+        { "type": "grantXp", "amount": 30 }
       ],
       "once": true
     },
@@ -71,7 +72,8 @@
           "The crystal is warm. Perfectly formed, with facets that catch light that isn't there. It pulses with a rhythm like a heartbeat.",
           "This is nothing like raw umbracite. This is something else entirely."
         ]},
-        { "type": "setFlag", "flag": "found_crystallized_umbracite" }
+        { "type": "setFlag", "flag": "found_crystallized_umbracite" },
+        { "type": "grantXp", "amount": 25 }
       ],
       "once": true
     },

@@ -2,116 +2,97 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOS.md tasks.
 
-## Map Streaming & Fog of War
+## Testing
 
-Chunk-based map streaming and fog of war are implemented. Outstanding work:
+- **Headless sim stuck at discover_array_secret** — bot can't navigate to `array_deep_processing` room. Gets stuck in `dayside_solar_fields`. Next CI mainline blocker.
+- Content validator: expedition flag errors now resolved — expedition_active, expedition_tier_N_cleared flags are set/cleared by engine code in game-loop.js completeExpedition().
+- Run content validator grep for remaining orphaned flags (setFlag without matching hasFlag consumers).
 
-- Create 10x bigger dungeon content (200x120+ tile maps) to take advantage of the streaming system.
-- Optimize iso rendering for very large maps: skip iteration of unrevealed chunk regions entirely instead of checking each tile.
-- Add a smooth fog-of-war edge effect at the border of revealed/unrevealed chunks (gradient or dithered fade).
-- Editor reload paths still send full map data (no fog of war). Consider chunking those too if needed.
-- Consider reducing chunk reveal radius (currently 3 chunks = 48 tiles) for bigger maps to increase exploration feel.
-- Tune the `getOverlayedMapData` call frequency — currently checked every tick for every player; could throttle to every N ticks.
+## Endgame Loop (see docs/endgame-loop.md)
+
+### Phase 2 — Expedition Tiers 1-3 (Remaining)
+- ~~Multi-floor expedition progression~~ ✓ Implemented — floor exits chain with scaling, boss from bossPool on final floor.
+- ~~Expedition completion detection~~ ✓ Implemented — sets expedition_tier_N_cleared on boss kill, clears expedition_active.
+- ~~Boss spawning on final floor from bossPool~~ ✓ Implemented — generator overrides boss type from expedition config.
+- Silicon cost deduction at expedition start.
+- Mid-run loot banking checkpoints.
+- Death penalty (forfeit floor loot, return to meridian_station) — partial: death clears expedition state but doesn't have special loot forfeit logic yet.
+- Expedition boss loot table selection (expedition_tier_N_boss table should be rolled on boss kill).
+
+### Phase 3 — Modifier Crafting
+- Add `craft` action type to `server/scripting/actions.js`.
+- Create `content/entities/crafting.json` with reforge/fuse/attune recipes.
+- Add MERIDIAN-7 crafting dialogue branch gated on `endgame_active`.
+
+### Phase 4 — Automation Levels 6-10
+- New structures (silicon_refinery, auto_turret, fabricator, expedition_beacon).
+- Milestone rewards for levels 6-10.
+- Structure adjacency bonus calculation.
+- Ending-path-specific structure variants.
+
+### Phase 5 — Boss Affixes + Tiers 4-5
+- Boss affix data format and pool in `content/expeditions/affixes.json`.
+- Apply affix buffs to boss entities at spawn.
+- Tier 4-5 configs requiring multiple players.
+- Wire path-specific boss loot table selection (check `chose_path_*` flag for Tier 3+ bosses).
+- Wire `unlockFlag` checking in loot resolver for legendary drops.
+
+### Phase 6 — Cooperative Challenges
+- Wave defense system, player-count gating, challenge configs.
+- Cooperative-only legendary modifier pool.
+
+### Phase 7 — Raids + Faction Rally
+- Timed raid events, structure HP/repair, server-wide flag aggregation.
+
+## Content Gaps
+
+- Place feral_hound_alpha and frostfang_alpha as rare spawns in nightside_caverns and frost proc templates.
+- Place skeleton_archer in crypt_01/crypt_02 and add loot table.
+- Add explicit patrolPath waypoints to patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
+- Phase 3 investigation quest after Autotroph confrontation (mechanical meaningfulness beyond dialogue).
+- Post-ending Sable dialogue for Shutdown/Merge paths (expedition quest-giver).
+- Post-ending atmospheric changes for outpost_entrance and outpost_comms.
 
 ## Sessions & Persistence
 
-Session save/load is implemented (JSON files in `saves/`). Outstanding work:
-
-- Add authentication or simple password protection to prevent session hijacking (anyone can resume any character by name).
-- Add a delete character button on the session select screen.
-- Save automation/dayside state per session (currently not persisted).
 - Periodic auto-save during play (currently only saves on disconnect).
-- Handle name collisions more gracefully (warn if creating a character with an existing name).
-- Consider a database backend (SQLite) for deployed environments where filesystem is ephemeral.
+- Handle name collisions more gracefully (warn on duplicate character names).
+- Consider SQLite backend for deployed environments.
 
-## Controls
+## Sol Grid & Progression
 
-- Touch joystick and gamepad analog sticks send raw screen-space dx/dy — they should be rotated 45° for isometric screen-orthogonal movement, same as the WASD fix applied in `client/input.js`.
-
-## Game Feel (Critical Gap)
-
-- Death penalty: when the player dies, drain energy, drop non-quest items (per dropBehavior rules in architecture-plan.md), respawn at room entrance. Completes the core risk/reward loop.
-- Placeholder sound effects for core actions: weapon attack, ability fire, monster hit, monster death, item pickup, door open, level transition. Audio system and per-biome music are wired — needs sound effect content.
-- Combat juice pass: screen shake on player hit, monster death fade-out animation, ambush monster fade-in reveal, projectile tinting by monster type (fire=orange, ice=blue, acid=green).
-
-## Progression Wiring
-
-- Wire generators into loot/rewards: basic_generator and improved_generator items exist but aren't obtainable via any loot table or quest reward. Critical for energy progression pacing.
-- Consider adding a "basic_battery" sol component (uncommon, +30-50 capacity) as a mid-tier bridge.
-
-## Content Completion
-
-- **Frost biome** loot is wired to `nightside_caverns` and `proc_frost_crypt` (all three tiers by depth). Consider adding `frost_biome_uncommon/rare` to deeper static nightside dungeons (nightside_depths, nightside_passage) if story chests are supplemented with loot crates.
-- Loot tables for Act III monsters: threshold_watcher, abyssal_tendril, threshold_keeper have no loot tables. Create nightside/underlumen loot tables with thematic drops.
-- Three ending path dungeons: array_control_center (shutdown), underlumen_nexus_chamber (merge), array_command_core (control). Each needs a final boss encounter and resolution triggers.
-- Post-choice NPC dialogue: Asha, Sable, and MERIDIAN-7 dialogue variants reacting to the player's chosen ending path (chose_path_shutdown/merge/control flags).
-- Unbounded elder NPC for deep Nightside (referenced by Sable). Provides Underlumen lore, gates merge path.
-- Council faction NPCs (Steward, Compact, Root representatives) for political branching. These should react to `array_secret_discovered` and `chose_path_*` flags — referenced in Asha's `array_secret_crisis` dialogue but not yet embodied by spawnable NPCs in `meridian_civic`.
-- Add `registrar_hollis` `array_secret_discovered` dialogue variant: the civic bureaucracy should have ambient reactions to the Council fracturing.
-
-## Combat & AI Polish
-
-- Monster projectiles use generic blue color — tint by monster type or add distinct sprite.
-- Add explicit patrolPath waypoints to remaining patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
-- Pack AI "pack leader" variant that buffs nearby pack members.
-- Tune special attack cooldowns and damage multipliers after playtesting (lunge, stun, ground slam).
-- Add stun/knockback immunity window after recovery to prevent stun-locks.
-- Visual polish: lunge trail effect, ground slam shockwave ring animation, stun stars instead of dots.
-
-## Balance
-
-- Late-game monsters (magma_brute 240 HP, frost_warden 280 HP, elder_sporecap 320 HP) may need XP increases to match their post-balance-pass durability.
-- Playtest energy pacing at mid-game (improved_generator @ 5/s) to confirm Sol Beam spam isn't trivial.
-- Crystal Guardian at 700 HP — verify this feels epic, not grindy.
-- Pulse Rifle DPS (60) close to Sol Beam DPS (~84) — monitor whether rare weapon feels unrewarding.
-- Rechargeable Battery L1 (30 energy) may need bump to 40 given higher ability usage.
-
-## Audio
-
-- Assign biome-appropriate tilesets to dungeons still using generic "crypt" (outpost_* should use "outpost", station_* should use "station", meridian_* should use "meridian"). Activates per-biome music automatically.
-- Wire `boss_crystal` music track into Crystal Guardian encounter triggers (track exists but isn't triggered).
-
-## Testing
-
-- Integration tests (Tier 4): combat flow, equipment system, sol grid adjacency, room lifecycle.
-- Headless sim bot stuck at perimeter_gate (can't interact with Sgt. Fenn NPC). Bot needs better NPC approach + interact logic for sim-based testing beyond step 9.
-- Pre-existing physics bug: "large dt does not skip through walls" test fails — player teleports through wall at high dt values. Needs dt clamping or substep logic in movePlayer.
-
-## Automation Grid (Phases 3-5)
-
-Phase 3: Add `openAutomation` scripting action, MERIDIAN-7 trigger, client handler for AUTO_STATE with openScreen.
-Phase 4: Dungeon sync — merge automation placements into tile data for dayside_solar_fields.
-Phase 5: Tooltips, sound effects, mobile/touch, controller support.
-
-## Sol Grid
-
-- Light Sentry enhancements: multiple sentries, light/mirror puzzles, lifetime/duration, range indicator, upgrade paths, replace placeholder sprite.
-- Extended-adjacency modifiers (radius 2, row/column) for rare/legendary tier.
 - Battery math: capacity per tier, energy costs per ability, casts per full charge.
 - Harvester scaling: silicon rate, max harvesters, late-game upgrades.
-- Multiplayer implications: shared grid builds? Specialization?
+- Light Sentry enhancements: multiple sentries, light/mirror puzzles, range indicator, upgrade paths.
+- Playtest single-use battery degradation feel — 100 capacity may need tuning.
+- Additional battery capacity tiers (50/200 cap variants).
+
+## Map Streaming
+
+- outer_expanse patrol paths — many spawns lack explicit patrolPath waypoints.
+- Editor reload paths still send full map data (no fog of war chunking).
+- Consider reducing chunk reveal radius for bigger maps.
+- Throttle `getOverlayedMapData` call frequency (currently every tick per player).
 
 ## Art & Sprites
 
 - Replace all placeholder sprites with proper pixel art per art-style-guide.md (long-term).
-- Placeholder sprites needed: array_overseer (unique), sable_nightside_guide, sable_threshold.
-- Tileset strips for each zone theme.
 - Animation frames (idle, attack, hit) when engine supports sprite animation.
+- New tileset strips for dark_city, quarantine, outpost templates (PNG files exist, need wiring).
 
-## Quest Graph Disconnections
+## Combat & AI
 
-Critical gaps in the quest graph where content exists but isn't reachable from the main quest line:
+- Tune special attack cooldowns and damage multipliers after playtesting.
+- Automation controller support for grid (d-pad navigation, A to place, B to cancel).
 
-- **Main quest dead-ends at step 18** — After "Visit the Workshop District" (meet Yun) there's no guidance toward dayside, Array complex, or Nightside. Players must stumble into Act II content independently. Need steps 19+ bridging to Act III.
-- **No NPC directs players to dayside_solar_fields** — `visited_dayside` flag is properly set on entry, but no dialogue mentions dayside. Yun or Hollis should provide breadcrumbs after `met_crafter_yun`.
-- **autotroph_path_defiant/cooperative flags orphaned** — Set in meridian_array_hub.json but never checked anywhere. Should gate Act III dialogue and ending path availability.
-- **Boss-kill flags orphaned** — `frost_warden_defeated`, `elder_sporecap_defeated`, `magma_core_cleared` set but never checked. NPCs should react to these accomplishments.
-- **Act III paths accept choices but nothing happens** — nightside_expedition quest lets players choose shutdown/merge/control but the ending dungeons don't exist yet.
-- **nightside_expedition requires `act3_asha_alliance_activated`** — No clear path to set this flag from main quest progression.
-- **Council faction NPCs not spawned** — Steward, Compact, Root representatives referenced in Asha's dialogue but not in meridian_civic as spawnable NPCs.
+## Balance
 
-## Act II Quest Follow-ups
+- Crystal Guardian at 700 HP — verify feels epic, not grindy.
+- Rechargeable Battery L1 (30 energy) may need bump to 40.
+- Automation milestone reward thresholds may need tuning.
 
-- Wire autotroph_path_defiant / autotroph_path_cooperative flags into Act III branching.
-- Phase 3 investigation quest after Autotroph confrontation.
+## Quest Graph
+
+- Remaining orphaned flags audit.
 - Map markers for Nightside Caverns entrance.
+- Ensure sol grid tutorial flow accommodates umbracite trade giving sol_shield_chip.

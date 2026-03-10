@@ -1,0 +1,18 @@
+{
+  "id": "expedition_tier_1",
+  "tier": 1,
+  "displayName": "Nightside Breach — Tier 1",
+  "unlockCondition": { "or": [
+    { "hasFlag": "chose_path_shutdown" },
+    { "hasFlag": "chose_path_merge" },
+    { "hasFlag": "chose_path_control" }
+  ]},
+  "floorCount": { "min": 3, "max": 4 },
+  "templatePool": ["proc_quarantine", "proc_frost_crypt", "proc_fungal_forest", "proc_geothermal"],
+  "monsterScaling": { "hpMult": 1.0, "damageMult": 1.0, "xpMult": 1.5 },
+  "lootTable": "expedition_tier_1",
+  "siliconCost": 5,
+  "mechanics": [],
+  "bossPool": ["crystal_guardian", "elder_sporecap", "luddite_warlord", "threshold_keeper"],
+  "bossAffixes": []
+}

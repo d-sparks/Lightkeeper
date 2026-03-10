@@ -38,23 +38,39 @@
     { "type": "shade_stalker", "x": 4, "y": 3, "count": 1, "patrol": "patrol", "patrolPath": [
       {"x": 8, "y": 3}, {"x": 16, "y": 3}, {"x": 16, "y": 5}, {"x": 8, "y": 5}
     ] },
-    { "type": "shade_stalker", "x": 20, "y": 4, "count": 1, "patrol": "wander" },
-    { "type": "shade_stalker", "x": 10, "y": 14, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 20, "y": 4, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 18, "y": 3}, {"x": 23, "y": 3}, {"x": 23, "y": 5}, {"x": 18, "y": 5}
+    ] },
+    { "type": "shade_stalker", "x": 10, "y": 14, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 8, "y": 13}, {"x": 14, "y": 13}, {"x": 14, "y": 16}, {"x": 8, "y": 16}
+    ] },
     { "type": "shade_stalker", "x": 18, "y": 13, "count": 1, "patrol": "patrol", "patrolPath": [
       {"x": 20, "y": 12}, {"x": 23, "y": 12}, {"x": 23, "y": 15}, {"x": 20, "y": 15}
     ] },
-    { "type": "ravine_lurker", "x": 8, "y": 9, "count": 1, "patrol": "guard" },
-    { "type": "ravine_lurker", "x": 16, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "ravine_lurker", "x": 8, "y": 9, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 5, "y": 8}, {"x": 14, "y": 8}, {"x": 14, "y": 11}, {"x": 5, "y": 11}
+    ] },
+    { "type": "ravine_lurker", "x": 16, "y": 6, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 14, "y": 5}, {"x": 19, "y": 5}, {"x": 19, "y": 8}, {"x": 14, "y": 8}
+    ] },
     { "type": "sporecap_shambler", "x": 6, "y": 11, "count": 1, "patrol": "patrol", "patrolPath": [
       {"x": 3, "y": 11}, {"x": 9, "y": 11}, {"x": 9, "y": 14}, {"x": 3, "y": 14}
     ] },
-    { "type": "sporecap_shambler", "x": 14, "y": 12, "count": 1, "patrol": "wander" },
-    { "type": "mycelium_lurker", "x": 12, "y": 7, "count": 1, "patrol": "guard" },
-    { "type": "fungal_sprayer", "x": 22, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "sporecap_shambler", "x": 14, "y": 12, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 12, "y": 11}, {"x": 17, "y": 11}, {"x": 17, "y": 14}, {"x": 12, "y": 14}
+    ] },
+    { "type": "mycelium_lurker", "x": 12, "y": 7, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 10, "y": 6}, {"x": 15, "y": 6}, {"x": 15, "y": 9}, {"x": 10, "y": 9}
+    ] },
+    { "type": "fungal_sprayer", "x": 22, "y": 10, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 19, "y": 9}, {"x": 23, "y": 9}, {"x": 23, "y": 11}, {"x": 19, "y": 11}
+    ] },
     { "type": "tunnel_creeper", "x": 10, "y": 3, "count": 1, "patrol": "patrol", "patrolPath": [
       {"x": 7, "y": 3}, {"x": 15, "y": 3}, {"x": 15, "y": 5}, {"x": 7, "y": 5}
     ] },
-    { "type": "sporecap_shambler", "x": 18, "y": 15, "count": 1, "patrol": "wander" }
+    { "type": "sporecap_shambler", "x": 18, "y": 15, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 16, "y": 14}, {"x": 22, "y": 14}, {"x": 22, "y": 16}, {"x": 16, "y": 16}
+    ] }
   ],
   "npcSpawns": [],
   "itemSpawns": [

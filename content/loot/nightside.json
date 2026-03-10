@@ -2,6 +2,7 @@
   "shadow_ambusher": {
     "dropChance": 0.35,
     "rolls": [
+      { "item": "salvage", "weight": 12 },
       { "item": "bandage", "weight": 8 },
       { "item": "flare", "weight": 5 },
       { "item": "umbracite_shard", "weight": 2 },
@@ -11,6 +12,7 @@
   "tunnel_creeper": {
     "dropChance": 0.2,
     "rolls": [
+      { "item": "salvage", "weight": 12 },
       { "item": "bandage", "weight": 10 },
       { "item": "ration_pack", "weight": 6 },
       { "item": "damage_booster_chip", "weight": 1 }
@@ -19,6 +21,7 @@
   "feral_hound": {
     "dropChance": 0.2,
     "rolls": [
+      { "item": "salvage", "weight": 12 },
       { "item": "ration_pack", "weight": 10 },
       { "item": "bandage", "weight": 6 },
       { "item": "reinforced_battery_chip", "weight": 1 }
@@ -27,6 +30,7 @@
   "rime_stalker": {
     "dropChance": 0.4,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "frost_salve", "weight": 8 },
       { "item": "health_potion", "weight": 5 },
       { "item": "umbracite_shard", "weight": 2 },
@@ -36,6 +40,7 @@
   "frostfang_hunter": {
     "dropChance": 0.25,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "frost_salve", "weight": 8 },
       { "item": "ration_pack", "weight": 6 },
       { "item": "reinforced_battery_chip", "weight": 1 }
@@ -44,6 +49,7 @@
   "vent_spewer": {
     "dropChance": 0.35,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "health_potion", "weight": 8 },
       { "item": "field_medkit", "weight": 2 },
       { "item": "photon_regulator_chip", "weight": 1 }
@@ -52,6 +58,7 @@
   "magma_brute": {
     "dropChance": 0.6,
     "rolls": [
+      { "item": "salvage", "weight": 6 },
       { "item": "field_medkit", "weight": 5 },
       { "item": "health_potion", "weight": 6 },
       { "item": "frozen_core", "weight": 2 },
@@ -62,6 +69,7 @@
   "frost_warden": {
     "dropChance": 0.65,
     "rolls": [
+      { "item": "salvage", "weight": 6 },
       { "item": "field_medkit", "weight": 5 },
       { "item": "frozen_core", "weight": 3 },
       { "item": "frost_salve", "weight": 6 },
@@ -72,6 +80,7 @@
   "sporecap_shambler": {
     "dropChance": 0.3,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "fungal_tonic", "weight": 8 },
       { "item": "spore_sample", "weight": 3 },
       { "item": "bio_leech_node_chip", "weight": 1 }
@@ -80,6 +89,7 @@
   "mycelium_lurker": {
     "dropChance": 0.35,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "fungal_tonic", "weight": 6 },
       { "item": "mycelium_fiber", "weight": 4 },
       { "item": "bio_leech_node_chip", "weight": 1 }
@@ -88,6 +98,7 @@
   "fungal_sprayer": {
     "dropChance": 0.3,
     "rolls": [
+      { "item": "salvage", "weight": 10 },
       { "item": "fungal_tonic", "weight": 6 },
       { "item": "spore_sample", "weight": 4 },
       { "item": "bio_leech_node_chip", "weight": 1 }
@@ -96,12 +107,44 @@
   "elder_sporecap": {
     "dropChance": 0.7,
     "rolls": [
+      { "item": "salvage", "weight": 6 },
       { "item": "field_medkit", "weight": 4 },
       { "item": "mycelium_fiber", "weight": 5 },
       { "item": "spore_sample", "weight": 3 },
       { "item": "fungal_tonic", "weight": 6 },
       { "item": "bio_leech_node_chip", "weight": 3 },
       { "item": "symbiotic_core_chip", "weight": 1 }
+    ]
+  },
+  "abyssal_tendril": {
+    "dropChance": 0.35,
+    "rolls": [
+      { "item": "salvage", "weight": 10 },
+      { "item": "bandage", "weight": 8 },
+      { "item": "umbracite_shard", "weight": 4 },
+      { "item": "resonance_fragment", "weight": 1 }
+    ]
+  },
+  "threshold_watcher": {
+    "dropChance": 0.45,
+    "rolls": [
+      { "item": "salvage", "weight": 8 },
+      { "item": "health_potion", "weight": 6 },
+      { "item": "umbracite_shard", "weight": 4 },
+      { "item": "shadow_conduit_chip", "weight": 2 },
+      { "item": "umbral_amplifier_chip", "weight": 1 }
+    ]
+  },
+  "threshold_keeper": {
+    "dropChance": 0.9,
+    "rolls": [
+      { "item": "salvage", "weight": 6 },
+      { "item": "field_medkit", "weight": 4 },
+      { "item": "resonant_umbracite_core", "weight": 3 },
+      { "item": "symbiotic_compound", "weight": 2 },
+      { "item": "void_resonator_chip", "weight": 2 },
+      { "item": "underlumen_nexus", "weight": 1 },
+      { "item": "rechargeable_battery_chip", "weight": 1 }
     ]
   }
 }

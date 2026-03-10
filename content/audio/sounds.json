@@ -215,5 +215,59 @@
       { "wave": "sawtooth", "freq": 110, "freqEnd": 65, "sweepTime": 0.8, "volume": 0.3, "attack": 0.1, "decay": 0.2, "sustain": 0.3, "release": 0.5 },
       { "wave": "noise", "color": "pink", "volume": 0.25, "attack": 0.05, "release": 1.0, "filterFreq": 400, "filterQ": 1.5 }
     ]
+  },
+
+  "teleport": {
+    "volume": 0.35,
+    "duration": 0.35,
+    "layers": [
+      { "wave": "sine", "freq": 300, "freqEnd": 1200, "sweepTime": 0.15, "attack": 0.005, "decay": 0.05, "sustain": 0.3, "release": 0.1 },
+      { "wave": "sine", "freq": 1200, "freqEnd": 400, "delay": 0.15, "sweepTime": 0.15, "attack": 0.005, "decay": 0.05, "sustain": 0.2, "release": 0.1 },
+      { "wave": "noise", "color": "white", "volume": 0.15, "attack": 0.005, "release": 0.3, "filterFreq": 5000, "filterQ": 2 }
+    ]
+  },
+
+  "ambush_reveal": {
+    "volume": 0.45,
+    "duration": 0.4,
+    "layers": [
+      { "wave": "sawtooth", "freq": 80, "freqEnd": 200, "sweepTime": 0.1, "attack": 0.005, "decay": 0.08, "sustain": 0.3, "release": 0.2 },
+      { "wave": "noise", "color": "white", "volume": 0.5, "attack": 0.002, "release": 0.15, "filterFreq": 2500, "filterQ": 1.5 },
+      { "wave": "square", "freq": 180, "freqEnd": 120, "delay": 0.1, "attack": 0.005, "decay": 0.1, "sustain": 0.2, "release": 0.15 }
+    ]
+  },
+
+  "battery_depleted": {
+    "volume": 0.45,
+    "duration": 0.5,
+    "layers": [
+      { "wave": "square", "freq": 440, "freqEnd": 110, "sweepTime": 0.35, "attack": 0.005, "decay": 0.05, "sustain": 0.4, "release": 0.1 },
+      { "wave": "sine", "freq": 220, "freqEnd": 55, "sweepTime": 0.4, "volume": 0.5, "attack": 0.01, "decay": 0.08, "sustain": 0.3, "release": 0.15 },
+      { "wave": "noise", "color": "pink", "volume": 0.2, "attack": 0.005, "release": 0.4, "filterFreq": 500, "filterQ": 2 }
+    ]
+  },
+
+  "auto_place": {
+    "_comment": "Structure placed on automation grid — mechanical lock-in confirmation",
+    "volume": 0.35,
+    "duration": 0.22,
+    "layers": [
+      { "wave": "square", "freq": 330, "freqEnd": 550, "sweepTime": 0.1, "attack": 0.005, "decay": 0.06, "sustain": 0.2, "release": 0.08 },
+      { "wave": "sine", "freq": 660, "delay": 0.1, "attack": 0.005, "decay": 0.05, "sustain": 0.15, "release": 0.06 },
+      { "wave": "noise", "color": "pink", "volume": 0.15, "attack": 0.002, "release": 0.1, "filterFreq": 1800, "filterQ": 2 }
+    ]
+  },
+
+  "auto_level_up": {
+    "_comment": "Automation level threshold reached — industrial fanfare",
+    "volume": 0.4,
+    "duration": 0.7,
+    "layers": [
+      { "wave": "square", "freq": 330, "attack": 0.01, "decay": 0.08, "sustain": 0.35, "release": 0.06 },
+      { "wave": "square", "freq": 440, "delay": 0.15, "attack": 0.01, "decay": 0.08, "sustain": 0.35, "release": 0.06 },
+      { "wave": "square", "freq": 550, "delay": 0.3, "attack": 0.01, "decay": 0.08, "sustain": 0.35, "release": 0.06 },
+      { "wave": "square", "freq": 660, "delay": 0.45, "attack": 0.01, "decay": 0.15, "sustain": 0.4, "release": 0.12 },
+      { "wave": "sine", "freq": 880, "delay": 0.45, "volume": 0.5, "attack": 0.02, "decay": 0.1, "sustain": 0.3, "release": 0.15 }
+    ]
   }
 }

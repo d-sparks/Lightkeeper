@@ -100,6 +100,7 @@ const api = {
       body: JSON.stringify({ playerId, itemType, count }),
     })).json();
   },
+  async knownFlags() { return (await checkedFetch('/api/checkpoint/known-flags')).json(); },
   async giveAllSol(playerId) {
     return (await checkedFetch('/api/checkpoint/give-all-sol', {
       method: 'POST',
@@ -297,6 +298,11 @@ function FlagEditor({ sessions }) {
   const [newFlagValue, setNewFlagValue] = useState('');
   const [newFlagScope, setNewFlagScope] = useState('player');
   const [editValues, setEditValues] = useState({});
+  const [knownFlags, setKnownFlags] = useState([]);
+
+  useEffect(() => {
+    api.knownFlags().then(setKnownFlags).catch(() => {});
+  }, []);
 
   const refreshFlags = useCallback(async () => {
     if (!selectedPlayer) return;
@@ -394,32 +400,40 @@ function FlagEditor({ sessions }) {
       ${selectedPlayer && html`<button class="btn btn-save" onClick=${refreshFlags}>Refresh</button>`}
     </div>
 
+    <datalist id="known-flags-list">
+      ${knownFlags.map(f => html`<option key=${f} value=${f} />`)}
+    </datalist>
+
     ${selectedPlayer && html`
       <div class="flag-section">
         <h3 class="flag-section-title">Player Flags</h3>
         ${renderFlagTable(playerFlags, 'player')}
+        <div class="flag-add-row">
+          <input class="flag-input" list="known-flags-list" placeholder="flag name" value=${newFlagName}
+            onInput=${e => setNewFlagName(e.target.value)}
+            onKeyDown=${e => { if (e.key === 'Enter') { setNewFlagScope('player'); handleAddFlag(); } }} />
+          <input class="flag-input" placeholder="value (default: true)" value=${newFlagValue}
+            onInput=${e => setNewFlagValue(e.target.value)}
+            onKeyDown=${e => { if (e.key === 'Enter') { setNewFlagScope('player'); handleAddFlag(); } }} />
+          <button class="btn btn-save" onClick=${() => { setNewFlagScope('player'); handleAddFlag(); }}>Add</button>
+        </div>
       </div>
 
       ${roomId && html`
         <div class="flag-section">
           <h3 class="flag-section-title">Room Flags <small>(${roomId})</small></h3>
           ${renderFlagTable(roomFlags, 'room')}
+          <div class="flag-add-row">
+            <input class="flag-input" list="known-flags-list" placeholder="flag name" value=${newFlagName}
+              onInput=${e => setNewFlagName(e.target.value)}
+              onKeyDown=${e => { if (e.key === 'Enter') { setNewFlagScope('room'); handleAddFlag(); } }} />
+            <input class="flag-input" placeholder="value (default: true)" value=${newFlagValue}
+              onInput=${e => setNewFlagValue(e.target.value)}
+              onKeyDown=${e => { if (e.key === 'Enter') { setNewFlagScope('room'); handleAddFlag(); } }} />
+            <button class="btn btn-save" onClick=${() => { setNewFlagScope('room'); handleAddFlag(); }}>Add</button>
+          </div>
         </div>
       `}
-
-      <div class="flag-add-row">
-        <input class="flag-input" placeholder="flag name" value=${newFlagName}
-          onInput=${e => setNewFlagName(e.target.value)}
-          onKeyDown=${e => { if (e.key === 'Enter') handleAddFlag(); }} />
-        <input class="flag-input" placeholder="value (default: true)" value=${newFlagValue}
-          onInput=${e => setNewFlagValue(e.target.value)}
-          onKeyDown=${e => { if (e.key === 'Enter') handleAddFlag(); }} />
-        <select value=${newFlagScope} onChange=${e => setNewFlagScope(e.target.value)}>
-          <option value="player">player</option>
-          <option value="room">room</option>
-        </select>
-        <button class="btn btn-save" onClick=${handleAddFlag}>Add</button>
-      </div>
     `}
   `;
 }

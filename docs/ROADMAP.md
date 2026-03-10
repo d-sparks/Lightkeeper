@@ -1,76 +1,90 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-08
+Last updated: 2026-03-09 (refreshed: task audit, completed items moved)
 
 ## Big Picture
 
 Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, complete Act I, and deep progression systems. The game needs three things to go from "tech demo" to "fun, complete game":
 
-1. **Game feel** — Death penalty, sound effects, and combat juice transform hollow clicking into tense dungeon runs
-2. **Progression wiring** — Sol units and generators are designed but unobtainable; players can't feel growth
-3. **Story completion** — Act II needs deepening, Act III needs its three endings built
+1. ~~**Death penalty & game feel**~~ — DONE. Energy drain, item drop, respawn teleport, death screen overlay all implemented
+2. ~~**Automation access**~~ — DONE. Phase 3 wired (openAutomation action + MERIDIAN-7 trigger + client handler)
+3. **Story polish** — Act III ending dungeons and post-choice NPC dialogue exist. Remaining: registrar_hollis reactions, post-ending world state changes
 
 ## Project Status Overview
 
 | Area | Status | Notes |
 |------|--------|-------|
 | Core Engine | Done | Physics, combat, abilities, AI, scripting, networking, rendering all functional |
-| Act I Content | Done | Main quest (13 steps), 11 quests total, 41 dungeons, 39 NPCs, 26 monster types |
+| Act I Content | Done | Main quest (22 steps through Act II bridge), 13 quests, 50 dungeons, 106 NPCs, 33 monster types |
 | Monster AI | Done | 5 AI types: melee_chase, ranged_kite, ambush, patrol, pack |
-| Procedural Generation | Done | Template-based generation working (4 templates: quarantine, quarantine_deep, frost_crypt, fungal_forest, geothermal) |
+| Procedural Generation | Done | Template-based generation working (5 templates: quarantine, quarantine_deep, frost_crypt, fungal_forest, geothermal) |
 | Scripting System | Done | Trigger-Condition-Action fully implemented, quest DAG system working |
-| Testing Tools | Done | Content validator + headless simulator both functional. Wired into `npm test` |
-| Sol Grid / Progression | Done | Grid placement + adjacency modifiers + 25 components. Design decisions resolved |
+| Testing Tools | Done | Content validator + headless simulator + 284 unit tests. Wired into `npm test` |
+| Sol Grid / Progression | Done | Grid placement + adjacency modifiers (incl. legendary extended-adjacency) + 63 components |
 | Loot System | Done | Engine supports loot tables with weighted drops. 22 loot tables across 6 files. All combat monsters wired |
 | Item Rarity UI | Done | Rarity colors (common to legendary) displayed in inventory and sol grid |
 | Art Style Guide | Done | Master palette, sprite conventions, zone color identity documented |
 | Content Validation CI | Done | `npm test` runs content-validator.js + headless-sim.js --mainline |
-| Automation System | Partial | Server grid state + client CSS grid UI done (Phases 1-2). In-game access not yet wired (Phase 3+). See docs/automation_screen.md |
+| Automation System | Done (Phases 1-5) | All phases complete: grid state, UI, MERIDIAN-7 wiring, dungeon sync, tooltips, placement sounds, touch support. See docs/automation_screen.md |
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons |
-| Act II Content | Partial | Dayside, Array complex, Crystal Guardian boss, MERIDIAN-7 umbrasite quest done. Deeper Array questlines + more bosses needed |
-| Act III Content | Stub | Underlumen approach + crypts exist. Three ending paths not built |
-| Game Feel | Not Started | No death penalty, no sound effects, minimal combat juice. Highest-priority gap |
-| Game Balance | Partial | Initial balance pass done (monster HP, ability costs). Further playtesting needed |
+| Act II Content | Partial | Dayside, Array complex, Crystal Guardian boss, MERIDIAN-7 quest, quest steps 19-22 bridge to Act III. Deeper questlines needed |
+| Act III Content | Partial | All three ending dungeons built (shutdown, merge, control). Post-choice NPC dialogue and Unbounded elder NPC still needed |
+| Game Feel | Done | Sound effects (24 SFX), combat juice, death penalty (energy drain + item drop + respawn teleport + death screen overlay) all done |
+| Game Balance | Done | Mid-game energy pacing tuned, Pulse Rifle reward feel improved, combat balance pass complete |
 | Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
-| Unit Tests | Done | Tiers 1-3: flag-store, event-bus, automation, conditions, actions, trigger-registry, physics (223 tests). Tier 4 integration tests remain. Note: 1 pre-existing physics test failure (large dt wall skip) |
+| Unit Tests | Done | Tiers 1-4: 304 tests (flag-store, event-bus, automation, conditions, actions, trigger-registry, physics, combat, equipment, sol-grid, room-lifecycle). All passing |
 | Per-Biome Music | Done | Ambient music definitions and tileset-based track selection wired |
 | Monster Sprites | Done | Placeholder sprites for all monsters, palette aligned to art style guide |
 | Crystal Guardian Boss | Done | 3-phase boss AI, boss health bar, phase transition VFX, intro presentation |
 | Array Complex Gating | Done | Exit conditions gate synthesis lab and deep processing behind quest/item progression |
+| Session Auth | Done | Token-based session auth prevents character hijacking |
+| Stun/Knockback Immunity | Done | Immunity windows prevent stun-locks |
+| Map Streaming / Fog of War | Done | Chunk-based streaming for large maps (outer_expanse 200x120), edge gradient fade |
+| Extended Adjacency Modifiers | Done | Radius-2, row, column patterns for legendary tier |
+| Quest Graph Connectivity | Done | Main quest extended to step 22, NPC breadcrumbs, boss-kill flags, autotroph paths all wired |
+| Generator Wiring | Done | basic_generator via Tech Maren, improved_generator in Array loot tables |
+| Council Faction NPCs | Done | Steward, Compact, Root representatives spawned in meridian_civic |
 
 ---
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Quest graph connectivity — extend the main quest and connect disconnected content**
+Focus: **Fix testing blockers, connect disconnected content, build endgame loop**
 
-1. **Extend main quest into Act II** — Add steps 14-17 directing player from Meridian to dayside, through Array discovery, and into Act III preparation. Currently the main quest dead-ends at "meet Yun" with no guidance toward Act II content.
-2. **NPC breadcrumbs to dayside** — No NPC directs players to dayside_solar_fields. Add dialogue hooks after `met_crafter_yun`.
-3. **Wire autotroph_path flags** — `autotroph_path_defiant/cooperative` are set but never checked. Should gate Act III dialogue.
-4. **Wire boss-kill flags** — `frost_warden_defeated`, `elder_sporecap_defeated`, `magma_core_cleared` are set but never checked. Add NPC reactions.
-5. **Death penalty** — When the player dies, drain energy and drop non-quest items. Respawn at entrance. Biggest game-feel gap.
-6. **Wire generators into loot/rewards** — basic_generator and improved_generator exist but can't be obtained. Critical for energy progression pacing.
+1. ~~**Death penalty polish**~~ — DONE.
+2. ~~**Automation grid Phase 3**~~ — DONE.
+3. ~~**Fix headless sim board_train**~~ — DONE.
+4. ~~**Fix headless sim visit_civic_center**~~ — DONE.
+5. ~~**Post-choice NPC dialogue**~~ — DONE.
+6. ~~**Automation dungeon sync (Phase 4)**~~ — DONE.
+7. **Fix headless sim discover_array_secret** — Bot stuck in dayside_solar_fields, can't navigate to array_deep_processing. Blocks CI mainline past step ~20.
+8. **Fix content validator expedition flag errors** — expedition_active, expedition_tier_1_cleared, expedition_tier_2_cleared checked but never set.
+9. **Minimap quest waypoints** — No spatial guidance for quest objectives.
+10. **Place alpha monsters and skeleton_archer** — Defined content with no dungeon placement.
+11. **Implement expedition multi-floor system** — Endgame loop spec 70% done, needs multi-floor progression, boss spawning, completion detection.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
-Focus: **Content depth, boss variety, and feature completion**
+Focus: **Endgame depth, modifier crafting, cooperative play**
 
-7. **Additional boss encounters** — Crystal Guardian sets the pattern. Add bosses for Nightside (shade_stalker_alpha?), Array (array_overseer), and Fungal (elder_sporecap) arcs. Each with unique phases.
-8. **Act II quest expansion** — Extend Array questline: escalating umbrasite demands, MERIDIAN-7 confrontation, wire secrets into Act III hooks.
-9. **Automation grid Phase 3** — Wire `openAutomation` action so players can access the grid UI via MERIDIAN-7 interaction. Phases 1-2 are done but the screen isn't reachable.
-10. **Minimap quest waypoints** — Colored dots on minimap for active quest objectives. Players currently have no spatial guidance.
-11. **Integration tests (Tier 4)** — Combat flow, equipment system, sol grid adjacency, room lifecycle. Catches regressions as content grows.
-12. **Improve headless sim bot** — Bot gets stuck at 4/43 rooms. Better pathfinding enables automated balance testing and quest validation.
+7. ~~**Wren Alcott dialogue expansion**~~ — DONE.
+8. ~~**Sable trust escalation**~~ — DONE.
+9. ~~**Automation Phase 4 (dungeon sync)**~~ — DONE.
+10. ~~**Pack leader AI variant**~~ — DONE.
+11. ~~**Touch/gamepad 45° rotation**~~ — DONE.
+12. **Modifier crafting system** — Reforge/fuse at MERIDIAN-7 with crafting.json recipes. Endgame build diversity.
+13. **Automation levels 6-10** — New structures, milestone rewards, adjacency bonuses.
+14. **Boss affixes (Tier 4+)** — Data-driven affix pool applied to expedition bosses.
+15. **Periodic auto-save** — Currently only saves on disconnect; risk of progress loss on crashes.
 
 ## Long-Term Vision (3+ Months)
 
-Focus: **Complete the story, real art, and endgame**
+Focus: **Real art, endgame loop, mobile**
 
-13. **Act III content** — Three ending path dungeons (shutdown, merge, control), faction NPCs, Unbounded elder, post-choice dialogue. The story's climax.
-14. **Real art assets** — Replace all placeholder sprites with proper pixel art following docs/art-style-guide.md.
-15. **Endgame loop** — Post-story sandbox with escalating procedural dungeons, legendary modifier chase, automation scaling.
-16. **Mobile/touch optimization** — Touch controls exist but need polish for real mobile play.
-17. **Extended adjacency modifiers** — Radius-2 and row/column modifiers for rare/legendary sol components.
+13. **Real art assets** — Replace all placeholder sprites with proper pixel art following docs/art-style-guide.md.
+14. **Endgame loop** — Post-story sandbox with escalating procedural dungeons, legendary modifier chase, automation scaling.
+15. **Mobile/touch optimization** — Touch controls exist but need polish. Joystick/gamepad need 45° rotation for iso movement.
+16. **Battery math & harvester scaling** — Capacity per tier, energy costs per ability, casts per full charge.
 
 ---
 
@@ -129,16 +143,59 @@ These are done and don't need further investment:
 - **Crystal Guardian special attacks** — boss_crystal AI integrates specialAttacks; ground_slam + stun
 - **Sol unit innate perk display** — Sol grid screen shows unit name and innate perk descriptions
 - **Array construct loot tables** — Enhanced with thematic tech drops
+- **Quest graph connectivity** — Main quest extended to 22 steps, NPC breadcrumbs, boss-kill/autotroph flags all wired
+- **Sound effects** — 24 SFX wired (teleport, ambush, attacks, pickups, doors, etc.)
+- **Combat juice** — Screen shake, death animations, projectile tinting, ambush fade-in reveal
+- **Generator wiring** — basic_generator via Tech Maren quest, improved_generator in Array loot
+- **Stun/knockback immunity** — Immunity windows prevent stun-locks (1.5s post-stun, 0.75s post-knockback)
+- **Session token auth** — Prevents character hijacking via crypto tokens
+- **Map streaming & fog of war** — Chunk-based streaming for large maps (outer_expanse 200x120)
+- **Extended adjacency modifiers** — Radius-2, row, column patterns for legendary sol components
+- **Act III ending dungeons** — All three paths built: array_control_center (shutdown), merge_nexus (merge), array_command_throne (control)
+- **Council faction NPCs** — Steward, Compact, Root representatives in meridian_civic
+- **Tier 4 integration tests** — 61 tests for combat, equipment, sol-grid (284 total)
+- **Physics dt fix** — dt clamping + substep movement prevents wall-skipping
+- **Headless sim perimeter_gate fix** — Path state bug resolved
+- **Headless sim junction_cleared fix** — doInteractNearest navigates to interactable tiles; buildQuestGoals generates door interaction goals
+- **Fog-of-war edge gradient** — 3-tile fade depth with 8-neighbor checking in flat and iso renderers
+- **Battery visual feedback** — Flash and sound cue on single-use battery depletion
+- **Guard Pell dialogue update** — Battery terminology replaces "charge" references
+- **Battery chip energy checkpoints** — battery_chip consumables placed in 12 longer dungeons
+- **Rechargeable battery loot wiring** — rechargeable_battery_chip in boss and biome rare loot tables
+- **Tileset assignments** — All outpost/station/meridian dungeons using correct themed tilesets
+- **signal_coordinates item** — Added to items.json for outer_expanse discovery
+- **Death penalty core** — 25% energy drain + non-quest item drop on death implemented
+- **Automation Phase 3 complete** — openAutomation action, MERIDIAN-7 npc_interacted trigger, and client AUTO_STATE/openScreen handler all wired
+- **Death penalty complete** — 25% energy drain + non-quest item drop + respawn-at-entrance teleport + death screen overlay
+- **Post-choice NPC dialogue** — Asha, Sable, MERIDIAN-7, Wren all react to chose_path_shutdown/merge/control flags
+- **Wren Alcott dialogue expansion** — Reacts to elder_sporecap_defeated, magma_core_cleared, arrived_meridian, array_secret_discovered, act3 coalition
+- **Sable trust escalation** — Trust increments to 2/3, companion_bond gates on sable_trust > 2
+- **Pack leader AI** — pack_leader AI type with data-driven aura buffs, feral_hound_alpha and frostfang_alpha
+- **Touch/gamepad 45° rotation** — Joystick and gamepad analog inputs rotated for isometric movement
+- **Room lifecycle tests** — Tier 4 integration tests for createRoom → join → transition → cleanup (304 total tests)
+- **Placeholder sprites** — sable_nightside_guide, sable_threshold, unbounded_elder all have sprites
+- **Headless sim board_train fix** — buildQuestGoals handles targetExit in quest objectives, bot boards train successfully
+- **Automation Phase 4 (dungeon sync)** — getOverlayedMapData() merges player automation placements into MAP chunks; harvester entities spawn in dayside_solar_fields
+- **Automation milestone notifications** — Toast notification on milestone thresholds (2/4/6/10/15)
+- **Wren Alcott sprite** — Placeholder sprite generated
+- **Extended adjacency visualization** — Sol grid UI highlights legendary modifier ranges on hover/placement
+- **Orphaned flags batch 1** — 9 exploration flags wired to NPC dialogue and XP rewards
+- **Automation Phase 5 (polish)** — Tooltips, placement sounds, touch/mobile support all implemented
+- **Ending-path legendary modifiers** — 6 path-specific legendaries with unlock gating in sol_components.json
+- **Iso renderer optimization** — Skip unrevealed/off-screen chunks entirely
+- **Delete character button** — Session select screen delete functionality
+- **Mid-game energy pacing** — Energy generation tuning and Pulse Rifle reward feel improved
+- **Headless sim visit_civic_center fix** — tryInteract compares door vs NPC distance
 
 ## Active Design Docs
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
-| docs/progression-system.md | Active | Core decisions resolved. Remaining: battery math, harvester scaling, extended adjacency modifiers |
-| docs/automation_screen.md | Active | Phases 1-2 done. Next: Phase 3 (screen access via MERIDIAN-7) |
-| docs/storyboard.md | Active | Act I done, Act II partial, Act III stubbed. Three ending paths needed |
-| docs/testing-design.md | Done | Both tools built and functional. 1 pre-existing physics test (large dt) needs fix |
-| docs/procedural-generation.md | Done | Engine + 5 templates implemented |
-| docs/TESTING.md | Done | Tiers 1-3 complete. Tier 4 integration remains for future |
+| docs/progression-system.md | Active | Core decisions resolved. Remaining: battery math, harvester scaling |
+| docs/automation_screen.md | Done | All 5 phases implemented (grid, UI, MERIDIAN-7, dungeon sync, polish) |
+| docs/storyboard.md | Active | Act I done, Act II partial, Act III endings built. Post-choice dialogue done. Remaining: registrar_hollis reactions, post-ending world state |
+| docs/testing-design.md | Done | Both tools built and functional. 304 tests passing |
+| docs/procedural-generation.md | Done | Engine + 5 templates implemented. Fog-of-war streaming working |
+| docs/TESTING.md | Done | Tiers 1-4 complete (304 tests including room-lifecycle) |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
 | docs/game-scripting.md | Done | TCA system fully implemented and documented |

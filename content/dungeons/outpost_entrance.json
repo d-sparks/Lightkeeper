@@ -2,7 +2,7 @@
   "id": "outpost_entrance",
   "name": "Outpost Balor",
   "depth": 0,
-  "tileset": "crypt",
+  "tileset": "outpost",
   "theme": "outpost_military",
   "tileSize": 32,
   "width": 55,
@@ -1991,7 +1991,7 @@
         },
         {
           "not": {
-            "hasFlag": "sol_unit_charged"
+            "hasFlag": "received_first_battery"
           }
         },
         {
@@ -2009,11 +2009,11 @@
       ]
     },
     {
-      "id": "respawn_warden_after_charging",
+      "id": "respawn_warden_after_battery",
       "event": "room_entered",
       "conditions": [
         {
-          "hasFlag": "sol_unit_charged"
+          "hasFlag": "received_first_battery"
         },
         {
           "not": {
@@ -2038,7 +2038,7 @@
       },
       "conditions": [
         {
-          "hasFlag": "sol_unit_charged"
+          "hasFlag": "received_first_battery"
         },
         {
           "not": {

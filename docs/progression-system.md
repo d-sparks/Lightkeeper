@@ -237,7 +237,12 @@ This means efficiency-type modifiers have dual use: they reduce ability energy c
    - **Greenway Bioframe** (7×7, 140 charge, +3 heal on hit) — Bio-tech sustain frame from Fungal Forests.
    - **Underlumen Nexus** (8×8, 160 charge, -15% cooldown) — Endgame frame from deep ruins.
    Engine supports `innateBonus` field on sol unit defs, applied globally to all grid abilities and generators.
-2. **Extended adjacency modifiers** — Base adjacency is **4-directional** (up/down/left/right). Some rare/powerful modifiers could have extended reach: "radius 2", "entire row", "entire column". Design and implement these when the modifier pool expands.
+2. ~~**Extended adjacency modifiers**~~ — **Resolved.** Legendary-tier modifiers can have an `adjacencyPattern` field:
+   - `"radius2"` — Affects abilities/generators within Manhattan distance 2 (12 cells instead of 4).
+   - `"row"` — Affects all abilities/generators in the same grid row.
+   - `"column"` — Affects all abilities/generators in the same grid column.
+   Standard modifiers (no `adjacencyPattern`) remain 4-directional distance 1. Extended adjacency is exclusive to legendary tier, making them true build-defining upgrades. Larger shapes (2×2, 1×3) offset their power by consuming more grid space.
+   Defined in `content/entities/sol_components.json`: Abyssal Nexus (Nightside, radius2), Verdant Overgrowth (Greenway, column), Solar Array Beacon (Dayside, row), Convergence Matrix (generic, radius2).
 3. ~~**Modifier stat ranges**~~ — **Resolved.** See below.
 
 ### Modifier Stat Ranges by Rarity (Decided)
@@ -255,7 +260,7 @@ Single-stat reference values per rarity tier:
 
 **Faction modifiers** follow the same tiers but can skew toward their faction specialty (e.g. Nightside mods lean heavier on damage, Greenway on healOnHit, Dayside on energyCostReduction). The total power budget stays within tier bounds.
 
-**Legendary tier** is reserved for endgame chase items not yet defined in `sol_components.json`. These should feel like build-defining upgrades.
+**Legendary tier** modifiers have **extended adjacency** — they affect abilities beyond the standard 4-directional reach. Their larger shapes (2×2, 1×3) and powerful stats make them build-defining upgrades. See the extended adjacency section above.
 
 Each modifier in `sol_components.json` has a `rarity` field. The engine reads bonuses directly from the JSON — no runtime scaling is applied. All rarity-based stat differentiation is baked into the content data.
 4. **Battery math** — Capacity per tier, energy costs per ability, how many casts does a full charge sustain at each game phase?
