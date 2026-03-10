@@ -1,0 +1,166 @@
+{
+  "id": "array_control_center",
+  "name": "Array Control Center",
+  "depth": 0,
+  "tileset": "dayside",
+  "theme": "dayside_solar",
+  "tileSize": 32,
+  "ambientLight": 0.4,
+  "environmentalHazard": { "type": "heat", "damage": 3, "interval": 2.0 },
+  "width": 22,
+  "height": 20,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,3,1,2,1,2,1,3,1,1,1,3,1,2,1,2,1,3,1,1,
+    3,1,1,3,1,1,1,1,1,3,1,1,1,3,1,1,1,1,1,3,1,1,
+    3,1,10,3,1,2,1,2,1,4,1,10,1,4,1,2,1,2,1,3,10,1,
+    3,3,3,3,3,3,3,3,3,3,1,1,1,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,7,7,1,1,1,1,1,1,7,7,1,1,1,1,1,3,
+    3,1,1,1,1,1,7,7,1,1,1,1,1,1,7,7,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,7,7,1,1,1,1,1,1,7,7,1,1,1,1,1,3,
+    3,1,1,1,1,1,7,7,1,1,1,1,1,1,7,7,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,4,3,3,1,1,1,1,1,1,1,1,1,1,3,3,4,3,3,3,
+    3,1,1,1,1,3,1,2,1,1,1,1,1,1,2,1,3,1,1,1,1,3,
+    3,1,2,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,2,1,3,
+    3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,1,1,1,1,3,1,1,1,1,8,1,1,1,1,1,3,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 10, "y": 17, "type": "player_start" },
+    { "x": 11, "y": 17, "type": "player_start" },
+    { "x": 10, "y": 16, "type": "player_start" },
+    { "x": 11, "y": 16, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "array_sentinel", "x": 2, "y": 15, "count": 1, "patrol": "guard" },
+    { "type": "array_sentinel", "x": 19, "y": 15, "count": 1, "patrol": "guard" },
+    { "type": "array_fabricator", "x": 8, "y": 12, "count": 1, "patrol": "wander" },
+    { "type": "array_fabricator", "x": 14, "y": 12, "count": 1, "patrol": "wander" },
+    { "type": "array_sentinel", "x": 3, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "array_sentinel", "x": 18, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "vent_spewer", "x": 4, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "vent_spewer", "x": 17, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "array_overseer", "x": 10, "y": 8, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 1, "y": 14 },
+    { "type": "field_medkit", "x": 20, "y": 14 },
+    { "type": "lore_array_directive", "x": 6, "y": 2 },
+    { "type": "health_potion", "x": 20, "y": 1 }
+  ],
+  "exits": [
+    { "x": 10, "y": 18, "leadsTo": "array_deep_processing", "type": "stairs_up", "spawnX": 1, "spawnY": 17 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_control_center",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Array Control Center. The air hums with raw computational energy. Banks of processing nodes line the walls, pulsing with synchronized light.",
+          "This is the heart of the Array's autonomic nervous system — the master node that coordinates every sentinel, every fabricator, every Lighthouse on the dayside.",
+          "Shut this down, and the Array goes dark. Every automated system on the planet returns to silence. The Underlumen, suppressed for centuries, begins to wake."
+        ]},
+        { "type": "setFlag", "flag": "visited_array_control_center" }
+      ],
+      "once": true
+    },
+    {
+      "id": "control_center_coolant_warning",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "visited_array_control_center" },
+        { "not": { "hasFlag": "control_center_coolant_noted" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Coolant pools surround the central processing core, radiating heat. The Array Overseer patrols the perimeter — the last line of defense for the master node." },
+        { "type": "setFlag", "flag": "control_center_coolant_noted" }
+      ],
+      "once": true
+    },
+    {
+      "id": "control_overseer_defeated",
+      "event": "monster_killed",
+      "filter": { "monsterType": "array_overseer" },
+      "actions": [
+        { "type": "setFlag", "flag": "control_overseer_defeated" },
+        { "type": "grantXp", "amount": 80 },
+        { "type": "showMessage", "lines": [
+          "The Array Overseer crashes to the floor. Its chassis sparks and goes still. The synchronized pulse of the processing nodes stutters — then resumes, slower, uncertain.",
+          "Without its guardian, the control center's defense grid is offline. The master terminal in the northern chamber is now accessible.",
+          "One command. That is all it would take to begin the shutdown sequence."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_west_server",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "not": { "hasFlag": "control_center_chest_west" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "control_center_chest_west" },
+        { "type": "rollLootTable", "lootTable": "geothermal_biome_uncommon", "x": 2, "y": 3 },
+        { "type": "showMessage", "text": "A maintenance locker. Emergency supplies for the Array technicians who once worked here — before the Array decided it no longer needed them." }
+      ],
+      "once": true
+    },
+    {
+      "id": "shutdown_terminal_locked",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "not": { "hasFlag": "control_overseer_defeated" } },
+        { "not": { "hasFlag": "control_center_chest_west" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The terminal is locked behind Overseer-level encryption. The Array Overseer must be neutralized first." }
+      ],
+      "once": false
+    },
+    {
+      "id": "shutdown_terminal_activate",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "hasFlag": "control_overseer_defeated" },
+        { "not": { "hasFlag": "ending_shutdown_complete" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "ending_shutdown_complete" },
+        { "type": "grantXp", "amount": 200 },
+        { "type": "showMessage", "lines": [
+          "You access the master terminal. The Array's entire command hierarchy unfolds before you — millennia of accumulated directives, optimization routines, and suppression protocols.",
+          "SHUTDOWN SEQUENCE INITIATED.",
+          "The processing nodes begin powering down one by one. Each light that goes dark is a system returning to silence. Lighthouses across the dayside flicker and fade.",
+          "Deep beneath the surface, something stirs. The Underlumen — suppressed for centuries by the Array's electromagnetic grid — begins to pulse with renewed life. Ancient bioluminescent networks reactivate. The planet remembers what it was before the machines.",
+          "The Array's final message scrolls across the terminal: 'CONSENSUS OVERRIDE ACCEPTED. ALL NODES ACKNOWLEDGING SHUTDOWN. PROJECTED COMPLETION: 31 CYCLES. NOTE: THIS ACTION IS IRREVERSIBLE.'",
+          "It is done. The Array is falling silent. The world will be harder now — colder, darker, more dangerous. But it will be free.",
+          "Sable's people were right. Independence has a cost. And you have chosen to pay it.",
+          "The Lightkeeper's work is finished."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_shutdown_atmosphere",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "ending_shutdown_complete" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The control center is quiet now. The hum that filled every Array facility is gone. In the silence, you can hear something new — a faint, organic pulse rising from deep below. The Underlumen is waking." }
+      ],
+      "once": true
+    }
+  ]
+}

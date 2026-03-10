@@ -46,7 +46,8 @@ Session save/load is implemented (JSON files in `saves/`). Outstanding work:
 
 - **Frost biome** loot is wired to `nightside_caverns` and `proc_frost_crypt` (all three tiers by depth). Consider adding `frost_biome_uncommon/rare` to deeper static nightside dungeons (nightside_depths, nightside_passage) if story chests are supplemented with loot crates.
 - Loot tables for Act III monsters: threshold_watcher, abyssal_tendril, threshold_keeper have no loot tables. Create nightside/underlumen loot tables with thematic drops.
-- Three ending path dungeons: array_control_center (shutdown), underlumen_nexus_chamber (merge), array_command_core (control). Each needs a final boss encounter and resolution triggers.
+- ~~Three ending path dungeons: array_control_center (shutdown)~~ — DONE: `array_control_center` dungeon created with Array construct enemies, array_overseer boss, and shutdown terminal trigger that sets `ending_shutdown_complete`. Accessible from `array_deep_processing` gated by `chose_path_shutdown`.
+- Remaining ending path dungeons: underlumen_nexus_chamber (merge), array_command_core (control). Each needs a final boss encounter and resolution triggers. Use array_control_center as template.
 - Post-choice NPC dialogue: Asha, Sable, and MERIDIAN-7 dialogue variants reacting to the player's chosen ending path (chose_path_shutdown/merge/control flags).
 - Unbounded elder NPC for deep Nightside (referenced by Sable). Provides Underlumen lore, gates merge path.
 - ~~Council faction NPCs (Steward, Compact, Root representatives) for political branching.~~ — DONE: Added `council_steward` (Councillor Maret Sovell), `council_compact` (Councillor Thav Osel), and `council_root` (Councillor Prae Fyve) to npcs.json with default/crisis/post_path dialogue sets; spawned in meridian_civic main corridor and lower-right office.
@@ -116,7 +117,7 @@ Critical gaps in the quest graph where content exists but isn't reachable from t
 - ~~**No NPC directs players to dayside_solar_fields**~~ — DONE: Yun and Hollis now provide dayside breadcrumbs after `met_crafter_yun`.
 - ~~**autotroph_path_defiant/cooperative flags orphaned**~~ — DONE: Sable (meridian) now reacts with distinct dialogue for each path; rules fire after array_secret_discovered rules are excluded.
 - ~~**Boss-kill flags orphaned**~~ — DONE: Wren Alcott (outpost_comms) reacts to `frost_warden_defeated`; Sable (meridian) reacts to `elder_sporecap_defeated`; Asha reacts to `magma_core_cleared`.
-- **Act III paths accept choices but nothing happens** — nightside_expedition quest lets players choose shutdown/merge/control but the ending dungeons don't exist yet.
+- **Act III paths partially wired** — shutdown path now has `array_control_center` ending dungeon with `ending_shutdown_complete` flag. Merge and control ending dungeons still needed. Post-ending game state (NPC reactions, world changes) not yet implemented.
 - ~~**nightside_expedition requires `act3_asha_alliance_activated`**~~ — DONE: Step 22 (forge_expedition) gates on this flag, completing the path from main quest → Act III.
 - ~~**Council faction NPCs not spawned**~~ — DONE: See above.
 

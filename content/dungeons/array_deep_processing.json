@@ -28,7 +28,7 @@
     3,1,1,2,1,3,1,2,1,1,1,1,1,1,2,1,3,1,2,1,1,3,
     3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
     3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,10,1,1,3,
-    3,6,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,6,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,6,3,
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
   ],
   "spawns": [
@@ -56,7 +56,10 @@
     { "type": "field_medkit", "x": 8, "y": 15 }
   ],
   "exits": [
-    { "x": 1, "y": 18, "leadsTo": "array_synthesis_lab", "type": "stairs_up", "spawnX": 21, "spawnY": 15 }
+    { "x": 1, "y": 18, "leadsTo": "array_synthesis_lab", "type": "stairs_up", "spawnX": 21, "spawnY": 15 },
+    { "x": 20, "y": 18, "leadsTo": "array_control_center", "type": "stairs_down", "spawnX": 10, "spawnY": 17,
+      "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+      "failMessage": "A sealed blast door. The Array's deepest systems lie beyond — but you have no reason to go there. Yet." }
   ],
   "triggers": [
     {
