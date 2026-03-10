@@ -934,6 +934,27 @@ wss.on('connection', (ws) => {
           buildX: msg.gridX,
           buildY: msg.gridY,
         }));
+
+        // Sync dungeon tiles: if the player is in the automation dungeon,
+        // re-send the affected chunk so the new structure appears as a real tile
+        if (built) {
+          const gridConfig = gameLoop.automation.getGridConfig();
+          if (gridConfig && ws.playerRoom === gridConfig.dungeonId) {
+            const room = gameLoop.getRoom(ws.playerRoom);
+            if (room) {
+              const overlayed = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
+              const dungeonX = msg.gridX + gridConfig.dungeonOffsetX;
+              const dungeonY = msg.gridY + gridConfig.dungeonOffsetY;
+              const cx = Math.floor(dungeonX / CONSTANTS.CHUNK_SIZE);
+              const cy = Math.floor(dungeonY / CONSTANTS.CHUNK_SIZE);
+              const chunk = chunkManager.extractChunk(overlayed, cx, cy);
+              ws.send(JSON.stringify({
+                type: CONSTANTS.MSG.MAP_CHUNKS,
+                chunks: [chunk],
+              }));
+            }
+          }
+        }
         break;
       }
 
