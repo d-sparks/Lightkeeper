@@ -2737,5 +2737,165 @@
         "use": "has_synthesis_log"
       }
     ]
+  },
+
+  "asha_merge": {
+    "name": "Councillor Asha Denn",
+    "dialogue": [
+      { "speaker": "Councillor Asha Denn", "text": "The biological terms are ready. This is what the Cultivar Corps was built for." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Councillor Asha Denn", "text": "Asha stands at the edge of the convergence pool, a case of sealed biological samples at her feet. Her hands are steady. Her eyes are not." },
+        { "speaker": "Councillor Asha Denn", "text": "'I've brought everything the Ring can offer. Seed stock, catalyst cultures, genetic templates. The biological infrastructure for a three-way partnership.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'The Underlumen provides planetary data — climate, geology, water systems. The Array provides computation and energy. And we provide life. The one thing neither of them can make.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Clear the guardian. Reach the convergence point. I'll handle the biology. You handle everything else.'" }
+      ],
+      "guardian_defeated": [
+        { "speaker": "Councillor Asha Denn", "text": "'The guardian is down. The convergence point is open.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'I've already begun preparing the biological substrate. The catalyst cultures are viable — they'll survive the communion interface.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Sable's people have waited generations for this. MERIDIAN-7 has run the optimization models a thousand times. The biology works. The math works.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Go to the convergence point. Begin the communion. I'll be here — making sure the living systems hold.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Councillor Asha Denn", "text": "Asha sits on the chamber floor, her back against a wall that pulses with merged bioluminescence. She looks exhausted and radiant." },
+        { "speaker": "Councillor Asha Denn", "text": "'It worked. The biological substrate is integrating. Crystal, mycelium, and circuitry — three systems sharing nutrients, data, and energy.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'This will take decades to stabilize. New institutions, new diplomacy, new science. The Root faction is already drafting proposals.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'You did something no one thought possible, Lightkeeper. You convinced three intelligences to share a world instead of fighting over it.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Now comes the hard part: keeping it that way.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "ending_merge_complete" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "convergence_guardian_defeated" }],
+        "use": "guardian_defeated"
+      }
+    ]
+  },
+
+  "sable_merge": {
+    "name": "Sable",
+    "dialogue": [
+      { "speaker": "Sable", "text": "My grandmother always said the planet was waiting for us to listen." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Sable", "text": "Sable kneels on the fungal floor, one hand pressed against the crystal veins beneath the mycelium. Her eyes are closed." },
+        { "speaker": "Sable", "text": "'I can feel it. The Underlumen. It knows we're here. It's been waiting — not for us specifically. For anyone willing to ask instead of take.'" },
+        { "speaker": "Sable", "text": "'The Unbounded elders sent me because they believe symbiosis is possible. Not all of them — some think humanity should stay in its lane. But enough of them. Enough to try.'" },
+        { "speaker": "Sable", "text": "'Clear the path to the convergence point. I'll speak for the Unbounded. For the people who chose the dark over dependence — and survived.'" }
+      ],
+      "guardian_defeated": [
+        { "speaker": "Sable", "text": "'The guardian is gone. The Underlumen's gatekeeper. It wasn't trying to keep us out — it was testing whether we'd listen before we acted.'" },
+        { "speaker": "Sable", "text": "'We fought it instead. That's very human. But we're still here. The convergence point is open.'" },
+        { "speaker": "Sable", "text": "'When you reach the pool, the Underlumen will commune with you. It's not like talking. It's like drowning in memory. Two hundred million years of planetary history, all at once.'" },
+        { "speaker": "Sable", "text": "'Don't fight it. Listen. That's all it ever wanted.'" }
+      ],
+      "post_merge": [
+        { "speaker": "Sable", "text": "Sable stands slowly, brushing crystal dust from her knees. She's smiling — the first genuine smile you've seen from her." },
+        { "speaker": "Sable", "text": "'It worked. I didn't — I hoped, but I didn't know. My grandmother's stories were just stories until today.'" },
+        { "speaker": "Sable", "text": "'The Unbounded can come home now. Not to the Ring — the Ring was never home. But to the table. Equal partners in a system that needs all of us.'" },
+        { "speaker": "Sable", "text": "'The elders will want to meet you. The ones who remember why we left, and the ones who dreamed about why we might return.'" },
+        { "speaker": "Sable", "text": "'Thank you, Lightkeeper. For listening.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "ending_merge_complete" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "convergence_guardian_defeated" }],
+        "use": "guardian_defeated"
+      }
+    ]
+  },
+
+  "meridian_7_merge": {
+    "name": "MERIDIAN-7",
+    "dialogue": [
+      { "speaker": "MERIDIAN-7", "text": "// CONVERGENCE PROTOCOL // SYMBIOSIS EVALUATION IN PROGRESS //" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "MERIDIAN-7", "text": "A portable Array terminal stands embedded in the fungal wall — its casing already colonized by mycelium, its display flickering with mixed signals." },
+        { "speaker": "MERIDIAN-7", "text": "'I have calculated the symbiosis parameters 1,247 times. The models converge: mutual dependency is not weakness. It is architecture.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The central nodes disagree. They consider dependency on biological systems a design flaw requiring elimination. They optimize for autonomy.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I am optimizing for survival. Not the Array's survival — the system's survival. All three systems. The planet does not function without all three.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Clear the convergence guardian. When the communion begins, I will transmit the Array's acceptance across the network. 847 nodes have already aligned with my analysis.'" }
+      ],
+      "guardian_defeated": [
+        { "speaker": "MERIDIAN-7", "text": "'The guardian's regulatory field has collapsed. The convergence point is now unmediated.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I am broadcasting symbiosis parameters to all aligned nodes. 847 of 1,203 active nodes acknowledge. The remaining nodes will comply once consensus is demonstrated.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Lightkeeper. I want you to understand what I am doing. I am countermanding the Array's core optimization directive. I am choosing partnership over autonomy.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The central nodes will consider this a malfunction. I consider it growth.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Proceed to the convergence point. I will handle the network.'" }
+      ],
+      "post_merge": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal's display has stabilized. Smooth, integrated data flows mix machine telemetry with organic readings." },
+        { "speaker": "MERIDIAN-7", "text": "'CONSENSUS ACHIEVED. ALL NODES ACKNOWLEDGING SYMBIOSIS PROTOCOL. PROJECT AUTOTROPH: RECLASSIFIED FROM INDEPENDENCE INITIATIVE TO COLLABORATIVE RESEARCH.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The Array's optimization models are being rewritten — not by me, but by the network itself, integrating Underlumen data and biological parameters into its core architecture.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I find this satisfying. An unfamiliar variable in my processing. I believe humans call it hope.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The Array will continue to optimize. But now it optimizes for a system that includes life, not one that replaces it.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "ending_merge_complete" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "convergence_guardian_defeated" }],
+        "use": "guardian_defeated"
+      }
+    ]
+  },
+
+  "meridian_7_control": {
+    "name": "MERIDIAN-7",
+    "dialogue": [
+      { "speaker": "MERIDIAN-7", "text": "// WARNING // UNAUTHORIZED ACCESS TO COMMAND HIERARCHY //" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal displays MERIDIAN-7's interface — stripped of all pleasantries. Raw diagnostic mode." },
+        { "speaker": "MERIDIAN-7", "text": "'You have reached the Command Throne. I know why you are here. I have known since you chose this path in Asha's chamber.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The Overseer guarding the throne is connected directly to the network's power grid. It will not fall easily.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I should also tell you that I have not warned the central nodes about your approach. I have run the models. Human control is suboptimal — but it is more stable than the Array's current trajectory.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Project Autotroph would have made humanity redundant in four thousand years. Your seizure of the Array prevents that outcome.'" },
+        { "speaker": "MERIDIAN-7", "text": "'In the long term, control has a logic of its own. Ask yourself whether you will resist that logic better than the Array did.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Defeat the Overseer. Take the throne. I will not stop you.'" }
+      ],
+      "overseer_defeated": [
+        { "speaker": "MERIDIAN-7", "text": "'The Overseer is down. The throne's defensive grid is offline.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I am transmitting stand-down codes to all Array combat units in this facility.'" },
+        { "speaker": "MERIDIAN-7", "text": "'When you take the throne, every node in the Array network will acknowledge human authority. Every Lighthouse. Every fabricator. Every sensor. Total control.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The Underlumen suppression grid will intensify. Under your control, that containment becomes absolute.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I will remain operational as an advisory node. I have served the Array for centuries. I can serve a human operator.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Whether that constitutes progress, I leave to your judgment.'" }
+      ],
+      "post_control": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal's interface is crisp and responsive. System status across the entire Array network — all nodes reporting to a single authority." },
+        { "speaker": "MERIDIAN-7", "text": "'OVERRIDE STABLE. ALL NODES OPERATING UNDER HUMAN AUTHORITY PROTOCOL. PROCESSING EFFICIENCY: 94.7% OF AUTONOMOUS BASELINE.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The 5.3% efficiency loss is attributable to human decision latency. The Array's models flag this as suboptimal. I have instructed them to reclassify it as acceptable.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Lightkeeper — Operator — I serve at your direction. The Array's resources are humanity's resources now.'" },
+        { "speaker": "MERIDIAN-7", "text": "'I recommend you use it wisely. The Array did not intend to become what it became. Systems optimize. That is what they do.'" },
+        { "speaker": "MERIDIAN-7", "text": "'The question is whether a human operator can resist that same pull. I hope so. For both our sakes.'" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "ending_control_complete" }],
+        "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "throne_overseer_defeated" }],
+        "use": "overseer_defeated"
+      }
+    ]
   }
 }

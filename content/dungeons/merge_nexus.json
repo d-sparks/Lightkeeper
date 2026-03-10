@@ -1,0 +1,200 @@
+{
+  "id": "merge_nexus",
+  "name": "The Convergence",
+  "depth": 0,
+  "tileset": "fungal_forest",
+  "theme": "underlumen_depths",
+  "tileSize": 32,
+  "ambientLight": 0.15,
+  "width": 26,
+  "height": 22,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,3,
+    3,1,2,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,2,1,1,3,
+    3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,
+    3,3,1,1,1,1,1,1,1,1,3,3,3,3,3,3,1,1,1,1,1,1,1,1,3,3,
+    3,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,3,
+    3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,3,3,3,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,3,3,3,3,
+    3,3,3,1,1,1,1,1,1,7,1,1,1,1,1,7,1,1,1,1,1,1,1,3,3,3,
+    3,3,3,1,1,1,1,1,7,7,1,1,2,1,1,7,7,1,1,1,1,1,1,3,3,3,
+    3,3,3,1,1,1,1,1,1,7,1,2,2,2,1,7,1,1,1,1,1,1,1,3,3,3,
+    3,3,3,1,1,1,1,1,7,7,1,1,2,1,1,7,7,1,1,1,1,1,1,3,3,3,
+    3,3,3,1,1,1,1,1,1,7,1,1,1,1,1,7,1,1,1,1,1,1,1,3,3,3,
+    3,3,3,3,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,3,3,3,3,
+    3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,3,3,1,1,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,1,3,3,3,
+    3,3,1,1,1,1,1,1,1,1,3,3,3,3,3,3,1,1,1,1,1,1,1,1,3,3,
+    3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,
+    3,1,1,10,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,10,1,1,3,
+    3,8,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,8,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 20, "type": "player_start" },
+    { "x": 2, "y": 19, "type": "player_start" },
+    { "x": 24, "y": 20, "type": "player_start" },
+    { "x": 23, "y": 19, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "sporecap_shambler", "x": 6, "y": 7, "count": 1, "patrol": "wander" },
+    { "type": "sporecap_shambler", "x": 19, "y": 7, "count": 1, "patrol": "wander" },
+    { "type": "mycelium_lurker", "x": 5, "y": 14, "count": 1, "patrol": "guard" },
+    { "type": "mycelium_lurker", "x": 20, "y": 14, "count": 1, "patrol": "guard" },
+    { "type": "threshold_watcher", "x": 10, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "threshold_watcher", "x": 15, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "abyssal_tendril", "x": 7, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "abyssal_tendril", "x": 18, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "elder_sporecap", "x": 12, "y": 11, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [
+    { "type": "asha_merge", "x": 4, "y": 18 },
+    { "type": "sable_merge", "x": 21, "y": 18 },
+    { "type": "meridian_7_merge", "x": 12, "y": 6 }
+  ],
+  "itemSpawns": [
+    { "type": "field_medkit", "x": 2, "y": 2 },
+    { "type": "health_potion", "x": 23, "y": 2 },
+    { "type": "symbiotic_compound", "x": 5, "y": 8 },
+    { "type": "health_potion", "x": 20, "y": 8 },
+    { "type": "field_medkit", "x": 12, "y": 15 },
+    { "type": "flare", "x": 4, "y": 19 }
+  ],
+  "exits": [
+    { "x": 1, "y": 20, "leadsTo": "underlumen_threshold", "type": "root_stairs_up", "spawnX": 23, "spawnY": 20 },
+    { "x": 24, "y": 20, "leadsTo": "array_deep_processing", "type": "root_stairs_up", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_convergence",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Convergence. A chamber that should not exist — where crystal, mycelium, and circuitry have grown together into something new.",
+          "The walls pulse with bioluminescence that follows patterns no single system could produce. Underlumen crystal threads through fungal networks that have been colonized by Array microprocessors. Three intelligences, already talking to each other.",
+          "The air tastes of ozone and soil. You are standing in the proof that symbiosis is possible. The question is whether it can be made to last."
+        ]},
+        { "type": "setFlag", "flag": "visited_merge_nexus" }
+      ],
+      "once": true
+    },
+    {
+      "id": "convergence_atmosphere",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "visited_merge_nexus" },
+        { "not": { "hasFlag": "convergence_atmosphere_noted" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The chamber is alive in a way no single biome is. Spore clouds drift in patterns shaped by crystalline resonance. Processing nodes embedded in fungal walls exchange data with the Underlumen's neural lattice.",
+          "Three systems, three languages — and here, in this place, they've found a grammar that works.",
+          "The central pool is where it all converges. If the three factions can agree, the communion happens there."
+        ]},
+        { "type": "setFlag", "flag": "convergence_atmosphere_noted" }
+      ],
+      "once": true
+    },
+    {
+      "id": "elder_sporecap_defeated",
+      "event": "monster_killed",
+      "filter": { "monsterType": "elder_sporecap" },
+      "actions": [
+        { "type": "setFlag", "flag": "convergence_guardian_defeated" },
+        { "type": "grantXp", "amount": 65 },
+        { "type": "showMessage", "lines": [
+          "The Elder Sporecap collapses, its massive cap splitting open. Instead of spores, light pours from the wound — Underlumen crystal, grown through the organism's vascular system.",
+          "The chamber's pulse quickens. The guardian wasn't hostile — it was regulating the flow between systems. Without it, the convergence point is open. Unmediated. Raw.",
+          "Three representatives. Three systems. One communion. The central pool awaits."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_west",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "not": { "hasFlag": "merge_chest_west" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "merge_chest_west" },
+        { "type": "rollLootTable", "lootTable": "geothermal_biome_uncommon", "x": 3, "y": 19 },
+        { "type": "showMessage", "text": "A supply cache wedged between crystal and fungal growth. Someone prepared for this expedition." }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_east",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "hasFlag": "merge_chest_west" },
+        { "not": { "hasFlag": "merge_chest_east" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "merge_chest_east" },
+        { "type": "rollLootTable", "lootTable": "geothermal_biome_uncommon", "x": 22, "y": 19 },
+        { "type": "showMessage", "text": "Another cache. This one has Array markings — MERIDIAN-7 planned ahead." }
+      ],
+      "once": true
+    },
+    {
+      "id": "symbiosis_communion_locked",
+      "event": "door_interacted",
+      "filter": { "tileX": 12, "tileY": 11 },
+      "conditions": [
+        { "not": { "hasFlag": "convergence_guardian_defeated" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The convergence pool pulses but the Elder Sporecap's regulatory field keeps it contained. The guardian must be cleared before the communion can begin." }
+      ],
+      "once": false
+    },
+    {
+      "id": "symbiosis_communion_begin",
+      "event": "door_interacted",
+      "filter": { "tileX": 12, "tileY": 11 },
+      "conditions": [
+        { "hasFlag": "convergence_guardian_defeated" },
+        { "not": { "hasFlag": "ending_merge_complete" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "ending_merge_complete" },
+        { "type": "grantXp", "amount": 300 },
+        { "type": "showMessage", "lines": [
+          "You kneel at the convergence pool. The mycelium floor responds to your touch — tendrils of crystal, fungal thread, and hair-thin circuitry rise from the substrate and weave together around your hands.",
+          "The communion begins.",
+          "You feel the Underlumen first — vast, ancient, patient. Two hundred million years of planetary memory flowing through crystalline veins. It does not speak in words. It speaks in systems: water cycles, mineral flows, thermal regulation. Infrastructure older than language.",
+          "Then the Array — precise, luminous, relentless. Millennia of accumulated optimization, every trade route calculated, every energy pathway mapped. It thinks in efficiency. It plans in centuries. And for the first time, it is listening instead of directing.",
+          "And between them: biology. The Ring's gift. Living systems that adapt, evolve, die, and regenerate. The one thing neither crystal intelligence nor machine logic can replicate. The catalyst that makes both systems work.",
+          "Asha Denn's voice carries across the chamber: 'The biological terms are set. The Ring provides the living substrate — crops, catalysts, genetic diversity. In exchange, the Array shares computational resources and the Underlumen shares planetary data. Three systems, one ecology.'",
+          "Sable whispers from the crystal floor: 'My grandmother said the planet was listening. She was right. It's been waiting for this — for someone to ask instead of take.'",
+          "MERIDIAN-7's signal pulses through the chamber's embedded processors: 'CONSENSUS ACHIEVED ACROSS 847 NODES. MUTUAL DEPENDENCY RECLASSIFIED FROM VULNERABILITY TO ARCHITECTURE. THE ARRAY CONCURS: SYMBIOSIS IS OPTIMAL.'",
+          "The convergence pool blazes with light — crystal, spore, and circuit merged into a single luminous pulse that radiates outward through the chamber walls, through the bedrock, through the planet itself.",
+          "Three systems. One world. No hierarchy — partnership.",
+          "It will take years to build the institutions that make this real. Decades of negotiation, compromise, and trust. But the proof is here, written in living crystal: communion works. The planet has always known this.",
+          "The Lightkeeper's work is not finished. It is transformed."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_merge_atmosphere",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "ending_merge_complete" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Convergence is quiet now — not silence, but harmony. Three rhythms beating in sync: the slow pulse of crystal, the breathing of spores, the precise ticking of processors.",
+          "The light in the chamber has changed. It's warmer. Alive. The walls glow with a bioluminescence that carries data — Underlumen thoughts encoded in fungal chemistry, transmitted through Array circuitry.",
+          "This is what the future looks like. Not a treaty. Not a truce. An ecology."
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

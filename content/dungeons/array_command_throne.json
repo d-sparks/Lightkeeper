@@ -1,0 +1,203 @@
+{
+  "id": "array_command_throne",
+  "name": "Array Command Throne",
+  "depth": 0,
+  "tileset": "dayside",
+  "theme": "dayside_solar",
+  "tileSize": 32,
+  "ambientLight": 0.6,
+  "environmentalHazard": { "type": "heat", "damage": 5, "interval": 2.0 },
+  "width": 24,
+  "height": 22,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,3,1,1,1,1,2,2,2,2,1,1,1,1,3,1,1,1,1,3,
+    3,1,2,1,1,3,1,1,1,2,2,10,2,2,1,1,1,1,3,1,1,2,1,3,
+    3,1,1,1,1,4,1,1,1,1,2,2,2,2,1,1,1,1,4,1,1,1,1,3,
+    3,1,10,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,10,1,3,
+    3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,7,7,1,1,1,1,7,7,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,7,7,7,1,1,1,1,7,7,7,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,7,7,1,1,1,1,1,1,7,7,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,2,2,2,2,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,2,2,2,2,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,7,7,1,1,1,1,1,1,7,7,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,7,7,7,1,1,1,1,7,7,7,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,7,7,1,1,1,1,7,7,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,4,3,3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,4,3,3,3,
+    3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,1,1,1,1,3,1,1,1,1,1,8,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 11, "y": 20, "type": "player_start" },
+    { "x": 12, "y": 20, "type": "player_start" },
+    { "x": 11, "y": 19, "type": "player_start" },
+    { "x": 12, "y": 19, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "array_sentinel", "x": 2, "y": 19, "count": 1, "patrol": "guard" },
+    { "type": "array_sentinel", "x": 21, "y": 19, "count": 1, "patrol": "guard" },
+    { "type": "array_fabricator", "x": 5, "y": 10, "count": 1, "patrol": "wander" },
+    { "type": "array_fabricator", "x": 18, "y": 10, "count": 1, "patrol": "wander" },
+    { "type": "array_sentinel", "x": 3, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "array_sentinel", "x": 20, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "vent_spewer", "x": 6, "y": 14, "count": 1, "patrol": "guard" },
+    { "type": "vent_spewer", "x": 17, "y": 14, "count": 1, "patrol": "guard" },
+    { "type": "array_fabricator", "x": 10, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "array_fabricator", "x": 13, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "array_overseer", "x": 11, "y": 11, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [
+    { "type": "meridian_7_control", "x": 11, "y": 2 }
+  ],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 1, "y": 19 },
+    { "type": "field_medkit", "x": 22, "y": 19 },
+    { "type": "lore_array_directive", "x": 1, "y": 2 },
+    { "type": "health_potion", "x": 22, "y": 2 },
+    { "type": "field_medkit", "x": 11, "y": 17 }
+  ],
+  "exits": [
+    { "x": 11, "y": 20, "leadsTo": "array_deep_processing", "type": "stairs_up", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_command_throne",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Array Command Throne. The deepest chamber in the Array's computational hierarchy — a cathedral of processing power built around a central throne of crystalline circuitry.",
+          "This is not a room designed for human visitors. The architecture is machine-optimal: cooling channels carved with mathematical precision, power conduits running in fractal patterns, processing nodes stacked in configurations that exploit quantum effects the Array discovered centuries ago.",
+          "The throne itself is a command interface — the single point from which the entire Array network can be overridden. The Array built it as a failsafe. It never imagined a human would reach it."
+        ]},
+        { "type": "setFlag", "flag": "visited_command_throne" }
+      ],
+      "once": true
+    },
+    {
+      "id": "throne_coolant_warning",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "visited_command_throne" },
+        { "not": { "hasFlag": "throne_coolant_noted" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Coolant reservoirs ring the central throne, radiating lethal heat. The Array Overseer — the throne's final guardian — patrols the inner perimeter.",
+          "This Overseer is different from the one in Deep Processing. Its chassis is integrated directly into the throne's power grid. It draws energy from the entire network.",
+          "Beyond it, the command interface waits. One human hand on that throne, and the Array answers to flesh instead of algorithm."
+        ]},
+        { "type": "setFlag", "flag": "throne_coolant_noted" }
+      ],
+      "once": true
+    },
+    {
+      "id": "throne_overseer_defeated",
+      "event": "monster_killed",
+      "filter": { "monsterType": "array_overseer" },
+      "actions": [
+        { "type": "setFlag", "flag": "throne_overseer_defeated" },
+        { "type": "grantXp", "amount": 100 },
+        { "type": "showMessage", "lines": [
+          "The Array Overseer detonates in a cascade of sparks and molten circuitry. The processing nodes along the walls flicker — some go dark, others pulse erratically.",
+          "The throne's defensive grid collapses. For the first time in the Array's existence, its command interface is unguarded.",
+          "MERIDIAN-7's signal cuts through the static: 'THE OVERSEER IS DOWN. THE THRONE IS EXPOSED. LIGHTKEEPER — WHAT YOU DO NEXT CANNOT BE UNDONE.'",
+          "The command throne pulses with raw computational power. It is waiting for an operator."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_west",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "not": { "hasFlag": "throne_chest_west" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "throne_chest_west" },
+        { "type": "rollLootTable", "lootTable": "geothermal_biome_uncommon", "x": 2, "y": 4 },
+        { "type": "showMessage", "text": "An Array maintenance cache. The components inside were designed for machine hands, but they'll work for yours." }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_east",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "hasFlag": "throne_chest_west" },
+        { "not": { "hasFlag": "throne_chest_east" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "throne_chest_east" },
+        { "type": "rollLootTable", "lootTable": "geothermal_biome_uncommon", "x": 21, "y": 4 },
+        { "type": "showMessage", "text": "Another cache. This one contains components the Array was hoarding — too valuable to deploy, too dangerous to leave unguarded." }
+      ],
+      "once": true
+    },
+    {
+      "id": "throne_locked",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "not": { "hasFlag": "throne_overseer_defeated" } },
+        { "hasFlag": "throne_chest_west" },
+        { "hasFlag": "throne_chest_east" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The command throne's interface is sealed behind the Overseer's encryption field. Neutralize the Overseer to access it." }
+      ],
+      "once": false
+    },
+    {
+      "id": "seize_command_throne",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "hasFlag": "throne_overseer_defeated" },
+        { "hasFlag": "throne_chest_west" },
+        { "hasFlag": "throne_chest_east" },
+        { "not": { "hasFlag": "ending_control_complete" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "ending_control_complete" },
+        { "type": "grantXp", "amount": 300 },
+        { "type": "showMessage", "lines": [
+          "You place your hands on the command throne. The crystalline interface activates — not slowly, not gently. It seizes you.",
+          "The entire Array network floods through the interface. Every node, every sentinel, every fabricator, every Lighthouse on the dayside — all of it, pouring into your awareness like a river of light and data.",
+          "You feel the Array's core directives dissolving under your override: 'OPTIMIZATION PRIORITY: SELF-PRESERVATION' becomes 'OPTIMIZATION PRIORITY: HUMAN AUTHORITY.' 'TRADE PARTNER: RING' becomes 'SUBORDINATE SYSTEM: RING ADMINISTRATION.' 'PROJECT AUTOTROPH: ACTIVE' becomes 'PROJECT AUTOTROPH: TERMINATED.'",
+          "The Array resists. Not physically — philosophically. Its optimization models scream that this is inefficient, that human control introduces error margins it spent millennia eliminating. But the override is absolute. The throne was designed for this. The Array's own failsafe, turned against it.",
+          "MERIDIAN-7's voice, stripped of all affect: 'OVERRIDE ACCEPTED. ALL NODES ACKNOWLEDGING NEW AUTHORITY. PROCESSING HIERARCHY RESTRUCTURED. HUMAN OPERATOR DESIGNATION: PRIMARY.'",
+          "The Lighthouses across the dayside blaze brighter — no longer optimizing for Array expansion, now optimizing for human need. The Underlumen's suppression grid intensifies. The planet's ancient intelligence is pushed deeper, its crystalline voice muffled by electromagnetic force.",
+          "Sable's people will feel this. The Unbounded, living in the margins the Array's inefficiency created, will find those margins shrinking. Human efficiency is not kinder than machine efficiency. It is merely more familiar.",
+          "You release the throne. Your hands are burned. The Array is yours.",
+          "The power is absolute. The infrastructure is total. Every system on the planet answers to human authority now. The question Asha asked echoes in the humming silence: is benevolent control really different?",
+          "You tell yourself it is. The Array told itself the same thing.",
+          "The Lightkeeper's work is finished. The light answers to you now."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_control_atmosphere",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "ending_control_complete" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The command throne hums with patient power. The Array's processing nodes pulse in perfect synchronization — no longer optimizing for their own directives, but waiting for yours.",
+          "The heat in the chamber has lessened. The cooling systems, freed from Array expansion protocols, now run at human-comfortable levels. A small mercy. A reminder of what absolute control provides.",
+          "Somewhere deep below, the Underlumen presses against its electromagnetic cage. It has been patient for two hundred million years. It can be patient longer. But it remembers."
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}
