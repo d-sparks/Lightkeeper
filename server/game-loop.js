@@ -277,6 +277,10 @@ class GameLoop {
             mob.patrolAngle = Math.random() * Math.PI * 2;
           }
         }
+        // Pack leader: store aura definition
+        if (def.ai === 'pack_leader' && def.aura) {
+          mob.aura = def.aura;
+        }
         // Ranged kite: store projectile type from definition
         if (def.ai === 'ranged_kite' && def.projectile) {
           mob.projectile = def.projectile;
@@ -2720,6 +2724,25 @@ class GameLoop {
         mob.speed = mob.speed * mob.sentrySlowFactor;
       }
 
+      // Pack leader aura: buff nearby pack monsters' speed and damage
+      const origDamage = mob.damage;
+      mob._auraBuff = false;
+      if (mob.ai === 'pack' || mob.ai === 'pack_leader') {
+        for (const [lid, leader] of room.monsters) {
+          if (lid === mid || leader.ai !== 'pack_leader' || leader.health <= 0) continue;
+          if (!leader.aura) continue;
+          const adx = leader.x - mob.x;
+          const ady = leader.y - mob.y;
+          const auraRange = (leader.aura.range || 5) * CONSTANTS.TILE_SIZE;
+          if (adx * adx + ady * ady <= auraRange * auraRange) {
+            mob.speed *= (leader.aura.speedMult || 1.0);
+            mob.damage = Math.round(mob.damage * (leader.aura.damageMult || 1.0));
+            mob._auraBuff = true;
+            break; // Only one aura applies at a time
+          }
+        }
+      }
+
       // Tick down special attack cooldowns
       if (mob.specialAttacks) {
         for (const sa of mob.specialAttacks) {
@@ -2852,13 +2875,13 @@ class GameLoop {
         continue;
       }
 
-      if (mob.ai === 'melee_chase' || mob.ai === 'ambush' || mob.ai === 'patrol' || mob.ai === 'pack') {
-        // Pack: when aggroing, alert nearby pack monsters
-        if (mob.ai === 'pack' && nearest && !mob._packAlerted) {
+      if (mob.ai === 'melee_chase' || mob.ai === 'ambush' || mob.ai === 'patrol' || mob.ai === 'pack' || mob.ai === 'pack_leader') {
+        // Pack: when aggroing, alert nearby pack monsters (pack_leader also triggers pack alert)
+        if ((mob.ai === 'pack' || mob.ai === 'pack_leader') && nearest && !mob._packAlerted) {
           mob._packAlerted = true;
           const packRange = 8 * CONSTANTS.TILE_SIZE;
           for (const [otherId, other] of room.monsters) {
-            if (otherId === mid || other.ai !== 'pack') continue;
+            if (otherId === mid || (other.ai !== 'pack' && other.ai !== 'pack_leader')) continue;
             const pdx = other.x - mob.x;
             const pdy = other.y - mob.y;
             if (Math.sqrt(pdx * pdx + pdy * pdy) <= packRange) {
@@ -2958,8 +2981,9 @@ class GameLoop {
         this._updateBossCrystal(mob, nearest, nearestDist, room, dt);
       }
 
-      // Restore original speed after movement calculations
+      // Restore original speed and damage after movement calculations
       mob.speed = origSpeed;
+      mob.damage = origDamage;
     }
   }
 
@@ -4396,6 +4420,12 @@ class GameLoop {
       }
       if (m.sentrySlowTime > 0) {
         mData.slowed = true;
+      }
+      if (m._auraBuff) {
+        mData.auraBuff = true;
+      }
+      if (m.aura) {
+        mData.packLeader = true;
       }
       monsters.push(mData);
     }

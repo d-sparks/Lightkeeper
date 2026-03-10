@@ -283,6 +283,23 @@
       { "type": "lunge", "cooldown": 5, "range": 3.5, "damage": 1.4, "speed": 9, "duration": 0.2 }
     ]
   },
+  "feral_hound_alpha": {
+    "name": "Feral Hound Alpha",
+    "sprite": "sprites/feral_hound.png",
+    "size": [16, 16],
+    "health": 65,
+    "speed": 1.8,
+    "damage": 8,
+    "attackRange": 1,
+    "attackSpeed": 1.0,
+    "ai": "pack_leader",
+    "aura": { "range": 5, "damageMult": 1.3, "speedMult": 1.15 },
+    "lootTable": "feral_hound",
+    "xp": 15,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 6, "range": 4, "damage": 1.5, "speed": 8, "duration": 0.25 }
+    ]
+  },
   "rime_stalker": {
     "name": "Rime Stalker",
     "sprite": "sprites/rime_stalker.png",
@@ -313,6 +330,24 @@
     "xp": 12,
     "specialAttacks": [
       { "type": "lunge", "cooldown": 6, "range": 4, "damage": 1.4, "speed": 8, "duration": 0.2 }
+    ]
+  },
+  "frostfang_alpha": {
+    "name": "Frostfang Alpha",
+    "sprite": "sprites/frostfang_hunter.png",
+    "size": [16, 16],
+    "health": 90,
+    "speed": 1.7,
+    "damage": 10,
+    "attackRange": 1.5,
+    "attackSpeed": 1.0,
+    "ai": "pack_leader",
+    "aura": { "range": 5, "damageMult": 1.25, "speedMult": 1.2 },
+    "lootTable": "frostfang_hunter",
+    "xp": 22,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 7, "range": 4.5, "damage": 1.5, "speed": 7, "duration": 0.25 },
+      { "type": "stun", "cooldown": 10, "damage": 0.5, "duration": 0.8 }
     ]
   },
   "vent_spewer": {

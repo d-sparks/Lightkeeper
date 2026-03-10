@@ -2176,6 +2176,12 @@ class Renderer {
       } else if (mob.slowed) {
         // Light blue tint when slowed by sentry beam
         sprite.tint = 0x4fc3f7;
+      } else if (mob.packLeader) {
+        // Orange tint for pack leaders (aura source)
+        sprite.tint = 0xff9800;
+      } else if (mob.auraBuff) {
+        // Warm yellow tint for aura-buffed pack members
+        sprite.tint = 0xffd54f;
       }
 
       // Name tag (above sprite top)
