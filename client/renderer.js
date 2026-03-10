@@ -2101,8 +2101,8 @@ class Renderer {
 
       this._positionEntity(container, npc.x, npc.y);
 
-      // Sprite
-      const spritePath = 'sprites/npc_default.png';
+      // Sprite (per-type if available, else generic)
+      const spritePath = npc.type ? 'sprites/' + npc.type + '.png' : 'sprites/npc_default.png';
       const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
       if (!loaded) sprite.tint = 0x64b5f6;
 

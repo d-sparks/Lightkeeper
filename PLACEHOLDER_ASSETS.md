@@ -55,6 +55,9 @@ any public release:
 
 ### NPC Sprites (16x16)
 - `content/sprites/npc_default.png`
+- `content/sprites/sable_nightside_guide.png`
+- `content/sprites/sable_threshold.png`
+- `content/sprites/unbounded_elder.png`
 
 ### Item Sprites (16x16 each)
 - `content/sprites/health_potion.png`
