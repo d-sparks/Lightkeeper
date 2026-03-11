@@ -17,6 +17,7 @@ class ContentLoader {
     this.structures = {};
     this.lootTables = {};
     this.expeditions = {};
+    this.affixes = {};
     this.crafting = {};
     this.shops = {};
     this.worldmap = null;
@@ -38,6 +39,7 @@ class ContentLoader {
     this.loadStructures();
     this.loadLootTables();
     this.loadExpeditions();
+    this.loadAffixes();
     this.loadCrafting();
     this.loadShops();
     this.loadWorldmap();
@@ -52,6 +54,7 @@ class ContentLoader {
                 `${Object.keys(this.structures).length} structure(s), ` +
                 `${Object.keys(this.lootTables).length} loot table(s), ` +
                 `${Object.keys(this.expeditions).length} expedition(s), ` +
+                `${Object.keys(this.affixes).length} affix(es), ` +
                 `${Object.keys(this.crafting).length} crafting recipe(s), ` +
                 `${Object.keys(this.shops).length} shop(s)`);
   }
@@ -265,6 +268,7 @@ class ContentLoader {
     for (const file of fs.readdirSync(dir)) {
       if (!file.endsWith('.json')) continue;
       const data = this.loadJSON(path.join(dir, file));
+      if (!data.id || data.tier == null) continue; // Skip non-expedition files (e.g. affixes.json)
       this.expeditions[data.id] = data;
       console.log(`[Content]   Expedition: ${data.id} (tier ${data.tier})`);
     }
@@ -283,6 +287,20 @@ class ContentLoader {
 
   getAllExpeditions() {
     return this.expeditions;
+  }
+
+  loadAffixes() {
+    const filePath = path.join(this.contentDir, 'expeditions', 'affixes.json');
+    if (!fs.existsSync(filePath)) {
+      this.affixes = {};
+      return;
+    }
+    this.affixes = this.loadJSON(filePath);
+    console.log(`[Content]   Affixes: ${Object.keys(this.affixes).length} types`);
+  }
+
+  getAffix(id) {
+    return this.affixes[id] || null;
   }
 
   loadCrafting() {

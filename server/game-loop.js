@@ -207,6 +207,7 @@ class GameLoop {
       nextProjectileId: 0,
       nextSentryId: 0,
       expeditionScaling: null, // Set when room is part of an expedition { hpMult, damageMult, xpMult }
+      expeditionBossAffixes: null, // Set when room has boss affixes (array of affix IDs)
     };
 
     // Initialize beam objects (mirrors, photosensors) for sentry beam puzzles
@@ -357,8 +358,81 @@ class GameLoop {
           if (def.bossTitle) mob.bossTitle = def.bossTitle;
           if (def.bossMusic) mob.bossMusic = def.bossMusic;
         }
+        // Apply boss affixes from expedition config
+        if (def.boss && room.expeditionBossAffixes) {
+          this._applyBossAffixes(mob, room.expeditionBossAffixes);
+        }
         room.monsters.set(id, mob);
       }
+    }
+  }
+
+  // Apply boss affixes to a mob at spawn time
+  _applyBossAffixes(mob, affixIds) {
+    const appliedNames = [];
+    for (const affixId of affixIds) {
+      const affix = this.content.getAffix(affixId);
+      if (!affix) continue;
+      appliedNames.push(affix.name);
+
+      // Stat multipliers
+      if (affix.statMods) {
+        if (affix.statMods.healthMult) {
+          mob.health = Math.round(mob.health * affix.statMods.healthMult);
+          mob.maxHealth = Math.round(mob.maxHealth * affix.statMods.healthMult);
+        }
+        if (affix.statMods.damageMult) {
+          mob.damage = Math.round(mob.damage * affix.statMods.damageMult);
+        }
+        if (affix.statMods.speedMult) {
+          mob.speed *= affix.statMods.speedMult;
+        }
+        if (affix.statMods.attackSpeedMult) {
+          mob.attackCooldown /= affix.statMods.attackSpeedMult;
+        }
+        if (affix.statMods.damageTakenMult) {
+          mob.damageTakenMult = (mob.damageTakenMult || 1.0) * affix.statMods.damageTakenMult;
+        }
+      }
+
+      // Health regeneration
+      if (affix.regenPerSecond) {
+        mob.regenPerSecond = (mob.regenPerSecond || 0) + affix.regenPerSecond;
+      }
+
+      // Special attack modifications
+      if (affix.specialAttackMods && mob.specialAttacks) {
+        for (const sa of mob.specialAttacks) {
+          const mods = affix.specialAttackMods[sa.type] || affix.specialAttackMods._all;
+          if (!mods) continue;
+          if (mods.cooldownMult) {
+            sa.cooldown *= mods.cooldownMult;
+            sa.timer = Math.min(sa.timer, sa.cooldown);
+          }
+          if (mods.rangeMult) sa.range *= mods.rangeMult;
+          if (mods.knockbackMult && sa.knockback) sa.knockback *= mods.knockbackMult;
+          if (mods.damageMult) sa.damage *= mods.damageMult;
+        }
+      }
+
+      // Update boss phases if they exist (scale phase damage)
+      if (affix.statMods && affix.statMods.damageMult && mob.bossPhases) {
+        for (const phase of mob.bossPhases) {
+          phase.damage = Math.round(phase.damage * affix.statMods.damageMult);
+        }
+      }
+      if (affix.statMods && affix.statMods.speedMult && mob.bossPhases) {
+        for (const phase of mob.bossPhases) {
+          if (phase.speed) phase.speed *= affix.statMods.speedMult;
+        }
+      }
+    }
+
+    if (appliedNames.length > 0) {
+      mob.affixes = appliedNames;
+      // Prepend affix names to boss title for display
+      mob.bossTitle = appliedNames.join(' ') + ' ' + (mob.bossTitle || mob.name);
+      console.log(`[GameLoop] Applied boss affixes [${appliedNames.join(', ')}] to ${mob.type}`);
     }
   }
 
@@ -537,6 +611,17 @@ class GameLoop {
       ? bossPool[Math.floor(Math.random() * bossPool.length)]
       : null;
 
+    // Select random boss affixes from the expedition's affix pool
+    const affixPool = expedition.bossAffixes || [];
+    const affixCount = Math.min(expedition.bossAffixCount || 0, affixPool.length);
+    const selectedAffixes = [];
+    if (affixCount > 0) {
+      const shuffled = [...affixPool].sort(() => Math.random() - 0.5);
+      for (let i = 0; i < affixCount; i++) {
+        selectedAffixes.push(shuffled[i]);
+      }
+    }
+
     // Generate the first floor (entrance exit leads back to origin room)
     // depth is 0-indexed, so maxDepth = maxFloors - 1 gives exactly maxFloors floors
     const origin = originRoom || 'meridian_station';
@@ -560,7 +645,7 @@ class GameLoop {
     if (!room) return null;
 
     // Apply expedition scaling to the room and re-spawn monsters with scaled stats
-    this.applyExpeditionScaling(room, expedition.monsterScaling);
+    this.applyExpeditionScaling(room, expedition.monsterScaling, selectedAffixes);
 
     // Set expedition tracking flags on the player
     this.flagStore.setPlayerFlag(playerId, 'expedition_active', true);
@@ -571,8 +656,11 @@ class GameLoop {
     this.flagStore.setPlayerFlag(playerId, 'expedition_boss_type', bossType);
     this.flagStore.setPlayerFlag(playerId, 'expedition_scaling', expedition.monsterScaling);
     this.flagStore.setPlayerFlag(playerId, 'expedition_origin', origin);
+    if (selectedAffixes.length > 0) {
+      this.flagStore.setPlayerFlag(playerId, 'expedition_boss_affixes', selectedAffixes);
+    }
 
-    console.log(`[GameLoop] Started tier ${tier} expedition for player ${playerId} (room: ${room.id}, template: ${templateId}, floors: ${maxFloors}, boss: ${bossType})`);
+    console.log(`[GameLoop] Started tier ${tier} expedition for player ${playerId} (room: ${room.id}, template: ${templateId}, floors: ${maxFloors}, boss: ${bossType}${selectedAffixes.length > 0 ? ', affixes: ' + selectedAffixes.join('+') : ''})`);
     return { roomId: room.id, room };
   }
 
@@ -596,6 +684,7 @@ class GameLoop {
       'expedition_active', 'expedition_tier', 'expedition_floor',
       'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
       'expedition_scaling', 'expedition_origin', 'expedition_boss_killed',
+      'expedition_boss_affixes',
     ];
     for (const flag of expFlags) {
       this.flagStore.removePlayerFlag(playerId, flag);
@@ -603,9 +692,13 @@ class GameLoop {
   }
 
   // Apply expedition scaling to a room (re-spawns monsters with scaled stats)
-  applyExpeditionScaling(room, scaling) {
+  // bossAffixIds: optional array of affix IDs to apply to the boss on this room
+  applyExpeditionScaling(room, scaling, bossAffixIds) {
     if (room.expeditionScaling) return; // Already scaled
     room.expeditionScaling = scaling;
+    if (bossAffixIds && bossAffixIds.length > 0) {
+      room.expeditionBossAffixes = bossAffixIds;
+    }
     room.monsters.clear();
     room.nextMonsterId = 0;
     this.killedMonsters.delete(room.id);
@@ -1755,12 +1848,13 @@ class GameLoop {
       if (Math.abs(angleDiff) > halfAngle) continue;
 
       // Hit this monster
-      mob.health -= damage;
+      const effectiveDamage = mob.damageTakenMult ? damage * mob.damageTakenMult : damage;
+      mob.health -= effectiveDamage;
       mob.aggroTarget = player.id;
       room.events.push({
         type: 'damage',
         targetId: mid,
-        amount: damage,
+        amount: effectiveDamage,
         x: mob.x,
         y: mob.y,
       });
@@ -2290,7 +2384,7 @@ class GameLoop {
 
       // Damage falloff: full at center, 50% at edge
       const falloff = 1.0 - 0.5 * Math.min(dist / aoeRadius, 1.0);
-      const dmg = proj.damage * falloff;
+      const dmg = proj.damage * falloff * (mob.damageTakenMult || 1.0);
       mob.health -= dmg;
       mob.aggroTarget = proj.ownerId;
 
@@ -2536,12 +2630,13 @@ class GameLoop {
     if (sentry.beamTimer <= 0) {
       sentry.beamTimer += sentry.beamTickRate;
 
-      mob.health -= sentry.damage;
+      const sentryDmg = sentry.damage * (mob.damageTakenMult || 1.0);
+      mob.health -= sentryDmg;
       mob.aggroTarget = sentry.ownerId;
 
       room.events.push({
         type: 'damage', targetId: mob.id,
-        amount: Math.round(sentry.damage),
+        amount: Math.round(sentryDmg),
         x: mob.x, y: mob.y,
       });
 
@@ -2926,6 +3021,11 @@ class GameLoop {
   updateMonsters(room, dt) {
     for (const [mid, mob] of room.monsters) {
       mob.attackTimer = Math.max(0, mob.attackTimer - dt);
+
+      // Boss affix: health regeneration
+      if (mob.regenPerSecond && mob.health > 0 && mob.health < mob.maxHealth) {
+        mob.health = Math.min(mob.maxHealth, mob.health + mob.regenPerSecond * dt);
+      }
 
       // Tick down sentry slow effect and apply speed modifier
       if (mob.sentrySlowTime > 0) {
@@ -3654,6 +3754,7 @@ class GameLoop {
           'expedition_active', 'expedition_tier', 'expedition_floor',
           'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
           'expedition_scaling', 'expedition_origin', 'expedition_boss_killed',
+          'expedition_boss_affixes',
         ];
         for (const flag of expFlags) {
           this.flagStore.removePlayerFlag(player.id, flag);
@@ -3885,12 +3986,13 @@ class GameLoop {
 
         if (dist < hitRadius) {
           // Hit monster — force aggro on the attacker
-          mob.health -= proj.damage;
+          const projDmg = proj.damage * (mob.damageTakenMult || 1.0);
+          mob.health -= projDmg;
           mob.aggroTarget = proj.ownerId;
           room.events.push({
             type: 'damage',
             targetId: mid,
-            amount: proj.damage,
+            amount: projDmg,
             x: mob.x,
             y: mob.y,
           });
@@ -4039,6 +4141,7 @@ class GameLoop {
             transition.expeditionMaxFloors = this.flagStore.getPlayerFlag(pid, 'expedition_max_floors');
             transition.expeditionBossType = this.flagStore.getPlayerFlag(pid, 'expedition_boss_type');
             transition.expeditionScaling = this.flagStore.getPlayerFlag(pid, 'expedition_scaling');
+            transition.expeditionBossAffixes = this.flagStore.getPlayerFlag(pid, 'expedition_boss_affixes');
           }
           this.pendingTransitions.push(transition);
           break;

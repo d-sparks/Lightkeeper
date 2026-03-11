@@ -34,10 +34,12 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Ending-path-specific structure variants.
 
 ### Phase 5 — Boss Affixes + Tiers 4-5
-- Boss affix data format and pool in `content/expeditions/affixes.json`.
-- Apply affix buffs to boss entities at spawn.
-- Tier 4-5 configs requiring multiple players.
+- ~~Boss affix data format and pool in `content/expeditions/affixes.json`.~~ ✓ Implemented — 8 affixes (berserker, ironhide, swift, volatile, regenerating, empowered_slam, relentless, juggernaut) with stat mods, regen, special attack mods, and damageTakenMult.
+- ~~Apply affix buffs to boss entities at spawn.~~ ✓ Implemented — `_applyBossAffixes()` in game-loop.js modifies boss stats, phases, special attacks, and title at spawn time; regen ticks in monster update loop; damageTakenMult applied at all 4 damage points.
+- ~~Tier 4-5 expedition configs.~~ ✓ Implemented — tier_4.json (1 affix, 2.4x/2.0x scaling) and tier_5.json (2 affixes, 3.2x/2.5x scaling) with full affix pools.
+- Tier 4-5 requiring multiple players (cooperative gating not yet implemented).
 - Wire path-specific boss loot table selection (check `chose_path_*` flag for Tier 3+ bosses).
+- Tier 4-5 loot tables (expedition_tier_4, expedition_tier_5) not yet created.
 - ~~Wire `unlockFlag` checking in loot resolver for legendary drops.~~ ✓ Implemented — `_rollLoot` and `doRollLootTable` now filter eligible rolls by `unlockFlag`, checking the player's flags before including path-specific legendaries in the weighted pool.
 
 ### Phase 6 — Cooperative Challenges

@@ -1,0 +1,18 @@
+{
+  "id": "expedition_tier_5",
+  "tier": 5,
+  "displayName": "Nightside Breach — Tier 5",
+  "unlockCondition": { "and": [
+    { "hasFlag": "expedition_tier_4_cleared" },
+    { "flagGreaterThan": { "flag": "automation_level", "value": 6 } }
+  ]},
+  "floorCount": { "min": 6, "max": 7 },
+  "templatePool": ["proc_quarantine", "proc_frost_crypt", "proc_fungal_forest", "proc_geothermal"],
+  "monsterScaling": { "hpMult": 3.2, "damageMult": 2.5, "xpMult": 4.0 },
+  "lootTable": "expedition_tier_5",
+  "siliconCost": 50,
+  "mechanics": ["timed_darkness_waves", "corruption_zones"],
+  "bossPool": ["crystal_guardian", "elder_sporecap", "luddite_warlord", "threshold_keeper"],
+  "bossAffixes": ["berserker", "ironhide", "swift", "volatile", "regenerating", "empowered_slam", "relentless", "juggernaut"],
+  "bossAffixCount": 2
+}

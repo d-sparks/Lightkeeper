@@ -1213,7 +1213,7 @@ setInterval(() => {
 
     // Apply expedition scaling to newly created rooms
     if (t.expeditionScaling) {
-      gameLoop.applyExpeditionScaling(targetRoom, t.expeditionScaling);
+      gameLoop.applyExpeditionScaling(targetRoom, t.expeditionScaling, t.expeditionBossAffixes);
     }
 
     // Resolve spawn position: targetId > spawnX/Y > first player_start > fallback (2,2)
