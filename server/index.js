@@ -929,7 +929,12 @@ wss.on('connection', (ws) => {
 
       case CONSTANTS.MSG.AUTO_BUILD: {
         if (!ws.playerRoom) break;
-        const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY);
+        const pathFlags = {
+          chose_path_shutdown: gameLoop.flagStore.getPlayerFlag(playerId, 'chose_path_shutdown'),
+          chose_path_merge: gameLoop.flagStore.getPlayerFlag(playerId, 'chose_path_merge'),
+          chose_path_control: gameLoop.flagStore.getPlayerFlag(playerId, 'chose_path_control'),
+        };
+        const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY, pathFlags);
         if (built) {
           // Set automation_established flag once player has built 2+ structures
           if (!gameLoop.flagStore.getPlayerFlag(playerId, 'automation_established')) {
@@ -991,7 +996,7 @@ wss.on('connection', (ws) => {
         }
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.AUTO_STATE,
-          auto: gameLoop.automation.getStateForClient(playerId),
+          auto: gameLoop.automation.getStateForClient(playerId, pathFlags),
           buildResult: built ? 'success' : 'fail',
           buildX: msg.gridX,
           buildY: msg.gridY,

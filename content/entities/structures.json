@@ -88,6 +88,55 @@
       "reduction": 0.5
     }
   },
+  "bio_harvester": {
+    "name": "Bio-Harvester",
+    "description": "Underlumen growth repurposed as automated salvage collection. Places a free copy every 30 minutes, up to 5 total. First placement is also free.",
+    "cost": {},
+    "maxCount": 5,
+    "gridIcon": "\u2736",
+    "gridColor": "#81c784",
+    "requiresFlag": "chose_path_shutdown",
+    "effect": {
+      "type": "resource_production",
+      "produces": "salvage",
+      "amount": 1,
+      "intervalSeconds": 60
+    },
+    "selfReplication": {
+      "intervalSeconds": 1800
+    }
+  },
+  "symbiotic_node": {
+    "name": "Symbiotic Node",
+    "description": "A merged tech-organic structure that functions as both a solar panel and salvage harvester at 75% efficiency each.",
+    "cost": { "salvage": 6 },
+    "maxCount": 4,
+    "gridIcon": "\u229b",
+    "gridColor": "#4db6ac",
+    "requiresFlag": "chose_path_merge",
+    "effect": {
+      "type": "dual_production",
+      "produces": [
+        { "type": "resource_production", "produces": "salvage", "amount": 1, "intervalSeconds": 80 },
+        { "type": "energy_regen", "amount": 1, "intervalSeconds": 14, "requiresRoom": "dayside_solar_fields" }
+      ]
+    }
+  },
+  "array_drone_bay": {
+    "name": "Array Drone Bay",
+    "description": "Reprogrammed Array drones automatically repair damaged structures after raid events. Each bay repairs 1 structure per hour.",
+    "cost": { "silicon": 8 },
+    "maxCount": 3,
+    "gridIcon": "\u2b21",
+    "gridColor": "#4fc3f7",
+    "unlockLevel": 8,
+    "requiresFlag": "chose_path_control",
+    "effect": {
+      "type": "structure_repair",
+      "repairRate": 1,
+      "intervalSeconds": 3600
+    }
+  },
   "_automationLevels": [
     { "name": "Outpost", "threshold": 1 },
     { "name": "Depot", "threshold": 3 },

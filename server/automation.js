@@ -16,10 +16,11 @@ class Automation {
     if (!this.playerStates.has(playerId)) {
       this.playerStates.set(playerId, {
         resources: { salvage: 0 },
-        structures: {},       // structureId -> { count, placements: [{x,y}] }
-        productionTimers: {}, // structureId -> seconds accumulated
-        claimedMilestones: [],// indices of milestones already claimed
-        gridExpanded: false,  // true once player reaches automation level 6 (20 structures)
+        structures: {},           // structureId -> { count, placements: [{x,y}] }
+        productionTimers: {},     // structureId -> seconds accumulated
+        replicationTimers: {},    // structureId -> seconds accumulated (for self-replicating structures)
+        claimedMilestones: [],    // indices of milestones already claimed
+        gridExpanded: false,      // true once player reaches automation level 6 (20 structures)
         stats: {
           totalSalvageProduced: 0,
           totalSalvageSpent: 0,
@@ -104,7 +105,8 @@ class Automation {
 
   // Build a structure at a grid position (returns true if successful)
   // gridX and gridY are required — every placement needs a position on the grid.
-  build(playerId, structureId, gridX, gridY) {
+  // playerFlags: optional object of { flagName: value } for requiresFlag checks.
+  build(playerId, structureId, gridX, gridY, playerFlags) {
     if (gridX === undefined || gridY === undefined) return false;
 
     const structures = this.content.getStructures ? this.content.getStructures() : {};
@@ -113,6 +115,11 @@ class Automation {
 
     // Check unlock level requirement
     if (def.unlockLevel && this.getAutomationLevel(playerId) < def.unlockLevel) return false;
+
+    // Check ending-path flag requirement (only enforced when playerFlags is provided)
+    if (def.requiresFlag && playerFlags) {
+      if (!playerFlags[def.requiresFlag]) return false;
+    }
 
     const state = this.getState(playerId);
     if (!state.structures[structureId]) {
@@ -205,6 +212,39 @@ class Automation {
           produced.push({ resource: def.effect.produces, amount });
         }
       }
+
+      // dual_production: process each sub-effect independently
+      if (def.effect.type === 'dual_production' && Array.isArray(def.effect.produces)) {
+        for (let si = 0; si < def.effect.produces.length; si++) {
+          const sub = def.effect.produces[si];
+          if (sub.type !== 'resource_production') continue; // energy_regen handled in getEnergyRegenRate
+          const timerKey = `${structureId}_sub${si}`;
+          if (!state.productionTimers[timerKey]) state.productionTimers[timerKey] = 0;
+          state.productionTimers[timerKey] += dt;
+          while (state.productionTimers[timerKey] >= sub.intervalSeconds) {
+            state.productionTimers[timerKey] -= sub.intervalSeconds;
+            const amount = sub.amount * count; // no adjacency for dual_production sub-effects
+            this.addResource(playerId, sub.produces, amount);
+            produced.push({ resource: sub.produces, amount });
+          }
+        }
+      }
+
+      // Self-replication: grant a free additional structure on a timer
+      if (def.selfReplication) {
+        if (!state.replicationTimers[structureId]) state.replicationTimers[structureId] = 0;
+        state.replicationTimers[structureId] += dt;
+        const repInterval = def.selfReplication.intervalSeconds;
+        while (state.replicationTimers[structureId] >= repInterval) {
+          state.replicationTimers[structureId] -= repInterval;
+          // Only replicate if below maxCount
+          const currentCount = typeof structData === 'object' ? structData.count : structData;
+          if (!def.maxCount || currentCount < def.maxCount) {
+            const granted = this.grantStructure(playerId, structureId);
+            if (granted) produced.push({ resource: 'replication', structureId });
+          }
+        }
+      }
     }
 
     return produced;
@@ -226,12 +266,22 @@ class Automation {
       const count = typeof structData === 'object' ? structData.count : structData;
       if (count <= 0) continue;
       const def = structures[structureId];
-      if (!def || !def.effect || def.effect.type !== 'energy_regen') continue;
+      if (!def || !def.effect) continue;
 
-      // Check room requirement
-      if (def.effect.requiresRoom && def.effect.requiresRoom !== currentRoomId) continue;
+      if (def.effect.type === 'energy_regen') {
+        // Check room requirement
+        if (def.effect.requiresRoom && def.effect.requiresRoom !== currentRoomId) continue;
+        regenPerSecond += (def.effect.amount * count) / def.effect.intervalSeconds;
+      }
 
-      regenPerSecond += (def.effect.amount * count) / def.effect.intervalSeconds;
+      // dual_production: check for energy_regen sub-effects
+      if (def.effect.type === 'dual_production' && Array.isArray(def.effect.produces)) {
+        for (const sub of def.effect.produces) {
+          if (sub.type !== 'energy_regen') continue;
+          if (sub.requiresRoom && sub.requiresRoom !== currentRoomId) continue;
+          regenPerSecond += (sub.amount * count) / sub.intervalSeconds;
+        }
+      }
     }
 
     return regenPerSecond;
@@ -436,8 +486,9 @@ class Automation {
     return placements;
   }
 
-  // Get state formatted for client
-  getStateForClient(playerId) {
+  // Get state formatted for client.
+  // playerFlags: optional { flagName: value } map; used to mark path-gated structures as locked.
+  getStateForClient(playerId, playerFlags) {
     const state = this.getState(playerId);
     const structures = this.content.getStructures ? this.content.getStructures() : {};
     const config = this.getGridConfig(playerId);
@@ -462,6 +513,10 @@ class Automation {
       const structData = state.structures[id] || { count: 0, placements: [] };
       const count = typeof structData === 'object' ? structData.count : structData;
 
+      // A structure is locked if: unlock level not met, OR requires a path flag the player lacks.
+      const levelLocked = def.unlockLevel ? automationLevel < def.unlockLevel : false;
+      const flagLocked = def.requiresFlag && playerFlags ? !playerFlags[def.requiresFlag] : false;
+
       structureList.push({
         id,
         name: def.name,
@@ -472,7 +527,8 @@ class Automation {
         gridIcon: def.gridIcon || '?',
         gridColor: def.gridColor || '#888',
         unlockLevel: def.unlockLevel || 0,
-        locked: def.unlockLevel ? automationLevel < def.unlockLevel : false,
+        requiresFlag: def.requiresFlag || null,
+        locked: levelLocked || flagLocked,
       });
 
       // Collect placements
@@ -527,6 +583,18 @@ class Automation {
       }
       if (def.effect.type === 'defense_value') {
         defenseRating += def.effect.amount * count;
+      }
+      if (def.effect.type === 'dual_production' && Array.isArray(def.effect.produces)) {
+        for (const sub of def.effect.produces) {
+          if (sub.type === 'resource_production') {
+            const perMinute = (sub.amount * count * 60) / sub.intervalSeconds;
+            if (sub.produces === 'silicon') siliconPerMinute += perMinute;
+            else salvagePerMinute += perMinute;
+          }
+          if (sub.type === 'energy_regen') {
+            energyRegenPerSecond += (sub.amount * count) / sub.intervalSeconds;
+          }
+        }
       }
     }
 
@@ -638,6 +706,9 @@ class Automation {
       { id: 'auto_turret', type: 'scrap_drone', name: 'Auto-Turret' },
       { id: 'fabricator', type: 'scrap_drone', name: 'Fabricator' },
       { id: 'expedition_beacon', type: 'scrap_drone', name: 'Expedition Beacon' },
+      { id: 'bio_harvester', type: 'scrap_drone', name: 'Bio-Harvester' },
+      { id: 'symbiotic_node', type: 'scrap_drone', name: 'Symbiotic Node' },
+      { id: 'array_drone_bay', type: 'scrap_drone', name: 'Array Drone Bay' },
     ];
 
     for (const vs of visualStructures) {
@@ -674,6 +745,7 @@ class Automation {
       resources: data.resources || { salvage: 0 },
       structures: data.structures || {},
       productionTimers: data.productionTimers || {},
+      replicationTimers: data.replicationTimers || {},
       claimedMilestones: data.claimedMilestones || [],
       gridExpanded: data.gridExpanded || false,
       stats: data.stats || {
