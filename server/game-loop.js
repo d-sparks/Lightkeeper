@@ -4706,7 +4706,41 @@ class GameLoop {
   _rollLoot(room, mob, playerId = null) {
     const monsterDef = this.content.getMonster(mob.type);
     if (!monsterDef || !monsterDef.lootTable) return;
-    const table = this.content.getLootTable(monsterDef.lootTable);
+
+    // For expedition bosses, use the expedition-tier-specific boss loot table instead
+    // of the monster's default table so path-specific legendaries can drop.
+    let lootTableId = monsterDef.lootTable;
+    if (monsterDef.boss && playerId) {
+      const expBossType = this.flagStore.getPlayerFlag(playerId, 'expedition_boss_type');
+      if (expBossType && mob.type === expBossType) {
+        const tier = this.flagStore.getPlayerFlag(playerId, 'expedition_tier');
+        if (tier) {
+          // Prefer path-specific table if the player has chosen a path
+          const paths = ['shutdown', 'merge', 'control'];
+          let resolvedTable = null;
+          for (const path of paths) {
+            if (this.flagStore.getPlayerFlag(playerId, `chose_path_${path}`)) {
+              const candidate = `expedition_tier_${tier}_boss_${path}`;
+              if (this.content.getLootTable(candidate)) {
+                resolvedTable = candidate;
+                break;
+              }
+            }
+          }
+          // Fall back to general expedition boss table
+          if (!resolvedTable) {
+            const generalTable = `expedition_tier_${tier}_boss`;
+            if (this.content.getLootTable(generalTable)) resolvedTable = generalTable;
+          }
+          if (resolvedTable) {
+            lootTableId = resolvedTable;
+            console.log(`[GameLoop] Expedition boss loot: player ${playerId} rolling table "${lootTableId}"`);
+          }
+        }
+      }
+    }
+
+    const table = this.content.getLootTable(lootTableId);
     if (!table || !table.rolls || table.rolls.length === 0) return;
 
     if (Math.random() >= (table.dropChance || 0)) return;

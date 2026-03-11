@@ -20,7 +20,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Silicon cost deduction at expedition start.~~ ✓ Implemented — `startExpedition()` checks and deducts `siliconCost` from automation resources; returns `insufficientSilicon` error if player can't afford it.
 - ~~Death penalty (forfeit floor loot, return to meridian_station).~~ ✓ Implemented — expedition death forfeits all non-quest inventory (destroyed, not dropped) and respawns player at `expedition_origin` (defaults to `meridian_station`).
 - Mid-run loot banking checkpoints — design concept exists but no checkpoint system yet; currently all loot picked up on a floor is forfeited on death.
-- Expedition boss loot table selection (expedition_tier_N_boss table should be rolled on boss kill).
+- ~~Expedition boss loot table selection (expedition_tier_N_boss table should be rolled on boss kill).~~ ✓ Implemented — `_rollLoot` now overrides the monster's default loot table with `expedition_tier_N_boss` (or `expedition_tier_N_boss_[path]`) when the killed mob matches the expedition boss type.
 - Client-side expedition HUD (floor counter, boss health bar).
 
 ### Phase 3 — Modifier Crafting
@@ -44,7 +44,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Apply affix buffs to boss entities at spawn.~~ ✓ Implemented — `_applyBossAffixes()` in game-loop.js modifies boss stats, phases, special attacks, and title at spawn time; regen ticks in monster update loop; damageTakenMult applied at all 4 damage points.
 - ~~Tier 4-5 expedition configs.~~ ✓ Implemented — tier_4.json (1 affix, 2.4x/2.0x scaling) and tier_5.json (2 affixes, 3.2x/2.5x scaling) with full affix pools.
 - Tier 4-5 requiring multiple players (cooperative gating not yet implemented).
-- Wire path-specific boss loot table selection (check `chose_path_*` flag for Tier 3+ bosses). Path-specific boss tables for tiers 4-5 now exist (expedition_tier_4_boss_shutdown/merge/control and expedition_tier_5_boss_shutdown/merge/control) — wiring them on boss kill is the remaining step.
+- ~~Wire path-specific boss loot table selection (check `chose_path_*` flag for Tier 3+ bosses).~~ ✓ Implemented — `_rollLoot` checks `chose_path_shutdown/merge/control` flags and selects `expedition_tier_N_boss_[path]` if the table exists, falling back to general boss table.
 - ~~Tier 4-5 loot tables (expedition_tier_4, expedition_tier_5) not yet created.~~ ✓ Implemented — floor loot tables (expedition_tier_4/5) and boss tables (expedition_tier_4/5_boss, plus path-specific variants for shutdown/merge/control) added to content/loot/expeditions.json. Epic items dominant in floors; legendary items primary in boss tables.
 - ~~Wire `unlockFlag` checking in loot resolver for legendary drops.~~ ✓ Implemented — `_rollLoot` and `doRollLootTable` now filter eligible rolls by `unlockFlag`, checking the player's flags before including path-specific legendaries in the weighted pool.
 
