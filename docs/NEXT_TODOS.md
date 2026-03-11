@@ -64,7 +64,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Phase 3 investigation: add worldmap entry for Array Extraction Outpost and connection from dayside_solar_fields.
 - Phase 3 investigation: consider adding mismatched-path intel triggers (e.g., bringing shutdown intel to Control ending should have flavor text acknowledging the contradiction).
 - ~~Post-ending Sable dialogue for Shutdown/Merge paths (expedition quest-giver).~~ ✓ Implemented — `post_shutdown` and `post_merge` extended with expedition quest-giver lines; added `shutdown_tier_N_complete` and `merge_tier_N_complete` dialogue sets gated on `expedition_tier_N_cleared` flags; dialogueRules updated to route to tier-specific sets with higher priority than base post-ending dialogue.
-- Post-ending atmospheric changes for outpost_entrance and outpost_comms.
+- ~~Post-ending atmospheric changes for outpost_entrance and outpost_comms.~~ ✓ Implemented — room_entered triggers for all three paths (shutdown/merge/control) with atmospheric messages and tile changes; post-ending dialogue added to Warden Holt, Guard Patel, Cpl. Reyes, Pvt. Dunnmore, Sgt. Ellers, Comms Officer Daley; registrar_hollis reaction trigger and civic center endgame atmosphere in meridian_civic; all gated on endgame_active flag.
 
 ## Sessions & Persistence
 

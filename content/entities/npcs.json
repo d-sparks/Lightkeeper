@@ -187,9 +187,42 @@
         { "speaker": "Warden Holt", "text": "You found umbracite out there? Crystallized?" },
         { "speaker": "Warden Holt", "text": "MERIDIAN-7 at the train station will want that — the Array has been buying umbracite for years. Good trade for Sol components if that's what you need." },
         { "speaker": "Warden Holt", "text": "But think carefully before you trade it. I don't know what the Array does with the stuff, and neither does anyone else." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Warden Holt", "text": "The Array's down. You know what that means for an outpost like this?" },
+        { "speaker": "Warden Holt", "text": "Every automated system we relied on — power routing, perimeter sensors, the lighthouse calibration grid — all running on local backup now. Manual operation. Like the old days, except nobody remembers the old days." },
+        { "speaker": "Warden Holt", "text": "The Unbounded have been sending people to help. I never thought I'd say that. They know how to live without the Array — turns out that knowledge is worth more than any data terminal." },
+        { "speaker": "Warden Holt", "text": "It's harder. Everything is harder. But the soldiers here — they're standing straighter. Something about knowing the systems you depend on are yours." },
+        { "speaker": "Warden Holt", "text": "You made this call, Lightkeeper. Own it. We will." }
+      ],
+      "post_merge": [
+        { "speaker": "Warden Holt", "text": "I've got Unbounded liaisons in my briefing room and an Array terminal that now asks permission before running diagnostics. That's new." },
+        { "speaker": "Warden Holt", "text": "The symbiosis protocols are... strange. The perimeter sensors are reading biological signatures as friendly now — Underlumen root networks feeding data into our grid. Better coverage than anything we had before." },
+        { "speaker": "Warden Holt", "text": "My soldiers don't know what to make of it. Half of them spent their careers fighting things that came out of the dark. Now we're cooperating with the dark." },
+        { "speaker": "Warden Holt", "text": "But the numbers don't lie. Fewer incursions. Better early warning. The planet is calmer." },
+        { "speaker": "Warden Holt", "text": "I don't understand it. But I'll defend it." }
+      ],
+      "post_control": [
+        { "speaker": "Warden Holt", "text": "Ring Authority orders came through this morning. Outpost Balor is now a Tier One strategic installation." },
+        { "speaker": "Warden Holt", "text": "New equipment, new personnel rotations, full access to Array infrastructure — under our authority. I've been requesting proper sensor arrays for three years. Got them overnight." },
+        { "speaker": "Warden Holt", "text": "The suppression grid is keeping the Underlumen quiet. Deep perimeter readings are the lowest I've seen in a decade." },
+        { "speaker": "Warden Holt", "text": "But quiet and gone aren't the same thing. I've told Command that. They noted it in the file and moved on." },
+        { "speaker": "Warden Holt", "text": "We run a tighter operation now. More resources, more responsibility. Keep your edge, Lightkeeper." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasItem": "resonance_fragment" }, { "hasFlag": "arrived_meridian" }],
         "use": "has_resonance_fragment"
@@ -424,9 +457,33 @@
       "has_sol_unit": [
         { "speaker": "Guard Patel", "text": "Heard you cleared the occupied wing. That was either brave or stupid." },
         { "speaker": "Guard Patel", "text": "Either way — good work." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Guard Patel", "text": "Perimeter's different now. Quieter in some ways, louder in others." },
+        { "speaker": "Guard Patel", "text": "The automated alerts are gone. We're back to mark-one eyeball and manual sweeps. It's more work, but at least I trust what I'm seeing." }
+      ],
+      "post_merge": [
+        { "speaker": "Guard Patel", "text": "Standing guard used to be simple. Watch the dark, report what moves." },
+        { "speaker": "Guard Patel", "text": "Now I'm supposed to distinguish between 'hostile biological contact' and 'symbiotic network activity.' I'm learning. Slowly." }
+      ],
+      "post_control": [
+        { "speaker": "Guard Patel", "text": "New gear, new orders, new authority. Ring Authority runs things now." },
+        { "speaker": "Guard Patel", "text": "The Array sensors are ours. I can see things on the perimeter I never could before. Whether that's comforting or not depends on the shift." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -454,9 +511,36 @@
       ],
       "has_sol_unit": [
         { "speaker": "Cpl. Reyes", "text": "Nice kit. Engineer does good work when he's got the parts." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Cpl. Reyes", "text": "The luddite raids stopped. Just — stopped. Didn't see that coming." },
+        { "speaker": "Cpl. Reyes", "text": "Some of them are showing up at the perimeter unarmed. Wanting to trade. Wanting to talk. Six months ago I was shooting at these people." },
+        { "speaker": "Cpl. Reyes", "text": "Turns out when you shut down the thing they hate, they stop hating you. Who knew." }
+      ],
+      "post_merge": [
+        { "speaker": "Cpl. Reyes", "text": "I signed up to fight threats on the perimeter. Now the perimeter is... cooperating." },
+        { "speaker": "Cpl. Reyes", "text": "The fungal network out there — it pulsed last night. Not hostile, just... acknowledging. Like it knows we're here and it's fine with it." },
+        { "speaker": "Cpl. Reyes", "text": "I don't have training for this. But I'm adapting." }
+      ],
+      "post_control": [
+        { "speaker": "Cpl. Reyes", "text": "Ring Authority. Real chain of command, real resources, real mandate." },
+        { "speaker": "Cpl. Reyes", "text": "We pushed the suppression grid out another three klicks last week. The deep perimeter is actually becoming patrollable." },
+        { "speaker": "Cpl. Reyes", "text": "Feels good to be on offense for once." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -482,9 +566,35 @@
       "has_sol_unit": [
         { "speaker": "Pvt. Dunnmore", "text": "You're heading to Lighthouse Mara?" },
         { "speaker": "Pvt. Dunnmore", "text": "Get it back online. Please." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Pvt. Dunnmore", "text": "My family's sector lost power for nine hours during the transition. Nine hours in the dark." },
+        { "speaker": "Pvt. Dunnmore", "text": "They're okay. The independent solar units kicked in. But those nine hours..." },
+        { "speaker": "Pvt. Dunnmore", "text": "I believe it was the right call. I have to believe that." }
+      ],
+      "post_merge": [
+        { "speaker": "Pvt. Dunnmore", "text": "My family says the lights in Sector Nine are different now. Warmer. The Underlumen is supplementing the grid — biological luminescence blending with the solar output." },
+        { "speaker": "Pvt. Dunnmore", "text": "My kid says the walls glow at night. Like the planet is breathing." },
+        { "speaker": "Pvt. Dunnmore", "text": "I don't understand it. But they're safe. That's what matters." }
+      ],
+      "post_control": [
+        { "speaker": "Pvt. Dunnmore", "text": "Sector Nine got a grid upgrade. Full Ring Authority power — more stable than anything the Array ever gave us." },
+        { "speaker": "Pvt. Dunnmore", "text": "My family's got light. Real light, on our terms. Whatever it took to get here... it was worth it." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -513,9 +623,39 @@
       "has_sol_unit": [
         { "speaker": "Sgt. Ellers", "text": "Sol Unit's ready. Good. Get to Lighthouse Mara before the luddites fortify the approach." },
         { "speaker": "Sgt. Ellers", "text": "And come back in one piece. We're short on people as it is." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Sgt. Ellers", "text": "Thirty years on the terminator line. Watched the lighthouse network go from a dozen beacons to over sixty. And now..." },
+        { "speaker": "Sgt. Ellers", "text": "The grid's still there. The infrastructure doesn't disappear overnight. But the automated calibration, the Array-managed load balancing — that's gone." },
+        { "speaker": "Sgt. Ellers", "text": "We're going to lose some beacons. Not because they fail — because we won't have enough trained people to maintain all of them manually. That's the truth nobody wants to hear." },
+        { "speaker": "Sgt. Ellers", "text": "But thirty years taught me one thing: people adapt. They always adapt. We'll build it back. Different. Maybe better." }
+      ],
+      "post_merge": [
+        { "speaker": "Sgt. Ellers", "text": "Thirty years watching the dark. Now the dark is watching back — and waving." },
+        { "speaker": "Sgt. Ellers", "text": "The lighthouse grid is integrating Underlumen bioluminescent relays. The coverage is better than anything we had before — natural light amplification filling the gaps between beacons." },
+        { "speaker": "Sgt. Ellers", "text": "I'd be lying if I said I wasn't uneasy. But the terminator line has never been this stable. Not in my thirty years." },
+        { "speaker": "Sgt. Ellers", "text": "If this holds... we might actually see the day when 'the dark' isn't something to be afraid of." }
+      ],
+      "post_control": [
+        { "speaker": "Sgt. Ellers", "text": "Ring Authority has doubled the lighthouse maintenance budget. New beacons going up along the deep perimeter. Suppression emitters on every tower." },
+        { "speaker": "Sgt. Ellers", "text": "In thirty years, I've never seen the grid this well-resourced. Humanity's running the show now, and the infrastructure shows it." },
+        { "speaker": "Sgt. Ellers", "text": "Only thing that worries me — the suppression grid keeps the Underlumen down, but it doesn't make it gone. I've felt tremors. Deep ones." },
+        { "speaker": "Sgt. Ellers", "text": "Thirty years says: anything you push down hard enough pushes back eventually." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -988,9 +1128,39 @@
         { "speaker": "Comms Officer Daley", "text": "That matches some anomalous readings I've been picking up on the restored frequencies. Deep-earth vibrations. Rhythmic, almost... purposeful." },
         { "speaker": "Comms Officer Daley", "text": "The Underlumen. It's an old Unbounded legend — something that lives beneath the dark side. Most people think it's superstition." },
         { "speaker": "Comms Officer Daley", "text": "But if this relay operator was detecting the same thing six years ago... maybe it's not just a legend." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Comms Officer Daley", "text": "Array relay frequencies went silent all at once. Like a held breath, released." },
+        { "speaker": "Comms Officer Daley", "text": "For the first time in years, I can actually hear the other outposts on the open bands. No Array traffic crowding the spectrum. Just human voices." },
+        { "speaker": "Comms Officer Daley", "text": "Duskwall is struggling. They depended on Array-routed communications more than we did. I'm helping them set up independent relay protocols." },
+        { "speaker": "Comms Officer Daley", "text": "And there's something else. The Underlumen signals — they're stronger. Not threatening, just... present. Like the planet finally has room to speak." }
+      ],
+      "post_merge": [
+        { "speaker": "Comms Officer Daley", "text": "The spectrum is — I don't even have words for it. Three distinct signal layers, integrated." },
+        { "speaker": "Comms Officer Daley", "text": "Array data streams, Underlumen bioluminescent pulses translated to electromagnetic frequencies, and human radio. All coexisting. Sometimes harmonizing." },
+        { "speaker": "Comms Officer Daley", "text": "My equipment wasn't designed for this. I've had to improvise filters, new decoding protocols. It's the most interesting technical challenge I've had in years." },
+        { "speaker": "Comms Officer Daley", "text": "Duskwall is reporting the same phenomenon. The whole communication network is richer now. More bandwidth, more resilience, more... alive." }
+      ],
+      "post_control": [
+        { "speaker": "Comms Officer Daley", "text": "Ring Authority communications protocols. Military-grade encryption on all channels. Proper chain of command for the first time since I was posted here." },
+        { "speaker": "Comms Officer Daley", "text": "Array relay infrastructure is ours now. I've got access to bandwidth I could only dream about before — full spectrum, no restrictions, no Array traffic priority." },
+        { "speaker": "Comms Officer Daley", "text": "Duskwall, Balor, the deep outposts — all linked on a unified grid. Suppression field telemetry feeds directly to my console." },
+        { "speaker": "Comms Officer Daley", "text": "The only frequencies I'm not monitoring are the deep-earth ones. Underlumen signals. They've gone quiet under the suppression grid. Mostly." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "broken_signal_complete" }],
         "use": "signal_found"

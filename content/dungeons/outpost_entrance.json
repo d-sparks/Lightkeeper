@@ -2151,6 +2151,87 @@
         }
       ],
       "once": true
+    },
+    {
+      "id": "endgame_entrance_shutdown",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "hasFlag": "endgame_active"
+        },
+        {
+          "hasFlag": "chose_path_shutdown"
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "Outpost Balor without the Array. The automated status displays on the walls are dark. Hand-drawn patrol schedules have replaced the holographic duty board.",
+            "A group of Unbounded visitors sit in the courtyard, teaching manual relay calibration to a cluster of soldiers. Laughter — actual laughter — echoes off the stone walls.",
+            "It's rougher here now. More hands-on. But the air smells different — less recycled, more real. Like the outpost is breathing on its own for the first time."
+          ]
+        },
+        {
+          "type": "setTile",
+          "x": 15,
+          "y": 15,
+          "tileId": 2
+        },
+        {
+          "type": "setTile",
+          "x": 16,
+          "y": 15,
+          "tileId": 2
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "endgame_entrance_merge",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "hasFlag": "endgame_active"
+        },
+        {
+          "hasFlag": "chose_path_merge"
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "Outpost Balor is changed. Thin tendrils of bioluminescent growth trace along the base of the walls — not damage, but integration. The Underlumen network reaching into human spaces.",
+            "The Array terminals still hum, but their displays show three-way data feeds now: human, Array, biological. Soldiers pass an Unbounded liaison in the corridor with a nod.",
+            "The outpost feels alive in a way it never did before. The walls themselves seem warmer."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "endgame_entrance_control",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "hasFlag": "endgame_active"
+        },
+        {
+          "hasFlag": "chose_path_control"
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "Outpost Balor under Ring Authority. New equipment racks line the corridors — Array-spec hardware, now stamped with the Ring emblem. The suppression field emitters on the roof pulse with a low, steady hum.",
+            "The soldiers stand straighter. Better armed, better supplied, better connected to Command. The perimeter sensors show green across the board.",
+            "Everything runs smoother now. The only thing missing is the sound the Underlumen used to make — that deep, rhythmic pulse through the ground. It's been suppressed to silence."
+          ]
+        }
+      ],
+      "once": true
     }
   ]
 }
