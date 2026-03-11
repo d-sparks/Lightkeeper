@@ -576,8 +576,10 @@ class GameLoop {
       }
     }
 
-    // Deduct silicon cost
-    const siliconCost = expedition.siliconCost || 0;
+    // Deduct silicon cost (reduced by expedition beacon)
+    const baseSiliconCost = expedition.siliconCost || 0;
+    const costReduction = this.automation.getExpeditionCostReduction(playerId);
+    const siliconCost = Math.ceil(baseSiliconCost * (1 - costReduction));
     if (siliconCost > 0) {
       const available = this.automation.getResource(playerId, 'silicon');
       if (available < siliconCost) {

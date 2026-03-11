@@ -82,6 +82,24 @@ class Automation {
     return config.blockedSet && config.blockedSet.has(gridY * config.gridWidth + gridX);
   }
 
+  // Get the current automation level for a player
+  getAutomationLevel(playerId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const state = this.getState(playerId);
+    const levels = structures._automationLevels || [];
+
+    let totalStructures = 0;
+    for (const structData of Object.values(state.structures)) {
+      totalStructures += typeof structData === 'object' ? structData.count : structData;
+    }
+
+    let level = 0;
+    for (let i = 0; i < levels.length; i++) {
+      if (totalStructures >= levels[i].threshold) level = i + 1;
+    }
+    return level;
+  }
+
   // Build a structure at a grid position (returns true if successful)
   // gridX and gridY are required — every placement needs a position on the grid.
   build(playerId, structureId, gridX, gridY) {
@@ -90,6 +108,9 @@ class Automation {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
     const def = structures[structureId];
     if (!def) return false;
+
+    // Check unlock level requirement
+    if (def.unlockLevel && this.getAutomationLevel(playerId) < def.unlockLevel) return false;
 
     const state = this.getState(playerId);
     if (!state.structures[structureId]) {
@@ -167,6 +188,40 @@ class Automation {
     }
 
     return regenPerSecond;
+  }
+
+  // Get total expedition cost reduction multiplier (0.0 to 1.0)
+  getExpeditionCostReduction(playerId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const state = this.getState(playerId);
+    let reduction = 0;
+
+    for (const [structureId, structData] of Object.entries(state.structures)) {
+      const count = typeof structData === 'object' ? structData.count : structData;
+      if (count <= 0) continue;
+      const def = structures[structureId];
+      if (!def || !def.effect || def.effect.type !== 'expedition_cost_reduction') continue;
+      reduction += def.effect.reduction * count;
+    }
+
+    return Math.min(reduction, 1); // cap at 100% reduction
+  }
+
+  // Get total defense rating from auto-turrets
+  getDefenseRating(playerId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const state = this.getState(playerId);
+    let rating = 0;
+
+    for (const [structureId, structData] of Object.entries(state.structures)) {
+      const count = typeof structData === 'object' ? structData.count : structData;
+      if (count <= 0) continue;
+      const def = structures[structureId];
+      if (!def || !def.effect || def.effect.type !== 'defense_value') continue;
+      rating += def.effect.amount * count;
+    }
+
+    return rating;
   }
 
   // Grant a structure for free (used by scripting actions)
@@ -330,11 +385,21 @@ class Automation {
     const allPlacements = [];
     let totalStructures = 0;
 
+    // Compute automation level first (needed for unlock gating)
+    for (const [id, structData] of Object.entries(state.structures)) {
+      const count = typeof structData === 'object' ? structData.count : structData;
+      totalStructures += count;
+    }
+    const levels = structures._automationLevels || [];
+    let automationLevel = 0;
+    for (let i = 0; i < levels.length; i++) {
+      if (totalStructures >= levels[i].threshold) automationLevel = i + 1;
+    }
+
     for (const [id, def] of Object.entries(structures)) {
       if (id.startsWith('_')) continue; // skip meta keys
       const structData = state.structures[id] || { count: 0, placements: [] };
       const count = typeof structData === 'object' ? structData.count : structData;
-      totalStructures += count;
 
       structureList.push({
         id,
@@ -345,6 +410,8 @@ class Automation {
         count,
         gridIcon: def.gridIcon || '?',
         gridColor: def.gridColor || '#888',
+        unlockLevel: def.unlockLevel || 0,
+        locked: def.unlockLevel ? automationLevel < def.unlockLevel : false,
       });
 
       // Collect placements
@@ -355,16 +422,13 @@ class Automation {
       }
     }
 
-    // Compute automation level
-    const levels = structures._automationLevels || [];
-    let automationLevel = 0;
+    // Compute automation level name and progress
     let automationLevelName = 'None';
     let nextThreshold = levels.length > 0 ? levels[0].threshold : 1;
     let automationProgress = 0;
 
     for (let i = 0; i < levels.length; i++) {
       if (totalStructures >= levels[i].threshold) {
-        automationLevel = i + 1;
         automationLevelName = levels[i].name;
         nextThreshold = (i + 1 < levels.length) ? levels[i + 1].threshold : levels[i].threshold;
       }
@@ -379,7 +443,9 @@ class Automation {
 
     // Compute production rates
     let salvagePerMinute = 0;
+    let siliconPerMinute = 0;
     let energyRegenPerSecond = 0;
+    let defenseRating = 0;
     for (const [id, def] of Object.entries(structures)) {
       if (id.startsWith('_')) continue;
       const structData = state.structures[id] || { count: 0, placements: [] };
@@ -387,10 +453,18 @@ class Automation {
       if (count <= 0 || !def.effect) continue;
 
       if (def.effect.type === 'resource_production') {
-        salvagePerMinute += (def.effect.amount * count * 60) / def.effect.intervalSeconds;
+        const perMinute = (def.effect.amount * count * 60) / def.effect.intervalSeconds;
+        if (def.effect.produces === 'silicon') {
+          siliconPerMinute += perMinute;
+        } else {
+          salvagePerMinute += perMinute;
+        }
       }
       if (def.effect.type === 'energy_regen') {
         energyRegenPerSecond += (def.effect.amount * count) / def.effect.intervalSeconds;
+      }
+      if (def.effect.type === 'defense_value') {
+        defenseRating += def.effect.amount * count;
       }
     }
 
@@ -419,7 +493,9 @@ class Automation {
         totalSalvageSpent: state.stats.totalSalvageSpent,
         totalEnergyGenerated: state.stats.totalEnergyGenerated,
         salvagePerMinute,
+        siliconPerMinute,
         energyRegenPerSecond,
+        defenseRating,
         automationLevel,
         automationLevelName,
         automationProgress,
@@ -475,8 +551,8 @@ class Automation {
       if (p.structureId === 'solar_panel') {
         overlayed.data[idx] = 7;
       }
-      // Salvage harvesters become tile 2 (feature/sand) as a visible marker
-      if (p.structureId === 'salvage_harvester') {
+      // All other player structures become tile 2 (feature/sand) as a visible marker
+      if (p.structureId !== 'solar_panel') {
         overlayed.data[idx] = 2;
       }
     }
@@ -484,29 +560,41 @@ class Automation {
     return overlayed;
   }
 
-  // Get visual-only harvester entity data for state broadcast
+  // Get visual-only structure entity data for state broadcast
   getHarvesterEntities(playerId) {
     const config = this.getGridConfig();
     if (!config) return [];
 
     const state = this.getState(playerId);
-    const harvesterData = state.structures.salvage_harvester;
-    if (!harvesterData || !harvesterData.placements || harvesterData.placements.length === 0) return [];
-
     const ts = CONSTANTS.TILE_SIZE;
     const entities = [];
-    for (let i = 0; i < harvesterData.placements.length; i++) {
-      const p = harvesterData.placements[i];
-      const dungeonX = p.x + config.dungeonOffsetX;
-      const dungeonY = p.y + config.dungeonOffsetY;
-      entities.push({
-        id: `harvester_${playerId}_${i}`,
-        type: 'scrap_drone',
-        name: 'Salvage Harvester',
-        x: (dungeonX + 0.5) * ts,
-        y: (dungeonY + 0.5) * ts,
-        decorative: true,
-      });
+
+    // Structure types that show as decorative entities on the dayside map
+    const visualStructures = [
+      { id: 'salvage_harvester', type: 'scrap_drone', name: 'Salvage Harvester' },
+      { id: 'silicon_refinery', type: 'scrap_drone', name: 'Silicon Refinery' },
+      { id: 'auto_turret', type: 'scrap_drone', name: 'Auto-Turret' },
+      { id: 'fabricator', type: 'scrap_drone', name: 'Fabricator' },
+      { id: 'expedition_beacon', type: 'scrap_drone', name: 'Expedition Beacon' },
+    ];
+
+    for (const vs of visualStructures) {
+      const structData = state.structures[vs.id];
+      if (!structData || !structData.placements || structData.placements.length === 0) continue;
+
+      for (let i = 0; i < structData.placements.length; i++) {
+        const p = structData.placements[i];
+        const dungeonX = p.x + config.dungeonOffsetX;
+        const dungeonY = p.y + config.dungeonOffsetY;
+        entities.push({
+          id: `${vs.id}_${playerId}_${i}`,
+          type: vs.type,
+          name: vs.name,
+          x: (dungeonX + 0.5) * ts,
+          y: (dungeonY + 0.5) * ts,
+          decorative: true,
+        });
+      }
     }
     return entities;
   }

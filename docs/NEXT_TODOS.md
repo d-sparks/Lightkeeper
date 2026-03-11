@@ -28,10 +28,15 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Add MERIDIAN-7 crafting dialogue branch gated on `endgame_active`.
 
 ### Phase 4 — Automation Levels 6-10
-- New structures (silicon_refinery, auto_turret, fabricator, expedition_beacon).
-- Milestone rewards for levels 6-10.
-- Structure adjacency bonus calculation.
-- Ending-path-specific structure variants.
+- ~~New structures (silicon_refinery, auto_turret, fabricator, expedition_beacon).~~ ✓ Implemented — 4 new structures with unlockLevel gating (levels 7-10), silicon as new resource produced by refineries, auto_turret defense rating, fabricator fast salvage production, expedition_beacon cost reduction.
+- ~~Milestone rewards for levels 6-10.~~ ✓ Implemented — 5 new milestones at thresholds 20/25/30/40/50 granting area_expander, improved_generator, sol_shield, guardian_core, advanced_rechargeable_battery.
+- ~~Automation levels 6-10 defined.~~ ✓ Implemented — Grid Expansion (20), Refinery (25), Defense Grid (30), Fabrication Bay (40), Array Subnet (50).
+- ~~Client locked structure display.~~ ✓ Implemented — locked structures shown grayed out with level requirement, silicon resource display in sidebar.
+- ~~Expedition beacon cost reduction integration.~~ ✓ Implemented — game-loop.js applies getExpeditionCostReduction() to silicon costs.
+- Structure adjacency bonus calculation (silicon_refinery boosting adjacent harvesters).
+- Ending-path-specific structure variants (bio_harvester, symbiotic_node, array_drone_bay).
+- Grid expansion to 16x16 at automation level 6 (currently grid size is fixed at 12x12).
+- Raid event system for auto_turret defense value (auto_turret defense_value stat tracked but raids not implemented).
 
 ### Phase 5 — Boss Affixes + Tiers 4-5
 - ~~Boss affix data format and pool in `content/expeditions/affixes.json`.~~ ✓ Implemented — 8 affixes (berserker, ironhide, swift, volatile, regenerating, empowered_slam, relentless, juggernaut) with stat mods, regen, special attack mods, and damageTakenMult.
