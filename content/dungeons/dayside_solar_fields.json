@@ -66,7 +66,10 @@
     { "x": 15, "y": 28, "leadsTo": "train_station", "type": "stairs_up", "spawnX": 12, "spawnY": 2 },
     { "x": 27, "y": 1, "leadsTo": "array_synthesis_lab", "type": "stairs_down", "spawnX": 1, "spawnY": 15,
       "conditions": [{ "hasFlag": "meridian_umbrasite_quest_complete" }],
-      "failMessage": "A reinforced hatch sealed with Array security protocols. Whatever lies beyond, the Array isn't letting anyone in uninvited." }
+      "failMessage": "A reinforced hatch sealed with Array security protocols. Whatever lies beyond, the Array isn't letting anyone in uninvited." },
+    { "x": 1, "y": 1, "leadsTo": "array_extraction_outpost", "type": "stairs_down", "spawnX": 1, "spawnY": 19,
+      "conditions": [{ "hasFlag": "kappa_coordinates_received" }],
+      "failMessage": "A camouflaged hatch blends into the scorched rock. Without coordinates, you'd never know it was here." }
   ],
   "triggers": [
     {

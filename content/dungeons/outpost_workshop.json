@@ -864,6 +864,24 @@
       "once": true
     },
     {
+      "id": "combat_controls_hint",
+      "event": "flag_changed",
+      "filter": {
+        "flag": "received_sol_unit"
+      },
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "Your Sol Unit comes with a built-in blaster. Click anywhere to fire at enemies — it costs no energy and never runs dry.",
+            "Sol abilities are mapped to number keys [1]-[6] once configured. They hit harder but drain your energy battery.",
+            "Open your Inventory [I] to manage your Sol Grid and equipment."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "engineer_briefing",
       "event": "npc_interacted",
       "filter": {

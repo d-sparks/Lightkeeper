@@ -73,6 +73,50 @@
       "once": true
     },
     {
+      "id": "shutdown_intel_advantage",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "phase3_intel_shutdown" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Shutdown Schematic pulses in your Sol Grid. Sable's analysts mapped every relay in this facility — your targeting systems lock onto Array signatures with surgical precision.",
+          "The network topology data highlights three vulnerable power conduits feeding the Overseer's support grid. Disabling them would weaken the guardian significantly."
+        ]},
+        { "type": "setEnergy", "percent": 100 },
+        { "type": "grantXp", "amount": 30 }
+      ],
+      "once": true
+    },
+    {
+      "id": "shutdown_ending_control_intel_mismatch",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "phase3_intel_control" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Central Node Override Protocols pulse in your Sol Grid — MERIDIAN-7's authentication sequences for seizing the Array's command hierarchy. You recovered them from Kappa. You could have walked in here and taken command instead of ending everything.",
+          "You chose not to. Whatever reason you had — distrust of power, Sable's arguments, something you felt in the deep tunnels — the codes go unused. The shutdown proceeds. The possibility of control dissolves with the Array."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "shutdown_ending_merge_intel_mismatch",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "phase3_intel_merge" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Asha's cross-system compatibility data pulses in your awareness — the Array's own research proving symbiosis outperforms harvesting by a factor of twelve. You brought the scientific case for partnership into a room where you're ending the partnership by force.",
+          "The data doesn't change: cooperation would have worked. You decided working wasn't enough — that three centuries of theft earned a reckoning, not a renegotiation. The research will survive the Array. Someone, someday, might use it."
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "control_center_coolant_warning",
       "event": "room_entered",
       "conditions": [

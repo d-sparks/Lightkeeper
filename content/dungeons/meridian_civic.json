@@ -205,6 +205,52 @@
       "once": true
     },
     {
+      "id": "kappa_evidence_merge_delivery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "kappa_symbiosis_research" },
+        { "hasFlag": "found_symbiosis_research" },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_control" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "kappa_merge_delivery", "prompt": "Councillor Asha Denn notices the data tablet in your hands. Her eyes sharpen.", "options": [
+          { "label": "Share the symbiosis research", "description": "Give Asha the Array's own proof that cooperation outperforms extraction.", "value": "give" },
+          { "label": "Not yet", "description": "Keep the evidence for now.", "value": "wait" }
+        ]}
+      ]
+    },
+    {
+      "id": "kappa_merge_give",
+      "event": "choice_made",
+      "filter": { "choiceId": "kappa_merge_delivery", "value": "give" },
+      "actions": [
+        { "type": "removeItem", "itemType": "kappa_symbiosis_research" },
+        { "type": "setFlag", "flag": "phase3_intel_merge" },
+        { "type": "giveItem", "itemType": "symbiotic_bridge_chip" },
+        { "type": "grantXp", "amount": 75 },
+        { "type": "showMessage", "lines": [
+          "Asha reads the cross-system compatibility data. Halfway through, she sits down.",
+          "'The Array's own research. Their own scientists proved it — symbiosis produces superior results. Extraction degrades the compounds. Living ecosystems outperform harvested ones by a factor of twelve.'",
+          "'And they buried it. They buried their own evidence because it contradicted a directive they had already committed to.'",
+          "'This is the argument I've been looking for. Not ideology — data. The Array's data.'",
+          "She produces a sol component from her desk — living circuitry grown from Ring biotech.",
+          "'A prototype. Proof of concept that biology and technology can work in concert. It heals as it fights. The beginning of symbiosis, in your hands.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "kappa_merge_wait",
+      "event": "choice_made",
+      "filter": { "choiceId": "kappa_merge_delivery", "value": "wait" },
+      "actions": [
+        { "type": "showMessage", "text": "Asha nods. 'The evidence will keep. But the political window will not. Bring it to me when you are ready.'" }
+      ]
+    },
+    {
       "id": "act3_asha_alliance_trigger",
       "event": "npc_interacted",
       "filter": { "npcType": "councillor_asha" },
@@ -333,6 +379,37 @@
           "'I'll present your recommendation. The Stewards will rally behind it. But Sable's people will never forgive this. And neither will the Underlumen.'"
         ]}
       ]
+    },
+    {
+      "id": "endgame_civic_atmosphere",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "endgame_active" },
+        { "not": { "hasFlag": "civic_endgame_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "civic_endgame_entered" },
+        { "type": "showMessage", "lines": [
+          "The Civic Center has changed. The decision you made here echoes in every corridor — new notices on the walls, new faces in the offices, a different weight to the conversations you overhear.",
+          "Registrar Hollis is buried in paperwork. The consequences of restructuring an entire planet's property system have landed squarely on his desk."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "hollis_endgame_reaction",
+      "event": "npc_interacted",
+      "filter": { "npcType": "registrar_hollis" },
+      "conditions": [
+        { "hasFlag": "endgame_active" },
+        { "not": { "hasFlag": "hollis_endgame_acknowledged" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "hollis_endgame_acknowledged" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "text": "Hollis glances up from the ledgers. For a moment, something flickers behind the bureaucrat's mask — recognition, maybe respect. 'You. You're the one who made the call.' A pause. 'Well. My desk has never been busier. I suppose that's your doing too.'" }
+      ],
+      "once": true
     }
   ]
 }

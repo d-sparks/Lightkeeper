@@ -7,7 +7,8 @@ class Automation {
   constructor(content) {
     this.content = content;
     this.playerStates = new Map(); // playerId -> AutoState
-    this._gridConfig = null;      // computed grid config (blocked cells, etc.)
+    this._gridConfig = null;         // computed 12x12 grid config (blocked cells, etc.)
+    this._gridConfigExpanded = null; // computed 16x16 grid config (unlocked at level 6)
   }
 
   // Get or create automation state for a player
@@ -15,9 +16,11 @@ class Automation {
     if (!this.playerStates.has(playerId)) {
       this.playerStates.set(playerId, {
         resources: { salvage: 0 },
-        structures: {},       // structureId -> { count, placements: [{x,y}] }
-        productionTimers: {}, // structureId -> seconds accumulated
-        claimedMilestones: [],// indices of milestones already claimed
+        structures: {},           // structureId -> { count, placements: [{x,y}] }
+        productionTimers: {},     // structureId -> seconds accumulated
+        replicationTimers: {},    // structureId -> seconds accumulated (for self-replicating structures)
+        claimedMilestones: [],    // indices of milestones already claimed
+        gridExpanded: false,      // true once player reaches automation level 6 (20 structures)
         stats: {
           totalSalvageProduced: 0,
           totalSalvageSpent: 0,
@@ -75,21 +78,48 @@ class Automation {
   }
 
   // Check if a cell is blocked (wall, building, etc.)
-  isCellBlocked(gridX, gridY) {
-    const config = this.getGridConfig();
+  isCellBlocked(playerId, gridX, gridY) {
+    const config = this.getGridConfig(playerId);
     if (!config) return true;
     if (gridX < 0 || gridY < 0 || gridX >= config.gridWidth || gridY >= config.gridHeight) return true;
     return config.blockedSet && config.blockedSet.has(gridY * config.gridWidth + gridX);
   }
 
+  // Get the current automation level for a player
+  getAutomationLevel(playerId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const state = this.getState(playerId);
+    const levels = structures._automationLevels || [];
+
+    let totalStructures = 0;
+    for (const structData of Object.values(state.structures)) {
+      totalStructures += typeof structData === 'object' ? structData.count : structData;
+    }
+
+    let level = 0;
+    for (let i = 0; i < levels.length; i++) {
+      if (totalStructures >= levels[i].threshold) level = i + 1;
+    }
+    return level;
+  }
+
   // Build a structure at a grid position (returns true if successful)
   // gridX and gridY are required — every placement needs a position on the grid.
-  build(playerId, structureId, gridX, gridY) {
+  // playerFlags: optional object of { flagName: value } for requiresFlag checks.
+  build(playerId, structureId, gridX, gridY, playerFlags) {
     if (gridX === undefined || gridY === undefined) return false;
 
     const structures = this.content.getStructures ? this.content.getStructures() : {};
     const def = structures[structureId];
     if (!def) return false;
+
+    // Check unlock level requirement
+    if (def.unlockLevel && this.getAutomationLevel(playerId) < def.unlockLevel) return false;
+
+    // Check ending-path flag requirement (only enforced when playerFlags is provided)
+    if (def.requiresFlag && playerFlags) {
+      if (!playerFlags[def.requiresFlag]) return false;
+    }
 
     const state = this.getState(playerId);
     if (!state.structures[structureId]) {
@@ -100,7 +130,7 @@ class Automation {
     if (def.maxCount && structData.count >= def.maxCount) return false;
 
     // Validate grid position
-    if (this.isCellBlocked(gridX, gridY)) return false;
+    if (this.isCellBlocked(playerId, gridX, gridY)) return false;
     if (this.isCellOccupied(playerId, gridX, gridY)) return false;
 
     if (!this.spendResources(playerId, def.cost)) return false;
@@ -111,6 +141,51 @@ class Automation {
       state.productionTimers[structureId] = 0;
     }
     return true;
+  }
+
+  // Returns the adjacency multiplier for a single structure placement at (x, y).
+  // Scans all other placed structures for adjacencyBonus entries targeting structureId.
+  // Each adjacent booster adds (booster.multiplier - 1) to the base multiplier of 1.0,
+  // so two adjacent refineries each with multiplier 2.0 give a total of 3.0.
+  _getAdjacencyMultiplier(playerId, x, y, structureId, structures) {
+    const state = this.getState(playerId);
+    let multiplier = 1.0;
+
+    for (const [boosterId, boosterDef] of Object.entries(structures)) {
+      if (boosterId.startsWith('_')) continue;
+      if (!boosterDef.adjacencyBonus) continue;
+      if (!boosterDef.adjacencyBonus.targets.includes(structureId)) continue;
+
+      const boosterData = state.structures[boosterId];
+      if (!boosterData || !boosterData.placements) continue;
+
+      for (const bp of boosterData.placements) {
+        const dx = Math.abs(bp.x - x);
+        const dy = Math.abs(bp.y - y);
+        if (dx + dy === 1) {
+          // Orthogonally adjacent — apply additive bonus
+          multiplier += (boosterDef.adjacencyBonus.multiplier - 1);
+        }
+      }
+    }
+
+    return multiplier;
+  }
+
+  // Returns total effective resource amount produced in one tick interval for a structure,
+  // summing per-placement amounts with adjacency bonuses applied.
+  _getTotalEffectiveAmount(playerId, structureId, structData, def, structures) {
+    const placements = typeof structData === 'object' ? (structData.placements || []) : [];
+    const count = typeof structData === 'object' ? structData.count : structData;
+
+    // If no placement data recorded, fall back to flat count-based amount
+    if (placements.length === 0) return def.effect.amount * count;
+
+    let total = 0;
+    for (const p of placements) {
+      total += def.effect.amount * this._getAdjacencyMultiplier(playerId, p.x, p.y, structureId, structures);
+    }
+    return total;
   }
 
   // Tick production for a player (called each game tick)
@@ -132,9 +207,42 @@ class Automation {
         const interval = def.effect.intervalSeconds;
         while (state.productionTimers[structureId] >= interval) {
           state.productionTimers[structureId] -= interval;
-          const amount = def.effect.amount * count;
+          const amount = this._getTotalEffectiveAmount(playerId, structureId, structData, def, structures);
           this.addResource(playerId, def.effect.produces, amount);
           produced.push({ resource: def.effect.produces, amount });
+        }
+      }
+
+      // dual_production: process each sub-effect independently
+      if (def.effect.type === 'dual_production' && Array.isArray(def.effect.produces)) {
+        for (let si = 0; si < def.effect.produces.length; si++) {
+          const sub = def.effect.produces[si];
+          if (sub.type !== 'resource_production') continue; // energy_regen handled in getEnergyRegenRate
+          const timerKey = `${structureId}_sub${si}`;
+          if (!state.productionTimers[timerKey]) state.productionTimers[timerKey] = 0;
+          state.productionTimers[timerKey] += dt;
+          while (state.productionTimers[timerKey] >= sub.intervalSeconds) {
+            state.productionTimers[timerKey] -= sub.intervalSeconds;
+            const amount = sub.amount * count; // no adjacency for dual_production sub-effects
+            this.addResource(playerId, sub.produces, amount);
+            produced.push({ resource: sub.produces, amount });
+          }
+        }
+      }
+
+      // Self-replication: grant a free additional structure on a timer
+      if (def.selfReplication) {
+        if (!state.replicationTimers[structureId]) state.replicationTimers[structureId] = 0;
+        state.replicationTimers[structureId] += dt;
+        const repInterval = def.selfReplication.intervalSeconds;
+        while (state.replicationTimers[structureId] >= repInterval) {
+          state.replicationTimers[structureId] -= repInterval;
+          // Only replicate if below maxCount
+          const currentCount = typeof structData === 'object' ? structData.count : structData;
+          if (!def.maxCount || currentCount < def.maxCount) {
+            const granted = this.grantStructure(playerId, structureId);
+            if (granted) produced.push({ resource: 'replication', structureId });
+          }
         }
       }
     }
@@ -158,15 +266,59 @@ class Automation {
       const count = typeof structData === 'object' ? structData.count : structData;
       if (count <= 0) continue;
       const def = structures[structureId];
-      if (!def || !def.effect || def.effect.type !== 'energy_regen') continue;
+      if (!def || !def.effect) continue;
 
-      // Check room requirement
-      if (def.effect.requiresRoom && def.effect.requiresRoom !== currentRoomId) continue;
+      if (def.effect.type === 'energy_regen') {
+        // Check room requirement
+        if (def.effect.requiresRoom && def.effect.requiresRoom !== currentRoomId) continue;
+        regenPerSecond += (def.effect.amount * count) / def.effect.intervalSeconds;
+      }
 
-      regenPerSecond += (def.effect.amount * count) / def.effect.intervalSeconds;
+      // dual_production: check for energy_regen sub-effects
+      if (def.effect.type === 'dual_production' && Array.isArray(def.effect.produces)) {
+        for (const sub of def.effect.produces) {
+          if (sub.type !== 'energy_regen') continue;
+          if (sub.requiresRoom && sub.requiresRoom !== currentRoomId) continue;
+          regenPerSecond += (sub.amount * count) / sub.intervalSeconds;
+        }
+      }
     }
 
     return regenPerSecond;
+  }
+
+  // Get total expedition cost reduction multiplier (0.0 to 1.0)
+  getExpeditionCostReduction(playerId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const state = this.getState(playerId);
+    let reduction = 0;
+
+    for (const [structureId, structData] of Object.entries(state.structures)) {
+      const count = typeof structData === 'object' ? structData.count : structData;
+      if (count <= 0) continue;
+      const def = structures[structureId];
+      if (!def || !def.effect || def.effect.type !== 'expedition_cost_reduction') continue;
+      reduction += def.effect.reduction * count;
+    }
+
+    return Math.min(reduction, 1); // cap at 100% reduction
+  }
+
+  // Get total defense rating from auto-turrets
+  getDefenseRating(playerId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const state = this.getState(playerId);
+    let rating = 0;
+
+    for (const [structureId, structData] of Object.entries(state.structures)) {
+      const count = typeof structData === 'object' ? structData.count : structData;
+      if (count <= 0) continue;
+      const def = structures[structureId];
+      if (!def || !def.effect || def.effect.type !== 'defense_value') continue;
+      rating += def.effect.amount * count;
+    }
+
+    return rating;
   }
 
   // Grant a structure for free (used by scripting actions)
@@ -201,11 +353,11 @@ class Automation {
 
   // Find the first open buildable cell for auto-placement
   _findOpenCell(playerId) {
-    const config = this.getGridConfig();
+    const config = this.getGridConfig(playerId);
     if (!config) return null;
     for (let y = 0; y < config.gridHeight; y++) {
       for (let x = 0; x < config.gridWidth; x++) {
-        if (!this.isCellBlocked(x, y) && !this.isCellOccupied(playerId, x, y)) {
+        if (!this.isCellBlocked(playerId, x, y) && !this.isCellOccupied(playerId, x, y)) {
           return { x, y };
         }
       }
@@ -217,6 +369,7 @@ class Automation {
   checkMilestones(playerId) {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
     const milestones = structures._milestoneRewards || [];
+    const expandedCfg = structures._gridConfigExpanded;
     const state = this.getState(playerId);
     if (!state.claimedMilestones) state.claimedMilestones = [];
 
@@ -233,6 +386,12 @@ class Automation {
         state.claimedMilestones.push(i);
         const m = milestones[i];
         newRewards.push({ type: 'item', itemId: m.itemId, count: m.count || 1, milestoneName: m.name, milestoneThreshold: m.threshold, milestoneIcon: m.icon || '★' });
+
+        // At the Grid Expansion threshold (20 structures / automation level 6), expand grid to 16x16
+        if (expandedCfg && m.threshold === 20) {
+          state.gridExpanded = true;
+          newRewards.push({ type: 'grid_expansion', newWidth: expandedCfg.gridWidth, newHeight: expandedCfg.gridHeight, milestoneName: 'Grid Expansion', milestoneThreshold: m.threshold, milestoneIcon: '⊞' });
+        }
       }
     }
     return newRewards;
@@ -253,12 +412,19 @@ class Automation {
     return tradeDef.gives;
   }
 
-  // Compute and cache grid configuration from dungeon data
-  getGridConfig() {
-    if (this._gridConfig) return this._gridConfig;
-
+  // Compute and cache grid configuration from dungeon data.
+  // Pass playerId to get the player-specific config (expanded grid if unlocked).
+  getGridConfig(playerId) {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
-    const gridCfg = structures._gridConfig;
+
+    // Determine which config spec to use for this player
+    const useExpanded = playerId && this.playerStates.has(playerId) && this.playerStates.get(playerId).gridExpanded;
+    const cfgKey = useExpanded ? '_gridConfigExpanded' : '_gridConfig';
+    const cacheKey = useExpanded ? '_gridConfigExpanded' : '_gridConfig';
+
+    if (this[cacheKey]) return this[cacheKey];
+
+    const gridCfg = structures[cfgKey];
     if (!gridCfg) return null;
 
     const dungeon = this.content.getDungeon ? this.content.getDungeon(gridCfg.dungeonId) : null;
@@ -285,7 +451,7 @@ class Automation {
           blockedSet.add(gy * gridWidth + gx);
           preBuilt.push({ x: gx, y: gy, label: 'Array Solar Collector' });
         }
-        // tileId 1 (floor) and 2 (sand/feature) and 8 (exit) = buildable
+        // tileId 1 (floor) and 2 (sand/feature) = buildable
         // Exit tile (8) should be blocked too
         if (tileId === 8) {
           blockedSet.add(gy * gridWidth + gx);
@@ -293,7 +459,7 @@ class Automation {
       }
     }
 
-    this._gridConfig = {
+    this[cacheKey] = {
       gridWidth,
       gridHeight,
       dungeonOffsetX,
@@ -303,7 +469,7 @@ class Automation {
       preBuilt,
     };
 
-    return this._gridConfig;
+    return this[cacheKey];
   }
 
   // Get all placements for a player (for dungeon sync)
@@ -320,21 +486,36 @@ class Automation {
     return placements;
   }
 
-  // Get state formatted for client
-  getStateForClient(playerId) {
+  // Get state formatted for client.
+  // playerFlags: optional { flagName: value } map; used to mark path-gated structures as locked.
+  getStateForClient(playerId, playerFlags) {
     const state = this.getState(playerId);
     const structures = this.content.getStructures ? this.content.getStructures() : {};
-    const config = this.getGridConfig();
+    const config = this.getGridConfig(playerId);
 
     const structureList = [];
     const allPlacements = [];
     let totalStructures = 0;
 
+    // Compute automation level first (needed for unlock gating)
+    for (const [id, structData] of Object.entries(state.structures)) {
+      const count = typeof structData === 'object' ? structData.count : structData;
+      totalStructures += count;
+    }
+    const levels = structures._automationLevels || [];
+    let automationLevel = 0;
+    for (let i = 0; i < levels.length; i++) {
+      if (totalStructures >= levels[i].threshold) automationLevel = i + 1;
+    }
+
     for (const [id, def] of Object.entries(structures)) {
       if (id.startsWith('_')) continue; // skip meta keys
       const structData = state.structures[id] || { count: 0, placements: [] };
       const count = typeof structData === 'object' ? structData.count : structData;
-      totalStructures += count;
+
+      // A structure is locked if: unlock level not met, OR requires a path flag the player lacks.
+      const levelLocked = def.unlockLevel ? automationLevel < def.unlockLevel : false;
+      const flagLocked = def.requiresFlag && playerFlags ? !playerFlags[def.requiresFlag] : false;
 
       structureList.push({
         id,
@@ -345,6 +526,9 @@ class Automation {
         count,
         gridIcon: def.gridIcon || '?',
         gridColor: def.gridColor || '#888',
+        unlockLevel: def.unlockLevel || 0,
+        requiresFlag: def.requiresFlag || null,
+        locked: levelLocked || flagLocked,
       });
 
       // Collect placements
@@ -355,16 +539,13 @@ class Automation {
       }
     }
 
-    // Compute automation level
-    const levels = structures._automationLevels || [];
-    let automationLevel = 0;
+    // Compute automation level name and progress
     let automationLevelName = 'None';
     let nextThreshold = levels.length > 0 ? levels[0].threshold : 1;
     let automationProgress = 0;
 
     for (let i = 0; i < levels.length; i++) {
       if (totalStructures >= levels[i].threshold) {
-        automationLevel = i + 1;
         automationLevelName = levels[i].name;
         nextThreshold = (i + 1 < levels.length) ? levels[i + 1].threshold : levels[i].threshold;
       }
@@ -377,9 +558,11 @@ class Automation {
       automationProgress = 1;
     }
 
-    // Compute production rates
+    // Compute production rates (including adjacency bonuses for resource_production)
     let salvagePerMinute = 0;
+    let siliconPerMinute = 0;
     let energyRegenPerSecond = 0;
+    let defenseRating = 0;
     for (const [id, def] of Object.entries(structures)) {
       if (id.startsWith('_')) continue;
       const structData = state.structures[id] || { count: 0, placements: [] };
@@ -387,10 +570,31 @@ class Automation {
       if (count <= 0 || !def.effect) continue;
 
       if (def.effect.type === 'resource_production') {
-        salvagePerMinute += (def.effect.amount * count * 60) / def.effect.intervalSeconds;
+        const effectiveAmount = this._getTotalEffectiveAmount(playerId, id, structData, def, structures);
+        const perMinute = (effectiveAmount * 60) / def.effect.intervalSeconds;
+        if (def.effect.produces === 'silicon') {
+          siliconPerMinute += perMinute;
+        } else {
+          salvagePerMinute += perMinute;
+        }
       }
       if (def.effect.type === 'energy_regen') {
         energyRegenPerSecond += (def.effect.amount * count) / def.effect.intervalSeconds;
+      }
+      if (def.effect.type === 'defense_value') {
+        defenseRating += def.effect.amount * count;
+      }
+      if (def.effect.type === 'dual_production' && Array.isArray(def.effect.produces)) {
+        for (const sub of def.effect.produces) {
+          if (sub.type === 'resource_production') {
+            const perMinute = (sub.amount * count * 60) / sub.intervalSeconds;
+            if (sub.produces === 'silicon') siliconPerMinute += perMinute;
+            else salvagePerMinute += perMinute;
+          }
+          if (sub.type === 'energy_regen') {
+            energyRegenPerSecond += (sub.amount * count) / sub.intervalSeconds;
+          }
+        }
       }
     }
 
@@ -419,7 +623,9 @@ class Automation {
         totalSalvageSpent: state.stats.totalSalvageSpent,
         totalEnergyGenerated: state.stats.totalEnergyGenerated,
         salvagePerMinute,
+        siliconPerMinute,
         energyRegenPerSecond,
+        defenseRating,
         automationLevel,
         automationLevelName,
         automationProgress,
@@ -454,7 +660,7 @@ class Automation {
 
   // Create a copy of dungeon data with player's automation placements merged in
   getOverlayedMapData(playerId, dungeon) {
-    const config = this.getGridConfig();
+    const config = this.getGridConfig(playerId);
     if (!config || dungeon.id !== config.dungeonId) return dungeon;
 
     const placements = this.getPlacements(playerId);
@@ -475,8 +681,8 @@ class Automation {
       if (p.structureId === 'solar_panel') {
         overlayed.data[idx] = 7;
       }
-      // Salvage harvesters become tile 2 (feature/sand) as a visible marker
-      if (p.structureId === 'salvage_harvester') {
+      // All other player structures become tile 2 (feature/sand) as a visible marker
+      if (p.structureId !== 'solar_panel') {
         overlayed.data[idx] = 2;
       }
     }
@@ -484,29 +690,44 @@ class Automation {
     return overlayed;
   }
 
-  // Get visual-only harvester entity data for state broadcast
+  // Get visual-only structure entity data for state broadcast
   getHarvesterEntities(playerId) {
-    const config = this.getGridConfig();
+    const config = this.getGridConfig(playerId);
     if (!config) return [];
 
     const state = this.getState(playerId);
-    const harvesterData = state.structures.salvage_harvester;
-    if (!harvesterData || !harvesterData.placements || harvesterData.placements.length === 0) return [];
-
     const ts = CONSTANTS.TILE_SIZE;
     const entities = [];
-    for (let i = 0; i < harvesterData.placements.length; i++) {
-      const p = harvesterData.placements[i];
-      const dungeonX = p.x + config.dungeonOffsetX;
-      const dungeonY = p.y + config.dungeonOffsetY;
-      entities.push({
-        id: `harvester_${playerId}_${i}`,
-        type: 'scrap_drone',
-        name: 'Salvage Harvester',
-        x: (dungeonX + 0.5) * ts,
-        y: (dungeonY + 0.5) * ts,
-        decorative: true,
-      });
+
+    // Structure types that show as decorative entities on the dayside map
+    const visualStructures = [
+      { id: 'salvage_harvester', type: 'scrap_drone', name: 'Salvage Harvester' },
+      { id: 'silicon_refinery', type: 'scrap_drone', name: 'Silicon Refinery' },
+      { id: 'auto_turret', type: 'scrap_drone', name: 'Auto-Turret' },
+      { id: 'fabricator', type: 'scrap_drone', name: 'Fabricator' },
+      { id: 'expedition_beacon', type: 'scrap_drone', name: 'Expedition Beacon' },
+      { id: 'bio_harvester', type: 'scrap_drone', name: 'Bio-Harvester' },
+      { id: 'symbiotic_node', type: 'scrap_drone', name: 'Symbiotic Node' },
+      { id: 'array_drone_bay', type: 'scrap_drone', name: 'Array Drone Bay' },
+    ];
+
+    for (const vs of visualStructures) {
+      const structData = state.structures[vs.id];
+      if (!structData || !structData.placements || structData.placements.length === 0) continue;
+
+      for (let i = 0; i < structData.placements.length; i++) {
+        const p = structData.placements[i];
+        const dungeonX = p.x + config.dungeonOffsetX;
+        const dungeonY = p.y + config.dungeonOffsetY;
+        entities.push({
+          id: `${vs.id}_${playerId}_${i}`,
+          type: vs.type,
+          name: vs.name,
+          x: (dungeonX + 0.5) * ts,
+          y: (dungeonY + 0.5) * ts,
+          decorative: true,
+        });
+      }
     }
     return entities;
   }
@@ -524,7 +745,9 @@ class Automation {
       resources: data.resources || { salvage: 0 },
       structures: data.structures || {},
       productionTimers: data.productionTimers || {},
+      replicationTimers: data.replicationTimers || {},
       claimedMilestones: data.claimedMilestones || [],
+      gridExpanded: data.gridExpanded || false,
       stats: data.stats || {
         totalSalvageProduced: 0,
         totalSalvageSpent: 0,

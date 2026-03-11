@@ -12,6 +12,7 @@
   "monsterScaling": { "hpMult": 1.0, "damageMult": 1.0, "xpMult": 1.5 },
   "lootTable": "expedition_tier_1",
   "siliconCost": 5,
+  "checkpointFloors": [2],
   "mechanics": [],
   "bossPool": ["crystal_guardian", "elder_sporecap", "luddite_warlord", "threshold_keeper"],
   "bossAffixes": []

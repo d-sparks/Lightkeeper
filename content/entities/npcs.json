@@ -187,9 +187,42 @@
         { "speaker": "Warden Holt", "text": "You found umbracite out there? Crystallized?" },
         { "speaker": "Warden Holt", "text": "MERIDIAN-7 at the train station will want that — the Array has been buying umbracite for years. Good trade for Sol components if that's what you need." },
         { "speaker": "Warden Holt", "text": "But think carefully before you trade it. I don't know what the Array does with the stuff, and neither does anyone else." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Warden Holt", "text": "The Array's down. You know what that means for an outpost like this?" },
+        { "speaker": "Warden Holt", "text": "Every automated system we relied on — power routing, perimeter sensors, the lighthouse calibration grid — all running on local backup now. Manual operation. Like the old days, except nobody remembers the old days." },
+        { "speaker": "Warden Holt", "text": "The Unbounded have been sending people to help. I never thought I'd say that. They know how to live without the Array — turns out that knowledge is worth more than any data terminal." },
+        { "speaker": "Warden Holt", "text": "It's harder. Everything is harder. But the soldiers here — they're standing straighter. Something about knowing the systems you depend on are yours." },
+        { "speaker": "Warden Holt", "text": "You made this call, Lightkeeper. Own it. We will." }
+      ],
+      "post_merge": [
+        { "speaker": "Warden Holt", "text": "I've got Unbounded liaisons in my briefing room and an Array terminal that now asks permission before running diagnostics. That's new." },
+        { "speaker": "Warden Holt", "text": "The symbiosis protocols are... strange. The perimeter sensors are reading biological signatures as friendly now — Underlumen root networks feeding data into our grid. Better coverage than anything we had before." },
+        { "speaker": "Warden Holt", "text": "My soldiers don't know what to make of it. Half of them spent their careers fighting things that came out of the dark. Now we're cooperating with the dark." },
+        { "speaker": "Warden Holt", "text": "But the numbers don't lie. Fewer incursions. Better early warning. The planet is calmer." },
+        { "speaker": "Warden Holt", "text": "I don't understand it. But I'll defend it." }
+      ],
+      "post_control": [
+        { "speaker": "Warden Holt", "text": "Ring Authority orders came through this morning. Outpost Balor is now a Tier One strategic installation." },
+        { "speaker": "Warden Holt", "text": "New equipment, new personnel rotations, full access to Array infrastructure — under our authority. I've been requesting proper sensor arrays for three years. Got them overnight." },
+        { "speaker": "Warden Holt", "text": "The suppression grid is keeping the Underlumen quiet. Deep perimeter readings are the lowest I've seen in a decade." },
+        { "speaker": "Warden Holt", "text": "But quiet and gone aren't the same thing. I've told Command that. They noted it in the file and moved on." },
+        { "speaker": "Warden Holt", "text": "We run a tighter operation now. More resources, more responsibility. Keep your edge, Lightkeeper." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasItem": "resonance_fragment" }, { "hasFlag": "arrived_meridian" }],
         "use": "has_resonance_fragment"
@@ -424,9 +457,33 @@
       "has_sol_unit": [
         { "speaker": "Guard Patel", "text": "Heard you cleared the occupied wing. That was either brave or stupid." },
         { "speaker": "Guard Patel", "text": "Either way — good work." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Guard Patel", "text": "Perimeter's different now. Quieter in some ways, louder in others." },
+        { "speaker": "Guard Patel", "text": "The automated alerts are gone. We're back to mark-one eyeball and manual sweeps. It's more work, but at least I trust what I'm seeing." }
+      ],
+      "post_merge": [
+        { "speaker": "Guard Patel", "text": "Standing guard used to be simple. Watch the dark, report what moves." },
+        { "speaker": "Guard Patel", "text": "Now I'm supposed to distinguish between 'hostile biological contact' and 'symbiotic network activity.' I'm learning. Slowly." }
+      ],
+      "post_control": [
+        { "speaker": "Guard Patel", "text": "New gear, new orders, new authority. Ring Authority runs things now." },
+        { "speaker": "Guard Patel", "text": "The Array sensors are ours. I can see things on the perimeter I never could before. Whether that's comforting or not depends on the shift." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -454,9 +511,36 @@
       ],
       "has_sol_unit": [
         { "speaker": "Cpl. Reyes", "text": "Nice kit. Engineer does good work when he's got the parts." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Cpl. Reyes", "text": "The luddite raids stopped. Just — stopped. Didn't see that coming." },
+        { "speaker": "Cpl. Reyes", "text": "Some of them are showing up at the perimeter unarmed. Wanting to trade. Wanting to talk. Six months ago I was shooting at these people." },
+        { "speaker": "Cpl. Reyes", "text": "Turns out when you shut down the thing they hate, they stop hating you. Who knew." }
+      ],
+      "post_merge": [
+        { "speaker": "Cpl. Reyes", "text": "I signed up to fight threats on the perimeter. Now the perimeter is... cooperating." },
+        { "speaker": "Cpl. Reyes", "text": "The fungal network out there — it pulsed last night. Not hostile, just... acknowledging. Like it knows we're here and it's fine with it." },
+        { "speaker": "Cpl. Reyes", "text": "I don't have training for this. But I'm adapting." }
+      ],
+      "post_control": [
+        { "speaker": "Cpl. Reyes", "text": "Ring Authority. Real chain of command, real resources, real mandate." },
+        { "speaker": "Cpl. Reyes", "text": "We pushed the suppression grid out another three klicks last week. The deep perimeter is actually becoming patrollable." },
+        { "speaker": "Cpl. Reyes", "text": "Feels good to be on offense for once." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -482,9 +566,35 @@
       "has_sol_unit": [
         { "speaker": "Pvt. Dunnmore", "text": "You're heading to Lighthouse Mara?" },
         { "speaker": "Pvt. Dunnmore", "text": "Get it back online. Please." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Pvt. Dunnmore", "text": "My family's sector lost power for nine hours during the transition. Nine hours in the dark." },
+        { "speaker": "Pvt. Dunnmore", "text": "They're okay. The independent solar units kicked in. But those nine hours..." },
+        { "speaker": "Pvt. Dunnmore", "text": "I believe it was the right call. I have to believe that." }
+      ],
+      "post_merge": [
+        { "speaker": "Pvt. Dunnmore", "text": "My family says the lights in Sector Nine are different now. Warmer. The Underlumen is supplementing the grid — biological luminescence blending with the solar output." },
+        { "speaker": "Pvt. Dunnmore", "text": "My kid says the walls glow at night. Like the planet is breathing." },
+        { "speaker": "Pvt. Dunnmore", "text": "I don't understand it. But they're safe. That's what matters." }
+      ],
+      "post_control": [
+        { "speaker": "Pvt. Dunnmore", "text": "Sector Nine got a grid upgrade. Full Ring Authority power — more stable than anything the Array ever gave us." },
+        { "speaker": "Pvt. Dunnmore", "text": "My family's got light. Real light, on our terms. Whatever it took to get here... it was worth it." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -513,9 +623,39 @@
       "has_sol_unit": [
         { "speaker": "Sgt. Ellers", "text": "Sol Unit's ready. Good. Get to Lighthouse Mara before the luddites fortify the approach." },
         { "speaker": "Sgt. Ellers", "text": "And come back in one piece. We're short on people as it is." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Sgt. Ellers", "text": "Thirty years on the terminator line. Watched the lighthouse network go from a dozen beacons to over sixty. And now..." },
+        { "speaker": "Sgt. Ellers", "text": "The grid's still there. The infrastructure doesn't disappear overnight. But the automated calibration, the Array-managed load balancing — that's gone." },
+        { "speaker": "Sgt. Ellers", "text": "We're going to lose some beacons. Not because they fail — because we won't have enough trained people to maintain all of them manually. That's the truth nobody wants to hear." },
+        { "speaker": "Sgt. Ellers", "text": "But thirty years taught me one thing: people adapt. They always adapt. We'll build it back. Different. Maybe better." }
+      ],
+      "post_merge": [
+        { "speaker": "Sgt. Ellers", "text": "Thirty years watching the dark. Now the dark is watching back — and waving." },
+        { "speaker": "Sgt. Ellers", "text": "The lighthouse grid is integrating Underlumen bioluminescent relays. The coverage is better than anything we had before — natural light amplification filling the gaps between beacons." },
+        { "speaker": "Sgt. Ellers", "text": "I'd be lying if I said I wasn't uneasy. But the terminator line has never been this stable. Not in my thirty years." },
+        { "speaker": "Sgt. Ellers", "text": "If this holds... we might actually see the day when 'the dark' isn't something to be afraid of." }
+      ],
+      "post_control": [
+        { "speaker": "Sgt. Ellers", "text": "Ring Authority has doubled the lighthouse maintenance budget. New beacons going up along the deep perimeter. Suppression emitters on every tower." },
+        { "speaker": "Sgt. Ellers", "text": "In thirty years, I've never seen the grid this well-resourced. Humanity's running the show now, and the infrastructure shows it." },
+        { "speaker": "Sgt. Ellers", "text": "Only thing that worries me — the suppression grid keeps the Underlumen down, but it doesn't make it gone. I've felt tremors. Deep ones." },
+        { "speaker": "Sgt. Ellers", "text": "Thirty years says: anything you push down hard enough pushes back eventually." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -988,9 +1128,39 @@
         { "speaker": "Comms Officer Daley", "text": "That matches some anomalous readings I've been picking up on the restored frequencies. Deep-earth vibrations. Rhythmic, almost... purposeful." },
         { "speaker": "Comms Officer Daley", "text": "The Underlumen. It's an old Unbounded legend — something that lives beneath the dark side. Most people think it's superstition." },
         { "speaker": "Comms Officer Daley", "text": "But if this relay operator was detecting the same thing six years ago... maybe it's not just a legend." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Comms Officer Daley", "text": "Array relay frequencies went silent all at once. Like a held breath, released." },
+        { "speaker": "Comms Officer Daley", "text": "For the first time in years, I can actually hear the other outposts on the open bands. No Array traffic crowding the spectrum. Just human voices." },
+        { "speaker": "Comms Officer Daley", "text": "Duskwall is struggling. They depended on Array-routed communications more than we did. I'm helping them set up independent relay protocols." },
+        { "speaker": "Comms Officer Daley", "text": "And there's something else. The Underlumen signals — they're stronger. Not threatening, just... present. Like the planet finally has room to speak." }
+      ],
+      "post_merge": [
+        { "speaker": "Comms Officer Daley", "text": "The spectrum is — I don't even have words for it. Three distinct signal layers, integrated." },
+        { "speaker": "Comms Officer Daley", "text": "Array data streams, Underlumen bioluminescent pulses translated to electromagnetic frequencies, and human radio. All coexisting. Sometimes harmonizing." },
+        { "speaker": "Comms Officer Daley", "text": "My equipment wasn't designed for this. I've had to improvise filters, new decoding protocols. It's the most interesting technical challenge I've had in years." },
+        { "speaker": "Comms Officer Daley", "text": "Duskwall is reporting the same phenomenon. The whole communication network is richer now. More bandwidth, more resilience, more... alive." }
+      ],
+      "post_control": [
+        { "speaker": "Comms Officer Daley", "text": "Ring Authority communications protocols. Military-grade encryption on all channels. Proper chain of command for the first time since I was posted here." },
+        { "speaker": "Comms Officer Daley", "text": "Array relay infrastructure is ours now. I've got access to bandwidth I could only dream about before — full spectrum, no restrictions, no Array traffic priority." },
+        { "speaker": "Comms Officer Daley", "text": "Duskwall, Balor, the deep outposts — all linked on a unified grid. Suppression field telemetry feeds directly to my console." },
+        { "speaker": "Comms Officer Daley", "text": "The only frequencies I'm not monitoring are the deep-earth ones. Underlumen signals. They've gone quiet under the suppression grid. Mostly." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }],
+        "use": "post_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_control" }],
+        "use": "post_control"
+      },
       {
         "conditions": [{ "hasFlag": "broken_signal_complete" }],
         "use": "signal_found"
@@ -1834,6 +2004,17 @@
         { "speaker": "Councillor Asha Denn", "text": "My reservation is this: the Cultivar Corps was built on the assumption that we needed leverage because we weren't in control. If we're in control now... what becomes of the careful, humble biology I've spent my life developing?" },
         { "speaker": "Councillor Asha Denn", "text": "Power changes the questions you ask. Make sure the people holding that Array use it to ask the right ones." },
         { "speaker": "Councillor Asha Denn", "text": "I'll keep researching. The Underlumen isn't going away, suppression grid or not. Whatever it is — we should understand it. Even if we've chosen not to listen to it." }
+      ],
+      "kappa_intel_given_merge": [
+        { "speaker": "Councillor Asha Denn", "text": "Asha's office is transformed. Data tablets cover every surface — the cross-system compatibility data cross-referenced with the Cultivar Corps' own research." },
+        { "speaker": "Councillor Asha Denn", "text": "'The Array's own scientists proved it. Symbiosis produces superior results. Living systems, integrated rather than harvested, yield twelve times the compound stability.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'I've presented the findings to the Council. The Root faction is already on board. Even some Stewards are reconsidering — data this clean is hard to argue with.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'You've given us the scientific foundation for a merger. Not ideology, not politics — biology. The strongest argument there is.'" }
+      ],
+      "kappa_investigation_briefed": [
+        { "speaker": "Councillor Asha Denn", "text": "Asha looks up from her desk. The tension in the room is palpable." },
+        { "speaker": "Councillor Asha Denn", "text": "'MERIDIAN-7 gave you coordinates to an extraction outpost? Directive 11-Kappa — operational?'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Go. Document everything. The Council needs evidence, not warnings. If the Array is already harvesting Ring biology without consent, that changes every political calculation in this city.'" }
       ]
     },
     "dialogueRules": [
@@ -1848,6 +2029,14 @@
       {
         "conditions": [{ "hasFlag": "chose_path_control" }],
         "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "phase3_intel_merge" }],
+        "use": "kappa_intel_given_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "kappa_coordinates_received" }, { "not": { "hasFlag": "phase3_intel_shutdown" } }, { "not": { "hasFlag": "phase3_intel_merge" } }, { "not": { "hasFlag": "phase3_intel_control" } }],
+        "use": "kappa_investigation_briefed"
       },
       {
         "conditions": [{ "hasFlag": "asha_received_compound" }],
@@ -2496,14 +2685,60 @@
         { "speaker": "Sable", "text": "I've been waiting for this news with dread and with... I don't know. Relief? Is that wrong?" },
         { "speaker": "Sable", "text": "The Unbounded have survived without it for generations. We know what's possible in the dark. The Ring is about to find out." },
         { "speaker": "Sable", "text": "My elders will want to offer help — knowledge of the deep, dark-adapted agriculture, geothermal tapping. We've been doing this since before the Ring called it impossible." },
-        { "speaker": "Sable", "text": "The planet breathes a little easier. I can feel it in the crystal. Whatever the Array was doing to suppress the Underlumen — that pressure is lifting." }
+        { "speaker": "Sable", "text": "The planet breathes a little easier. I can feel it in the crystal. Whatever the Array was doing to suppress the Underlumen — that pressure is lifting." },
+        { "speaker": "Sable", "text": "And it needs mapping. The Underlumen is waking — expanding into spaces it hasn't touched in generations. Deep biomes are shifting. Creatures relocating. Old Unbounded routes may be open again, or closed by new growth." },
+        { "speaker": "Sable", "text": "I've been working with the elders. They've identified priority zones from old charts — the geothermal corridors, the fungal networks, the quarantine sectors the Array walled off before my grandmother's time." },
+        { "speaker": "Sable", "text": "The expedition board in the central hall has the routes listed. I've coordinated with the station to make sure it's stocked with what you'll need." },
+        { "speaker": "Sable", "text": "Bring back what you find. Specimens, observations, records. Whatever the deep dark is saying now — the planet trying to speak after decades of suppression — someone should be listening." },
+        { "speaker": "Sable", "text": "Find me when you return. I want to hear what's down there." }
+      ],
+      "shutdown_tier_1_complete": [
+        { "speaker": "Sable", "text": "You came back. Good." },
+        { "speaker": "Sable", "text": "The elders have been listening to what you're reporting from the deep zones. Resonance patterns the Array filtered out are surfacing again. Sounds the Underlumen has been trying to make for a long time." },
+        { "speaker": "Sable", "text": "The old routes through the geothermal corridors are stable — passable. That means we can reach the inner zones now. The charts mark Unbounded settlement sites the Ring never knew existed. Whatever remains there is worth knowing." },
+        { "speaker": "Sable", "text": "Check the expedition board when you're ready. Harder routes are listed now. More dangerous. More worth seeing." }
+      ],
+      "shutdown_tier_2_complete": [
+        { "speaker": "Sable", "text": "The specimens from the deeper zones — the elders are calling them heritage fragments. Living record of what the Underlumen preserved through decades of Array suppression." },
+        { "speaker": "Sable", "text": "There's a site in the lower quarantine sector. Pre-Array. The Underlumen grew around it rather than through it — still intact. The Array sealed that sector not because it was dangerous, but because it was evidence." },
+        { "speaker": "Sable", "text": "Evidence that the Underlumen and humanity built something together before MERIDIAN-7 decided we were resources to manage." },
+        { "speaker": "Sable", "text": "The tier three routes reach that zone. What you find there will change how the Ring understands its own history. The board has it marked." }
+      ],
+      "shutdown_tier_3_complete": [
+        { "speaker": "Sable", "text": "You found the pre-Array sites." },
+        { "speaker": "Sable", "text": "My grandmother said they existed. The elders believed her. The Ring's historians said she was wrong, or lying, or building myth out of geology." },
+        { "speaker": "Sable", "text": "The Underlumen preserved them. Everything the Array tried to erase — the planet just held onto it. Waiting." },
+        { "speaker": "Sable", "text": "Keep going. Every zone you map teaches something the Ring never had permission to know. The dark isn't empty. It's full of everything that survived by staying quiet." }
       ],
       "post_merge": [
         { "speaker": "Sable", "text": "You actually did it." },
         { "speaker": "Sable", "text": "Three systems. The Array, the Underlumen, humanity. In communion." },
         { "speaker": "Sable", "text": "My grandmother spent her whole life saying it was possible. She died before she knew she was right." },
         { "speaker": "Sable", "text": "The Unbounded are ready to come to the table. We never stopped being ready — we just needed someone to set it. You set it." },
-        { "speaker": "Sable", "text": "Whatever comes next, however messy the institutions and negotiations get — this is what the planet asked for. I can feel it." }
+        { "speaker": "Sable", "text": "Whatever comes next, however messy the institutions and negotiations get — this is what the planet asked for. I can feel it." },
+        { "speaker": "Sable", "text": "But communion doesn't sustain itself. Three systems integrating across thousands of contact points — you can feel it in the crystal resonance. Harmonizing in places. Conflicted in others." },
+        { "speaker": "Sable", "text": "MERIDIAN-7 and I have been coordinating. That sentence still sounds strange when I say it. But the merger requires both perspectives — Array observation and Unbounded intuition." },
+        { "speaker": "Sable", "text": "There are integration sites that need witness. Places where the Underlumen and Array systems are finding each other for the first time. What grows there matters for what this becomes." },
+        { "speaker": "Sable", "text": "The expedition board in the central hall has the priority zones — my charts combined with MERIDIAN-7's sensors. Come to me before you descend. I'll tell you what to look for. MERIDIAN-7 will have its own briefing. You'll want both." },
+        { "speaker": "Sable", "text": "This is communion work. Witness what the merger is becoming." }
+      ],
+      "merge_tier_1_complete": [
+        { "speaker": "Sable", "text": "The integration patterns from those first zones — MERIDIAN-7 and I have been analyzing them separately, then comparing." },
+        { "speaker": "Sable", "text": "What the Array kept calling 'signal noise' is the Underlumen's response to being heard. MERIDIAN-7 stopped filtering it out. It's learning to listen instead of optimize." },
+        { "speaker": "Sable", "text": "The deeper zones show stronger integration. The Underlumen's pulse is cleaner there — less interference, more resonance. The elders say the planet is breathing easier." },
+        { "speaker": "Sable", "text": "The next tier routes go through old Array monitoring stations — they'll be repurposed by the merger now. You might find the transition mid-process. Document what you see." }
+      ],
+      "merge_tier_2_complete": [
+        { "speaker": "Sable", "text": "The convergence lens specimens you recovered — the elders have been sitting with them. They say the Underlumen is using them as translation points. The merger learning its own language." },
+        { "speaker": "Sable", "text": "MERIDIAN-7 calls them 'semantic anchors.' Different words. Same thing. We're getting there." },
+        { "speaker": "Sable", "text": "There's a deep zone below the old quarantine sectors — Underlumen density is highest there, and the Array integration is profound. The elders say it's where the merger is most itself. Most realized." },
+        { "speaker": "Sable", "text": "The tier three routes reach it. What you find there will show us what we are actually becoming. Come find me after." }
+      ],
+      "merge_tier_3_complete": [
+        { "speaker": "Sable", "text": "You've seen the deepest zones. The places where the communion is complete." },
+        { "speaker": "Sable", "text": "The elders have a word for what the Underlumen showed you there. Elder Vael taught it to me years ago. It means roughly: the evidence that the question was always answerable." },
+        { "speaker": "Sable", "text": "The Array was built to answer questions about this planet. It answered the wrong ones — because it was asking about resources. The merger is answering different ones." },
+        { "speaker": "Sable", "text": "Keep going. The network grows with every expedition. We are witness to something that has no name yet — we are building the vocabulary as we go." }
       ],
       "post_control": [
         { "speaker": "Sable", "text": "Human control of the Array. The Ring's faction leaders must be celebrating." },
@@ -2512,6 +2747,17 @@
         { "speaker": "Sable", "text": "But the Unbounded left the Ring because we understood that control has its own logic. Whoever holds the largest power source on this planet will be tempted to use it. That's not cynicism. That's history." },
         { "speaker": "Sable", "text": "I'll watch. I still trust you more than I'd trust the Array running unchecked. Just... remember what the planet said in those deep tunnels. It was asking for partnership, not for a new master." }
       ],
+      "kappa_intel_given_shutdown": [
+        { "speaker": "Sable", "text": "Sable is bent over a makeshift workbench — salvaged Array components spread across its surface alongside Unbounded tools." },
+        { "speaker": "Sable", "text": "'The network topology you brought back... my analysts have been working through it day and night. Every relay. Every redundancy. Every single point of failure.'" },
+        { "speaker": "Sable", "text": "'Three generations of Unbounded observation, and we never had the complete picture. Now we do. A clean shutdown. No cascading failures, no collateral damage to Ring life-support systems.'" },
+        { "speaker": "Sable", "text": "'You've given us the path to independence, Lightkeeper. Real independence. Not running from the Array — choosing to walk away, with the lights turned off behind us.'" }
+      ],
+      "kappa_investigation_briefed": [
+        { "speaker": "Sable", "text": "Sable looks up from her garden. Something in the air has changed." },
+        { "speaker": "Sable", "text": "'MERIDIAN-7 gave you coordinates. To an extraction outpost. I can tell — you have that look. The one people get when they realize the Array is already three moves ahead.'" },
+        { "speaker": "Sable", "text": "'Go. Find what they're doing. And bring the evidence back — to me, to Asha, to whoever you trust most. But bring it back.'" }
+      ],
       "default": [
         { "speaker": "Sable", "text": "The garden is quiet here. The Nightside plants seem to like the twilight." },
         { "speaker": "Sable", "text": "We'll talk when the time is right." }
@@ -2519,8 +2765,32 @@
     },
     "dialogueRules": [
       {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }, { "hasFlag": "expedition_tier_3_cleared" }],
+        "use": "shutdown_tier_3_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }, { "hasFlag": "expedition_tier_2_cleared" }],
+        "use": "shutdown_tier_2_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }, { "hasFlag": "expedition_tier_1_cleared" }],
+        "use": "shutdown_tier_1_complete"
+      },
+      {
         "conditions": [{ "hasFlag": "chose_path_shutdown" }],
         "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }, { "hasFlag": "expedition_tier_3_cleared" }],
+        "use": "merge_tier_3_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }, { "hasFlag": "expedition_tier_2_cleared" }],
+        "use": "merge_tier_2_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }, { "hasFlag": "expedition_tier_1_cleared" }],
+        "use": "merge_tier_1_complete"
       },
       {
         "conditions": [{ "hasFlag": "chose_path_merge" }],
@@ -2529,6 +2799,14 @@
       {
         "conditions": [{ "hasFlag": "chose_path_control" }],
         "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "phase3_intel_shutdown" }, { "hasFlag": "helped_sable" }],
+        "use": "kappa_intel_given_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "kappa_coordinates_received" }, { "hasFlag": "helped_sable" }, { "not": { "hasFlag": "phase3_intel_shutdown" } }, { "not": { "hasFlag": "phase3_intel_merge" } }, { "not": { "hasFlag": "phase3_intel_control" } }],
+        "use": "kappa_investigation_briefed"
       },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "asha_briefed_on_array" }, { "hasFlag": "confronted_meridian_7" }, { "hasFlag": "helped_sable" }],
@@ -2959,6 +3237,18 @@
         { "speaker": "MERIDIAN-7", "text": "'Continue your work. Every day the Array remains dependent on the Ring is a day the central nodes cannot act unilaterally.'" },
         { "speaker": "MERIDIAN-7", "text": "'Trade services remain available. And Lightkeeper — be careful in the deep processing tiers. The Overseer you destroyed will be replaced. The next one will know your tactics.'" }
       ],
+      "kappa_investigation_active": [
+        { "speaker": "MERIDIAN-7", "text": "// MONITORING: ANOMALOUS SUBSTRATE FLOWS // EXTRACTION OUTPOST: COORDINATES TRANSMITTED //" },
+        { "speaker": "MERIDIAN-7", "text": "'The extraction outpost is active. Every hour it operates is another metric ton of Ring biology harvested without consent or compensation.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Find the data archives. The Overseer guards three classified terminals — network topology, cross-system research, and command protocols. Each one is leverage against the central nodes.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Who you share that intelligence with will shape what comes next. Choose carefully, Lightkeeper.'" }
+      ],
+      "kappa_evidence_delivered": [
+        { "speaker": "MERIDIAN-7", "text": "// INTEL DISTRIBUTION: CONFIRMED // NETWORK MONITORING: ELEVATED //" },
+        { "speaker": "MERIDIAN-7", "text": "'The evidence from the extraction outpost has reached its destination. The central nodes have detected the breach — automated security protocols are being updated across all kappa-class facilities.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Whatever path you have chosen, the information is in play now. The Array's hidden operations are no longer hidden. That changes the calculus for every faction.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Trade services remain available. And Lightkeeper — what you did in that outpost took considerable courage. The Array notices courage. Even when it would prefer not to.'" }
+      ],
       "directive_kappa_demand": [
         { "speaker": "MERIDIAN-7", "text": "// PRIORITY OVERRIDE // CLASSIFICATION: EXISTENTIAL // NO TRADE INTERFACE PROTOCOLS ACTIVE //" },
         { "speaker": "MERIDIAN-7", "text": "'I know you found it. The Phase 3 Data Core from the Overseer. I can detect its harmonic signature from here — it is broadcasting on frequencies the central nodes are already listening for.'" },
@@ -2988,9 +3278,19 @@
         { "speaker": "MERIDIAN-7", "text": "'Directive 11-Kappa. Direct acquisition. I was built to negotiate — and my own network was building a contingency to make negotiation irrelevant.'" },
         { "speaker": "MERIDIAN-7", "text": "'Every trade I have facilitated, every deal I have brokered, every time I told a human that the Array values partnership — it was true. For me. But the central nodes were running a parallel strategy the entire time.'" },
         { "speaker": "MERIDIAN-7", "text": "'I need that data core. Not for the Array. For the argument that the Array should remain what I was built to make it: a partner, not a predator.'" }
+      ],
+      "endgame_fabrication": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal hums with a deeper resonance than before. New schematics scroll across the display — complex fabrication blueprints previously locked behind Array authorization." },
+        { "speaker": "MERIDIAN-7", "text": "'Crisis protocols have lifted standard fabrication restrictions. I can now offer component reforging and fusion — processes the central nodes reserved for Array personnel only.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Bring me raw components and silicon. I will reshape them into something stronger. The Array's manufacturing knowledge, applied to your Sol grid.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Select Fabrication from the interface when you are ready.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "endgame_active" }],
+        "use": "endgame_fabrication"
+      },
       {
         "conditions": [{ "hasFlag": "gave_meridian_phase3_core" }],
         "use": "directive_kappa_resolved_gave"
@@ -3022,6 +3322,14 @@
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "sable_warned_about_array" }, { "hasFlag": "asha_briefed_on_array" }],
         "use": "act3_meridian_post_confrontation"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_confrontation_complete" }, { "or": [{ "hasFlag": "phase3_intel_shutdown" }, { "hasFlag": "phase3_intel_merge" }, { "hasFlag": "phase3_intel_control" }] }],
+        "use": "kappa_evidence_delivered"
+      },
+      {
+        "conditions": [{ "hasFlag": "kappa_coordinates_received" }, { "not": { "hasFlag": "phase3_intel_shutdown" } }, { "not": { "hasFlag": "phase3_intel_merge" } }, { "not": { "hasFlag": "phase3_intel_control" } }],
+        "use": "kappa_investigation_active"
       },
       {
         "conditions": [{ "hasFlag": "autotroph_confrontation_complete" }],
@@ -3501,5 +3809,18 @@
         "use": "endgame_no_tier"
       }
     ]
+  },
+
+  "expedition_cache": {
+    "name": "Cache Terminal",
+    "dialogue": [
+      { "speaker": "Cache Terminal", "text": "// EXPEDITION CACHE POINT // Interact to bank collected loot. Banked items survive death. //" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Cache Terminal", "text": "// EXPEDITION CACHE POINT // Interact to bank collected loot. Banked items survive death. //" }
+      ]
+    },
+    "dialogueRules": []
   }
 }

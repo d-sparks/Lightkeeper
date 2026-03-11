@@ -172,6 +172,52 @@
       "once": true
     },
     {
+      "id": "kappa_evidence_shutdown_delivery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sable_meridian" },
+      "conditions": [
+        { "hasItem": "kappa_network_topology" },
+        { "hasFlag": "found_network_topology" },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "phase3_intel_control" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "kappa_shutdown_delivery", "prompt": "Sable studies you as you approach. She can tell you've found something.", "options": [
+          { "label": "Share the network topology", "description": "Give Sable the Array's complete infrastructure map. The Unbounded will know exactly where to cut.", "value": "give" },
+          { "label": "Not yet", "description": "Keep the evidence for now.", "value": "wait" }
+        ]}
+      ]
+    },
+    {
+      "id": "kappa_shutdown_give",
+      "event": "choice_made",
+      "filter": { "choiceId": "kappa_shutdown_delivery", "value": "give" },
+      "actions": [
+        { "type": "removeItem", "itemType": "kappa_network_topology" },
+        { "type": "setFlag", "flag": "phase3_intel_shutdown" },
+        { "type": "giveItem", "itemType": "shutdown_schematic_chip" },
+        { "type": "grantXp", "amount": 75 },
+        { "type": "showMessage", "lines": [
+          "Sable takes the data tablet. Her eyes move across the schematic — relay stations, power conduits, redundancy pathways — and something shifts in her expression. Not surprise. Recognition.",
+          "'My grandmother drew maps like this. One Lighthouse at a time. But the same idea: find where the power flows, and find where it can be stopped.'",
+          "'This is everything. Every connection point, every dependency chain. We can plan a shutdown that doesn't kill the people who depend on the Array's climate systems. Controlled. Precise. Surgical.'",
+          "'The Unbounded have been waiting three generations for this. You just gave us the blueprint.'",
+          "She presses a sol component into your hands — etched with Unbounded circuit patterns.",
+          "'My people made this from the same principles: know the system, exploit the weakness. It will serve you well against the Array's guardians.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "kappa_shutdown_wait",
+      "event": "choice_made",
+      "filter": { "choiceId": "kappa_shutdown_delivery", "value": "wait" },
+      "actions": [
+        { "type": "showMessage", "text": "Sable nods. 'When you're ready. The Array isn't going anywhere — that's rather the problem.'" }
+      ]
+    },
+    {
       "id": "sable_warned_post_secret",
       "event": "npc_interacted",
       "filter": { "npcType": "sable_meridian" },

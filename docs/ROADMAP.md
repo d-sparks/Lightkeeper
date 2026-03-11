@@ -8,7 +8,7 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 
 1. ~~**Death penalty & game feel**~~ — DONE. Energy drain, item drop, respawn teleport, death screen overlay all implemented
 2. ~~**Automation access**~~ — DONE. Phase 3 wired (openAutomation action + MERIDIAN-7 trigger + client handler)
-3. **Story polish** — Act III ending dungeons and post-choice NPC dialogue exist. Remaining: registrar_hollis reactions, post-ending world state changes
+3. ~~**Story polish**~~ — DONE. Act III endings, post-choice NPC dialogue, registrar_hollis reactions, and post-ending world state changes all implemented
 
 ## Project Status Overview
 
@@ -28,10 +28,10 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Automation System | Done (Phases 1-5) | All phases complete: grid state, UI, MERIDIAN-7 wiring, dungeon sync, tooltips, placement sounds, touch support. See docs/automation_screen.md |
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons |
 | Act II Content | Partial | Dayside, Array complex, Crystal Guardian boss, MERIDIAN-7 quest, quest steps 19-22 bridge to Act III. Deeper questlines needed |
-| Act III Content | Partial | All three ending dungeons built (shutdown, merge, control). Post-choice NPC dialogue and Unbounded elder NPC still needed |
+| Act III Content | Done | All three ending dungeons built. Post-choice NPC dialogue, post-ending world state, and registrar_hollis reactions all implemented |
 | Game Feel | Done | Sound effects (24 SFX), combat juice, death penalty (energy drain + item drop + respawn teleport + death screen overlay) all done |
 | Game Balance | Done | Mid-game energy pacing tuned, Pulse Rifle reward feel improved, combat balance pass complete |
-| Player Onboarding | Partial | WASD/interact prompts exist. Could be smoother |
+| Player Onboarding | Done | WASD/interact prompts, first-time tutorial for combat, NPC interaction, and healing |
 | Unit Tests | Done | Tiers 1-4: 304 tests (flag-store, event-bus, automation, conditions, actions, trigger-registry, physics, combat, equipment, sol-grid, room-lifecycle). All passing |
 | Per-Biome Music | Done | Ambient music definitions and tileset-based track selection wired |
 | Monster Sprites | Done | Placeholder sprites for all monsters, palette aligned to art style guide |
@@ -57,11 +57,11 @@ Focus: **Fix testing blockers, connect disconnected content, build endgame loop*
 4. ~~**Fix headless sim visit_civic_center**~~ — DONE.
 5. ~~**Post-choice NPC dialogue**~~ — DONE.
 6. ~~**Automation dungeon sync (Phase 4)**~~ — DONE.
-7. **Fix headless sim discover_array_secret** — Bot stuck in dayside_solar_fields, can't navigate to array_deep_processing. Blocks CI mainline past step ~20.
-8. **Fix content validator expedition flag errors** — expedition_active, expedition_tier_1_cleared, expedition_tier_2_cleared checked but never set.
-9. **Minimap quest waypoints** — No spatial guidance for quest objectives.
-10. **Place alpha monsters and skeleton_archer** — Defined content with no dungeon placement.
-11. **Implement expedition multi-floor system** — Endgame loop spec 70% done, needs multi-floor progression, boss spawning, completion detection.
+7. ~~**Fix headless sim discover_array_secret**~~ — DONE. Redundant prereq goals eliminated, ~90% pass rate.
+8. ~~**Fix content validator expedition flag errors**~~ — DONE. Flags set by engine code in game-loop.js completeExpedition().
+9. ~~**Minimap quest waypoints**~~ — DONE. Primary (orange diamond) and secondary (blue dot) waypoints on both iso and top-down minimaps; edge indicators when off-screen; world-space arrow over on-screen objectives.
+10. ~~**Place alpha monsters and skeleton_archer**~~ — DONE. skeleton_archer placed in crypts with loot table. Alpha monsters defined with pack_leader AI.
+11. ~~**Implement expedition multi-floor system**~~ — DONE. Multi-floor progression, boss spawning, completion detection, silicon cost, death penalty all implemented.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
@@ -72,10 +72,10 @@ Focus: **Endgame depth, modifier crafting, cooperative play**
 9. ~~**Automation Phase 4 (dungeon sync)**~~ — DONE.
 10. ~~**Pack leader AI variant**~~ — DONE.
 11. ~~**Touch/gamepad 45° rotation**~~ — DONE.
-12. **Modifier crafting system** — Reforge/fuse at MERIDIAN-7 with crafting.json recipes. Endgame build diversity.
-13. **Automation levels 6-10** — New structures, milestone rewards, adjacency bonuses.
-14. **Boss affixes (Tier 4+)** — Data-driven affix pool applied to expedition bosses.
-15. **Periodic auto-save** — Currently only saves on disconnect; risk of progress loss on crashes.
+12. ~~**Modifier crafting system**~~ — DONE. Craft action type + crafting.json recipes implemented. Remaining: wire MERIDIAN-7 endgame dialogue trigger.
+13. ~~**Automation levels 6-10**~~ — DONE. 4 new structures, milestone rewards, grid expansion.
+14. ~~**Boss affixes (Tier 4+)**~~ — DONE. 8 data-driven affixes applied to Tier 4-5 expedition bosses.
+15. ~~**Periodic auto-save**~~ — DONE. 5-minute auto-save interval in server/index.js.
 
 ## Long-Term Vision (3+ Months)
 
@@ -186,6 +186,24 @@ These are done and don't need further investment:
 - **Delete character button** — Session select screen delete functionality
 - **Mid-game energy pacing** — Energy generation tuning and Pulse Rifle reward feel improved
 - **Headless sim visit_civic_center fix** — tryInteract compares door vs NPC distance
+- **Automation levels 6-10** — 4 new structures (silicon_refinery, auto_turret, fabricator, expedition_beacon), milestones 6-10
+- **Boss affix system** — 8 data-driven affixes (berserker, ironhide, swift, volatile, regenerating, empowered_slam, relentless, juggernaut) for Tier 4-5
+- **Expedition multi-floor progression** — Floor chaining, boss spawning, completion detection, silicon cost, death penalty
+- **Phase 3 investigation quest** — Directive 11-Kappa with path-specific mechanical rewards
+- **Priority sprite redesign** — Player, NPC, and common monster sprites updated per art-style-guide
+- **Post-ending Sable dialogue** — Expedition quest-giver lines for Shutdown/Merge paths
+- **UnlockFlag loot filtering** — Path-specific legendaries gated by ending choice
+- **Chunk streaming throttle** — 5 Hz streaming to reduce server load
+- **Headless sim discover_array_secret fix** — Redundant prereq goals eliminated
+- **Modifier crafting engine** — craft action type in actions.js, crafting.json with reforge/fuse recipes
+- **Periodic auto-save** — 5-minute auto-save interval in server/index.js
+- **Post-ending world state** — Room-entered triggers for all 3 paths, NPC dialogue shifts, registrar_hollis reactions, endgame_active gating
+- **Minimap quest waypoints** — Primary (orange diamond) and secondary (blue dot) waypoints on both renderers
+- **Structure adjacency bonuses** — silicon_refinery boosting adjacent harvesters with stacking
+- **Grid expansion 16x16** — Triggered at automation level 6 milestone
+- **First-time tutorial prompts** — NPC interaction, combat, and healing tutorials
+- **Monster sprite redesign** — 20 monsters redesigned with distinctive silhouettes and warm hostile eyes
+- **Sprite outlines + lighting** — 1px dark outlines and top-left lighting pass on all entity sprites
 
 ## Active Design Docs
 
@@ -193,9 +211,10 @@ These are done and don't need further investment:
 |-----|--------|-------------|
 | docs/progression-system.md | Active | Core decisions resolved. Remaining: battery math, harvester scaling |
 | docs/automation_screen.md | Done | All 5 phases implemented (grid, UI, MERIDIAN-7, dungeon sync, polish) |
-| docs/storyboard.md | Active | Act I done, Act II partial, Act III endings built. Post-choice dialogue done. Remaining: registrar_hollis reactions, post-ending world state |
-| docs/testing-design.md | Done | Both tools built and functional. 304 tests passing |
+| docs/storyboard.md | Active | Act I done, Act II partial, Act III endings built. Post-choice dialogue done. Post-ending world state done. |
+| docs/testing-design.md | Done | Both tools built and functional. 320 tests passing |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented. Fog-of-war streaming working |
-| docs/TESTING.md | Done | Tiers 1-4 complete (304 tests including room-lifecycle) |
+| docs/TESTING.md | Done | Tiers 1-4 complete (320 tests including room-lifecycle) |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
 | docs/game-scripting.md | Done | TCA system fully implemented and documented |
+| docs/endgame-loop.md | Active | Phases 1-5 done (expeditions, crafting engine, automation 6-10, boss affixes, tier 4-5 loot). Remaining: MERIDIAN-7 crafting dialogue, cooperative challenges (Phase 6), raids (Phase 7) |

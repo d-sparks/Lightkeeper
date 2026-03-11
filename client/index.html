@@ -247,6 +247,29 @@
       100% { box-shadow: 0 0 8px rgba(200,60,60,0.3); border-color: #c44; }
     }
 
+    /* Expedition HUD (top-right info panel) */
+    #expedition-hud {
+      position: absolute;
+      top: 12px;
+      right: 52px;
+      text-align: right;
+      pointer-events: none;
+      z-index: 20;
+    }
+    #expedition-tier {
+      font-size: 12px;
+      font-weight: bold;
+      color: #ffa726;
+      text-shadow: 0 0 6px rgba(255,167,38,0.5), 0 1px 2px #000;
+      letter-spacing: 1px;
+    }
+    #expedition-floor {
+      font-size: 11px;
+      color: #ccc;
+      text-shadow: 0 1px 2px #000;
+      margin-top: 2px;
+    }
+
     /* Inventory HUD button (top-right, all platforms) */
     #inventory-btn {
       position: absolute;
@@ -2293,6 +2316,12 @@
         <div class="boss-bar-text" id="boss-bar-text"></div>
       </div>
       <div class="boss-bar-phase" id="boss-bar-phase"></div>
+    </div>
+    <!-- Expedition HUD (top-right, hidden by default) -->
+    <div id="expedition-hud" style="display:none;">
+      <div id="expedition-tier"></div>
+      <div id="expedition-floor"></div>
+      <div id="expedition-party" style="font-size:11px;color:#4fc3f7;text-shadow:0 1px 2px #000;"></div>
     </div>
     <div id="worldmap-btn" title="World Map [N]">MAP</div>
     <div id="quest-btn">LOG</div>

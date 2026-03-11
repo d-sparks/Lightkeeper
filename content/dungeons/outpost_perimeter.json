@@ -2520,6 +2520,20 @@
       "once": true
     },
     {
+      "id": "first_combat_survival_tips",
+      "event": "monster_killed",
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "Keep moving in combat — enemies will close in fast. Strafe and kite to stay alive.",
+            "Press [Q] to heal with your Medipac when health drops. Watch your energy bar — sol abilities drain it quickly, but your blaster is free."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "lore_field_report_pickup",
       "event": "item_picked_up",
       "filter": {

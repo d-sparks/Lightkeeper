@@ -203,9 +203,10 @@ function validateExitGraph() {
     }
   }
 
-  // Check reachability
+  // Check reachability (skip dungeons that are dynamically inserted at runtime)
+  const dynamicDungeons = new Set(['expedition_checkpoint']);
   for (const id of Object.keys(dungeons)) {
-    if (!visited.has(id)) {
+    if (!visited.has(id) && !dynamicDungeons.has(id)) {
       err('EXIT', dungeonFile(id), `dungeon "${id}" is not reachable from spawn room "${spawnRoom}"`);
     }
   }
@@ -248,7 +249,17 @@ function validateFlags() {
   const quests = content.getAllQuests();
 
   // Engine-set flags: these are set in server code, not JSON triggers
-  const engineSetFlags = ['damage_booster_equipped', 'has_traded_meridian'];
+  const engineSetFlags = [
+    'damage_booster_equipped', 'has_traded_meridian',
+    'automation_established',   // server/index.js — set when player builds 2+ structures
+    'expedition_active',        // server/game-loop.js — set/cleared during expeditions
+    'expedition_tier_1_cleared', // server/game-loop.js — set on expedition boss kill
+    'expedition_tier_2_cleared',
+    'expedition_tier_3_cleared',
+    'expedition_tier_4_cleared',
+    'expedition_tier_5_cleared',
+    'expedition_party',          // server/game-loop.js — set during cooperative expeditions
+  ];
   for (const flag of engineSetFlags) {
     addToMap(flagsSet, flag, { source: 'engine (server/index.js)', file: 'server/index.js' });
   }

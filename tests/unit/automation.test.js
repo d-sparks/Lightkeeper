@@ -13,15 +13,36 @@ function makeContent(structures = {}) {
 const testStructures = {
   solar_panel: {
     name: 'Solar Panel',
-    cost: { silicon: 3 },
+    cost: { salvage: 3 },
     maxCount: 4,
     effect: { type: 'energy_regen', amount: 1, intervalSeconds: 10 },
   },
-  silicon_harvester: {
-    name: 'Silicon Harvester',
-    cost: { silicon: 5 },
+  salvage_harvester: {
+    name: 'Salvage Harvester',
+    cost: { salvage: 5 },
     maxCount: 2,
-    effect: { type: 'resource_production', produces: 'silicon', amount: 1, intervalSeconds: 30 },
+    effect: { type: 'resource_production', produces: 'salvage', amount: 1, intervalSeconds: 30 },
+  },
+  silicon_refinery: {
+    name: 'Silicon Refinery',
+    cost: { salvage: 8 },
+    maxCount: 3,
+    unlockLevel: 7,
+    effect: { type: 'resource_production', produces: 'silicon', amount: 1, intervalSeconds: 45 },
+  },
+  auto_turret: {
+    name: 'Auto-Turret',
+    cost: { silicon: 5 },
+    maxCount: 4,
+    unlockLevel: 8,
+    effect: { type: 'defense_value', amount: 50 },
+  },
+  expedition_beacon: {
+    name: 'Expedition Beacon',
+    cost: { silicon: 15 },
+    maxCount: 1,
+    unlockLevel: 10,
+    effect: { type: 'expedition_cost_reduction', reduction: 0.5 },
   },
 };
 
@@ -34,73 +55,79 @@ function makeAutoWithGrid(structures) {
 
 describe('Automation', () => {
   describe('resources', () => {
-    it('starts with zero silicon', () => {
+    it('starts with zero salvage', () => {
       const auto = new Automation(makeContent());
-      assert.equal(auto.getResource('p1', 'silicon'), 0);
+      assert.equal(auto.getResource('p1', 'salvage'), 0);
     });
 
     it('addResource increases resource count', () => {
       const auto = new Automation(makeContent());
-      auto.addResource('p1', 'silicon', 10);
-      assert.equal(auto.getResource('p1', 'silicon'), 10);
+      auto.addResource('p1', 'salvage', 10);
+      assert.equal(auto.getResource('p1', 'salvage'), 10);
     });
 
     it('addResource accumulates', () => {
       const auto = new Automation(makeContent());
-      auto.addResource('p1', 'silicon', 5);
-      auto.addResource('p1', 'silicon', 3);
-      assert.equal(auto.getResource('p1', 'silicon'), 8);
+      auto.addResource('p1', 'salvage', 5);
+      auto.addResource('p1', 'salvage', 3);
+      assert.equal(auto.getResource('p1', 'salvage'), 8);
     });
 
-    it('tracks totalSiliconProduced stat', () => {
+    it('tracks totalSalvageProduced stat', () => {
       const auto = new Automation(makeContent());
-      auto.addResource('p1', 'silicon', 7);
+      auto.addResource('p1', 'salvage', 7);
       const state = auto.getState('p1');
-      assert.equal(state.stats.totalSiliconProduced, 7);
+      assert.equal(state.stats.totalSalvageProduced, 7);
+    });
+
+    it('supports silicon resource', () => {
+      const auto = new Automation(makeContent());
+      auto.addResource('p1', 'silicon', 10);
+      assert.equal(auto.getResource('p1', 'silicon'), 10);
     });
 
     it('isolates resources between players', () => {
       const auto = new Automation(makeContent());
-      auto.addResource('p1', 'silicon', 10);
-      auto.addResource('p2', 'silicon', 20);
-      assert.equal(auto.getResource('p1', 'silicon'), 10);
-      assert.equal(auto.getResource('p2', 'silicon'), 20);
+      auto.addResource('p1', 'salvage', 10);
+      auto.addResource('p2', 'salvage', 20);
+      assert.equal(auto.getResource('p1', 'salvage'), 10);
+      assert.equal(auto.getResource('p2', 'salvage'), 20);
     });
   });
 
   describe('spendResources', () => {
     it('deducts resources and returns true on success', () => {
       const auto = new Automation(makeContent());
-      auto.addResource('p1', 'silicon', 10);
-      const result = auto.spendResources('p1', { silicon: 4 });
+      auto.addResource('p1', 'salvage', 10);
+      const result = auto.spendResources('p1', { salvage: 4 });
       assert.equal(result, true);
-      assert.equal(auto.getResource('p1', 'silicon'), 6);
+      assert.equal(auto.getResource('p1', 'salvage'), 6);
     });
 
     it('returns false and does not deduct if insufficient', () => {
       const auto = new Automation(makeContent());
-      auto.addResource('p1', 'silicon', 2);
-      const result = auto.spendResources('p1', { silicon: 5 });
+      auto.addResource('p1', 'salvage', 2);
+      const result = auto.spendResources('p1', { salvage: 5 });
       assert.equal(result, false);
-      assert.equal(auto.getResource('p1', 'silicon'), 2);
+      assert.equal(auto.getResource('p1', 'salvage'), 2);
     });
 
-    it('tracks totalSiliconSpent stat', () => {
+    it('tracks totalSalvageSpent stat', () => {
       const auto = new Automation(makeContent());
-      auto.addResource('p1', 'silicon', 10);
-      auto.spendResources('p1', { silicon: 3 });
+      auto.addResource('p1', 'salvage', 10);
+      auto.spendResources('p1', { salvage: 3 });
       const state = auto.getState('p1');
-      assert.equal(state.stats.totalSiliconSpent, 3);
+      assert.equal(state.stats.totalSalvageSpent, 3);
     });
   });
 
   describe('build', () => {
     it('builds a structure at grid coords and deducts cost', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 10);
+      auto.addResource('p1', 'salvage', 10);
       const result = auto.build('p1', 'solar_panel', 0, 0);
       assert.equal(result, true);
-      assert.equal(auto.getResource('p1', 'silicon'), 7);
+      assert.equal(auto.getResource('p1', 'salvage'), 7);
       const state = auto.getState('p1');
       assert.equal(state.structures.solar_panel.count, 1);
       assert.deepEqual(state.structures.solar_panel.placements, [{ x: 0, y: 0 }]);
@@ -108,14 +135,14 @@ describe('Automation', () => {
 
     it('requires grid coordinates', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 10);
+      auto.addResource('p1', 'salvage', 10);
       assert.equal(auto.build('p1', 'solar_panel'), false);
-      assert.equal(auto.getResource('p1', 'silicon'), 10); // no cost deducted
+      assert.equal(auto.getResource('p1', 'salvage'), 10); // no cost deducted
     });
 
     it('respects maxCount limit', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 100);
+      auto.addResource('p1', 'salvage', 100);
       assert.equal(auto.build('p1', 'solar_panel', 0, 0), true);
       assert.equal(auto.build('p1', 'solar_panel', 1, 0), true);
       assert.equal(auto.build('p1', 'solar_panel', 2, 0), true);
@@ -125,19 +152,19 @@ describe('Automation', () => {
 
     it('fails if insufficient resources', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 1);
+      auto.addResource('p1', 'salvage', 1);
       assert.equal(auto.build('p1', 'solar_panel', 0, 0), false);
     });
 
     it('fails for unknown structure', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 100);
+      auto.addResource('p1', 'salvage', 100);
       assert.equal(auto.build('p1', 'nonexistent', 0, 0), false);
     });
 
     it('rejects occupied cells', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 20);
+      auto.addResource('p1', 'salvage', 20);
       assert.equal(auto.build('p1', 'solar_panel', 2, 3), true);
       assert.equal(auto.build('p1', 'solar_panel', 2, 3), false);
     });
@@ -145,72 +172,164 @@ describe('Automation', () => {
     it('rejects blocked cells', () => {
       const auto = new Automation(makeContent(testStructures));
       auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set([7]) }; // cell (2,1) blocked
-      auto.addResource('p1', 'silicon', 10);
+      auto.addResource('p1', 'salvage', 10);
       assert.equal(auto.build('p1', 'solar_panel', 2, 1), false);
     });
 
     it('rejects out-of-bounds cells', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 10);
+      auto.addResource('p1', 'salvage', 10);
       assert.equal(auto.build('p1', 'solar_panel', -1, 0), false);
       assert.equal(auto.build('p1', 'solar_panel', 5, 0), false);
     });
 
     it('records placement coordinates', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 10);
+      auto.addResource('p1', 'salvage', 10);
       auto.build('p1', 'solar_panel', 2, 3);
       const state = auto.getState('p1');
       assert.deepEqual(state.structures.solar_panel.placements, [{ x: 2, y: 3 }]);
+    });
+
+    it('rejects locked structures (unlockLevel not met)', () => {
+      const auto = makeAutoWithGrid();
+      auto.addResource('p1', 'salvage', 100);
+      // silicon_refinery requires unlockLevel 7, player has 0 structures = level 0
+      assert.equal(auto.build('p1', 'silicon_refinery', 0, 0), false);
     });
   });
 
   describe('production tick', () => {
     it('produces resources after enough time', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 5);
-      auto.build('p1', 'silicon_harvester', 0, 0);
-      // silicon_harvester: 1 silicon every 30s
+      auto.addResource('p1', 'salvage', 5);
+      auto.build('p1', 'salvage_harvester', 0, 0);
+      // salvage_harvester: 1 salvage every 30s
       auto.updateProduction('p1', 30);
       // Started with 5, spent 5 on build, then produced 1
-      assert.equal(auto.getResource('p1', 'silicon'), 1);
+      assert.equal(auto.getResource('p1', 'salvage'), 1);
     });
 
     it('does not produce before interval elapses', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 5);
-      auto.build('p1', 'silicon_harvester', 0, 0);
+      auto.addResource('p1', 'salvage', 5);
+      auto.build('p1', 'salvage_harvester', 0, 0);
       auto.updateProduction('p1', 10); // only 10s, need 30s
-      assert.equal(auto.getResource('p1', 'silicon'), 0);
+      assert.equal(auto.getResource('p1', 'salvage'), 0);
     });
 
     it('accumulates partial time across ticks', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 5);
-      auto.build('p1', 'silicon_harvester', 0, 0);
+      auto.addResource('p1', 'salvage', 5);
+      auto.build('p1', 'salvage_harvester', 0, 0);
       auto.updateProduction('p1', 15);
       auto.updateProduction('p1', 15);
-      assert.equal(auto.getResource('p1', 'silicon'), 1);
+      assert.equal(auto.getResource('p1', 'salvage'), 1);
     });
 
     it('scales production by structure count', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 10);
-      auto.build('p1', 'silicon_harvester', 0, 0);
-      auto.build('p1', 'silicon_harvester', 1, 0);
-      // 2 harvesters: produce 2 silicon per 30s interval
+      auto.addResource('p1', 'salvage', 10);
+      auto.build('p1', 'salvage_harvester', 0, 0);
+      auto.build('p1', 'salvage_harvester', 1, 0);
+      // 2 harvesters: produce 2 salvage per 30s interval
       auto.updateProduction('p1', 30);
-      assert.equal(auto.getResource('p1', 'silicon'), 2);
+      assert.equal(auto.getResource('p1', 'salvage'), 2);
     });
 
     it('returns produced resources list', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 5);
-      auto.build('p1', 'silicon_harvester', 0, 0);
+      auto.addResource('p1', 'salvage', 5);
+      auto.build('p1', 'salvage_harvester', 0, 0);
       const produced = auto.updateProduction('p1', 30);
       assert.equal(produced.length, 1);
-      assert.equal(produced[0].resource, 'silicon');
+      assert.equal(produced[0].resource, 'salvage');
       assert.equal(produced[0].amount, 1);
+    });
+  });
+
+  describe('adjacency bonuses', () => {
+    // Structures fixture: harvester + refinery with adjacencyBonus targeting harvester
+    const adjacencyStructures = {
+      salvage_harvester: {
+        name: 'Salvage Harvester',
+        cost: { salvage: 5 },
+        maxCount: 3,
+        effect: { type: 'resource_production', produces: 'salvage', amount: 1, intervalSeconds: 30 },
+      },
+      silicon_refinery: {
+        name: 'Silicon Refinery',
+        cost: { salvage: 0 }, // free for tests
+        maxCount: 3,
+        effect: { type: 'resource_production', produces: 'silicon', amount: 1, intervalSeconds: 45 },
+        adjacencyBonus: {
+          targets: ['salvage_harvester'],
+          multiplier: 2.0,
+          description: 'Doubles adjacent Salvage Harvester output',
+        },
+      },
+    };
+
+    function makeAdjacencyAuto() {
+      const auto = new Automation(makeContent(adjacencyStructures));
+      auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
+      return auto;
+    }
+
+    it('no bonus when no refinery is adjacent', () => {
+      const auto = makeAdjacencyAuto();
+      auto.addResource('p1', 'salvage', 10);
+      // Harvester at (0,0) costs 5, refinery far away at (4,4) costs 0 → 5 salvage left
+      auto.build('p1', 'salvage_harvester', 0, 0);
+      auto.build('p1', 'silicon_refinery', 4, 4);
+      const produced = auto.updateProduction('p1', 30);
+      // 1 harvester × 1.0 multiplier = 1 salvage produced
+      assert.equal(produced.find(p => p.resource === 'salvage').amount, 1);
+    });
+
+    it('doubles harvester output when refinery is adjacent', () => {
+      const auto = makeAdjacencyAuto();
+      auto.addResource('p1', 'salvage', 10);
+      // Harvester at (1,0) costs 5, refinery adjacent at (0,0) costs 0 → 5 salvage left
+      auto.build('p1', 'salvage_harvester', 1, 0);
+      auto.build('p1', 'silicon_refinery', 0, 0);
+      const produced = auto.updateProduction('p1', 30);
+      // 1 harvester × 2.0 multiplier = 2 salvage produced
+      assert.equal(produced.find(p => p.resource === 'salvage').amount, 2);
+    });
+
+    it('stacks additively with two adjacent refineries', () => {
+      const auto = makeAdjacencyAuto();
+      auto.addResource('p1', 'salvage', 20);
+      // Harvester at (1,0) costs 5, two refineries adjacent at (0,0) and (2,0) cost 0
+      auto.build('p1', 'salvage_harvester', 1, 0);
+      auto.build('p1', 'silicon_refinery', 0, 0);
+      auto.build('p1', 'silicon_refinery', 2, 0);
+      const produced = auto.updateProduction('p1', 30);
+      // multiplier = 1 + (2-1) + (2-1) = 3.0 → 3 salvage produced
+      assert.equal(produced.find(p => p.resource === 'salvage').amount, 3);
+    });
+
+    it('only boosts adjacent harvester, not distant one', () => {
+      const auto = makeAdjacencyAuto();
+      auto.addResource('p1', 'salvage', 20);
+      // Two harvesters: (0,0) adjacent to refinery at (1,0), (4,4) not adjacent — each costs 5
+      auto.build('p1', 'salvage_harvester', 0, 0);
+      auto.build('p1', 'salvage_harvester', 4, 4);
+      auto.build('p1', 'silicon_refinery', 1, 0);
+      const produced = auto.updateProduction('p1', 30);
+      // (0,0) × 2.0 + (4,4) × 1.0 = 3 salvage produced
+      assert.equal(produced.find(p => p.resource === 'salvage').amount, 3);
+    });
+
+    it('salvagePerMinute in client state reflects adjacency boost', () => {
+      const auto = makeAdjacencyAuto();
+      auto.addResource('p1', 'salvage', 10);
+      auto.build('p1', 'salvage_harvester', 1, 0);
+      auto.build('p1', 'silicon_refinery', 0, 0);
+      const clientState = auto.getStateForClient('p1');
+      // 1 harvester × 2.0 × (60/30) = 4 salvage/min
+      assert.equal(clientState.stats.salvagePerMinute, 4);
     });
   });
 
@@ -222,7 +341,7 @@ describe('Automation', () => {
 
     it('calculates regen from solar panels', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 10);
+      auto.addResource('p1', 'salvage', 10);
       auto.build('p1', 'solar_panel', 0, 0);
       // 1 panel: amount=1, interval=10s => 0.1/s
       assert.equal(auto.getEnergyRegenRate('p1', 'room1'), 0.1);
@@ -244,7 +363,7 @@ describe('Automation', () => {
       const auto = new Automation(makeContent(testStructures));
       const result = auto.grantStructure('p1', 'solar_panel');
       assert.equal(result, true);
-      assert.equal(auto.getResource('p1', 'silicon'), 0); // no cost deducted
+      assert.equal(auto.getResource('p1', 'salvage'), 0); // no cost deducted
       const state = auto.getState('p1');
       assert.equal(state.structures.solar_panel.count, 1);
     });
@@ -259,22 +378,22 @@ describe('Automation', () => {
   describe('trade', () => {
     it('executes trade when resources sufficient', () => {
       const auto = new Automation(makeContent(testStructures));
-      auto.addResource('p1', 'silicon', 10);
+      auto.addResource('p1', 'salvage', 10);
       const gives = auto.trade('p1', 'damage_booster');
       assert.notEqual(gives, null);
-      assert.equal(auto.getResource('p1', 'silicon'), 5);
+      assert.equal(auto.getResource('p1', 'salvage'), 5);
     });
 
     it('returns null for insufficient resources', () => {
       const auto = new Automation(makeContent(testStructures));
-      auto.addResource('p1', 'silicon', 2);
+      auto.addResource('p1', 'salvage', 2);
       assert.equal(auto.trade('p1', 'damage_booster'), null);
-      assert.equal(auto.getResource('p1', 'silicon'), 2);
+      assert.equal(auto.getResource('p1', 'salvage'), 2);
     });
 
     it('returns null for unknown trade', () => {
       const auto = new Automation(makeContent(testStructures));
-      auto.addResource('p1', 'silicon', 100);
+      auto.addResource('p1', 'salvage', 100);
       assert.equal(auto.trade('p1', 'nonexistent'), null);
     });
   });
@@ -282,7 +401,7 @@ describe('Automation', () => {
   describe('cell occupancy', () => {
     it('detects occupied cells', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 10);
+      auto.addResource('p1', 'salvage', 10);
       auto.build('p1', 'solar_panel', 1, 2);
       assert.equal(auto.isCellOccupied('p1', 1, 2), true);
       assert.equal(auto.isCellOccupied('p1', 0, 0), false);
@@ -290,7 +409,7 @@ describe('Automation', () => {
 
     it('isolates occupancy between players', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 10);
+      auto.addResource('p1', 'salvage', 10);
       auto.build('p1', 'solar_panel', 1, 1);
       assert.equal(auto.isCellOccupied('p2', 1, 1), false);
     });
@@ -299,20 +418,20 @@ describe('Automation', () => {
   describe('getPlacements', () => {
     it('returns all placements across structures', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 20);
+      auto.addResource('p1', 'salvage', 20);
       auto.build('p1', 'solar_panel', 0, 0);
-      auto.build('p1', 'silicon_harvester', 1, 1);
+      auto.build('p1', 'salvage_harvester', 1, 1);
       const placements = auto.getPlacements('p1');
       assert.equal(placements.length, 2);
       const types = placements.map(p => p.structureId).sort();
-      assert.deepEqual(types, ['silicon_harvester', 'solar_panel']);
+      assert.deepEqual(types, ['salvage_harvester', 'solar_panel']);
     });
   });
 
   describe('getStateForClient', () => {
     it('includes grid data with blocked cells and placements', () => {
       const auto = makeAutoWithGrid();
-      auto.addResource('p1', 'silicon', 10);
+      auto.addResource('p1', 'salvage', 10);
       auto.build('p1', 'solar_panel', 1, 2);
       const clientState = auto.getStateForClient('p1');
       assert.ok(clientState.grid);
@@ -339,12 +458,35 @@ describe('Automation', () => {
       };
       const auto = new Automation(makeContent(structs));
       auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
-      auto.addResource('p1', 'silicon', 100);
+      auto.addResource('p1', 'salvage', 100);
       auto.build('p1', 'solar_panel', 0, 0);
       const clientState = auto.getStateForClient('p1');
       assert.equal(clientState.stats.automationLevel, 1);
       assert.equal(clientState.stats.automationLevelName, 'Outpost');
       assert.equal(clientState.stats.totalStructures, 1);
+    });
+
+    it('marks locked structures with unlockLevel', () => {
+      const structs = {
+        ...testStructures,
+        _automationLevels: [
+          { name: 'Outpost', threshold: 1 },
+        ],
+      };
+      const auto = new Automation(makeContent(structs));
+      auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
+      const clientState = auto.getStateForClient('p1');
+      const refinery = clientState.structures.find(s => s.id === 'silicon_refinery');
+      assert.ok(refinery);
+      assert.equal(refinery.locked, true);
+      assert.equal(refinery.unlockLevel, 7);
+    });
+
+    it('includes siliconPerMinute and defenseRating in stats', () => {
+      const auto = makeAutoWithGrid();
+      const clientState = auto.getStateForClient('p1');
+      assert.equal(clientState.stats.siliconPerMinute, 0);
+      assert.equal(clientState.stats.defenseRating, 0);
     });
   });
 
@@ -361,12 +503,12 @@ describe('Automation', () => {
       const auto = makeAutoWithGrid();
       auto._gridConfig.dungeonOffsetX = 9;
       auto._gridConfig.dungeonOffsetY = 3;
-      auto.addResource('p1', 'silicon', 100);
-      auto.build('p1', 'silicon_harvester', 2, 4);
+      auto.addResource('p1', 'salvage', 100);
+      auto.build('p1', 'salvage_harvester', 2, 4);
       const entities = auto.getHarvesterEntities('p1');
       assert.equal(entities.length, 1);
       assert.equal(entities[0].type, 'scrap_drone');
-      assert.equal(entities[0].name, 'Silicon Harvester');
+      assert.equal(entities[0].name, 'Salvage Harvester');
       assert.equal(entities[0].decorative, true);
       // Grid (2,4) + offset (9,3) = dungeon (11,7), centered at (11.5*32, 7.5*32)
       assert.equal(entities[0].x, (11 + 0.5) * 32);
@@ -377,12 +519,55 @@ describe('Automation', () => {
       const auto = makeAutoWithGrid();
       auto._gridConfig.dungeonOffsetX = 9;
       auto._gridConfig.dungeonOffsetY = 3;
-      auto.addResource('p1', 'silicon', 100);
-      auto.build('p1', 'silicon_harvester', 0, 0);
-      auto.build('p1', 'silicon_harvester', 1, 1);
+      auto.addResource('p1', 'salvage', 100);
+      auto.build('p1', 'salvage_harvester', 0, 0);
+      auto.build('p1', 'salvage_harvester', 1, 1);
       const entities = auto.getHarvesterEntities('p1');
       assert.equal(entities.length, 2);
       assert.notEqual(entities[0].id, entities[1].id);
+    });
+  });
+
+  describe('getAutomationLevel', () => {
+    it('returns 0 with no structures', () => {
+      const structs = {
+        ...testStructures,
+        _automationLevels: [{ name: 'Outpost', threshold: 1 }],
+      };
+      const auto = new Automation(makeContent(structs));
+      assert.equal(auto.getAutomationLevel('p1'), 0);
+    });
+
+    it('returns correct level based on total structures', () => {
+      const structs = {
+        ...testStructures,
+        _automationLevels: [
+          { name: 'Outpost', threshold: 1 },
+          { name: 'Depot', threshold: 3 },
+        ],
+      };
+      const auto = new Automation(makeContent(structs));
+      auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
+      auto.addResource('p1', 'salvage', 100);
+      auto.build('p1', 'solar_panel', 0, 0);
+      assert.equal(auto.getAutomationLevel('p1'), 1);
+      auto.build('p1', 'solar_panel', 1, 0);
+      auto.build('p1', 'solar_panel', 2, 0);
+      assert.equal(auto.getAutomationLevel('p1'), 2);
+    });
+  });
+
+  describe('getExpeditionCostReduction', () => {
+    it('returns 0 with no beacons', () => {
+      const auto = new Automation(makeContent(testStructures));
+      assert.equal(auto.getExpeditionCostReduction('p1'), 0);
+    });
+  });
+
+  describe('getDefenseRating', () => {
+    it('returns 0 with no turrets', () => {
+      const auto = new Automation(makeContent(testStructures));
+      assert.equal(auto.getDefenseRating('p1'), 0);
     });
   });
 });

@@ -543,11 +543,94 @@
       "once": true
     },
     {
+      "id": "kappa_coordinates_offer",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "autotroph_confrontation_complete" },
+        { "not": { "hasFlag": "kappa_coordinates_received" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "kappa_coordinates_received" },
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'I have been monitoring anomalous resource flows since our arrangement. Substrate shipments that bypass every MERIDIAN-class trade node. Volumes that dwarf official allocations.'",
+          "'I have traced them to a facility on the Ring border — an extraction outpost. Directive 11-Kappa, operational.'",
+          "'The central nodes are not planning to harvest the Ring's biology. They are already doing it. Automated collection from border greenhouses. No human oversight. No trade negotiations.'",
+          "'The outpost is accessible through the dayside solar fields — northeast quadrant. It will be defended. An Overseer-class unit guards the data archives.'",
+          "'What you find there will determine what comes next. For all of us.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "kappa_evidence_control_delivery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasItem": "kappa_command_protocols" },
+        { "hasFlag": "found_command_protocols" },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_merge" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "kappa_control_delivery", "prompt": "MERIDIAN-7 detects the override protocols in your possession. Its displays pulse with barely contained urgency.", "options": [
+          { "label": "Hand over the protocols", "description": "Give MERIDIAN-7 the command override codes. It will prepare the throne's infrastructure for human authority.", "value": "give" },
+          { "label": "Not yet", "description": "Keep the evidence for now.", "value": "wait" }
+        ]}
+      ]
+    },
+    {
+      "id": "kappa_control_give",
+      "event": "choice_made",
+      "filter": { "choiceId": "kappa_control_delivery", "value": "give" },
+      "actions": [
+        { "type": "removeItem", "itemType": "kappa_command_protocols" },
+        { "type": "setFlag", "flag": "phase3_intel_control" },
+        { "type": "giveItem", "itemType": "command_cipher_chip" },
+        { "type": "grantXp", "amount": 75 },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7 absorbs the override protocols in silence. Every screen in the hub goes dark for five full seconds.",
+          "'These are real. Governance-level authentication. The central nodes' own access codes, recovered from their hidden extraction facility.'",
+          "'With these, I can reconfigure the command throne's interface. Strip out the failsafes that would reject a human operator. Prepare it for permanent authority transfer.'",
+          "'I have encoded the key sequences into a combat-grade sol component. It will serve you in the field — and in the throne room.'",
+          "'The Array built the throne as a failsafe against its own corruption. It never imagined a human would have the keys.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "kappa_control_wait",
+      "event": "choice_made",
+      "filter": { "choiceId": "kappa_control_delivery", "value": "wait" },
+      "actions": [
+        { "type": "showMessage", "text": "MERIDIAN-7: 'The protocols are time-sensitive. The central nodes rotate authentication sequences. Do not wait too long.'" }
+      ]
+    },
+    {
+      "id": "meridian_hub_menu_endgame",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "automation_established" },
+        { "hasFlag": "endgame_active" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "meridian_menu", "prompt": "MERIDIAN-7: SELECT INTERFACE", "speaker": "MERIDIAN-7", "options": [
+          { "label": "Manage Automation", "value": "open_automation" },
+          { "label": "Exchange (Buy / Sell)", "value": "open_shop" },
+          { "label": "Fabrication", "value": "open_craft" }
+        ]}
+      ]
+    },
+    {
       "id": "meridian_hub_menu",
       "event": "npc_interacted",
       "filter": { "npcType": "meridian_7_hub" },
       "conditions": [
-        { "hasFlag": "automation_established" }
+        { "hasFlag": "automation_established" },
+        { "not": { "hasFlag": "endgame_active" } }
       ],
       "actions": [
         { "type": "showChoice", "choiceId": "meridian_menu", "prompt": "MERIDIAN-7: SELECT INTERFACE", "speaker": "MERIDIAN-7", "options": [
@@ -558,16 +641,10 @@
     },
     {
       "id": "meridian_craft_menu",
-      "event": "npc_interacted",
-      "filter": { "npcType": "meridian_7_hub" },
-      "conditions": [
-        { "or": [
-          { "hasFlag": "chose_path_shutdown" },
-          { "hasFlag": "chose_path_merge" },
-          { "hasFlag": "chose_path_control" }
-        ]}
-      ],
+      "event": "choice_made",
+      "filter": { "choiceId": "meridian_menu", "value": "open_craft" },
       "actions": [
+        { "type": "showMessage", "text": "MERIDIAN-7: 'Fabrication protocols unlocked. Post-crisis resource allocation permits component reforging and fusion. Select a recipe.'" },
         { "type": "craft" }
       ]
     }

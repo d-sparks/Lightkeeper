@@ -477,6 +477,81 @@
         }
       ],
       "once": true
+    },
+    {
+      "id": "endgame_comms_shutdown",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "hasFlag": "endgame_active"
+        },
+        {
+          "hasFlag": "chose_path_shutdown"
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "The comms room is quieter now — and louder. The Array relay panels are dark, their constant background hum finally silenced.",
+            "In their place, Daley has rigged a patchwork of independent radio equipment. Analog dials, manual tuning, hand-soldered connections. The open frequencies crackle with human voices from outposts across the terminator.",
+            "And beneath it all, if you listen carefully, something else. A low, resonant hum from the walls themselves — the Underlumen, no longer masked by Array traffic."
+          ]
+        },
+        {
+          "type": "setTile",
+          "x": 5,
+          "y": 4,
+          "tileId": 2
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "endgame_comms_merge",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "hasFlag": "endgame_active"
+        },
+        {
+          "hasFlag": "chose_path_merge"
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "The comms room is transformed. Daley's equipment shares space with something organic — a bioluminescent growth that pulses in rhythm with incoming transmissions.",
+            "Three signal layers displayed on a makeshift monitor: Array data, human radio, and Underlumen bio-frequencies. They weave together like voices in harmony.",
+            "The damaged speaker that once hissed static now carries a sound like breathing. The planet, the machine, and the people — all talking at once."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "endgame_comms_control",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "hasFlag": "endgame_active"
+        },
+        {
+          "hasFlag": "chose_path_control"
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "The comms room has been upgraded. Ring Authority standard-issue equipment replaces Daley's improvised repairs — clean lines, military encryption, full-spectrum monitoring.",
+            "Every relay frequency the Array once controlled is now routed through Ring Authority protocols. Suppression field telemetry scrolls across a new display panel.",
+            "The room hums with power and efficiency. Only the deep-earth frequencies are absent — suppressed along with whatever was producing them."
+          ]
+        }
+      ],
+      "once": true
     }
   ]
 }

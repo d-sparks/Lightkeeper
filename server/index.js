@@ -929,7 +929,12 @@ wss.on('connection', (ws) => {
 
       case CONSTANTS.MSG.AUTO_BUILD: {
         if (!ws.playerRoom) break;
-        const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY);
+        const pathFlags = {
+          chose_path_shutdown: gameLoop.flagStore.getPlayerFlag(playerId, 'chose_path_shutdown'),
+          chose_path_merge: gameLoop.flagStore.getPlayerFlag(playerId, 'chose_path_merge'),
+          chose_path_control: gameLoop.flagStore.getPlayerFlag(playerId, 'chose_path_control'),
+        };
+        const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY, pathFlags);
         if (built) {
           // Set automation_established flag once player has built 2+ structures
           if (!gameLoop.flagStore.getPlayerFlag(playerId, 'automation_established')) {
@@ -945,6 +950,10 @@ wss.on('connection', (ws) => {
             const player = room && room.players.get(playerId);
             if (player) {
               for (const give of milestoneRewards) {
+                if (give.type === 'grid_expansion') {
+                  // Grid already expanded server-side; client learns of new size via AUTO_STATE
+                  continue;
+                }
                 if (give.type === 'item') {
                   if (give.itemId === 'medical_supplies') {
                     player.medipacCharges = (player.medipacCharges || 0) + (give.count || 1);
@@ -987,7 +996,7 @@ wss.on('connection', (ws) => {
         }
         ws.send(JSON.stringify({
           type: CONSTANTS.MSG.AUTO_STATE,
-          auto: gameLoop.automation.getStateForClient(playerId),
+          auto: gameLoop.automation.getStateForClient(playerId, pathFlags),
           buildResult: built ? 'success' : 'fail',
           buildX: msg.gridX,
           buildY: msg.gridY,
@@ -1183,8 +1192,14 @@ function findClientByPlayerId(playerId) {
   return null;
 }
 
+// Chunk streaming runs every CHUNK_STREAM_EVERY ticks (not every tick) to reduce
+// the cost of getVisibleChunks + getOverlayedMapData on large maps with many players.
+const CHUNK_STREAM_EVERY = 3; // ~5 Hz instead of 15 Hz
+let broadcastTick = 0;
+
 // State broadcast loop
 setInterval(() => {
+  broadcastTick++;
   // Process floor transitions
   const transitions = gameLoop.consumeTransitions();
   for (const t of transitions) {
@@ -1194,26 +1209,72 @@ setInterval(() => {
     const player = gameLoop.removePlayer(t.fromRoom, t.playerId);
     if (!player) continue;
 
-    // Build generation context, including expedition overrides if present
-    const genContext = {
-      fromDungeon: t.fromRoom,
-      exitX: t.exitX,
-      exitY: t.exitY,
-      depth: t.depth,
-    };
-    if (t.expeditionMaxFloors) {
-      genContext.maxDepth = t.expeditionMaxFloors;
-      genContext.bossType = t.expeditionBossType;
+    // Check if this expedition transition should go through a loot banking checkpoint
+    let targetRoom = null;
+    let targetRoomId = null;
+    let isCheckpointRoom = false;
+    const pendingCheckpointDepth = t.expeditionTier != null
+      ? gameLoop.flagStore.getPlayerFlag(t.playerId, 'expedition_checkpoint_depth')
+      : null;
+
+    if (pendingCheckpointDepth != null) {
+      // Coming from a checkpoint room — clear the flag and continue normally
+      gameLoop.flagStore.removePlayerFlag(t.playerId, 'expedition_checkpoint_depth');
+    } else if (t.expeditionTier != null && t.depth != null) {
+      const currentFloor = gameLoop.flagStore.getPlayerFlag(t.playerId, 'expedition_floor') || 1;
+      const expedition = content.getExpeditionByTier(t.expeditionTier);
+      const checkpointFloors = expedition && expedition.checkpointFloors;
+      if (checkpointFloors && checkpointFloors.includes(currentFloor)) {
+        // Insert a checkpoint room before the next combat floor
+        const cpRoomId = `expedition_checkpoint_${t.playerId}_${Date.now()}`;
+        const cpRoom = gameLoop.createRoom(cpRoomId, 'expedition_checkpoint');
+        if (cpRoom) {
+          // Add descent exit to continue the expedition from the checkpoint
+          const templateId = gameLoop.flagStore.getPlayerFlag(t.playerId, 'expedition_template');
+          cpRoom.dungeon.exits.push({
+            x: 4, y: 1,
+            leadsTo: templateId,
+            type: 'stairs_down',
+            depth: t.depth,
+          });
+          // Place stairs_down tile (6) at the exit position
+          cpRoom.dungeon.data[1 * cpRoom.dungeon.width + 4] = 6;
+          // Mark as expedition room so the transition handler doesn't treat it as completion
+          cpRoom.expeditionScaling = t.expeditionScaling;
+          // Store pending depth so we skip re-checkpointing on exit
+          gameLoop.flagStore.setPlayerFlag(t.playerId, 'expedition_checkpoint_depth', t.depth);
+
+          targetRoom = cpRoom;
+          targetRoomId = cpRoomId;
+          isCheckpointRoom = true;
+          console.log(`[Transition] Inserted checkpoint for player ${t.playerId} after floor ${currentFloor}`);
+        }
+      }
     }
-    const targetRoom = gameLoop.getOrCreateRoom(t.toDungeon, genContext);
-    if (!targetRoom) continue;
 
-    // Use the room's actual ID (may differ from t.toDungeon for procedural instances)
-    const targetRoomId = targetRoom.id;
+    // Normal room creation if no checkpoint was inserted
+    if (!targetRoom) {
+      // Build generation context, including expedition overrides if present
+      const genContext = {
+        fromDungeon: t.fromRoom,
+        exitX: t.exitX,
+        exitY: t.exitY,
+        depth: t.depth,
+      };
+      if (t.expeditionMaxFloors) {
+        genContext.maxDepth = t.expeditionMaxFloors;
+        genContext.bossType = t.expeditionBossType;
+      }
+      targetRoom = gameLoop.getOrCreateRoom(t.toDungeon, genContext);
+      if (!targetRoom) continue;
 
-    // Apply expedition scaling to newly created rooms
-    if (t.expeditionScaling) {
-      gameLoop.applyExpeditionScaling(targetRoom, t.expeditionScaling);
+      // Use the room's actual ID (may differ from t.toDungeon for procedural instances)
+      targetRoomId = targetRoom.id;
+
+      // Apply expedition scaling to newly created rooms
+      if (t.expeditionScaling) {
+        gameLoop.applyExpeditionScaling(targetRoom, t.expeditionScaling, t.expeditionBossAffixes);
+      }
     }
 
     // Resolve spawn position: targetId > spawnX/Y > first player_start > fallback (2,2)
@@ -1257,7 +1318,9 @@ setInterval(() => {
 
     // Track expedition floor progression and detect completion
     if (t.expeditionTier != null) {
-      if (targetRoom.expeditionScaling) {
+      if (isCheckpointRoom) {
+        // Checkpoint rooms don't count as a new floor — skip floor increment
+      } else if (targetRoom.expeditionScaling) {
         // Advancing to next expedition floor — update floor counter
         const currentFloor = gameLoop.flagStore.getPlayerFlag(t.playerId, 'expedition_floor') || 1;
         const newFloor = (t.depth || 0) + 1;
@@ -1313,7 +1376,16 @@ setInterval(() => {
     const lines = [];
     if (dp.energyLost > 0) lines.push(`Lost ${dp.energyLost} energy.`);
     if (dp.droppedItems && dp.droppedItems.length > 0) {
-      lines.push(`Dropped: ${dp.droppedItems.join(', ')}`);
+      if (dp.expeditionForfeit) {
+        lines.push(`Expedition failed. Floor loot forfeited: ${dp.droppedItems.join(', ')}`);
+      } else {
+        lines.push(`Dropped: ${dp.droppedItems.join(', ')}`);
+      }
+    } else if (dp.expeditionForfeit) {
+      lines.push('Expedition failed. Returned to station.');
+    }
+    if (dp.bankedRestoredCount > 0) {
+      lines.push(`${dp.bankedRestoredCount} banked item(s) restored from cache.`);
     }
     ws.send(JSON.stringify({
       type: CONSTANTS.MSG.DEATH_SCREEN,
@@ -1321,25 +1393,29 @@ setInterval(() => {
     }));
   }
 
-  // Stream new map chunks to players who have moved into new areas
-  for (const [roomId, room] of gameLoop.rooms) {
-    for (const [playerId, player] of room.players) {
-      const client = findClientByPlayerId(playerId);
-      if (!client || client.readyState !== 1) continue;
-      // Check if there are new visible chunks before doing expensive overlay
-      const visible = chunkManager.getVisibleChunks(player.x, player.y, room.dungeon);
-      const newKeys = chunkManager.getNewChunkKeys(playerId, roomId, visible);
-      if (newKeys.length === 0) continue;
-      const overlayed = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
-      const chunks = newKeys.map(key => {
-        const { cx, cy } = chunkManager.parseKey(key);
-        return chunkManager.extractChunk(overlayed, cx, cy);
-      });
-      chunkManager.markSent(playerId, roomId, newKeys);
-      client.send(JSON.stringify({
-        type: CONSTANTS.MSG.MAP_CHUNKS,
-        chunks,
-      }));
+  // Stream new map chunks to players who have moved into new areas.
+  // Throttled to every CHUNK_STREAM_EVERY ticks to reduce getVisibleChunks /
+  // getOverlayedMapData cost on large maps with many concurrent players.
+  if (broadcastTick % CHUNK_STREAM_EVERY === 0) {
+    for (const [roomId, room] of gameLoop.rooms) {
+      for (const [playerId, player] of room.players) {
+        const client = findClientByPlayerId(playerId);
+        if (!client || client.readyState !== 1) continue;
+        // Check if there are new visible chunks before doing expensive overlay
+        const visible = chunkManager.getVisibleChunks(player.x, player.y, room.dungeon);
+        const newKeys = chunkManager.getNewChunkKeys(playerId, roomId, visible);
+        if (newKeys.length === 0) continue;
+        const overlayed = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
+        const chunks = newKeys.map(key => {
+          const { cx, cy } = chunkManager.parseKey(key);
+          return chunkManager.extractChunk(overlayed, cx, cy);
+        });
+        chunkManager.markSent(playerId, roomId, newKeys);
+        client.send(JSON.stringify({
+          type: CONSTANTS.MSG.MAP_CHUNKS,
+          chunks,
+        }));
+      }
     }
   }
 
@@ -1355,6 +1431,18 @@ setInterval(() => {
         const player = room.players.get(client.playerId);
         if (player) {
           state.myCooldowns = player.cooldowns;
+          // Inject expedition info for this player
+          if (gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_active')) {
+            const party = gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_party');
+            state.expedition = {
+              tier: gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_tier'),
+              floor: gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_floor'),
+              maxFloors: gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_max_floors'),
+              partySize: party ? party.length : 1,
+            };
+          } else {
+            state.expedition = null;
+          }
         }
         // Inject per-player harvester entities when in the automation dungeon
         if (isDaysideRoom && client.playerId) {

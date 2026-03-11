@@ -40,6 +40,10 @@
   const worldmapBtn = document.getElementById('worldmap-btn');
   const onboardMove = document.getElementById('onboard-move');
   const onboardInteract = document.getElementById('onboard-interact');
+  const expeditionHud = document.getElementById('expedition-hud');
+  const expeditionTier = document.getElementById('expedition-tier');
+  const expeditionFloor = document.getElementById('expedition-floor');
+  const expeditionParty = document.getElementById('expedition-party');
   const bossBar = document.getElementById('boss-bar');
   const bossBarName = document.getElementById('boss-bar-name');
   const bossBarFill = document.getElementById('boss-bar-fill');
@@ -1306,38 +1310,48 @@
     for (const s of (autoState.structures || [])) {
       const item = document.createElement('div');
       item.className = 'auto-palette-item';
-      const isMaxed = s.maxCount > 0 && s.count >= s.maxCount;
-      const canAfford = Object.entries(s.cost).every(
+      const isLocked = s.locked;
+      const isMaxed = !isLocked && s.maxCount > 0 && s.count >= s.maxCount;
+      const canAfford = !isLocked && Object.entries(s.cost).every(
         ([r, amt]) => (autoState.resources[r] || 0) >= amt
       );
 
-      if (isMaxed) item.classList.add('maxed');
+      if (isLocked) item.classList.add('locked');
+      else if (isMaxed) item.classList.add('maxed');
       else if (!canAfford) item.classList.add('cant-afford');
       if (automationSelectedStructure === s.id) item.classList.add('selected');
 
       const icon = document.createElement('span');
       icon.className = 'auto-palette-icon';
       icon.textContent = s.gridIcon || '?';
-      icon.style.color = s.gridColor || '#888';
+      icon.style.color = isLocked ? '#555' : (s.gridColor || '#888');
 
       const name = document.createElement('span');
-      name.textContent = s.name;
+      if (isLocked) {
+        name.textContent = s.name + ' (Lv ' + s.unlockLevel + ')';
+        name.style.color = '#555';
+      } else {
+        name.textContent = s.name;
+      }
 
-      const costStr = Object.entries(s.cost).map(([r, amt]) => amt + '\u26cf').join(' ');
+      const resourceSymbols = { salvage: '\u26cf', silicon: '\u25c7' };
+      const costStr = Object.entries(s.cost).map(
+        ([r, amt]) => amt + (resourceSymbols[r] || r)
+      ).join(' ');
       const cost = document.createElement('span');
       cost.className = 'auto-palette-cost';
       cost.textContent = costStr;
 
       const count = document.createElement('span');
       count.className = 'auto-palette-count';
-      count.textContent = s.count + (s.maxCount > 0 ? '/' + s.maxCount : '');
+      count.textContent = isLocked ? '\ud83d\udd12' : s.count + (s.maxCount > 0 ? '/' + s.maxCount : '');
 
       item.appendChild(icon);
       item.appendChild(name);
       item.appendChild(cost);
       item.appendChild(count);
 
-      if (!isMaxed) {
+      if (!isMaxed && !isLocked) {
         const doSelect = () => {
           automationSelectedStructure = (automationSelectedStructure === s.id) ? null : s.id;
           renderAutomationScreen();
@@ -1389,6 +1403,24 @@
           autoState.stats.salvagePerMinute.toFixed(1) + '</span>/min';
         resSection.appendChild(rateRow);
       }
+
+      // Silicon resource (shown once refineries are unlocked or silicon exists)
+      if ((autoState.resources.silicon || 0) > 0 || (autoState.stats.siliconPerMinute || 0) > 0) {
+        const siliconRow = document.createElement('div');
+        siliconRow.className = 'auto-stat-row';
+        siliconRow.innerHTML = '\u25c7 Silicon: <span class="stat-value">' +
+          (autoState.resources.silicon || 0) + '</span>';
+        resSection.appendChild(siliconRow);
+
+        if (autoState.stats.siliconPerMinute > 0) {
+          const siRateRow = document.createElement('div');
+          siRateRow.className = 'auto-stat-row';
+          siRateRow.innerHTML = '\u25b8 <span class="stat-value">+' +
+            autoState.stats.siliconPerMinute.toFixed(1) + '</span>/min';
+          resSection.appendChild(siRateRow);
+        }
+      }
+
       if (autoState.stats.totalSalvageProduced > 0) {
         const totalRow = document.createElement('div');
         totalRow.className = 'auto-stat-row';
@@ -1412,6 +1444,15 @@
             (panelCount.count !== 1 ? 's' : '') + ' active';
           resSection.appendChild(panelRow);
         }
+      }
+
+      // Defense rating (shown when turrets exist)
+      if (autoState.stats.defenseRating > 0) {
+        const defRow = document.createElement('div');
+        defRow.className = 'auto-stat-row';
+        defRow.innerHTML = '\ud83d\udee1 Defense: <span class="stat-value">' +
+          autoState.stats.defenseRating + '</span>';
+        resSection.appendChild(defRow);
       }
     }
     sidebar.appendChild(resSection);
@@ -2751,6 +2792,21 @@
       bossBar.style.display = 'none';
     }
 
+    // Update expedition HUD
+    if (msg.expedition) {
+      expeditionHud.style.display = '';
+      expeditionTier.textContent = `EXPEDITION T${msg.expedition.tier}`;
+      expeditionFloor.textContent = `Floor ${msg.expedition.floor} / ${msg.expedition.maxFloors}`;
+      if (msg.expedition.partySize > 1) {
+        expeditionParty.textContent = `Party: ${msg.expedition.partySize} explorers`;
+        expeditionParty.style.display = '';
+      } else {
+        expeditionParty.style.display = 'none';
+      }
+    } else {
+      expeditionHud.style.display = 'none';
+    }
+
     // Update click-to-move direction based on current position
     if (renderer.myId) {
       const me = msg.players.find(p => p.id === renderer.myId);
@@ -2806,6 +2862,19 @@
     setTimeout(() => {
       deathOverlay.classList.remove('active');
     }, 3000);
+  });
+
+  net.on(CONSTANTS.MSG.LOOT_BANKED, (msg) => {
+    // Show banking confirmation via milestone toast pattern
+    milestoneText.textContent = '\u{1F4E6} ' + msg.bankedCount + ' item(s) banked — ' + msg.totalBanked + ' total cached';
+    milestonToast.style.display = 'block';
+    milestonToast.style.animation = 'none';
+    void milestonToast.offsetWidth;
+    milestonToast.style.animation = '';
+    if (milestoneToastTimeout) clearTimeout(milestoneToastTimeout);
+    milestoneToastTimeout = setTimeout(() => {
+      milestonToast.style.display = 'none';
+    }, 4000);
   });
 
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {

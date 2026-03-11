@@ -1,0 +1,75 @@
+{
+  "berserker": {
+    "id": "berserker",
+    "name": "Berserker",
+    "description": "Boss deals more damage but has less health.",
+    "statMods": {
+      "damageMult": 1.5,
+      "healthMult": 0.75
+    }
+  },
+  "ironhide": {
+    "id": "ironhide",
+    "name": "Ironhide",
+    "description": "Boss has greatly increased health.",
+    "statMods": {
+      "healthMult": 1.6
+    }
+  },
+  "swift": {
+    "id": "swift",
+    "name": "Swift",
+    "description": "Boss moves and attacks faster.",
+    "statMods": {
+      "speedMult": 1.35,
+      "attackSpeedMult": 1.3
+    }
+  },
+  "volatile": {
+    "id": "volatile",
+    "name": "Volatile",
+    "description": "Boss deals heavy damage but takes more damage from players.",
+    "statMods": {
+      "damageMult": 1.3,
+      "damageTakenMult": 1.25
+    }
+  },
+  "regenerating": {
+    "id": "regenerating",
+    "name": "Regenerating",
+    "description": "Boss slowly regenerates health over time.",
+    "regenPerSecond": 8
+  },
+  "empowered_slam": {
+    "id": "empowered_slam",
+    "name": "Empowered Slam",
+    "description": "Boss ground slam has increased range and knockback.",
+    "specialAttackMods": {
+      "ground_slam": {
+        "rangeMult": 1.5,
+        "knockbackMult": 1.5,
+        "cooldownMult": 0.8
+      }
+    }
+  },
+  "relentless": {
+    "id": "relentless",
+    "name": "Relentless",
+    "description": "Boss has reduced cooldowns on all special attacks.",
+    "specialAttackMods": {
+      "_all": {
+        "cooldownMult": 0.6
+      }
+    }
+  },
+  "juggernaut": {
+    "id": "juggernaut",
+    "name": "Juggernaut",
+    "description": "Boss has massively increased health and damage, but moves slower.",
+    "statMods": {
+      "healthMult": 2.0,
+      "damageMult": 1.4,
+      "speedMult": 0.7
+    }
+  }
+}
