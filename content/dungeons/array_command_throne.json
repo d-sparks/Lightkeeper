@@ -80,6 +80,22 @@
       "once": true
     },
     {
+      "id": "control_intel_advantage",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "phase3_intel_control" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Command Cipher activates in your Sol Grid. MERIDIAN-7's reconfigured authentication sequences interface with the throne room's systems — override protocols propagate through the local network.",
+          "The throne's defensive grid recognizes the command codes. Automated turrets along the perimeter walls power down. The Overseer's energy feed from the network stutters."
+        ]},
+        { "type": "setEnergy", "percent": 100 },
+        { "type": "grantXp", "amount": 30 }
+      ],
+      "once": true
+    },
+    {
       "id": "throne_coolant_warning",
       "event": "room_entered",
       "conditions": [

@@ -356,5 +356,32 @@
     "name": "Light Sentry Emitter",
     "description": "Deploys a stationary light sentry that projects a beam at the nearest enemy, dealing continuous damage and slowing them. Only one sentry active at a time.",
     "shape": [[1]]
+  },
+  "shutdown_schematic": {
+    "type": "modifier",
+    "name": "Shutdown Schematic",
+    "rarity": "epic",
+    "faction": "nightside",
+    "bonus": { "damageMultiplier": 0.45, "cooldownReduction": 0.15 },
+    "description": "Array vulnerability data encoded into a targeting matrix. Amplifies damage output and speeds ability cycling — precision destruction for a clean shutdown.",
+    "shape": [[1, 1]]
+  },
+  "symbiotic_bridge": {
+    "type": "modifier",
+    "name": "Symbiotic Bridge",
+    "rarity": "epic",
+    "faction": "greenway",
+    "bonus": { "healOnHit": 6, "damageMultiplier": 0.25 },
+    "description": "Living circuitry grown from cross-system compatibility data. Heals its user on every strike while boosting adjacent abilities — biology and technology in balance.",
+    "shape": [[1, 1]]
+  },
+  "command_cipher": {
+    "type": "modifier",
+    "name": "Command Cipher",
+    "rarity": "epic",
+    "faction": "dayside",
+    "bonus": { "energyCostReduction": 0.35, "damageMultiplier": 0.20 },
+    "description": "Array override protocols encoded into an efficiency matrix. Reduces energy waste and amplifies output — the language of absolute authority.",
+    "shape": [[1, 1]]
   }
 }

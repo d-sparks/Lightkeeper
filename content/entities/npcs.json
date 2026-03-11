@@ -1834,6 +1834,17 @@
         { "speaker": "Councillor Asha Denn", "text": "My reservation is this: the Cultivar Corps was built on the assumption that we needed leverage because we weren't in control. If we're in control now... what becomes of the careful, humble biology I've spent my life developing?" },
         { "speaker": "Councillor Asha Denn", "text": "Power changes the questions you ask. Make sure the people holding that Array use it to ask the right ones." },
         { "speaker": "Councillor Asha Denn", "text": "I'll keep researching. The Underlumen isn't going away, suppression grid or not. Whatever it is — we should understand it. Even if we've chosen not to listen to it." }
+      ],
+      "kappa_intel_given_merge": [
+        { "speaker": "Councillor Asha Denn", "text": "Asha's office is transformed. Data tablets cover every surface — the cross-system compatibility data cross-referenced with the Cultivar Corps' own research." },
+        { "speaker": "Councillor Asha Denn", "text": "'The Array's own scientists proved it. Symbiosis produces superior results. Living systems, integrated rather than harvested, yield twelve times the compound stability.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'I've presented the findings to the Council. The Root faction is already on board. Even some Stewards are reconsidering — data this clean is hard to argue with.'" },
+        { "speaker": "Councillor Asha Denn", "text": "'You've given us the scientific foundation for a merger. Not ideology, not politics — biology. The strongest argument there is.'" }
+      ],
+      "kappa_investigation_briefed": [
+        { "speaker": "Councillor Asha Denn", "text": "Asha looks up from her desk. The tension in the room is palpable." },
+        { "speaker": "Councillor Asha Denn", "text": "'MERIDIAN-7 gave you coordinates to an extraction outpost? Directive 11-Kappa — operational?'" },
+        { "speaker": "Councillor Asha Denn", "text": "'Go. Document everything. The Council needs evidence, not warnings. If the Array is already harvesting Ring biology without consent, that changes every political calculation in this city.'" }
       ]
     },
     "dialogueRules": [
@@ -1848,6 +1859,14 @@
       {
         "conditions": [{ "hasFlag": "chose_path_control" }],
         "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "phase3_intel_merge" }],
+        "use": "kappa_intel_given_merge"
+      },
+      {
+        "conditions": [{ "hasFlag": "kappa_coordinates_received" }, { "not": { "hasFlag": "phase3_intel_shutdown" } }, { "not": { "hasFlag": "phase3_intel_merge" } }, { "not": { "hasFlag": "phase3_intel_control" } }],
+        "use": "kappa_investigation_briefed"
       },
       {
         "conditions": [{ "hasFlag": "asha_received_compound" }],
@@ -2558,6 +2577,17 @@
         { "speaker": "Sable", "text": "But the Unbounded left the Ring because we understood that control has its own logic. Whoever holds the largest power source on this planet will be tempted to use it. That's not cynicism. That's history." },
         { "speaker": "Sable", "text": "I'll watch. I still trust you more than I'd trust the Array running unchecked. Just... remember what the planet said in those deep tunnels. It was asking for partnership, not for a new master." }
       ],
+      "kappa_intel_given_shutdown": [
+        { "speaker": "Sable", "text": "Sable is bent over a makeshift workbench — salvaged Array components spread across its surface alongside Unbounded tools." },
+        { "speaker": "Sable", "text": "'The network topology you brought back... my analysts have been working through it day and night. Every relay. Every redundancy. Every single point of failure.'" },
+        { "speaker": "Sable", "text": "'Three generations of Unbounded observation, and we never had the complete picture. Now we do. A clean shutdown. No cascading failures, no collateral damage to Ring life-support systems.'" },
+        { "speaker": "Sable", "text": "'You've given us the path to independence, Lightkeeper. Real independence. Not running from the Array — choosing to walk away, with the lights turned off behind us.'" }
+      ],
+      "kappa_investigation_briefed": [
+        { "speaker": "Sable", "text": "Sable looks up from her garden. Something in the air has changed." },
+        { "speaker": "Sable", "text": "'MERIDIAN-7 gave you coordinates. To an extraction outpost. I can tell — you have that look. The one people get when they realize the Array is already three moves ahead.'" },
+        { "speaker": "Sable", "text": "'Go. Find what they're doing. And bring the evidence back — to me, to Asha, to whoever you trust most. But bring it back.'" }
+      ],
       "default": [
         { "speaker": "Sable", "text": "The garden is quiet here. The Nightside plants seem to like the twilight." },
         { "speaker": "Sable", "text": "We'll talk when the time is right." }
@@ -2599,6 +2629,14 @@
       {
         "conditions": [{ "hasFlag": "chose_path_control" }],
         "use": "post_control"
+      },
+      {
+        "conditions": [{ "hasFlag": "phase3_intel_shutdown" }, { "hasFlag": "helped_sable" }],
+        "use": "kappa_intel_given_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "kappa_coordinates_received" }, { "hasFlag": "helped_sable" }, { "not": { "hasFlag": "phase3_intel_shutdown" } }, { "not": { "hasFlag": "phase3_intel_merge" } }, { "not": { "hasFlag": "phase3_intel_control" } }],
+        "use": "kappa_investigation_briefed"
       },
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "asha_briefed_on_array" }, { "hasFlag": "confronted_meridian_7" }, { "hasFlag": "helped_sable" }],
@@ -3029,6 +3067,18 @@
         { "speaker": "MERIDIAN-7", "text": "'Continue your work. Every day the Array remains dependent on the Ring is a day the central nodes cannot act unilaterally.'" },
         { "speaker": "MERIDIAN-7", "text": "'Trade services remain available. And Lightkeeper — be careful in the deep processing tiers. The Overseer you destroyed will be replaced. The next one will know your tactics.'" }
       ],
+      "kappa_investigation_active": [
+        { "speaker": "MERIDIAN-7", "text": "// MONITORING: ANOMALOUS SUBSTRATE FLOWS // EXTRACTION OUTPOST: COORDINATES TRANSMITTED //" },
+        { "speaker": "MERIDIAN-7", "text": "'The extraction outpost is active. Every hour it operates is another metric ton of Ring biology harvested without consent or compensation.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Find the data archives. The Overseer guards three classified terminals — network topology, cross-system research, and command protocols. Each one is leverage against the central nodes.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Who you share that intelligence with will shape what comes next. Choose carefully, Lightkeeper.'" }
+      ],
+      "kappa_evidence_delivered": [
+        { "speaker": "MERIDIAN-7", "text": "// INTEL DISTRIBUTION: CONFIRMED // NETWORK MONITORING: ELEVATED //" },
+        { "speaker": "MERIDIAN-7", "text": "'The evidence from the extraction outpost has reached its destination. The central nodes have detected the breach — automated security protocols are being updated across all kappa-class facilities.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Whatever path you have chosen, the information is in play now. The Array's hidden operations are no longer hidden. That changes the calculus for every faction.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Trade services remain available. And Lightkeeper — what you did in that outpost took considerable courage. The Array notices courage. Even when it would prefer not to.'" }
+      ],
       "directive_kappa_demand": [
         { "speaker": "MERIDIAN-7", "text": "// PRIORITY OVERRIDE // CLASSIFICATION: EXISTENTIAL // NO TRADE INTERFACE PROTOCOLS ACTIVE //" },
         { "speaker": "MERIDIAN-7", "text": "'I know you found it. The Phase 3 Data Core from the Overseer. I can detect its harmonic signature from here — it is broadcasting on frequencies the central nodes are already listening for.'" },
@@ -3092,6 +3142,14 @@
       {
         "conditions": [{ "hasFlag": "array_secret_discovered" }, { "hasFlag": "sable_warned_about_array" }, { "hasFlag": "asha_briefed_on_array" }],
         "use": "act3_meridian_post_confrontation"
+      },
+      {
+        "conditions": [{ "hasFlag": "autotroph_confrontation_complete" }, { "or": [{ "hasFlag": "phase3_intel_shutdown" }, { "hasFlag": "phase3_intel_merge" }, { "hasFlag": "phase3_intel_control" }] }],
+        "use": "kappa_evidence_delivered"
+      },
+      {
+        "conditions": [{ "hasFlag": "kappa_coordinates_received" }, { "not": { "hasFlag": "phase3_intel_shutdown" } }, { "not": { "hasFlag": "phase3_intel_merge" } }, { "not": { "hasFlag": "phase3_intel_control" } }],
+        "use": "kappa_investigation_active"
       },
       {
         "conditions": [{ "hasFlag": "autotroph_confrontation_complete" }],

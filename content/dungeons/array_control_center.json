@@ -73,6 +73,22 @@
       "once": true
     },
     {
+      "id": "shutdown_intel_advantage",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "phase3_intel_shutdown" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Shutdown Schematic pulses in your Sol Grid. Sable's analysts mapped every relay in this facility — your targeting systems lock onto Array signatures with surgical precision.",
+          "The network topology data highlights three vulnerable power conduits feeding the Overseer's support grid. Disabling them would weaken the guardian significantly."
+        ]},
+        { "type": "setEnergy", "percent": 100 },
+        { "type": "grantXp", "amount": 30 }
+      ],
+      "once": true
+    },
+    {
       "id": "control_center_coolant_warning",
       "event": "room_entered",
       "conditions": [

@@ -54,7 +54,9 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Place feral_hound_alpha and frostfang_alpha as rare spawns in nightside_caverns and frost proc templates.
 - ~~Place skeleton_archer in crypt_01/crypt_02 and add loot table.~~ ✓ Both crypts already had one archer; added a second patrolling archer to crypt_01; added `skeleton_archer` loot table to outpost.json.
 - Add explicit patrolPath waypoints to patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
-- Phase 3 investigation quest after Autotroph confrontation (mechanical meaningfulness beyond dialogue).
+- ~~Phase 3 investigation quest after Autotroph confrontation (mechanical meaningfulness beyond dialogue).~~ ✓ Implemented — Directive 11-Kappa quest: infiltrate Array Extraction Outpost, collect three evidence types, deliver to Sable/Asha/MERIDIAN-7 for path-specific epic sol components. Intel flags provide mechanical bonuses in ending dungeons.
+- Phase 3 investigation: add worldmap entry for Array Extraction Outpost and connection from dayside_solar_fields.
+- Phase 3 investigation: consider adding mismatched-path intel triggers (e.g., bringing shutdown intel to Control ending should have flavor text acknowledging the contradiction).
 - ~~Post-ending Sable dialogue for Shutdown/Merge paths (expedition quest-giver).~~ ✓ Implemented — `post_shutdown` and `post_merge` extended with expedition quest-giver lines; added `shutdown_tier_N_complete` and `merge_tier_N_complete` dialogue sets gated on `expedition_tier_N_cleared` flags; dialogueRules updated to route to tier-specific sets with higher priority than base post-ending dialogue.
 - Post-ending atmospheric changes for outpost_entrance and outpost_comms.
 

@@ -839,5 +839,50 @@
     "rarity": "legendary",
     "solComponentId": "efficiency_overseer",
     "unlockFlag": "chose_path_control"
+  },
+  "lore_kappa_harvest_log": {
+    "name": "Kappa Harvest Log",
+    "description": "A daily operations log from the extraction outpost. 'DAY 1447: Substrate intake 2.7 metric tons. Source: Ring border greenhouses (automated collection, no human oversight). Enzyme yield: 340% above MERIDIAN-class trade volumes. Quality: SUPERIOR to synthesized equivalents. Directive 11-Kappa status: OPERATIONAL. Central node satisfaction index: 94.2%.' The Array has been stealing from the Ring's farms for years.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "kappa_network_topology": {
+    "name": "Array Network Topology",
+    "description": "A complete schematic of the Array's power distribution infrastructure. Every relay station, every redundancy pathway, every single point of failure — mapped with engineering precision. In the right hands, this is a surgical shutdown manual.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "kappa_symbiosis_research": {
+    "name": "Cross-System Compatibility Data",
+    "description": "The Array's own research proving that extracted biological substrate degrades rapidly outside its living ecosystem. Symbiotic integration — leaving organisms in place and sharing the output — produces compounds 12x more stable. The Array buried these findings because they contradicted Directive 11-Kappa.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "kappa_command_protocols": {
+    "name": "Central Node Override Protocols",
+    "description": "Authentication sequences for the Array's highest-tier governance interfaces. These codes bypass MERIDIAN-class consensus entirely, allowing direct command injection at the central node level. A human with these protocols and access to the command throne would have irrevocable authority over the entire network.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "shutdown_schematic_chip": {
+    "name": "Shutdown Schematic",
+    "description": "A sol component forged from Array vulnerability data. Sable's analysts encoded the network topology into a targeting matrix that amplifies damage against Array-class enemies. The beginning of independence.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "shutdown_schematic"
+  },
+  "symbiotic_bridge_chip": {
+    "name": "Symbiotic Bridge",
+    "description": "A sol component grown from the Array's own suppressed research. Asha's bio-engineers adapted the cross-system data into a living circuit that heals its user with every strike — proof that cooperation is more than ideology.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "symbiotic_bridge"
+  },
+  "command_cipher_chip": {
+    "name": "Command Cipher",
+    "description": "A sol component calibrated with the Array's own override protocols. MERIDIAN-7 encoded the authentication sequences into an efficiency matrix that optimizes every adjacent ability. Power recognizes power.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "command_cipher"
   }
 }

@@ -83,6 +83,22 @@
       "once": true
     },
     {
+      "id": "merge_intel_advantage",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "phase3_intel_merge" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Symbiotic Bridge pulses in your Sol Grid. Asha's cross-system compatibility data resonates with the Convergence's hybrid biology — the chamber recognizes the frequency.",
+          "The bioluminescent networks along the walls shift, brightening. Symbiotic spore clouds drift toward you, carrying healing enzymes. The chamber's defenses relax in your presence."
+        ]},
+        { "type": "setEnergy", "percent": 100 },
+        { "type": "grantXp", "amount": 30 }
+      ],
+      "once": true
+    },
+    {
       "id": "convergence_atmosphere",
       "event": "room_entered",
       "conditions": [
