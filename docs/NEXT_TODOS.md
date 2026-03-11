@@ -82,7 +82,14 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Art & Sprites
 
-- Replace all placeholder sprites with proper pixel art per art-style-guide.md (long-term).
+- ~~Redesign player sprites as helmeted frontier engineers with Sol Gold chest accent.~~ ✓ Done
+- ~~Add warm hostile eyes (orange/red) to skeleton, luddite, and warlord sprites.~~ ✓ Done
+- ~~Add distinguishing features to key NPCs (NPC default hair, Sable teal nightside eyes).~~ ✓ Done
+- ~~Improve priority items: health potion self-colored outline, Sol Gold iron key, geometric sol unit.~~ ✓ Done
+- Replace remaining monster sprites with proper pixel art per art-style-guide.md: nightside creatures (dusk_crawler, shade_stalker, gloom_wraith), ice enemies (rime_stalker, frostfang_hunter, frost_warden), fire enemies (vent_spewer, magma_brute), fungal enemies, array/threshold bosses.
+- Add 1-pixel dark outlines to all entity sprites (currently most lack outlines).
+- Add top-left lighting pass (highlight upper-left edges, shadow lower-right) across all sprites.
+- Improve tileset sprites: crypt, outpost, quarantine tiles need texture refinement per zone color identity.
 - Animation frames (idle, attack, hit) when engine supports sprite animation.
 - New tileset strips for dark_city, quarantine, outpost templates (PNG files exist, need wiring).
 

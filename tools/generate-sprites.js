@@ -153,6 +153,12 @@ const T = C.teal;
 const t = C.darkTeal;
 const P = C.purple;
 const p = C.darkPurple;
+const Oe = C.orange;     // hostile warm eyes
+const Lr = C.lightRed;   // highlight for red items
+const SG = C.solGold;    // sol unit glow
+const H = C.gray;        // helmet/armor main
+const Hd = C.midGray;    // helmet/armor dark
+const Hl = C.lightGray;  // helmet highlight
 
 // ============================================================================
 // TILESET: Crypt (10 tiles in a horizontal strip: 160x16)
@@ -324,7 +330,7 @@ function generateMonsterSprites() {
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],  // 0
     [_, _, _, _, _, _, B, B, B, B, _, _, _, _, _, _],  // 1
     [_, _, _, _, _, B, B, B, B, B, B, _, _, _, _, _],  // 2
-    [_, _, _, _, _, B, K, B, B, K, B, _, _, _, _, _],  // 3  eyes
+    [_, _, _, _, _, B,Oe, B, B,Oe, B, _, _, _, _, _],  // 3  orange eyes (hostile)
     [_, _, _, _, _, B, B, b, b, B, B, _, _, _, _, _],  // 4  jaw
     [_, _, _, _, _, _, B, B, B, B, _, _, _, _, _, _],  // 5
     [_, _, _, _, _, _, _, B, B, _, _, _, _, _, _, _],  // 6  neck
@@ -346,7 +352,7 @@ function generateMonsterSprites() {
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, B, B, B, B, _, _, _, _, _, _],
     [_, _, _, _, _, B, B, B, B, B, B, _, _, _, _, _],
-    [_, _, _, _, _, B, K, B, B, K, B, _, _, _, _, _],
+    [_, _, _, _, _, B,Oe, B, B,Oe, B, _, _, _, _, _],
     [_, _, _, _, _, B, B, b, b, B, B, _, _, _, _, _],
     [_, _, _, _, _, _, B, B, B, B, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, B, B, _, _, _, _, _, _, _],
@@ -370,7 +376,7 @@ function generateMonsterSprites() {
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
     [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
-    [_, _, _, _, _, S, K, S, S, K, S, _, _, _, _, _],
+    [_, _, _, _, _, S, R, S, S, R, S, _, _, _, _, _],
     [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
     [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
     [_, _, _, _, _, _, _,Br,Br, _, _, _, _, _, _, _],
@@ -394,7 +400,7 @@ function generateMonsterSprites() {
     [_, _, _, _, _, _,Hd,Hd,Hd,Hd, _, _, _, _, _, _],
     [_, _, _, _, _,Hd,Hd,Hd,Hd,Hd,Hd, _, _, _, _, _],
     [_, _, _, _, _,Hd,Hd,Hd,Hd,Hd,Hd, _, _, _, _, _],
-    [_, _, _, _, _,Hd, K,Hk,Hk, K,Hd, _, _, _, _, _],
+    [_, _, _, _, _,Hd,Oe,Hk,Hk,Oe,Hd, _, _, _, _, _],
     [_, _, _, _, _, _,Hk,Hk,Hk,Hk, _, _, _, _, _, _],
     [_, _, _, _, _, _,Hd,Hd,Hd,Hd, _, _, _, _, _, _],
     [_, _, _, _, _, _, _,Hd,Hd, _, _, _, _, _, _, _],
@@ -418,7 +424,7 @@ function generateMonsterSprites() {
   drawPixelArt(warlord, 0, 0, [
     [_, _, _, _, _,Rr,Ar,Ar,Ar,Ar,Rr, _, _, _, _, _],
     [_, _, _, _, _,Ar,Ar,Ar,Ar,Ar,Ar, _, _, _, _, _],
-    [_, _, _, _, _,Ar, K,Ar,Ar, K,Ar, _, _, _, _, _],
+    [_, _, _, _, _,Ar,Oe,Ar,Ar,Oe,Ar, _, _, _, _, _],
     [_, _, _, _, _,Ar,Rr,Ad,Ad,Rr,Ar, _, _, _, _, _],
     [_, _, _, _, _, _,Ar,Ar,Ar,Ar, _, _, _, _, _, _],
     [_, _, _, _, _, _, _,Ar,Ar, _, _, _, _, _, _, _],
@@ -1158,6 +1164,7 @@ function generateMonsterSprites() {
 // ============================================================================
 
 function generatePlayerSprites() {
+  // Players are frontier engineers: gray helmet + visor, light armor, sol unit glow
   const playerColors = [
     { name: 'blue',   body: C.blue,      dark: C.darkBlue    },
     { name: 'red',    body: C.red,       dark: C.darkRed     },
@@ -1167,25 +1174,26 @@ function generatePlayerSprites() {
 
   for (const pc of playerColors) {
     const png = createPNG(16, 16);
-    const M = pc.body;
-    const m = pc.dark;
+    const M = pc.body;   // accent color
+    const m = pc.dark;   // dark accent
     drawPixelArt(png, 0, 0, [
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-      [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
-      [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
-      [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
-      [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
-      [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
-      [_, _, _, _, _, _, _, M, M, _, _, _, _, _, _, _],
-      [_, _, _, S, M, M, M, M, M, M, M, M, S, _, _, _],
-      [_, _, _, _, _, M, M, M, M, M, M, _, _, _, _, _],
-      [_, _, _, _, _, M, M, M, M, M, M, _, _, _, _, _],
-      [_, _, _, _, _, m, M, M, M, M, m, _, _, _, _, _],
-      [_, _, _, _, _, _, m, M, M, m, _, _, _, _, _, _],
-      [_, _, _, _, _, _, m, m, m, m, _, _, _, _, _, _],
-      [_, _, _, _, _, _, m, _, _, m, _, _, _, _, _, _],
-      [_, _, _, _, _, _, m, _, _, m, _, _, _, _, _, _],
-      [_, _, _, _, _, n, m, _, _, m, n, _, _, _, _, _],
+      //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],  // 0
+      [_, _, _, _, _, _,Hd,Hd,Hd,Hd, _, _, _, _, _, _],  // 1  helmet top
+      [_, _, _, _, _,Hd,Hl, H, H, H,Hd, _, _, _, _, _],  // 2  helmet (top-left highlight)
+      [_, _, _, _, _,Hd, M, M, M, M,Hd, _, _, _, _, _],  // 3  visor (accent color)
+      [_, _, _, _, _,Hd, H,Hd,Hd, H,Hd, _, _, _, _, _],  // 4  lower helmet / mouth guard
+      [_, _, _, _, _, _,Hd, H, H,Hd, _, _, _, _, _, _],  // 5  chin
+      [_, _, _, _, _, _, _, M, M, _, _, _, _, _, _, _],  // 6  collar (accent)
+      [_, _, _, _,Hd, M, M, M, M, M, M,Hd, _, _, _, _],  // 7  shoulder pauldrons
+      [_, _, _, _, _, M, M,SG, M, M, M, _, _, _, _, _],  // 8  chest + sol unit glow
+      [_, _, _, _, _, M, M, H, H, M, M, _, _, _, _, _],  // 9  torso (belt buckle gray)
+      [_, _, _, _, _, m, M, M, M, M, m, _, _, _, _, _],  // 10 waist (shadow on edges)
+      [_, _, _, _, _, _, m, M, M, m, _, _, _, _, _, _],  // 11 belt
+      [_, _, _, _, _, _, m, m, m, m, _, _, _, _, _, _],  // 12 hips
+      [_, _, _, _, _, _, m, _, _, m, _, _, _, _, _, _],  // 13 legs
+      [_, _, _, _, _, _, m, _, _, m, _, _, _, _, _, _],  // 14 legs
+      [_, _, _, _, _, n, m, _, _, m, n, _, _, _, _, _],  // 15 boots
     ]);
     savePNG(png, path.join(CONTENT_DIR, 'sprites', `player_${pc.name}.png`));
   }
@@ -1199,15 +1207,15 @@ function generateNPCSprites() {
   const Bl = C.blue;
   const bl = C.darkBlue;
 
-  // Generic NPC: blue-robed figure
+  // Generic NPC: blue-robed figure with brown hair (no helmet — NPC convention)
   const npc = createPNG(16, 16);
   drawPixelArt(npc, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
-    [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
-    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
-    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
-    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, N, N, N, N, _, _, _, _, _, _],  // brown hair
+    [_, _, _, _, _, N, S, S, S, S, N, _, _, _, _, _],  // hair framing face
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],  // eyes
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],  // mouth
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],  // chin
     [_, _, _, _, _, _, _,Bl,Bl, _, _, _, _, _, _, _],
     [_, _, _,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl, _, _, _],
     [_, _, _,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl, _, _, _],
@@ -1229,9 +1237,9 @@ function generateNPCSprites() {
   const sable = createPNG(16, 16);
   drawPixelArt(sable, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
-    [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
-    [_, _, _, _, _,pu, S, S, S, S,pu, _, _, _, _, _],
+    [_, _, _, _, _,pu,pu,pu,pu,pu,pu, _, _, _, _, _],  // deep hood
+    [_, _, _, _, _,pu, S, S, S, S,pu, _, _, _, _, _],  // hooded face
+    [_, _, _, _, _,pu,Te, S, S,Te,pu, _, _, _, _, _],  // teal-tinged eyes (nightside)
     [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
     [_, _, _, _, _,pu,pu, S, S,pu,pu, _, _, _, _, _],
     [_, _, _, _, _, _,pu,Pu,Pu,pu, _, _, _, _, _, _],
@@ -1325,23 +1333,23 @@ function generateNPCSprites() {
 // ============================================================================
 
 function generateItemSprites() {
-  // --- Health Potion: red bottle ---
+  // --- Health Potion: red flask with dark-red outline (item convention: self-colored outline) ---
   const potion = createPNG(16, 16);
   drawPixelArt(potion, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, _, G, G, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, _, G, G, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, G, G, G, G, _, _, _, _, _, _],
-    [_, _, _, _, _, G, R, R, R, R, G, _, _, _, _, _],
-    [_, _, _, _, G, R, R, R, R, R, R, G, _, _, _, _],
-    [_, _, _, _, G, R, R, W, R, R, R, G, _, _, _, _],
-    [_, _, _, _, G, R, R, R, R, R, R, G, _, _, _, _],
-    [_, _, _, _, G, R, R, R, R, R, R, G, _, _, _, _],
-    [_, _, _, _, G, R, R, R, R, R, R, G, _, _, _, _],
-    [_, _, _, _, G, R, R, R, R, R, R, G, _, _, _, _],
-    [_, _, _, _, _, G, R, R, R, R, G, _, _, _, _, _],
-    [_, _, _, _, _, _, G, G, G, G, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, r, r, _, _, _, _, _, _, _],  // cork (dark red)
+    [_, _, _, _, _, _, _, r, r, _, _, _, _, _, _, _],  // neck
+    [_, _, _, _, _, _, r, r, r, r, _, _, _, _, _, _],  // neck widens
+    [_, _, _, _, _, r, R, R, R, R, r, _, _, _, _, _],  // body top
+    [_, _, _, _, r, R,Lr, R, R, R, R, r, _, _, _, _],  // body + highlight
+    [_, _, _, _, r, R,Lr, R, R, R, R, r, _, _, _, _],  // body + highlight
+    [_, _, _, _, r, R, R, R, R, R, R, r, _, _, _, _],  // body
+    [_, _, _, _, r, R, R, R, R, R, R, r, _, _, _, _],  // body
+    [_, _, _, _, r, R, R, R, R, R, R, r, _, _, _, _],  // body
+    [_, _, _, _, r, R, R, R, R, R, R, r, _, _, _, _],  // body
+    [_, _, _, _, _, r, R, R, R, R, r, _, _, _, _, _],  // bottom curve
+    [_, _, _, _, _, _, r, r, r, r, _, _, _, _, _, _],  // base
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
   ]);
@@ -1419,19 +1427,21 @@ function generateItemSprites() {
   ]);
   savePNG(torch, path.join(CONTENT_DIR, 'sprites', 'torch.png'));
 
-  // --- Iron Key: small gray key ---
+  // --- Iron Key: Sol Gold key (quest item convention: Sol Gold accent) ---
   const key = createPNG(16, 16);
+  const Ky = C.solGold;
+  const Kd = C.orange;
   drawPixelArt(key, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, G, G, G, G, _, _, _, _, _, _, _],
-    [_, _, _, _, G, _, _, _, _, G, _, _, _, _, _, _],
-    [_, _, _, _, G, _, _, _, _, G, _, _, _, _, _, _],
-    [_, _, _, _, _, G, G, G, G, G, G, G, G, _, _, _],
-    [_, _, _, _, _, _, _, _, _, _, G, _, G, _, _, _],
-    [_, _, _, _, _, _, _, _, _, _, G, G, G, _, _, _],
+    [_, _, _, _, _,Kd,Ky,Ky,Kd, _, _, _, _, _, _, _],
+    [_, _, _, _, Kd, _,Ky, _, _,Kd, _, _, _, _, _, _],
+    [_, _, _, _, Kd, _, _, _, _,Kd, _, _, _, _, _, _],
+    [_, _, _, _, _,Kd,Ky,Ky,Ky,Ky,Ky,Ky,Kd, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _,Ky, _,Ky, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _,Kd,Kd,Kd, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -1465,25 +1475,26 @@ function generateItemSprites() {
   ]);
   savePNG(cyl, path.join(CONTENT_DIR, 'sprites', 'titanium_cylinders.png'));
 
-  // --- Sol Unit: glowing energy weapon ---
+  // --- Sol Unit: geometric tech device, Sol Gold + Teal glow (sol component convention) ---
   const sol = createPNG(16, 16);
-  const Sg = C.yellow;
-  const Sm = C.solGold;
-  const Sd = C.orange;
+  const Sg = C.solGold;
+  const St = C.teal;
+  const Stl = C.lightTeal;
+  const So = C.orange;
   drawPixelArt(sol, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, _, _, _, _, _, _, Sg, _, _, _],
-    [_, _, _, _, _, _, _, _, _, _, _, Sg,Sm, _, _, _],
-    [_, _, _, _, _, _, _, _, _, _, Sg,Sm, _, _, _, _],
-    [_, _, _, _, _, _, _, _, _, Sg,Sm, _, _, _, _, _],
-    [_, _, _, _, _, _, _, _, Sg,Sm, _, _, _, _, _, _],
-    [_, _, _, _, _, _, _, Sg,Sm, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, Sm,Sm, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, Sd,Sm, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, G,Sd, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, G,Lg, G, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _,Sd, _, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, K, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Sg, Sg, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, Sg, Sg, Sg, Sg, _, _, _, _, _, _],
+    [_, _, _, _, _, Sg, Sg,Stl, Sg, Sg, Sg, _, _, _, _, _],
+    [_, _, _, _, Sg, Sg, St, St, St, St, Sg, Sg, _, _, _, _],
+    [_, _, _, _, Sg,Stl, St, Sg, Sg, St,Stl, Sg, _, _, _, _],
+    [_, _, _, _, Sg, Sg, St, Sg, Sg, St, Sg, Sg, _, _, _, _],
+    [_, _, _, _, Sg, Sg, St, St, St, St, Sg, Sg, _, _, _, _],
+    [_, _, _, _, _, Sg, Sg, Sg, Sg, Sg, Sg, _, _, _, _, _],
+    [_, _, _, _, _, _, Sg, So, So, Sg, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, So, So, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
