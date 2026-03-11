@@ -96,6 +96,36 @@
       "once": true
     },
     {
+      "id": "control_ending_shutdown_intel_mismatch",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "phase3_intel_shutdown" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Kappa Harvest Log and network topology sit in your Sol Grid — Sable's complete decommissioning blueprint. Every relay. Every redundancy. The architecture of a clean ending.",
+          "You brought a shutdown manual to a coronation.",
+          "The map to silence the Array is here, intact, unused. You could still pull the plug instead of taking the throne. The intel gives you the option either way. You've already made your choice. The topology remains — documentation of a path not taken."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "control_ending_merge_intel_mismatch",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "phase3_intel_merge" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Asha's cross-system compatibility data is still in your Sol Grid — the Array's own research proving symbiosis outperforms harvesting by a factor of twelve. Scientific proof that partnership is the optimal solution.",
+          "You're ignoring it.",
+          "The data is still true. It doesn't stop being true because you're seizing the Array instead of negotiating with it. You tell yourself that human control can be made humane — that authority, applied carefully, is still partnership of a kind. The research doesn't agree. But the throne doesn't care what the research says."
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "throne_coolant_warning",
       "event": "room_entered",
       "conditions": [

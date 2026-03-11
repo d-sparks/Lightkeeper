@@ -99,6 +99,36 @@
       "once": true
     },
     {
+      "id": "merge_ending_control_intel_mismatch",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "phase3_intel_control" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Central Node Override Protocols pulse in your Sol Grid — MERIDIAN-7's authentication sequences for seizing the Array's command hierarchy. You have the codes. The throne could answer to you.",
+          "But you're here. In a chamber where three intelligences are already learning each other's language.",
+          "The codes feel heavy in this space. Not wrong — the answer to a different question. You chose to ask instead of command. The protocols wait, unused, as the convergence pool pulses with something older than authority."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "merge_ending_shutdown_intel_mismatch",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "phase3_intel_shutdown" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Sable's network topology sits in your awareness — every Array relay, every node, the complete architecture of a clean ending. You walked into the Convergence carrying a decommissioning blueprint.",
+          "The bioluminescent networks pulse around you, unconcerned.",
+          "You chose partnership over withdrawal. The shutdown schematic is still there — a record of what you could have done instead. Down here, in a chamber built for communion, it feels less like a weapon and more like a question you've already answered."
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "convergence_atmosphere",
       "event": "room_entered",
       "conditions": [
