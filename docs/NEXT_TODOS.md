@@ -12,13 +12,15 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 ## Endgame Loop (see docs/endgame-loop.md)
 
 ### Phase 2 — Expedition Tiers 1-3 (Remaining)
-- ~~Multi-floor expedition progression~~ ✓ Implemented — floor exits chain with scaling, boss from bossPool on final floor.
+- ~~Multi-floor expedition progression~~ ✓ Implemented — floor exits chain with scaling, boss from bossPool on final floor. Off-by-one in maxDepth fixed (maxFloors-1).
 - ~~Expedition completion detection~~ ✓ Implemented — sets expedition_tier_N_cleared on boss kill, clears expedition_active.
 - ~~Boss spawning on final floor from bossPool~~ ✓ Implemented — generator overrides boss type from expedition config.
+- ~~Return portal on boss kill~~ ✓ Implemented — stairs-up exit spawned at boss death position, leads to expedition origin.
 - Silicon cost deduction at expedition start.
 - Mid-run loot banking checkpoints.
 - Death penalty (forfeit floor loot, return to meridian_station) — partial: death clears expedition state but doesn't have special loot forfeit logic yet.
 - Expedition boss loot table selection (expedition_tier_N_boss table should be rolled on boss kill).
+- Client-side expedition HUD (floor counter, boss health bar).
 
 ### Phase 3 — Modifier Crafting
 - Add `craft` action type to `server/scripting/actions.js`.

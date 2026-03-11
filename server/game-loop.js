@@ -45,14 +45,48 @@ class GameLoop {
     this.questTracker = new QuestTracker(content, this.conditions, this.actions);
 
     // Track expedition boss kills — when the killed monster matches the
-    // expedition's boss type, mark the expedition as boss-cleared
+    // expedition's boss type, mark the expedition as boss-cleared and spawn
+    // a return portal leading back to the expedition origin room.
     this.eventBus.on(EventBus.Events.MONSTER_KILLED, (payload) => {
-      const { playerId, monsterType } = payload;
+      const { playerId, monsterType, roomId, monsterX, monsterY } = payload;
       if (!playerId) return;
       const bossType = this.flagStore.getPlayerFlag(playerId, 'expedition_boss_type');
       if (bossType && monsterType === bossType) {
         this.flagStore.setPlayerFlag(playerId, 'expedition_boss_killed', true);
         console.log(`[GameLoop] Player ${playerId} killed expedition boss "${monsterType}"`);
+
+        // Spawn a return portal exit at the boss's death position
+        const origin = this.flagStore.getPlayerFlag(playerId, 'expedition_origin');
+        const room = this.rooms.get(roomId);
+        if (room && origin) {
+          const ts = CONSTANTS.TILE_SIZE;
+          const portalTX = Math.floor(monsterX / ts);
+          const portalTY = Math.floor(monsterY / ts);
+
+          // Write a stairs-up tile (8) into the map data
+          const idx = portalTY * room.dungeon.width + portalTX;
+          room.dungeon.data[idx] = 8;
+
+          // Add exit entry so checkExits() picks it up
+          room.dungeon.exits.push({
+            x: portalTX,
+            y: portalTY,
+            leadsTo: origin,
+            type: 'return_portal',
+          });
+
+          // Broadcast the tile change so clients see the portal
+          if (this.actions.broadcastToRoom) {
+            this.actions.broadcastToRoom(roomId, {
+              type: CONSTANTS.MSG.DOOR_TOGGLE,
+              x: portalTX,
+              y: portalTY,
+              tileId: 8,
+            });
+          }
+
+          console.log(`[GameLoop] Spawned return portal at (${portalTX},${portalTY}) in ${roomId} → ${origin}`);
+        }
       }
     });
 
@@ -492,13 +526,14 @@ class GameLoop {
       : null;
 
     // Generate the first floor (entrance exit leads back to origin room)
+    // depth is 0-indexed, so maxDepth = maxFloors - 1 gives exactly maxFloors floors
     const origin = originRoom || 'meridian_station';
     const genContext = {
       fromDungeon: origin,
       exitX: 0,
       exitY: 0,
       depth: 0,
-      maxDepth: maxFloors,
+      maxDepth: maxFloors - 1,
       bossType,
       serverEpoch: this.serverEpoch,
     };

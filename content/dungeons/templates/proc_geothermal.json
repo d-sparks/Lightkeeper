@@ -60,7 +60,7 @@
       "centerTile": 7
     },
     {
-      "tag": "magma_core",
+      "tag": "boss",
       "depth": 4,
       "width": { "min": 9, "max": 12 },
       "height": { "min": 8, "max": 10 },
@@ -173,7 +173,7 @@
       "id": "magma_brute_killed_{instanceId}",
       "event": "monster_killed",
       "depth": 4,
-      "requiresRoom": "magma_core",
+      "requiresRoom": "boss",
       "filter": { "monsterType": "magma_brute" },
       "actions": [
         { "type": "setFlag", "flag": "magma_core_cleared" },
