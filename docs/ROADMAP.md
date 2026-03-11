@@ -57,11 +57,11 @@ Focus: **Fix testing blockers, connect disconnected content, build endgame loop*
 4. ~~**Fix headless sim visit_civic_center**~~ — DONE.
 5. ~~**Post-choice NPC dialogue**~~ — DONE.
 6. ~~**Automation dungeon sync (Phase 4)**~~ — DONE.
-7. **Fix headless sim discover_array_secret** — Bot stuck in dayside_solar_fields, can't navigate to array_deep_processing. Blocks CI mainline past step ~20.
-8. **Fix content validator expedition flag errors** — expedition_active, expedition_tier_1_cleared, expedition_tier_2_cleared checked but never set.
+7. ~~**Fix headless sim discover_array_secret**~~ — DONE. Redundant prereq goals eliminated, ~90% pass rate.
+8. ~~**Fix content validator expedition flag errors**~~ — DONE. Flags set by engine code in game-loop.js completeExpedition().
 9. **Minimap quest waypoints** — No spatial guidance for quest objectives.
-10. **Place alpha monsters and skeleton_archer** — Defined content with no dungeon placement.
-11. **Implement expedition multi-floor system** — Endgame loop spec 70% done, needs multi-floor progression, boss spawning, completion detection.
+10. ~~**Place alpha monsters and skeleton_archer**~~ — DONE. skeleton_archer placed in crypts with loot table. Alpha monsters defined with pack_leader AI.
+11. ~~**Implement expedition multi-floor system**~~ — DONE. Multi-floor progression, boss spawning, completion detection, silicon cost, death penalty all implemented.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
@@ -73,8 +73,8 @@ Focus: **Endgame depth, modifier crafting, cooperative play**
 10. ~~**Pack leader AI variant**~~ — DONE.
 11. ~~**Touch/gamepad 45° rotation**~~ — DONE.
 12. **Modifier crafting system** — Reforge/fuse at MERIDIAN-7 with crafting.json recipes. Endgame build diversity.
-13. **Automation levels 6-10** — New structures, milestone rewards, adjacency bonuses.
-14. **Boss affixes (Tier 4+)** — Data-driven affix pool applied to expedition bosses.
+13. ~~**Automation levels 6-10**~~ — DONE. 4 new structures, milestone rewards, grid expansion.
+14. ~~**Boss affixes (Tier 4+)**~~ — DONE. 8 data-driven affixes applied to Tier 4-5 expedition bosses.
 15. **Periodic auto-save** — Currently only saves on disconnect; risk of progress loss on crashes.
 
 ## Long-Term Vision (3+ Months)
@@ -186,6 +186,15 @@ These are done and don't need further investment:
 - **Delete character button** — Session select screen delete functionality
 - **Mid-game energy pacing** — Energy generation tuning and Pulse Rifle reward feel improved
 - **Headless sim visit_civic_center fix** — tryInteract compares door vs NPC distance
+- **Automation levels 6-10** — 4 new structures (silicon_refinery, auto_turret, fabricator, expedition_beacon), milestones 6-10
+- **Boss affix system** — 8 data-driven affixes (berserker, ironhide, swift, volatile, regenerating, empowered_slam, relentless, juggernaut) for Tier 4-5
+- **Expedition multi-floor progression** — Floor chaining, boss spawning, completion detection, silicon cost, death penalty
+- **Phase 3 investigation quest** — Directive 11-Kappa with path-specific mechanical rewards
+- **Priority sprite redesign** — Player, NPC, and common monster sprites updated per art-style-guide
+- **Post-ending Sable dialogue** — Expedition quest-giver lines for Shutdown/Merge paths
+- **UnlockFlag loot filtering** — Path-specific legendaries gated by ending choice
+- **Chunk streaming throttle** — 5 Hz streaming to reduce server load
+- **Headless sim discover_array_secret fix** — Redundant prereq goals eliminated
 
 ## Active Design Docs
 
@@ -199,3 +208,4 @@ These are done and don't need further investment:
 | docs/TESTING.md | Done | Tiers 1-4 complete (304 tests including room-lifecycle) |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
 | docs/game-scripting.md | Done | TCA system fully implemented and documented |
+| docs/endgame-loop.md | Active | Phases 1-2 (expeditions) + Phase 4 (automation 6-10) + Phase 5 (boss affixes) done. Remaining: modifier crafting, cooperative challenges, raids, tier 4-5 loot tables |
