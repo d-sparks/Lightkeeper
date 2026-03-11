@@ -25,6 +25,7 @@
 //   { type: "spawnNpc",    npcType: "outpost_warden", x: 4, y: 10 }  // spawns NPC at tile coords if not already present
 //   { type: "craft" }  // opens crafting menu with available recipes from crafting.json
 //   { type: "shop",      shopId: "meridian_7_shop" }  // opens buy/sell menu from shops.json
+//   { type: "bankLoot" }  // banks all non-quest inventory items for expedition checkpoint (survives death)
 
 const CONSTANTS = require('../../shared/constants');
 
@@ -123,6 +124,9 @@ class ActionExecutor {
         break;
       case 'shop':
         this.doShop(action, context);
+        break;
+      case 'bankLoot':
+        this.doBankLoot(action, context);
         break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
@@ -975,6 +979,78 @@ class ActionExecutor {
         dialogue: [{ speaker, text: `// FABRICATION COMPLETE // ${itemName} delivered // ${sellEntry.creditsCost} CREDITS DEDUCTED // Balance: ${player.credits} //` }],
       });
     }
+  }
+
+  // Bank loot: { type: "bankLoot" }
+  // Moves all non-quest inventory items into expedition banked storage.
+  // Banked items survive expedition death and are returned on death or completion.
+  doBankLoot(action, context) {
+    const player = context.player;
+    if (!player || !this.sendToPlayer) return;
+
+    // Only works during an expedition
+    if (!this.flagStore.getPlayerFlag(context.playerId, 'expedition_active')) {
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.DIALOGUE,
+        dialogue: [{ speaker: 'Cache Terminal', text: 'No active expedition. Banking unavailable.' }],
+      });
+      return;
+    }
+
+    // Separate quest items (kept in inventory) from bankable items
+    const keptItems = [];
+    const toBankItems = [];
+    for (const item of player.inventory) {
+      if (item.category === 'key' || item.category === 'sol_component') {
+        keptItems.push(item);
+      } else {
+        toBankItems.push(item);
+      }
+    }
+
+    if (toBankItems.length === 0) {
+      this.sendToPlayer(context.playerId, {
+        type: CONSTANTS.MSG.DIALOGUE,
+        dialogue: [{ speaker: 'Cache Terminal', text: '// NO BANKABLE ITEMS // Inventory contains only quest-critical items. //' }],
+      });
+      return;
+    }
+
+    // Merge with any previously banked items
+    const existing = this.flagStore.getPlayerFlag(context.playerId, 'expedition_banked_loot') || [];
+    const allBanked = existing.concat(toBankItems);
+    this.flagStore.setPlayerFlag(context.playerId, 'expedition_banked_loot', allBanked);
+
+    // Remove banked items from inventory
+    player.inventory = keptItems;
+
+    // Notify client of inventory change
+    this.sendToPlayer(context.playerId, {
+      type: CONSTANTS.MSG.INVENTORY,
+      items: player.inventory,
+      equipment: player.equipment,
+      medipacCharges: player.medipacCharges,
+      credits: player.credits || 0,
+    });
+
+    // Send banking confirmation
+    const itemNames = toBankItems.map(i => i.name);
+    const uniqueNames = [...new Set(itemNames)];
+    const summary = uniqueNames.length <= 3
+      ? uniqueNames.join(', ')
+      : `${uniqueNames.slice(0, 3).join(', ')} and ${uniqueNames.length - 3} more`;
+    this.sendToPlayer(context.playerId, {
+      type: CONSTANTS.MSG.LOOT_BANKED,
+      bankedCount: toBankItems.length,
+      totalBanked: allBanked.length,
+      items: itemNames,
+    });
+    this.sendToPlayer(context.playerId, {
+      type: CONSTANTS.MSG.DIALOGUE,
+      dialogue: [{ speaker: 'Cache Terminal', text: `// ${toBankItems.length} ITEM(S) BANKED // ${summary} // Total cached: ${allBanked.length} // Items will be returned at expedition end. //` }],
+    });
+
+    console.log(`[Actions] Player ${context.playerId} banked ${toBankItems.length} items (total: ${allBanked.length})`);
   }
 
   // Start an expedition: { type: "startExpedition", tier: 1 }

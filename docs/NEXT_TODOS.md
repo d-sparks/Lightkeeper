@@ -19,7 +19,10 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Return portal on boss kill~~ ✓ Implemented — stairs-up exit spawned at boss death position, leads to expedition origin.
 - ~~Silicon cost deduction at expedition start.~~ ✓ Implemented — `startExpedition()` checks and deducts `siliconCost` from automation resources; returns `insufficientSilicon` error if player can't afford it.
 - ~~Death penalty (forfeit floor loot, return to meridian_station).~~ ✓ Implemented — expedition death forfeits all non-quest inventory (destroyed, not dropped) and respawns player at `expedition_origin` (defaults to `meridian_station`).
-- Mid-run loot banking checkpoints — design concept exists but no checkpoint system yet; currently all loot picked up on a floor is forfeited on death.
+- ~~Mid-run loot banking checkpoints~~ ✓ Implemented — checkpoint safe rooms inserted between expedition floors (configured via `checkpointFloors` in tier JSON). Cache Terminal NPC banks non-quest inventory items via `bankLoot` action; banked items stored as `expedition_banked_loot` player flag and survive death. Restored on both death (returned to inventory at respawn) and expedition completion. Client shows toast notification on banking. Tiers 1-3 checkpoint after floor 2; tiers 4-5 checkpoint after floors 2 and 4.
+- Checkpoint room visual polish — expedition_checkpoint dungeon uses plain crypt tileset; consider unique tileset or tile decorations for cache points.
+- Checkpoint room equipment banking — currently only inventory items are banked, equipped items are not; consider adding equipment banking option.
+- Banked items inventory tab — client could show a "Cached" tab in the inventory UI during expeditions to see what's been banked.
 - ~~Expedition boss loot table selection (expedition_tier_N_boss table should be rolled on boss kill).~~ ✓ Implemented — `_rollLoot` now overrides the monster's default loot table with `expedition_tier_N_boss` (or `expedition_tier_N_boss_[path]`) when the killed mob matches the expedition boss type.
 - Client-side expedition HUD (floor counter, boss health bar).
 

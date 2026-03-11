@@ -101,6 +101,7 @@ const CONSTANTS = {
     CHOICE_MENU:   'choice_menu',
 
     DEATH_SCREEN:  'death_screen',
+    LOOT_BANKED:   'loot_banked',
 
     QUEST_OBJECTIVE: 'quest_objective',
     QUEST_STATE: 'quest_state',

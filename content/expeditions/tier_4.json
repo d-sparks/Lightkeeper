@@ -11,6 +11,7 @@
   "monsterScaling": { "hpMult": 2.4, "damageMult": 2.0, "xpMult": 3.0 },
   "lootTable": "expedition_tier_4",
   "siliconCost": 35,
+  "checkpointFloors": [2, 4],
   "mechanics": ["timed_darkness_waves", "corruption_zones"],
   "bossPool": ["crystal_guardian", "elder_sporecap", "luddite_warlord", "threshold_keeper"],
   "bossAffixes": ["berserker", "ironhide", "swift", "volatile", "regenerating", "empowered_slam"],

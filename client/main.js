@@ -2857,6 +2857,19 @@
     }, 3000);
   });
 
+  net.on(CONSTANTS.MSG.LOOT_BANKED, (msg) => {
+    // Show banking confirmation via milestone toast pattern
+    milestoneText.textContent = '\u{1F4E6} ' + msg.bankedCount + ' item(s) banked — ' + msg.totalBanked + ' total cached';
+    milestonToast.style.display = 'block';
+    milestonToast.style.animation = 'none';
+    void milestonToast.offsetWidth;
+    milestonToast.style.animation = '';
+    if (milestoneToastTimeout) clearTimeout(milestoneToastTimeout);
+    milestoneToastTimeout = setTimeout(() => {
+      milestonToast.style.display = 'none';
+    }, 4000);
+  });
+
   net.on(CONSTANTS.MSG.DIALOGUE, (msg) => {
     if (msg.dialogue && msg.dialogue.length > 0) {
       showDialogue(msg.dialogue, msg.npcId);

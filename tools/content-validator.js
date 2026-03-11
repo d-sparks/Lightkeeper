@@ -203,9 +203,10 @@ function validateExitGraph() {
     }
   }
 
-  // Check reachability
+  // Check reachability (skip dungeons that are dynamically inserted at runtime)
+  const dynamicDungeons = new Set(['expedition_checkpoint']);
   for (const id of Object.keys(dungeons)) {
-    if (!visited.has(id)) {
+    if (!visited.has(id) && !dynamicDungeons.has(id)) {
       err('EXIT', dungeonFile(id), `dungeon "${id}" is not reachable from spawn room "${spawnRoom}"`);
     }
   }

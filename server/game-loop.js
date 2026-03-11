@@ -666,7 +666,7 @@ class GameLoop {
     return { roomId: room.id, room };
   }
 
-  // Complete an expedition: set tier cleared flag (if boss killed) and clean up
+  // Complete an expedition: set tier cleared flag (if boss killed), restore banked loot, clean up
   completeExpedition(playerId) {
     const tier = this.flagStore.getPlayerFlag(playerId, 'expedition_tier');
     if (!tier) return;
@@ -681,12 +681,29 @@ class GameLoop {
       console.log(`[GameLoop] Player ${playerId} retreated from expedition tier ${tier} (boss not killed)`);
     }
 
+    // Restore banked loot from checkpoints to inventory
+    const bankedLoot = this.flagStore.getPlayerFlag(playerId, 'expedition_banked_loot');
+    if (bankedLoot && bankedLoot.length > 0) {
+      // Find the player across all rooms
+      for (const [, room] of this.rooms) {
+        const player = room.players.get(playerId);
+        if (player) {
+          for (const item of bankedLoot) {
+            player.inventory.push(item);
+          }
+          console.log(`[GameLoop] Restored ${bankedLoot.length} banked items to player ${playerId} on expedition completion`);
+          break;
+        }
+      }
+    }
+
     // Clear all expedition state flags
     const expFlags = [
       'expedition_active', 'expedition_tier', 'expedition_floor',
       'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
       'expedition_scaling', 'expedition_origin', 'expedition_boss_killed',
-      'expedition_boss_affixes',
+      'expedition_boss_affixes', 'expedition_banked_loot',
+      'expedition_checkpoint_depth',
     ];
     for (const flag of expFlags) {
       this.flagStore.removePlayerFlag(playerId, flag);
@@ -3749,14 +3766,27 @@ class GameLoop {
       // If player was on an expedition, clear expedition state (failed/abandoned)
       // and return them to the expedition origin (meridian_station) instead of the global spawn
       let expeditionOrigin = null;
+      let bankedRestoredCount = 0;
       if (this.flagStore.getPlayerFlag(player.id, 'expedition_active')) {
         const expTier = this.flagStore.getPlayerFlag(player.id, 'expedition_tier');
         expeditionOrigin = this.flagStore.getPlayerFlag(player.id, 'expedition_origin') || 'meridian_station';
+
+        // Restore banked loot from checkpoints — these survive death
+        const bankedLoot = this.flagStore.getPlayerFlag(player.id, 'expedition_banked_loot');
+        bankedRestoredCount = (bankedLoot && bankedLoot.length) || 0;
+        if (bankedLoot && bankedLoot.length > 0) {
+          for (const item of bankedLoot) {
+            player.inventory.push(item);
+          }
+          console.log(`[GameLoop] Restored ${bankedLoot.length} banked items to player ${player.id} after expedition death`);
+        }
+
         const expFlags = [
           'expedition_active', 'expedition_tier', 'expedition_floor',
           'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
           'expedition_scaling', 'expedition_origin', 'expedition_boss_killed',
-          'expedition_boss_affixes',
+          'expedition_boss_affixes', 'expedition_banked_loot',
+          'expedition_checkpoint_depth',
         ];
         for (const flag of expFlags) {
           this.flagStore.removePlayerFlag(player.id, flag);
@@ -3800,6 +3830,7 @@ class GameLoop {
         energyLost,
         droppedItems: droppedNames,
         expeditionForfeit: onExpedition,
+        bankedRestoredCount,
       });
 
       const deathCtx = this._scriptContext(player.id, room.id);

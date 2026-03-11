@@ -1204,26 +1204,72 @@ setInterval(() => {
     const player = gameLoop.removePlayer(t.fromRoom, t.playerId);
     if (!player) continue;
 
-    // Build generation context, including expedition overrides if present
-    const genContext = {
-      fromDungeon: t.fromRoom,
-      exitX: t.exitX,
-      exitY: t.exitY,
-      depth: t.depth,
-    };
-    if (t.expeditionMaxFloors) {
-      genContext.maxDepth = t.expeditionMaxFloors;
-      genContext.bossType = t.expeditionBossType;
+    // Check if this expedition transition should go through a loot banking checkpoint
+    let targetRoom = null;
+    let targetRoomId = null;
+    let isCheckpointRoom = false;
+    const pendingCheckpointDepth = t.expeditionTier != null
+      ? gameLoop.flagStore.getPlayerFlag(t.playerId, 'expedition_checkpoint_depth')
+      : null;
+
+    if (pendingCheckpointDepth != null) {
+      // Coming from a checkpoint room — clear the flag and continue normally
+      gameLoop.flagStore.removePlayerFlag(t.playerId, 'expedition_checkpoint_depth');
+    } else if (t.expeditionTier != null && t.depth != null) {
+      const currentFloor = gameLoop.flagStore.getPlayerFlag(t.playerId, 'expedition_floor') || 1;
+      const expedition = content.getExpeditionByTier(t.expeditionTier);
+      const checkpointFloors = expedition && expedition.checkpointFloors;
+      if (checkpointFloors && checkpointFloors.includes(currentFloor)) {
+        // Insert a checkpoint room before the next combat floor
+        const cpRoomId = `expedition_checkpoint_${t.playerId}_${Date.now()}`;
+        const cpRoom = gameLoop.createRoom(cpRoomId, 'expedition_checkpoint');
+        if (cpRoom) {
+          // Add descent exit to continue the expedition from the checkpoint
+          const templateId = gameLoop.flagStore.getPlayerFlag(t.playerId, 'expedition_template');
+          cpRoom.dungeon.exits.push({
+            x: 4, y: 1,
+            leadsTo: templateId,
+            type: 'stairs_down',
+            depth: t.depth,
+          });
+          // Place stairs_down tile (6) at the exit position
+          cpRoom.dungeon.data[1 * cpRoom.dungeon.width + 4] = 6;
+          // Mark as expedition room so the transition handler doesn't treat it as completion
+          cpRoom.expeditionScaling = t.expeditionScaling;
+          // Store pending depth so we skip re-checkpointing on exit
+          gameLoop.flagStore.setPlayerFlag(t.playerId, 'expedition_checkpoint_depth', t.depth);
+
+          targetRoom = cpRoom;
+          targetRoomId = cpRoomId;
+          isCheckpointRoom = true;
+          console.log(`[Transition] Inserted checkpoint for player ${t.playerId} after floor ${currentFloor}`);
+        }
+      }
     }
-    const targetRoom = gameLoop.getOrCreateRoom(t.toDungeon, genContext);
-    if (!targetRoom) continue;
 
-    // Use the room's actual ID (may differ from t.toDungeon for procedural instances)
-    const targetRoomId = targetRoom.id;
+    // Normal room creation if no checkpoint was inserted
+    if (!targetRoom) {
+      // Build generation context, including expedition overrides if present
+      const genContext = {
+        fromDungeon: t.fromRoom,
+        exitX: t.exitX,
+        exitY: t.exitY,
+        depth: t.depth,
+      };
+      if (t.expeditionMaxFloors) {
+        genContext.maxDepth = t.expeditionMaxFloors;
+        genContext.bossType = t.expeditionBossType;
+      }
+      targetRoom = gameLoop.getOrCreateRoom(t.toDungeon, genContext);
+      if (!targetRoom) continue;
 
-    // Apply expedition scaling to newly created rooms
-    if (t.expeditionScaling) {
-      gameLoop.applyExpeditionScaling(targetRoom, t.expeditionScaling, t.expeditionBossAffixes);
+      // Use the room's actual ID (may differ from t.toDungeon for procedural instances)
+      targetRoomId = targetRoom.id;
+
+      // Apply expedition scaling to newly created rooms
+      if (t.expeditionScaling) {
+        gameLoop.applyExpeditionScaling(targetRoom, t.expeditionScaling, t.expeditionBossAffixes);
+      }
     }
 
     // Resolve spawn position: targetId > spawnX/Y > first player_start > fallback (2,2)
@@ -1267,7 +1313,9 @@ setInterval(() => {
 
     // Track expedition floor progression and detect completion
     if (t.expeditionTier != null) {
-      if (targetRoom.expeditionScaling) {
+      if (isCheckpointRoom) {
+        // Checkpoint rooms don't count as a new floor — skip floor increment
+      } else if (targetRoom.expeditionScaling) {
         // Advancing to next expedition floor — update floor counter
         const currentFloor = gameLoop.flagStore.getPlayerFlag(t.playerId, 'expedition_floor') || 1;
         const newFloor = (t.depth || 0) + 1;
@@ -1330,6 +1378,9 @@ setInterval(() => {
       }
     } else if (dp.expeditionForfeit) {
       lines.push('Expedition failed. Returned to station.');
+    }
+    if (dp.bankedRestoredCount > 0) {
+      lines.push(`${dp.bankedRestoredCount} banked item(s) restored from cache.`);
     }
     ws.send(JSON.stringify({
       type: CONSTANTS.MSG.DEATH_SCREEN,

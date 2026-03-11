@@ -3809,5 +3809,18 @@
         "use": "endgame_no_tier"
       }
     ]
+  },
+
+  "expedition_cache": {
+    "name": "Cache Terminal",
+    "dialogue": [
+      { "speaker": "Cache Terminal", "text": "// EXPEDITION CACHE POINT // Interact to bank collected loot. Banked items survive death. //" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Cache Terminal", "text": "// EXPEDITION CACHE POINT // Interact to bank collected loot. Banked items survive death. //" }
+      ]
+    },
+    "dialogueRules": []
   }
 }
