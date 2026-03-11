@@ -81,7 +81,9 @@
       {"x": 18, "y": 15}, {"x": 25, "y": 15}, {"x": 25, "y": 18}, {"x": 18, "y": 18}
     ] }
   ],
-  "npcSpawns": [],
+  "npcSpawns": [
+    { "type": "perimeter_lookout", "x": 3, "y": 17 }
+  ],
   "itemSpawns": [
     { "type": "umbracite", "x": 10, "y": 10 },
     { "type": "umbracite", "x": 16, "y": 10 },
@@ -150,6 +152,33 @@
       ],
       "actions": [
         { "type": "showMessage", "text": "According to Fen's description, the squad's supply cache should be through a collapsed passage to the northeast." }
+      ],
+      "once": true
+    },
+    {
+      "id": "nightside_entrance_waypoint",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "visited_nightside_caverns" } }
+      ],
+      "actions": [
+        {
+          "type": "setQuestObjective",
+          "label": "Nightside Caverns Entrance",
+          "roomId": "deep_perimeter_east",
+          "tileX": 3,
+          "tileY": 19
+        }
+      ]
+    },
+    {
+      "id": "nightside_cold_air_hint",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "visited_nightside_caverns" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "A current of freezing air rises from the southern end of the perimeter. Something below the surface is much colder than this region has any right to be." }
       ],
       "once": true
     }

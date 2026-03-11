@@ -809,6 +809,15 @@
           "lootTable": "frost_biome_common"
         }
       ]
+    },
+    {
+      "id": "mark_nightside_visited",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "visited_nightside_caverns", "scope": "player" },
+        { "type": "clearQuestObjective" }
+      ],
+      "once": true
     }
   ]
 }

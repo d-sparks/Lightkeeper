@@ -1465,6 +1465,11 @@
         { "speaker": "Sable", "text": "You've been inside the Array. I can tell — you have that look. Like something you believed just broke." },
         { "speaker": "Sable", "text": "The Unbounded knew. We always knew. That's why my people walked into the dark." },
         { "speaker": "Sable", "text": "Find me in Meridian. My garden, near the residential quarter. We need to talk about what comes next." }
+      ],
+      "nightside_hint": [
+        { "speaker": "Sable", "text": "I came through those caverns — there's an entrance at the south edge of the old Expanded Dark perimeter. Follow the cold air." },
+        { "speaker": "Sable", "text": "West from here, through the deep perimeter. You'll know the entrance by the frost on the rocks and the temperature drop. The Nightside opens below." },
+        { "speaker": "Sable", "text": "The Unbounded call the cavern system 'the First Dark.' It's where we learned to live without light. What stirs beneath it now... that's what I came to warn you about." }
       ]
     },
     "dialogueRules": [
@@ -1481,8 +1486,36 @@
         "use": "post_meridian"
       },
       {
+        "conditions": [{ "hasFlag": "helped_sable" }, { "not": { "hasFlag": "visited_nightside_caverns" } }],
+        "use": "nightside_hint"
+      },
+      {
         "conditions": [{ "hasFlag": "helped_sable" }],
         "use": "helped"
+      }
+    ]
+  },
+  "perimeter_lookout": {
+    "name": "Perimeter Scout",
+    "dialogue": [
+      { "speaker": "Perimeter Scout", "text": "Keep your distance from that descent. Nothing good comes up from there." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Perimeter Scout", "text": "I've been posted at this perimeter line for six years. Never got used to the cold rising from that southern drop." },
+        { "speaker": "Perimeter Scout", "text": "The locals called it the Nightside Caverns. A cave system that goes deep — the temperature falls fast once you're inside." },
+        { "speaker": "Perimeter Scout", "text": "My squad went down to investigate three months back. Two came back. They won't talk about what they saw." },
+        { "speaker": "Perimeter Scout", "text": "The entrance is right at the south edge of this perimeter — past the old boundary markers. You'll see the frost creeping up the rock face." }
+      ],
+      "visited": [
+        { "speaker": "Perimeter Scout", "text": "You came back from the Nightside Caverns. I've stopped being surprised by what people can survive." },
+        { "speaker": "Perimeter Scout", "text": "The cold follows you. You'll feel it for days." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "visited_nightside_caverns" }],
+        "use": "visited"
       }
     ]
   },
