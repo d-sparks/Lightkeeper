@@ -52,8 +52,12 @@ class GameLoop {
       if (!playerId) return;
       const bossType = this.flagStore.getPlayerFlag(playerId, 'expedition_boss_type');
       if (bossType && monsterType === bossType) {
-        this.flagStore.setPlayerFlag(playerId, 'expedition_boss_killed', true);
-        console.log(`[GameLoop] Player ${playerId} killed expedition boss "${monsterType}"`);
+        // Mark boss killed for this player and all party members
+        const party = this.flagStore.getPlayerFlag(playerId, 'expedition_party') || [playerId];
+        for (const pid of party) {
+          this.flagStore.setPlayerFlag(pid, 'expedition_boss_killed', true);
+        }
+        console.log(`[GameLoop] Expedition boss "${monsterType}" killed (party: [${party.join(', ')}])`);
 
         // Spawn a return portal exit at the boss's death position
         const origin = this.flagStore.getPlayerFlag(playerId, 'expedition_origin');
@@ -106,6 +110,14 @@ class GameLoop {
     const room = this.rooms.get(roomId);
     const player = room ? room.players.get(playerId) : null;
     return { playerId, roomId, room, player };
+  }
+
+  // Find the room a player is currently in
+  _findPlayerRoom(playerId) {
+    for (const [, room] of this.rooms) {
+      if (room.players.has(playerId)) return room;
+    }
+    return null;
   }
 
   // Emit a scripting event and process all triggers for it
@@ -576,6 +588,17 @@ class GameLoop {
       }
     }
 
+    // Validate minimum player count (cooperative gating for higher tiers)
+    const minPlayers = expedition.minPlayers || 1;
+    if (minPlayers > 1) {
+      const room = this._findPlayerRoom(playerId);
+      const playerCount = room ? room.players.size : 1;
+      if (playerCount < minPlayers) {
+        console.log(`[GameLoop] Player ${playerId} needs ${minPlayers} players for tier ${tier} (have ${playerCount})`);
+        return { insufficientPlayers: true, required: minPlayers, present: playerCount };
+      }
+    }
+
     // Deduct silicon cost (reduced by expedition beacon)
     const baseSiliconCost = expedition.siliconCost || 0;
     const costReduction = this.automation.getExpeditionCostReduction(playerId);
@@ -649,64 +672,110 @@ class GameLoop {
     // Apply expedition scaling to the room and re-spawn monsters with scaled stats
     this.applyExpeditionScaling(room, expedition.monsterScaling, selectedAffixes);
 
-    // Set expedition tracking flags on the player
-    this.flagStore.setPlayerFlag(playerId, 'expedition_active', true);
-    this.flagStore.setPlayerFlag(playerId, 'expedition_tier', tier);
-    this.flagStore.setPlayerFlag(playerId, 'expedition_floor', 1);
-    this.flagStore.setPlayerFlag(playerId, 'expedition_max_floors', maxFloors);
-    this.flagStore.setPlayerFlag(playerId, 'expedition_template', templateId);
-    this.flagStore.setPlayerFlag(playerId, 'expedition_boss_type', bossType);
-    this.flagStore.setPlayerFlag(playerId, 'expedition_scaling', expedition.monsterScaling);
-    this.flagStore.setPlayerFlag(playerId, 'expedition_origin', origin);
-    if (selectedAffixes.length > 0) {
-      this.flagStore.setPlayerFlag(playerId, 'expedition_boss_affixes', selectedAffixes);
+    // Gather party members — all players in the origin room for cooperative expeditions
+    const originRoomObj = this._findPlayerRoom(playerId);
+    const partyMembers = [];
+    if (minPlayers > 1 && originRoomObj) {
+      for (const [pid] of originRoomObj.players) {
+        partyMembers.push(pid);
+      }
+    } else {
+      partyMembers.push(playerId);
     }
 
-    console.log(`[GameLoop] Started tier ${tier} expedition for player ${playerId} (room: ${room.id}, template: ${templateId}, floors: ${maxFloors}, boss: ${bossType}${selectedAffixes.length > 0 ? ', affixes: ' + selectedAffixes.join('+') : ''})`);
-    return { roomId: room.id, room };
+    // Set expedition tracking flags on all party members
+    for (const pid of partyMembers) {
+      this.flagStore.setPlayerFlag(pid, 'expedition_active', true);
+      this.flagStore.setPlayerFlag(pid, 'expedition_tier', tier);
+      this.flagStore.setPlayerFlag(pid, 'expedition_floor', 1);
+      this.flagStore.setPlayerFlag(pid, 'expedition_max_floors', maxFloors);
+      this.flagStore.setPlayerFlag(pid, 'expedition_template', templateId);
+      this.flagStore.setPlayerFlag(pid, 'expedition_boss_type', bossType);
+      this.flagStore.setPlayerFlag(pid, 'expedition_scaling', expedition.monsterScaling);
+      this.flagStore.setPlayerFlag(pid, 'expedition_origin', origin);
+      if (selectedAffixes.length > 0) {
+        this.flagStore.setPlayerFlag(pid, 'expedition_boss_affixes', selectedAffixes);
+      }
+      // Track party membership so shared state propagates across members
+      if (partyMembers.length > 1) {
+        this.flagStore.setPlayerFlag(pid, 'expedition_party', partyMembers);
+      }
+    }
+
+    console.log(`[GameLoop] Started tier ${tier} expedition for ${partyMembers.length > 1 ? 'party [' + partyMembers.join(', ') + ']' : 'player ' + playerId} (room: ${room.id}, template: ${templateId}, floors: ${maxFloors}, boss: ${bossType}${selectedAffixes.length > 0 ? ', affixes: ' + selectedAffixes.join('+') : ''})`);
+    return { roomId: room.id, room, partyMembers };
   }
 
-  // Complete an expedition: set tier cleared flag (if boss killed), restore banked loot, clean up
+  // Complete an expedition: set tier cleared flag (if boss killed), restore banked loot, clean up.
+  // Handles shared party state — completing for one member completes for all.
   completeExpedition(playerId) {
     const tier = this.flagStore.getPlayerFlag(playerId, 'expedition_tier');
     if (!tier) return;
 
+    // Gather all party members to complete together
+    const party = this.flagStore.getPlayerFlag(playerId, 'expedition_party') || [playerId];
+
     const bossKilled = this.flagStore.getPlayerFlag(playerId, 'expedition_boss_killed');
 
-    // Only set tier cleared if the boss was defeated
-    if (bossKilled) {
-      this.flagStore.setPlayerFlag(playerId, `expedition_tier_${tier}_cleared`, true);
-      console.log(`[GameLoop] Player ${playerId} completed expedition tier ${tier}`);
-    } else {
-      console.log(`[GameLoop] Player ${playerId} retreated from expedition tier ${tier} (boss not killed)`);
-    }
+    for (const pid of party) {
+      // Skip members whose expedition was already cleared (e.g. died and cleaned up)
+      if (!this.flagStore.getPlayerFlag(pid, 'expedition_active')) continue;
 
-    // Restore banked loot from checkpoints to inventory
-    const bankedLoot = this.flagStore.getPlayerFlag(playerId, 'expedition_banked_loot');
-    if (bankedLoot && bankedLoot.length > 0) {
-      // Find the player across all rooms
-      for (const [, room] of this.rooms) {
-        const player = room.players.get(playerId);
-        if (player) {
-          for (const item of bankedLoot) {
-            player.inventory.push(item);
+      // Only set tier cleared if the boss was defeated
+      if (bossKilled) {
+        this.flagStore.setPlayerFlag(pid, `expedition_tier_${tier}_cleared`, true);
+        console.log(`[GameLoop] Player ${pid} completed expedition tier ${tier}`);
+      } else {
+        console.log(`[GameLoop] Player ${pid} retreated from expedition tier ${tier} (boss not killed)`);
+      }
+
+      // Restore banked loot from checkpoints to inventory
+      const bankedLoot = this.flagStore.getPlayerFlag(pid, 'expedition_banked_loot');
+      if (bankedLoot && bankedLoot.length > 0) {
+        for (const [, room] of this.rooms) {
+          const player = room.players.get(pid);
+          if (player) {
+            for (const item of bankedLoot) {
+              player.inventory.push(item);
+            }
+            console.log(`[GameLoop] Restored ${bankedLoot.length} banked items to player ${pid} on expedition completion`);
+            break;
           }
-          console.log(`[GameLoop] Restored ${bankedLoot.length} banked items to player ${playerId} on expedition completion`);
-          break;
         }
       }
-    }
 
-    // Clear all expedition state flags
+      // Clear all expedition state flags
+      this._clearExpeditionFlags(pid);
+    }
+  }
+
+  // Clear all expedition state flags for a single player
+  _clearExpeditionFlags(playerId) {
     const expFlags = [
       'expedition_active', 'expedition_tier', 'expedition_floor',
       'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
       'expedition_scaling', 'expedition_origin', 'expedition_boss_killed',
       'expedition_boss_affixes', 'expedition_banked_loot',
-      'expedition_checkpoint_depth',
+      'expedition_checkpoint_depth', 'expedition_party',
     ];
     for (const flag of expFlags) {
       this.flagStore.removePlayerFlag(playerId, flag);
+    }
+  }
+
+  // Remove a player from their expedition party (e.g. on death).
+  // Updates the party list for remaining members.
+  _removeFromExpeditionParty(playerId) {
+    const party = this.flagStore.getPlayerFlag(playerId, 'expedition_party');
+    if (!party) return;
+    const remaining = party.filter(pid => pid !== playerId);
+    for (const pid of remaining) {
+      if (remaining.length > 1) {
+        this.flagStore.setPlayerFlag(pid, 'expedition_party', remaining);
+      } else {
+        // Only one member left — no longer a party
+        this.flagStore.removePlayerFlag(pid, 'expedition_party');
+      }
     }
   }
 
@@ -3781,16 +3850,9 @@ class GameLoop {
           console.log(`[GameLoop] Restored ${bankedLoot.length} banked items to player ${player.id} after expedition death`);
         }
 
-        const expFlags = [
-          'expedition_active', 'expedition_tier', 'expedition_floor',
-          'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
-          'expedition_scaling', 'expedition_origin', 'expedition_boss_killed',
-          'expedition_boss_affixes', 'expedition_banked_loot',
-          'expedition_checkpoint_depth',
-        ];
-        for (const flag of expFlags) {
-          this.flagStore.removePlayerFlag(player.id, flag);
-        }
+        // Remove from party before clearing flags (so remaining members update)
+        this._removeFromExpeditionParty(player.id);
+        this._clearExpeditionFlags(player.id);
         console.log(`[GameLoop] Player ${player.id} died during expedition tier ${expTier} — expedition failed, returning to ${expeditionOrigin}`);
       }
 
@@ -4156,27 +4218,42 @@ class GameLoop {
               continue;
             }
           }
-          const transition = {
-            playerId: pid,
-            fromRoom: room.id,
-            toDungeon: exit.leadsTo,
-            spawnX: exit.spawnX != null ? exit.spawnX : null,
-            spawnY: exit.spawnY != null ? exit.spawnY : null,
-            targetId: exit.targetId || null,
-            exitX: exit.x,
-            exitY: exit.y,
-            depth: exit.depth,
-          };
-          // Attach expedition context so the transition handler can apply scaling
-          // and detect completion
+          // Build the set of players to transition — includes party members
+          const transitionPlayers = [pid];
           if (this.flagStore.getPlayerFlag(pid, 'expedition_active')) {
-            transition.expeditionTier = this.flagStore.getPlayerFlag(pid, 'expedition_tier');
-            transition.expeditionMaxFloors = this.flagStore.getPlayerFlag(pid, 'expedition_max_floors');
-            transition.expeditionBossType = this.flagStore.getPlayerFlag(pid, 'expedition_boss_type');
-            transition.expeditionScaling = this.flagStore.getPlayerFlag(pid, 'expedition_scaling');
-            transition.expeditionBossAffixes = this.flagStore.getPlayerFlag(pid, 'expedition_boss_affixes');
+            const party = this.flagStore.getPlayerFlag(pid, 'expedition_party');
+            if (party) {
+              for (const partyPid of party) {
+                if (partyPid !== pid && room.players.has(partyPid)) {
+                  transitionPlayers.push(partyPid);
+                }
+              }
+            }
           }
-          this.pendingTransitions.push(transition);
+
+          for (const tPid of transitionPlayers) {
+            const transition = {
+              playerId: tPid,
+              fromRoom: room.id,
+              toDungeon: exit.leadsTo,
+              spawnX: exit.spawnX != null ? exit.spawnX : null,
+              spawnY: exit.spawnY != null ? exit.spawnY : null,
+              targetId: exit.targetId || null,
+              exitX: exit.x,
+              exitY: exit.y,
+              depth: exit.depth,
+            };
+            // Attach expedition context so the transition handler can apply scaling
+            // and detect completion
+            if (this.flagStore.getPlayerFlag(tPid, 'expedition_active')) {
+              transition.expeditionTier = this.flagStore.getPlayerFlag(tPid, 'expedition_tier');
+              transition.expeditionMaxFloors = this.flagStore.getPlayerFlag(tPid, 'expedition_max_floors');
+              transition.expeditionBossType = this.flagStore.getPlayerFlag(tPid, 'expedition_boss_type');
+              transition.expeditionScaling = this.flagStore.getPlayerFlag(tPid, 'expedition_scaling');
+              transition.expeditionBossAffixes = this.flagStore.getPlayerFlag(tPid, 'expedition_boss_affixes');
+            }
+            this.pendingTransitions.push(transition);
+          }
           break;
         } else if (player[cooldownFlag]) {
           // Player stepped off — reset so message shows again on next approach

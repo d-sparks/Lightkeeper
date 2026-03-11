@@ -258,6 +258,7 @@ function validateFlags() {
     'expedition_tier_3_cleared',
     'expedition_tier_4_cleared',
     'expedition_tier_5_cleared',
+    'expedition_party',          // server/game-loop.js — set during cooperative expeditions
   ];
   for (const flag of engineSetFlags) {
     addToMap(flagsSet, flag, { source: 'engine (server/index.js)', file: 'server/index.js' });

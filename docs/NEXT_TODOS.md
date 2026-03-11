@@ -49,10 +49,16 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Boss affix data format and pool in `content/expeditions/affixes.json`.~~ ✓ Implemented — 8 affixes (berserker, ironhide, swift, volatile, regenerating, empowered_slam, relentless, juggernaut) with stat mods, regen, special attack mods, and damageTakenMult.
 - ~~Apply affix buffs to boss entities at spawn.~~ ✓ Implemented — `_applyBossAffixes()` in game-loop.js modifies boss stats, phases, special attacks, and title at spawn time; regen ticks in monster update loop; damageTakenMult applied at all 4 damage points.
 - ~~Tier 4-5 expedition configs.~~ ✓ Implemented — tier_4.json (1 affix, 2.4x/2.0x scaling) and tier_5.json (2 affixes, 3.2x/2.5x scaling) with full affix pools.
-- Tier 4-5 requiring multiple players (cooperative gating not yet implemented).
+- ~~Tier 4-5 requiring multiple players (cooperative gating not yet implemented).~~ ✓ Implemented — `minPlayers: 2` in tier_4/5 JSON; `startExpedition()` validates room player count; shared expedition state (flags, boss kill, floor transitions, completion) tracked via `expedition_party` flag across all party members; party members transition floors together; dead members removed from party; client HUD shows party size.
 - ~~Wire path-specific boss loot table selection (check `chose_path_*` flag for Tier 3+ bosses).~~ ✓ Implemented — `_rollLoot` checks `chose_path_shutdown/merge/control` flags and selects `expedition_tier_N_boss_[path]` if the table exists, falling back to general boss table.
 - ~~Tier 4-5 loot tables (expedition_tier_4, expedition_tier_5) not yet created.~~ ✓ Implemented — floor loot tables (expedition_tier_4/5) and boss tables (expedition_tier_4/5_boss, plus path-specific variants for shutdown/merge/control) added to content/loot/expeditions.json. Epic items dominant in floors; legendary items primary in boss tables.
 - ~~Wire `unlockFlag` checking in loot resolver for legendary drops.~~ ✓ Implemented — `_rollLoot` and `doRollLootTable` now filter eligible rolls by `unlockFlag`, checking the player's flags before including path-specific legendaries in the weighted pool.
+
+### Phase 5.5 — Cooperative Polish
+- Expedition party silicon cost splitting — currently only the initiator pays; consider splitting cost across party members.
+- Party formation UI — currently all players in the room join automatically; consider explicit party invite/accept flow.
+- Party disconnect handling — if a party member disconnects mid-expedition, they are not removed from the party list until death or completion; consider cleanup on disconnect.
+- Shared XP/loot distribution across party members (currently individual per-player).
 
 ### Phase 6 — Cooperative Challenges
 - Wave defense system, player-count gating, challenge configs.

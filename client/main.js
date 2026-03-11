@@ -43,6 +43,7 @@
   const expeditionHud = document.getElementById('expedition-hud');
   const expeditionTier = document.getElementById('expedition-tier');
   const expeditionFloor = document.getElementById('expedition-floor');
+  const expeditionParty = document.getElementById('expedition-party');
   const bossBar = document.getElementById('boss-bar');
   const bossBarName = document.getElementById('boss-bar-name');
   const bossBarFill = document.getElementById('boss-bar-fill');
@@ -2796,6 +2797,12 @@
       expeditionHud.style.display = '';
       expeditionTier.textContent = `EXPEDITION T${msg.expedition.tier}`;
       expeditionFloor.textContent = `Floor ${msg.expedition.floor} / ${msg.expedition.maxFloors}`;
+      if (msg.expedition.partySize > 1) {
+        expeditionParty.textContent = `Party: ${msg.expedition.partySize} explorers`;
+        expeditionParty.style.display = '';
+      } else {
+        expeditionParty.style.display = 'none';
+      }
     } else {
       expeditionHud.style.display = 'none';
     }

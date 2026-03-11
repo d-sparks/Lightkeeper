@@ -1433,10 +1433,12 @@ setInterval(() => {
           state.myCooldowns = player.cooldowns;
           // Inject expedition info for this player
           if (gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_active')) {
+            const party = gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_party');
             state.expedition = {
               tier: gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_tier'),
               floor: gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_floor'),
               maxFloors: gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_max_floors'),
+              partySize: party ? party.length : 1,
             };
           } else {
             state.expedition = null;

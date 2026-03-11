@@ -15,5 +15,6 @@
   "mechanics": ["timed_darkness_waves", "corruption_zones"],
   "bossPool": ["crystal_guardian", "elder_sporecap", "luddite_warlord", "threshold_keeper"],
   "bossAffixes": ["berserker", "ironhide", "swift", "volatile", "regenerating", "empowered_slam", "relentless", "juggernaut"],
-  "bossAffixCount": 2
+  "bossAffixCount": 2,
+  "minPlayers": 2
 }

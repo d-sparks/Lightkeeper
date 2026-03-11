@@ -1075,6 +1075,15 @@ class ActionExecutor {
       }
       return;
     }
+    if (result.insufficientPlayers) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.NPC_DIALOGUE,
+          lines: [{ speaker: 'Expedition Board', text: `This expedition requires ${result.required} explorers. Only ${result.present} present in this area.` }],
+        });
+      }
+      return;
+    }
     if (result.insufficientSilicon) {
       if (this.sendToPlayer) {
         this.sendToPlayer(context.playerId, {
@@ -1084,12 +1093,15 @@ class ActionExecutor {
       }
       return;
     }
-    // Queue a transition to the expedition room
-    this.gameLoop.pendingTransitions.push({
-      playerId: context.playerId,
-      fromRoom: context.roomId,
-      toDungeon: result.roomId,
-    });
+    // Queue transitions for all party members to the expedition room
+    const partyMembers = result.partyMembers || [context.playerId];
+    for (const pid of partyMembers) {
+      this.gameLoop.pendingTransitions.push({
+        playerId: pid,
+        fromRoom: context.roomId,
+        toDungeon: result.roomId,
+      });
+    }
   }
 }
 
