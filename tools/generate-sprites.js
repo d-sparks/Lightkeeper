@@ -127,9 +127,73 @@ function drawPixelArt(png, offsetX, offsetY, rows) {
   }
 }
 
+// ---- Art-style post-processing for entity sprites ----
+
+// Add 1-pixel Void Black outline around all opaque regions.
+// Per art-style-guide: "1-pixel black outline separates sprites from environment."
+function addOutline(png) {
+  const { width, height } = png;
+  const original = Buffer.from(png.data);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      if (original[idx + 3] > 0) continue; // only process transparent pixels
+      // If any cardinal neighbor is opaque, paint this pixel Void Black
+      const neighbors = [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]];
+      for (const [nx, ny] of neighbors) {
+        if (nx >= 0 && ny >= 0 && nx < width && ny < height) {
+          const nIdx = (ny * width + nx) * 4;
+          if (original[nIdx + 3] > 128) {
+            png.data[idx]     = 0x0a; // Void Black R
+            png.data[idx + 1] = 0x0a; // Void Black G
+            png.data[idx + 2] = 0x0f; // Void Black B
+            png.data[idx + 3] = 255;
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Apply a top-left lighting pass to opaque pixels.
+// Per art-style-guide: "top-left light source (~10 o'clock), highlights on
+// upper-left, shadows on lower-right."
+// Only affects pixels at opaque/transparent boundaries (surface pixels).
+function applyTopLeftLighting(png) {
+  const { width, height } = png;
+  const original = Buffer.from(png.data);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      if (original[idx + 3] < 128) continue; // skip transparent
+      const topEmpty  = y === 0          || original[((y - 1) * width + x) * 4 + 3] < 128;
+      const leftEmpty = x === 0          || original[(y * width + (x - 1)) * 4 + 3] < 128;
+      const botEmpty  = y === height - 1 || original[((y + 1) * width + x) * 4 + 3] < 128;
+      const rightEmpty = x === width - 1 || original[(y * width + (x + 1)) * 4 + 3] < 128;
+      // Top-left facing surfaces get highlights; bottom-right shadows
+      let delta = 0;
+      if (topEmpty)   delta += 28;
+      if (leftEmpty)  delta += 18;
+      if (botEmpty)   delta -= 22;
+      if (rightEmpty) delta -= 12;
+      if (delta !== 0) {
+        png.data[idx]     = Math.min(255, Math.max(0, original[idx]     + delta));
+        png.data[idx + 1] = Math.min(255, Math.max(0, original[idx + 1] + delta));
+        png.data[idx + 2] = Math.min(255, Math.max(0, original[idx + 2] + delta));
+      }
+    }
+  }
+}
+
 function savePNG(png, filePath) {
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  // Apply art-style post-processing for entity sprites (not tilesets)
+  if (filePath.includes(`${path.sep}sprites${path.sep}`) || filePath.includes('/sprites/')) {
+    applyTopLeftLighting(png);
+    addOutline(png);
+  }
   const buffer = PNG.sync.write(png);
   fs.writeFileSync(filePath, buffer);
   console.log(`  wrote ${filePath}`);

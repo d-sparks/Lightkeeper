@@ -93,8 +93,8 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Add distinguishing features to key NPCs (NPC default hair, Sable teal nightside eyes).~~ ✓ Done
 - ~~Improve priority items: health potion self-colored outline, Sol Gold iron key, geometric sol unit.~~ ✓ Done
 - ~~Replace remaining monster sprites with proper pixel art per art-style-guide.md: nightside creatures (dusk_crawler, shade_stalker, gloom_wraith), ice enemies (rime_stalker, frostfang_hunter, frost_warden), fire enemies (vent_spewer, magma_brute), fungal enemies, array/threshold bosses.~~ ✓ Done — all 20 target sprites redesigned: warm orange eyes on all hostile creatures, distinctive silhouettes (dusk_crawler antenna+legs, shade_stalker wide-reach arms, nest_mother 8-leg spider, gloom_wraith wispy ghost, frost warden icicle crown, crystal guardian faceted crown, magma_brute flame crown, elder sporecap wide cap, abyssal_tendril radiating tendrils, threshold_keeper void crown, etc.).
-- Add 1-pixel dark outlines to all entity sprites (currently most lack outlines).
-- Add top-left lighting pass (highlight upper-left edges, shadow lower-right) across all sprites.
+- ~~Add 1-pixel dark outlines to all entity sprites.~~ ✓ Done — `addOutline()` in generate-sprites.js fills transparent pixels adjacent to opaque regions with Void Black (#0a0a0f).
+- ~~Add top-left lighting pass across all entity sprites.~~ ✓ Done — `applyTopLeftLighting()` brightens top/left surface edges (+28/+18) and darkens bottom/right edges (-22/-12). Both applied auto in `savePNG()` for any path under `sprites/`.
 - Improve tileset sprites: crypt, outpost, quarantine tiles need texture refinement per zone color identity.
 - Animation frames (idle, attack, hit) when engine supports sprite animation.
 - New tileset strips for dark_city, quarantine, outpost templates (PNG files exist, need wiring).
