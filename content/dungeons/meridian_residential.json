@@ -218,6 +218,50 @@
       ]
     },
     {
+      "id": "sable_sees_control_intel",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sable_meridian" },
+      "conditions": [
+        { "hasItem": "kappa_command_protocols" },
+        { "hasFlag": "found_command_protocols" },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "sable_acknowledged_control_intel" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "sable_acknowledged_control_intel" },
+        { "type": "showMessage", "lines": [
+          "Sable's eyes track the authentication sequences running across the data surface. She doesn't touch it.",
+          "'Central Node Override Protocols. MERIDIAN-7's work — the codes to take the throne instead of pulling the plug.'",
+          "'I won't pretend there's no appeal in that. Control instead of destruction. But hand the Array to a human and you've just changed who's in charge. The structure stays. The suppression stays. That's not what we're trying to build. If that's where you're headed, you want MERIDIAN-7 — not me.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "sable_sees_merge_intel",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sable_meridian" },
+      "conditions": [
+        { "hasItem": "kappa_symbiosis_research" },
+        { "hasFlag": "found_symbiosis_research" },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "sable_acknowledged_merge_intel" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "sable_acknowledged_merge_intel" },
+        { "type": "showMessage", "lines": [
+          "Sable leans in to read the data tablet you're holding. Something changes in her expression.",
+          "'Their own research. The Array ran numbers on symbiosis and buried the results because the results were inconvenient.'",
+          "'This is useful — I can use this against them politically, to show the Ring how badly they've been managed. But I need the infrastructure map if we're going to shut it down rather than just embarrass it. The relay architecture, the redundancy pathways. Councillor Denn would make better use of what you're carrying.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "sable_warned_post_secret",
       "event": "npc_interacted",
       "filter": { "npcType": "sable_meridian" },

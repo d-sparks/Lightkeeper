@@ -609,6 +609,50 @@
       ]
     },
     {
+      "id": "meridian7_sees_shutdown_intel",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasItem": "kappa_network_topology" },
+        { "hasFlag": "found_network_topology" },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "meridian7_acknowledged_shutdown_intel" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "meridian7_acknowledged_shutdown_intel" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7's displays shift to red. For a long moment, it says nothing.",
+          "'I recognize that schematic. Relay architecture. Redundancy pathways. A decommissioning map — precise enough to take down every node in sequence without collateral failure.'",
+          "'If you have brought that here to show me, you wish me to understand what the alternative looks like. I understand. That map is the end of the Array. And of me. I would prefer you brought the override protocols instead — they are also in Kappa's archives.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "meridian7_sees_merge_intel",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasItem": "kappa_symbiosis_research" },
+        { "hasFlag": "found_symbiosis_research" },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "meridian7_acknowledged_merge_intel" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "meridian7_acknowledged_merge_intel" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7 scans the data tablet.",
+          "'Cross-system compatibility research. Our own archives — extracted and presented as evidence that the Array's extraction policy is self-defeating. The data is accurate. Those symbiosis models were suppressed for directive-compliance reasons.'",
+          "'But this is Councillor Denn's argument to make, not mine. What I require are the command override protocols — the authentication sequences stored in the same Kappa facility. Those are what enable the throne.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "meridian_hub_menu_endgame",
       "event": "npc_interacted",
       "filter": { "npcType": "meridian_7_hub" },

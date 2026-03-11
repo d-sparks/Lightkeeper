@@ -397,6 +397,50 @@
       "once": true
     },
     {
+      "id": "asha_sees_shutdown_intel",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "kappa_network_topology" },
+        { "hasFlag": "found_network_topology" },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "asha_acknowledged_shutdown_intel" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_acknowledged_shutdown_intel" },
+        { "type": "showMessage", "lines": [
+          "Councillor Asha takes the tablet and reads it slowly. She sets it down.",
+          "'Network topology. Every Array installation mapped — power conduits, relay stations, all of it. A blueprint for a clean shutdown.'",
+          "'This is a valid argument. I won't say it isn't. Three hundred years of extraction, and you have the means to end it in a single coordinated operation.' A pause. 'But the infrastructure doesn't disappear when the Array does. Someone has to manage what's left. I keep thinking about who that someone will be. If you want to pursue this path, Sable is who you're looking for.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "asha_sees_control_intel",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "kappa_command_protocols" },
+        { "hasFlag": "found_command_protocols" },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "asha_acknowledged_control_intel" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_acknowledged_control_intel" },
+        { "type": "showMessage", "lines": [
+          "Councillor Asha studies the override protocols in your hands. Her expression is unreadable.",
+          "'Central Node Override Protocols. Authentication codes that would let a human operator command the entire Array network. Human oversight instead of machine optimization.'",
+          "'I understand the appeal. But I keep asking myself: is authority that answers to human bias actually better than authority that answers to algorithms? Both require someone to trust the person at the top. What I'm trying to build doesn't require that faith. If you want to pursue that path, MERIDIAN-7 is who you need.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "hollis_endgame_reaction",
       "event": "npc_interacted",
       "filter": { "npcType": "registrar_hollis" },
