@@ -4504,6 +4504,9 @@ class GameLoop {
         this.actions.execute({ type: 'openAutomation' }, ctx);
       } else if (value === 'open_shop') {
         this.actions.execute({ type: 'shop', shopId: 'meridian_7_shop' }, ctx);
+      } else if (value === 'open_craft') {
+        this.actions.execute({ type: 'showMessage', text: "MERIDIAN-7: 'Fabrication protocols unlocked. Post-crisis resource allocation permits component reforging and fusion. Select a recipe.'" }, ctx);
+        this.actions.execute({ type: 'craft' }, ctx);
       }
       return;
     }

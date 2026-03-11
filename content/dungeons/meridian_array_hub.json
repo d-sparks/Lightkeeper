@@ -638,15 +638,6 @@
           { "label": "Exchange (Buy / Sell)", "value": "open_shop" }
         ]}
       ]
-    },
-    {
-      "id": "meridian_craft_menu",
-      "event": "choice_made",
-      "filter": { "choiceId": "meridian_menu", "value": "open_craft" },
-      "actions": [
-        { "type": "showMessage", "text": "MERIDIAN-7: 'Fabrication protocols unlocked. Post-crisis resource allocation permits component reforging and fusion. Select a recipe.'" },
-        { "type": "craft" }
-      ]
     }
   ]
 }
