@@ -24,9 +24,9 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Client-side expedition HUD (floor counter, boss health bar).
 
 ### Phase 3 — Modifier Crafting
-- Add `craft` action type to `server/scripting/actions.js`.
-- Create `content/entities/crafting.json` with reforge/fuse/attune recipes.
-- Add MERIDIAN-7 crafting dialogue branch gated on `endgame_active`.
+- ~~Add `craft` action type to `server/scripting/actions.js`.~~ ✓ Implemented — craft action opens crafting menu filtered by player inventory; executeCraftRecipe() handles recipe execution via choice menu (choiceId: meridian_craft).
+- ~~Create `content/entities/crafting.json` with reforge/fuse/attune recipes.~~ ✓ Implemented — 6 reforge recipes and 3 fuse recipes defined.
+- Add MERIDIAN-7 crafting dialogue branch gated on `endgame_active` — craft action exists but NPC dialogue trigger for endgame crafting not yet wired.
 
 ### Phase 4 — Automation Levels 6-10
 - ~~New structures (silicon_refinery, auto_turret, fabricator, expedition_beacon).~~ ✓ Implemented — 4 new structures with unlockLevel gating (levels 7-10), silicon as new resource produced by refineries, auto_turret defense rating, fabricator fast salvage production, expedition_beacon cost reduction.
@@ -68,7 +68,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Sessions & Persistence
 
-- Periodic auto-save during play (currently only saves on disconnect).
+- ~~Periodic auto-save during play (currently only saves on disconnect).~~ ✓ Implemented — 5-minute auto-save interval in server/index.js.
 - Handle name collisions more gracefully (warn on duplicate character names).
 - Consider SQLite backend for deployed environments.
 
