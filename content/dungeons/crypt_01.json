@@ -454,6 +454,19 @@
       "patrol": "wander"
     },
     {
+      "type": "skeleton_archer",
+      "x": 7,
+      "y": 11,
+      "count": 1,
+      "patrol": "patrol",
+      "patrolPath": [
+        { "x": 5, "y": 10 },
+        { "x": 9, "y": 10 },
+        { "x": 9, "y": 12 },
+        { "x": 5, "y": 12 }
+      ]
+    },
+    {
       "type": "tunnel_creeper",
       "x": 14,
       "y": 10,

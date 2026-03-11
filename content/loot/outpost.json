@@ -30,5 +30,15 @@
       { "item": "shock_baton", "weight": 2 },
       { "item": "precision_blaster", "weight": 1 }
     ]
+  },
+  "skeleton_archer": {
+    "dropChance": 0.65,
+    "rolls": [
+      { "item": "bandage", "weight": 8 },
+      { "item": "battery_chip", "weight": 6 },
+      { "item": "health_potion", "weight": 4 },
+      { "item": "rechargeable_battery_chip", "weight": 2 },
+      { "item": "precision_blaster", "weight": 1 }
+    ]
   }
 }

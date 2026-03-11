@@ -50,7 +50,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 ## Content Gaps
 
 - Place feral_hound_alpha and frostfang_alpha as rare spawns in nightside_caverns and frost proc templates.
-- Place skeleton_archer in crypt_01/crypt_02 and add loot table.
+- ~~Place skeleton_archer in crypt_01/crypt_02 and add loot table.~~ ✓ Both crypts already had one archer; added a second patrolling archer to crypt_01; added `skeleton_archer` loot table to outpost.json.
 - Add explicit patrolPath waypoints to patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
 - Phase 3 investigation quest after Autotroph confrontation (mechanical meaningfulness beyond dialogue).
 - Post-ending Sable dialogue for Shutdown/Merge paths (expedition quest-giver).
