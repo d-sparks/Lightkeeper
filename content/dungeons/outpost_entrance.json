@@ -1883,6 +1883,24 @@
       "once": true
     },
     {
+      "id": "npc_tutorial_hint",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "not": {
+            "hasFlag": "talked_to_warden"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "text": "Warden Holt stands by the northern gate. Approach him and press [E] to report in — he'll get you started."
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "receive_medipac",
       "event": "room_entered",
       "conditions": {
@@ -1919,7 +1937,10 @@
         },
         {
           "type": "showMessage",
-          "text": "You check your belt. Standard-issue Medipac and a few packs of medical supplies."
+          "lines": [
+            "You check your belt. Standard-issue Medipac and a few packs of medical supplies.",
+            "Press [Q] to use your Medipac when injured. Medical supplies restore health — keep them stocked."
+          ]
         }
       ],
       "once": true
