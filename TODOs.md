@@ -1,7 +1,6 @@
 TODOs
 
 - [opus] Fix headless sim mainline regression: bot gets stuck in proc_quarantine after only 4/52 rooms visited, 0 combat — pathfinding fails when A* path is blocked by monster collision circles, needs pathfind-around-monsters logic or monster-avoidance fallback
-- [opus] Resolve content validator errors: 5 flag warnings (automation_established, expedition_active, expedition_tier_N_cleared) — either suppress engine-set flags in validator or add stub trigger comments so validator recognizes them
 - [opus] Wire MERIDIAN-7 endgame crafting dialogue: craft action type exists in actions.js and crafting.json has recipes, but no NPC dialogue trigger gates the crafting menu behind the endgame_active flag
 - [opus] Add mid-run loot banking checkpoints to expeditions: safe rooms between floors where players can bank collected loot so death only forfeits current floor items, not the entire run
 - [sonnet] Add ending-path-specific automation structure variants: bio_harvester (shutdown), symbiotic_node (merge), array_drone_bay (control) as described in endgame-loop.md Phase 4

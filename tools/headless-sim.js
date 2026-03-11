@@ -35,7 +35,7 @@ console.error = origErr;
 const TICK_RATE = CONSTANTS.TICK_RATE;  // 15
 const DT = 1 / TICK_RATE;               // ~0.0667s
 const TILE_SIZE = CONSTANTS.TILE_SIZE;   // 32
-const STUCK_THRESHOLD = 300;             // ticks with no progress = soft lock
+const STUCK_THRESHOLD = 500;             // ticks with no progress = soft lock
 const MAX_GAME_SECONDS = 2400;           // 40 minutes max per quest
 const PLAYER_ID = 'bot_1';
 const PLAYER_NAME = 'TestBot';
@@ -1147,8 +1147,8 @@ class Bot {
     if (room.monsters.size > 0 && !goal._killingMonsters) {
       goal._killingMonsters = true;
       goal._killRetryCount = (goal._killRetryCount || 0) + 1;
-      // Give up after 3 kill attempts (monsters are truly unreachable)
-      if (goal._killRetryCount <= 3) {
+      // Give up after 5 kill attempts (monsters are truly unreachable)
+      if (goal._killRetryCount <= 5) {
         this.pushGoal({ type: 'kill_monsters' });
         return;
       }
@@ -1340,7 +1340,8 @@ class Bot {
       return;
     }
 
-    // Timeout: track total monster HP — if no damage dealt for 150 ticks, give up
+    // Timeout: track total monster HP — if no damage dealt for 450 ticks, give up.
+    // Generous enough for the bot to navigate ~15 A* tiles around walls.
     let totalHP = 0;
     for (const [, mob] of room.monsters) totalHP += mob.health;
     if (!goal._lastTotalHP) goal._lastTotalHP = totalHP;
@@ -1350,40 +1351,38 @@ class Bot {
       goal._stuckTicks = 0;
     } else {
       goal._stuckTicks++;
-      if (goal._stuckTicks > 150) {
+      if (goal._stuckTicks > 450) {
         this.popGoal(); // Can't reach/damage remaining monsters
         return;
       }
     }
 
-    // Find nearest monster and move toward it
-    let nearest = null;
-    let nearestDist = Infinity;
-    for (const [, mob] of room.monsters) {
+    // Find nearest reachable monster and navigate to it using move_to_position
+    // for robust A* pathfinding with door handling and stuck detection.
+    const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
+    const monsters = [];
+    for (const [mid, mob] of room.monsters) {
       const dx = mob.x - player.x;
       const dy = mob.y - player.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < nearestDist) {
-        nearest = mob;
-        nearestDist = dist;
+      monsters.push({ id: mid, mob, dist: Math.sqrt(dx * dx + dy * dy) });
+    }
+    monsters.sort((a, b) => a.dist - b.dist);
+
+    for (const { mob, dist } of monsters) {
+      // If at melee range, stop navigating — combat handles it from here
+      const meleeRange = (CONSTANTS.PLAYER_ATTACK_RANGE || 1.5) * TILE_SIZE;
+      if (dist <= meleeRange) return;
+
+      const mobTile = pixelToTile(mob.x, mob.y);
+      const path = astarPath(room.dungeon, ptx, pty, mobTile.tx, mobTile.ty);
+      if (path && path.length > 0) {
+        // Push a move_to_position sub-goal to walk to the monster's vicinity.
+        // tolerance=1 so we get close enough for reliable line-of-sight combat.
+        this.pushGoal({ type: 'move_to_position', tileX: mobTile.tx, tileY: mobTile.ty, tolerance: 1 });
+        return;
       }
     }
-    if (nearest) {
-      const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * TILE_SIZE;
-      if (nearestDist > aggroRange) {
-        // Use A* pathfinding to navigate to monster
-        const mobTile = pixelToTile(nearest.x, nearest.y);
-        const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
-        const path = astarPath(room.dungeon, ptx, pty, mobTile.tx, mobTile.ty);
-        if (path && path.length > 0) {
-          this.moveTowardTile(player, path[0].x, path[0].y);
-        } else {
-          // Can't pathfind to this monster — try direct movement
-          this.moveTowardTile(player, mobTile.tx, mobTile.ty);
-        }
-      }
-      // Combat will be handled by the main think() combat check
-    }
+    // No reachable monster or all within combat range — doCombat handles it
   }
 
   doExploreRoom(goal, player, room) {
