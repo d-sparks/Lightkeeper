@@ -403,65 +403,68 @@ class Renderer {
   // Each tileset ID maps to a color palette for procedural iso tile generation.
   static ISO_THEMES = {
     crypt: {
+      // Zone identity: Cold Gray, Slate Blue, Bone White — ancient, still, oppressive
       wallRise: 30,
-      floor:      { fill: '#2a2a3d', edge: 'rgba(255,255,255,0.06)' },
-      floor2:     { fill: '#2a2a3d', crack: 'rgba(0,0,0,0.3)', edge: 'rgba(255,255,255,0.06)' },
-      water:      { fill: '#1a3a6a', wave: 'rgba(100,180,255,0.3)' },
-      stairsDown: { fill: '#4a2a6a', step: 'rgba(255,255,255,0.15)', chevron: 'rgba(255,255,255,0.4)' },
-      stairsUp:   { fill: '#2a6a4a', step: 'rgba(255,255,255,0.15)', chevron: 'rgba(255,255,255,0.4)' },
-      doorOpen:   { fill: '#4a3a2a', frame: 'rgba(180,140,80,0.4)' },
-      wall:       { top: '#5a5a7a', left: '#4a4a6a', right: '#3a3a5a', edge: 'rgba(255,255,255,0.08)' },
-      doorClosed: { top: '#8b7a50', left: '#7a6a40', right: '#6a5a30', arch: 'rgba(255,255,255,0.15)', edge: 'rgba(255,255,255,0.1)' },
-      lockedDoor: { top: '#6a5a3a', left: '#5a4a2a', right: '#4a3a1a', arch: 'rgba(255,255,255,0.12)', lock: 'rgba(200,160,60,0.6)', lockEdge: 'rgba(255,220,100,0.4)', edge: 'rgba(255,255,255,0.08)' },
-      chest:      { top: '#5a6a5a', left: '#4a5a4a', right: '#3a4a3a', band: 'rgba(120,140,120,0.4)', lock: 'rgba(220,180,60,0.7)', lockEdge: 'rgba(255,220,100,0.5)', edge: 'rgba(255,255,255,0.1)' },
+      floor:      { fill: '#252535', edge: 'rgba(180,190,220,0.07)' },  // cool slate-blue tint
+      floor2:     { fill: '#252535', crack: 'rgba(0,0,0,0.35)', edge: 'rgba(180,190,220,0.07)' },
+      water:      { fill: '#1a3a6a', wave: 'rgba(100,210,180,0.25)' },  // cold teal wave (phosphorescent)
+      stairsDown: { fill: '#20304a', step: 'rgba(100,210,180,0.18)', chevron: 'rgba(100,210,180,0.55)' },  // cold teal (eerie glow down)
+      stairsUp:   { fill: '#252535', step: 'rgba(200,190,170,0.18)', chevron: 'rgba(200,190,170,0.55)' },  // bone-white (ascending to light)
+      doorOpen:   { fill: '#1e2030', frame: 'rgba(100,210,180,0.3)' },   // cold teal frame (phosphorescent)
+      wall:       { top: '#5a5a7a', left: '#4a4a6a', right: '#3a3a5a', edge: 'rgba(180,190,220,0.09)' },
+      doorClosed: { top: '#5a6070', left: '#4a5060', right: '#3a4050', arch: 'rgba(100,210,180,0.18)', edge: 'rgba(180,190,220,0.1)' },  // cold iron (not brown wood)
+      lockedDoor: { top: '#484e5e', left: '#383e4e', right: '#283040', arch: 'rgba(100,210,180,0.15)', lock: 'rgba(100,210,180,0.65)', lockEdge: 'rgba(150,240,210,0.45)', edge: 'rgba(180,190,220,0.08)' },  // cold teal lock
+      chest:      { top: '#5a6a5a', left: '#4a5a4a', right: '#3a4a3a', band: 'rgba(120,140,120,0.4)', lock: 'rgba(240,200,80,0.7)', lockEdge: 'rgba(255,220,100,0.5)', edge: 'rgba(180,190,220,0.1)' },
       chestOpen:  { fill: '#3a4a3a', edge: 'rgba(120,140,120,0.5)', inner: 'rgba(0,0,0,0.3)' },
       minimap: {
-        stone_floor: 0x2a2a3d, cracked_floor: 0x332a3d, stone_wall: 0x5a5a7a, cracked_wall: 0x6a5a5a,
-        door_closed: 0x7a6a4a, door_open: 0x4a3a2a, stairs_down: 0x6a3a8a,
-        stairs_up: 0x3a8a6a, water: 0x2a4a6a, void: 0x0d0d1a,
+        stone_floor: 0x252535, cracked_floor: 0x2e2a40, stone_wall: 0x5a5a7a, cracked_wall: 0x6a5a5a,
+        door_closed: 0x5a6070, door_open: 0x1e2030, stairs_down: 0x204a5a,   // cold teal
+        stairs_up: 0x3a3a55, water: 0x2a4a6a, void: 0x0d0d1a,               // bone-white stairs up
         chest_closed: 0x5a6a5a, chest_opened: 0x3a4a3a,
-        elevated_floor: 0x3a3a5d, ramp_north: 0x3a6a4a, ramp_south: 0x3a6a4a,
-        ramp_east: 0x3a6a4a, ramp_west: 0x3a6a4a, full_wall: 0x6a6a9a,
+        elevated_floor: 0x2e2e50, ramp_north: 0x283848, ramp_south: 0x283848,
+        ramp_east: 0x283848, ramp_west: 0x283848, full_wall: 0x6a6a9a,
         elevated_wall: 0x5a5a8a,
       },
     },
     outpost: {
+      // Zone identity: Stone Gray, Brown, warm Orange (torchlight) — safe, worn, lived-in
       wallRise: 34,
-      floor:      { fill: '#35332e', edge: 'rgba(255,220,180,0.06)' },
-      floor2:     { fill: '#35332e', crack: 'rgba(0,0,0,0.25)', edge: 'rgba(255,220,180,0.06)' },
-      water:      { fill: '#2a3028', wave: 'rgba(120,160,100,0.25)' },
-      stairsDown: { fill: '#4a3a2a', step: 'rgba(255,220,180,0.15)', chevron: 'rgba(255,220,180,0.4)' },
-      stairsUp:   { fill: '#2a4a3a', step: 'rgba(255,220,180,0.15)', chevron: 'rgba(255,220,180,0.4)' },
-      doorOpen:   { fill: '#30353a', frame: 'rgba(140,160,180,0.4)' },
-      wall:       { top: '#706860', left: '#605850', right: '#504840', edge: 'rgba(255,220,180,0.06)' },
-      doorClosed: { top: '#6a7a8a', left: '#5a6a7a', right: '#4a5a6a', arch: 'rgba(180,200,220,0.15)', edge: 'rgba(255,255,255,0.1)' },
-      lockedDoor: { top: '#5a6a7a', left: '#4a5a6a', right: '#3a4a5a', arch: 'rgba(180,200,220,0.12)', lock: 'rgba(200,160,60,0.6)', lockEdge: 'rgba(255,220,100,0.4)', edge: 'rgba(255,255,255,0.08)' },
-      chest:      { top: '#5a6058', left: '#4a504a', right: '#3a403a', band: 'rgba(140,140,120,0.4)', lock: 'rgba(220,180,60,0.7)', lockEdge: 'rgba(255,220,100,0.5)', edge: 'rgba(255,255,255,0.1)' },
-      chestOpen:  { fill: '#3a3a35', edge: 'rgba(140,140,120,0.5)', inner: 'rgba(0,0,0,0.3)' },
+      floor:      { fill: '#35332e', edge: 'rgba(255,180,80,0.06)' },    // warm orange edge tint
+      floor2:     { fill: '#35332e', crack: 'rgba(80,50,20,0.3)', edge: 'rgba(255,180,80,0.06)' },  // brown scuff
+      water:      { fill: '#252820', wave: 'rgba(120,160,80,0.2)' },     // oily drainage
+      stairsDown: { fill: '#3a3020', step: 'rgba(255,160,50,0.2)', chevron: 'rgba(255,160,50,0.55)' },  // orange torchlight
+      stairsUp:   { fill: '#3a3020', step: 'rgba(255,160,50,0.2)', chevron: 'rgba(255,160,50,0.55)' },  // orange torchlight
+      doorOpen:   { fill: '#28241e', frame: 'rgba(200,140,60,0.4)' },    // warm orange frame
+      wall:       { top: '#706860', left: '#605850', right: '#504840', edge: 'rgba(255,180,80,0.06)' },
+      doorClosed: { top: '#6a5a48', left: '#5a4a38', right: '#4a3a28', arch: 'rgba(220,160,80,0.18)', edge: 'rgba(255,180,80,0.1)' },  // warm steel (not blue-gray)
+      lockedDoor: { top: '#5a4a38', left: '#4a3a28', right: '#3a2a1a', arch: 'rgba(220,160,80,0.15)', lock: 'rgba(220,160,60,0.65)', lockEdge: 'rgba(255,200,80,0.45)', edge: 'rgba(255,180,80,0.08)' },  // warm steel with orange glow lock
+      chest:      { top: '#5a5040', left: '#4a4030', right: '#3a3020', band: 'rgba(160,130,80,0.4)', lock: 'rgba(220,160,60,0.7)', lockEdge: 'rgba(255,200,80,0.5)', edge: 'rgba(255,180,80,0.1)' },
+      chestOpen:  { fill: '#3a3025', edge: 'rgba(160,130,80,0.5)', inner: 'rgba(0,0,0,0.3)' },
       minimap: {
         stone_floor: 0x35332e, cracked_floor: 0x38352e, stone_wall: 0x706860, cracked_wall: 0x7a6050,
-        door_closed: 0x6a7a8a, door_open: 0x30353a, stairs_down: 0x4a3a2a,
-        stairs_up: 0x2a4a3a, water: 0x2a3028, void: 0x151412,
-        chest_closed: 0x5a6058, chest_opened: 0x3a3a35,
+        door_closed: 0x6a5a48, door_open: 0x28241e, stairs_down: 0x5a3a18,  // warm steel door, orange stairs
+        stairs_up: 0x5a3a18, water: 0x252820, void: 0x151412,
+        chest_closed: 0x5a5040, chest_opened: 0x3a3025,
       },
     },
     quarantine: {
+      // Zone identity: Gray-Green, Rust, warning Red — toxic, abandoned, decaying
       wallRise: 30,
-      floor:      { fill: '#252e25', edge: 'rgba(180,255,180,0.05)' },
-      floor2:     { fill: '#252e25', crack: 'rgba(80,160,60,0.3)', edge: 'rgba(180,255,180,0.05)' },
-      water:      { fill: '#1a3a1a', wave: 'rgba(80,200,60,0.3)' },
-      stairsDown: { fill: '#3a2a4a', step: 'rgba(180,255,180,0.12)', chevron: 'rgba(180,255,180,0.35)' },
-      stairsUp:   { fill: '#2a4a2a', step: 'rgba(180,255,180,0.12)', chevron: 'rgba(180,255,180,0.35)' },
-      doorOpen:   { fill: '#2a2e20', frame: 'rgba(160,180,80,0.35)' },
-      wall:       { top: '#4a5a45', left: '#3a4a35', right: '#2a3a28', edge: 'rgba(180,255,180,0.06)' },
-      doorClosed: { top: '#8a7a30', left: '#7a6a25', right: '#6a5a1a', arch: 'rgba(255,240,100,0.15)', edge: 'rgba(255,255,100,0.1)' },
-      lockedDoor: { top: '#6a5a25', left: '#5a4a1a', right: '#4a3a10', arch: 'rgba(255,240,100,0.12)', lock: 'rgba(200,180,40,0.6)', lockEdge: 'rgba(255,240,80,0.4)', edge: 'rgba(180,255,180,0.06)' },
-      chest:      { top: '#4a5a3a', left: '#3a4a2a', right: '#2a3a1a', band: 'rgba(100,140,80,0.4)', lock: 'rgba(200,180,40,0.7)', lockEdge: 'rgba(255,240,80,0.5)', edge: 'rgba(180,255,180,0.08)' },
+      floor:      { fill: '#252e25', edge: 'rgba(160,220,100,0.06)' },
+      floor2:     { fill: '#252e25', crack: 'rgba(130,70,30,0.35)', edge: 'rgba(160,220,100,0.06)' },  // rust-brown crack
+      water:      { fill: '#162a14', wave: 'rgba(80,200,60,0.35)' },    // darker toxic waste
+      stairsDown: { fill: '#2e1a1a', step: 'rgba(200,60,50,0.2)', chevron: 'rgba(200,60,50,0.5)' },   // warning red (deeper = more danger)
+      stairsUp:   { fill: '#2a3a22', step: 'rgba(160,220,100,0.15)', chevron: 'rgba(160,220,100,0.4)' },  // contamination green (escape)
+      doorOpen:   { fill: '#242018', frame: 'rgba(200,80,50,0.3)' },    // warning red frame (danger — was quarantine-sealed)
+      wall:       { top: '#505545', left: '#404035', right: '#302e28', edge: 'rgba(160,220,100,0.06)' },  // rust-shifted midtones
+      doorClosed: { top: '#8a6a30', left: '#7a5a25', right: '#6a4a1a', arch: 'rgba(200,70,50,0.25)', edge: 'rgba(200,70,50,0.15)' },  // warning red arch stripe
+      lockedDoor: { top: '#6a4a25', left: '#5a3a1a', right: '#4a2a10', arch: 'rgba(200,60,50,0.25)', lock: 'rgba(200,60,50,0.7)', lockEdge: 'rgba(230,100,80,0.5)', edge: 'rgba(160,220,100,0.06)' },  // warning red lock
+      chest:      { top: '#4a5a3a', left: '#3a4a2a', right: '#2a3a1a', band: 'rgba(120,90,50,0.4)', lock: 'rgba(200,60,50,0.7)', lockEdge: 'rgba(230,100,80,0.5)', edge: 'rgba(160,220,100,0.08)' },  // rust band, red lock
       chestOpen:  { fill: '#2a3a22', edge: 'rgba(100,140,80,0.5)', inner: 'rgba(0,0,0,0.35)' },
       minimap: {
-        stone_floor: 0x252e25, cracked_floor: 0x2a3228, stone_wall: 0x4a5a45, cracked_wall: 0x5a5040,
-        door_closed: 0x8a7a30, door_open: 0x2a2e20, stairs_down: 0x3a2a4a,
-        stairs_up: 0x2a4a2a, water: 0x1a3a1a, void: 0x0d140d,
+        stone_floor: 0x252e25, cracked_floor: 0x302a22, stone_wall: 0x505545, cracked_wall: 0x604040,
+        door_closed: 0x8a6a30, door_open: 0x242018, stairs_down: 0x5a1a1a,  // warning red stairs down
+        stairs_up: 0x2a4a22, water: 0x162a14, void: 0x0d140d,
         chest_closed: 0x4a5a3a, chest_opened: 0x2a3a22,
       },
     },

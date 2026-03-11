@@ -233,11 +233,11 @@ const Hl = C.lightGray;  // helmet highlight
 function generateCryptTileset() {
   const png = createPNG(160, 16);
 
-  // --- Tile 0: Void (near-black with subtle noise) ---
+  // --- Tile 0: Void (cold blue-black, oppressive ancient dark) ---
   for (let y = 0; y < 16; y++) {
     for (let x = 0; x < 16; x++) {
       const v = 8 + ((x * 7 + y * 13) % 5);
-      setPixel(png, x, y, rgba(v, v, Math.floor(v * 1.3)));
+      setPixel(png, x, y, rgba(Math.floor(v * 0.7), Math.floor(v * 0.75), v)); // slate-blue cold tint
     }
   }
 
@@ -279,7 +279,7 @@ function generateCryptTileset() {
     setPixel(png, ox2 + cx, cy, C.darkGray);
   }
 
-  // --- Tile 3: Stone Wall (plain stone, no brick pattern — sci-fi aesthetic) ---
+  // --- Tile 3: Stone Wall (ancient burial chamber stone, cold crypt aesthetic) ---
   const ox3 = 48;
   // Solid base
   fillRect(png, ox3, 0, 16, 16, C.wallMid);
@@ -293,24 +293,33 @@ function generateCryptTileset() {
   const stoneDark  = [[5,3],[1,5],[8,4],[11,6],[4,8],[7,10],[2,11],[10,9],[13,12],[6,14],[9,12],[12,2]];
   for (const [sx, sy] of stoneLight) setPixel(png, ox3 + sx, sy, C.wallLight);
   for (const [sx, sy] of stoneDark)  setPixel(png, ox3 + sx, sy, C.wallDark);
+  // Bone fragments embedded in crypt wall (ancient burial aesthetic)
+  const boneSpecks = [[4,6],[11,4],[2,13],[9,10]];
+  for (const [bx, by] of boneSpecks) setPixel(png, ox3 + bx, by, C.bone);
+  // Faint slate-blue tint to a few pixels (cold ancient stone)
+  setPixel(png, ox3 + 7, 5, C.lightGray);
 
-  // --- Tile 4: Door Closed (wooden planks with iron bands) ---
+  // --- Tile 4: Door Closed (iron-banded stone, cold crypt aesthetic) ---
   const ox4 = 64;
-  fillRect(png, ox4, 0, 16, 16, C.brown);
-  // Darker edges
-  fillRect(png, ox4, 0, 1, 16, C.darkBrown);
-  fillRect(png, ox4 + 15, 0, 1, 16, C.darkBrown);
-  // Iron bands (horizontal dark stripes)
-  fillRect(png, ox4, 3, 16, 2, C.gray);
-  fillRect(png, ox4, 11, 16, 2, C.gray);
-  // Planks (vertical lines)
-  for (let vy = 0; vy < 16; vy++) {
-    setPixel(png, ox4 + 5, vy, C.darkBrown);
-    setPixel(png, ox4 + 10, vy, C.darkBrown);
-  }
-  // Door handle
-  setPixel(png, ox4 + 12, 7, C.lightGray);
-  setPixel(png, ox4 + 12, 8, C.lightGray);
+  fillRect(png, ox4, 0, 16, 16, C.midGray);           // iron-stone base
+  // Dark edges
+  fillRect(png, ox4, 0, 1, 16, C.darkGray);
+  fillRect(png, ox4 + 15, 0, 1, 16, C.darkGray);
+  fillRect(png, ox4 + 1, 0, 14, 1, C.darkGray);
+  fillRect(png, ox4 + 1, 15, 14, 1, C.darkGray);
+  // Iron reinforcing bands (horizontal)
+  fillRect(png, ox4 + 1, 3, 14, 2, C.gray);
+  fillRect(png, ox4 + 1, 11, 14, 2, C.gray);
+  // Vertical center seam
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox4 + 7, vy, C.darkGray);
+  // Rivet highlights at band corners
+  setPixel(png, ox4 + 3, 4, C.lightGray);
+  setPixel(png, ox4 + 12, 4, C.lightGray);
+  setPixel(png, ox4 + 3, 12, C.lightGray);
+  setPixel(png, ox4 + 12, 12, C.lightGray);
+  // Door ring: cold teal (phosphorescent glow — only interactive element)
+  setPixel(png, ox4 + 12, 7, C.teal);
+  setPixel(png, ox4 + 12, 8, C.teal);
 
   // --- Tile 5: Door Open (recessed dark opening with frame) ---
   const ox5 = 80;
@@ -328,12 +337,12 @@ function generateCryptTileset() {
   fillRect(png, ox6 + 2, 2, 12, 3, C.floorLight);
   fillRect(png, ox6 + 3, 5, 10, 3, C.floorMid);
   fillRect(png, ox6 + 4, 8, 8, 3, C.floorDark);
-  fillRect(png, ox6 + 5, 11, 6, 3, rgba(20, 20, 35));
-  // Down arrow
-  setPixel(png, ox6 + 7, 13, C.purple);
-  setPixel(png, ox6 + 8, 13, C.purple);
-  setPixel(png, ox6 + 6, 12, C.purple);
-  setPixel(png, ox6 + 9, 12, C.purple);
+  fillRect(png, ox6 + 5, 11, 6, 3, rgba(15, 18, 30));
+  // Down arrow: cold teal (phosphorescent glow — ancient eerie light)
+  setPixel(png, ox6 + 7, 13, C.lightTeal);
+  setPixel(png, ox6 + 8, 13, C.lightTeal);
+  setPixel(png, ox6 + 6, 12, C.lightTeal);
+  setPixel(png, ox6 + 9, 12, C.lightTeal);
 
   // --- Tile 7: Water (dark blue with wavey highlights) ---
   const ox7 = 112;
@@ -352,29 +361,32 @@ function generateCryptTileset() {
   const ox8 = 128;
   fillRect(png, ox8, 0, 16, 16, C.floorMid);
   // Steps getting lighter toward top
-  fillRect(png, ox8 + 5, 2, 6, 3, rgba(20, 20, 35));
+  fillRect(png, ox8 + 5, 2, 6, 3, rgba(15, 18, 30));
   fillRect(png, ox8 + 4, 5, 8, 3, C.floorDark);
   fillRect(png, ox8 + 3, 8, 10, 3, C.floorMid);
   fillRect(png, ox8 + 2, 11, 12, 3, C.floorLight);
-  // Up arrow
-  setPixel(png, ox8 + 7, 1, C.teal);
-  setPixel(png, ox8 + 8, 1, C.teal);
-  setPixel(png, ox8 + 6, 2, C.teal);
-  setPixel(png, ox8 + 9, 2, C.teal);
+  // Up arrow: bone-white (ascending toward light, ancient burial feel)
+  setPixel(png, ox8 + 7, 1, C.bone);
+  setPixel(png, ox8 + 8, 1, C.bone);
+  setPixel(png, ox8 + 6, 2, C.bone);
+  setPixel(png, ox8 + 9, 2, C.bone);
 
-  // --- Tile 9: Locked Door (like closed door but with lock symbol) ---
+  // --- Tile 9: Locked Door (iron-banded stone with Sol Gold lock symbol) ---
   const ox9 = 144;
-  fillRect(png, ox9, 0, 16, 16, C.brown);
-  fillRect(png, ox9, 0, 1, 16, C.darkBrown);
-  fillRect(png, ox9 + 15, 0, 1, 16, C.darkBrown);
-  fillRect(png, ox9, 3, 16, 2, C.gray);
-  fillRect(png, ox9, 11, 16, 2, C.gray);
-  for (let vy = 0; vy < 16; vy++) {
-    setPixel(png, ox9 + 5, vy, C.darkBrown);
-    setPixel(png, ox9 + 10, vy, C.darkBrown);
-  }
-  // Lock symbol (yellow rectangle with keyhole)
-  fillRect(png, ox9 + 6, 6, 4, 4, C.yellow);
+  fillRect(png, ox9, 0, 16, 16, C.midGray);           // iron-stone base
+  fillRect(png, ox9, 0, 1, 16, C.darkGray);
+  fillRect(png, ox9 + 15, 0, 1, 16, C.darkGray);
+  fillRect(png, ox9 + 1, 0, 14, 1, C.darkGray);
+  fillRect(png, ox9 + 1, 15, 14, 1, C.darkGray);
+  fillRect(png, ox9 + 1, 3, 14, 2, C.gray);
+  fillRect(png, ox9 + 1, 11, 14, 2, C.gray);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox9 + 7, vy, C.darkGray);
+  setPixel(png, ox9 + 3, 4, C.lightGray);
+  setPixel(png, ox9 + 12, 4, C.lightGray);
+  setPixel(png, ox9 + 3, 12, C.lightGray);
+  setPixel(png, ox9 + 12, 12, C.lightGray);
+  // Lock symbol: Sol Gold (interactive marker per art-style-guide)
+  fillRect(png, ox9 + 6, 6, 4, 4, C.solGold);
   setPixel(png, ox9 + 7, 7, C.darkGray);
   setPixel(png, ox9 + 8, 7, C.darkGray);
   setPixel(png, ox9 + 7, 8, C.darkGray);
@@ -1607,7 +1619,7 @@ function generateItemSprites() {
 function generateOutpostTileset() {
   const png = createPNG(160, 16);
 
-  // Outpost palette
+  // Outpost palette — warm steel, worn concrete, orange torchlight
   const O = {
     floorDark:  hex('#2a2823'),
     floorMid:   hex('#35332e'),
@@ -1616,15 +1628,15 @@ function generateOutpostTileset() {
     wallMid:    hex('#645f55'),
     wallLight:  hex('#736e64'),
     wallTop:    hex('#7d766c'),
-    doorMid:    hex('#6a7a8a'),
-    doorDark:   hex('#505f6e'),
-    doorLight:  hex('#8291a0'),
+    doorMid:    hex('#6a6050'),   // warm steel (was blue-gray #6a7a8a)
+    doorDark:   hex('#4e4638'),   // darker warm steel (was #505f6e)
+    doorLight:  hex('#847264'),   // lighter warm steel (was #8291a0)
     voidColor:  hex('#0f0e0c'),
     water1:     hex('#232a20'),
     water2:     hex('#303728'),
     water3:     hex('#3a4430'),
-    teal:       C.teal,
-    purple:     hex('#82643c'),
+    rust:       hex('#7a5030'),   // rust staining on worn surfaces
+    orange:     C.orange,        // torchlight accent (warm, lived-in)
   };
 
   // --- Tile 0: Void (near-black warm) ---
@@ -1669,7 +1681,7 @@ function generateOutpostTileset() {
   const scuffs = [[3,3],[4,4],[5,4],[8,6],[9,7],[10,8],[6,10],[7,11],[11,12],[12,13]];
   for (const [sx, sy] of scuffs) setPixel(png, ox2 + sx, sy, O.floorDark);
 
-  // --- Tile 3: Concrete Wall ---
+  // --- Tile 3: Concrete Wall (worn, with rust streaks) ---
   const ox3 = 48;
   fillRect(png, ox3, 0, 16, 16, O.wallMid);
   for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, O.wallTop);
@@ -1679,17 +1691,23 @@ function generateOutpostTileset() {
   const concrDark  = [[5,2],[1,5],[9,3],[12,7],[3,9],[7,11],[2,12],[10,10],[14,13],[8,14]];
   for (const [sx, sy] of concrLight) setPixel(png, ox3 + sx, sy, O.wallLight);
   for (const [sx, sy] of concrDark)  setPixel(png, ox3 + sx, sy, O.wallDark);
+  // Rust streaks (worn frontier outpost — lived-in decay)
+  const rustStreaks = [[4,5],[4,6],[4,7],[11,3],[11,4],[11,5],[7,9],[7,10]];
+  for (const [rx, ry] of rustStreaks) setPixel(png, ox3 + rx, ry, O.rust);
 
-  // --- Tile 4: Steel Door Closed ---
+  // --- Tile 4: Steel Door Closed (warm steel, frontier outpost feel) ---
   const ox4 = 64;
   fillRect(png, ox4, 0, 16, 16, O.doorMid);
   fillRect(png, ox4, 0, 1, 16, O.doorDark);
   fillRect(png, ox4 + 15, 0, 1, 16, O.doorDark);
-  fillRect(png, ox4, 2, 16, 2, O.doorLight);
-  fillRect(png, ox4, 12, 16, 2, O.doorLight);
+  // Reinforcing horizontal bands
+  fillRect(png, ox4 + 1, 2, 14, 2, O.doorLight);
+  fillRect(png, ox4 + 1, 12, 14, 2, O.doorLight);
+  // Vertical center seam
   for (let vy = 0; vy < 16; vy++) setPixel(png, ox4 + 8, vy, O.doorDark);
-  setPixel(png, ox4 + 12, 7, O.floorLight);
-  setPixel(png, ox4 + 12, 8, O.floorLight);
+  // Handle: orange torchlight accent (warm, lived-in)
+  setPixel(png, ox4 + 12, 7, O.orange);
+  setPixel(png, ox4 + 12, 8, O.orange);
 
   // --- Tile 5: Door Open ---
   const ox5 = 80;
@@ -1705,10 +1723,11 @@ function generateOutpostTileset() {
   fillRect(png, ox6 + 3, 5, 10, 3, O.floorMid);
   fillRect(png, ox6 + 4, 8, 8, 3, O.floorDark);
   fillRect(png, ox6 + 5, 11, 6, 3, rgba(25, 24, 20));
-  setPixel(png, ox6 + 7, 13, O.purple);
-  setPixel(png, ox6 + 8, 13, O.purple);
-  setPixel(png, ox6 + 6, 12, O.purple);
-  setPixel(png, ox6 + 9, 12, O.purple);
+  // Down arrow: orange torchlight (warm frontier aesthetic)
+  setPixel(png, ox6 + 7, 13, O.orange);
+  setPixel(png, ox6 + 8, 13, O.orange);
+  setPixel(png, ox6 + 6, 12, O.orange);
+  setPixel(png, ox6 + 9, 12, O.orange);
 
   // --- Tile 7: Drainage/Sludge ---
   const ox7 = 112;
@@ -1725,20 +1744,22 @@ function generateOutpostTileset() {
   fillRect(png, ox8 + 4, 5, 8, 3, O.floorDark);
   fillRect(png, ox8 + 3, 8, 10, 3, O.floorMid);
   fillRect(png, ox8 + 2, 11, 12, 3, O.floorLight);
-  setPixel(png, ox8 + 7, 1, O.teal);
-  setPixel(png, ox8 + 8, 1, O.teal);
-  setPixel(png, ox8 + 6, 2, O.teal);
-  setPixel(png, ox8 + 9, 2, O.teal);
+  // Up arrow: orange torchlight (warm frontier aesthetic)
+  setPixel(png, ox8 + 7, 1, O.orange);
+  setPixel(png, ox8 + 8, 1, O.orange);
+  setPixel(png, ox8 + 6, 2, O.orange);
+  setPixel(png, ox8 + 9, 2, O.orange);
 
-  // --- Tile 9: Locked Steel Door ---
+  // --- Tile 9: Locked Steel Door (warm steel with Sol Gold lock) ---
   const ox9 = 144;
   fillRect(png, ox9, 0, 16, 16, O.doorMid);
   fillRect(png, ox9, 0, 1, 16, O.doorDark);
   fillRect(png, ox9 + 15, 0, 1, 16, O.doorDark);
-  fillRect(png, ox9, 2, 16, 2, O.doorLight);
-  fillRect(png, ox9, 12, 16, 2, O.doorLight);
+  fillRect(png, ox9 + 1, 2, 14, 2, O.doorLight);
+  fillRect(png, ox9 + 1, 12, 14, 2, O.doorLight);
   for (let vy = 0; vy < 16; vy++) setPixel(png, ox9 + 8, vy, O.doorDark);
-  fillRect(png, ox9 + 6, 6, 4, 4, C.yellow);
+  // Lock: Sol Gold (interactive marker per art-style-guide)
+  fillRect(png, ox9 + 6, 6, 4, 4, C.solGold);
   setPixel(png, ox9 + 7, 7, C.darkGray);
   setPixel(png, ox9 + 8, 7, C.darkGray);
   setPixel(png, ox9 + 7, 8, C.darkGray);
@@ -1754,7 +1775,7 @@ function generateOutpostTileset() {
 function generateQuarantineTileset() {
   const png = createPNG(160, 16);
 
-  // Quarantine palette
+  // Quarantine palette — gray-green contamination, rust decay, warning red
   const Q = {
     floorDark:  hex('#1c261c'),
     floorMid:   hex('#252e25'),
@@ -1763,16 +1784,18 @@ function generateQuarantineTileset() {
     wallMid:    hex('#4a5a45'),
     wallLight:  hex('#586950'),
     wallTop:    hex('#5f7058'),
-    doorMid:    hex('#8a7a30'),
-    doorDark:   hex('#64581e'),
-    doorLight:  hex('#a5943c'),
+    doorMid:    hex('#8a6a30'),   // slightly more brown-rust (was too golden)
+    doorDark:   hex('#64481e'),   // darker rust-brown
+    doorLight:  hex('#a5843c'),   // lighter rust-brown
     voidColor:  hex('#0a100a'),
     water1:     hex('#142d12'),
     water2:     hex('#23411c'),
     water3:     hex('#325526'),
     teal:       hex('#32aa64'),
-    purple:     hex('#643c82'),
-    contamGreen: hex('#50a03c'),
+    contamGreen: hex('#50a03c'),  // contamination green
+    rust:       hex('#904020'),   // rust decay (key quarantine color)
+    rustLight:  hex('#b05030'),   // lighter rust highlight
+    warningRed: C.red,            // warning red (#c83232 — danger marker)
   };
 
   // --- Tile 0: Void (dark green-black) ---
@@ -1796,9 +1819,11 @@ function generateQuarantineTileset() {
     setPixel(png, ox1 + 8 + i, 8, Q.floorLight);
     setPixel(png, ox1 + 8, 8 + i, Q.floorLight);
   }
-  // Green contamination spots
+  // Contamination: green spots and rust staining (decay + toxicity)
   setPixel(png, ox1 + 4, 3, Q.contamGreen);
   setPixel(png, ox1 + 11, 10, Q.contamGreen);
+  setPixel(png, ox1 + 9, 4, Q.rust);
+  setPixel(png, ox1 + 3, 11, Q.rust);
 
   // --- Tile 2: Cracked Contaminated Floor ---
   const ox2 = 32;
@@ -1811,9 +1836,11 @@ function generateQuarantineTileset() {
     setPixel(png, ox2 + i, 0, Q.floorLight);
     setPixel(png, ox2, i, Q.floorLight);
   }
-  // Green-tinted cracks
-  const qCracks = [[3,2],[4,3],[4,4],[5,5],[6,6],[5,7],[6,8],[7,9],[8,10],[9,11],[10,11],[11,12],[12,13]];
-  for (const [cx, cy] of qCracks) setPixel(png, ox2 + cx, cy, Q.contamGreen);
+  // Cracks: mix of contamination green and rust (toxic + decayed)
+  const qCracksGreen = [[3,2],[4,3],[5,5],[6,8],[8,10],[11,12]];
+  const qCracksRust  = [[4,4],[6,6],[5,7],[7,9],[9,11],[10,11],[12,13]];
+  for (const [cx, cy] of qCracksGreen) setPixel(png, ox2 + cx, cy, Q.contamGreen);
+  for (const [cx, cy] of qCracksRust)  setPixel(png, ox2 + cx, cy, Q.rust);
 
   // --- Tile 3: Quarantine Wall ---
   const ox3 = 48;
@@ -1825,21 +1852,31 @@ function generateQuarantineTileset() {
   const qwDark  = [[5,3],[1,6],[9,4],[12,7],[3,9],[7,11],[2,12],[10,10],[14,13],[8,14]];
   for (const [sx, sy] of qwLight) setPixel(png, ox3 + sx, sy, Q.wallLight);
   for (const [sx, sy] of qwDark)  setPixel(png, ox3 + sx, sy, Q.wallDark);
+  // Rust streaks (abandoned, decaying quarantine zone)
+  const qwRust = [[6,4],[6,5],[6,6],[12,8],[12,9],[3,11],[3,12]];
+  for (const [rx, ry] of qwRust) setPixel(png, ox3 + rx, ry, Q.rust);
 
-  // --- Tile 4: Hazard Door Closed ---
+  // --- Tile 4: Hazard Door Closed (warning red + rust-brown stripes) ---
   const ox4 = 64;
   fillRect(png, ox4, 0, 16, 16, Q.doorMid);
   fillRect(png, ox4, 0, 1, 16, Q.doorDark);
   fillRect(png, ox4 + 15, 0, 1, 16, Q.doorDark);
-  // Hazard stripes
-  fillRect(png, ox4, 3, 16, 2, Q.doorLight);
-  fillRect(png, ox4, 11, 16, 2, Q.doorLight);
+  // Warning stripes: yellow-rust bands with red accent
+  fillRect(png, ox4 + 1, 3, 14, 2, Q.doorLight);
+  fillRect(png, ox4 + 1, 11, 14, 2, Q.doorLight);
+  // Warning red stripe across center (biohazard indicator)
   for (let vy = 0; vy < 16; vy++) {
     setPixel(png, ox4 + 5, vy, Q.doorDark);
     setPixel(png, ox4 + 10, vy, Q.doorDark);
   }
-  setPixel(png, ox4 + 12, 7, Q.floorLight);
-  setPixel(png, ox4 + 12, 8, Q.floorLight);
+  // Red warning indicator pixels (danger)
+  setPixel(png, ox4 + 7, 7, Q.warningRed);
+  setPixel(png, ox4 + 8, 7, Q.warningRed);
+  setPixel(png, ox4 + 7, 8, Q.warningRed);
+  setPixel(png, ox4 + 8, 8, Q.warningRed);
+  // Door pull: contamination green (interactive)
+  setPixel(png, ox4 + 12, 7, Q.contamGreen);
+  setPixel(png, ox4 + 12, 8, Q.contamGreen);
 
   // --- Tile 5: Door Open ---
   const ox5 = 80;
@@ -1855,18 +1892,23 @@ function generateQuarantineTileset() {
   fillRect(png, ox6 + 3, 5, 10, 3, Q.floorMid);
   fillRect(png, ox6 + 4, 8, 8, 3, Q.floorDark);
   fillRect(png, ox6 + 5, 11, 6, 3, rgba(18, 25, 16));
-  setPixel(png, ox6 + 7, 13, Q.purple);
-  setPixel(png, ox6 + 8, 13, Q.purple);
-  setPixel(png, ox6 + 6, 12, Q.purple);
-  setPixel(png, ox6 + 9, 12, Q.purple);
+  // Down arrow: warning red (descent into more dangerous contaminated zone)
+  setPixel(png, ox6 + 7, 13, Q.warningRed);
+  setPixel(png, ox6 + 8, 13, Q.warningRed);
+  setPixel(png, ox6 + 6, 12, Q.warningRed);
+  setPixel(png, ox6 + 9, 12, Q.warningRed);
 
-  // --- Tile 7: Toxic Waste ---
+  // --- Tile 7: Toxic Waste (contamination green murk with surface film) ---
   const ox7 = 112;
   fillRect(png, ox7, 0, 16, 16, Q.water1);
   const qWave = [[2,3],[3,3],[4,3],[8,5],[9,5],[10,5],[1,9],[2,9],[3,9],[7,11],[8,11],[9,11],[12,7],[13,7],[4,14],[5,14]];
   for (const [wx, wy] of qWave) setPixel(png, ox7 + wx, wy, Q.water2);
   const qWaveH = [[3,2],[9,4],[2,8],[8,10],[13,6],[5,13]];
   for (const [wx, wy] of qWaveH) setPixel(png, ox7 + wx, wy, Q.water3);
+  // Surface contamination spots (bright toxic green)
+  setPixel(png, ox7 + 5, 4, Q.contamGreen);
+  setPixel(png, ox7 + 11, 8, Q.contamGreen);
+  setPixel(png, ox7 + 3, 12, Q.contamGreen);
 
   // --- Tile 8: Stairs Up ---
   const ox8 = 128;
@@ -1880,18 +1922,19 @@ function generateQuarantineTileset() {
   setPixel(png, ox8 + 6, 2, Q.teal);
   setPixel(png, ox8 + 9, 2, Q.teal);
 
-  // --- Tile 9: Locked Hazard Door ---
+  // --- Tile 9: Locked Hazard Door (warning red lock — biohazard sealed) ---
   const ox9 = 144;
   fillRect(png, ox9, 0, 16, 16, Q.doorMid);
   fillRect(png, ox9, 0, 1, 16, Q.doorDark);
   fillRect(png, ox9 + 15, 0, 1, 16, Q.doorDark);
-  fillRect(png, ox9, 3, 16, 2, Q.doorLight);
-  fillRect(png, ox9, 11, 16, 2, Q.doorLight);
+  fillRect(png, ox9 + 1, 3, 14, 2, Q.doorLight);
+  fillRect(png, ox9 + 1, 11, 14, 2, Q.doorLight);
   for (let vy = 0; vy < 16; vy++) {
     setPixel(png, ox9 + 5, vy, Q.doorDark);
     setPixel(png, ox9 + 10, vy, Q.doorDark);
   }
-  fillRect(png, ox9 + 6, 6, 4, 4, C.yellow);
+  // Lock: warning red (quarantine sealed — danger, not just locked)
+  fillRect(png, ox9 + 6, 6, 4, 4, Q.warningRed);
   setPixel(png, ox9 + 7, 7, C.darkGray);
   setPixel(png, ox9 + 8, 7, C.darkGray);
   setPixel(png, ox9 + 7, 8, C.darkGray);
