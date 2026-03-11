@@ -36,7 +36,7 @@ const TICK_RATE = CONSTANTS.TICK_RATE;  // 15
 const DT = 1 / TICK_RATE;               // ~0.0667s
 const TILE_SIZE = CONSTANTS.TILE_SIZE;   // 32
 const STUCK_THRESHOLD = 300;             // ticks with no progress = soft lock
-const MAX_GAME_SECONDS = 1800;           // 30 minutes max per quest
+const MAX_GAME_SECONDS = 2400;           // 40 minutes max per quest
 const PLAYER_ID = 'bot_1';
 const PLAYER_NAME = 'TestBot';
 
@@ -864,9 +864,20 @@ class Bot {
 
     if (dist < TILE_SIZE * 0.4) {
       goal._pathIndex++;
+      goal._nodeStallTicks = 0;
       if (goal._pathIndex >= goal._path.length) {
         goal._path = null;
         this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
+        return;
+      }
+    } else {
+      // Track how long we've been stuck on the same path node
+      if (!goal._nodeStallTicks) goal._nodeStallTicks = 0;
+      goal._nodeStallTicks++;
+      if (goal._nodeStallTicks > 90) {
+        // Stuck on a node for too long — re-path from current position
+        goal._path = null;
+        goal._nodeStallTicks = 0;
         return;
       }
     }
@@ -1016,9 +1027,15 @@ class Bot {
         this.pushGoal({ type: 'move_to_position', tileX: itemTile.tx, tileY: itemTile.ty, tolerance: 0 });
         return;
       }
-      // All move attempts exhausted — try direct approach and interact
+      // All move attempts exhausted — try one last direct approach then give up
       this.moveTowardTile(player, itemTile.tx, itemTile.ty);
       this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+      if (!goal._directAttempts) goal._directAttempts = 0;
+      goal._directAttempts++;
+      if (goal._directAttempts >= 30) {
+        // Can't reach item, pop and let parent goal handle recovery
+        this.popGoal();
+      }
     } else {
       this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
       this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
@@ -1878,7 +1895,7 @@ function findPrereqGoals(flagName, roomId, _visited) {
   // Generate goals for each prerequisite flag
   const seen = new Set();
   for (const reqFlag of allConditions) {
-    if (reqFlag === flagName || seen.has(reqFlag)) continue;
+    if (reqFlag === flagName || seen.has(reqFlag) || _visited.has(reqFlag)) continue;
     seen.add(reqFlag);
     // Find which room/trigger sets this prerequisite flag
     const prereqRoom = findRoomThatSetsFlag(reqFlag);

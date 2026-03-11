@@ -4,7 +4,8 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Testing
 
-- **Headless sim stuck at discover_array_secret** — bot can't navigate to `array_deep_processing` room. Gets stuck in `dayside_solar_fields`. Next CI mainline blocker.
+- ~~Headless sim stuck at discover_array_secret~~ ✓ Fixed — redundant prereq goals eliminated, timeout increased, pathfinding stall recovery added. ~90% pass rate; remaining ~10% timeout from proc dungeon RNG/navigation variance.
+- **Headless sim remaining timeout flakiness** — occasional timeouts (~10%) due to slow proc dungeon traversal or nightside navigation RNG. Potential fixes: smarter combat-during-pathing, proc dungeon repath on monster block, or tuning stuck thresholds.
 - Content validator: expedition flag errors now resolved — expedition_active, expedition_tier_N_cleared flags are set/cleared by engine code in game-loop.js completeExpedition().
 - Run content validator grep for remaining orphaned flags (setFlag without matching hasFlag consumers).
 
