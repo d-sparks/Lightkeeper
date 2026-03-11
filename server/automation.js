@@ -103,6 +103,17 @@ class Automation {
     return level;
   }
 
+  // Get the path-based cost multiplier from player flags.
+  // Shutdown path: +50% cost (infrastructure degraded, Array offline).
+  // Control path: -25% cost (full Array access, optimized logistics).
+  // Merge path / no path: no modifier.
+  _getPathCostMultiplier(playerFlags) {
+    if (!playerFlags) return 1.0;
+    if (playerFlags['chose_path_shutdown']) return 1.5;
+    if (playerFlags['chose_path_control']) return 0.75;
+    return 1.0;
+  }
+
   // Build a structure at a grid position (returns true if successful)
   // gridX and gridY are required — every placement needs a position on the grid.
   // playerFlags: optional object of { flagName: value } for requiresFlag checks.
@@ -133,7 +144,13 @@ class Automation {
     if (this.isCellBlocked(playerId, gridX, gridY)) return false;
     if (this.isCellOccupied(playerId, gridX, gridY)) return false;
 
-    if (!this.spendResources(playerId, def.cost)) return false;
+    // Apply path-based cost modifier (shutdown +50%, control -25%)
+    const costMultiplier = this._getPathCostMultiplier(playerFlags);
+    const scaledCost = {};
+    for (const [resource, amount] of Object.entries(def.cost)) {
+      scaledCost[resource] = Math.ceil(amount * costMultiplier);
+    }
+    if (!this.spendResources(playerId, scaledCost)) return false;
 
     structData.count += 1;
     structData.placements.push({ x: gridX, y: gridY });
@@ -319,6 +336,23 @@ class Automation {
     }
 
     return rating;
+  }
+
+  // Get total auto-repair rate from array_drone_bay structures (repairs per hour)
+  getRepairRate(playerId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const state = this.getState(playerId);
+    let repairsPerHour = 0;
+
+    for (const [structureId, structData] of Object.entries(state.structures)) {
+      const count = typeof structData === 'object' ? structData.count : structData;
+      if (count <= 0) continue;
+      const def = structures[structureId];
+      if (!def || !def.effect || def.effect.type !== 'structure_repair') continue;
+      repairsPerHour += def.effect.repairRate * count * (3600 / def.effect.intervalSeconds);
+    }
+
+    return repairsPerHour;
   }
 
   // Grant a structure for free (used by scripting actions)
@@ -508,6 +542,9 @@ class Automation {
       if (totalStructures >= levels[i].threshold) automationLevel = i + 1;
     }
 
+    // Path cost multiplier for displaying accurate build costs to the client
+    const costMultiplier = this._getPathCostMultiplier(playerFlags);
+
     for (const [id, def] of Object.entries(structures)) {
       if (id.startsWith('_')) continue; // skip meta keys
       const structData = state.structures[id] || { count: 0, placements: [] };
@@ -517,11 +554,17 @@ class Automation {
       const levelLocked = def.unlockLevel ? automationLevel < def.unlockLevel : false;
       const flagLocked = def.requiresFlag && playerFlags ? !playerFlags[def.requiresFlag] : false;
 
+      // Scale displayed cost by path modifier so the UI shows the actual price
+      const scaledCost = {};
+      for (const [resource, amount] of Object.entries(def.cost)) {
+        scaledCost[resource] = Math.ceil(amount * costMultiplier);
+      }
+
       structureList.push({
         id,
         name: def.name,
         description: def.description,
-        cost: def.cost,
+        cost: scaledCost,
         maxCount: def.maxCount || 0,
         count,
         gridIcon: def.gridIcon || '?',
@@ -584,6 +627,9 @@ class Automation {
       if (def.effect.type === 'defense_value') {
         defenseRating += def.effect.amount * count;
       }
+      if (def.effect.type === 'structure_repair') {
+        // repairRate is summed separately via getRepairRate() and included in stats below
+      }
       if (def.effect.type === 'dual_production' && Array.isArray(def.effect.produces)) {
         for (const sub of def.effect.produces) {
           if (sub.type === 'resource_production') {
@@ -631,6 +677,8 @@ class Automation {
         automationProgress,
         nextThreshold,
         totalStructures,
+        repairRate: this.getRepairRate(playerId),
+        pathCostMultiplier: costMultiplier,
       },
     };
 
