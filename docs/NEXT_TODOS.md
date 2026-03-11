@@ -26,7 +26,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 ### Phase 3 — Modifier Crafting
 - ~~Add `craft` action type to `server/scripting/actions.js`.~~ ✓ Implemented — craft action opens crafting menu filtered by player inventory; executeCraftRecipe() handles recipe execution via choice menu (choiceId: meridian_craft).
 - ~~Create `content/entities/crafting.json` with reforge/fuse/attune recipes.~~ ✓ Implemented — 6 reforge recipes and 3 fuse recipes defined.
-- Add MERIDIAN-7 crafting dialogue branch gated on `endgame_active` — craft action exists but NPC dialogue trigger for endgame crafting not yet wired.
+- ~~Add MERIDIAN-7 crafting dialogue branch gated on `endgame_active` — craft action exists but NPC dialogue trigger for endgame crafting not yet wired.~~ ✓ Implemented — hub menu split into pre/post-endgame variants; Fabrication option appears only when `endgame_active` set; craft trigger fires on menu selection (choice_made) not raw npc_interacted; endgame_fabrication dialogue added to NPC.
 
 ### Phase 4 — Automation Levels 6-10
 - ~~New structures (silicon_refinery, auto_turret, fabricator, expedition_beacon).~~ ✓ Implemented — 4 new structures with unlockLevel gating (levels 7-10), silicon as new resource produced by refineries, auto_turret defense rating, fabricator fast salvage production, expedition_beacon cost reduction.

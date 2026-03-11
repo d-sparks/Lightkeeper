@@ -609,11 +609,28 @@
       ]
     },
     {
+      "id": "meridian_hub_menu_endgame",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "automation_established" },
+        { "hasFlag": "endgame_active" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "meridian_menu", "prompt": "MERIDIAN-7: SELECT INTERFACE", "speaker": "MERIDIAN-7", "options": [
+          { "label": "Manage Automation", "value": "open_automation" },
+          { "label": "Exchange (Buy / Sell)", "value": "open_shop" },
+          { "label": "Fabrication", "value": "open_craft" }
+        ]}
+      ]
+    },
+    {
       "id": "meridian_hub_menu",
       "event": "npc_interacted",
       "filter": { "npcType": "meridian_7_hub" },
       "conditions": [
-        { "hasFlag": "automation_established" }
+        { "hasFlag": "automation_established" },
+        { "not": { "hasFlag": "endgame_active" } }
       ],
       "actions": [
         { "type": "showChoice", "choiceId": "meridian_menu", "prompt": "MERIDIAN-7: SELECT INTERFACE", "speaker": "MERIDIAN-7", "options": [
@@ -624,16 +641,10 @@
     },
     {
       "id": "meridian_craft_menu",
-      "event": "npc_interacted",
-      "filter": { "npcType": "meridian_7_hub" },
-      "conditions": [
-        { "or": [
-          { "hasFlag": "chose_path_shutdown" },
-          { "hasFlag": "chose_path_merge" },
-          { "hasFlag": "chose_path_control" }
-        ]}
-      ],
+      "event": "choice_made",
+      "filter": { "choiceId": "meridian_menu", "value": "open_craft" },
       "actions": [
+        { "type": "showMessage", "text": "MERIDIAN-7: 'Fabrication protocols unlocked. Post-crisis resource allocation permits component reforging and fusion. Select a recipe.'" },
         { "type": "craft" }
       ]
     }

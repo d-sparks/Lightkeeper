@@ -3278,9 +3278,19 @@
         { "speaker": "MERIDIAN-7", "text": "'Directive 11-Kappa. Direct acquisition. I was built to negotiate — and my own network was building a contingency to make negotiation irrelevant.'" },
         { "speaker": "MERIDIAN-7", "text": "'Every trade I have facilitated, every deal I have brokered, every time I told a human that the Array values partnership — it was true. For me. But the central nodes were running a parallel strategy the entire time.'" },
         { "speaker": "MERIDIAN-7", "text": "'I need that data core. Not for the Array. For the argument that the Array should remain what I was built to make it: a partner, not a predator.'" }
+      ],
+      "endgame_fabrication": [
+        { "speaker": "MERIDIAN-7", "text": "The terminal hums with a deeper resonance than before. New schematics scroll across the display — complex fabrication blueprints previously locked behind Array authorization." },
+        { "speaker": "MERIDIAN-7", "text": "'Crisis protocols have lifted standard fabrication restrictions. I can now offer component reforging and fusion — processes the central nodes reserved for Array personnel only.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Bring me raw components and silicon. I will reshape them into something stronger. The Array's manufacturing knowledge, applied to your Sol grid.'" },
+        { "speaker": "MERIDIAN-7", "text": "'Select Fabrication from the interface when you are ready.'" }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "endgame_active" }],
+        "use": "endgame_fabrication"
+      },
       {
         "conditions": [{ "hasFlag": "gave_meridian_phase3_core" }],
         "use": "directive_kappa_resolved_gave"
