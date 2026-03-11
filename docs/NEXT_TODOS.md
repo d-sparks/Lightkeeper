@@ -16,9 +16,9 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Expedition completion detection~~ ✓ Implemented — sets expedition_tier_N_cleared on boss kill, clears expedition_active.
 - ~~Boss spawning on final floor from bossPool~~ ✓ Implemented — generator overrides boss type from expedition config.
 - ~~Return portal on boss kill~~ ✓ Implemented — stairs-up exit spawned at boss death position, leads to expedition origin.
-- Silicon cost deduction at expedition start.
-- Mid-run loot banking checkpoints.
-- Death penalty (forfeit floor loot, return to meridian_station) — partial: death clears expedition state but doesn't have special loot forfeit logic yet.
+- ~~Silicon cost deduction at expedition start.~~ ✓ Implemented — `startExpedition()` checks and deducts `siliconCost` from automation resources; returns `insufficientSilicon` error if player can't afford it.
+- ~~Death penalty (forfeit floor loot, return to meridian_station).~~ ✓ Implemented — expedition death forfeits all non-quest inventory (destroyed, not dropped) and respawns player at `expedition_origin` (defaults to `meridian_station`).
+- Mid-run loot banking checkpoints — design concept exists but no checkpoint system yet; currently all loot picked up on a floor is forfeited on death.
 - Expedition boss loot table selection (expedition_tier_N_boss table should be rolled on boss kill).
 - Client-side expedition HUD (floor counter, boss health bar).
 

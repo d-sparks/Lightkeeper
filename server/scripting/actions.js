@@ -989,6 +989,15 @@ class ActionExecutor {
       }
       return;
     }
+    if (result.insufficientSilicon) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.NPC_DIALOGUE,
+          lines: [{ speaker: 'Expedition Board', text: `Insufficient silicon. This expedition requires ${result.required} silicon. You have ${result.available}.` }],
+        });
+      }
+      return;
+    }
     // Queue a transition to the expedition room
     this.gameLoop.pendingTransitions.push({
       playerId: context.playerId,

@@ -1313,7 +1313,13 @@ setInterval(() => {
     const lines = [];
     if (dp.energyLost > 0) lines.push(`Lost ${dp.energyLost} energy.`);
     if (dp.droppedItems && dp.droppedItems.length > 0) {
-      lines.push(`Dropped: ${dp.droppedItems.join(', ')}`);
+      if (dp.expeditionForfeit) {
+        lines.push(`Expedition failed. Floor loot forfeited: ${dp.droppedItems.join(', ')}`);
+      } else {
+        lines.push(`Dropped: ${dp.droppedItems.join(', ')}`);
+      }
+    } else if (dp.expeditionForfeit) {
+      lines.push('Expedition failed. Returned to station.');
     }
     ws.send(JSON.stringify({
       type: CONSTANTS.MSG.DEATH_SCREEN,

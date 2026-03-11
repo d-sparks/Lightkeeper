@@ -502,6 +502,18 @@ class GameLoop {
       }
     }
 
+    // Deduct silicon cost
+    const siliconCost = expedition.siliconCost || 0;
+    if (siliconCost > 0) {
+      const available = this.automation.getResource(playerId, 'silicon');
+      if (available < siliconCost) {
+        console.log(`[GameLoop] Player ${playerId} cannot afford expedition tier ${tier} (need ${siliconCost} silicon, has ${available})`);
+        return { insufficientSilicon: true, required: siliconCost, available };
+      }
+      this.automation.spendResources(playerId, { silicon: siliconCost });
+      console.log(`[GameLoop] Deducted ${siliconCost} silicon from player ${playerId} for tier ${tier} expedition`);
+    }
+
     // Pick a random template from the pool
     const pool = expedition.templatePool || [];
     if (pool.length === 0) {
@@ -3593,6 +3605,8 @@ class GameLoop {
       // Death penalty: drop non-quest inventory items based on dropBehavior
       // dropBehavior per item definition: "keep" = retained, "destroy" = removed,
       // "drop" (default) = spawned on ground. Quest items (key, sol_component) always kept.
+      // Exception: if player is on an expedition, all non-quest loot is forfeited (destroyed).
+      const onExpedition = !!this.flagStore.getPlayerFlag(player.id, 'expedition_active');
       const droppedItems = [];
       const keptItems = [];
       for (const item of player.inventory) {
@@ -3604,8 +3618,9 @@ class GameLoop {
         const behavior = (itemDef && itemDef.dropBehavior) || 'drop';
         if (behavior === 'keep') {
           keptItems.push(item);
-        } else if (behavior === 'destroy') {
-          // Item is destroyed — not kept, not spawned
+        } else if (behavior === 'destroy' || onExpedition) {
+          // Expedition death: forfeit all non-quest floor loot (destroyed, not dropped)
+          droppedItems.push(item);
         } else {
           // Default "drop": spawn on ground at death position
           droppedItems.push(item);
@@ -3630,8 +3645,11 @@ class GameLoop {
       player.elevation = 0;
 
       // If player was on an expedition, clear expedition state (failed/abandoned)
+      // and return them to the expedition origin (meridian_station) instead of the global spawn
+      let expeditionOrigin = null;
       if (this.flagStore.getPlayerFlag(player.id, 'expedition_active')) {
         const expTier = this.flagStore.getPlayerFlag(player.id, 'expedition_tier');
+        expeditionOrigin = this.flagStore.getPlayerFlag(player.id, 'expedition_origin') || 'meridian_station';
         const expFlags = [
           'expedition_active', 'expedition_tier', 'expedition_floor',
           'expedition_max_floors', 'expedition_template', 'expedition_boss_type',
@@ -3640,11 +3658,11 @@ class GameLoop {
         for (const flag of expFlags) {
           this.flagStore.removePlayerFlag(player.id, flag);
         }
-        console.log(`[GameLoop] Player ${player.id} died during expedition tier ${expTier} — expedition failed`);
+        console.log(`[GameLoop] Player ${player.id} died during expedition tier ${expTier} — expedition failed, returning to ${expeditionOrigin}`);
       }
 
-      // Determine respawn destination: always go to global spawn room
-      const spawnRoomId = this.content.getSpawnRoom() || 'outpost_entrance';
+      // Determine respawn destination: expedition origin if applicable, otherwise global spawn room
+      const spawnRoomId = expeditionOrigin || this.content.getSpawnRoom() || 'outpost_entrance';
       const needsTransition = room.id !== spawnRoomId;
 
       if (needsTransition) {
@@ -3678,6 +3696,7 @@ class GameLoop {
         credits: player.credits || 0,
         energyLost,
         droppedItems: droppedNames,
+        expeditionForfeit: onExpedition,
       });
 
       const deathCtx = this._scriptContext(player.id, room.id);
