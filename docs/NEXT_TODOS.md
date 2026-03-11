@@ -38,7 +38,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Apply affix buffs to boss entities at spawn.
 - Tier 4-5 configs requiring multiple players.
 - Wire path-specific boss loot table selection (check `chose_path_*` flag for Tier 3+ bosses).
-- Wire `unlockFlag` checking in loot resolver for legendary drops.
+- ~~Wire `unlockFlag` checking in loot resolver for legendary drops.~~ ✓ Implemented — `_rollLoot` and `doRollLootTable` now filter eligible rolls by `unlockFlag`, checking the player's flags before including path-specific legendaries in the weighted pool.
 
 ### Phase 6 — Cooperative Challenges
 - Wave defense system, player-count gating, challenge configs.

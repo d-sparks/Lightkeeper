@@ -1801,7 +1801,7 @@ class GameLoop {
           this.grantXp(player, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
         }
 
-        this._rollLoot(room, mob);
+        this._rollLoot(room, mob, player.id);
 
         const ctx = this._scriptContext(player.id, room.id);
         this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
@@ -1920,7 +1920,7 @@ class GameLoop {
         this.grantXp(player, Math.round(monsterDef.xp * (nearestMob.xpMult || 1)), room);
       }
 
-      this._rollLoot(room, nearestMob);
+      this._rollLoot(room, nearestMob, player.id);
 
       const ctx = this._scriptContext(player.id, room.id);
       this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
@@ -2321,7 +2321,7 @@ class GameLoop {
           }
         }
 
-        this._rollLoot(room, mob);
+        this._rollLoot(room, mob, proj.ownerId);
 
         const ctx = this._scriptContext(proj.ownerId, room.id);
         this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
@@ -3923,7 +3923,7 @@ class GameLoop {
               }
             }
 
-            this._rollLoot(room, mob);
+            this._rollLoot(room, mob, proj.ownerId);
 
             // Emit monster_killed scripting event
             const ctx = this._scriptContext(proj.ownerId, room.id);
@@ -4562,7 +4562,7 @@ class GameLoop {
       }
     }
 
-    this._rollLoot(room, mob);
+    this._rollLoot(room, mob, killerId);
 
     // Emit monster_killed scripting event
     const ctx = this._scriptContext(killerId, room.id);
@@ -4596,8 +4596,9 @@ class GameLoop {
     return Math.floor(base * Math.pow(scale, level - 1));
   }
 
-  // Roll loot from a monster's loot table and spawn ground items at its death position
-  _rollLoot(room, mob) {
+  // Roll loot from a monster's loot table and spawn ground items at its death position.
+  // playerId is used to filter out path-specific legendary drops the player hasn't unlocked.
+  _rollLoot(room, mob, playerId = null) {
     const monsterDef = this.content.getMonster(mob.type);
     if (!monsterDef || !monsterDef.lootTable) return;
     const table = this.content.getLootTable(monsterDef.lootTable);
@@ -4605,11 +4606,20 @@ class GameLoop {
 
     if (Math.random() >= (table.dropChance || 0)) return;
 
-    // Weighted random selection
-    const totalWeight = table.rolls.reduce((sum, r) => sum + (r.weight || 1), 0);
+    // Filter rolls: exclude entries whose item requires an unlockFlag the player hasn't set.
+    const eligibleRolls = table.rolls.filter(entry => {
+      const def = this.content.getItem(entry.item);
+      if (!def || !def.unlockFlag) return true;
+      if (!playerId) return false;
+      return !!this.flagStore.getPlayerFlag(playerId, def.unlockFlag);
+    });
+    if (eligibleRolls.length === 0) return;
+
+    // Weighted random selection from eligible rolls
+    const totalWeight = eligibleRolls.reduce((sum, r) => sum + (r.weight || 1), 0);
     let roll = Math.random() * totalWeight;
     let chosen = null;
-    for (const entry of table.rolls) {
+    for (const entry of eligibleRolls) {
       roll -= (entry.weight || 1);
       if (roll <= 0) { chosen = entry; break; }
     }

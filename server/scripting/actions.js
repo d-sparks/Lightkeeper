@@ -539,11 +539,21 @@ class ActionExecutor {
     const table = this.content.getLootTable(action.lootTable);
     if (!table || !table.rolls || table.rolls.length === 0) return;
 
-    // Weighted random selection
-    const totalWeight = table.rolls.reduce((sum, r) => sum + (r.weight || 1), 0);
+    // Filter rolls: exclude entries whose item requires an unlockFlag the player hasn't set.
+    const playerId = context.playerId || null;
+    const eligibleRolls = table.rolls.filter(entry => {
+      const def = this.content.getItem(entry.item);
+      if (!def || !def.unlockFlag) return true;
+      if (!playerId) return false;
+      return !!this.flagStore.getPlayerFlag(playerId, def.unlockFlag);
+    });
+    if (eligibleRolls.length === 0) return;
+
+    // Weighted random selection from eligible rolls
+    const totalWeight = eligibleRolls.reduce((sum, r) => sum + (r.weight || 1), 0);
     let roll = Math.random() * totalWeight;
     let chosen = null;
-    for (const entry of table.rolls) {
+    for (const entry of eligibleRolls) {
       roll -= (entry.weight || 1);
       if (roll <= 0) { chosen = entry; break; }
     }
