@@ -44,7 +44,7 @@
       "y": 0.60,
       "icon": "outpost",
       "description": "A covert Array facility beneath the solar fields. Extraction operations and cross-system research.",
-      "rooms": ["array_extraction_outpost"]
+      "rooms": ["array_extraction_outpost", "array_synthesis_lab", "array_deep_processing", "array_control_center", "array_command_throne"]
     },
     {
       "id": "meridian_city",
