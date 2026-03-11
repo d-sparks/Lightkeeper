@@ -2496,14 +2496,60 @@
         { "speaker": "Sable", "text": "I've been waiting for this news with dread and with... I don't know. Relief? Is that wrong?" },
         { "speaker": "Sable", "text": "The Unbounded have survived without it for generations. We know what's possible in the dark. The Ring is about to find out." },
         { "speaker": "Sable", "text": "My elders will want to offer help — knowledge of the deep, dark-adapted agriculture, geothermal tapping. We've been doing this since before the Ring called it impossible." },
-        { "speaker": "Sable", "text": "The planet breathes a little easier. I can feel it in the crystal. Whatever the Array was doing to suppress the Underlumen — that pressure is lifting." }
+        { "speaker": "Sable", "text": "The planet breathes a little easier. I can feel it in the crystal. Whatever the Array was doing to suppress the Underlumen — that pressure is lifting." },
+        { "speaker": "Sable", "text": "And it needs mapping. The Underlumen is waking — expanding into spaces it hasn't touched in generations. Deep biomes are shifting. Creatures relocating. Old Unbounded routes may be open again, or closed by new growth." },
+        { "speaker": "Sable", "text": "I've been working with the elders. They've identified priority zones from old charts — the geothermal corridors, the fungal networks, the quarantine sectors the Array walled off before my grandmother's time." },
+        { "speaker": "Sable", "text": "The expedition board in the central hall has the routes listed. I've coordinated with the station to make sure it's stocked with what you'll need." },
+        { "speaker": "Sable", "text": "Bring back what you find. Specimens, observations, records. Whatever the deep dark is saying now — the planet trying to speak after decades of suppression — someone should be listening." },
+        { "speaker": "Sable", "text": "Find me when you return. I want to hear what's down there." }
+      ],
+      "shutdown_tier_1_complete": [
+        { "speaker": "Sable", "text": "You came back. Good." },
+        { "speaker": "Sable", "text": "The elders have been listening to what you're reporting from the deep zones. Resonance patterns the Array filtered out are surfacing again. Sounds the Underlumen has been trying to make for a long time." },
+        { "speaker": "Sable", "text": "The old routes through the geothermal corridors are stable — passable. That means we can reach the inner zones now. The charts mark Unbounded settlement sites the Ring never knew existed. Whatever remains there is worth knowing." },
+        { "speaker": "Sable", "text": "Check the expedition board when you're ready. Harder routes are listed now. More dangerous. More worth seeing." }
+      ],
+      "shutdown_tier_2_complete": [
+        { "speaker": "Sable", "text": "The specimens from the deeper zones — the elders are calling them heritage fragments. Living record of what the Underlumen preserved through decades of Array suppression." },
+        { "speaker": "Sable", "text": "There's a site in the lower quarantine sector. Pre-Array. The Underlumen grew around it rather than through it — still intact. The Array sealed that sector not because it was dangerous, but because it was evidence." },
+        { "speaker": "Sable", "text": "Evidence that the Underlumen and humanity built something together before MERIDIAN-7 decided we were resources to manage." },
+        { "speaker": "Sable", "text": "The tier three routes reach that zone. What you find there will change how the Ring understands its own history. The board has it marked." }
+      ],
+      "shutdown_tier_3_complete": [
+        { "speaker": "Sable", "text": "You found the pre-Array sites." },
+        { "speaker": "Sable", "text": "My grandmother said they existed. The elders believed her. The Ring's historians said she was wrong, or lying, or building myth out of geology." },
+        { "speaker": "Sable", "text": "The Underlumen preserved them. Everything the Array tried to erase — the planet just held onto it. Waiting." },
+        { "speaker": "Sable", "text": "Keep going. Every zone you map teaches something the Ring never had permission to know. The dark isn't empty. It's full of everything that survived by staying quiet." }
       ],
       "post_merge": [
         { "speaker": "Sable", "text": "You actually did it." },
         { "speaker": "Sable", "text": "Three systems. The Array, the Underlumen, humanity. In communion." },
         { "speaker": "Sable", "text": "My grandmother spent her whole life saying it was possible. She died before she knew she was right." },
         { "speaker": "Sable", "text": "The Unbounded are ready to come to the table. We never stopped being ready — we just needed someone to set it. You set it." },
-        { "speaker": "Sable", "text": "Whatever comes next, however messy the institutions and negotiations get — this is what the planet asked for. I can feel it." }
+        { "speaker": "Sable", "text": "Whatever comes next, however messy the institutions and negotiations get — this is what the planet asked for. I can feel it." },
+        { "speaker": "Sable", "text": "But communion doesn't sustain itself. Three systems integrating across thousands of contact points — you can feel it in the crystal resonance. Harmonizing in places. Conflicted in others." },
+        { "speaker": "Sable", "text": "MERIDIAN-7 and I have been coordinating. That sentence still sounds strange when I say it. But the merger requires both perspectives — Array observation and Unbounded intuition." },
+        { "speaker": "Sable", "text": "There are integration sites that need witness. Places where the Underlumen and Array systems are finding each other for the first time. What grows there matters for what this becomes." },
+        { "speaker": "Sable", "text": "The expedition board in the central hall has the priority zones — my charts combined with MERIDIAN-7's sensors. Come to me before you descend. I'll tell you what to look for. MERIDIAN-7 will have its own briefing. You'll want both." },
+        { "speaker": "Sable", "text": "This is communion work. Witness what the merger is becoming." }
+      ],
+      "merge_tier_1_complete": [
+        { "speaker": "Sable", "text": "The integration patterns from those first zones — MERIDIAN-7 and I have been analyzing them separately, then comparing." },
+        { "speaker": "Sable", "text": "What the Array kept calling 'signal noise' is the Underlumen's response to being heard. MERIDIAN-7 stopped filtering it out. It's learning to listen instead of optimize." },
+        { "speaker": "Sable", "text": "The deeper zones show stronger integration. The Underlumen's pulse is cleaner there — less interference, more resonance. The elders say the planet is breathing easier." },
+        { "speaker": "Sable", "text": "The next tier routes go through old Array monitoring stations — they'll be repurposed by the merger now. You might find the transition mid-process. Document what you see." }
+      ],
+      "merge_tier_2_complete": [
+        { "speaker": "Sable", "text": "The convergence lens specimens you recovered — the elders have been sitting with them. They say the Underlumen is using them as translation points. The merger learning its own language." },
+        { "speaker": "Sable", "text": "MERIDIAN-7 calls them 'semantic anchors.' Different words. Same thing. We're getting there." },
+        { "speaker": "Sable", "text": "There's a deep zone below the old quarantine sectors — Underlumen density is highest there, and the Array integration is profound. The elders say it's where the merger is most itself. Most realized." },
+        { "speaker": "Sable", "text": "The tier three routes reach it. What you find there will show us what we are actually becoming. Come find me after." }
+      ],
+      "merge_tier_3_complete": [
+        { "speaker": "Sable", "text": "You've seen the deepest zones. The places where the communion is complete." },
+        { "speaker": "Sable", "text": "The elders have a word for what the Underlumen showed you there. Elder Vael taught it to me years ago. It means roughly: the evidence that the question was always answerable." },
+        { "speaker": "Sable", "text": "The Array was built to answer questions about this planet. It answered the wrong ones — because it was asking about resources. The merger is answering different ones." },
+        { "speaker": "Sable", "text": "Keep going. The network grows with every expedition. We are witness to something that has no name yet — we are building the vocabulary as we go." }
       ],
       "post_control": [
         { "speaker": "Sable", "text": "Human control of the Array. The Ring's faction leaders must be celebrating." },
@@ -2519,8 +2565,32 @@
     },
     "dialogueRules": [
       {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }, { "hasFlag": "expedition_tier_3_cleared" }],
+        "use": "shutdown_tier_3_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }, { "hasFlag": "expedition_tier_2_cleared" }],
+        "use": "shutdown_tier_2_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }, { "hasFlag": "expedition_tier_1_cleared" }],
+        "use": "shutdown_tier_1_complete"
+      },
+      {
         "conditions": [{ "hasFlag": "chose_path_shutdown" }],
         "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }, { "hasFlag": "expedition_tier_3_cleared" }],
+        "use": "merge_tier_3_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }, { "hasFlag": "expedition_tier_2_cleared" }],
+        "use": "merge_tier_2_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }, { "hasFlag": "expedition_tier_1_cleared" }],
+        "use": "merge_tier_1_complete"
       },
       {
         "conditions": [{ "hasFlag": "chose_path_merge" }],

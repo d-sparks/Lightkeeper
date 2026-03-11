@@ -53,7 +53,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Place skeleton_archer in crypt_01/crypt_02 and add loot table.~~ ✓ Both crypts already had one archer; added a second patrolling archer to crypt_01; added `skeleton_archer` loot table to outpost.json.
 - Add explicit patrolPath waypoints to patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
 - Phase 3 investigation quest after Autotroph confrontation (mechanical meaningfulness beyond dialogue).
-- Post-ending Sable dialogue for Shutdown/Merge paths (expedition quest-giver).
+- ~~Post-ending Sable dialogue for Shutdown/Merge paths (expedition quest-giver).~~ ✓ Implemented — `post_shutdown` and `post_merge` extended with expedition quest-giver lines; added `shutdown_tier_N_complete` and `merge_tier_N_complete` dialogue sets gated on `expedition_tier_N_cleared` flags; dialogueRules updated to route to tier-specific sets with higher priority than base post-ending dialogue.
 - Post-ending atmospheric changes for outpost_entrance and outpost_comms.
 
 ## Sessions & Persistence
