@@ -118,5 +118,12 @@
     "dungeonOffsetX": 9,
     "dungeonOffsetY": 3,
     "dungeonId": "dayside_solar_fields"
+  },
+  "_gridConfigExpanded": {
+    "gridWidth": 16,
+    "gridHeight": 16,
+    "dungeonOffsetX": 9,
+    "dungeonOffsetY": 3,
+    "dungeonId": "dayside_solar_fields"
   }
 }

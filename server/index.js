@@ -945,6 +945,10 @@ wss.on('connection', (ws) => {
             const player = room && room.players.get(playerId);
             if (player) {
               for (const give of milestoneRewards) {
+                if (give.type === 'grid_expansion') {
+                  // Grid already expanded server-side; client learns of new size via AUTO_STATE
+                  continue;
+                }
                 if (give.type === 'item') {
                   if (give.itemId === 'medical_supplies') {
                     player.medipacCharges = (player.medipacCharges || 0) + (give.count || 1);

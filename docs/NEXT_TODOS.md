@@ -36,7 +36,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Expedition beacon cost reduction integration.~~ ✓ Implemented — game-loop.js applies getExpeditionCostReduction() to silicon costs.
 - ~~Structure adjacency bonus calculation (silicon_refinery boosting adjacent harvesters).~~ ✓ Implemented — `adjacencyBonus` field added to `silicon_refinery` in structures.json (targets: salvage_harvester, multiplier: 2.0). `_getAdjacencyMultiplier()` checks orthogonal neighbors; `_getTotalEffectiveAmount()` sums per-placement production with bonuses; `updateProduction()` and client stat rates both use the boosted values. Multiple adjacent refineries stack additively.
 - Ending-path-specific structure variants (bio_harvester, symbiotic_node, array_drone_bay).
-- Grid expansion to 16x16 at automation level 6 (currently grid size is fixed at 12x12).
+- ~~Grid expansion to 16x16 at automation level 6 (currently grid size is fixed at 12x12).~~ ✓ Implemented — `gridExpanded` flag added to per-player automation state; `getGridConfig(playerId)` returns a cached 16×16 config (offset 9,3 same as 12×12) when the flag is set; `checkMilestones()` sets the flag and emits a `grid_expansion` reward at threshold 20; `_gridConfigExpanded` defined in structures.json; client already renders grid size dynamically from `autoState.grid.width/height`.
 - Raid event system for auto_turret defense value (auto_turret defense_value stat tracked but raids not implemented).
 
 ### Phase 5 — Boss Affixes + Tiers 4-5

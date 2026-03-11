@@ -7,7 +7,8 @@ class Automation {
   constructor(content) {
     this.content = content;
     this.playerStates = new Map(); // playerId -> AutoState
-    this._gridConfig = null;      // computed grid config (blocked cells, etc.)
+    this._gridConfig = null;         // computed 12x12 grid config (blocked cells, etc.)
+    this._gridConfigExpanded = null; // computed 16x16 grid config (unlocked at level 6)
   }
 
   // Get or create automation state for a player
@@ -18,6 +19,7 @@ class Automation {
         structures: {},       // structureId -> { count, placements: [{x,y}] }
         productionTimers: {}, // structureId -> seconds accumulated
         claimedMilestones: [],// indices of milestones already claimed
+        gridExpanded: false,  // true once player reaches automation level 6 (20 structures)
         stats: {
           totalSalvageProduced: 0,
           totalSalvageSpent: 0,
@@ -75,8 +77,8 @@ class Automation {
   }
 
   // Check if a cell is blocked (wall, building, etc.)
-  isCellBlocked(gridX, gridY) {
-    const config = this.getGridConfig();
+  isCellBlocked(playerId, gridX, gridY) {
+    const config = this.getGridConfig(playerId);
     if (!config) return true;
     if (gridX < 0 || gridY < 0 || gridX >= config.gridWidth || gridY >= config.gridHeight) return true;
     return config.blockedSet && config.blockedSet.has(gridY * config.gridWidth + gridX);
@@ -121,7 +123,7 @@ class Automation {
     if (def.maxCount && structData.count >= def.maxCount) return false;
 
     // Validate grid position
-    if (this.isCellBlocked(gridX, gridY)) return false;
+    if (this.isCellBlocked(playerId, gridX, gridY)) return false;
     if (this.isCellOccupied(playerId, gridX, gridY)) return false;
 
     if (!this.spendResources(playerId, def.cost)) return false;
@@ -301,11 +303,11 @@ class Automation {
 
   // Find the first open buildable cell for auto-placement
   _findOpenCell(playerId) {
-    const config = this.getGridConfig();
+    const config = this.getGridConfig(playerId);
     if (!config) return null;
     for (let y = 0; y < config.gridHeight; y++) {
       for (let x = 0; x < config.gridWidth; x++) {
-        if (!this.isCellBlocked(x, y) && !this.isCellOccupied(playerId, x, y)) {
+        if (!this.isCellBlocked(playerId, x, y) && !this.isCellOccupied(playerId, x, y)) {
           return { x, y };
         }
       }
@@ -317,6 +319,7 @@ class Automation {
   checkMilestones(playerId) {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
     const milestones = structures._milestoneRewards || [];
+    const expandedCfg = structures._gridConfigExpanded;
     const state = this.getState(playerId);
     if (!state.claimedMilestones) state.claimedMilestones = [];
 
@@ -333,6 +336,12 @@ class Automation {
         state.claimedMilestones.push(i);
         const m = milestones[i];
         newRewards.push({ type: 'item', itemId: m.itemId, count: m.count || 1, milestoneName: m.name, milestoneThreshold: m.threshold, milestoneIcon: m.icon || '★' });
+
+        // At the Grid Expansion threshold (20 structures / automation level 6), expand grid to 16x16
+        if (expandedCfg && m.threshold === 20) {
+          state.gridExpanded = true;
+          newRewards.push({ type: 'grid_expansion', newWidth: expandedCfg.gridWidth, newHeight: expandedCfg.gridHeight, milestoneName: 'Grid Expansion', milestoneThreshold: m.threshold, milestoneIcon: '⊞' });
+        }
       }
     }
     return newRewards;
@@ -353,12 +362,19 @@ class Automation {
     return tradeDef.gives;
   }
 
-  // Compute and cache grid configuration from dungeon data
-  getGridConfig() {
-    if (this._gridConfig) return this._gridConfig;
-
+  // Compute and cache grid configuration from dungeon data.
+  // Pass playerId to get the player-specific config (expanded grid if unlocked).
+  getGridConfig(playerId) {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
-    const gridCfg = structures._gridConfig;
+
+    // Determine which config spec to use for this player
+    const useExpanded = playerId && this.playerStates.has(playerId) && this.playerStates.get(playerId).gridExpanded;
+    const cfgKey = useExpanded ? '_gridConfigExpanded' : '_gridConfig';
+    const cacheKey = useExpanded ? '_gridConfigExpanded' : '_gridConfig';
+
+    if (this[cacheKey]) return this[cacheKey];
+
+    const gridCfg = structures[cfgKey];
     if (!gridCfg) return null;
 
     const dungeon = this.content.getDungeon ? this.content.getDungeon(gridCfg.dungeonId) : null;
@@ -385,7 +401,7 @@ class Automation {
           blockedSet.add(gy * gridWidth + gx);
           preBuilt.push({ x: gx, y: gy, label: 'Array Solar Collector' });
         }
-        // tileId 1 (floor) and 2 (sand/feature) and 8 (exit) = buildable
+        // tileId 1 (floor) and 2 (sand/feature) = buildable
         // Exit tile (8) should be blocked too
         if (tileId === 8) {
           blockedSet.add(gy * gridWidth + gx);
@@ -393,7 +409,7 @@ class Automation {
       }
     }
 
-    this._gridConfig = {
+    this[cacheKey] = {
       gridWidth,
       gridHeight,
       dungeonOffsetX,
@@ -403,7 +419,7 @@ class Automation {
       preBuilt,
     };
 
-    return this._gridConfig;
+    return this[cacheKey];
   }
 
   // Get all placements for a player (for dungeon sync)
@@ -424,7 +440,7 @@ class Automation {
   getStateForClient(playerId) {
     const state = this.getState(playerId);
     const structures = this.content.getStructures ? this.content.getStructures() : {};
-    const config = this.getGridConfig();
+    const config = this.getGridConfig(playerId);
 
     const structureList = [];
     const allPlacements = [];
@@ -576,7 +592,7 @@ class Automation {
 
   // Create a copy of dungeon data with player's automation placements merged in
   getOverlayedMapData(playerId, dungeon) {
-    const config = this.getGridConfig();
+    const config = this.getGridConfig(playerId);
     if (!config || dungeon.id !== config.dungeonId) return dungeon;
 
     const placements = this.getPlacements(playerId);
@@ -608,7 +624,7 @@ class Automation {
 
   // Get visual-only structure entity data for state broadcast
   getHarvesterEntities(playerId) {
-    const config = this.getGridConfig();
+    const config = this.getGridConfig(playerId);
     if (!config) return [];
 
     const state = this.getState(playerId);
@@ -659,6 +675,7 @@ class Automation {
       structures: data.structures || {},
       productionTimers: data.productionTimers || {},
       claimedMilestones: data.claimedMilestones || [],
+      gridExpanded: data.gridExpanded || false,
       stats: data.stats || {
         totalSalvageProduced: 0,
         totalSalvageSpent: 0,
