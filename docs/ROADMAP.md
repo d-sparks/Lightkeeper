@@ -59,7 +59,7 @@ Focus: **Fix testing blockers, connect disconnected content, build endgame loop*
 6. ~~**Automation dungeon sync (Phase 4)**~~ — DONE.
 7. ~~**Fix headless sim discover_array_secret**~~ — DONE. Redundant prereq goals eliminated, ~90% pass rate.
 8. ~~**Fix content validator expedition flag errors**~~ — DONE. Flags set by engine code in game-loop.js completeExpedition().
-9. **Minimap quest waypoints** — No spatial guidance for quest objectives.
+9. ~~**Minimap quest waypoints**~~ — DONE. Primary (orange diamond) and secondary (blue dot) waypoints on both iso and top-down minimaps; edge indicators when off-screen; world-space arrow over on-screen objectives.
 10. ~~**Place alpha monsters and skeleton_archer**~~ — DONE. skeleton_archer placed in crypts with loot table. Alpha monsters defined with pack_leader AI.
 11. ~~**Implement expedition multi-floor system**~~ — DONE. Multi-floor progression, boss spawning, completion detection, silicon cost, death penalty all implemented.
 
