@@ -248,6 +248,91 @@ describe('Automation', () => {
     });
   });
 
+  describe('adjacency bonuses', () => {
+    // Structures fixture: harvester + refinery with adjacencyBonus targeting harvester
+    const adjacencyStructures = {
+      salvage_harvester: {
+        name: 'Salvage Harvester',
+        cost: { salvage: 5 },
+        maxCount: 3,
+        effect: { type: 'resource_production', produces: 'salvage', amount: 1, intervalSeconds: 30 },
+      },
+      silicon_refinery: {
+        name: 'Silicon Refinery',
+        cost: { salvage: 0 }, // free for tests
+        maxCount: 3,
+        effect: { type: 'resource_production', produces: 'silicon', amount: 1, intervalSeconds: 45 },
+        adjacencyBonus: {
+          targets: ['salvage_harvester'],
+          multiplier: 2.0,
+          description: 'Doubles adjacent Salvage Harvester output',
+        },
+      },
+    };
+
+    function makeAdjacencyAuto() {
+      const auto = new Automation(makeContent(adjacencyStructures));
+      auto._gridConfig = { gridWidth: 5, gridHeight: 5, blockedSet: new Set() };
+      return auto;
+    }
+
+    it('no bonus when no refinery is adjacent', () => {
+      const auto = makeAdjacencyAuto();
+      auto.addResource('p1', 'salvage', 10);
+      // Harvester at (0,0) costs 5, refinery far away at (4,4) costs 0 → 5 salvage left
+      auto.build('p1', 'salvage_harvester', 0, 0);
+      auto.build('p1', 'silicon_refinery', 4, 4);
+      const produced = auto.updateProduction('p1', 30);
+      // 1 harvester × 1.0 multiplier = 1 salvage produced
+      assert.equal(produced.find(p => p.resource === 'salvage').amount, 1);
+    });
+
+    it('doubles harvester output when refinery is adjacent', () => {
+      const auto = makeAdjacencyAuto();
+      auto.addResource('p1', 'salvage', 10);
+      // Harvester at (1,0) costs 5, refinery adjacent at (0,0) costs 0 → 5 salvage left
+      auto.build('p1', 'salvage_harvester', 1, 0);
+      auto.build('p1', 'silicon_refinery', 0, 0);
+      const produced = auto.updateProduction('p1', 30);
+      // 1 harvester × 2.0 multiplier = 2 salvage produced
+      assert.equal(produced.find(p => p.resource === 'salvage').amount, 2);
+    });
+
+    it('stacks additively with two adjacent refineries', () => {
+      const auto = makeAdjacencyAuto();
+      auto.addResource('p1', 'salvage', 20);
+      // Harvester at (1,0) costs 5, two refineries adjacent at (0,0) and (2,0) cost 0
+      auto.build('p1', 'salvage_harvester', 1, 0);
+      auto.build('p1', 'silicon_refinery', 0, 0);
+      auto.build('p1', 'silicon_refinery', 2, 0);
+      const produced = auto.updateProduction('p1', 30);
+      // multiplier = 1 + (2-1) + (2-1) = 3.0 → 3 salvage produced
+      assert.equal(produced.find(p => p.resource === 'salvage').amount, 3);
+    });
+
+    it('only boosts adjacent harvester, not distant one', () => {
+      const auto = makeAdjacencyAuto();
+      auto.addResource('p1', 'salvage', 20);
+      // Two harvesters: (0,0) adjacent to refinery at (1,0), (4,4) not adjacent — each costs 5
+      auto.build('p1', 'salvage_harvester', 0, 0);
+      auto.build('p1', 'salvage_harvester', 4, 4);
+      auto.build('p1', 'silicon_refinery', 1, 0);
+      const produced = auto.updateProduction('p1', 30);
+      // (0,0) × 2.0 + (4,4) × 1.0 = 3 salvage produced
+      assert.equal(produced.find(p => p.resource === 'salvage').amount, 3);
+    });
+
+    it('salvagePerMinute in client state reflects adjacency boost', () => {
+      const auto = makeAdjacencyAuto();
+      auto.addResource('p1', 'salvage', 10);
+      auto.build('p1', 'salvage_harvester', 1, 0);
+      auto.build('p1', 'silicon_refinery', 0, 0);
+      const clientState = auto.getStateForClient('p1');
+      // 1 harvester × 2.0 × (60/30) = 4 salvage/min
+      assert.equal(clientState.stats.salvagePerMinute, 4);
+    });
+  });
+
   describe('energy regen rate', () => {
     it('returns 0 with no structures', () => {
       const auto = new Automation(makeContent(testStructures));

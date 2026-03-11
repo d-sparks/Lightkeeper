@@ -134,6 +134,51 @@ class Automation {
     return true;
   }
 
+  // Returns the adjacency multiplier for a single structure placement at (x, y).
+  // Scans all other placed structures for adjacencyBonus entries targeting structureId.
+  // Each adjacent booster adds (booster.multiplier - 1) to the base multiplier of 1.0,
+  // so two adjacent refineries each with multiplier 2.0 give a total of 3.0.
+  _getAdjacencyMultiplier(playerId, x, y, structureId, structures) {
+    const state = this.getState(playerId);
+    let multiplier = 1.0;
+
+    for (const [boosterId, boosterDef] of Object.entries(structures)) {
+      if (boosterId.startsWith('_')) continue;
+      if (!boosterDef.adjacencyBonus) continue;
+      if (!boosterDef.adjacencyBonus.targets.includes(structureId)) continue;
+
+      const boosterData = state.structures[boosterId];
+      if (!boosterData || !boosterData.placements) continue;
+
+      for (const bp of boosterData.placements) {
+        const dx = Math.abs(bp.x - x);
+        const dy = Math.abs(bp.y - y);
+        if (dx + dy === 1) {
+          // Orthogonally adjacent — apply additive bonus
+          multiplier += (boosterDef.adjacencyBonus.multiplier - 1);
+        }
+      }
+    }
+
+    return multiplier;
+  }
+
+  // Returns total effective resource amount produced in one tick interval for a structure,
+  // summing per-placement amounts with adjacency bonuses applied.
+  _getTotalEffectiveAmount(playerId, structureId, structData, def, structures) {
+    const placements = typeof structData === 'object' ? (structData.placements || []) : [];
+    const count = typeof structData === 'object' ? structData.count : structData;
+
+    // If no placement data recorded, fall back to flat count-based amount
+    if (placements.length === 0) return def.effect.amount * count;
+
+    let total = 0;
+    for (const p of placements) {
+      total += def.effect.amount * this._getAdjacencyMultiplier(playerId, p.x, p.y, structureId, structures);
+    }
+    return total;
+  }
+
   // Tick production for a player (called each game tick)
   updateProduction(playerId, dt) {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
@@ -153,7 +198,7 @@ class Automation {
         const interval = def.effect.intervalSeconds;
         while (state.productionTimers[structureId] >= interval) {
           state.productionTimers[structureId] -= interval;
-          const amount = def.effect.amount * count;
+          const amount = this._getTotalEffectiveAmount(playerId, structureId, structData, def, structures);
           this.addResource(playerId, def.effect.produces, amount);
           produced.push({ resource: def.effect.produces, amount });
         }
@@ -441,7 +486,7 @@ class Automation {
       automationProgress = 1;
     }
 
-    // Compute production rates
+    // Compute production rates (including adjacency bonuses for resource_production)
     let salvagePerMinute = 0;
     let siliconPerMinute = 0;
     let energyRegenPerSecond = 0;
@@ -453,7 +498,8 @@ class Automation {
       if (count <= 0 || !def.effect) continue;
 
       if (def.effect.type === 'resource_production') {
-        const perMinute = (def.effect.amount * count * 60) / def.effect.intervalSeconds;
+        const effectiveAmount = this._getTotalEffectiveAmount(playerId, id, structData, def, structures);
+        const perMinute = (effectiveAmount * 60) / def.effect.intervalSeconds;
         if (def.effect.produces === 'silicon') {
           siliconPerMinute += perMinute;
         } else {

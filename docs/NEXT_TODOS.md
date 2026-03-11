@@ -34,7 +34,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Automation levels 6-10 defined.~~ ✓ Implemented — Grid Expansion (20), Refinery (25), Defense Grid (30), Fabrication Bay (40), Array Subnet (50).
 - ~~Client locked structure display.~~ ✓ Implemented — locked structures shown grayed out with level requirement, silicon resource display in sidebar.
 - ~~Expedition beacon cost reduction integration.~~ ✓ Implemented — game-loop.js applies getExpeditionCostReduction() to silicon costs.
-- Structure adjacency bonus calculation (silicon_refinery boosting adjacent harvesters).
+- ~~Structure adjacency bonus calculation (silicon_refinery boosting adjacent harvesters).~~ ✓ Implemented — `adjacencyBonus` field added to `silicon_refinery` in structures.json (targets: salvage_harvester, multiplier: 2.0). `_getAdjacencyMultiplier()` checks orthogonal neighbors; `_getTotalEffectiveAmount()` sums per-placement production with bonuses; `updateProduction()` and client stat rates both use the boosted values. Multiple adjacent refineries stack additively.
 - Ending-path-specific structure variants (bio_harvester, symbiotic_node, array_drone_bay).
 - Grid expansion to 16x16 at automation level 6 (currently grid size is fixed at 12x12).
 - Raid event system for auto_turret defense value (auto_turret defense_value stat tracked but raids not implemented).
