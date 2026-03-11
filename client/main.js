@@ -40,6 +40,9 @@
   const worldmapBtn = document.getElementById('worldmap-btn');
   const onboardMove = document.getElementById('onboard-move');
   const onboardInteract = document.getElementById('onboard-interact');
+  const expeditionHud = document.getElementById('expedition-hud');
+  const expeditionTier = document.getElementById('expedition-tier');
+  const expeditionFloor = document.getElementById('expedition-floor');
   const bossBar = document.getElementById('boss-bar');
   const bossBarName = document.getElementById('boss-bar-name');
   const bossBarFill = document.getElementById('boss-bar-fill');
@@ -2786,6 +2789,15 @@
         audio.playMusic(currentAmbientTrack || 'dungeon');
       }
       bossBar.style.display = 'none';
+    }
+
+    // Update expedition HUD
+    if (msg.expedition) {
+      expeditionHud.style.display = '';
+      expeditionTier.textContent = `EXPEDITION T${msg.expedition.tier}`;
+      expeditionFloor.textContent = `Floor ${msg.expedition.floor} / ${msg.expedition.maxFloors}`;
+    } else {
+      expeditionHud.style.display = 'none';
     }
 
     // Update click-to-move direction based on current position

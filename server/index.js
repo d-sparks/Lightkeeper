@@ -1371,6 +1371,16 @@ setInterval(() => {
         const player = room.players.get(client.playerId);
         if (player) {
           state.myCooldowns = player.cooldowns;
+          // Inject expedition info for this player
+          if (gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_active')) {
+            state.expedition = {
+              tier: gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_tier'),
+              floor: gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_floor'),
+              maxFloors: gameLoop.flagStore.getPlayerFlag(client.playerId, 'expedition_max_floors'),
+            };
+          } else {
+            state.expedition = null;
+          }
         }
         // Inject per-player harvester entities when in the automation dungeon
         if (isDaysideRoom && client.playerId) {
