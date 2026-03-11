@@ -42,7 +42,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Path cost modifier (Shutdown +50%, Control -25% on all structure costs).~~ ✓ Implemented — `_getPathCostMultiplier()` in automation.js applies 1.5x (shutdown) or 0.75x (control) with `Math.ceil` rounding; applied in `build()` and reflected in `getStateForClient()` scaled cost display; `pathCostMultiplier` exposed in client stats.
 - ~~getRepairRate() for array_drone_bay.~~ ✓ Implemented — `getRepairRate()` method added; `repairRate` (repairs per hour) exposed in client stats. Actual repair execution (applying HP recovery to structures) deferred to Phase 7 raid system — structure HP tracking not yet implemented.
 - ~~Grid expansion to 16x16 at automation level 6 (currently grid size is fixed at 12x12).~~ ✓ Implemented — `gridExpanded` flag added to per-player automation state; `getGridConfig(playerId)` returns a cached 16×16 config (offset 9,3 same as 12×12) when the flag is set; `checkMilestones()` sets the flag and emits a `grid_expansion` reward at threshold 20; `_gridConfigExpanded` defined in structures.json; client already renders grid size dynamically from `autoState.grid.width/height`.
-- Raid event system for auto_turret defense value (auto_turret defense_value stat tracked but raids not implemented).
+- ~~Raid event system for auto_turret defense value.~~ ✓ Implemented — see Phase 7 section.
 
 ### Phase 5 — Boss Affixes + Tiers 4-5
 - ~~Boss affix data format and pool in `content/expeditions/affixes.json`.~~ ✓ Implemented — 8 affixes (berserker, ironhide, swift, volatile, regenerating, empowered_slam, relentless, juggernaut) with stat mods, regen, special attack mods, and damageTakenMult.
@@ -64,7 +64,11 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Cooperative-only legendary modifier pool.
 
 ### Phase 7 — Raids + Faction Rally
-- Timed raid events, structure HP/repair, server-wide flag aggregation.
+- ~~Timed raid events, structure HP/repair.~~ ✓ Implemented — raid timer ticks per-player in game-loop.js; `_raidConfig` in structures.json defines interval (1200s), chance (30%), monster pool, damage, and scaling; `_executeRaid()` computes damage vs defense rating, distributes damage across random non-turret structures, destroys structures at 0 HP; `updateRepairTimer()` applies drone bay HP recovery; `RAID_ALERT` message notifies client of raid outcomes; structure HP included in `AUTO_STATE` payload.
+- Client-side raid alert UI (toast/overlay showing raid results, structure HP bars on automation grid).
+- Player manual defense — teleport to dayside_solar_fields to fight raid monsters in real-time (currently raids are abstract/instant).
+- Raid difficulty curve tuning — 5 base monsters + 2 per level above min may need playtesting.
+- Server-wide flag aggregation for Faction Rally cooperative event.
 
 ## Content Gaps
 

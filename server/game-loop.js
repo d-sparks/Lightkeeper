@@ -3005,6 +3005,26 @@ class GameLoop {
 
         // Tick automation production (silicon harvesters etc.)
         this.automation.updateProduction(pid, dt);
+
+        // Tick raid timer (nightside creature waves attack dayside structures)
+        const raidResult = this.automation.updateRaidTimer(pid, dt);
+        if (raidResult && raidResult.occurred) {
+          // Notify player of raid outcome
+          if (this.actions.sendToPlayer) {
+            this.actions.sendToPlayer(pid, {
+              type: CONSTANTS.MSG.RAID_ALERT,
+              raid: raidResult,
+            });
+            // Also send updated automation state (structure HP changes)
+            this.actions.sendToPlayer(pid, {
+              type: CONSTANTS.MSG.AUTO_STATE,
+              auto: this.automation.getStateForClient(pid),
+            });
+          }
+        }
+
+        // Tick structure repair (drone bays heal damaged structures)
+        this.automation.updateRepairTimer(pid, dt);
       }
 
       // Update monsters (AI + attacks)

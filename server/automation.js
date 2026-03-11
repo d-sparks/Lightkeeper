@@ -21,6 +21,10 @@ class Automation {
         replicationTimers: {},    // structureId -> seconds accumulated (for self-replicating structures)
         claimedMilestones: [],    // indices of milestones already claimed
         gridExpanded: false,      // true once player reaches automation level 6 (20 structures)
+        structureHp: {},          // "structureId:x:y" -> current HP (0 = destroyed)
+        raidTimer: 0,             // seconds since last raid check
+        repairTimer: 0,           // seconds since last repair tick
+        lastRaidResult: null,     // last raid outcome for client display
         stats: {
           totalSalvageProduced: 0,
           totalSalvageSpent: 0,
@@ -682,6 +686,23 @@ class Automation {
       },
     };
 
+    // Include structure HP for placed structures
+    const raidCfg = this._getRaidConfig();
+    if (raidCfg) {
+      const structureHpList = [];
+      for (const [structureId, structData] of Object.entries(state.structures)) {
+        if (!structData || !structData.placements) continue;
+        for (const p of structData.placements) {
+          const key = this._hpKey(structureId, p.x, p.y);
+          const hp = state.structureHp[key] !== undefined ? state.structureHp[key] : raidCfg.structureMaxHp;
+          structureHpList.push({ structureId, x: p.x, y: p.y, hp, maxHp: raidCfg.structureMaxHp });
+        }
+      }
+      result.structureHp = structureHpList;
+      result.lastRaidResult = state.lastRaidResult || null;
+      result.raidEnabled = automationLevel >= raidCfg.minAutomationLevel;
+    }
+
     // Include grid data
     if (config) {
       // Convert blockedSet to array for serialization
@@ -780,6 +801,182 @@ class Automation {
     return entities;
   }
 
+  // ─── Raid Event System ───────────────────────────────────────────────
+
+  // Get the HP key for a structure placement
+  _hpKey(structureId, x, y) {
+    return `${structureId}:${x}:${y}`;
+  }
+
+  // Get or initialise structure HP for a placement
+  getStructureHp(playerId, structureId, x, y) {
+    const state = this.getState(playerId);
+    const key = this._hpKey(structureId, x, y);
+    const raidCfg = this._getRaidConfig();
+    if (state.structureHp[key] === undefined) {
+      state.structureHp[key] = raidCfg ? raidCfg.structureMaxHp : 100;
+    }
+    return state.structureHp[key];
+  }
+
+  _getRaidConfig() {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    return structures._raidConfig || null;
+  }
+
+  // Tick raid timer for a player. Returns a raid result object if a raid happened, null otherwise.
+  updateRaidTimer(playerId, dt) {
+    const raidCfg = this._getRaidConfig();
+    if (!raidCfg) return null;
+
+    const automationLevel = this.getAutomationLevel(playerId);
+    if (automationLevel < raidCfg.minAutomationLevel) return null;
+
+    const state = this.getState(playerId);
+    state.raidTimer += dt;
+
+    if (state.raidTimer < raidCfg.intervalSeconds) return null;
+    state.raidTimer = 0;
+
+    // Roll raid chance
+    if (Math.random() > raidCfg.chance) {
+      return { occurred: false, reason: 'chance_miss' };
+    }
+
+    return this._executeRaid(playerId, automationLevel, raidCfg);
+  }
+
+  // Execute a raid: compute damage to structures, apply turret defense
+  _executeRaid(playerId, automationLevel, raidCfg) {
+    const state = this.getState(playerId);
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+
+    // Determine raid strength
+    const monsterCount = raidCfg.baseMonsters + (automationLevel - raidCfg.minAutomationLevel) * raidCfg.scalingPerLevel;
+    const totalRaidDamage = monsterCount * raidCfg.baseDamagePerMonster;
+
+    // Defense rating from turrets reduces damage
+    const defenseRating = this.getDefenseRating(playerId);
+    // Each point of defense negates 1 damage, minimum 0 total damage
+    const effectiveDamage = Math.max(0, totalRaidDamage - defenseRating);
+
+    // Pick which monster types participated (for flavor)
+    const raidMonsters = [];
+    for (let i = 0; i < monsterCount; i++) {
+      raidMonsters.push(raidCfg.monsterPool[Math.floor(Math.random() * raidCfg.monsterPool.length)]);
+    }
+
+    // Collect all non-turret structure placements as potential targets
+    const targets = [];
+    for (const [structureId, structData] of Object.entries(state.structures)) {
+      if (!structData || !structData.placements) continue;
+      const def = structures[structureId];
+      if (!def) continue;
+      // Turrets defend but aren't targeted (they're hardened)
+      if (def.effect && def.effect.type === 'defense_value') continue;
+      for (const p of structData.placements) {
+        const key = this._hpKey(structureId, p.x, p.y);
+        if (state.structureHp[key] === undefined) {
+          state.structureHp[key] = raidCfg.structureMaxHp;
+        }
+        // Skip already-destroyed structures
+        if (state.structureHp[key] <= 0) continue;
+        targets.push({ structureId, x: p.x, y: p.y, key });
+      }
+    }
+
+    const damaged = [];
+    const destroyed = [];
+
+    if (effectiveDamage > 0 && targets.length > 0) {
+      // Distribute damage across random targets
+      let remainingDamage = effectiveDamage;
+      while (remainingDamage > 0 && targets.length > 0) {
+        const idx = Math.floor(Math.random() * targets.length);
+        const target = targets[idx];
+        const dmg = Math.min(remainingDamage, raidCfg.baseDamagePerMonster);
+        state.structureHp[target.key] -= dmg;
+        remainingDamage -= dmg;
+
+        if (state.structureHp[target.key] <= 0) {
+          state.structureHp[target.key] = 0;
+          destroyed.push({ structureId: target.structureId, x: target.x, y: target.y });
+          // Remove from target pool so it's not hit again
+          targets.splice(idx, 1);
+          // Remove from actual structure placements and decrement count
+          this._removeStructurePlacement(playerId, target.structureId, target.x, target.y);
+        } else {
+          damaged.push({ structureId: target.structureId, x: target.x, y: target.y, hp: state.structureHp[target.key] });
+        }
+      }
+    }
+
+    const result = {
+      occurred: true,
+      monsterCount,
+      monsters: raidMonsters,
+      totalRaidDamage,
+      defenseRating,
+      effectiveDamage,
+      damaged,
+      destroyed,
+      structuresRemaining: this._countTotalStructures(playerId),
+    };
+
+    state.lastRaidResult = result;
+    return result;
+  }
+
+  // Remove a structure placement (when destroyed by raid)
+  _removeStructurePlacement(playerId, structureId, x, y) {
+    const state = this.getState(playerId);
+    const structData = state.structures[structureId];
+    if (!structData || !structData.placements) return;
+    const idx = structData.placements.findIndex(p => p.x === x && p.y === y);
+    if (idx !== -1) {
+      structData.placements.splice(idx, 1);
+      structData.count = Math.max(0, structData.count - 1);
+    }
+  }
+
+  _countTotalStructures(playerId) {
+    const state = this.getState(playerId);
+    let total = 0;
+    for (const structData of Object.values(state.structures)) {
+      total += typeof structData === 'object' ? structData.count : structData;
+    }
+    return total;
+  }
+
+  // Tick repair timer — drone bays gradually restore damaged structures
+  updateRepairTimer(playerId, dt) {
+    const raidCfg = this._getRaidConfig();
+    if (!raidCfg) return [];
+
+    const repairRate = this.getRepairRate(playerId);
+    if (repairRate <= 0) return [];
+
+    const state = this.getState(playerId);
+    state.repairTimer += dt;
+
+    // Repair ticks based on drone bay interval (convert repairsPerHour to a per-tick check)
+    // repairRate is already in repairs/hour, convert to repair HP per second
+    const repairHpPerSecond = (repairRate * raidCfg.repairAmountPerTick) / 3600;
+    const repairAmount = repairHpPerSecond * dt;
+    if (repairAmount <= 0) return [];
+
+    // Find damaged (but not destroyed) structures and heal them
+    const repaired = [];
+    for (const [key, hp] of Object.entries(state.structureHp)) {
+      if (hp <= 0 || hp >= raidCfg.structureMaxHp) continue;
+      state.structureHp[key] = Math.min(raidCfg.structureMaxHp, hp + repairAmount);
+      if (state.structureHp[key] >= raidCfg.structureMaxHp) {
+        repaired.push(key);
+      }
+    }
+    return repaired;
+  }
+
   // Serialize automation state for persistence (returns plain JSON-safe object)
   serializeState(playerId) {
     if (!this.playerStates.has(playerId)) return null;
@@ -796,6 +993,10 @@ class Automation {
       replicationTimers: data.replicationTimers || {},
       claimedMilestones: data.claimedMilestones || [],
       gridExpanded: data.gridExpanded || false,
+      structureHp: data.structureHp || {},
+      raidTimer: data.raidTimer || 0,
+      repairTimer: data.repairTimer || 0,
+      lastRaidResult: data.lastRaidResult || null,
       stats: data.stats || {
         totalSalvageProduced: 0,
         totalSalvageSpent: 0,

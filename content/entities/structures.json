@@ -174,5 +174,17 @@
     "dungeonOffsetX": 9,
     "dungeonOffsetY": 3,
     "dungeonId": "dayside_solar_fields"
+  },
+  "_raidConfig": {
+    "minAutomationLevel": 8,
+    "intervalSeconds": 1200,
+    "chance": 0.3,
+    "baseMonsters": 5,
+    "scalingPerLevel": 2,
+    "monsterPool": ["dusk_crawler", "shade_stalker", "tunnel_creeper"],
+    "baseDamagePerMonster": 20,
+    "structureMaxHp": 100,
+    "repairAmountPerTick": 1,
+    "repairIntervalSeconds": 3600
   }
 }

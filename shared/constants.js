@@ -114,6 +114,7 @@ const CONSTANTS = {
     // Automation (Server -> Client)
     AUTO_STATE: 'auto_state',
     AUTOMATION_MILESTONE: 'automation_milestone',
+    RAID_ALERT: 'raid_alert',
 
     // Map chunk streaming (Server -> Client)
     MAP_CHUNKS: 'map_chunks',
