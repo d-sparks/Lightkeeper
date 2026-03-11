@@ -44,8 +44,8 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Apply affix buffs to boss entities at spawn.~~ ✓ Implemented — `_applyBossAffixes()` in game-loop.js modifies boss stats, phases, special attacks, and title at spawn time; regen ticks in monster update loop; damageTakenMult applied at all 4 damage points.
 - ~~Tier 4-5 expedition configs.~~ ✓ Implemented — tier_4.json (1 affix, 2.4x/2.0x scaling) and tier_5.json (2 affixes, 3.2x/2.5x scaling) with full affix pools.
 - Tier 4-5 requiring multiple players (cooperative gating not yet implemented).
-- Wire path-specific boss loot table selection (check `chose_path_*` flag for Tier 3+ bosses).
-- Tier 4-5 loot tables (expedition_tier_4, expedition_tier_5) not yet created.
+- Wire path-specific boss loot table selection (check `chose_path_*` flag for Tier 3+ bosses). Path-specific boss tables for tiers 4-5 now exist (expedition_tier_4_boss_shutdown/merge/control and expedition_tier_5_boss_shutdown/merge/control) — wiring them on boss kill is the remaining step.
+- ~~Tier 4-5 loot tables (expedition_tier_4, expedition_tier_5) not yet created.~~ ✓ Implemented — floor loot tables (expedition_tier_4/5) and boss tables (expedition_tier_4/5_boss, plus path-specific variants for shutdown/merge/control) added to content/loot/expeditions.json. Epic items dominant in floors; legendary items primary in boss tables.
 - ~~Wire `unlockFlag` checking in loot resolver for legendary drops.~~ ✓ Implemented — `_rollLoot` and `doRollLootTable` now filter eligible rolls by `unlockFlag`, checking the player's flags before including path-specific legendaries in the weighted pool.
 
 ### Phase 6 — Cooperative Challenges
