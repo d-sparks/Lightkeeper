@@ -37,6 +37,16 @@
       "rooms": ["dayside_solar_fields"]
     },
     {
+      "id": "array_extraction_outpost",
+      "name": "Array Extraction Outpost",
+      "zone": "dayside",
+      "x": 0.07,
+      "y": 0.60,
+      "icon": "outpost",
+      "description": "A covert Array facility beneath the solar fields. Extraction operations and cross-system research.",
+      "rooms": ["array_extraction_outpost"]
+    },
+    {
       "id": "meridian_city",
       "name": "Meridian City",
       "zone": "habitable",
