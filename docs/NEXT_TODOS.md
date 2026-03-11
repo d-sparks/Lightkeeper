@@ -77,7 +77,6 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - outer_expanse patrol paths — many spawns lack explicit patrolPath waypoints.
 - Editor reload paths still send full map data (no fog of war chunking).
 - Consider reducing chunk reveal radius for bigger maps.
-- Throttle `getOverlayedMapData` call frequency (currently every tick per player).
 
 ## Art & Sprites
 

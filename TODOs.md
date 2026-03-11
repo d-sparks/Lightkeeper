@@ -8,7 +8,6 @@ TODOs
 - [sonnet] Wire unlockFlag checking in the loot resolver so path-specific legendary modifiers only drop when the player has chosen the corresponding ending path
 - [sonnet] Add post-ending Sable expedition dialogue for Shutdown and Merge paths where she serves as expedition quest-giver
 - [opus] Implement boss affixes system: data-driven affix pool in content/expeditions/affixes.json applied to expedition bosses at Tier 4+
-- [sonnet] Throttle getOverlayedMapData calls from every tick to every N ticks to reduce per-player server load on large maps
 - [opus] Add Phase 3 investigation quest after Autotroph confrontation to make the path choice mechanically meaningful beyond NPC dialogue
 - [opus] Replace placeholder sprites with proper pixel art following docs/art-style-guide.md, starting with the most-seen entities (player characters, common outpost monsters, key NPCs)
 - [opus] Design and implement automation levels 6-10 with new structures (silicon_refinery, auto_turret, fabricator, expedition_beacon) and milestone rewards

@@ -1183,8 +1183,14 @@ function findClientByPlayerId(playerId) {
   return null;
 }
 
+// Chunk streaming runs every CHUNK_STREAM_EVERY ticks (not every tick) to reduce
+// the cost of getVisibleChunks + getOverlayedMapData on large maps with many players.
+const CHUNK_STREAM_EVERY = 3; // ~5 Hz instead of 15 Hz
+let broadcastTick = 0;
+
 // State broadcast loop
 setInterval(() => {
+  broadcastTick++;
   // Process floor transitions
   const transitions = gameLoop.consumeTransitions();
   for (const t of transitions) {
@@ -1327,25 +1333,29 @@ setInterval(() => {
     }));
   }
 
-  // Stream new map chunks to players who have moved into new areas
-  for (const [roomId, room] of gameLoop.rooms) {
-    for (const [playerId, player] of room.players) {
-      const client = findClientByPlayerId(playerId);
-      if (!client || client.readyState !== 1) continue;
-      // Check if there are new visible chunks before doing expensive overlay
-      const visible = chunkManager.getVisibleChunks(player.x, player.y, room.dungeon);
-      const newKeys = chunkManager.getNewChunkKeys(playerId, roomId, visible);
-      if (newKeys.length === 0) continue;
-      const overlayed = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
-      const chunks = newKeys.map(key => {
-        const { cx, cy } = chunkManager.parseKey(key);
-        return chunkManager.extractChunk(overlayed, cx, cy);
-      });
-      chunkManager.markSent(playerId, roomId, newKeys);
-      client.send(JSON.stringify({
-        type: CONSTANTS.MSG.MAP_CHUNKS,
-        chunks,
-      }));
+  // Stream new map chunks to players who have moved into new areas.
+  // Throttled to every CHUNK_STREAM_EVERY ticks to reduce getVisibleChunks /
+  // getOverlayedMapData cost on large maps with many concurrent players.
+  if (broadcastTick % CHUNK_STREAM_EVERY === 0) {
+    for (const [roomId, room] of gameLoop.rooms) {
+      for (const [playerId, player] of room.players) {
+        const client = findClientByPlayerId(playerId);
+        if (!client || client.readyState !== 1) continue;
+        // Check if there are new visible chunks before doing expensive overlay
+        const visible = chunkManager.getVisibleChunks(player.x, player.y, room.dungeon);
+        const newKeys = chunkManager.getNewChunkKeys(playerId, roomId, visible);
+        if (newKeys.length === 0) continue;
+        const overlayed = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
+        const chunks = newKeys.map(key => {
+          const { cx, cy } = chunkManager.parseKey(key);
+          return chunkManager.extractChunk(overlayed, cx, cy);
+        });
+        chunkManager.markSent(playerId, roomId, newKeys);
+        client.send(JSON.stringify({
+          type: CONSTANTS.MSG.MAP_CHUNKS,
+          chunks,
+        }));
+      }
     }
   }
 
