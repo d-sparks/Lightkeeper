@@ -92,7 +92,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Add warm hostile eyes (orange/red) to skeleton, luddite, and warlord sprites.~~ ✓ Done
 - ~~Add distinguishing features to key NPCs (NPC default hair, Sable teal nightside eyes).~~ ✓ Done
 - ~~Improve priority items: health potion self-colored outline, Sol Gold iron key, geometric sol unit.~~ ✓ Done
-- Replace remaining monster sprites with proper pixel art per art-style-guide.md: nightside creatures (dusk_crawler, shade_stalker, gloom_wraith), ice enemies (rime_stalker, frostfang_hunter, frost_warden), fire enemies (vent_spewer, magma_brute), fungal enemies, array/threshold bosses.
+- ~~Replace remaining monster sprites with proper pixel art per art-style-guide.md: nightside creatures (dusk_crawler, shade_stalker, gloom_wraith), ice enemies (rime_stalker, frostfang_hunter, frost_warden), fire enemies (vent_spewer, magma_brute), fungal enemies, array/threshold bosses.~~ ✓ Done — all 20 target sprites redesigned: warm orange eyes on all hostile creatures, distinctive silhouettes (dusk_crawler antenna+legs, shade_stalker wide-reach arms, nest_mother 8-leg spider, gloom_wraith wispy ghost, frost warden icicle crown, crystal guardian faceted crown, magma_brute flame crown, elder sporecap wide cap, abyssal_tendril radiating tendrils, threshold_keeper void crown, etc.).
 - Add 1-pixel dark outlines to all entity sprites (currently most lack outlines).
 - Add top-left lighting pass (highlight upper-left edges, shadow lower-right) across all sprites.
 - Improve tileset sprites: crypt, outpost, quarantine tiles need texture refinement per zone color identity.
