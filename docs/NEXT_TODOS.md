@@ -4,8 +4,9 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Testing
 
-- ~~Headless sim stuck at discover_array_secret~~ ✓ Fixed — redundant prereq goals eliminated, timeout increased, pathfinding stall recovery added. ~90% pass rate; remaining ~10% timeout from proc dungeon RNG/navigation variance.
-- **Headless sim remaining timeout flakiness** — occasional timeouts (~10%) due to slow proc dungeon traversal or nightside navigation RNG. Potential fixes: smarter combat-during-pathing, proc dungeon repath on monster block, or tuning stuck thresholds.
+- ~~Headless sim stuck at discover_array_secret~~ ✓ Fixed — redundant prereq goals eliminated, timeout increased, pathfinding stall recovery added.
+- ~~Headless sim quarantine loop regression~~ ✓ Fixed — three issues: (1) bot settled diagonally from chest tile, exceeding Euclidean door range despite Manhattan-distance tolerance check; (2) `_findInteractableTile` returned corridor doors instead of quest-relevant chests; (3) combat blocked tile interaction indefinitely when monsters near chest. Now passes ~85% of runs.
+- **Headless sim remaining intermittent failures** — ~15% failure rate from two sources: (a) proc dungeon monster placement blocking pathfinding to chest/exits (bot stuck on `move_to_position` when A* path blocked by monster collision); (b) `umbrasite_retrieval` side quest prerequisite stuck (bot tries to resolve exit flag by running this quest, but `refined_umbrasite` has no accessible source). Potential fixes: pathfind-around-monsters logic, skip unresolvable side quest prerequisites.
 - Content validator: expedition flag errors now resolved — expedition_active, expedition_tier_N_cleared flags are set/cleared by engine code in game-loop.js completeExpedition().
 - Run content validator grep for remaining orphaned flags (setFlag without matching hasFlag consumers).
 

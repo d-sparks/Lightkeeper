@@ -495,6 +495,15 @@ class Bot {
     const isNavigating = goal && (goal.type === 'navigate_to_room' || goal.type === 'move_to_position' ||
                                   goal.type === 'traverse_procedural' || goal.type === 'find_exit_in_room');
     if (room && room.monsters.size > 0) {
+      // While fighting, also try tile interactions if we're close to a wait_for_item
+      // target — this lets the bot open chests even when monsters are nearby
+      if (goal && goal.type === 'wait_for_item' && goal._targetTileX != null) {
+        const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
+        const tileDist = Math.abs(ptx - goal._targetTileX) + Math.abs(pty - goal._targetTileY);
+        if (tileDist <= 1) {
+          this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+        }
+      }
       if (this.doCombat(player, room, tick, isNavigating)) {
         // Track progress even during combat so stuck detection works
         this.trackProgress(player, tick);
@@ -1083,7 +1092,57 @@ class Bot {
     const room = this.getRoom();
     if (!room) return;
 
-    // If there are monsters in the room, kill them first (they might drop the item)
+    // Check if item is on the ground already
+    for (const [, item] of room.items) {
+      if (item.type === goal.itemType) {
+        this.pushGoal({ type: 'pick_up_item', itemType: goal.itemType });
+        return;
+      }
+    }
+
+    // If in a procedural room, prioritize interactable tiles (chests/crates that
+    // spawn the item) over killing monsters — the item often comes from tile
+    // interaction, not monster drops
+    if (this.currentRoom.startsWith('proc:')) {
+      // Look for interactable tiles (locked crates, etc.) and move toward them
+      if (!goal._searchedTiles) {
+        goal._searchedTiles = true;
+        const interactableTile = this._findInteractableTile(room, goal.targetTileType);
+        if (interactableTile) {
+          goal._targetTileX = interactableTile.tx;
+          goal._targetTileY = interactableTile.ty;
+        }
+      }
+
+      if (goal._targetTileX != null) {
+        const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
+        const dist = Math.abs(ptx - goal._targetTileX) + Math.abs(pty - goal._targetTileY);
+        // Navigate toward the tile if far away; track whether we've already
+        // attempted a move so we don't loop between move_to_position and dist check
+        // (A* can route to a diagonal neighbor satisfying tolerance but dist==2)
+        if (dist > 2 || (dist > 1 && !goal._movedToTile)) {
+          goal._movedToTile = true;
+          this.pushGoal({ type: 'move_to_position', tileX: goal._targetTileX, tileY: goal._targetTileY, tolerance: 1 });
+          return;
+        }
+
+        // Close enough — try interacting periodically
+        if (!goal._interactCooldown) goal._interactCooldown = 0;
+        goal._interactCooldown--;
+        if (goal._interactCooldown <= 0) {
+          goal._interactCooldown = 15;
+          const result = this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+          // If interaction failed (too far), try moving even closer
+          if (!result && dist > 1) {
+            goal._movedToTile = false;
+          }
+        }
+        return;
+      }
+    }
+
+    // Kill monsters if item wasn't on ground and no interactable tile target —
+    // monsters might drop the item
     // Reset _killingMonsters after kill_monsters pops (allow retry with cooldown)
     if (room.monsters.size > 0 && !goal._killingMonsters) {
       goal._killingMonsters = true;
@@ -1097,36 +1156,9 @@ class Bot {
     if (room.monsters.size === 0 || (goal._killingMonsters && !this.goals.some(g => g.type === 'kill_monsters'))) {
       goal._killingMonsters = false;
     }
-    for (const [, item] of room.items) {
-      if (item.type === goal.itemType) {
-        this.pushGoal({ type: 'pick_up_item', itemType: goal.itemType });
-        return;
-      }
-    }
 
-    // If in a procedural room, find interactable tiles and explore toward them
+    // Fallback: try interacting periodically (for non-proc rooms or when no target)
     if (this.currentRoom.startsWith('proc:')) {
-      // Look for interactable tiles (locked crates, etc.) and move toward them
-      if (!goal._searchedTiles) {
-        goal._searchedTiles = true;
-        const interactableTile = this._findInteractableTile(room);
-        if (interactableTile) {
-          goal._targetTileX = interactableTile.tx;
-          goal._targetTileY = interactableTile.ty;
-        }
-      }
-
-      if (goal._targetTileX != null) {
-        const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
-        const dist = Math.abs(ptx - goal._targetTileX) + Math.abs(pty - goal._targetTileY);
-        if (dist > 2) {
-          // Use A* pathfinding to reach interactable tile (adjacent non-solid tile)
-          this.pushGoal({ type: 'move_to_position', tileX: goal._targetTileX, tileY: goal._targetTileY, tolerance: 1 });
-          return;
-        }
-      }
-
-      // Try interacting periodically
       if (!goal._interactCooldown) goal._interactCooldown = 0;
       goal._interactCooldown--;
       if (goal._interactCooldown <= 0) {
@@ -1136,19 +1168,29 @@ class Bot {
     }
   }
 
-  _findInteractableTile(room) {
+  _findInteractableTile(room, targetTileType) {
     const tileset = content.getTileset(room.dungeon.tileset);
     if (!tileset) return null;
+    let fallback = null;
     for (let y = 0; y < room.dungeon.height; y++) {
       for (let x = 0; x < room.dungeon.width; x++) {
         const tileId = room.dungeon.data[y * room.dungeon.width + x];
         const tileDef = tileset.tiles[String(tileId)];
-        if (tileDef && tileDef.interactable) {
+        if (!tileDef || !tileDef.interactable) continue;
+        // If a specific tile type was requested, match it exactly
+        if (targetTileType != null && tileId === targetTileType) {
           return { tx: x, ty: y };
+        }
+        // Prefer tiles with conditions (chests, locked crates) over regular doors
+        if (tileDef.conditions) {
+          return { tx: x, ty: y };
+        }
+        if (!fallback) {
+          fallback = { tx: x, ty: y };
         }
       }
     }
-    return null;
+    return fallback;
   }
 
   // Scan for a locked/conditional door between player and goal that blocks A*
@@ -1715,6 +1757,9 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
         if (isTemplate) {
           waitGoal.templateId = roomId;
           waitGoal.expectedDepth = step.objective.depth || 1;
+          if (step.objective.targetTile != null) {
+            waitGoal.targetTileType = step.objective.targetTile;
+          }
         }
         goals.push(waitGoal);
       }
