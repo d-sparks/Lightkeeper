@@ -2565,6 +2565,26 @@
         }
       ],
       "once": true
+    },
+    {
+      "id": "perimeter_gate_nightside_hint",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "hasFlag": "received_sol_unit"
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "Through the outer gate to the north, the perimeter opens into uncharted dark. Survey markers were placed years ago — the teams that placed them never came back.",
+            "There are stories. Salvagers who found an old road running through the black, a wrecked transport, signs of something that used to live out there.",
+            "The outer gate is still unlocked."
+          ]
+        }
+      ],
+      "once": true
     }
   ]
 }

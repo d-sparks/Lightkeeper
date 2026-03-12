@@ -2,6 +2,11 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOS.md tasks.
 
+## Content — Nightside Path Discovery
+
+- **`visited_dead_road` flag not yet set** — The `perimeter_gate_nightside_hint` trigger in `outpost_perimeter` uses `hasFlag: received_sol_unit` but does not gate on `not visited_dead_road` because that flag is never set. When dead_road.json is updated (e.g. via `dead_road_enter` trigger), consider adding `setFlag: visited_dead_road` there so the hint can be suppressed for players who've already been.
+- **Wren Alcott NPC dialogue rules** — `wren_nightside_hint` is currently a dungeon trigger. If Wren gets full NPC dialogue rules defined in npcs.json, the hint should migrate there for consistency.
+
 ## Content — Undercity / dark_city Tileset
 
 - **Second dark_city floor** — `meridian_undercity` (Warrens) exists as the first floor; create a `meridian_undercity_deep` floor accessible via stairs_down from the north zone (currently no stairs_down exit). Narratively: the deep warrens connect to Underlumen-adjacent tunnels or a Nightside maintenance junction.

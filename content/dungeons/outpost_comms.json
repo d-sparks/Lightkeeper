@@ -444,6 +444,35 @@
       "once": true
     },
     {
+      "id": "wren_nightside_hint",
+      "event": "npc_interacted",
+      "filter": {
+        "npcType": "wren_alcott"
+      },
+      "conditions": [
+        {
+          "not": {
+            "hasFlag": "wren_nightside_hint_shown"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "setFlag",
+          "flag": "wren_nightside_hint_shown"
+        },
+        {
+          "type": "showMessage",
+          "lines": [
+            "Wren taps the circled entry in the array transmission log. 'Nightside quadrant 7-North. Maximum priority, reason redacted — that's not normal Array protocol.'",
+            "'I've been trying to triangulate the source. Whatever they were after is out past the Dead Road, beyond the outer perimeter gate. North into the black.'",
+            "'If you're heading out that way, bring everything you've got. The cold out there isn't natural.'"
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "daley_signal_complete",
       "event": "npc_interacted",
       "filter": {
