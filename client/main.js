@@ -1963,8 +1963,20 @@
     const detailPanel = document.createElement('div');
     detailPanel.className = 'inv-detail-panel';
 
+    // Group identical items into stacks; use firstIndex for server messages
+    const stacks = [];
+    const seenTypes = new Map(); // type -> stacks index
     for (let i = 0; i < inventoryItems.length; i++) {
       const item = inventoryItems[i];
+      if (seenTypes.has(item.type)) {
+        stacks[seenTypes.get(item.type)].count++;
+      } else {
+        seenTypes.set(item.type, stacks.length);
+        stacks.push({ item, firstIndex: i, count: 1 });
+      }
+    }
+
+    for (const { item, firstIndex, count } of stacks) {
       const cell = document.createElement('div');
       cell.className = 'inv-grid-cell rarity-' + (item.rarity || 'common');
       const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
@@ -1972,6 +1984,9 @@
       let html = '<span class="cell-dot" style="background:' + rarityColor + '"></span>' +
         '<span class="cell-name" style="color:' + rarityColor + '">' + item.name + '</span>';
 
+      if (count > 1) {
+        html += '<span class="inv-stack-count">x' + count + '</span>';
+      }
       if (item.category === 'weapon' || item.category === 'equipment' || item.slot) {
         html += '<span class="inv-slot-tag">equip</span>';
       }
@@ -1980,7 +1995,7 @@
       }
       cell.innerHTML = html;
 
-      const idx = i;
+      const idx = firstIndex;
       if (item.category === 'consumable') {
         cell.addEventListener('click', () => {
           net.send({ type: CONSTANTS.MSG.USE_ITEM, index: idx });
