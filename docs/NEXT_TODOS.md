@@ -21,7 +21,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - **Underlumen network expansion** — The Deep Warrens establish the Underlumen pathfinder network as a worldbuilding element. Consider adding Underlumen markers or NPC references in other Nightside-adjacent dungeons (nightside_caverns, nightside_depths).
 - **Undercity discovery trigger in meridian_market** — the new stairs_down at (14, 9) has no first-discovery message in the market. Consider adding a `door_interacted` trigger or a positional flavor note so players know the passage exists before stepping in.
 - **Loot table for Luddite gang** — the east-wing `luddite_brawler` monsters have no drop. Once the loot table system is implemented, give the gang cell a chance to drop `supply_crate_key` instead of (or in addition to) the static item spawn, so the pacing feels more organic.
-- **Elara shop follow-up** — Fence Elara currently provides information and the supply crate reward, but no repeatable purchase option. A return-visit shop (smuggled goods, consumables) would give the undercity a reason to revisit after clearing the gang.
+- ~~Elara shop follow-up~~ ✓ Implemented — `elara_fence_shop` added to `shops.json`; Luddite kill-tracking triggers set `luddite_gang_cleared` after all 4 gang members are dead; `elara_return_cleared` trigger unlocks a "Browse wares" option on subsequent Elara interactions; sells bandages, ration packs, medical supplies, health potions, and flares at undercity prices; buys salvage at 4 cr each.
 
 ## Testing
 

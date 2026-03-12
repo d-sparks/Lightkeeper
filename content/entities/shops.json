@@ -1,4 +1,18 @@
 {
+  "elara_fence_shop": {
+    "name": "Elara's Stock",
+    "speaker": "Fence Elara",
+    "sells": [
+      { "item": "bandage", "creditsCost": 6, "label": "Bandage (6 cr)" },
+      { "item": "ration_pack", "creditsCost": 4, "label": "Ration Pack (4 cr)" },
+      { "item": "medical_supplies", "creditsCost": 8, "label": "Medical Supplies (8 cr)" },
+      { "item": "health_potion", "creditsCost": 18, "label": "Health Potion (18 cr)" },
+      { "item": "flare", "creditsCost": 20, "label": "Flare (20 cr)" }
+    ],
+    "buys": [
+      { "item": "salvage", "creditsReward": 4, "label": "Sell Salvage (4 cr each)", "sellAll": true }
+    ]
+  },
   "meridian_7_shop": {
     "name": "MERIDIAN-7 Exchange",
     "speaker": "MERIDIAN-7",

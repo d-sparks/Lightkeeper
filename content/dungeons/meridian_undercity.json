@@ -122,12 +122,50 @@
       "id": "elara_return",
       "event": "npc_interacted",
       "filter": { "npcType": "fence_elara" },
-      "conditions": [{ "hasFlag": "met_fence_elara" }],
+      "conditions": [
+        { "hasFlag": "met_fence_elara" },
+        { "not": { "hasFlag": "luddite_gang_cleared" } }
+      ],
       "actions": [
         { "type": "showChoice", "choiceId": "elara_return_chat", "prompt": "Elara looks up from her work. 'Back again.'", "options": [
           { "label": "Anything new on the gang?", "description": "Latest Luddite intel.", "value": "gang_update" },
           { "label": "The supply crate — remind me what's in it.", "description": "Contents hint.", "value": "crate_update" },
           { "label": "Nothing right now.", "description": "Move on.", "value": "nothing" }
+        ]}
+      ]
+    },
+    {
+      "id": "elara_return_cleared",
+      "event": "npc_interacted",
+      "filter": { "npcType": "fence_elara" },
+      "conditions": [
+        { "hasFlag": "met_fence_elara" },
+        { "hasFlag": "luddite_gang_cleared" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "elara_shop_chat", "prompt": "Elara leans back, a rare look of ease on her face. 'You cleared the east wing. Means I can move stock again. Need anything?'", "options": [
+          { "label": "Browse wares.", "description": "See what Elara has for sale.", "value": "browse" },
+          { "label": "Anything else going on?", "description": "Talk.", "value": "talk" },
+          { "label": "Nothing right now.", "description": "Move on.", "value": "nothing" }
+        ]}
+      ]
+    },
+    {
+      "id": "elara_shop_open",
+      "event": "choice_made",
+      "filter": { "choiceId": "elara_shop_chat", "value": "browse" },
+      "actions": [
+        { "type": "shop", "shopId": "elara_fence_shop" }
+      ]
+    },
+    {
+      "id": "elara_shop_talk",
+      "event": "choice_made",
+      "filter": { "choiceId": "elara_shop_chat", "value": "talk" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Elara glances toward the sealed gate to the north. 'With the Luddites gone, the warrens are quiet for the first time in months.'",
+          "'I've got contacts deeper in. Supply chain runs slow down here — limited stock, but no Council markups, no questions about where you got it. Come back when you need something.'"
         ]}
       ]
     },
@@ -197,6 +235,42 @@
         { "type": "showMessage", "lines": [
           "The supply crate grinds open with a resonant clang. Inside, wrapped in protective cloth: medical supplies and a sol grid component — undamaged despite everything.",
           "Elara was right. Worth the trip."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "undercity_track_brawler_kill",
+      "event": "monster_killed",
+      "filter": { "monsterType": "luddite_brawler" },
+      "conditions": [{ "not": { "hasFlag": "luddite_gang_cleared" } }],
+      "actions": [
+        { "type": "incrementFlag", "flag": "undercity_luddite_kills" }
+      ]
+    },
+    {
+      "id": "undercity_track_scrapper_kill",
+      "event": "monster_killed",
+      "filter": { "monsterType": "luddite_scrapper" },
+      "conditions": [{ "not": { "hasFlag": "luddite_gang_cleared" } }],
+      "actions": [
+        { "type": "incrementFlag", "flag": "undercity_luddite_kills" }
+      ]
+    },
+    {
+      "id": "undercity_gang_cleared",
+      "event": "monster_killed",
+      "conditions": [
+        { "flagGreaterThan": { "flag": "undercity_luddite_kills", "value": 3 } },
+        { "not": { "hasFlag": "luddite_gang_cleared" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "luddite_gang_cleared" },
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "lines": [
+          "The last Luddite goes down. The east wing is quiet.",
+          "Somewhere behind you, you hear Elara shift. 'That's the last of them. Good work.' A pause. 'Come find me when you're ready. I've got things to move now that the block is clear.'"
         ]}
       ],
       "once": true
