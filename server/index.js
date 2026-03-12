@@ -546,6 +546,11 @@ wss.on('connection', (ws) => {
             }
           }
 
+          // Restore last death drops (for checkpoint editor restore feature)
+          if (savedSession.lastDeathDrops) {
+            player.lastDeathDrops = JSON.parse(JSON.stringify(savedSession.lastDeathDrops));
+          }
+
           // Restore automation state (structures, resources, production timers)
           if (savedSession.automationState) {
             gameLoop.automation.restoreState(playerId, savedSession.automationState);
@@ -1294,6 +1299,7 @@ function gatherPlayerSaveData(ws) {
     credits: player.credits || 0,
     revealedChunks,
     automationState: gameLoop.automation.serializeState(ws.playerId),
+    lastDeathDrops: player.lastDeathDrops || [],
   };
 }
 

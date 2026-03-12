@@ -1364,6 +1364,7 @@ class GameLoop {
       hovering: false,
       hoverTime: 0,
       solGrid: null,
+      weaponUpgrades: null,
       energy: 0,
       maxEnergy: 0,
       singleUseEnergy: 0,
@@ -1922,6 +1923,22 @@ class GameLoop {
         if (abilityDef) {
           const slotIdx = (abilityDef.defaultSlot || 1) - 1;
           player.abilities[slotIdx] = itemDef.ability.id;
+          // Apply weapon upgrade bonuses to the weapon's ability
+          if (player.weaponUpgrades) {
+            const wuBonuses = this._computeWeaponUpgradeBonuses(player);
+            if (wuBonuses.cooldownReduction > 0 || wuBonuses.energyCostReduction > 0) {
+              const existing = player.abilityOverrides[slotIdx] || {};
+              const cdReduce = Math.min(wuBonuses.cooldownReduction, 0.75);
+              if (cdReduce > 0 && abilityDef.cooldown) {
+                existing.cooldown = Math.max(0.1, (existing.cooldown || abilityDef.cooldown) * (1 - cdReduce));
+              }
+              const ecReduce = Math.min(wuBonuses.energyCostReduction, 0.75);
+              if (ecReduce > 0 && abilityDef.energyCost) {
+                existing.energyCost = Math.max(1, Math.round((existing.energyCost || abilityDef.energyCost) * (1 - ecReduce)));
+              }
+              player.abilityOverrides[slotIdx] = existing;
+            }
+          }
         }
       } else if (itemDef && itemDef.stats && itemDef.stats.projectile) {
         // Legacy projectile weapons without explicit ability → use blaster_shot
@@ -4448,6 +4465,15 @@ class GameLoop {
       }
       player.inventory = keptItems;
 
+      // Record what was lost for checkpoint editor "restore death loot" feature
+      // Store full item objects so the editor can give them back
+      player.lastDeathDrops = droppedItems.map(i => ({
+        type: i.type,
+        name: i.name,
+        rarity: i.rarity || 'common',
+        category: i.category || 'misc',
+      }));
+
       // Reset player state
       player.health = player.maxHealth;
       player.hovering = false;
@@ -5184,6 +5210,16 @@ class GameLoop {
       }
     }
 
+    // If swapping weapons, return old weapon's upgrade materials
+    if (slot === 'arms' && player.weaponUpgrades) {
+      for (const mat of player.weaponUpgrades.slots) {
+        if (mat) {
+          player.inventory.push({ type: mat.type, name: mat.name, rarity: mat.rarity, category: 'crafting' });
+        }
+      }
+      player.weaponUpgrades = null;
+    }
+
     player.inventory.splice(inventoryIndex, 1);
     if (currentEquipped) {
       player.inventory.push(currentEquipped);
@@ -5206,6 +5242,11 @@ class GameLoop {
       }
     }
 
+    // If equipping a weapon, init the weapon upgrade grid
+    if (slot === 'arms') {
+      this._initWeaponUpgrades(player);
+    }
+
     this._rebuildAbilities(player);
     return { inventory: player.inventory, equipment: player.equipment, abilities: player.abilities, cooldowns: player.cooldowns };
   }
@@ -5226,6 +5267,16 @@ class GameLoop {
     const itemDef = this.content.getItem(equipped.type);
     if (itemDef && itemDef.hasSolGrid) {
       player.solGrid = null;
+    }
+
+    // If unequipping a weapon, return upgrade materials and clear grid
+    if (slot === 'arms' && player.weaponUpgrades) {
+      for (const mat of player.weaponUpgrades.slots) {
+        if (mat) {
+          player.inventory.push({ type: mat.type, name: mat.name, rarity: mat.rarity, category: 'crafting' });
+        }
+      }
+      player.weaponUpgrades = null;
     }
 
     player.equipment[slot] = null;
@@ -5427,7 +5478,140 @@ class GameLoop {
         damage += item.stats.attackDamage;
       }
     }
+    // Apply weapon upgrade bonuses
+    if (player.weaponUpgrades) {
+      const bonuses = this._computeWeaponUpgradeBonuses(player);
+      damage += bonuses.flatDamage;
+      damage = Math.round(damage * (1 + bonuses.damageMultiplier));
+    }
     return damage;
+  }
+
+  // --- Weapon Upgrade System ---
+
+  _getWeaponUpgradeGridSize(rarity) {
+    switch (rarity) {
+      case 'common': return 2;
+      case 'uncommon': return 3;
+      case 'rare': return 4;
+      case 'epic': return 4;
+      case 'legendary': return 5;
+      default: return 2;
+    }
+  }
+
+  _initWeaponUpgrades(player) {
+    const weapon = player.equipment.arms;
+    if (!weapon) {
+      player.weaponUpgrades = null;
+      return;
+    }
+    const size = this._getWeaponUpgradeGridSize(weapon.rarity || 'common');
+    player.weaponUpgrades = {
+      weaponType: weapon.type,
+      weaponName: weapon.name,
+      weaponRarity: weapon.rarity,
+      size: size,
+      slots: new Array(size * size).fill(null), // flat grid of placed crafting items
+    };
+  }
+
+  _computeWeaponUpgradeBonuses(player) {
+    const result = { flatDamage: 0, damageMultiplier: 0, cooldownReduction: 0, energyCostReduction: 0 };
+    if (!player.weaponUpgrades) return result;
+    for (const slot of player.weaponUpgrades.slots) {
+      if (!slot) continue;
+      const itemDef = this.content.getItem(slot.type);
+      if (!itemDef || !itemDef.weaponUpgrade) continue;
+      const u = itemDef.weaponUpgrade;
+      if (u.damage) result.flatDamage += u.damage;
+      if (u.damageMultiplier) result.damageMultiplier += u.damageMultiplier;
+      if (u.cooldownReduction) result.cooldownReduction += u.cooldownReduction;
+      if (u.energyCostReduction) result.energyCostReduction += u.energyCostReduction;
+    }
+    return result;
+  }
+
+  getWeaponUpgradeStateForClient(player) {
+    if (!player.weaponUpgrades) return null;
+    const wu = player.weaponUpgrades;
+    const slots = wu.slots.map(s => {
+      if (!s) return null;
+      const itemDef = this.content.getItem(s.type);
+      return {
+        type: s.type,
+        name: s.name,
+        rarity: s.rarity,
+        bonus: itemDef && itemDef.weaponUpgrade ? itemDef.weaponUpgrade : {},
+      };
+    });
+    const bonuses = this._computeWeaponUpgradeBonuses(player);
+    return {
+      weaponType: wu.weaponType,
+      weaponName: wu.weaponName,
+      weaponRarity: wu.weaponRarity,
+      size: wu.size,
+      slots: slots,
+      totalBonuses: bonuses,
+    };
+  }
+
+  tryWeaponUpgradePlace(roomId, playerId, inventoryIndex, gridIndex) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player || !player.weaponUpgrades) return null;
+
+    if (inventoryIndex < 0 || inventoryIndex >= player.inventory.length) return null;
+    const item = player.inventory[inventoryIndex];
+    if (item.category !== 'crafting') return null;
+
+    const wu = player.weaponUpgrades;
+    if (gridIndex < 0 || gridIndex >= wu.slots.length) return null;
+    if (wu.slots[gridIndex] !== null) return null; // slot occupied
+
+    // Place the crafting material
+    wu.slots[gridIndex] = { type: item.type, name: item.name, rarity: item.rarity };
+    player.inventory.splice(inventoryIndex, 1);
+    return true;
+  }
+
+  tryWeaponUpgradeRemove(roomId, playerId, gridIndex) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player || !player.weaponUpgrades) return null;
+
+    const wu = player.weaponUpgrades;
+    if (gridIndex < 0 || gridIndex >= wu.slots.length) return null;
+    if (!wu.slots[gridIndex]) return null; // nothing to remove
+
+    const mat = wu.slots[gridIndex];
+    wu.slots[gridIndex] = null;
+    // Return material to inventory
+    player.inventory.push({ type: mat.type, name: mat.name, rarity: mat.rarity, category: 'crafting' });
+    return true;
+  }
+
+  tryWeaponDisassemble(roomId, playerId) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player || !player.weaponUpgrades || !player.equipment.arms) return null;
+
+    // Return all upgrade materials to inventory
+    for (const slot of player.weaponUpgrades.slots) {
+      if (slot) {
+        player.inventory.push({ type: slot.type, name: slot.name, rarity: slot.rarity, category: 'crafting' });
+      }
+    }
+
+    // Destroy the weapon
+    player.equipment.arms = null;
+    player.weaponUpgrades = null;
+
+    this._rebuildAbilities(player);
+    return { inventory: player.inventory, equipment: player.equipment, abilities: player.abilities, cooldowns: player.cooldowns };
   }
 
   // Calculate XP required to advance from a given level.

@@ -118,6 +118,16 @@ const api = {
       body: JSON.stringify({ playerName, filename, playerId }),
     })).json();
   },
+  async deathDrops(playerId) {
+    return (await checkedFetch(`/api/checkpoint/death-drops?playerId=${encodeURIComponent(playerId)}`)).json();
+  },
+  async restoreDeathDrops(playerId) {
+    return (await checkedFetch('/api/checkpoint/restore-death-drops', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId }),
+    })).json();
+  },
 };
 
 // ─── Toast ──────────────────────────────────────────────────
@@ -693,6 +703,78 @@ function AutosaveHistory({ sessions }) {
   `;
 }
 
+// ─── Last Death Loot ────────────────────────────────────────
+function LastDeathLoot({ sessions }) {
+  const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [drops, setDrops] = useState(null); // null = not loaded, [] = loaded (empty or not)
+  const [loading, setLoading] = useState(false);
+
+  const refreshDrops = useCallback(async () => {
+    if (!selectedPlayer) return;
+    setLoading(true);
+    try {
+      const data = await api.deathDrops(selectedPlayer);
+      setDrops(Array.isArray(data.items) ? data.items : []);
+    } catch { setDrops([]); }
+    finally { setLoading(false); }
+  }, [selectedPlayer]);
+
+  useEffect(() => {
+    if (selectedPlayer) refreshDrops();
+    else setDrops(null);
+  }, [selectedPlayer]);
+
+  const handleRestore = async () => {
+    if (!selectedPlayer) { showToast('Select a player first', 'err'); return; }
+    try {
+      const result = await api.restoreDeathDrops(selectedPlayer);
+      if (result.ok) {
+        const msg = result.count > 0
+          ? `Restored ${result.count} item(s): ${result.items.join(', ')}`
+          : 'No death drops to restore';
+        showToast(msg);
+        setDrops([]);
+      } else {
+        showToast(result.error || 'Restore failed', 'err');
+      }
+    } catch { showToast('Restore failed', 'err'); }
+  };
+
+  return html`
+    <div class="quest-jump-row">
+      <select value=${selectedPlayer} onChange=${e => setSelectedPlayer(e.target.value)}>
+        <option value="">-- player --</option>
+        ${sessions.map(p => html`<option value=${p.playerId}>${p.name} (${p.playerId})</option>`)}
+      </select>
+      <button class="btn" onClick=${refreshDrops} disabled=${!selectedPlayer}>Refresh</button>
+    </div>
+    ${drops === null ? null : loading ? html`<div class="empty">Loading...</div>` : drops.length === 0
+      ? html`<div class="empty">No death drops recorded (player hasn't died, or drops were already restored)</div>`
+      : html`
+        <div style="margin-top:8px">
+          <table>
+            <thead><tr><th>Item</th><th>Rarity</th><th>Category</th></tr></thead>
+            <tbody>
+              ${drops.map((item, i) => html`
+                <tr key=${i}>
+                  <td>${item.name}</td>
+                  <td>${item.rarity || 'common'}</td>
+                  <td>${item.category || 'misc'}</td>
+                </tr>
+              `)}
+            </tbody>
+          </table>
+          <div style="margin-top:8px">
+            <button class="btn btn-save" onClick=${handleRestore}>
+              Restore All to Inventory
+            </button>
+          </div>
+        </div>
+      `
+    }
+  `;
+}
+
 // ─── Main View ──────────────────────────────────────────────
 function MainView() {
   const [sessions, setSessions] = useState([]);
@@ -933,6 +1015,14 @@ function MainView() {
     <div class="panel">
       <h2>Give Item</h2>
       <${GiveItem} sessions=${sessions} items=${items} />
+    </div>
+
+    <div class="panel">
+      <h2>Last Death Loot</h2>
+      <p style="color:#777;font-size:12px;margin:0 0 8px">
+        Items dropped or forfeited on the player's most recent death. Restoring gives them back and clears the record.
+      </p>
+      <${LastDeathLoot} sessions=${sessions} />
     </div>
 
     <div class="panel">

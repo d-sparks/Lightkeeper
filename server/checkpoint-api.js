@@ -937,6 +937,65 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content, sessionStore) {
     }).catch(() => json(res, 400, { error: 'Invalid request' }));
   }
 
+  // --- Get last death drops for a player ---
+  if (url === '/api/checkpoint/death-drops' && method === 'GET') {
+    const params = req.url.includes('?') ? new URLSearchParams(req.url.split('?')[1]) : null;
+    const playerId = params ? params.get('playerId') : null;
+    if (!playerId) return json(res, 400, { error: 'Missing playerId' });
+
+    let ws = null;
+    wss.clients.forEach((client) => {
+      if (client.playerId === playerId && client.readyState === 1) ws = client;
+    });
+    if (!ws || !ws.playerRoom) return json(res, 404, { error: 'Player not found or not in a room' });
+
+    const room = gameLoop.getRoom(ws.playerRoom);
+    if (!room) return json(res, 404, { error: 'Room not found' });
+    const player = room.players.get(playerId);
+    if (!player) return json(res, 404, { error: 'Player not in room' });
+
+    return json(res, 200, { items: player.lastDeathDrops || [] });
+  }
+
+  // --- Restore last death drops to a player's inventory ---
+  if (url === '/api/checkpoint/restore-death-drops' && method === 'POST') {
+    return parseBody(req).then(body => {
+      const { playerId } = body;
+      if (!playerId) return json(res, 400, { error: 'Missing playerId' });
+
+      let ws = null;
+      wss.clients.forEach((client) => {
+        if (client.playerId === playerId && client.readyState === 1) ws = client;
+      });
+      if (!ws || !ws.playerRoom) return json(res, 404, { error: 'Player not found or not in a room' });
+
+      const room = gameLoop.getRoom(ws.playerRoom);
+      if (!room) return json(res, 404, { error: 'Room not found' });
+      const player = room.players.get(playerId);
+      if (!player) return json(res, 404, { error: 'Player not in room' });
+
+      const drops = player.lastDeathDrops || [];
+      if (drops.length === 0) return json(res, 200, { ok: true, count: 0, message: 'No death drops to restore' });
+
+      for (const item of drops) {
+        player.inventory.push({ ...item });
+      }
+
+      // Clear so they can't be restored twice
+      player.lastDeathDrops = [];
+
+      ws.send(JSON.stringify({
+        type: 'inventory',
+        items: player.inventory,
+        equipment: player.equipment,
+        medipacCharges: player.medipacCharges || 0,
+        credits: player.credits || 0,
+      }));
+
+      return json(res, 200, { ok: true, count: drops.length, items: drops.map(i => i.name) });
+    }).catch(() => json(res, 400, { error: 'Invalid request' }));
+  }
+
   return false;
 }
 
