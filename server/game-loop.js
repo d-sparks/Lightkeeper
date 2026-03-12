@@ -5596,6 +5596,7 @@ class GameLoop {
         energy: Math.round(p.energy), maxEnergy: p.maxEnergy,
         singleUseEnergy: Math.round(p.singleUseEnergy || 0), singleUseMaxEnergy: p.singleUseMaxEnergy || 0,
         xp: p.xp, level: p.level, xpToNextLevel: p.xpToNextLevel,
+        attackDamage: this.getPlayerAttackDamage(p),
         colorIndex: p.colorIndex,
         elevation: Math.round((p.elevation || 0) * 100) / 100,
         hovering: p.hovering || false,

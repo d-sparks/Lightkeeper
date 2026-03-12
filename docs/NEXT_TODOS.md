@@ -112,6 +112,11 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Stackable items display correctly in the ITEMS tab (identical `type` values merged with `xN` count badge). Currently display-only: clicking a stack sends the index of the first item; after using a consumable the count auto-decrements on next inventory update.
 - If sol_components of the same type ever have meaningfully different stats or adjacency patterns (e.g. upgraded vs base versions), they should be given distinct `type` values so they don't collapse into a single stack.
 
+## Stats Panel
+
+- Stats panel currently shows level/XP, max HP (with level bonus), attack damage (with equipment bonus), and energy. Consider also showing sol grid modifier totals (damage boost %, cooldown reduction %, energy efficiency) once the server computes aggregated modifier effects.
+- If additional stats ever scale with level (damage, energy, etc.), update the stats panel bonus breakdowns accordingly.
+
 ## Sol Grid & Progression
 
 - ~~Battery math: capacity per tier, energy costs per ability, casts per full charge.~~ ✓ Resolved — battery tiers (L1: 30, L2: 100, L3: 300) documented in progression-system.md with casts-per-charge tables for each game phase. Advanced rechargeable bumped from 150→300 to match 3:1 compression ratio.

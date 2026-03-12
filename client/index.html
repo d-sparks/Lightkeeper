@@ -1114,6 +1114,52 @@
       margin-left: auto;
     }
 
+    /* Stats panel */
+    .stats-section {
+      margin-bottom: 16px;
+    }
+    .stats-section-title {
+      font-size: 13px;
+      color: #ffa726;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255,167,38,0.2);
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: #999; }
+    .stat-value { color: #ddd; font-weight: 600; }
+    .stat-bonus { color: #4caf50; font-size: 12px; margin-left: 4px; }
+    .stat-bar-row {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .stat-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .stat-bar-track {
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.2s;
+    }
+
     .sol-grid {
       display: grid;
       gap: 4px;
@@ -2635,6 +2681,7 @@
   <div id="character-menu" style="display:none">
     <div class="inv-tabs">
       <div class="inv-tab active" data-tab="equipment">EQUIP</div>
+      <div class="inv-tab" data-tab="stats">STATS</div>
       <div class="inv-tab" data-tab="inventory">ITEMS</div>
       <div class="inv-tab" data-tab="solgrid">SOL</div>
       <div class="inv-tab" data-tab="quests">QUESTS</div>
@@ -2644,6 +2691,9 @@
       <div id="equipment-slots" class="equip-section">
         <div class="equip-label">SLOTS</div>
       </div>
+    </div>
+    <div id="inv-tab-stats" class="inv-tab-content" style="display:none">
+      <div id="stats-panel"></div>
     </div>
     <div id="inv-tab-inventory" class="inv-tab-content" style="display:none">
       <div id="inventory-list"></div>

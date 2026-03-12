@@ -295,6 +295,9 @@
   let slot1InteractMode = null; // null or interact label string when slot 1 is overridden
   const SLOT_DISPLAY_NAMES = { arms: 'Arms', sol_unit: 'Sol Unit', medipac: 'Medipac', accessory: 'Accessory' };
 
+  // Player stats (cached from state messages for stats panel)
+  let playerStats = null;
+
   // Sol grid state
   let solGridState = null;
   let solGridSelectedComponent = null; // inventory index of selected component for placement
@@ -888,8 +891,8 @@
   // --- Unified character menu state ---
   let menuOpen = false;
   let menuTab = 'equipment';
-  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'quests', 'cached'];
-  const ALL_CONTENT_TABS = ['equipment', 'inventory', 'solgrid', 'quests', 'cached'];
+  const MENU_TABS = ['equipment', 'stats', 'inventory', 'solgrid', 'quests', 'cached'];
+  const ALL_CONTENT_TABS = ['equipment', 'stats', 'inventory', 'solgrid', 'quests', 'cached'];
   let cursorIndex = 0;
 
   function openMenu(tab) {
@@ -948,6 +951,7 @@
 
     // Render the active tab content
     if (tab === 'equipment') renderEquipmentSlots();
+    if (tab === 'stats') renderStatsPanel();
     if (tab === 'inventory') renderInventoryGrid();
     if (tab === 'solgrid') renderSolGrid();
     if (tab === 'auto') return; // auto tab replaced by full-screen automation overlay
@@ -1929,6 +1933,77 @@
       if (effect.heal) parts.push('Heals ' + effect.heal + ' HP');
     }
     return parts;
+  }
+
+  function renderStatsPanel() {
+    const panel = document.getElementById('stats-panel');
+    if (!panel || !playerStats) return;
+
+    const s = playerStats;
+    const baseHP = CONSTANTS.PLAYER_MAX_HEALTH;
+    const bonusHP = s.maxHealth - baseHP;
+    const baseDmg = CONSTANTS.PLAYER_ATTACK_DAMAGE;
+    const bonusDmg = s.attackDamage - baseDmg;
+
+    let html = '';
+
+    // Level & XP section
+    html += '<div class="stats-section">';
+    html += '<div class="stats-section-title">LEVEL</div>';
+    html += '<div class="stat-bar-row">';
+    html += '<div class="stat-bar-header"><span class="stat-label">Level ' + s.level + '</span>';
+    if (s.xpToNextLevel > 0) {
+      html += '<span class="stat-value">' + s.xp + ' / ' + s.xpToNextLevel + ' XP</span>';
+    } else {
+      html += '<span class="stat-value">MAX</span>';
+    }
+    html += '</div>';
+    if (s.xpToNextLevel > 0) {
+      const xpPct = (s.xp / s.xpToNextLevel) * 100;
+      html += '<div class="stat-bar-track"><div class="stat-bar-fill" style="width:' + xpPct + '%;background:#ffa726"></div></div>';
+    } else {
+      html += '<div class="stat-bar-track"><div class="stat-bar-fill" style="width:100%;background:#ffa726"></div></div>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    // Combat stats
+    html += '<div class="stats-section">';
+    html += '<div class="stats-section-title">COMBAT</div>';
+
+    // HP
+    html += '<div class="stat-row"><span class="stat-label">Max HP</span><span class="stat-value">' + s.maxHealth;
+    if (bonusHP > 0) html += '<span class="stat-bonus">+' + bonusHP + ' from levels</span>';
+    html += '</span></div>';
+
+    // Current HP
+    const hpPct = Math.round((s.health / s.maxHealth) * 100);
+    html += '<div class="stat-bar-row">';
+    html += '<div class="stat-bar-header"><span class="stat-label">Health</span><span class="stat-value">' + Math.round(s.health) + ' / ' + s.maxHealth + '</span></div>';
+    const hpColor = hpPct > 50 ? '#4caf50' : hpPct > 25 ? '#ff9800' : '#e53935';
+    html += '<div class="stat-bar-track"><div class="stat-bar-fill" style="width:' + hpPct + '%;background:' + hpColor + '"></div></div>';
+    html += '</div>';
+
+    // Attack damage
+    html += '<div class="stat-row"><span class="stat-label">Attack Damage</span><span class="stat-value">' + s.attackDamage;
+    if (bonusDmg > 0) html += '<span class="stat-bonus">+' + bonusDmg + ' from gear</span>';
+    html += '</span></div>';
+
+    html += '</div>';
+
+    // Energy section (only if player has energy)
+    if (s.maxEnergy > 0) {
+      html += '<div class="stats-section">';
+      html += '<div class="stats-section-title">ENERGY</div>';
+      const ePct = s.maxEnergy > 0 ? Math.round((s.energy / s.maxEnergy) * 100) : 0;
+      html += '<div class="stat-bar-row">';
+      html += '<div class="stat-bar-header"><span class="stat-label">Sol Energy</span><span class="stat-value">' + s.energy + ' / ' + s.maxEnergy + '</span></div>';
+      html += '<div class="stat-bar-track"><div class="stat-bar-fill" style="width:' + ePct + '%;background:#4fc3f7"></div></div>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    panel.innerHTML = html;
   }
 
   function renderEquipmentSlots() {
@@ -2958,6 +3033,18 @@
         }
         hudName.textContent = me.name;
         if (me.facing !== undefined) lastFacing = me.facing;
+        // Cache player stats for the stats panel
+        playerStats = {
+          level: me.level,
+          health: me.health,
+          maxHealth: me.maxHealth,
+          xp: me.xp,
+          xpToNextLevel: me.xpToNextLevel,
+          attackDamage: me.attackDamage || CONSTANTS.PLAYER_ATTACK_DAMAGE,
+          energy: Math.round(me.energy || 0),
+          maxEnergy: me.maxEnergy || 0,
+        };
+        if (menuOpen && menuTab === 'stats') renderStatsPanel();
       }
 
       // Update party member health frames
