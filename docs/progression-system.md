@@ -193,6 +193,101 @@ The player is now making interesting decisions every time they return from a run
 
 ---
 
+## Battery Math
+
+### Battery Tiers
+
+Batteries follow a **3:1 compression ratio**: three lower-tier batteries can be compressed into one of the next tier, saving grid/inventory slots with a slight capacity bonus.
+
+| Tier | Component ID | Capacity | Rechargeable | Notes |
+|------|-------------|----------|--------------|-------|
+| L1 | `starter_battery` | 30 | Yes | First umbrasite craft |
+| L2 | `rechargeable_battery` | 100 | Yes | Standard crafted battery |
+| L2 (single-use) | `single_use_battery` | 100 | No | Loot/purchase; degrades permanently when drained |
+| L3 | `advanced_rechargeable_battery` | 300 | Yes | Late-game craft (3 L2 → 1 L3) |
+
+**Total energy = sol unit base + sum of battery capacities.** Single-use batteries add to the pool but degrade permanently when drawn from — the smallest single-use battery loses capacity first.
+
+### Ability Energy Costs
+
+| Ability | Energy Cost | Cooldown | Role |
+|---------|------------|----------|------|
+| Sol Beam | 8 | 0.8s | Bread-and-butter ranged attack |
+| Hover | 8 | 1.0s | Traversal / evasion |
+| Sol Cone | 15 | 3.5s | AOE crowd control |
+| Sol Shield | 20 | 10.0s | Emergency heal (35 HP) |
+| Light Sentry | 25 | 2.0s | Sustained DPS turret |
+| Sol Teleport | 35 | 3.0s | Repositioning / escape |
+| Pulse Cannon | 40 | 8.0s | Heavy AOE nuke (2s cast) |
+
+Free abilities (blaster shot, melee strike, etc.) cost zero energy — you always have a fallback.
+
+### Generator Regen Rates
+
+| Generator | Base Regen/sec | Notes |
+|-----------|---------------|-------|
+| Basic Generator | 3 | First generator find |
+| Improved Generator | 4 | Mid-game milestone |
+| Uranium Generator | 8 | Rare late-game find |
+| Prismatic Core | 12 | Legendary co-op reward (2×2 shape) |
+
+Adjacent `energyCostReduction` modifiers boost regen by the same percentage (e.g. +0.30 reduction → ×1.30 regen). Sol unit innate bonuses also apply.
+
+### Casts Per Full Charge — By Game Phase
+
+The tables below show ability uses from a single full charge **without generator regen**, representing the worst case (no generators slotted or regen between fights).
+
+#### Early Game — Mk1 + 1 L1 battery (60 total energy)
+
+| Ability | Cost | Casts |
+|---------|------|-------|
+| Sol Beam | 8 | 7 |
+| Sol Cone | 15 | 4 |
+| Hover | 8 | 7 |
+
+**Typical fight:** 2 beams + 1 cone = 31 energy. A full charge sustains ~2 room fights before you need to recharge. Energy is tight — return to the solar panel often.
+
+#### Mid Game — Mk1+ + 1 L2 battery (140 total energy)
+
+| Ability | Cost | Casts |
+|---------|------|-------|
+| Sol Beam | 8 | 17 |
+| Sol Cone | 15 | 9 |
+| Sol Teleport | 35 | 4 |
+| Sol Shield | 20 | 7 |
+
+**Typical fight:** 3 beams + 1 cone + 1 teleport = 74 energy. A full charge sustains ~2 fights with room for a shield or escape. A basic generator (3/s) recovers 1 beam's cost every 2.7 seconds — meaningful over a dungeon run.
+
+#### Late Game — Array Precision Core + 1 L3 battery (500 total energy, innate -20% cost)
+
+| Ability | Base Cost | Reduced Cost | Casts |
+|---------|-----------|-------------|-------|
+| Sol Beam | 8 | 6 | 83 |
+| Sol Cone | 15 | 12 | 41 |
+| Pulse Cannon | 40 | 32 | 15 |
+| Sol Teleport | 35 | 28 | 17 |
+| Light Sentry | 25 | 20 | 25 |
+
+**Typical fight:** 4 beams + 1 cone + 1 sentry = 56 energy. A full charge sustains ~8-9 fights. Add a uranium generator (8/s, boosted to 9.6/s by innate) and you recover a beam's cost every 0.6 seconds — near-indefinite light ability use with breaks between rooms.
+
+#### Endgame — Underlumen Nexus + 1 L3 battery + efficiency mods (460 total, ~40% cost reduction)
+
+| Ability | Base Cost | Reduced Cost | Casts |
+|---------|-----------|-------------|-------|
+| Sol Beam | 8 | 5 | 92 |
+| Pulse Cannon | 40 | 24 | 19 |
+| Sol Teleport | 35 | 21 | 21 |
+| Light Sentry | 25 | 15 | 30 |
+
+With a uranium generator boosted by efficiency mods (8 × 1.40 = 11.2/s), energy sustain becomes near-infinite for cheap abilities. The constraint shifts to cooldowns and positioning rather than energy budget. Expensive abilities (pulse cannon, teleport) still drain meaningfully.
+
+### Design Intent
+
+- **Early game:** Energy is scarce. Every ability use is a deliberate choice. The solar panel is your lifeline.
+- **Mid game:** Battery upgrades and generators ease the pressure. You can commit to a full dungeon floor before recharging, but big abilities still cost.
+- **Late game:** Raw capacity is abundant. The build puzzle shifts from "can I afford to cast?" to "which abilities do I boost, and how do I arrange my grid for maximum efficiency?"
+- **Harvester tradeoff:** Deploying a battery to a harvester removes that capacity from your energy pool. Early game: giving up 30 capacity (half your pool) is painful. Late game: 30 is negligible against a 500+ pool.
+
 ## Late Game Automation
 
 > To be designed. The early game loop (umbrasite → batteries + silicon → abilities + infrastructure) is established. Late game should escalate toward exponential growth, self-replicating systems, and ultimately **Lighthouse deployment** (see storyboard). The progression from "barely restored one Lighthouse" in Act 1 to "deploying them at scale" in the endgame is the target power fantasy arc.
@@ -263,7 +358,7 @@ Single-stat reference values per rarity tier:
 **Legendary tier** modifiers have **extended adjacency** — they affect abilities beyond the standard 4-directional reach. Their larger shapes (2×2, 1×3) and powerful stats make them build-defining upgrades. See the extended adjacency section above.
 
 Each modifier in `sol_components.json` has a `rarity` field. The engine reads bonuses directly from the JSON — no runtime scaling is applied. All rarity-based stat differentiation is baked into the content data.
-4. **Battery math** — Capacity per tier, energy costs per ability, how many casts does a full charge sustain at each game phase?
+4. ~~**Battery math**~~ — **Resolved.** See "Battery Math" section below.
 5. **Harvester scaling** — Silicon collection rate, how many harvesters can you deploy, do better harvesters become available later?
 6. **Ability list** — Full catalog of abilities available from MERIDIAN-7, organized by unlock order.
 7. **Multiplayer implications** — Do players in a party see each others' grid builds? Does this encourage specialization?

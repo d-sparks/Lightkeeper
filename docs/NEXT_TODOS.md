@@ -109,11 +109,11 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Sol Grid & Progression
 
-- Battery math: capacity per tier, energy costs per ability, casts per full charge.
+- ~~Battery math: capacity per tier, energy costs per ability, casts per full charge.~~ ✓ Resolved — battery tiers (L1: 30, L2: 100, L3: 300) documented in progression-system.md with casts-per-charge tables for each game phase. Advanced rechargeable bumped from 150→300 to match 3:1 compression ratio.
 - Harvester scaling: silicon rate, max harvesters, late-game upgrades.
 - Light Sentry enhancements: multiple sentries, light/mirror puzzles, range indicator, upgrade paths.
 - Playtest single-use battery degradation feel — 100 capacity may need tuning.
-- Additional battery capacity tiers (50/200 cap variants).
+- Playtest battery balance: early game (60 energy, ~2 fights) should feel tight but fair; late game (500+ energy) should shift constraint from capacity to cooldowns.
 
 ## Map Streaming
 
