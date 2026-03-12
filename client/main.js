@@ -30,6 +30,10 @@
   const milestoneText = document.getElementById('automation-milestone-text');
   const raidToast = document.getElementById('raid-alert-toast');
   const raidAlertText = document.getElementById('raid-alert-text');
+  const raidIncomingToast = document.getElementById('raid-incoming-toast');
+  const raidIncomingText = document.getElementById('raid-incoming-text');
+  const raidCountdownTimer = document.getElementById('raid-countdown-timer');
+  const raidDefendBtn = document.getElementById('raid-defend-btn');
   const questPanelContent = document.getElementById('quest-panel-content');
   const solGridContainer = document.getElementById('sol-grid-container');
   const solGridInfo = document.getElementById('sol-grid-info');
@@ -301,6 +305,8 @@
   let questToastTimeout = null;
   let milestoneToastTimeout = null;
   let raidToastTimeout = null;
+  let raidIncomingInterval = null;
+  let raidIncomingCountdown = 0;
 
   // Tutorial arrow state (driven by quest uiHint)
   let tutorialPhase = null;  // null | 'open_menu' | 'click_sol_tab' | 'select_component' | 'place_component'
@@ -1671,24 +1677,31 @@
     if (!raid || !raid.occurred) return;
 
     const lines = [];
-    const count = raid.monsterCount || 0;
-    lines.push(count + ' ' + (count === 1 ? 'creature' : 'creatures') + ' attacked');
 
-    if (raid.defenseRating > 0) {
-      const turrets = Math.round(raid.defenseRating / 50);
-      lines.push(turrets + ' turret' + (turrets !== 1 ? 's' : '') + ' active \u2014 ' + raid.defenseRating + ' defense');
-    }
+    if (raid.defended) {
+      lines.push('<span style="color:#81c784">Raid defended!</span>');
+      lines.push(raid.monsterCount + ' ' + (raid.monsterCount === 1 ? 'creature' : 'creatures') + ' eliminated');
+      lines.push('<span style="color:#81c784">All structures safe</span>');
+    } else {
+      const count = raid.monsterCount || 0;
+      lines.push(count + ' ' + (count === 1 ? 'creature' : 'creatures') + ' attacked');
 
-    if (raid.destroyed && raid.destroyed.length > 0) {
-      lines.push('<span style="color:#ef5350">' + raid.destroyed.length + ' structure' + (raid.destroyed.length !== 1 ? 's' : '') + ' destroyed</span>');
-    }
+      if (raid.defenseRating > 0) {
+        const turrets = Math.round(raid.defenseRating / 50);
+        lines.push(turrets + ' turret' + (turrets !== 1 ? 's' : '') + ' active \u2014 ' + raid.defenseRating + ' defense');
+      }
 
-    if (raid.damaged && raid.damaged.length > 0) {
-      lines.push(raid.damaged.length + ' structure' + (raid.damaged.length !== 1 ? 's' : '') + ' damaged');
-    }
+      if (raid.destroyed && raid.destroyed.length > 0) {
+        lines.push('<span style="color:#ef5350">' + raid.destroyed.length + ' structure' + (raid.destroyed.length !== 1 ? 's' : '') + ' destroyed</span>');
+      }
 
-    if ((!raid.damaged || raid.damaged.length === 0) && (!raid.destroyed || raid.destroyed.length === 0)) {
-      lines.push('<span style="color:#81c784">All structures held</span>');
+      if (raid.damaged && raid.damaged.length > 0) {
+        lines.push(raid.damaged.length + ' structure' + (raid.damaged.length !== 1 ? 's' : '') + ' damaged');
+      }
+
+      if ((!raid.damaged || raid.damaged.length === 0) && (!raid.destroyed || raid.destroyed.length === 0)) {
+        lines.push('<span style="color:#81c784">All structures held</span>');
+      }
     }
 
     raidAlertText.innerHTML = lines.join('<br>');
@@ -1701,6 +1714,54 @@
       raidToast.style.display = 'none';
     }, 6000);
   }
+
+  function showRaidIncoming(raid) {
+    if (!raid || !raid.pending) return;
+    // Hide any existing raid alert
+    raidToast.style.display = 'none';
+
+    const count = raid.monsterCount || 0;
+    const lines = [];
+    lines.push(count + ' ' + (count === 1 ? 'creature' : 'creatures') + ' approaching');
+    if (raid.defenseRating > 0) {
+      lines.push('Turret defense: ' + raid.defenseRating);
+    }
+    lines.push('Estimated damage: ' + Math.max(0, raid.totalRaidDamage - (raid.defenseRating || 0)));
+
+    raidIncomingText.innerHTML = lines.join('<br>');
+    raidIncomingCountdown = raid.countdown || 30;
+    raidCountdownTimer.textContent = Math.ceil(raidIncomingCountdown);
+    raidIncomingToast.style.display = 'block';
+    raidIncomingToast.style.animation = 'none';
+    void raidIncomingToast.offsetWidth;
+    raidIncomingToast.style.animation = '';
+
+    // Start countdown
+    if (raidIncomingInterval) clearInterval(raidIncomingInterval);
+    raidIncomingInterval = setInterval(() => {
+      raidIncomingCountdown--;
+      raidCountdownTimer.textContent = Math.max(0, Math.ceil(raidIncomingCountdown));
+      if (raidIncomingCountdown <= 0) {
+        clearInterval(raidIncomingInterval);
+        raidIncomingInterval = null;
+        raidIncomingToast.style.display = 'none';
+      }
+    }, 1000);
+  }
+
+  function hideRaidIncoming() {
+    raidIncomingToast.style.display = 'none';
+    if (raidIncomingInterval) {
+      clearInterval(raidIncomingInterval);
+      raidIncomingInterval = null;
+    }
+  }
+
+  // Defend button sends RAID_DEFEND to server
+  raidDefendBtn.addEventListener('click', () => {
+    net.send({ type: CONSTANTS.MSG.RAID_DEFEND });
+    hideRaidIncoming();
+  });
 
   // --- Tab click handlers ---
   document.querySelectorAll('#character-menu .inv-tab').forEach(tab => {
@@ -3011,6 +3072,7 @@
     closeChoiceMenu();
     closeAutomationScreen();
     closeWorldmap();
+    hideRaidIncoming();
     // Hide boss bar when changing floors
     bossBar.style.display = 'none';
     // Play floor change SFX and switch music based on room name/tileset biome
@@ -3210,8 +3272,13 @@
   });
 
   net.on(CONSTANTS.MSG.RAID_ALERT, (msg) => {
+    hideRaidIncoming();
     showRaidToast(msg.raid);
     if (automationScreenOpen) renderAutomationScreen();
+  });
+
+  net.on(CONSTANTS.MSG.RAID_INCOMING, (msg) => {
+    showRaidIncoming(msg.raid);
   });
 
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {

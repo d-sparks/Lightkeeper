@@ -570,6 +570,98 @@ class GameLoop {
     return room;
   }
 
+  // ─── Raid Manual Defense ──────────────────────────────────────────────
+
+  // Create a raid defense room instance with the given raid monsters
+  startRaidDefense(playerId, raidData, originRoomId) {
+    const roomId = `raid_defense_${playerId}_${Date.now()}`;
+    const room = this.createRoom(roomId, 'dayside_raid_defense');
+    if (!room) {
+      console.error(`[GameLoop] Failed to create raid defense room`);
+      return null;
+    }
+
+    // Tag the room so we can detect raid completion
+    room.raidDefense = {
+      playerId,
+      originRoom: originRoomId,
+      monsterCount: raidData.monsters.length,
+      monstersKilled: 0,
+    };
+
+    // Dynamically inject raid monsters as spawns
+    const spawnPositions = [
+      { x: 3, y: 3 }, { x: 16, y: 3 }, { x: 3, y: 16 }, { x: 16, y: 16 },
+      { x: 10, y: 2 }, { x: 2, y: 10 }, { x: 17, y: 10 }, { x: 10, y: 17 },
+      { x: 6, y: 6 }, { x: 13, y: 6 }, { x: 6, y: 13 }, { x: 13, y: 13 },
+      { x: 10, y: 5 }, { x: 5, y: 10 }, { x: 14, y: 10 }, { x: 10, y: 14 },
+      { x: 8, y: 3 }, { x: 12, y: 16 }, { x: 3, y: 8 }, { x: 16, y: 12 },
+    ];
+
+    for (let i = 0; i < raidData.monsters.length; i++) {
+      const monsterType = raidData.monsters[i];
+      const def = this.content.getMonster(monsterType);
+      if (!def) continue;
+
+      const pos = spawnPositions[i % spawnPositions.length];
+      const id = `mob_${room.nextMonsterId++}`;
+      const spawnX = (pos.x + 0.5) * CONSTANTS.TILE_SIZE;
+      const spawnY = (pos.y + 0.5) * CONSTANTS.TILE_SIZE;
+
+      const mob = {
+        id,
+        spawnKey: `raid_${i}`,
+        type: monsterType,
+        name: def.name,
+        x: spawnX,
+        y: spawnY,
+        spawnX,
+        spawnY,
+        elevation: 0,
+        health: def.health,
+        maxHealth: def.health,
+        speed: def.speed,
+        damage: def.damage,
+        attackRange: (def.attackRange || 1) * CONSTANTS.TILE_SIZE,
+        attackCooldown: 1 / (def.attackSpeed || 1),
+        attackTimer: 0,
+        ai: def.ai || 'melee_chase',
+        facing: 0,
+        idleMode: 'wander',
+        xpMult: 1,
+        raidMonster: true,
+      };
+      if (def.specialAttacks && def.specialAttacks.length > 0) {
+        mob.specialAttacks = def.specialAttacks.map(sa => ({
+          ...sa,
+          timer: sa.cooldown * (0.3 + Math.random() * 0.7),
+        }));
+      }
+      // Wander state for raid monsters
+      mob.patrolTimer = 0;
+      mob.patrolState = 'walking';
+      mob.patrolWaitTime = 1.5 + Math.random();
+      mob.patrolAngle = Math.random() * Math.PI * 2;
+      room.monsters.set(id, mob);
+    }
+
+    console.log(`[GameLoop] Created raid defense room ${roomId} with ${raidData.monsters.length} monsters for player ${playerId}`);
+    return { roomId, room };
+  }
+
+  // Check if a raid defense room is complete (all monsters killed)
+  checkRaidDefenseComplete(room) {
+    if (!room.raidDefense) return false;
+    // Room is complete when all monsters are dead
+    return room.monsters.size === 0;
+  }
+
+  // Clean up a raid defense room after completion or abandonment
+  cleanupRaidDefenseRoom(roomId) {
+    this.rooms.delete(roomId);
+    console.log(`[GameLoop] Cleaned up raid defense room ${roomId}`);
+  }
+
   // Start an expedition for a player: generate the first floor and transition them
   // Returns { roomId, room } on success, or null on failure
   startExpedition(playerId, tier, originRoom) {
@@ -3451,13 +3543,36 @@ class GameLoop {
         // Tick raid timer (nightside creature waves attack dayside structures)
         const raidResult = this.automation.updateRaidTimer(pid, dt);
         if (raidResult && raidResult.occurred) {
-          // Notify player of raid outcome
+          if (this.actions.sendToPlayer) {
+            if (raidResult.pending) {
+              // Send raid incoming alert — player can choose to defend manually
+              this.actions.sendToPlayer(pid, {
+                type: CONSTANTS.MSG.RAID_INCOMING,
+                raid: raidResult,
+              });
+            } else {
+              // Direct raid result (fallback)
+              this.actions.sendToPlayer(pid, {
+                type: CONSTANTS.MSG.RAID_ALERT,
+                raid: raidResult,
+              });
+              this.actions.sendToPlayer(pid, {
+                type: CONSTANTS.MSG.AUTO_STATE,
+                auto: this.automation.getStateForClient(pid),
+              });
+            }
+          }
+        }
+
+        // Tick pending raid countdown
+        const pendingUpdate = this.automation.updatePendingRaid(pid, dt);
+        if (pendingUpdate && pendingUpdate.type === 'expired') {
+          // Player didn't defend — abstract damage was applied
           if (this.actions.sendToPlayer) {
             this.actions.sendToPlayer(pid, {
               type: CONSTANTS.MSG.RAID_ALERT,
-              raid: raidResult,
+              raid: pendingUpdate.result,
             });
-            // Also send updated automation state (structure HP changes)
             this.actions.sendToPlayer(pid, {
               type: CONSTANTS.MSG.AUTO_STATE,
               auto: this.automation.getStateForClient(pid),
@@ -3487,6 +3602,38 @@ class GameLoop {
       // Update siege wave defense (if active)
       if (room.siege) {
         this.updateSiege(room, dt);
+      }
+
+      // Check raid defense completion (all raid monsters killed)
+      if (room.raidDefense && this.checkRaidDefenseComplete(room)) {
+        const rd = room.raidDefense;
+        // Mark raid as defended — no structure damage
+        this.automation.completeRaidDefense(rd.playerId);
+        // Teleport player back to their origin room
+        for (const [pid] of room.players) {
+          this.pendingTransitions.push({
+            playerId: pid,
+            fromRoom: room.id,
+            toDungeon: rd.originRoom,
+            raidDefenseReturn: true,
+          });
+        }
+        // Notify the player
+        if (this.actions.sendToPlayer) {
+          this.actions.sendToPlayer(rd.playerId, {
+            type: CONSTANTS.MSG.RAID_ALERT,
+            raid: {
+              occurred: true,
+              defended: true,
+              monsterCount: rd.monsterCount,
+              effectiveDamage: 0,
+              damaged: [],
+              destroyed: [],
+            },
+          });
+        }
+        // Schedule cleanup after transition processes
+        room.raidDefense.complete = true;
       }
 
       // Check for floor transitions

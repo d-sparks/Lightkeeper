@@ -1076,6 +1076,27 @@ wss.on('connection', (ws) => {
         break;
       }
 
+      case CONSTANTS.MSG.RAID_DEFEND: {
+        if (!ws.playerRoom) break;
+        // Player wants to manually defend against a pending raid
+        const raidData = gameLoop.automation.claimPendingRaid(playerId);
+        if (!raidData) break; // No pending raid
+
+        const result = gameLoop.startRaidDefense(playerId, raidData, ws.playerRoom);
+        if (!result) break;
+
+        // Queue transition to the raid defense room
+        gameLoop.pendingTransitions.push({
+          playerId,
+          fromRoom: ws.playerRoom,
+          toDungeon: result.roomId,
+          spawnX: 10,
+          spawnY: 10,
+          raidDefense: true,
+        });
+        break;
+      }
+
       case CONSTANTS.MSG.CHAT: {
         if (!ws.playerRoom) break;
         const text = typeof msg.text === 'string' ? msg.text.trim().slice(0, 200) : '';
@@ -1361,6 +1382,14 @@ setInterval(() => {
     // Re-send quest objective with updated exit resolution for new room
     if (player.questObjective) {
       gameLoop._sendQuestObjective(t.playerId, targetRoomId);
+    }
+
+    // Clean up raid defense rooms after player leaves
+    if (t.fromRoom && t.fromRoom.startsWith('raid_defense_')) {
+      const fromRoom = gameLoop.getRoom(t.fromRoom);
+      if (fromRoom && (!fromRoom.players || fromRoom.players.size === 0)) {
+        gameLoop.cleanupRaidDefenseRoom(t.fromRoom);
+      }
     }
   }
 

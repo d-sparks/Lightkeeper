@@ -1603,6 +1603,59 @@
       to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
     }
 
+    /* Raid incoming toast with defend button */
+    #raid-incoming-toast {
+      display: none;
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 10, 26, 0.97);
+      border: 2px solid rgba(255, 152, 0, 0.8);
+      border-radius: 6px;
+      padding: 12px 24px;
+      color: #ffcc80;
+      font-size: 12px;
+      font-family: inherit;
+      z-index: 115;
+      pointer-events: auto;
+      text-align: center;
+      min-width: 240px;
+      animation: raid-toast-in 0.4s ease-out;
+    }
+
+    #raid-incoming-toast .raid-toast-header {
+      font-size: 14px;
+      color: #ff9800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    #raid-incoming-toast .raid-countdown {
+      font-size: 11px;
+      color: #ef9a9a;
+      margin-top: 6px;
+    }
+
+    #raid-defend-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 16px;
+      background: rgba(255, 152, 0, 0.25);
+      border: 1px solid #ff9800;
+      border-radius: 4px;
+      color: #ffcc80;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #raid-defend-btn:hover {
+      background: rgba(255, 152, 0, 0.45);
+    }
+
     /* Structure HP bar inside grid cells */
     .auto-cell-hp-bar {
       position: absolute;
@@ -2621,6 +2674,12 @@
   <div id="raid-alert-toast">
     <div class="raid-toast-header">&#x26A0; Raid Alert</div>
     <div id="raid-alert-text"></div>
+  </div>
+  <div id="raid-incoming-toast">
+    <div class="raid-toast-header">&#x26A0; Raid Incoming</div>
+    <div id="raid-incoming-text"></div>
+    <div class="raid-countdown">Auto-resolve in <span id="raid-countdown-timer">30</span>s</div>
+    <button id="raid-defend-btn">Defend Manually</button>
   </div>
 
   <!-- Onboarding hints (dismissed on first input/interaction) -->

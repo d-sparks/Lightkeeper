@@ -25,6 +25,7 @@ class Automation {
         raidTimer: 0,             // seconds since last raid check
         repairTimer: 0,           // seconds since last repair tick
         lastRaidResult: null,     // last raid outcome for client display
+        pendingRaid: null,        // pending raid awaiting player defense decision
         stats: {
           totalSalvageProduced: 0,
           totalSalvageSpent: 0,
@@ -843,7 +844,8 @@ class Automation {
       return { occurred: false, reason: 'chance_miss' };
     }
 
-    return this._executeRaid(playerId, automationLevel, raidCfg);
+    // Start a pending raid — player has 30 seconds to choose manual defense
+    return this._startPendingRaid(playerId, automationLevel, raidCfg);
   }
 
   // Execute a raid: compute damage to structures, apply turret defense
@@ -927,6 +929,77 @@ class Automation {
     return result;
   }
 
+  // Start a pending raid — gives the player time to choose manual defense
+  _startPendingRaid(playerId, automationLevel, raidCfg) {
+    const monsterCount = raidCfg.baseMonsters + (automationLevel - raidCfg.minAutomationLevel) * raidCfg.scalingPerLevel;
+    const totalRaidDamage = monsterCount * raidCfg.baseDamagePerMonster;
+    const defenseRating = this.getDefenseRating(playerId);
+
+    // Pick which monster types will participate
+    const raidMonsters = [];
+    for (let i = 0; i < monsterCount; i++) {
+      raidMonsters.push(raidCfg.monsterPool[Math.floor(Math.random() * raidCfg.monsterPool.length)]);
+    }
+
+    const state = this.getState(playerId);
+    state.pendingRaid = {
+      monsterCount,
+      monsters: raidMonsters,
+      totalRaidDamage,
+      defenseRating,
+      automationLevel,
+      countdown: 30, // seconds to decide
+    };
+
+    return {
+      occurred: true,
+      pending: true,
+      monsterCount,
+      monsters: raidMonsters,
+      totalRaidDamage,
+      defenseRating,
+      countdown: 30,
+    };
+  }
+
+  // Tick the pending raid countdown. Returns 'expired' if time ran out.
+  updatePendingRaid(playerId, dt) {
+    const state = this.getState(playerId);
+    if (!state.pendingRaid) return null;
+
+    state.pendingRaid.countdown -= dt;
+    if (state.pendingRaid.countdown <= 0) {
+      // Time expired — execute abstract damage
+      const raidCfg = this._getRaidConfig();
+      const result = this._executeRaid(playerId, state.pendingRaid.automationLevel, raidCfg);
+      state.pendingRaid = null;
+      return { type: 'expired', result };
+    }
+    return null;
+  }
+
+  // Player chose to defend manually — clear pending raid (no abstract damage)
+  claimPendingRaid(playerId) {
+    const state = this.getState(playerId);
+    if (!state.pendingRaid) return null;
+    const pending = state.pendingRaid;
+    state.pendingRaid = null;
+    return pending;
+  }
+
+  // Player successfully defended — no damage applied
+  completeRaidDefense(playerId) {
+    const state = this.getState(playerId);
+    state.lastRaidResult = {
+      occurred: true,
+      defended: true,
+      monsterCount: 0,
+      effectiveDamage: 0,
+      damaged: [],
+      destroyed: [],
+    };
+  }
+
   // Remove a structure placement (when destroyed by raid)
   _removeStructurePlacement(playerId, structureId, x, y) {
     const state = this.getState(playerId);
@@ -997,6 +1070,7 @@ class Automation {
       raidTimer: data.raidTimer || 0,
       repairTimer: data.repairTimer || 0,
       lastRaidResult: data.lastRaidResult || null,
+      pendingRaid: null, // never restore pending raids across sessions
       stats: data.stats || {
         totalSalvageProduced: 0,
         totalSalvageSpent: 0,
