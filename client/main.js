@@ -279,6 +279,8 @@
   // --- Inventory & equipment state ---
   let itemCatalog = {}; // item type -> full definition from server
   let inventoryItems = [];
+  let bankedItems = []; // items cached at expedition checkpoints
+  let inExpedition = false;
   let equipmentState = { arms: null, sol_unit: null, medipac: null, accessory: null };
   let abilityState = [null, null, null, null, null, null];
   let cooldownState = [0, 0, 0, 0, 0, 0];
@@ -876,8 +878,8 @@
   // --- Unified character menu state ---
   let menuOpen = false;
   let menuTab = 'equipment';
-  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'quests'];
-  const ALL_CONTENT_TABS = ['equipment', 'inventory', 'solgrid', 'quests'];
+  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'quests', 'cached'];
+  const ALL_CONTENT_TABS = ['equipment', 'inventory', 'solgrid', 'quests', 'cached'];
   let cursorIndex = 0;
 
   function openMenu(tab) {
@@ -916,6 +918,8 @@
   function switchTab(tab) {
     // Skip disabled solgrid tab
     if (tab === 'solgrid' && !solGridState) return;
+    // Skip cached tab when not in an expedition
+    if (tab === 'cached' && !inExpedition) return;
 
     if (menuOpen) audio.play('menu_navigate');
     menuTab = tab;
@@ -938,6 +942,7 @@
     if (tab === 'solgrid') renderSolGrid();
     if (tab === 'auto') return; // auto tab replaced by full-screen automation overlay
     if (tab === 'quests') renderQuestPanel();
+    if (tab === 'cached') renderCachedItems();
 
     // Advance tutorial: menu opened → show SOL tab arrow; SOL tab clicked → show component arrow
     if (tutorialPhase === 'open_menu') {
@@ -957,6 +962,8 @@
       const candidate = MENU_TABS[idx];
       // Skip disabled solgrid tab
       if (candidate === 'solgrid' && !solGridState) continue;
+      // Skip cached tab when not in an expedition
+      if (candidate === 'cached' && !inExpedition) continue;
       switchTab(candidate);
       return;
     }
@@ -1864,6 +1871,35 @@
     inventoryList.appendChild(detailPanel);
 
     updateCursorHighlight();
+  }
+
+  function renderCachedItems() {
+    const cachedList = document.getElementById('cached-list');
+    if (!cachedList) return;
+    cachedList.innerHTML = '';
+    const header = document.createElement('div');
+    header.className = 'cached-header';
+    header.textContent = bankedItems.length > 0
+      ? bankedItems.length + ' item(s) secured — returned at expedition end'
+      : 'No items cached yet';
+    cachedList.appendChild(header);
+    if (bankedItems.length === 0) return;
+    const grid = document.createElement('div');
+    grid.className = 'inv-grid';
+    const detailPanel = document.createElement('div');
+    detailPanel.className = 'inv-detail-panel';
+    for (const item of bankedItems) {
+      const cell = document.createElement('div');
+      const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
+      cell.className = 'inv-grid-cell rarity-' + (item.rarity || 'common') + ' cached-item';
+      cell.innerHTML = '<span class="cell-dot" style="background:' + rarityColor + '"></span>' +
+        '<span class="cell-name" style="color:' + rarityColor + '">' + item.name + '</span>';
+      cell.addEventListener('mouseenter', () => showItemDetail(item, detailPanel));
+      cell.addEventListener('mouseleave', () => { detailPanel.innerHTML = ''; });
+      grid.appendChild(cell);
+    }
+    cachedList.appendChild(grid);
+    cachedList.appendChild(detailPanel);
   }
 
   function showItemDetail(item, panel) {
@@ -2812,8 +2848,20 @@
       } else {
         expeditionParty.style.display = 'none';
       }
+      if (!inExpedition) {
+        inExpedition = true;
+        const cachedTab = document.querySelector('#character-menu .inv-tab[data-tab="cached"]');
+        if (cachedTab) cachedTab.style.display = '';
+      }
     } else {
       expeditionHud.style.display = 'none';
+      if (inExpedition) {
+        inExpedition = false;
+        bankedItems = [];
+        const cachedTab = document.querySelector('#character-menu .inv-tab[data-tab="cached"]');
+        if (cachedTab) cachedTab.style.display = 'none';
+        if (menuOpen && menuTab === 'cached') switchTab('equipment');
+      }
     }
 
     // Update siege HUD
@@ -2918,6 +2966,11 @@
   });
 
   net.on(CONSTANTS.MSG.LOOT_BANKED, (msg) => {
+    // Update banked items state
+    if (msg.bankedItems) {
+      bankedItems = msg.bankedItems;
+      if (menuOpen && menuTab === 'cached') renderCachedItems();
+    }
     // Show banking confirmation via milestone toast pattern
     milestoneText.textContent = '\u{1F4E6} ' + msg.bankedCount + ' item(s) banked — ' + msg.totalBanked + ' total cached';
     milestonToast.style.display = 'block';
@@ -3097,6 +3150,9 @@
     if (msg.credits !== undefined) {
       playerCredits = msg.credits;
     }
+    if (msg.bankedItems !== undefined) {
+      bankedItems = msg.bankedItems;
+    }
     updateActionBar();
     if (menuOpen && (menuTab === 'equipment' || menuTab === 'inventory')) {
       if (menuTab === 'equipment') renderEquipmentSlots();
@@ -3107,6 +3163,7 @@
       solGridSelectedComponent = null;
       renderSolGrid();
     }
+    if (menuOpen && menuTab === 'cached') renderCachedItems();
   });
 
   net.on(CONSTANTS.MSG.PLAYER_JOIN, (msg) => {

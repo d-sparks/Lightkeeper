@@ -587,6 +587,7 @@ wss.on('connection', (ws) => {
           equipment: player.equipment,
           medipacCharges: player.medipacCharges,
           credits: player.credits || 0,
+          bankedItems: gameLoop.flagStore.getPlayerFlag(playerId, 'expedition_banked_loot') || [],
         }));
 
         // Send ability state

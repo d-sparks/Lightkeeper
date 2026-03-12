@@ -855,6 +855,17 @@
       padding: 20px 0;
     }
 
+    .cached-header {
+      font-size: 13px;
+      color: #7cb8e0;
+      padding: 6px 4px 10px;
+      border-bottom: 1px solid rgba(124,184,224,0.2);
+      margin-bottom: 8px;
+    }
+
+    .cached-item { opacity: 0.75; cursor: default; }
+    .cached-item:hover { opacity: 1; background: rgba(255,255,255,0.04); }
+
     #character-menu .inv-item {
       font-size: 16px;
       padding: 8px 0;
@@ -2487,6 +2498,7 @@
       <div class="inv-tab" data-tab="inventory">ITEMS</div>
       <div class="inv-tab" data-tab="solgrid">SOL</div>
       <div class="inv-tab" data-tab="quests">QUESTS</div>
+      <div class="inv-tab" data-tab="cached" style="display:none">CACHED</div>
     </div>
     <div id="inv-tab-equipment" class="inv-tab-content">
       <div id="equipment-slots" class="equip-section">
@@ -2502,6 +2514,9 @@
     </div>
     <div id="inv-tab-quests" class="inv-tab-content" style="display:none">
       <div id="quest-panel-content"></div>
+    </div>
+    <div id="inv-tab-cached" class="inv-tab-content" style="display:none">
+      <div id="cached-list"></div>
     </div>
     <div class="inv-hint">[I] Close</div>
   </div>

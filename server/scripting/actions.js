@@ -1044,6 +1044,7 @@ class ActionExecutor {
       bankedCount: toBankItems.length,
       totalBanked: allBanked.length,
       items: itemNames,
+      bankedItems: allBanked,
     });
     this.sendToPlayer(context.playerId, {
       type: CONSTANTS.MSG.DIALOGUE,
