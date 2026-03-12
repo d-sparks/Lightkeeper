@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-12 (refreshed with sim analysis)
+Last updated: 2026-03-12 (refreshed with sim analysis — mainline stuck at proc_quarantine, all-quests 10/14 pass, 0 deaths)
 
 ## Big Picture
 
@@ -54,20 +54,23 @@ The game needs three things to go from "deep tech demo" to "complete game":
 
 Focus: **Fix sim bugs, connect disconnected content, improve game feel**
 
-1. **Fix relay_recovery quest soft-lock** — `junction_a_activated` flag never gets set, blocking all-quests sim runs.
-2. **Fix phase3_investigation return navigation** — Bot can't return from underlumen_threshold to meridian_civic.
-3. **Fix explore-mode workshop flag gate** — `engineer_briefing_complete` blocks explore bot permanently.
-4. **Distribute crafting materials across biome loot tables** — Currently only in common.json. Fix undercity luddite loot too.
-5. **Wire lighthouse_siege_arena to NPC trigger** — Fully-built endgame system with no player-facing entry point.
-6. **Connect crypt dungeons to narrative** — Accessible from outpost_basement but no quest sends players there.
-7. **Difficulty tuning** — Mainline sim completes with 0 deaths. Game should feel dangerous.
+1. **Fix mainline sim proc_quarantine soft-lock** — Bot stuck at `find_warlord_key` in proc_quarantine depth 3. Bot combat-while-navigating logic broken. Only 10.5% room coverage.
+2. **Fix relay_recovery quest soft-lock** — `junction_a_activated` flag never gets set, blocking all-quests sim.
+3. **Fix broken_signal quest timeout** — `signal_source_found` flag never sets in signal_cave.
+4. **Fix explore-mode workshop flag gate** — `engineer_briefing_complete` blocks explore bot permanently. Only 12.3% room coverage.
+5. **Difficulty tuning** — 0 deaths across all sim modes. Game needs to feel dangerous.
+6. **Connect crypt dungeons to narrative** — Accessible but no quest/NPC mentions them.
+7. **Wire lighthouse_siege_arena to NPC trigger** — Fully-built endgame system with no entry point.
+8. **Distribute crafting materials across biome loot tables** — Currently only in common.json.
+9. **Fix nightside_expedition return navigation timeout** — Bot can't path back from underlumen_threshold to meridian_civic.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
 Focus: **Build the story campaign dungeons that connect Acts 1-3**
 
-8. **Add environmental storytelling to Nightside path** — nightside_caverns → underlumen_threshold has combat but no narrative. Add lore, Sable encounters, sol unit reactions.
-9. **Build Lighthouse Mara** — Multi-floor frozen cavern expedition. Core Act 1 beat. Uses frost_crypt tileset.
+10. **Add environmental storytelling to Nightside path** — nightside_caverns → underlumen_threshold has combat but no narrative. Add lore, Sable encounters, sol unit reactions.
+11. **Wire full Array dungeon chain into quest** — control_center and command_throne never visited during quests.
+12. **Build Lighthouse Mara** — Multi-floor frozen cavern expedition. Core Act 1 beat. Uses frost_crypt tileset.
 10. **Add Dural Voss boss** — Named raider warlord with retreat mechanic. Key narrative moment.
 11. **Build Spire of Vigil** — Raider stronghold (outer) + Underlumen puzzle core (inner). Act 1 climax. Unlocks Light Sentry.
 12. **Wire full Array dungeon chain into quest** — control_center and command_throne are never visited during quests.
