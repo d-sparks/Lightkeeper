@@ -552,6 +552,14 @@ class GameLoop {
         depth: context.depth || (template.depth && template.depth.min) || 0,
         serverEpoch: this.serverEpoch,
       };
+
+      // Check if a procedural instance already exists for this exact context
+      // (same exit tile + server epoch = same seed = same instanceId)
+      const seedStr = `${genContext.fromDungeon}_${genContext.exitX}_${genContext.exitY}_${genContext.serverEpoch}`;
+      const expectedId = `proc:${template.id}:${seedStr}`;
+      room = this.rooms.get(expectedId);
+      if (room) return room;
+
       // Forward expedition overrides for floor/boss generation
       if (context.maxDepth) genContext.maxDepth = context.maxDepth;
       if (context.bossType) genContext.bossType = context.bossType;
