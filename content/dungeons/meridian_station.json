@@ -124,6 +124,25 @@
       "once": true
     },
     {
+      "id": "daley_radios_coordinates",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "comms_restored" },
+        { "hasFlag": "arrived_meridian" },
+        { "not": { "hasFlag": "daley_gave_coordinates" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Your radio crackles to life — Daley's voice, faint but clear through the restored comms array.",
+          "'You're in Meridian? Good — I've been trying to reach you. I intercepted something strange on the deep frequencies. A distorted voice, repeating coordinates. The signal's old — years old, maybe older.'",
+          "'I'm transmitting the coordinates to your nav unit now. The location is deep in the eastern perimeter — west of the Dead Road, somewhere underground. Be careful out there.'"
+        ]},
+        { "type": "setFlag", "flag": "daley_gave_coordinates" },
+        { "type": "giveItem", "itemType": "daley_coordinates" }
+      ],
+      "once": true
+    },
+    {
       "id": "holographic_ad_1",
       "event": "room_entered",
       "conditions": [{ "hasFlag": "arrived_meridian" }],
