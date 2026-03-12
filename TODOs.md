@@ -1,7 +1,17 @@
 TODOs
 
-- [sonnet] Fix content validator reachability errors: dayside_raid_defense and lighthouse_siege_arena are unreachable from spawn — add conditional exits or teleport triggers so these special dungeons connect to the world graph
+- [opus] There's a multiplayer bug. I think maybe two players can't be in the quarantine wing at the same time? Seems like on of the two players gets into a locked state somehow upon entering.
+- [sonnet] Stackable inventory items: if we have multiple identical items, in the inventory, show them as one item with a number of stacks.
+- [opus] Multiplayer in game chat is buggy: some messages disappear or don't show up. Make sure all messages appear and stay there.
+- [opus] For some reason the nightside caverns renders as entirely inside a wall. In the editor, I see it is filled with dark stone floor. Is it possible that is at the wrong height or something? I can't see players or enemies, and it's not clear how to exit that area.
+- [opus] The quest log needs to be more usable. For a quest with many steps, we should only display a max of three rows: (1) ... [which you can click to expand and browse completed steps], (2) previous completed step, with a strikethrough, and (3) next quest step.
+- [opus] Side quests need to be more intuitive. I think whenever I pick up any quest item it should be clear what to do with it. For example I picked up the scorched notebook, but I'm not sure what to do with it? There should always be a next step offered to a player if an item is important/quest related.
+- [opus] When we level up, we should be able to see stat improvements on some stat screen (HP, damage %, etc).
+- [opus] Can we make a weapon progression system where we can use some items we find on the ground or from killing things (not salvage or umbracite, but a category of crafting things like metal casings, metal linkers, power conduit, etc). The weapon should have a screen you can open like the sol grid where you can power up the weapon. When you're done with a weapon you can disassemble it, losing the weapon but returning all or most of the stuff you upgraded it with. This can feel like continuous progression as we're dungeon crawling. Then when you find a new weapon, you can disassemble your old one and upgrade the new one.
+- [opus] Flare isn't working. When you place the flare, you get an "undefined" in your inventory and can't use it. That thing in your inventory should be a usable item that takes you back to the flare. We can call it "Return to flare" for now.
 - [opus] Build dark_city dungeon: tileset JSON and sprite strip exist but no dungeon uses dark_city yet — design a Meridian Warrens or undercity deep floor as a second dark_city dungeon below meridian_undercity
+- [sonnet] Can we have a feature where we keep the last several autosaves in memory on the server, and have an option in the checkpoint to go back to an old autosave (display some metadata in the checkpoint UI about that autosave like what room they're in).
+- [sonnet] Upon death, can we offer an option in the checkpoint editor to give back the items a player lost on their last death?
 - [sonnet] Wire expedition_tier_4_cleared and expedition_tier_5_cleared flags into NPC dialogue or gating — these flags are set by the engine but never checked anywhere, wasting progression milestones
 - [sonnet] Add Nightside-path discovery hints in earlier rooms (outpost_perimeter or outpost_comms) with visited_dead_road suppression so new players learn about the Nightside before reaching the Dead Road
 - [sonnet] Add explicit patrolPath waypoints to patrol-type monster spawns in nightside_depths, deep_perimeter_east, perimeter_ravine, and outer_expanse — currently many patrol spawns lack waypoints and just stand still

@@ -1,9 +1,3 @@
 {
-  "spawnRoom": "outpost_entrance",
-  "xpSystem": {
-    "baseXpToLevel": 100,
-    "xpScalingFactor": 1.5,
-    "hpPerLevel": 10,
-    "maxLevel": 20
-  }
+  "spawnRoom": "outpost_entrance"
 }
