@@ -38,10 +38,6 @@ The lighthouse siege cooperative challenge is fully implemented (10-wave defense
 
 The nightside_caverns → nightside_depths → nightside_passage → underlumen_threshold path has combat but minimal narrative. This is the player's journey into the unknown — it should feel like crossing a threshold. Add: (a) 3-4 lore items in items.json referencing the Unbounded, the Spires, and the Underlumen substrate, (b) room-entered trigger messages as the player descends ("Your sol unit flickers — something deep is pulling at its frequency"), (c) environmental flavor building dread toward the Act II reveal. Four rooms of combat need narrative gravity.
 
-## [sonnet] Distribute crafting materials across biome loot tables
-
-Crafting materials (metal_casing, metal_linker, power_conduit, stabilizer_rod, focusing_lens, plasma_coil) only drop from common.json loot tables. Players find them randomly rather than in thematic contexts. Add biome-appropriate drops: frost.json (stabilizer_rod, metal_casing), fungal.json (focusing_lens), geothermal.json (plasma_coil, power_conduit), nightside.json (metal_linker), array.json (all types at low rates). Players should discover materials throughout the world, tied to the environments they explore.
-
 ## [sonnet] Wire Array dungeon chain into quest narrative
 
 The dayside has 5 dungeons (solar_fields → extraction_outpost → synthesis_lab → deep_processing → control_center/command_throne) but the later ones are only reachable after the ending path choice. The Array complex should feel like a progressive investigation during the main quest, not two disconnected visits. Add quest steps or MERIDIAN-7/Asha Denn breadcrumbs guiding players through the full chain before the choice point. The dungeons exist — the narrative thread connecting them is missing.
