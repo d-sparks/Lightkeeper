@@ -19,7 +19,7 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Monster AI | Done | 5 AI types: melee_chase, ranged_kite, ambush, patrol, pack |
 | Procedural Generation | Done | Template-based generation working (5 templates: quarantine, quarantine_deep, frost_crypt, fungal_forest, geothermal) |
 | Scripting System | Done | Trigger-Condition-Action fully implemented, quest DAG system working |
-| Testing Tools | Done | Content validator + headless simulator + 284 unit tests. Wired into `npm test` |
+| Testing Tools | Done | Content validator + headless simulator + 320 unit tests. Wired into `npm test` |
 | Sol Grid / Progression | Done | Grid placement + adjacency modifiers (incl. legendary extended-adjacency) + 63 components |
 | Loot System | Done | Engine supports loot tables with weighted drops. 22 loot tables across 6 files. All combat monsters wired |
 | Item Rarity UI | Done | Rarity colors (common to legendary) displayed in inventory and sol grid |
@@ -32,7 +32,7 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Game Feel | Done | Sound effects (24 SFX), combat juice, death penalty (energy drain + item drop + respawn teleport + death screen overlay) all done |
 | Game Balance | Done | Mid-game energy pacing tuned, Pulse Rifle reward feel improved, combat balance pass complete |
 | Player Onboarding | Done | WASD/interact prompts, first-time tutorial for combat, NPC interaction, and healing |
-| Unit Tests | Done | Tiers 1-4: 304 tests (flag-store, event-bus, automation, conditions, actions, trigger-registry, physics, combat, equipment, sol-grid, room-lifecycle). All passing |
+| Unit Tests | Done | Tiers 1-4: 320 tests (flag-store, event-bus, automation, conditions, actions, trigger-registry, physics, combat, equipment, sol-grid, room-lifecycle). All passing |
 | Per-Biome Music | Done | Ambient music definitions and tileset-based track selection wired |
 | Monster Sprites | Done | Placeholder sprites for all monsters, palette aligned to art style guide |
 | Crystal Guardian Boss | Done | 3-phase boss AI, boss health bar, phase transition VFX, intro presentation |
@@ -84,7 +84,8 @@ Focus: **Real art, endgame loop, mobile**
 13. **Real art assets** — Replace all placeholder sprites with proper pixel art following docs/art-style-guide.md.
 14. **Endgame loop** — Post-story sandbox with escalating procedural dungeons, legendary modifier chase, automation scaling.
 15. **Mobile/touch optimization** — Touch controls exist but need polish. Joystick/gamepad need 45° rotation for iso movement.
-16. **Battery math & harvester scaling** — Capacity per tier, energy costs per ability, casts per full charge.
+16. ~~**Battery math**~~ — DONE. Capacity per tier, energy costs per ability, casts per full charge documented.
+17. **Harvester scaling** — Silicon rate, max harvesters, late-game upgrades still need design.
 
 ---
 
@@ -209,12 +210,12 @@ These are done and don't need further investment:
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
-| docs/progression-system.md | Active | Core decisions resolved. Remaining: battery math, harvester scaling |
+| docs/progression-system.md | Active | Core decisions resolved. Battery math resolved. Remaining: harvester scaling |
 | docs/automation_screen.md | Done | All 5 phases implemented (grid, UI, MERIDIAN-7, dungeon sync, polish) |
 | docs/storyboard.md | Active | Act I done, Act II partial, Act III endings built. Post-choice dialogue done. Post-ending world state done. |
 | docs/testing-design.md | Done | Both tools built and functional. 320 tests passing |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented. Fog-of-war streaming working |
-| docs/TESTING.md | Done | Tiers 1-4 complete (320 tests including room-lifecycle) |
+| docs/TESTING.md | Done | Tiers 1-4 complete (320 tests including room-lifecycle). All passing |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
 | docs/game-scripting.md | Done | TCA system fully implemented and documented |
-| docs/endgame-loop.md | Active | Phases 1-5 done (expeditions, crafting engine, automation 6-10, boss affixes, tier 4-5 loot). Remaining: MERIDIAN-7 crafting dialogue, cooperative challenges (Phase 6), raids (Phase 7) |
+| docs/endgame-loop.md | Active | Phases 1-7 engine done. Remaining: siege NPC trigger, siege visual polish, Deep Expedition (Tier 6), Faction Rally, automation levels 11-20 |

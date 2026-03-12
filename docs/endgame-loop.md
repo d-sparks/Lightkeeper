@@ -435,7 +435,7 @@ The `endgame_active` flag gates all endgame content — expeditions, extended au
 3. ~~**Modifier crafting**~~ ✓ Done — Reforge/fuse/attune at MERIDIAN-7 gated on endgame_active flag.
 4. ~~**Automation levels 6-10**~~ ✓ Done — 4 new structures (silicon_refinery, auto_turret, fabricator, expedition_beacon), grid expansion, adjacency bonuses, path-specific variants.
 5. ~~**Expedition Tier 4-5 + boss affixes**~~ ✓ Done — 8 boss affixes, cooperative gating (2+ players), path-specific loot tables with unlockFlag filtering.
-6. **Cooperative challenges** — Lighthouse Siege, Deep Expedition. Next major system to build.
+6. **Cooperative challenges** — Lighthouse Siege engine implemented (wave defense, communal energy, siege_legendary rewards). Remaining: NPC start trigger, lighthouse repair interaction, siege visual feedback, Deep Expedition (Tier 6).
 7. ~~**Raid events**~~ ✓ Done — Timed raids, structure HP/repair, turret defense, drone bay auto-repair.
 8. **Faction Rally** — Server-wide goals. Small engine addition (server-wide flag aggregation).
 9. **Automation levels 11-20** — Extended milestone content. Pure content.

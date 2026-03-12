@@ -1,14 +1,19 @@
 TODOs
 
-- [opus] Fix headless sim mainline regression: bot visits only 5-9 rooms then gets stuck — umbrasite_retrieval side quest injected as prereq has no accessible refined_umbrasite source; needs skip-unresolvable-prereq logic or bot-side quest dependency resolution
-- [opus] Build cooperative challenge system (Phase 6): Lighthouse Siege wave defense mode for 2-4 players with communal energy pool, wave spawning, and siege_legendary reward table — see endgame-loop.md
-- [sonnet] Define cooperative-only legendary items: lighthouse_lens, deep_resonance, prismatic_core need entries in items.json and sol_components.json with stats from endgame-loop.md, plus a siege_legendary loot table
-- [sonnet] Add banked items inventory tab: show a "Cached" tab in the inventory UI during expeditions so players can see what they've banked at checkpoints
-- [sonnet] Add client-side raid alert UI: toast or overlay showing raid results (structures damaged, turrets active, monsters repelled) and structure HP bars on the automation grid
-- [sonnet] Build dark_city dungeon template: tileset JSON and sprite strip exist but no dungeon uses dark_city yet — design a Meridian undercity or Array suburb floor using the tileset
-- [sonnet] Add Nightside-path discovery hints in earlier rooms (outpost_perimeter or outpost_comms) for players who haven't reached the Dead Road yet
-- [sonnet] Create engine-flags documentation registry (docs/engine-flags.md) listing all flags set directly by engine code so content authors know which flags are managed outside the trigger system
-- [opus] Add sprite animation frames (idle 2-frame bob, attack lunge, hit flash) to generate-sprites.js and wire renderer to cycle frames — biggest single visual quality improvement available
-- [opus] Implement player manual raid defense: let players teleport to dayside_solar_fields during a raid event to fight monsters in real-time instead of abstract damage calculation
-- [opus] Tune battery math: document capacity per tier, energy costs per ability, and casts per full charge — resolve the open design question in progression-system.md so balance can be tested
-- [sonnet] Add checkpoint room visual polish: expedition_checkpoint dungeon currently uses plain crypt tileset — design a unique safe-room look with cache terminal, dim lighting, supply crates
+- Wire Lighthouse Siege start trigger: siege engine exists but no NPC interaction launches it — add a post-endgame NPC or interactable in meridian_station that calls startSiege() so players can actually access the cooperative challenge
+- Fix content validator reachability errors: dayside_raid_defense and lighthouse_siege_arena are unreachable from spawn — add conditional exits or teleport triggers so these special dungeons connect to the world graph
+- Build dark_city dungeon: tileset JSON and sprite strip exist but no dungeon uses dark_city yet — design a Meridian Warrens or undercity deep floor as a second dark_city dungeon below meridian_undercity
+- Wire expedition_tier_4_cleared and expedition_tier_5_cleared flags into NPC dialogue or gating — these flags are set by the engine but never checked anywhere, wasting progression milestones
+- Add client-side expedition HUD: floor counter showing current floor/total, tier indicator, and boss health bar during expedition runs
+- Add Nightside-path discovery hints in earlier rooms (outpost_perimeter or outpost_comms) with visited_dead_road suppression so new players learn about the Nightside before reaching the Dead Road
+- Add explicit patrolPath waypoints to patrol-type monster spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, and outer_expanse — currently many patrol spawns lack waypoints and just stand still
+- Build Fence Elara repeatable shop in meridian_undercity: return-visit purchase option for smuggled consumables and materials, giving the undercity a reason to revisit after clearing the Luddite gang
+- Add siege visual feedback: lighthouse entity rendering in the arena, wave start/clear announcements, and victory/defeat overlay — currently only HUD bars and event data are sent
+- Add siege lighthouse repair interaction: design doc specifies spending silicon to repair between waves but the mechanic is not implemented
+- Handle party disconnect in cooperative expeditions: if a party member disconnects mid-expedition they remain in the party list — add cleanup on disconnect with partial-party continuation
+- Fix path-specific structure locked display: bio_harvester/symbiotic_node/array_drone_bay appear unlocked in automation screens sent outside the AUTO_BUILD flow because pathFlags aren't passed to all getStateForClient call sites
+- Design harvester scaling: define silicon collection rate progression, max harvester counts, and better harvester variants for late-game automation levels 11-20
+- Build meridian_undercity_deep: second dark_city floor accessible via stairs_down from meridian_undercity north zone, connecting to Underlumen-adjacent tunnels — the exit exists conceptually in NEXT_TODOS but has no dungeon JSON
+- Place feral_hound_alpha and frostfang_alpha as rare spawns in nightside_caverns and frost procedural templates — these pack leader monsters are defined but never placed in any dungeon
+- Add undercity discovery trigger in meridian_market: the stairs_down at (14, 9) has no first-discovery message — add a door_interacted trigger so players know the passage exists before stepping in
+- Investigate headless sim remaining ~15% intermittent failure: titanium_cylinders chest interaction failure and unreachable monsters at proc_quarantine depth 3 still cause sporadic test failures
