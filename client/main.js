@@ -67,6 +67,9 @@
   const siegeMonsters = document.getElementById('siege-monsters');
   const deathOverlay = document.getElementById('death-overlay');
   const deathDetails = document.getElementById('death-details');
+  const siegeOverlay = document.getElementById('siege-overlay');
+  const siegeOverlayTitle = document.getElementById('siege-overlay-title');
+  const siegeOverlayDetails = document.getElementById('siege-overlay-details');
   const PARTY_COLORS = ['#4fc3f7', '#ef5350', '#66bb6a', '#ffa726'];
 
   // --- Instances ---
@@ -301,6 +304,8 @@
   // Sol grid state
   let solGridState = null;
   let solGridSelectedComponent = null; // inventory index of selected component for placement
+  let weaponUpgradeState = null; // server-sent weapon upgrade grid state
+  let weaponUpgradeSelectedMaterial = null; // inventory index of selected crafting material
 
   // Quest state
   let questState = [];
@@ -891,8 +896,8 @@
   // --- Unified character menu state ---
   let menuOpen = false;
   let menuTab = 'equipment';
-  const MENU_TABS = ['equipment', 'stats', 'inventory', 'solgrid', 'quests', 'cached'];
-  const ALL_CONTENT_TABS = ['equipment', 'stats', 'inventory', 'solgrid', 'quests', 'cached'];
+  const MENU_TABS = ['equipment', 'stats', 'inventory', 'solgrid', 'weapon', 'quests', 'cached'];
+  const ALL_CONTENT_TABS = ['equipment', 'stats', 'inventory', 'solgrid', 'weapon', 'quests', 'cached'];
   let cursorIndex = 0;
 
   function openMenu(tab) {
@@ -931,6 +936,8 @@
   function switchTab(tab) {
     // Skip disabled solgrid tab
     if (tab === 'solgrid' && !solGridState) return;
+    // Skip disabled weapon tab
+    if (tab === 'weapon' && !weaponUpgradeState) return;
     // Skip cached tab when not in an expedition
     if (tab === 'cached' && !inExpedition) return;
 
@@ -948,12 +955,16 @@
     // Update sol grid tab disabled state
     const solTab = document.querySelector('#character-menu .inv-tab[data-tab="solgrid"]');
     if (solTab) solTab.classList.toggle('disabled', !solGridState);
+    // Update weapon tab disabled state
+    const weaponTab = document.querySelector('#character-menu .inv-tab[data-tab="weapon"]');
+    if (weaponTab) weaponTab.classList.toggle('disabled', !weaponUpgradeState);
 
     // Render the active tab content
     if (tab === 'equipment') renderEquipmentSlots();
     if (tab === 'stats') renderStatsPanel();
     if (tab === 'inventory') renderInventoryGrid();
     if (tab === 'solgrid') renderSolGrid();
+    if (tab === 'weapon') renderWeaponUpgradePanel();
     if (tab === 'auto') return; // auto tab replaced by full-screen automation overlay
     if (tab === 'quests') renderQuestPanel();
     if (tab === 'cached') renderCachedItems();
@@ -976,6 +987,8 @@
       const candidate = MENU_TABS[idx];
       // Skip disabled solgrid tab
       if (candidate === 'solgrid' && !solGridState) continue;
+      // Skip disabled weapon tab
+      if (candidate === 'weapon' && !weaponUpgradeState) continue;
       // Skip cached tab when not in an expedition
       if (candidate === 'cached' && !inExpedition) continue;
       switchTab(candidate);
@@ -993,6 +1006,7 @@
     if (menuTab === 'equipment') return characterMenu.querySelectorAll('.equip-slot-box');
     if (menuTab === 'inventory') return characterMenu.querySelectorAll('.inv-grid-cell');
     if (menuTab === 'solgrid') return characterMenu.querySelectorAll('.sol-cell');
+    if (menuTab === 'weapon') return characterMenu.querySelectorAll('.wu-cell, .wu-inv-cell');
     if (menuTab === 'quests') return characterMenu.querySelectorAll('.quest-track-btn, .quest-step');
     return [];
   }
@@ -1001,6 +1015,7 @@
     if (menuTab === 'equipment') return 1;
     if (menuTab === 'inventory') return 5;
     if (menuTab === 'solgrid') return solGridState ? solGridState.size || 5 : 5;
+    if (menuTab === 'weapon') return weaponUpgradeState ? weaponUpgradeState.size || 3 : 3;
     if (menuTab === 'quests') return 1;
     return 1;
   }
@@ -2515,6 +2530,181 @@
     }
   }
 
+  // --- Weapon Upgrade Panel ---
+  function renderWeaponUpgradePanel() {
+    const container = document.getElementById('weapon-upgrade-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!weaponUpgradeState) {
+      const empty = document.createElement('div');
+      empty.className = 'wu-empty';
+      empty.textContent = 'No weapon equipped. Equip a weapon to upgrade it.';
+      container.appendChild(empty);
+      return;
+    }
+
+    const wu = weaponUpgradeState;
+    const rarityColors = CONSTANTS.RARITY_COLORS || {};
+
+    // Header: weapon name
+    const header = document.createElement('div');
+    header.className = 'wu-header';
+    const nameEl = document.createElement('div');
+    nameEl.className = 'wu-weapon-name';
+    nameEl.textContent = wu.weaponName;
+    nameEl.style.color = rarityColors[wu.weaponRarity] || '#fff';
+    header.appendChild(nameEl);
+    const subtitle = document.createElement('div');
+    subtitle.className = 'wu-weapon-subtitle';
+    subtitle.textContent = wu.size + 'x' + wu.size + ' upgrade grid';
+    header.appendChild(subtitle);
+    container.appendChild(header);
+
+    // Total bonuses banner
+    const tb = wu.totalBonuses;
+    const hasBonuses = tb && (tb.flatDamage || tb.damageMultiplier || tb.cooldownReduction || tb.energyCostReduction);
+    if (hasBonuses) {
+      const bonusDiv = document.createElement('div');
+      bonusDiv.className = 'wu-bonuses';
+      const title = document.createElement('div');
+      title.className = 'wu-bonuses-title';
+      title.textContent = 'Upgrade Bonuses';
+      bonusDiv.appendChild(title);
+      const perks = document.createElement('div');
+      if (tb.flatDamage) {
+        const tag = document.createElement('span');
+        tag.className = 'wu-bonus-tag';
+        tag.textContent = '+' + tb.flatDamage + ' DMG';
+        perks.appendChild(tag);
+      }
+      if (tb.damageMultiplier) {
+        const tag = document.createElement('span');
+        tag.className = 'wu-bonus-tag';
+        tag.textContent = '+' + Math.round(tb.damageMultiplier * 100) + '% DMG';
+        perks.appendChild(tag);
+      }
+      if (tb.cooldownReduction) {
+        const tag = document.createElement('span');
+        tag.className = 'wu-bonus-tag';
+        tag.textContent = '-' + Math.round(tb.cooldownReduction * 100) + '% CD';
+        perks.appendChild(tag);
+      }
+      if (tb.energyCostReduction) {
+        const tag = document.createElement('span');
+        tag.className = 'wu-bonus-tag';
+        tag.textContent = '-' + Math.round(tb.energyCostReduction * 100) + '% Cost';
+        perks.appendChild(tag);
+      }
+      bonusDiv.appendChild(perks);
+      container.appendChild(bonusDiv);
+    }
+
+    // Upgrade grid
+    const grid = document.createElement('div');
+    grid.className = 'wu-grid';
+    grid.style.gridTemplateColumns = 'repeat(' + wu.size + ', 80px)';
+    for (let i = 0; i < wu.slots.length; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'wu-cell';
+      const slotData = wu.slots[i];
+      if (slotData) {
+        cell.classList.add('has-material');
+        const name = document.createElement('div');
+        name.className = 'wu-cell-name';
+        name.textContent = slotData.name;
+        name.style.color = rarityColors[slotData.rarity] || '#aaa';
+        cell.appendChild(name);
+        // Show bonus
+        const bonus = slotData.bonus;
+        if (bonus) {
+          const bonusEl = document.createElement('div');
+          bonusEl.className = 'wu-cell-bonus';
+          const parts = [];
+          if (bonus.damage) parts.push('+' + bonus.damage + ' DMG');
+          if (bonus.damageMultiplier) parts.push('+' + Math.round(bonus.damageMultiplier * 100) + '%');
+          if (bonus.cooldownReduction) parts.push('-' + Math.round(bonus.cooldownReduction * 100) + '% CD');
+          if (bonus.energyCostReduction) parts.push('-' + Math.round(bonus.energyCostReduction * 100) + '% Cost');
+          bonusEl.textContent = parts.join(' ');
+          cell.appendChild(bonusEl);
+        }
+        // Click to remove
+        cell.addEventListener('click', () => {
+          net.send({ type: CONSTANTS.MSG.WEAPON_UPGRADE_REMOVE, gridIndex: i });
+        });
+      } else {
+        // Empty cell - click to place selected material
+        cell.addEventListener('click', () => {
+          if (weaponUpgradeSelectedMaterial !== null) {
+            net.send({
+              type: CONSTANTS.MSG.WEAPON_UPGRADE_PLACE,
+              inventoryIndex: weaponUpgradeSelectedMaterial,
+              gridIndex: i,
+            });
+            weaponUpgradeSelectedMaterial = null;
+          }
+        });
+      }
+      grid.appendChild(cell);
+    }
+    container.appendChild(grid);
+
+    // Crafting materials in inventory
+    const craftingMats = [];
+    for (let i = 0; i < inventoryItems.length; i++) {
+      if (inventoryItems[i].category === 'crafting') {
+        craftingMats.push({ item: inventoryItems[i], index: i });
+      }
+    }
+
+    if (craftingMats.length > 0) {
+      const label = document.createElement('div');
+      label.className = 'wu-materials-label';
+      label.textContent = 'Crafting Materials';
+      container.appendChild(label);
+
+      const invGrid = document.createElement('div');
+      invGrid.className = 'wu-inv-grid';
+      for (const { item, index } of craftingMats) {
+        const cell = document.createElement('div');
+        cell.className = 'wu-inv-cell';
+        if (weaponUpgradeSelectedMaterial === index) cell.classList.add('selected');
+        const name = document.createElement('div');
+        name.textContent = item.name;
+        name.style.color = rarityColors[item.rarity] || '#aaa';
+        name.style.fontSize = '11px';
+        cell.appendChild(name);
+        cell.addEventListener('click', () => {
+          weaponUpgradeSelectedMaterial = (weaponUpgradeSelectedMaterial === index) ? null : index;
+          renderWeaponUpgradePanel();
+        });
+        invGrid.appendChild(cell);
+      }
+      container.appendChild(invGrid);
+    }
+
+    // Info text
+    const info = document.createElement('div');
+    info.className = 'wu-info';
+    if (weaponUpgradeSelectedMaterial !== null) {
+      info.textContent = 'Click an empty grid cell to place material';
+    } else {
+      info.textContent = 'Click a material below to select, or click placed to remove';
+    }
+    container.appendChild(info);
+
+    // Disassemble button
+    const disBtn = document.createElement('button');
+    disBtn.className = 'wu-disassemble-btn';
+    disBtn.textContent = 'Disassemble Weapon';
+    disBtn.addEventListener('click', () => {
+      net.send({ type: CONSTANTS.MSG.WEAPON_DISASSEMBLE });
+    });
+    container.appendChild(disBtn);
+
+    updateCursorHighlight();
+  }
+
   // --- Dynamic interact button label ---
   function updateInteractLabel() {
     if (!renderer.state || !renderer.myId) return;
@@ -2997,6 +3187,28 @@
         } else if (ev.type === 'boss_intro' && ev.playerId === renderer.myId) {
           audio.play('boss_intro');
           audio.playMusic(ev.bossMusic || 'boss_combat');
+        } else if (ev.type === 'wave_start') {
+          audio.play('ambush_reveal');
+        } else if (ev.type === 'wave_clear') {
+          audio.play('level_up');
+        } else if (ev.type === 'lighthouse_hit') {
+          audio.play('hit_take');
+        } else if (ev.type === 'siege_victory') {
+          siegeOverlay.className = '';
+          void siegeOverlay.offsetWidth;
+          siegeOverlay.classList.add('victory');
+          siegeOverlayTitle.textContent = 'SIEGE VICTORY';
+          siegeOverlayDetails.textContent = 'The lighthouse stands. Rewards granted.';
+          audio.play('level_up');
+          setTimeout(() => { siegeOverlay.className = ''; }, 6000);
+        } else if (ev.type === 'siege_defeat') {
+          siegeOverlay.className = '';
+          void siegeOverlay.offsetWidth;
+          siegeOverlay.classList.add('defeat');
+          siegeOverlayTitle.textContent = 'SIEGE FAILED';
+          siegeOverlayDetails.textContent = `The lighthouse fell. Waves survived: ${ev.wavesCompleted || 0}`;
+          audio.play('death_player');
+          setTimeout(() => { siegeOverlay.className = ''; }, 5000);
         }
       }
     }
@@ -3215,8 +3427,9 @@
     closeAutomationScreen();
     closeWorldmap();
     hideRaidIncoming();
-    // Hide boss bar when changing floors
+    // Hide boss bar and siege overlay when changing floors
     bossBar.style.display = 'none';
+    siegeOverlay.className = '';
     // Play floor change SFX and switch music based on room name/tileset biome
     audio.play('floor_change');
     const roomName = (msg.map.name || '').toLowerCase();
@@ -3325,6 +3538,23 @@
         clearTutorialArrow();
       }
     }
+  });
+
+  net.on(CONSTANTS.MSG.WEAPON_UPGRADE_STATE, (msg) => {
+    weaponUpgradeState = msg.state || null;
+    weaponUpgradeSelectedMaterial = null;
+    // Update weapon tab disabled state
+    const wTab = document.querySelector('#character-menu .inv-tab[data-tab="weapon"]');
+    if (wTab) wTab.classList.toggle('disabled', !weaponUpgradeState);
+    // If weapon tab became unavailable while viewing it, switch away
+    if (menuOpen && menuTab === 'weapon' && !weaponUpgradeState) {
+      switchTab('equipment');
+    }
+    if (menuOpen && menuTab === 'weapon' && weaponUpgradeState) {
+      renderWeaponUpgradePanel();
+    }
+    // Re-render equipment slots
+    if (menuOpen && menuTab === 'equipment') renderEquipmentSlots();
   });
 
   net.on(CONSTANTS.MSG.ABILITY_STATE, (msg) => {
@@ -3448,6 +3678,11 @@
       renderSolGrid();
     }
     if (menuOpen && menuTab === 'cached') renderCachedItems();
+    // Re-render weapon upgrade panel when inventory changes so crafting materials list stays in sync
+    if (menuOpen && menuTab === 'weapon' && weaponUpgradeState) {
+      weaponUpgradeSelectedMaterial = null;
+      renderWeaponUpgradePanel();
+    }
   });
 
   net.on(CONSTANTS.MSG.PLAYER_JOIN, (msg) => {

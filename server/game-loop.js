@@ -1329,6 +1329,8 @@ class GameLoop {
       phaseTimer: Math.ceil(siege.phaseTimer),
       lighthouseHp: Math.max(0, Math.round(siege.lighthouseHp)),
       lighthouseMaxHp: siege.lighthouseMaxHp,
+      lighthouseX: siege.lighthouseX,
+      lighthouseY: siege.lighthouseY,
       communalEnergy: Math.round(siege.communalEnergy),
       communalEnergyMax: siege.communalEnergyMax,
       monstersRemaining: room.monsters.size,

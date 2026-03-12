@@ -137,6 +137,10 @@ class Renderer {
     // Boss intro cinematic state
     this.bossIntro = null; // { bossName, x, y, elapsed, duration, phase }
 
+    // Siege lighthouse rendering state
+    this.lighthouseSprite = null;  // PIXI.Container for lighthouse entity
+    this.siegeAnnouncements = [];  // floating center-screen text announcements
+
     this._initPixi();
   }
 
@@ -1555,6 +1559,7 @@ class Renderer {
     this.renderExits();
     this.renderClickTarget();
     this.renderAimLine();
+    this.renderLighthouse();
     this.renderItems();
     this.renderNPCs();
     this.renderMonsters();
@@ -1575,6 +1580,7 @@ class Renderer {
     this.renderMinimap();
     this.renderQuestArrow();
     this.renderSpeechBubble();
+    this.renderSiegeAnnouncements();
 
     // Y-sort the entity container
     this.entityContainer.sortChildren();
@@ -3532,6 +3538,199 @@ class Renderer {
     });
   }
 
+  // --- Siege Lighthouse Entity ---
+
+  renderLighthouse() {
+    const siege = this.state && this.state.siege;
+    if (!siege || !siege.lighthouseX) {
+      // Remove lighthouse if siege ended
+      if (this.lighthouseSprite) {
+        this.entityContainer.removeChild(this.lighthouseSprite);
+        this.lighthouseSprite.destroy({ children: true });
+        this.lighthouseSprite = null;
+      }
+      return;
+    }
+
+    // Create lighthouse container on first render
+    if (!this.lighthouseSprite) {
+      const container = new PIXI.Container();
+
+      // Pulsing glow circle behind the lighthouse
+      const glow = new PIXI.Graphics();
+      glow.name = 'glow';
+      container.addChild(glow);
+
+      // Main lighthouse body (drawn procedurally)
+      const body = new PIXI.Graphics();
+      body.name = 'body';
+      container.addChild(body);
+
+      // Name tag
+      const nameTag = new PIXI.Text('LIGHTHOUSE', {
+        fontFamily: 'Courier New',
+        fontSize: 10,
+        fontWeight: 'bold',
+        fill: '#4fc3f7',
+        align: 'center',
+      });
+      nameTag.anchor.set(0.5, 1);
+      container.addChild(nameTag);
+
+      // Health bar background
+      const hpBg = new PIXI.Graphics();
+      hpBg.name = 'hpBg';
+      container.addChild(hpBg);
+
+      // Health bar fill
+      const hpFill = new PIXI.Graphics();
+      hpFill.name = 'hpFill';
+      container.addChild(hpFill);
+
+      this.entityContainer.addChild(container);
+      this.lighthouseSprite = container;
+    }
+
+    const container = this.lighthouseSprite;
+    const lhx = siege.lighthouseX;
+    const lhy = siege.lighthouseY;
+
+    this._positionEntity(container, lhx, lhy);
+
+    const hpPct = siege.lighthouseMaxHp > 0 ? siege.lighthouseHp / siege.lighthouseMaxHp : 0;
+    const pulse = 0.6 + 0.4 * Math.sin(Date.now() / 800);
+    const isHurt = hpPct < 0.4;
+
+    // Glow circle
+    const glow = container.getChildByName('glow');
+    glow.clear();
+    const glowColor = isHurt ? 0xe53935 : 0x4fc3f7;
+    const glowRadius = (this.isoMode ? 28 : 24) * pulse;
+    glow.beginFill(glowColor, 0.15 * pulse);
+    glow.drawCircle(0, this.isoMode ? -10 : 0, glowRadius);
+    glow.endFill();
+
+    // Lighthouse body
+    const body = container.getChildByName('body');
+    body.clear();
+    const sz = this.isoMode ? 18 : 16;
+    const baseY = this.isoMode ? -sz : -sz / 2;
+    // Tapered tower
+    body.beginFill(0xb0bec5);
+    body.moveTo(-sz / 2, baseY + sz);
+    body.lineTo(-sz / 3, baseY);
+    body.lineTo(sz / 3, baseY);
+    body.lineTo(sz / 2, baseY + sz);
+    body.closePath();
+    body.endFill();
+    // Beacon top
+    const beaconColor = isHurt ? 0xe53935 : (hpPct < 0.7 ? 0xffa726 : 0x4fc3f7);
+    body.beginFill(beaconColor);
+    body.drawCircle(0, baseY - 2, 4 + pulse * 2);
+    body.endFill();
+
+    // Name tag position
+    const nameTag = container.children[2]; // nameTag
+    nameTag.y = baseY - 10;
+
+    // Health bar
+    const hpBg = container.getChildByName('hpBg');
+    const hpFill = container.getChildByName('hpFill');
+    const barW = 30;
+    const barH = 3;
+    const barY = this.isoMode ? 10 : sz / 2 + 4;
+    hpBg.clear();
+    hpBg.beginFill(0x333333);
+    hpBg.drawRect(-barW / 2, barY, barW, barH);
+    hpBg.endFill();
+    hpFill.clear();
+    const barColor = hpPct > 0.5 ? 0x4fc3f7 : (hpPct > 0.25 ? 0xffa726 : 0xe53935);
+    hpFill.beginFill(barColor);
+    hpFill.drawRect(-barW / 2, barY, barW * hpPct, barH);
+    hpFill.endFill();
+  }
+
+  // --- Siege Announcements (center-screen floating text) ---
+
+  renderSiegeAnnouncements() {
+    const dt = 1 / 60;
+    this.siegeAnnouncements = this.siegeAnnouncements.filter(ann => {
+      ann.age += dt;
+      if (ann.age >= ann.maxAge) {
+        this.overlayContainer.removeChild(ann.textObj);
+        ann.textObj.destroy();
+        if (ann.subObj) {
+          this.overlayContainer.removeChild(ann.subObj);
+          ann.subObj.destroy();
+        }
+        return false;
+      }
+      const progress = ann.age / ann.maxAge;
+      // Fade in for first 15%, hold, fade out last 30%
+      let alpha;
+      if (progress < 0.15) {
+        alpha = progress / 0.15;
+      } else if (progress > 0.7) {
+        alpha = 1 - (progress - 0.7) / 0.3;
+      } else {
+        alpha = 1;
+      }
+      // Slight upward drift
+      const drift = -ann.age * 12;
+      ann.textObj.x = this.viewW / 2;
+      ann.textObj.y = this.viewH * 0.3 + drift;
+      ann.textObj.alpha = alpha;
+      // Scale punch on entry
+      const scale = progress < 0.1 ? 1 + (1 - progress / 0.1) * 0.3 : 1;
+      ann.textObj.scale.set(scale);
+
+      if (ann.subObj) {
+        ann.subObj.x = this.viewW / 2;
+        ann.subObj.y = this.viewH * 0.3 + drift + 22;
+        ann.subObj.alpha = alpha * 0.8;
+      }
+      return true;
+    });
+  }
+
+  showSiegeAnnouncement(text, color, subtitle, duration) {
+    if (!this.ready) return;
+    const maxAge = duration || 2.5;
+    const textObj = new PIXI.Text(text, {
+      fontFamily: 'Courier New',
+      fontSize: 20,
+      fontWeight: 'bold',
+      fill: color || '#ffffff',
+      align: 'center',
+      dropShadow: true,
+      dropShadowColor: '#000000',
+      dropShadowDistance: 2,
+    });
+    textObj.anchor.set(0.5);
+    textObj.x = this.viewW / 2;
+    textObj.y = this.viewH * 0.3;
+    this.overlayContainer.addChild(textObj);
+
+    let subObj = null;
+    if (subtitle) {
+      subObj = new PIXI.Text(subtitle, {
+        fontFamily: 'Courier New',
+        fontSize: 12,
+        fill: '#aaaaaa',
+        align: 'center',
+        dropShadow: true,
+        dropShadowColor: '#000000',
+        dropShadowDistance: 1,
+      });
+      subObj.anchor.set(0.5);
+      subObj.x = this.viewW / 2;
+      subObj.y = this.viewH * 0.3 + 22;
+      this.overlayContainer.addChild(subObj);
+    }
+
+    this.siegeAnnouncements.push({ textObj, subObj, age: 0, maxAge });
+  }
+
   renderDeathAnims() {
     const dt = 1 / 60;
     this.deathAnims = this.deathAnims.filter(da => {
@@ -3800,6 +3999,30 @@ class Renderer {
           age: 0, maxAge: 0.6,
         });
         this.screenShake = { intensity: 8, duration: 0.4, elapsed: 0 };
+      } else if (ev.type === 'wave_start') {
+        this.showSiegeAnnouncement(
+          `WAVE ${ev.wave}`,
+          '#e53935',
+          `${ev.monsterCount} enemies incoming`,
+          3.0
+        );
+        this.screenShake = { intensity: 4, duration: 0.3, elapsed: 0 };
+      } else if (ev.type === 'wave_clear') {
+        const msg = ev.wave >= ev.maxWaves ? 'FINAL WAVE CLEARED!' : `WAVE ${ev.wave} CLEARED`;
+        const color = ev.wave >= ev.maxWaves ? '#ffa726' : '#66bb6a';
+        this.showSiegeAnnouncement(msg, color, null, 2.5);
+      } else if (ev.type === 'lighthouse_hit') {
+        // Damage number at lighthouse position
+        this.damageNumbers.push({
+          text: `-${ev.amount}`,
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.0,
+          color: '#4fc3f7',
+        });
+        this.hitFlashes.set('lighthouse', 0.12);
+        // Shake proportional to damage severity
+        const lhPct = ev.lighthouseMaxHp > 0 ? ev.lighthouseHp / ev.lighthouseMaxHp : 0;
+        this.screenShake = { intensity: lhPct < 0.3 ? 6 : 3, duration: 0.15, elapsed: 0 };
       } else if (ev.type === 'boss_intro' && ev.playerId === this.myId) {
         // Start boss intro cinematic
         this.bossIntro = {
