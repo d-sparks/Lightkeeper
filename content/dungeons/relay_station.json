@@ -90,7 +90,8 @@
           "The relay log is water-damaged but readable. The last entry catches your eye:",
           "\"Day 847. Seismic readings off the chart again. Something is moving under the ground. Deep. Rhythmic. The instruments say it's at least 3 klicks down.\"",
           "\"Coordinates don't match any known settlement or geological feature. I've reported it to Balor. No response.\"",
-          "\"Day 848. No entry.\""
+          "\"Day 848. No entry.\"",
+          "Comms Officer Daley at Outpost Balor should see this log — he tracks signals from the relay network."
         ]}
       ],
       "once": true
@@ -100,7 +101,7 @@
       "event": "item_picked_up",
       "filter": { "itemType": "umbracite_shard" },
       "actions": [
-        { "type": "showMessage", "text": "A raw fragment of umbracite crystal, partially embedded in the collapsed wall. It pulses with a faint inner light. The Array's automated systems would trade well for this." }
+        { "type": "showMessage", "text": "A raw fragment of umbracite crystal, partially embedded in the collapsed wall. It pulses with a faint inner light. MERIDIAN-7 at the Array Hub in Meridian City would trade well for this." }
       ],
       "once": true
     },

@@ -69,7 +69,8 @@
         { "type": "showMessage", "lines": [
           "A bloodstained letter clutched in a skeletal hand, half-buried in rubble:",
           "'To whoever finds this — we are not what they say. We left the Ring because we saw what the Array is building. Not solar panels. Not harvesters. Something underneath, something vast.'",
-          "'The Lighthouses keep more than the dark out. They keep something IN. We tried to warn them. They called us savages. — Kael, of the Unbounded'"
+          "'The Lighthouses keep more than the dark out. They keep something IN. We tried to warn them. They called us savages. — Kael, of the Unbounded'",
+          "The Unbounded have a presence near Meridian. Someone there might know more about Kael's claims."
         ]}
       ],
       "once": true

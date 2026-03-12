@@ -151,6 +151,12 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Rechargeable Battery L1 (30 energy) may need bump to 40.
 - Automation milestone reward thresholds may need tuning.
 
+## Quest Item Pickup Hints
+
+- **Audit future quest items**: Any new key/quest item placed in a dungeon should have an `item_picked_up` trigger with a `showMessage` that includes a clear next-step hint (who to talk to, where to go, what to do with it). All existing items have been updated as of 2026-03-12.
+- **Equipment items (sol units, bioframes)**: Currently show flavor text but no usage hint like "equip this in your Sol Grid." Consider adding brief equip instructions for players unfamiliar with the Sol Grid system.
+- **Lore items with no NPC connection**: Some lore items (e.g. `lore_soldiers_journal`) point players toward NPCs for flavor, but there's no actual NPC dialogue branch that acknowledges the item. Consider adding `hasItem` dialogue rules for lore items that have pickup hints pointing to specific NPCs.
+
 ## Quest Graph
 
 - ~~Remaining orphaned flags audit.~~ ✓ Complete — `tools/audit-flags.py` comprehensively scans all content JSON (dungeons, tilesets, quests, expeditions, NPC entity dialogueRules) and found 0 orphaned setFlag calls and 0 unset hasFlag conditions. All 228 wired flags have both producers and consumers. The 9 "content-invisible" flags (`automation_established`, `automation_level`, `damage_booster_equipped`, `expedition_active`, `expedition_tier_N_cleared`, `has_traded_meridian`) are set directly by engine code (`server/index.js`, `server/game-loop.js`) outside the trigger/action system — this is expected. **Fix applied**: `automation_level` was checked by expedition tier 3–5 unlock conditions but never written; fixed in `server/index.js` `AUTO_BUILD` handler to update `automation_level` to the current total structure count after each build.

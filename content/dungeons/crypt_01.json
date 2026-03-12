@@ -561,7 +561,7 @@
         },
         {
           "type": "showMessage",
-          "text": "You found an iron key. It feels cold to the touch."
+          "text": "You found an iron key. It feels cold to the touch. There's a locked gate deeper in the crypts — this might open it."
         },
         {
           "type": "grantXp",

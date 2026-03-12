@@ -121,7 +121,8 @@
         { "type": "setFlag", "flag": "found_deep_umbracite" },
         { "type": "showMessage", "lines": [
           "Umbracite deposits — clusters of dark crystal embedded in the rock, larger and more pure than anything near the outpost.",
-          "This is the primary source. The Array wants this material desperately. You're starting to understand why."
+          "This is the primary source. The Array wants this material desperately. You're starting to understand why.",
+          "MERIDIAN-7 at the Array Hub in Meridian City trades for umbracite. Councillor Asha Denn would also want to know about these deposits."
         ]}
       ],
       "once": true

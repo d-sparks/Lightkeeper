@@ -168,7 +168,7 @@
         { "hasFlag": "nightside_expedition_started" }
       ],
       "actions": [
-        { "type": "showMessage", "text": "The refined umbracite pulses in sync with the walls. This deep, the crystals are nearly alive — resonating with the Underlumen far below." }
+        { "type": "showMessage", "text": "The refined umbracite pulses in sync with the walls. This deep, the crystals are nearly alive — resonating with the Underlumen far below. MERIDIAN-7 has been seeking refined umbracite — bring this to the Array Hub in Meridian." }
       ],
       "once": true
     },

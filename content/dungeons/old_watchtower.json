@@ -73,7 +73,8 @@
           "\"Year 12: Floodlight perimeter stable at 400 meters. No incursions.\"",
           "\"Year 19: Perimeter pulled back to 200 meters. Lost Floodlight 3 and 7.\"",
           "\"Year 24: Perimeter at 50 meters. The watchtower is now in darkness. I can hear them outside.\"",
-          "The last entry: \"The light went out.\""
+          "The last entry: \"The light went out.\"",
+          "The Old Keeper at Outpost Balor served on the perimeter for years. He'd want to read this."
         ]},
         { "type": "setFlag", "flag": "found_watchtower_journal" }
       ],

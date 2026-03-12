@@ -90,7 +90,8 @@
         { "type": "showMessage", "lines": [
           "A half-burned notebook found near a collapsed floodlight tower. The surviving pages contain obsessive diagrams of the Lighthouse network.",
           "'The spacing is too regular. I checked three times. Every Lighthouse is exactly the same distance from its neighbors — not approximately, EXACTLY.'",
-          "'No human surveyor is that precise. These weren't placed by engineers. They were placed by something that thinks in grids.'"
+          "'No human surveyor is that precise. These weren't placed by engineers. They were placed by something that thinks in grids.'",
+          "The Old Keeper at Outpost Balor studies the Lighthouse network. He'd want to see this."
         ]}
       ],
       "once": true

@@ -114,7 +114,8 @@
         { "type": "showMessage", "lines": [
           "This isn't like the rough umbracite you've found before. This crystal is perfectly formed — geometric facets that catch even the faintest light and split it into impossible colors.",
           "It's warm in your hands. Almost alive. You understand now why MERIDIAN-7 wants this so badly.",
-          "The Array's interest in umbracite isn't just commercial. There's something deeper at work here."
+          "The Array's interest in umbracite isn't just commercial. There's something deeper at work here.",
+          "Bring this to MERIDIAN-7 at the Array Hub in Meridian City — but Councillor Asha Denn might want to know about it too."
         ]}
       ],
       "once": true
