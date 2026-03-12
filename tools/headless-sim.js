@@ -1882,6 +1882,40 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
   // Track flags that earlier steps' prereqs already plan to resolve
   const prereqVisited = new Set();
 
+  // Resolve quest-level startConditions (e.g. found_basement_note for the_deserter)
+  if (quest.startConditions) {
+    for (const cond of flattenConditions(quest.startConditions)) {
+      if (cond.hasFlag) {
+        // Check if the flag is already set
+        const flags = gameLoop.flagStore.getPlayerFlags(PLAYER_ID);
+        if (flags[cond.hasFlag]) continue;
+
+        // Find what sets this flag — could be a trigger (item pickup, room entry, etc.)
+        const flagSource = findRoomThatSetsFlag(cond.hasFlag);
+        if (flagSource) {
+          // Check if the trigger requires picking up an item first
+          if (flagSource.trigger && flagSource.trigger.event === 'item_picked_up' && flagSource.trigger.filter && flagSource.trigger.filter.itemType) {
+            const itemType = flagSource.trigger.filter.itemType;
+            const itemLoc = findGroundItem(itemType, flagSource.roomId);
+            if (itemLoc) {
+              goals.push({ type: 'navigate_to_room', room: itemLoc.roomId, questId });
+              goals.push({ type: 'pick_up_item', itemType, room: itemLoc.roomId, questId });
+            }
+          } else {
+            goals.push({ type: 'navigate_to_room', room: flagSource.roomId, questId });
+            if (flagSource.npcType) {
+              goals.push({ type: 'interact_with_npc', npcType: flagSource.npcType, room: flagSource.roomId, questId });
+            } else {
+              goals.push({ type: 'explore_room', questId });
+            }
+          }
+          goals.push({ type: 'wait_for_flag', flag: cond.hasFlag, retryInteract: true, retryTicks: 15, questId });
+        }
+        prereqVisited.add(cond.hasFlag);
+      }
+    }
+  }
+
   for (const stepId of stepOrder) {
     const step = quest.steps[stepId];
     if (!step) continue;
@@ -2608,7 +2642,7 @@ function formatTime(seconds) {
 // Run Modes
 // ═══════════════════════════════════════════════════════════════════════
 
-function runQuest(gameLoop, bot, questId) {
+function runQuest(gameLoop, bot, questId, maxSeconds) {
   const quest = content.getQuest(questId);
   if (!quest) {
     return { questId, status: 'error', gameTime: 0, deaths: 0, monstersKilled: 0, error: `Quest "${questId}" not found` };
@@ -2625,7 +2659,7 @@ function runQuest(gameLoop, bot, questId) {
   bot.questMonstersKilled = 0;
   bot.ticksWithoutProgress = 0;
 
-  const result = runSimulation(gameLoop, bot, MAX_GAME_SECONDS, questId);
+  const result = runSimulation(gameLoop, bot, maxSeconds || MAX_GAME_SECONDS, questId);
 
   const questResult = {
     questId,
@@ -2744,11 +2778,12 @@ function main() {
 
     case 'quest': {
       const questId = mode.questId;
-      // If quest has prerequisites, run mainline first
       const quest = content.getQuest(questId);
       if (quest && quest.startConditions) {
-        // Run mainline to set up base state
-        runMainline(gameLoop, bot);
+        // Run mainline with a capped timeout to get the bot equipped and
+        // positioned, without wasting the full quest budget on late-game stalls
+        runQuest(gameLoop, bot, 'main_quest', 1200);
+        // Clear mainline goals/state regardless of outcome
         bot.goals = [];
         bot.currentPath = null;
         bot.ticksWithoutProgress = 0;

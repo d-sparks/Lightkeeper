@@ -2,7 +2,7 @@
 
 Prioritized task list — last refreshed 2026-03-12 (evening).
 
-Based on headless sim analysis: mainline **PASSES** (28/57 rooms 49.1%, 112 kills, 0 deaths, 26 min). All-quests mode: **10/14 quests complete, 4 fail** — main_quest TIMEOUT (underlumen_threshold backtrack still stalls), nightside_expedition/broken_signal/phase3_investigation TIMEOUT. relay_recovery, lost_tool, the_deserter now pass. Explore mode **BROKEN** (7/57 rooms 12.3%) — blocked by `engineer_briefing_complete` flag on outpost_workshop door. Zero deaths across all modes. Only 5-9/52 items collected and 20-29/60 NPCs talked to.
+Based on headless sim analysis: mainline **STUCK** at underlumen_threshold (~1000s, 27/57 rooms 47.4%). All-quests mode: **13/14 quests complete, 1 fail** — only main_quest STUCK (underlumen_threshold backtrack stalls). All side quests pass including the_deserter (navigates Deep Perimeter East → fen_cache and back). Single-quest mode (`--quest=X`) now handles startConditions and uses capped mainline setup (1200s). Explore mode **BROKEN** (7/57 rooms 12.3%) — blocked by `engineer_briefing_complete` flag on outpost_workshop door. Zero deaths across all modes. Only 5-9/52 items collected and 20-29/60 NPCs talked to.
 
 **Storyboard coverage**: Act I ~55% (Outpost + Nightside done; Lighthouse Mara, Dural Voss, Spire of Vigil missing), Act II ~25% (Dayside partial; Greenway, Bulwark, Spire of Winds missing), Act III ~20% (ending dungeons exist; Spire of Radiance missing). The storyboard targets 31-38 hours; the sim completes in 26 minutes. The narrative spine — three Spire dungeons and Lighthouse Mara — is unbuilt.
 
@@ -10,14 +10,12 @@ Based on headless sim analysis: mainline **PASSES** (28/57 rooms 49.1%, 112 kill
 
 ---
 
-## [sonnet] Fix 4 remaining broken quests in all-quests sim
+## [sonnet] Fix main_quest underlumen_threshold stall (last broken quest)
 
-Down from 7 to 4 failing quests. relay_recovery, lost_tool, and the_deserter now pass. Remaining bugs:
-- **main_quest + nightside_expedition**: Both TIMEOUT — the bot stalls navigating back from underlumen_threshold despite the transit portal. May need sim pathfinding fix or additional route.
-- **broken_signal**: TIMEOUT. The Daley coordinates fix (93c427f) was applied but the quest still times out in all-quests mode. May be a dependency ordering issue.
-- **phase3_investigation**: TIMEOUT. This quest involves Directive 11-Kappa — check if prerequisites are met during all-quests flow.
+Down from 7 to 1 failing quest. All 13 side quests pass. Remaining bug:
+- **main_quest**: STUCK at underlumen_threshold (~1000s). The bot reaches the nightside depths but gets stuck navigating back to meridian_civic. Transit portal exists but the bot can't find/use it. May need sim pathfinding fix or additional route from underlumen_threshold.
 
-Getting all 14 quests passing in the sim is the single most impactful reliability improvement.
+Getting main_quest passing in the sim would mean all 14 quests complete.
 
 ## [sonnet] Fix explore mode — blocked at 12.3% coverage
 
