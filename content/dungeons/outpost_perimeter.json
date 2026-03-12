@@ -2475,6 +2475,14 @@
       "type": "stairs_down",
       "spawnX": 9,
       "spawnY": 10
+    },
+    {
+      "x": 48,
+      "y": 22,
+      "leadsTo": "lighthouse_siege_arena",
+      "type": "stairs_down",
+      "spawnX": 10,
+      "spawnY": 1
     }
   ],
   "triggers": [

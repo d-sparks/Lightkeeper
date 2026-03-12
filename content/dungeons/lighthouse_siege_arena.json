@@ -31,6 +31,20 @@
   "monsterSpawns": [],
   "npcSpawns": [],
   "itemSpawns": [],
-  "exits": [],
-  "triggers": []
+  "exits": [
+    { "x": 10, "y": 13, "leadsTo": "outpost_perimeter", "type": "stairs_up", "spawnX": 24, "spawnY": 43 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_lighthouse_siege",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The lighthouse beacon flickers as the nightside assault begins.",
+          "Waves of void creatures are closing in. Hold the perimeter."
+        ]}
+      ],
+      "once": true
+    }
+  ]
 }

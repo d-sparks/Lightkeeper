@@ -39,7 +39,9 @@
   "monsterSpawns": [],
   "npcSpawns": [],
   "itemSpawns": [],
-  "exits": [],
+  "exits": [
+    { "x": 10, "y": 18, "leadsTo": "dayside_solar_fields", "type": "stairs_up", "spawnX": 2, "spawnY": 14 }
+  ],
   "triggers": [
     {
       "id": "enter_raid_defense",
