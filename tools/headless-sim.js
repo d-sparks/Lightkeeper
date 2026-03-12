@@ -1185,10 +1185,16 @@ class Bot {
       const inCorrectProc = this.currentRoom.startsWith('proc:' + goal.templateId + ':');
       const currentDepth = inCorrectProc ? this._getProcDepth(this.getRoom()) : -1;
       if (!inCorrectProc || currentDepth !== goal.expectedDepth) {
-        // Reset state for retry
+        // Reset state for retry — clear tile target too so stale coordinates from a
+        // previous room instance don't misdirect the bot in the new room.
         goal._killingMonsters = false;
         goal._searchedTiles = false;
         goal._killRetryCount = 0;
+        goal._targetTileX = null;
+        goal._targetTileY = null;
+        goal._movedToTile = false;
+        goal._interactCooldown = 0;
+        goal._resetKilled = false;
         this.pushGoal({ type: 'traverse_procedural', templateId: goal.templateId, targetDepth: goal.expectedDepth });
         return;
       }
@@ -1206,11 +1212,12 @@ class Bot {
       }
     }
 
-    // If in a procedural room, prioritize interactable tiles (chests/crates that
-    // spawn the item) over killing monsters — the item often comes from tile
-    // interaction, not monster drops
-    if (this.currentRoom.startsWith('proc:')) {
-      // Look for interactable tiles (locked crates, etc.) and move toward them
+    // If in a procedural room and we know the specific tile type to look for
+    // (e.g. a chest/crate), search for it and interact. Only do this when
+    // targetTileType is set — if we're waiting for a monster drop we must NOT
+    // fixate on random corridor doors, which would prevent the bot from ever
+    // reaching the monster.
+    if (this.currentRoom.startsWith('proc:') && goal.targetTileType != null) {
       if (!goal._searchedTiles) {
         goal._searchedTiles = true;
         const interactableTile = this._findInteractableTile(room, goal.targetTileType);
@@ -1242,6 +1249,34 @@ class Bot {
           if (!result && dist > 1) {
             goal._movedToTile = false;
           }
+          // If the tile interaction returned a fail message, check whether we're
+          // missing a required item (e.g. lost the supply_crate_key on death).
+          // Push a recovery goal to re-acquire the item before trying again.
+          if (result && result.interactType === 'message') {
+            const tileset = content.getTileset(room.dungeon.tileset);
+            if (tileset) {
+              const tileId = room.dungeon.data[goal._targetTileY * room.dungeon.width + goal._targetTileX];
+              const tileDef = tileset.tiles[String(tileId)];
+              if (tileDef && tileDef.conditions) {
+                for (const cond of tileDef.conditions) {
+                  if (cond.hasItem && !player.inventory.some(i => i.type === cond.hasItem)) {
+                    console.log(`[Bot] Chest at (${goal._targetTileX},${goal._targetTileY}) needs "${cond.hasItem}" which was lost — pushing recovery goal (depth ${(goal.expectedDepth || 0) + 1})`);
+                    // Clear tile state so we don't immediately retry the chest
+                    goal._targetTileX = null;
+                    goal._targetTileY = null;
+                    goal._searchedTiles = false;
+                    goal._movedToTile = false;
+                    goal._interactCooldown = 0;
+                    // Navigate back to the deeper floor where the item is obtained
+                    if (goal.templateId && goal.expectedDepth) {
+                      this.pushGoal({ type: 'wait_for_item', itemType: cond.hasItem, templateId: goal.templateId, expectedDepth: goal.expectedDepth + 1, questId: goal.questId });
+                    }
+                    break;
+                  }
+                }
+              }
+            }
+          }
         }
         return;
       }
@@ -1261,6 +1296,41 @@ class Bot {
     }
     if (room.monsters.size === 0 || (goal._killingMonsters && !this.goals.some(g => g.type === 'kill_monsters'))) {
       goal._killingMonsters = false;
+    }
+
+    // If at correct proc depth but no monsters remain and item still not obtained,
+    // the quest monster may be permanently dead (tracked in killedMonsters) from a
+    // previous visit where the bot got the item, died, and lost it. Clear the killed
+    // state to allow a fresh respawn on re-entry.
+    if (room.monsters.size === 0 && goal.templateId && goal.expectedDepth && !goal._resetKilled) {
+      const inCorrectProc = this.currentRoom.startsWith('proc:' + goal.templateId + ':');
+      const currentDepth = inCorrectProc ? this._getProcDepth(this.getRoom()) : -1;
+      if (inCorrectProc && currentDepth === goal.expectedDepth) {
+        console.log(`[Bot] Depth ${currentDepth} of "${goal.templateId}" — no monsters, no "${goal.itemType}". Resetting killedMonsters for fresh respawn.`);
+        for (const dId of [...this.gameLoop.killedMonsters.keys()]) {
+          if (dId.includes(':' + goal.templateId + ':')) {
+            this.gameLoop.killedMonsters.delete(dId);
+          }
+        }
+        goal._resetKilled = true;
+        goal._killingMonsters = false;
+        goal._killRetryCount = 0;
+        goal._searchedTiles = false;
+        goal._targetTileX = null;
+        goal._targetTileY = null;
+        goal._movedToTile = false;
+        goal._interactCooldown = 0;
+        // Navigate to shallower depth first to force room destruction, then back down
+        // so the fresh room spawns monsters from scratch.
+        if (goal.expectedDepth > 1) {
+          this.pushGoal({ type: 'traverse_procedural', templateId: goal.templateId, targetDepth: goal.expectedDepth });
+          this.pushGoal({ type: 'traverse_procedural', templateId: goal.templateId, targetDepth: goal.expectedDepth - 1 });
+        } else {
+          this.pushGoal({ type: 'traverse_procedural', templateId: goal.templateId, targetDepth: goal.expectedDepth });
+          this.pushGoal({ type: 'find_exit_in_room', exitType: 'stairs_up' });
+        }
+        return;
+      }
     }
 
     // Fallback: try interacting periodically (for non-proc rooms or when no target)
