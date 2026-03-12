@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-12 (refreshed with sim analysis — mainline PASS 28/57 rooms 49.1% 113 kills 0 deaths 24 min; all-quests 10/14 complete with relay_recovery STUCK + nightside_expedition/broken_signal TIMEOUT, 36/57 rooms 63.2%, 0 deaths; explore FAIL 7/57 rooms 12.3% flag-gated at outpost_workshop)
+Last updated: 2026-03-12 (refreshed with sim analysis — mainline FLAKY ~66% pass rate due to proc_quarantine titanium_cylinders softlock, 28/57 rooms 49.1% 105 kills 0 deaths 24 min on success; all-quests 10/14 complete with relay_recovery STUCK + nightside_expedition/broken_signal TIMEOUT; explore FAIL 7/57 rooms 12.3% flag-gated at outpost_workshop)
 
 ## Big Picture
 
@@ -53,38 +53,39 @@ The game needs three things to go from "deep tech demo" to "complete game":
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Fix broken quests, connect disconnected content, add tension**
+Focus: **Fix mainline reliability, broken quests, add tension, connect content**
 
-1. **Fix relay_recovery quest** — STUCK on `junction_a_activated` flag in relay_station. Bot can't interact with door at (3,3). Content or sim pathfinding fix.
-2. **Fix broken_signal quest** — TIMEOUT. Bot may not acquire `daley_coordinates` item or carry it when entering signal_cave.
-3. **Fix nightside_expedition return navigation** — TIMEOUT. Bot can't navigate 6-room return from underlumen_threshold to meridian_civic. Add fast-travel trigger.
-4. **Fix explore-mode flag gating** — `engineer_briefing_complete` blocks explore bot at 12.3% coverage. Grant story flags in explore mode.
-5. **Difficulty tuning** — 0 deaths across all sim modes (113 kills mainline, took only 931 damage). Increase Nightside monster damage, reduce early healing drops.
-6. **Connect crypt dungeons to narrative** — crypt_01/02 accessible but no quest/NPC mentions them. Old Keeper hint + side quest.
-7. **Connect orphaned Nightside dungeons** — signal_cave, old_watchtower, fen_cache, outer_expanse have content but no quest breadcrumbs. 6 of 21 unvisited rooms.
-8. **Distribute crafting materials across biome loot tables** — Currently only in common.json.
-9. **Wire lighthouse_siege_arena to NPC trigger** — Fully-built endgame system with no player-facing entry point.
+1. **Fix proc_quarantine titanium_cylinders softlock** — Mainline fails ~33% of runs. Chest interaction at depth 2 treasure room unreliable.
+2. **Difficulty tuning** — 0 deaths across all modes. Increase monster damage, reduce early healing, buff boss specials.
+3. **Fix relay_recovery quest** — STUCK on `junction_a_activated` in relay_station. Door at (3,3) interaction issue.
+4. **Fix broken_signal quest** — TIMEOUT. Prerequisite chain for `daley_coordinates` may not fire correctly.
+5. **Fix nightside_expedition return** — TIMEOUT. No fast-travel from underlumen_threshold back to meridian_civic.
+6. **Connect crypt dungeons to narrative** — Old Keeper hint + side quest sending player to crypt_02.
+7. **Connect orphaned Nightside dungeons** — Wire signal_cave, old_watchtower, fen_cache into side quests.
+8. **Wire lighthouse_siege_arena** — Lower unlock condition + NPC mention from Warden Holt.
+9. **Distribute crafting materials** — Add biome-appropriate drops to frost/fungal/geothermal/nightside/array loot tables.
+10. **Environmental storytelling: Nightside path** — Lore items and room-entered messages for the 4-room Nightside chain.
+11. **Wire Array chain into quest** — NPC breadcrumbs through full Array complex before ending choice.
+12. **Fix explore-mode flag gating** — Grant story flags in explore mode for content validation.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
-Focus: **Build the story campaign dungeons that connect Acts 1-3**
+Focus: **Build the story campaign dungeons that complete Acts 1-3**
 
-8. **Add environmental storytelling to Nightside path** — nightside_caverns → underlumen_threshold has combat but no narrative atmosphere.
-9. **Wire full Array dungeon chain into quest** — control_center and command_throne never visited during quests. Array complex feels disconnected from Acts II-III.
-10. **Build Lighthouse Mara** — Multi-floor frozen cavern expedition. Core Act 1 beat. Uses frost_crypt tileset.
-11. **Add Dural Voss boss encounter** — Named raider warlord with retreat mechanic. Key Act 1 narrative moment.
-12. **Build Spire of Vigil** — Raider stronghold (outer) + Underlumen puzzle core (inner). Act 1 climax. Unlocks Light Sentry.
-13. **Level-up stat screen + weapon upgrade confirmation** — Key UX improvements.
-14. **Build Greenway corridors + Spire of Winds** — Act 2 setting and climax. Requires new greenway tileset.
+13. **Build Lighthouse Mara** — Multi-floor frozen cavern expedition. Most-referenced missing content (15+ NPC mentions). Core Act 1 beat.
+14. **Build Dural Voss boss encounter** — Named raider warlord with retreat mechanic. Key Act 1 narrative moment.
+15. **Build Spire of Vigil** — Act 1 climax. Raider stronghold + Underlumen puzzle core. Light Sentry unlock.
+16. **Level-up stat screen + weapon upgrade confirmation** — Key UX polish.
+17. **Replace top-priority placeholder sprites** — Player character, Warden Holt, Sable, MERIDIAN-7, health_potion.
 
 ## Long-Term Vision (3+ Months)
 
-Focus: **Complete campaign, real art, apex endgame**
+Focus: **Complete campaign, Act II-III content, apex endgame**
 
-15. **Build Spire of Radiance + Deep Array climax** — Act 3 climax dungeon. Three-path ending choice.
-16. **Real art assets** — Replace top-priority placeholder sprites (player, key NPCs, common monsters).
-17. **Real music** — Compose tracks for key moments (outpost, boss, Spire, Meridian).
-18. **Deep Expedition (Tier 6)** — 3-4 player, 7-floor apex cooperative content.
+18. **Build Greenway corridors + Spire of Winds** — Act 2 setting and climax. New greenway tileset, Bulwark soldiers, Hover unlock.
+19. **Build Spire of Radiance + Deep Array climax** — Act 3 climax. Photonic Pulse unlock. Three-path ending gateway.
+20. **Real art & music** — Replace placeholder sprites and synthesized music tracks.
+21. **Deep Expedition (Tier 6)** — 3-4 player, 7-floor apex cooperative content.
 
 ---
 
@@ -213,7 +214,7 @@ These are done and don't need further investment:
 | docs/endgame-loop.md | Active | Phases 1-7 engine done. Remaining: Deep Expedition (Tier 6), Faction Rally |
 | docs/progression-system.md | Active | Core systems done. Harvester scaling done (levels 11-20). Spire ability unlocks not yet wired. |
 | docs/automation_screen.md | Done | All phases implemented |
-| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline PASS; all-quests 10/14 (3 quests broken); explore 12.3% (flag-gated). |
+| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline flaky (~66% pass, proc_quarantine softlock); all-quests 10/14 (3 quests broken); explore 12.3% (flag-gated). |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented |
 | docs/TESTING.md | Done | Tiers 1-4 complete |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |

@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-12 (post sim refresh — proc_quarantine loop fixed, 3 new quest failures identified).
+Last cleaned: 2026-03-12 (refreshed — mainline flaky ~66% pass, proc_quarantine titanium_cylinders softlock identified, 3 side quests broken, 0 deaths across all modes).
 
 ## Checkpoint Tool — Autosave History
 
@@ -23,10 +23,12 @@ Last cleaned: 2026-03-12 (post sim refresh — proc_quarantine loop fixed, 3 new
 
 ## Testing
 
-- **relay_recovery quest STUCK** — Bot stuck at `junction_a_activated` flag in relay_station. The flag requires door interaction at tile (3,3) but the bot never reaches/interacts with it. Either the bot's tile-interact logic can't handle this layout, or the trigger wiring on the door is wrong. See TODOs.md #1.
-- **broken_signal quest TIMEOUT** — Bot may not acquire `daley_coordinates` item from Comms Officer Daley, or doesn't carry it when entering signal_cave. The room_entered trigger requires `hasItem: daley_coordinates`. See TODOs.md #2.
-- **nightside_expedition quest TIMEOUT** — Bot completes steps 1-3 (meet Sable, collect compound, reach underlumen_threshold) but can't navigate back through 6-room Nightside chain to meridian_civic. Needs fast-travel or improved bot backtracking. See TODOs.md #3.
-- **Headless sim proc_quarantine bot combat** — Previously the all-quests sim looped infinitely in proc_quarantine. This is now FIXED — main quest completes in all-quests mode. However: (b) `titanium_cylinders` chest interaction sometimes fails; (c) ~2.5% of layouts have unreachable monsters at proc_quarantine depth 3.
+- **proc_quarantine titanium_cylinders softlock** — Mainline fails ~33% of runs. The `door_interacted` trigger at the depth 2 treasure room center tile (`{treasure.cx}, {treasure.cy}`) sometimes doesn't fire — bot can't path to exact tile, or template variable produces unreachable coords. See TODOs.md #1.
+- **relay_recovery quest STUCK** — Bot stuck at `junction_a_activated` flag in relay_station. Junction Box A is a crypt tileset `door_closed` tile at (3,3). The bot either can't path there or the door_interacted event doesn't fire for this tile type. See TODOs.md #3.
+- **broken_signal quest TIMEOUT** — `daley_coordinates` grant trigger requires both `comms_restored` AND `arrived_meridian`. If bot doesn't complete comms sub-chain first, it can't get coordinates on return. See TODOs.md #4.
+- **nightside_expedition quest TIMEOUT** — No fast-travel from underlumen_threshold back to meridian_civic. 6-room backtrack. See TODOs.md #5.
+- **Unreachable monsters** — ~2.5% of proc_quarantine depth 3 layouts have monsters the bot can't reach.
+- **Explore mode** — Flag-gated at 12.3% coverage. See TODOs.md #12.
 
 ## Endgame Loop
 
