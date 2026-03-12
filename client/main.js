@@ -28,6 +28,8 @@
   const questToast = document.getElementById('quest-toast');
   const milestonToast = document.getElementById('automation-milestone-toast');
   const milestoneText = document.getElementById('automation-milestone-text');
+  const raidToast = document.getElementById('raid-alert-toast');
+  const raidAlertText = document.getElementById('raid-alert-text');
   const questPanelContent = document.getElementById('quest-panel-content');
   const solGridContainer = document.getElementById('sol-grid-container');
   const solGridInfo = document.getElementById('sol-grid-info');
@@ -298,6 +300,7 @@
   let partyQuestsState = [];
   let questToastTimeout = null;
   let milestoneToastTimeout = null;
+  let raidToastTimeout = null;
 
   // Tutorial arrow state (driven by quest uiHint)
   let tutorialPhase = null;  // null | 'open_menu' | 'click_sol_tab' | 'select_component' | 'place_component'
@@ -1186,6 +1189,12 @@
         structDefs[s.id] = s;
       }
 
+      // HP lookup by grid position
+      const hpMap = new Map();
+      for (const h of (autoState.structureHp || [])) {
+        hpMap.set(h.x + ':' + h.y, h);
+      }
+
       for (let cy = 0; cy < autoState.grid.height; cy++) {
         for (let cx = 0; cx < autoState.grid.width; cx++) {
           const idx = cy * autoState.grid.width + cx;
@@ -1203,15 +1212,27 @@
             cell.classList.add('placed');
             const def = structDefs[placement.structureId];
             if (def) {
-              cell.textContent = def.gridIcon || '?';
+              const iconSpan = document.createElement('span');
+              iconSpan.textContent = def.gridIcon || '?';
+              cell.appendChild(iconSpan);
               cell.style.color = def.gridColor || '#888';
-              cell.style.background = 'rgba(255, 167, 38, 0.08)';
+
+              // Apply background; red tinge if damaged
+              const hpInfo = hpMap.get(cx + ':' + cy);
+              if (hpInfo && hpInfo.hp < hpInfo.maxHp) {
+                cell.classList.add('damaged');
+              } else {
+                cell.style.background = 'rgba(255, 167, 38, 0.08)';
+              }
 
               // Build tooltip content
               const tipLines = [
                 '<strong style="color:' + (def.gridColor || '#ffa726') + '">' + def.name + '</strong>',
                 def.description ? '<span class="auto-tip-desc">' + def.description + '</span>' : null,
               ].filter(Boolean);
+              if (hpInfo && hpInfo.hp < hpInfo.maxHp) {
+                tipLines.push('<span class="auto-tip-desc" style="color:#ef9a9a">HP: ' + hpInfo.hp + ' / ' + hpInfo.maxHp + '</span>');
+              }
 
               let pinned = false;
               const tip = document.createElement('div');
@@ -1239,6 +1260,20 @@
                 e.preventDefault();
                 togglePin();
               }, { passive: false });
+
+              // HP bar at bottom of cell if structure is damaged
+              if (hpInfo && hpInfo.hp < hpInfo.maxHp) {
+                const hpBar = document.createElement('div');
+                hpBar.className = 'auto-cell-hp-bar';
+                const hpFill = document.createElement('div');
+                hpFill.className = 'auto-cell-hp-fill';
+                const pct = Math.max(0, (hpInfo.hp / hpInfo.maxHp) * 100);
+                hpFill.style.width = pct + '%';
+                if (pct < 25) hpFill.classList.add('critical');
+                else if (pct < 50) hpFill.classList.add('low');
+                hpBar.appendChild(hpFill);
+                cell.appendChild(hpBar);
+              }
             }
           } else if (preBuilt) {
             // Array infrastructure
@@ -1630,6 +1665,41 @@
     milestoneToastTimeout = setTimeout(() => {
       milestonToast.style.display = 'none';
     }, 4000);
+  }
+
+  function showRaidToast(raid) {
+    if (!raid || !raid.occurred) return;
+
+    const lines = [];
+    const count = raid.monsterCount || 0;
+    lines.push(count + ' ' + (count === 1 ? 'creature' : 'creatures') + ' attacked');
+
+    if (raid.defenseRating > 0) {
+      const turrets = Math.round(raid.defenseRating / 50);
+      lines.push(turrets + ' turret' + (turrets !== 1 ? 's' : '') + ' active \u2014 ' + raid.defenseRating + ' defense');
+    }
+
+    if (raid.destroyed && raid.destroyed.length > 0) {
+      lines.push('<span style="color:#ef5350">' + raid.destroyed.length + ' structure' + (raid.destroyed.length !== 1 ? 's' : '') + ' destroyed</span>');
+    }
+
+    if (raid.damaged && raid.damaged.length > 0) {
+      lines.push(raid.damaged.length + ' structure' + (raid.damaged.length !== 1 ? 's' : '') + ' damaged');
+    }
+
+    if ((!raid.damaged || raid.damaged.length === 0) && (!raid.destroyed || raid.destroyed.length === 0)) {
+      lines.push('<span style="color:#81c784">All structures held</span>');
+    }
+
+    raidAlertText.innerHTML = lines.join('<br>');
+    raidToast.style.display = 'block';
+    raidToast.style.animation = 'none';
+    void raidToast.offsetWidth;
+    raidToast.style.animation = '';
+    if (raidToastTimeout) clearTimeout(raidToastTimeout);
+    raidToastTimeout = setTimeout(() => {
+      raidToast.style.display = 'none';
+    }, 6000);
   }
 
   // --- Tab click handlers ---
@@ -3137,6 +3207,11 @@
 
   net.on(CONSTANTS.MSG.AUTOMATION_MILESTONE, (msg) => {
     showMilestoneToast(msg.milestoneIcon || '★', msg.milestoneName || 'Milestone', msg.milestoneThreshold || 0);
+  });
+
+  net.on(CONSTANTS.MSG.RAID_ALERT, (msg) => {
+    showRaidToast(msg.raid);
+    if (automationScreenOpen) renderAutomationScreen();
   });
 
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {
