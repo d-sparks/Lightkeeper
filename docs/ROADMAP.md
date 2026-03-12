@@ -1,14 +1,16 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-09 (refreshed: task audit, completed items moved)
+Last updated: 2026-03-12
 
 ## Big Picture
 
-Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, complete Act I, and deep progression systems. The game needs three things to go from "tech demo" to "fun, complete game":
+Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, deep endgame systems, and a complete Act I. The engine, progression, and endgame loop are mature. **The critical gap is the story campaign itself** — the three-act narrative that gets players from tutorial to endgame.
 
-1. ~~**Death penalty & game feel**~~ — DONE. Energy drain, item drop, respawn teleport, death screen overlay all implemented
-2. ~~**Automation access**~~ — DONE. Phase 3 wired (openAutomation action + MERIDIAN-7 trigger + client handler)
-3. ~~**Story polish**~~ — DONE. Act III endings, post-choice NPC dialogue, registrar_hollis reactions, and post-ending world state changes all implemented
+The game needs three things to go from "deep tech demo" to "complete game":
+
+1. **Story campaign dungeons** — No Spires, no Lighthouse Mara, no Greenway zones exist. These are the climax dungeons for all three acts. Without them, the 30-40 hour storyboard is ~40% realized.
+2. **Bug fixes & game feel** — Proc quarantine bot combat, nightside caverns rendering, flare item, multiplayer chat, quest log UX. These hurt the experience for anyone playing today.
+3. **Art & audio replacement** — All 62 sprites are procedural placeholders. All 15 music tracks are synthesized. Even partial replacement would transform first impressions.
 
 ## Project Status Overview
 
@@ -27,8 +29,9 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 | Content Validation CI | Done | `npm test` runs content-validator.js + headless-sim.js --mainline |
 | Automation System | Done (Phases 1-5) | All phases complete: grid state, UI, MERIDIAN-7 wiring, dungeon sync, tooltips, placement sounds, touch support. See docs/automation_screen.md |
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons |
-| Act II Content | Partial | Dayside, Array complex, Crystal Guardian boss, MERIDIAN-7 quest, quest steps 19-22 bridge to Act III. Deeper questlines needed |
-| Act III Content | Done | All three ending dungeons built. Post-choice NPC dialogue, post-ending world state, and registrar_hollis reactions all implemented |
+| Act II Content | Partial | Dayside, Array complex, Crystal Guardian boss, MERIDIAN-7 quest, quest steps 19-22 bridge to Act III. Missing: Greenway zones, Bulwark faction content, Spire of Winds |
+| Act III Content | Partial | Three ending dungeons built. Post-choice dialogue and world state done. Missing: Spire of Radiance, Deep Array climax, full Dayside approach |
+| Story Campaign Dungeons | Not Started | No Spires, no Lighthouse Mara, no Greenway. These are the Act 1-3 climax dungeons per storyboard |
 | Game Feel | Done | Sound effects (24 SFX), combat juice, death penalty (energy drain + item drop + respawn teleport + death screen overlay) all done |
 | Game Balance | Done | Mid-game energy pacing tuned, Pulse Rifle reward feel improved, combat balance pass complete |
 | Player Onboarding | Done | WASD/interact prompts, first-time tutorial for combat, NPC interaction, and healing |
@@ -49,43 +52,38 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, comple
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Fix testing blockers, connect disconnected content, build endgame loop**
+Focus: **Fix bugs, improve game feel, lay groundwork for story dungeons**
 
-1. ~~**Death penalty polish**~~ — DONE.
-2. ~~**Automation grid Phase 3**~~ — DONE.
-3. ~~**Fix headless sim board_train**~~ — DONE.
-4. ~~**Fix headless sim visit_civic_center**~~ — DONE.
-5. ~~**Post-choice NPC dialogue**~~ — DONE.
-6. ~~**Automation dungeon sync (Phase 4)**~~ — DONE.
-7. ~~**Fix headless sim discover_array_secret**~~ — DONE. Redundant prereq goals eliminated, ~90% pass rate.
-8. ~~**Fix content validator expedition flag errors**~~ — DONE. Flags set by engine code in game-loop.js completeExpedition().
-9. ~~**Minimap quest waypoints**~~ — DONE. Primary (orange diamond) and secondary (blue dot) waypoints on both iso and top-down minimaps; edge indicators when off-screen; world-space arrow over on-screen objectives.
-10. ~~**Place alpha monsters and skeleton_archer**~~ — DONE. skeleton_archer placed in crypts with loot table. Alpha monsters defined with pack_leader AI.
-11. ~~**Implement expedition multi-floor system**~~ — DONE. Multi-floor progression, boss spawning, completion detection, silicon cost, death penalty all implemented.
+1. **Fix headless sim bot combat** — Bot gets stuck in proc_quarantine, can't fight past monsters. Blocks all-quests testing.
+2. **Fix nightside caverns rendering** — Room renders entirely inside a wall. Players/enemies invisible.
+3. **Fix flare item** — Placing a flare gives "undefined" in inventory.
+4. **Quest log UX** — Collapse completed steps. Show max 3 rows for long quests.
+5. **Side quest guidance** — Ensure every quest item pickup hints at next step.
+6. **Multiplayer chat reliability** — Messages disappear or don't show.
+7. **Distribute crafting materials** — Add to biome-specific loot tables (frost, fungal, geothermal, nightside, array).
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
-Focus: **Endgame depth, modifier crafting, cooperative play**
+Focus: **Build the story campaign dungeons that connect Acts 1-3**
 
-7. ~~**Wren Alcott dialogue expansion**~~ — DONE.
-8. ~~**Sable trust escalation**~~ — DONE.
-9. ~~**Automation Phase 4 (dungeon sync)**~~ — DONE.
-10. ~~**Pack leader AI variant**~~ — DONE.
-11. ~~**Touch/gamepad 45° rotation**~~ — DONE.
-12. ~~**Modifier crafting system**~~ — DONE. Craft action type + crafting.json recipes implemented. Remaining: wire MERIDIAN-7 endgame dialogue trigger.
-13. ~~**Automation levels 6-10**~~ — DONE. 4 new structures, milestone rewards, grid expansion.
-14. ~~**Boss affixes (Tier 4+)**~~ — DONE. 8 data-driven affixes applied to Tier 4-5 expedition bosses.
-15. ~~**Periodic auto-save**~~ — DONE. 5-minute auto-save interval in server/index.js.
+8. **Build Lighthouse Mara** — Multi-floor frozen cavern expedition. Core Act 1 beat. Uses frost_crypt tileset.
+9. **Build Spire of Vigil** — Raider stronghold (outer) + Underlumen puzzle core (inner). Act 1 climax. Unlocks Light Sentry.
+10. **Add Dural Voss boss** — Named raider warlord with retreat mechanic. Key narrative moment.
+11. **Build Greenway corridors** — Agricultural zones under Bulwark occupation. Act 2 setting.
+12. **Build Spire of Winds** — Bulwark fortress (outer) + vertical puzzle core (inner). Act 2 climax. Unlocks Hover.
+13. **Wire Spire ability unlocks** — Light Sentry from Vigil, Hover from Winds, Photonic Pulse from Radiance.
+14. **Level-up stat screen** — Show HP, damage, energy improvements on level up.
 
 ## Long-Term Vision (3+ Months)
 
-Focus: **Real art, endgame loop, mobile**
+Focus: **Complete campaign, real art, apex endgame**
 
-13. **Real art assets** — Replace all placeholder sprites with proper pixel art following docs/art-style-guide.md.
-14. **Endgame loop** — Post-story sandbox with escalating procedural dungeons, legendary modifier chase, automation scaling.
-15. **Mobile/touch optimization** — Touch controls exist but need polish. Joystick/gamepad need 45° rotation for iso movement.
-16. ~~**Battery math**~~ — DONE. Capacity per tier, energy costs per ability, casts per full charge documented.
-17. **Harvester scaling** — Silicon rate, max harvesters, late-game upgrades still need design.
+15. **Build Spire of Radiance + Deep Array climax** — Act 3 climax dungeon. Three-path ending choice.
+16. **Real art assets** — Replace top-priority placeholder sprites (player, key NPCs, common monsters).
+17. **Real music** — Compose tracks for key moments (outpost, boss, Spire, Meridian).
+18. **Deep Expedition (Tier 6)** — 3-4 player, 7-floor apex cooperative content.
+19. **Multiplayer quarantine wing bug** — Two players can't coexist in quarantine wing.
+20. **Weapon upgrade confirmation dialog** — Prevent accidental disassembly.
 
 ---
 
@@ -210,12 +208,12 @@ These are done and don't need further investment:
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
-| docs/progression-system.md | Active | Core decisions resolved. Battery math resolved. Remaining: harvester scaling |
-| docs/automation_screen.md | Done | All 5 phases implemented (grid, UI, MERIDIAN-7, dungeon sync, polish) |
-| docs/storyboard.md | Active | Act I done, Act II partial, Act III endings built. Post-choice dialogue done. Post-ending world state done. |
-| docs/testing-design.md | Done | Both tools built and functional. 320 tests passing |
-| docs/procedural-generation.md | Done | Engine + 5 templates implemented. Fog-of-war streaming working |
-| docs/TESTING.md | Done | Tiers 1-4 complete (320 tests including room-lifecycle). All passing |
+| docs/storyboard.md | Active | **Primary gap.** Act I partially realized (~70%), Act II ~30%, Act III ~25%. Spire dungeons, Lighthouse Mara, Greenway zones all unbuilt. |
+| docs/endgame-loop.md | Active | Phases 1-7 engine done. Remaining: Deep Expedition (Tier 6), Faction Rally |
+| docs/progression-system.md | Active | Core systems done. Harvester scaling done (levels 11-20). Spire ability unlocks not yet wired. |
+| docs/automation_screen.md | Done | All phases implemented |
+| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Headless sim ~85% pass rate (proc_quarantine bot combat bug). |
+| docs/procedural-generation.md | Done | Engine + 5 templates implemented |
+| docs/TESTING.md | Done | Tiers 1-4 complete |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
-| docs/game-scripting.md | Done | TCA system fully implemented and documented |
-| docs/endgame-loop.md | Active | Phases 1-7 engine done. Remaining: siege NPC trigger, siege visual polish, Deep Expedition (Tier 6), Faction Rally, automation levels 11-20 |
+| docs/game-scripting.md | Done | TCA system fully implemented |
