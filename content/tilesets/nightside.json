@@ -12,6 +12,7 @@
     "6": { "name": "deep_stairs_down",         "solid": false, "exit": true },
     "7": { "name": "dark_pool",                "solid": true  },
     "8": { "name": "deep_stairs_up",           "solid": false, "exit": true },
+    "9":  { "name": "transit_portal",          "solid": false, "exit": true },
     "10": { "name": "chest_closed", "solid": true, "interactable": "door", "togglesTo": 11 },
     "11": { "name": "chest_opened", "solid": false }
   }

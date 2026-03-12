@@ -557,7 +557,7 @@ class Renderer {
       minimap: {
         dark_stone_floor: 0x1a1528, umbracite_floor: 0x241a3a, umbracite_vein_wall: 0x3a2a5a,
         crystal_door_closed: 0x4a3070, crystal_door_open: 0x1e1528, deep_stairs_down: 0x2a1a3e,
-        deep_stairs_up: 0x1a2e3a, dark_pool: 0x0e0a1e, void: 0x08060e,
+        deep_stairs_up: 0x1a2e3a, transit_portal: 0x3a5a8a, dark_pool: 0x0e0a1e, void: 0x08060e,
         chest_closed: 0x2e2848, chest_opened: 0x1a1830,
       },
     },
@@ -1259,6 +1259,7 @@ class Renderer {
       'crystal_door_open':   'door_open',
       'deep_stairs_down':    'stairs_down',
       'deep_stairs_up':      'stairs_up',
+      'transit_portal':      'stairs_up',
       'dark_pool':           'water',
       // Frost crypt tileset
       'frozen_stone':        'floor',
