@@ -37,7 +37,8 @@
     { "type": "shade_stalker", "x": 18, "y": 7, "count": 1, "patrol": "wander" },
     { "type": "dusk_crawler", "x": 10, "y": 6, "count": 2, "patrol": "wander" },
     { "type": "dusk_crawler", "x": 16, "y": 11, "count": 2, "patrol": "wander" },
-    { "type": "feral_hound", "x": 12, "y": 9, "count": 2, "patrol": "wander" }
+    { "type": "feral_hound", "x": 12, "y": 9, "count": 2, "patrol": "wander" },
+    { "type": "gloom_wraith", "x": 11, "y": 5, "count": 1, "patrol": "wander" }
   ],
   "npcSpawns": [],
   "itemSpawns": [

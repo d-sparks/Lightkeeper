@@ -730,6 +730,19 @@
         {"x": 16, "y": 16},
         {"x": 11, "y": 16}
       ]
+    },
+    {
+      "type": "rime_stalker",
+      "x": 4,
+      "y": 7,
+      "count": 1,
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 3, "y": 7},
+        {"x": 9, "y": 7},
+        {"x": 9, "y": 8},
+        {"x": 3, "y": 8}
+      ]
     }
   ],
   "npcSpawns": [],
