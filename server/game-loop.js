@@ -5306,7 +5306,13 @@ class GameLoop {
       player.extractionPoint = ep;
 
       // Replace the flare with an extraction protocol item
-      player.inventory.splice(inventoryIndex, 1, { type: 'extraction_protocol' });
+      const epDef = this.content.getItem('extraction_protocol');
+      player.inventory.splice(inventoryIndex, 1, {
+        type: 'extraction_protocol',
+        name: epDef ? epDef.name : 'Extraction Protocol',
+        rarity: epDef ? epDef.rarity : 'uncommon',
+        category: epDef ? epDef.type : 'consumable',
+      });
 
       room.events.push({
         type: 'extraction_placed', x: player.x, y: player.y, ownerId: playerId,

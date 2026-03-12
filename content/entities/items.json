@@ -181,7 +181,7 @@
     "effect": { "createExtraction": true }
   },
   "extraction_protocol": {
-    "name": "Extraction Protocol",
+    "name": "Return to Flare",
     "description": "An active extraction beacon burns somewhere in the dark. Use this to warp back to it.",
     "type": "consumable",
     "rarity": "uncommon",
