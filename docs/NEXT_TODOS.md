@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-12 (refreshed — mainline flaky ~66% pass, proc_quarantine titanium_cylinders softlock identified, 3 side quests broken, 0 deaths across all modes).
+Last cleaned: 2026-03-12 (refreshed — mainline passes 26 min 0 deaths; all-quests STUCK in proc_quarantine depth 3 + 3 quest failures; item/NPC engagement very low 5/52 items 20/60 NPCs).
 
 ## Checkpoint Tool — Autosave History
 
@@ -23,12 +23,14 @@ Last cleaned: 2026-03-12 (refreshed — mainline flaky ~66% pass, proc_quarantin
 
 ## Testing
 
-- **proc_quarantine titanium_cylinders softlock** — Mainline fails ~33% of runs. The `door_interacted` trigger at the depth 2 treasure room center tile (`{treasure.cx}, {treasure.cy}`) sometimes doesn't fire — bot can't path to exact tile, or template variable produces unreachable coords. See TODOs.md #1.
-- **relay_recovery quest STUCK** — Bot stuck at `junction_a_activated` flag in relay_station. Junction Box A is a crypt tileset `door_closed` tile at (3,3). The bot either can't path there or the door_interacted event doesn't fire for this tile type. See TODOs.md #3.
-- **broken_signal quest TIMEOUT** — `daley_coordinates` grant trigger requires both `comms_restored` AND `arrived_meridian`. If bot doesn't complete comms sub-chain first, it can't get coordinates on return. See TODOs.md #4.
-- **nightside_expedition quest TIMEOUT** — No fast-travel from underlumen_threshold back to meridian_civic. 6-room backtrack. See TODOs.md #5.
+- **proc_quarantine depth 3 monster density** — 10 monsters in tight procedural rooms body-block the player. See TODOs.md #1.
+- **relay_recovery quest STUCK** — Junction Box A at (3,3) unreachable or event not firing. See TODOs.md #3.
+- **broken_signal quest TIMEOUT** — Flag ordering dependency. See TODOs.md #4.
+- **nightside_expedition quest TIMEOUT** — No fast-travel return path. See TODOs.md #5.
 - **Unreachable monsters** — ~2.5% of proc_quarantine depth 3 layouts have monsters the bot can't reach.
-- **Explore mode** — Flag-gated at 12.3% coverage. See TODOs.md #12.
+- **Explore mode** — Flag-gated at 12.3% coverage. Grant story flags in explore mode for content validation.
+- **Item discovery rate** — Only 5/52 items collected in mainline. Most ground items are off the main path or lack visibility.
+- **NPC engagement** — Only 20/60 NPCs talked to. Many NPCs have no quest reason to visit.
 
 ## Endgame Loop
 

@@ -1,17 +1,17 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-12 (refreshed with sim analysis — mainline FLAKY ~66% pass rate due to proc_quarantine titanium_cylinders softlock, 28/57 rooms 49.1% 105 kills 0 deaths 24 min on success; all-quests 10/14 complete with relay_recovery STUCK + nightside_expedition/broken_signal TIMEOUT; explore FAIL 7/57 rooms 12.3% flag-gated at outpost_workshop)
+Last updated: 2026-03-12 (refreshed with sim analysis — mainline PASSES 28/57 rooms 49.1% 106 kills 0 deaths 26 min; all-quests STUCK in proc_quarantine depth 3 where 10 monsters body-block the player + relay_recovery STUCK + nightside_expedition/broken_signal TIMEOUT; only 5/52 items collected and 20/60 NPCs engaged)
 
 ## Big Picture
 
 Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, deep endgame systems, and a complete Act I. The engine, progression, and endgame loop are mature. **The critical gap is the story campaign itself** — the three-act narrative that gets players from tutorial to endgame.
 
-The game needs three things to go from "deep tech demo" to "complete game":
+The game needs four things to go from "deep tech demo" to "complete game":
 
-1. **Story campaign dungeons** — No Spires, no Lighthouse Mara, no Greenway zones exist. These are the climax dungeons for all three acts. Without them, the 30-40 hour storyboard is ~40% realized.
-2. **Quest & content connectivity** — 3 side quests fail in sim (relay_recovery STUCK, nightside_expedition/broken_signal TIMEOUT). 21 rooms never visited even in all-quests mode. Crypts, Nightside dungeons, and lighthouse siege lack quest/NPC breadcrumbs. The content exists — it needs wiring.
-3. **Difficulty & game feel** — 0 deaths across all sim modes despite a fully-implemented death penalty. The game has no tension. Also: level-up feedback, weapon upgrade confirmation, placeholder sprites.
-4. **Art & audio replacement** — All 62 sprites are procedural placeholders. All 15 music tracks are synthesized. Even partial replacement would transform first impressions.
+1. **Story campaign dungeons** — No Spires, no Lighthouse Mara, no Greenway zones exist. These are the climax dungeons for all three acts. Without them, the 31-38 hour storyboard target is ~10% realized (26 min bot time ≈ 3-5 hrs human time vs 31-38 hr target).
+2. **Quest & content connectivity** — 3 side quests broken in sim (relay_recovery STUCK, nightside_expedition/broken_signal TIMEOUT). 21 rooms never visited. Only 5/52 items collected, 20/60 NPCs talked to. Most content is invisible — it needs signposts, breadcrumbs, and quest hooks.
+3. **Difficulty & game feel** — 0 deaths across all sim modes despite a fully-implemented death penalty. The game has no tension. Proc_quarantine depth 3 has the opposite problem: 10 monsters in tight corridors physically block the player. Both extremes need fixing.
+4. **Art & audio replacement** — Placeholder sprites and synthesized music. Even 5-6 carefully designed sprites for the most-seen entities would dramatically improve first impressions.
 
 ## Project Status Overview
 
@@ -53,20 +53,19 @@ The game needs three things to go from "deep tech demo" to "complete game":
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Fix mainline reliability, broken quests, add tension, connect content**
+Focus: **Fix broken content, add tension, connect orphaned rooms**
 
-1. **Fix proc_quarantine titanium_cylinders softlock** — Mainline fails ~33% of runs. Chest interaction at depth 2 treasure room unreliable.
-2. **Difficulty tuning** — 0 deaths across all modes. Increase monster damage, reduce early healing, buff boss specials.
-3. **Fix relay_recovery quest** — STUCK on `junction_a_activated` in relay_station. Door at (3,3) interaction issue.
-4. **Fix broken_signal quest** — TIMEOUT. Prerequisite chain for `daley_coordinates` may not fire correctly.
-5. **Fix nightside_expedition return** — TIMEOUT. No fast-travel from underlumen_threshold back to meridian_civic.
-6. **Connect crypt dungeons to narrative** — Old Keeper hint + side quest sending player to crypt_02.
-7. **Connect orphaned Nightside dungeons** — Wire signal_cave, old_watchtower, fen_cache into side quests.
-8. **Wire lighthouse_siege_arena** — Lower unlock condition + NPC mention from Warden Holt.
-9. **Distribute crafting materials** — Add biome-appropriate drops to frost/fungal/geothermal/nightside/array loot tables.
-10. **Environmental storytelling: Nightside path** — Lore items and room-entered messages for the 4-room Nightside chain.
-11. **Wire Array chain into quest** — NPC breadcrumbs through full Array complex before ending choice.
-12. **Fix explore-mode flag gating** — Grant story flags in explore mode for content validation.
+1. **Fix proc_quarantine depth 3 monster density** — 10 monsters in tight procedural rooms body-block the player. Reduce monstersPerDepth or add room-size awareness.
+2. **Difficulty tuning** — 0 deaths across all modes. Increase monster damage 30-40%, reduce healing, buff boss specials.
+3. **Fix relay_recovery quest** — STUCK on `junction_a_activated`. Door at (3,3) unreachable or event not firing.
+4. **Fix broken_signal quest** — TIMEOUT. `daley_coordinates` grant requires flag ordering that doesn't match natural play.
+5. **Add fast-travel from underlumen_threshold** — nightside_expedition times out with 6-room backtrack.
+6. **Connect orphaned dungeons** — 21/57 rooms never visited. Wire crypts, Nightside dungeons, siege arena to quests/NPCs.
+7. **Wire lighthouse_siege_arena** — Lower unlock + NPC mentions. Complete system sitting invisible.
+8. **Environmental storytelling: Nightside path** — Lore items and atmosphere for the 4-room descent.
+9. **Distribute crafting materials** — Biome-appropriate drops in frost/fungal/geothermal/nightside/array loot tables.
+10. **Wire Array chain into quest** — NPC breadcrumbs through full Array complex before ending choice.
+11. **Improve item/NPC engagement** — Only 5/52 items collected, 20/60 NPCs talked to. Add pickup hints, quest-path items, dialogue rules.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
@@ -214,7 +213,7 @@ These are done and don't need further investment:
 | docs/endgame-loop.md | Active | Phases 1-7 engine done. Remaining: Deep Expedition (Tier 6), Faction Rally |
 | docs/progression-system.md | Active | Core systems done. Harvester scaling done (levels 11-20). Spire ability unlocks not yet wired. |
 | docs/automation_screen.md | Done | All phases implemented |
-| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline flaky (~66% pass, proc_quarantine softlock); all-quests 10/14 (3 quests broken); explore 12.3% (flag-gated). |
+| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline passes (26 min, 0 deaths); all-quests STUCK in proc_quarantine depth 3 + 3 quest failures; item/NPC engagement very low (5/52, 20/60). |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented |
 | docs/TESTING.md | Done | Tiers 1-4 complete |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
