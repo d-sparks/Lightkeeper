@@ -3855,5 +3855,25 @@
       ]
     },
     "dialogueRules": []
+  },
+  "fence_elara": {
+    "name": "Fence Elara",
+    "dialogue": [
+      { "speaker": "Fence Elara", "text": "You're a long way from the market, friend." }
+    ],
+    "dialogueRules": [
+      { "conditions": [{ "hasFlag": "met_fence_elara" }], "use": "return_visit" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Fence Elara", "text": "You're a long way from the market." },
+        { "speaker": "Fence Elara", "text": "Name's Elara. I move things — goods, information, people — between the upper city and the warrens. No records. No questions." },
+        { "speaker": "Fence Elara", "text": "There's a Luddite cell in the east wing. They've been here three months and nobody's been able to move them. Watch yourself." }
+      ],
+      "return_visit": [
+        { "speaker": "Fence Elara", "text": "Still alive. Good." },
+        { "speaker": "Fence Elara", "text": "If you want the supply crate, you need the key. The gang has it somewhere in the east wing." }
+      ]
+    }
   }
 }

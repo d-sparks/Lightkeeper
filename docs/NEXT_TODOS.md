@@ -2,6 +2,13 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOS.md tasks.
 
+## Content — Undercity / dark_city Tileset
+
+- **Second dark_city floor** — `meridian_undercity` (Warrens) exists as the first floor; create a `meridian_undercity_deep` floor accessible via stairs_down from the north zone (currently no stairs_down exit). Narratively: the deep warrens connect to Underlumen-adjacent tunnels or a Nightside maintenance junction.
+- **Undercity discovery trigger in meridian_market** — the new stairs_down at (14, 9) has no first-discovery message in the market. Consider adding a `door_interacted` trigger or a positional flavor note so players know the passage exists before stepping in.
+- **Loot table for Luddite gang** — the east-wing `luddite_brawler` monsters have no drop. Once the loot table system is implemented, give the gang cell a chance to drop `supply_crate_key` instead of (or in addition to) the static item spawn, so the pacing feels more organic.
+- **Elara shop follow-up** — Fence Elara currently provides information and the supply crate reward, but no repeatable purchase option. A return-visit shop (smuggled goods, consumables) would give the undercity a reason to revisit after clearing the gang.
+
 ## Testing
 
 - ~~Headless sim stuck at discover_array_secret~~ ✓ Fixed — redundant prereq goals eliminated, timeout increased, pathfinding stall recovery added.
