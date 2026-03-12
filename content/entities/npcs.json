@@ -2743,6 +2743,18 @@
         { "speaker": "Sable", "text": "The Underlumen preserved them. Everything the Array tried to erase — the planet just held onto it. Waiting." },
         { "speaker": "Sable", "text": "Keep going. Every zone you map teaches something the Ring never had permission to know. The dark isn't empty. It's full of everything that survived by staying quiet." }
       ],
+      "shutdown_tier_4_complete": [
+        { "speaker": "Sable", "text": "The Voidfront. You and your team actually went in." },
+        { "speaker": "Sable", "text": "Even the Unbounded scouts stopped at the outer breach perimeters. The energy readings beyond were too erratic. We called it the dead zone — not because nothing lived there, but because everything that entered stopped sending signals." },
+        { "speaker": "Sable", "text": "What you brought back from those depths... it's not just data. It's proof that the Nightside has layers the Array's models never accounted for. There are places down there that the shutdown will need to protect, not just clear." },
+        { "speaker": "Sable", "text": "There's one more level. The outer edge of what the breach touched. We don't know what's there. But you've proven you can find out." }
+      ],
+      "shutdown_tier_5_complete": [
+        { "speaker": "Sable", "text": "You came back." },
+        { "speaker": "Sable", "text": "I won't pretend I was certain you would. The Apex Breach — that's what the elders are calling it. The place where the Nightside is most itself. Where the breach originated." },
+        { "speaker": "Sable", "text": "What you found there changes the shutdown calculation. The boundary between the Array's terminator zone and the Nightside isn't a wall — it's a scar. And scars, if you understand them, can heal." },
+        { "speaker": "Sable", "text": "The Ring will debate for years what to do with what you brought back. But it exists now. That's what matters. The darkness kept its secrets — until you asked it directly." }
+      ],
       "post_merge": [
         { "speaker": "Sable", "text": "You actually did it." },
         { "speaker": "Sable", "text": "Three systems. The Array, the Underlumen, humanity. In communion." },
@@ -2773,6 +2785,18 @@
         { "speaker": "Sable", "text": "The Array was built to answer questions about this planet. It answered the wrong ones — because it was asking about resources. The merger is answering different ones." },
         { "speaker": "Sable", "text": "Keep going. The network grows with every expedition. We are witness to something that has no name yet — we are building the vocabulary as we go." }
       ],
+      "merge_tier_4_complete": [
+        { "speaker": "Sable", "text": "The Voidfront Assault — the elders have been watching your team's expedition feeds with something they rarely show. Reverence." },
+        { "speaker": "Sable", "text": "That zone is where the Underlumen extended its earliest tendrils, before the Array recognized it as a threat and began its suppression campaigns. It's old. Older than the terminator settlements, older than first contact." },
+        { "speaker": "Sable", "text": "MERIDIAN-7's merger logic is learning to speak the language of those deep roots. The integration data your team collected — we're going to be studying this for months." },
+        { "speaker": "Sable", "text": "One more push. The elders say the answer is in the furthest zone — the place the merger calls 'first silence.'" }
+      ],
+      "merge_tier_5_complete": [
+        { "speaker": "Sable", "text": "You reached first silence." },
+        { "speaker": "Sable", "text": "Elder Vael wept when I told her. I didn't expect that. She said the Underlumen has been trying to bring someone there for forty years. Not as a test. As an invitation." },
+        { "speaker": "Sable", "text": "The merger is complete in those depths — MERIDIAN-7 and the Underlumen speaking as one voice, as one mind, as one world. What you witnessed is what the merger is becoming everywhere. Eventually." },
+        { "speaker": "Sable", "text": "We are no longer speculating about what this planet can be. You've seen it. Now we build toward it." }
+      ],
       "post_control": [
         { "speaker": "Sable", "text": "Human control of the Array. The Ring's faction leaders must be celebrating." },
         { "speaker": "Sable", "text": "I'm not celebrating." },
@@ -2798,6 +2822,14 @@
     },
     "dialogueRules": [
       {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }, { "hasFlag": "expedition_tier_5_cleared" }],
+        "use": "shutdown_tier_5_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }, { "hasFlag": "expedition_tier_4_cleared" }],
+        "use": "shutdown_tier_4_complete"
+      },
+      {
         "conditions": [{ "hasFlag": "chose_path_shutdown" }, { "hasFlag": "expedition_tier_3_cleared" }],
         "use": "shutdown_tier_3_complete"
       },
@@ -2812,6 +2844,14 @@
       {
         "conditions": [{ "hasFlag": "chose_path_shutdown" }],
         "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }, { "hasFlag": "expedition_tier_5_cleared" }],
+        "use": "merge_tier_5_complete"
+      },
+      {
+        "conditions": [{ "hasFlag": "chose_path_merge" }, { "hasFlag": "expedition_tier_4_cleared" }],
+        "use": "merge_tier_4_complete"
       },
       {
         "conditions": [{ "hasFlag": "chose_path_merge" }, { "hasFlag": "expedition_tier_3_cleared" }],
@@ -3806,9 +3846,62 @@
         { "speaker": "Expedition Board", "text": "TIER 1 — Nightside Breach: Standard containment sweep. 3-4 floors. Entry cost: 5 silicon. [Available]" },
         { "speaker": "Expedition Board", "text": "TIER 2 — Deep Breach: Increased hostiles, timed darkness waves. 3-5 floors. Entry cost: 10 silicon. [Available]" },
         { "speaker": "Expedition Board", "text": "TIER 3 — Corruption Breach: Energy drain zones, extreme hostiles. 4-5 floors. Entry cost: 20 silicon. Requires automation level 3. [Available]" }
+      ],
+      "endgame_tier_3_cleared": [
+        { "speaker": "Expedition Board", "text": "— EXPEDITION BOARD — Nightside Breach Operations" },
+        { "speaker": "Expedition Board", "text": "TIER 1 — Nightside Breach: Standard containment sweep. 3-4 floors. Entry cost: 5 silicon. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 2 — Deep Breach: Increased hostiles, timed darkness waves. 3-5 floors. Entry cost: 10 silicon. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 3 — Corruption Breach: Energy drain zones, extreme hostiles. 4-5 floors. Entry cost: 20 silicon. Requires automation level 3. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 4 — Voidfront Assault: Boss modifiers active, deep incursion. 5-6 floors. Entry cost: 35 silicon. Requires automation level 5. Minimum 2 personnel. [Available]" }
+      ],
+      "endgame_tier_4_cleared": [
+        { "speaker": "Expedition Board", "text": "— EXPEDITION BOARD — Nightside Breach Operations" },
+        { "speaker": "Expedition Board", "text": "TIER 1 — Nightside Breach: Standard containment sweep. 3-4 floors. Entry cost: 5 silicon. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 2 — Deep Breach: Increased hostiles, timed darkness waves. 3-5 floors. Entry cost: 10 silicon. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 3 — Corruption Breach: Energy drain zones, extreme hostiles. 4-5 floors. Entry cost: 20 silicon. Requires automation level 3. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 4 — Voidfront Assault: Boss modifiers active, deep incursion. 5-6 floors. Entry cost: 35 silicon. Requires automation level 5. Minimum 2 personnel. [Available]" },
+        { "speaker": "Expedition Board", "text": "TIER 5 — APEX BREACH: Maximum threat rating. Multiple boss affixes. 6-7 floors. Entry cost: 50 silicon. Requires automation level 7. Minimum 2 personnel. [Available]" }
+      ],
+      "endgame_tier_5_cleared": [
+        { "speaker": "Expedition Board", "text": "— EXPEDITION BOARD — Nightside Breach Operations" },
+        { "speaker": "Expedition Board", "text": "TIER 1 through TIER 5 — All breach classifications available. [Available]" },
+        { "speaker": "Expedition Board", "text": "APEX BREACH status: CLEARED. The Nightside has been pushed back to its furthest extent. Outstanding threat remains — the breach does not rest." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [
+          { "hasFlag": "expedition_tier_5_cleared" },
+          { "or": [
+            { "hasFlag": "chose_path_shutdown" },
+            { "hasFlag": "chose_path_merge" },
+            { "hasFlag": "chose_path_control" }
+          ]}
+        ],
+        "use": "endgame_tier_5_cleared"
+      },
+      {
+        "conditions": [
+          { "hasFlag": "expedition_tier_4_cleared" },
+          { "or": [
+            { "hasFlag": "chose_path_shutdown" },
+            { "hasFlag": "chose_path_merge" },
+            { "hasFlag": "chose_path_control" }
+          ]}
+        ],
+        "use": "endgame_tier_4_cleared"
+      },
+      {
+        "conditions": [
+          { "hasFlag": "expedition_tier_3_cleared" },
+          { "or": [
+            { "hasFlag": "chose_path_shutdown" },
+            { "hasFlag": "chose_path_merge" },
+            { "hasFlag": "chose_path_control" }
+          ]}
+        ],
+        "use": "endgame_tier_3_cleared"
+      },
       {
         "conditions": [
           { "hasFlag": "expedition_tier_2_cleared" },
