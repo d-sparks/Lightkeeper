@@ -5446,6 +5446,9 @@ class GameLoop {
         hovering: p.hovering || false,
         stunned: (p.stunTime || 0) > 0,
       };
+      if (p.attackTimer > 0) {
+        pData.attacking = true;
+      }
       // Include weapon name if equipped (for rendering)
       if (p.equipment && p.equipment.arms) {
         pData.weapon = p.equipment.arms.name;
@@ -5482,6 +5485,9 @@ class GameLoop {
       if (m.bossPhases) {
         mData.boss = true;
         mData.bossPhase = m.bossPhase + 1;
+      }
+      if (m.attackTimer > m.attackCooldown * 0.5) {
+        mData.attacking = true;
       }
       if (m.sentrySlowTime > 0) {
         mData.slowed = true;

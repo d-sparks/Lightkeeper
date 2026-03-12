@@ -303,6 +303,35 @@ class Renderer {
     return tex;
   }
 
+  // Load a 4-frame animation strip (64x16) and return array of frame textures.
+  // Entity sprites are generated as horizontal strips: idle1, idle2, attack, hit.
+  loadAnimFrames(spritePath) {
+    const key = spritePath + '#frames';
+    if (this.textureCache[key]) return this.textureCache[key];
+    const baseTex = PIXI.BaseTexture.from('/content/' + spritePath);
+    baseTex.scaleMode = PIXI.SCALE_MODES.NEAREST;
+    const frames = [];
+    for (let i = 0; i < 4; i++) {
+      frames.push(new PIXI.Texture(baseTex, new PIXI.Rectangle(i * 16, 0, 16, 16)));
+    }
+    this.textureCache[key] = frames;
+    return frames;
+  }
+
+  // Determine animation frame index for an entity.
+  // Returns 0-3: 0=idle1, 1=idle2, 2=attack, 3=hit
+  _getAnimFrame(entityId, isAttacking, isHit) {
+    if (isHit) return 3;
+    if (isAttacking) return 2;
+    // Idle bob: alternate between frame 0 and 1 at ~2Hz.
+    // Stagger by entity id so not all entities bob in sync.
+    const idHash = typeof entityId === 'string'
+      ? (entityId.charCodeAt(0) + (entityId.charCodeAt(1) || 0))
+      : (entityId % 256);
+    const t = Math.floor((Date.now() + idHash * 137) / 500);
+    return t % 2;
+  }
+
   _buildTileTextures() {
     if (!this.tileset || !this.tileset.image) return;
     const baseTex = PIXI.BaseTexture.from('/content/' + this.tileset.image, {
@@ -2077,6 +2106,27 @@ class Renderer {
     return false;
   }
 
+  // Set sprite texture from a 4-frame animation strip, selecting the given frame
+  _setAnimSpriteTexture(sprite, spritePath, fallbackSize, frameIndex) {
+    const frames = this.loadAnimFrames(spritePath);
+    const tex = frames[frameIndex] || frames[0];
+    const sz = this.isoMode ? 36 : CONSTANTS.TILE_SIZE;
+    if (tex.valid) {
+      sprite.texture = tex;
+      sprite.tint = 0xffffff;
+      sprite.width = sz;
+      sprite.height = sz;
+      sprite.y = this.isoMode ? -sz / 2 : 0;
+      return true;
+    }
+    sprite.texture = this._getDiamondTexture();
+    const fsz = fallbackSize || 20;
+    sprite.width = fsz;
+    sprite.height = fsz;
+    sprite.y = this.isoMode ? -fsz / 2 : 0;
+    return false;
+  }
+
   _drawHealthBar(healthBg, healthFill, x, y, w, h, pct, barColor) {
     healthBg.clear();
     healthBg.beginFill(0x333333);
@@ -2111,9 +2161,9 @@ class Renderer {
       healthBg.clear();
       healthFill.clear();
 
-      // Sprite
+      // Sprite — use frame 0 (idle) from animation strip
       const spritePath = 'sprites/' + item.type + '.png';
-      const loaded = this._setSpriteTexture(sprite, spritePath, 20);
+      const loaded = this._setAnimSpriteTexture(sprite, spritePath, 20, 0);
       if (!loaded) {
         // Fallback color tint based on rarity
         const rarityColors = {
@@ -2174,11 +2224,12 @@ class Renderer {
 
       this._positionEntity(container, npc.x, npc.y);
 
-      // Sprite (per-type if available, else npc_default)
+      // Sprite — use animation frame (NPCs only idle-bob, no attack/hit)
       const spritePath = npc.type ? 'sprites/' + npc.type + '.png' : 'sprites/npc_default.png';
-      let loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+      const animFrame = this._getAnimFrame(npc.id, false, false);
+      let loaded = this._setAnimSpriteTexture(sprite, spritePath, r * 2, animFrame);
       if (!loaded && npc.type) {
-        loaded = this._setSpriteTexture(sprite, 'sprites/npc_default.png', r * 2);
+        loaded = this._setAnimSpriteTexture(sprite, 'sprites/npc_default.png', r * 2, animFrame);
       }
       if (!loaded) sprite.tint = 0x64b5f6;
 
@@ -2233,10 +2284,12 @@ class Renderer {
       const mobShadow = container.children[0];
       if (mobShadow) mobShadow.y = container._shadowOffset || 0;
 
-      // Sprite
+      // Sprite — use animation frame from 4-frame strip
       const spritePath = mob.type ? 'sprites/' + mob.type + '.png' : null;
+      const isHit = this.hitFlashes.has(mob.id);
+      const animFrame = this._getAnimFrame(mob.id, mob.attacking, isHit);
       if (spritePath) {
-        const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+        const loaded = this._setAnimSpriteTexture(sprite, spritePath, r * 2, animFrame);
         if (!loaded) sprite.tint = 0xe53935;
       } else {
         sprite.texture = PIXI.Texture.WHITE;
@@ -2247,7 +2300,7 @@ class Renderer {
       }
 
       // Hit flash: override tint to white briefly
-      if (this.hitFlashes.has(mob.id)) {
+      if (isHit) {
         sprite.tint = 0xffffff;
       } else if (mob.slowed) {
         // Light blue tint when slowed by sentry beam
@@ -2740,17 +2793,19 @@ class Renderer {
         shadow.y = container._shadowOffset || 0;
       }
 
-      // Sprite
+      // Sprite — use animation frame from 4-frame strip
       const spriteName = playerSpriteNames[player.colorIndex] || 'player_blue';
       const spritePath = 'sprites/' + spriteName + '.png';
-      const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+      const isHit = this.hitFlashes.has(player.id);
+      const animFrame = this._getAnimFrame(player.id, player.attacking, isHit);
+      const loaded = this._setAnimSpriteTexture(sprite, spritePath, r * 2, animFrame);
       if (!loaded) {
         const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
         sprite.tint = playerColors[player.colorIndex] || 0xffffff;
       }
 
       // Hit flash: override tint to white briefly
-      if (this.hitFlashes.has(player.id)) {
+      if (isHit) {
         sprite.tint = 0xffffff;
       }
 

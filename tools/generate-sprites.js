@@ -186,17 +186,82 @@ function applyTopLeftLighting(png) {
   }
 }
 
+// Clone a PNG so we can modify it without affecting the original
+function clonePNG(src) {
+  const dst = createPNG(src.width, src.height);
+  src.data.copy(dst.data);
+  return dst;
+}
+
+// Create a copy of a 16x16 sprite shifted by (dx, dy) pixels
+function createShiftedFrame(src, dx, dy) {
+  const frame = createPNG(16, 16);
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      const srcX = x - dx;
+      const srcY = y - dy;
+      if (srcX >= 0 && srcX < 16 && srcY >= 0 && srcY < 16) {
+        const srcIdx = (srcY * 16 + srcX) * 4;
+        const dstIdx = (y * 16 + x) * 4;
+        frame.data[dstIdx]     = src.data[srcIdx];
+        frame.data[dstIdx + 1] = src.data[srcIdx + 1];
+        frame.data[dstIdx + 2] = src.data[srcIdx + 2];
+        frame.data[dstIdx + 3] = src.data[srcIdx + 3];
+      }
+    }
+  }
+  return frame;
+}
+
+// Copy a processed 16x16 frame into a horizontal strip at the given frame index
+function copyFrameToStrip(frame, strip, frameIndex) {
+  const stripW = strip.width;
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      const srcIdx = (y * 16 + x) * 4;
+      const dstIdx = (y * stripW + (frameIndex * 16 + x)) * 4;
+      strip.data[dstIdx]     = frame.data[srcIdx];
+      strip.data[dstIdx + 1] = frame.data[srcIdx + 1];
+      strip.data[dstIdx + 2] = frame.data[srcIdx + 2];
+      strip.data[dstIdx + 3] = frame.data[srcIdx + 3];
+    }
+  }
+}
+
 function savePNG(png, filePath) {
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  // Apply art-style post-processing for entity sprites (not tilesets)
-  if (filePath.includes(`${path.sep}sprites${path.sep}`) || filePath.includes('/sprites/')) {
-    applyTopLeftLighting(png);
-    addOutline(png);
+  const isEntity = filePath.includes(`${path.sep}sprites${path.sep}`) || filePath.includes('/sprites/');
+  if (isEntity) {
+    // Generate 4-frame animation strip:
+    //   Frame 0: idle pose 1 (base)
+    //   Frame 1: idle pose 2 (bob — shift up 1px)
+    //   Frame 2: attack (lunge — shift right 2px, up 1px)
+    //   Frame 3: hit (recoil — shift left 1px)
+    const frames = [
+      clonePNG(png),                     // idle 1
+      createShiftedFrame(png, 0, -1),    // idle 2 (bob up)
+      createShiftedFrame(png, 2, -1),    // attack (lunge right + up)
+      createShiftedFrame(png, -1, 0),    // hit (recoil left)
+    ];
+    // Apply art-style post-processing to each frame individually
+    for (const f of frames) {
+      applyTopLeftLighting(f);
+      addOutline(f);
+    }
+    // Assemble into horizontal strip (64x16)
+    const strip = createPNG(64, 16);
+    for (let i = 0; i < 4; i++) {
+      copyFrameToStrip(frames[i], strip, i);
+    }
+    const buffer = PNG.sync.write(strip);
+    fs.writeFileSync(filePath, buffer);
+    console.log(`  wrote ${filePath} (4-frame strip)`);
+  } else {
+    const buffer = PNG.sync.write(png);
+    fs.writeFileSync(filePath, buffer);
+    console.log(`  wrote ${filePath}`);
   }
-  const buffer = PNG.sync.write(png);
-  fs.writeFileSync(filePath, buffer);
-  console.log(`  wrote ${filePath}`);
 }
 
 // ---- Shorthand aliases for pixel art ----
