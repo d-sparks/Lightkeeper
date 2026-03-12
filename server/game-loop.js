@@ -863,7 +863,43 @@ class GameLoop {
     }
   }
 
-  // Remove a player from their expedition party (e.g. on death).
+  // Handle player disconnect: clean up party memberships and cooperative flags.
+  // Called before removePlayer() so party references are updated while room still exists.
+  handlePlayerDisconnect(playerId) {
+    const expActive = this.flagStore.getPlayerFlag(playerId, 'expedition_active');
+    if (expActive) {
+      this._removeFromExpeditionParty(playerId);
+      this._clearExpeditionFlags(playerId);
+      console.log(`[GameLoop] Cleaned up expedition state for disconnected player ${playerId}`);
+    }
+
+    const siegeActive = this.flagStore.getPlayerFlag(playerId, 'siege_active');
+    if (siegeActive) {
+      this._removeFromSiegeParty(playerId);
+      this.flagStore.removePlayerFlag(playerId, 'siege_active');
+      this.flagStore.removePlayerFlag(playerId, 'siege_challenge');
+      this.flagStore.removePlayerFlag(playerId, 'siege_room');
+      this.flagStore.removePlayerFlag(playerId, 'siege_party');
+      console.log(`[GameLoop] Cleaned up siege state for disconnected player ${playerId}`);
+    }
+  }
+
+  // Remove a player from their siege party.
+  // Updates the party list for remaining members.
+  _removeFromSiegeParty(playerId) {
+    const party = this.flagStore.getPlayerFlag(playerId, 'siege_party');
+    if (!party) return;
+    const remaining = party.filter(pid => pid !== playerId);
+    for (const pid of remaining) {
+      if (remaining.length > 1) {
+        this.flagStore.setPlayerFlag(pid, 'siege_party', remaining);
+      } else {
+        this.flagStore.removePlayerFlag(pid, 'siege_party');
+      }
+    }
+  }
+
+  // Remove a player from their expedition party (e.g. on death or disconnect).
   // Updates the party list for remaining members.
   _removeFromExpeditionParty(playerId) {
     const party = this.flagStore.getPlayerFlag(playerId, 'expedition_party');

@@ -77,7 +77,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 ### Phase 5.5 — Cooperative Polish
 - Expedition party silicon cost splitting — currently only the initiator pays; consider splitting cost across party members.
 - Party formation UI — currently all players in the room join automatically; consider explicit party invite/accept flow.
-- Party disconnect handling — if a party member disconnects mid-expedition, they are not removed from the party list until death or completion; consider cleanup on disconnect.
+- ~~Party disconnect handling — if a party member disconnects mid-expedition, they are not removed from the party list until death or completion; consider cleanup on disconnect.~~ ✓ Implemented — `handlePlayerDisconnect()` in game-loop.js removes disconnecting player from expedition/siege party lists and clears their cooperative flags; remaining party members continue with updated party state.
 - Shared XP/loot distribution across party members (currently individual per-player).
 
 ### Phase 6 — Cooperative Challenges

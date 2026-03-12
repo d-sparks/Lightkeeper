@@ -1265,6 +1265,7 @@ wss.on('connection', (ws) => {
     }
 
     chunkManager.removePlayer(playerId);
+    gameLoop.handlePlayerDisconnect(playerId);
     if (ws.playerRoom) {
       gameLoop.removePlayer(ws.playerRoom, playerId);
       gameLoop.questTracker.removePlayer(playerId);
