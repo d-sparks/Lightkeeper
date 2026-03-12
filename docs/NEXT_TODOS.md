@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-12 (removed all completed items).
+Last cleaned: 2026-03-12.
 
 ## Checkpoint Tool — Autosave History
 
@@ -19,9 +19,7 @@ Last cleaned: 2026-03-12 (removed all completed items).
 
 - **Deep Warrens sprite** — Pathfinder Ren NPC needs a dedicated sprite (`sprites/pathfinder_ren.png`).
 - **Deep Warrens discovery trigger** — Add flavor message in `meridian_undercity` near the stairs_down at (14,0).
-- **Underlumen network expansion** — Add Underlumen markers/NPC references in nightside_caverns, nightside_depths.
 - **Undercity discovery trigger in meridian_market** — Add first-discovery message for stairs_down at (14, 9).
-- **Loot table for Luddite gang** — East-wing `luddite_brawler` monsters in undercity have no drop table.
 
 ## Testing
 
@@ -34,7 +32,6 @@ Last cleaned: 2026-03-12 (removed all completed items).
 - **Party formation UI** — Currently all players in the room join automatically; consider invite/accept flow.
 - **Shared XP/loot distribution** — Currently individual per-player.
 - **Light Sentry placement in siege** — Special sentry placement UI for inter-wave phase.
-- **Deep Expedition (Tier 6)** — 3-4 player, 7-floor no-checkpoint run with abyssal_sovereign boss.
 - **Faction Rally** — Server-wide flag aggregation for cooperative monthly event.
 - **Raid defense death handling** — If player dies in raid defense, consider partial damage penalty.
 - **Raid difficulty curve tuning** — 5 base monsters + 2 per level may need playtesting.
@@ -55,8 +52,6 @@ Last cleaned: 2026-03-12 (removed all completed items).
 ## Weapon Upgrade System
 
 - **More crafting material tiers** — Add epic/legendary tier materials for endgame weapon progression.
-- **Crafting material drops in biome loot tables** — Only common.json updated. Add to frost, fungal, geothermal, nightside, array tables.
-- **Disassemble confirmation** — Add choice menu confirmation dialog.
 - **Weapon upgrade persistence edge cases** — Test save/load with upgraded weapons, swaps, death scenarios.
 - **Weapon upgrade visual feedback** — Show bonuses in EQUIP tab and STATS panel.
 - **Ground-spawned crafting materials** — Add static spawns in dungeon rooms.

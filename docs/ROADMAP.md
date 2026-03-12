@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-12
+Last updated: 2026-03-12 (refreshed with sim analysis)
 
 ## Big Picture
 
@@ -52,27 +52,27 @@ The game needs three things to go from "deep tech demo" to "complete game":
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Fix bugs, improve game feel, lay groundwork for story dungeons**
+Focus: **Fix sim bugs, connect disconnected content, improve game feel**
 
-1. **Fix headless sim bot combat** — Bot gets stuck in proc_quarantine, can't fight past monsters. Blocks all-quests testing.
-2. **Fix nightside caverns rendering** — Room renders entirely inside a wall. Players/enemies invisible.
-3. **Fix flare item** — Placing a flare gives "undefined" in inventory.
-4. **Quest log UX** — Collapse completed steps. Show max 3 rows for long quests.
-5. **Side quest guidance** — Ensure every quest item pickup hints at next step.
-6. **Multiplayer chat reliability** — Messages disappear or don't show.
-7. **Distribute crafting materials** — Add to biome-specific loot tables (frost, fungal, geothermal, nightside, array).
+1. **Fix relay_recovery quest soft-lock** — `junction_a_activated` flag never gets set, blocking all-quests sim runs.
+2. **Fix phase3_investigation return navigation** — Bot can't return from underlumen_threshold to meridian_civic.
+3. **Fix explore-mode workshop flag gate** — `engineer_briefing_complete` blocks explore bot permanently.
+4. **Distribute crafting materials across biome loot tables** — Currently only in common.json. Fix undercity luddite loot too.
+5. **Wire lighthouse_siege_arena to NPC trigger** — Fully-built endgame system with no player-facing entry point.
+6. **Connect crypt dungeons to narrative** — Accessible from outpost_basement but no quest sends players there.
+7. **Difficulty tuning** — Mainline sim completes with 0 deaths. Game should feel dangerous.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
 Focus: **Build the story campaign dungeons that connect Acts 1-3**
 
-8. **Build Lighthouse Mara** — Multi-floor frozen cavern expedition. Core Act 1 beat. Uses frost_crypt tileset.
-9. **Build Spire of Vigil** — Raider stronghold (outer) + Underlumen puzzle core (inner). Act 1 climax. Unlocks Light Sentry.
+8. **Add environmental storytelling to Nightside path** — nightside_caverns → underlumen_threshold has combat but no narrative. Add lore, Sable encounters, sol unit reactions.
+9. **Build Lighthouse Mara** — Multi-floor frozen cavern expedition. Core Act 1 beat. Uses frost_crypt tileset.
 10. **Add Dural Voss boss** — Named raider warlord with retreat mechanic. Key narrative moment.
-11. **Build Greenway corridors** — Agricultural zones under Bulwark occupation. Act 2 setting.
-12. **Build Spire of Winds** — Bulwark fortress (outer) + vertical puzzle core (inner). Act 2 climax. Unlocks Hover.
-13. **Wire Spire ability unlocks** — Light Sentry from Vigil, Hover from Winds, Photonic Pulse from Radiance.
-14. **Level-up stat screen** — Show HP, damage, energy improvements on level up.
+11. **Build Spire of Vigil** — Raider stronghold (outer) + Underlumen puzzle core (inner). Act 1 climax. Unlocks Light Sentry.
+12. **Wire full Array dungeon chain into quest** — control_center and command_throne are never visited during quests.
+13. **Level-up stat screen + weapon upgrade confirmation** — Key UX improvements.
+14. **Build Greenway corridors + Spire of Winds** — Act 2 setting and climax.
 
 ## Long-Term Vision (3+ Months)
 
@@ -208,7 +208,7 @@ These are done and don't need further investment:
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
-| docs/storyboard.md | Active | **Primary gap.** Act I partially realized (~70%), Act II ~30%, Act III ~25%. Spire dungeons, Lighthouse Mara, Greenway zones all unbuilt. |
+| docs/storyboard.md | Active | **Primary gap.** Act I ~65% (Outpost done, Lighthouse Mara + Spire of Vigil missing), Act II ~25% (Dayside exists, Greenway + Spire of Winds missing), Act III ~20% (ending dungeons exist, Spire of Radiance missing). |
 | docs/endgame-loop.md | Active | Phases 1-7 engine done. Remaining: Deep Expedition (Tier 6), Faction Rally |
 | docs/progression-system.md | Active | Core systems done. Harvester scaling done (levels 11-20). Spire ability unlocks not yet wired. |
 | docs/automation_screen.md | Done | All phases implemented |
