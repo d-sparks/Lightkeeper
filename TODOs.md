@@ -26,54 +26,50 @@ crypt_01 and crypt_02 are accessible from outpost_basement but no quest or NPC m
 
 signal_cave, old_watchtower, dead_road, and relay_station all have content (lore items, monsters, environmental storytelling) but zero quest or NPC breadcrumbs directing players there. These rooms are never visited in the mainline sim (32 rooms unvisited). Add NPC dialogue hints: Wren Alcott mentions the old watchtower survey records, the Old Keeper references the dead road trade route, and a Sable encounter hints at signal_cave. Wire at least 2 of these into side quests.
 
-## 6. [sonnet] Wire lighthouse_siege_arena to player-facing trigger
-
-The lighthouse siege cooperative system is fully implemented (waves, repair, victory/defeat) but has no entry point for players. Add an NPC dialogue option (Warden Holt or a perimeter guard) that triggers siege mode when the player has completed the main quest or reached a post-ending flag. Currently this endgame content is completely invisible.
-
-## 7. [sonnet] Distribute crafting materials across biome loot tables
+## 6. [sonnet] Distribute crafting materials across biome loot tables
 
 Crafting materials (metal_casing, metal_linker, power_conduit, stabilizer_rod, focusing_lens, plasma_coil) only drop from common.json loot tables. Add biome-appropriate crafting drops to frost.json (stabilizer_rod, metal_casing), fungal.json (focusing_lens), geothermal.json (plasma_coil, power_conduit), nightside.json (metal_linker), and array.json (all types at low rates). Players should find materials throughout the game, not just from generic drops.
 
-## 8. [opus] Add environmental storytelling to the Nightside path
+## 7. [opus] Add environmental storytelling to the Nightside path
 
 The nightside_caverns → nightside_depths → nightside_passage → underlumen_threshold path has combat but minimal narrative atmosphere. This is the player's journey into the unknown — it needs dread, not just monsters. Add: (a) 3-4 lore items referencing the Unbounded and the Spire of Vigil, (b) room-entered trigger messages as the player descends ("Your sol unit flickers — something deep is pulling at its frequency"), (c) a Sable encounter in nightside_depths with dialogue about what lies deeper, (d) environmental flavor text building tension. This path should feel like crossing a threshold into something ancient.
 
-## 9. [opus] Wire full Array dungeon chain into quest narrative
+## 8. [opus] Wire full Array dungeon chain into quest narrative
 
 The dayside has 5 dungeons (solar_fields → synthesis_lab → deep_processing → control_center → command_throne) but array_control_center and array_command_throne are never visited during any sim mode. The Array complex should feel like a progressively deeper investigation, not two disconnected visits. Add quest steps or NPC breadcrumbs (MERIDIAN-7, Asha Denn) that guide players through the full chain. The Act III ending paths (shutdown/merge/control) should require visiting these dungeons.
 
-## 10. [sonnet] Level-up stat screen
+## 9. [sonnet] Level-up stat screen
 
 When the player levels up, there's no feedback beyond a notification. Add a brief stat summary popup showing HP increase, damage scaling bonus, and energy changes. This is a small engine change (new message type + client overlay) with outsized impact on feeling of progression. Every level should feel meaningful.
 
-## 11. [sonnet] Weapon upgrade confirmation dialog
+## 10. [sonnet] Weapon upgrade confirmation dialog
 
 The disassemble button fires immediately with no confirmation. Add a choice menu ("Disassemble [weapon name]? Components will be lost.") to prevent accidental weapon destruction. Small UX fix that prevents real frustration — especially for rare weapons.
 
-## 12. [opus] Build Lighthouse Mara dungeon
+## 11. [opus] Build Lighthouse Mara dungeon
 
 Core Act I beat from the storyboard ("Lighthouse Mara, 2-3 hours"). Multi-floor dungeon (3-4 floors) through frozen caverns to a failing Lighthouse. Use frost_crypt tileset and nightside monsters. The damage should look structural, not raider-caused — breadcrumb for the Deep Array reveal. Include a survey marker referencing unusual geological readings and a Sable sighting. Wire into the main quest between "cross perimeter" and "arrive Meridian" steps. This is the single most impactful content addition for Act I — the player's first real expedition.
 
-## 13. [opus] Build Dural Voss boss encounter
+## 12. [opus] Build Dural Voss boss encounter
 
 The luddite_warlord monster type exists and Dural Voss appears in NPC dialogue, but there's no actual boss encounter. Create: (a) a `dural_voss` monster entry with high HP, retreat mechanic (flees at 20% HP), and unique lunge/stun attacks, (b) an encounter room in nightside_caverns or a dedicated raider camp, (c) pre-fight dialogue ("We didn't touch your Lighthouses — whatever's killing them is deeper than you think"), (d) a retreat flag that marks him as fled rather than killed. This gives Act I's antagonist a face and plants the seed that raiders aren't the real threat.
 
-## 14. [opus] Build Spire of Vigil — Act I climax
+## 13. [opus] Build Spire of Vigil — Act I climax
 
 Act I climax dungeon. 2-3 floors of Luddite fortifications with raider captain mini-bosses transitioning to pre-human Underlumen architecture in the deeper levels. Use nightside tileset. Include traps, fortified positions, and coordinated pack_leader squads. The architecture should shift from crude raider modifications to something clearly ancient as the player descends. Inner core: Light-placement puzzle rooms teaching the Light Sentry mechanic. Core chamber: ability resonance event that permanently unlocks Light Sentry. Wire into main quest as the Act I finale.
 
-## 15. [opus] Build Greenway corridor dungeons + Spire of Winds
+## 14. [opus] Build Greenway corridor dungeons + Spire of Winds
 
 Act II setting and climax. Agricultural zones and farming settlements under Bulwark martial law. Create: (a) 2-3 Greenway corridor dungeons connecting Meridian to the Monument of Winds, (b) a Compact General boss with Bulwark soldier enemy types (new monster entries), (c) the Spire of Winds dungeon with vertical navigation puzzles and Hover ability unlock, (d) a greenway tileset (or adapt meridian tileset with agricultural elements). This makes the Act II political crisis tangible — players see the occupation rather than just hearing about it.
 
-## 16. [opus] Build Spire of Radiance + Deep Array climax
+## 15. [opus] Build Spire of Radiance + Deep Array climax
 
 Act III climax. The Dayside Spire encased in Array infrastructure. Create: (a) Array-organic hybrid enemies with unique visuals, (b) energy management puzzle rooms, (c) Photonic Pulse ability unlock in the core chamber, (d) final confrontation with the Deep Array network, (e) the three-path choice point (Sever/Restore/Subsume) with mechanically distinct endings. This completes the campaign. The ending paths (array_control_center, merge_nexus, array_command_throne) already exist but need this dungeon as their gateway.
 
-## 17. [sonnet] Replace top-priority placeholder sprites
+## 16. [sonnet] Replace top-priority placeholder sprites
 
 Priority replacements for maximum visual impact: player character (most-seen entity), Warden Holt (first NPC), Sable (key narrative NPC), MERIDIAN-7 terminal (unique entity), health_potion (most-used item), sol_unit item. Even 6-8 hand-drawn sprites following docs/art-style-guide.md would dramatically improve first impressions. The player sprite especially — it's on screen 100% of the time.
 
-## 18. [sonnet] Fix nightside_expedition quest return navigation
+## 17. [sonnet] Fix nightside_expedition quest return navigation
 
 The nightside_expedition quest times out because after reaching underlumen_threshold, the bot can't navigate back to meridian_civic to deliver the compound to Asha. This quest gates the three-path ending choice. Fix: either (a) add a fast-travel trigger in underlumen_threshold (transit point warping to train_station), or (b) improve sim bot pathfinding for long return journeys through the Nightside chain. The quest content is good — it just can't be completed.
