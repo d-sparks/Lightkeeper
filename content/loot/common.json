@@ -24,12 +24,12 @@
     ]
   },
   "luddite_common": {
-    "dropChance": 0.35,
+    "dropChance": 0.25,
     "rolls": [
       { "item": "salvage", "weight": 10 },
-      { "item": "bandage", "weight": 6 },
-      { "item": "ration_pack", "weight": 5 },
-      { "item": "health_potion", "weight": 2 },
+      { "item": "bandage", "weight": 4 },
+      { "item": "ration_pack", "weight": 3 },
+      { "item": "health_potion", "weight": 1 },
       { "item": "reinforced_battery_chip", "weight": 1 },
       { "item": "metal_casing", "weight": 4 },
       { "item": "metal_linker", "weight": 3 }
@@ -51,11 +51,11 @@
     ]
   },
   "dusk_crawler": {
-    "dropChance": 0.2,
+    "dropChance": 0.15,
     "rolls": [
       { "item": "salvage", "weight": 12 },
-      { "item": "bandage", "weight": 6 },
-      { "item": "ration_pack", "weight": 3 },
+      { "item": "bandage", "weight": 3 },
+      { "item": "ration_pack", "weight": 2 },
       { "item": "damage_booster_chip", "weight": 1 },
       { "item": "metal_casing", "weight": 4 }
     ]

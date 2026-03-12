@@ -35,7 +35,7 @@
     "size": [16, 16],
     "health": 70,
     "speed": 1.5,
-    "damage": 9,
+    "damage": 12,
     "attackRange": 1,
     "attackSpeed": 1.2,
     "ai": "melee_chase",
@@ -43,7 +43,7 @@
     "xp": 8,
     "specialAttacks": [
       { "type": "lunge", "cooldown": 6, "range": 3.5, "damage": 1.5, "speed": 8, "duration": 0.2 },
-      { "type": "ground_slam", "cooldown": 9, "range": 1.8, "damage": 1.2, "knockback": 80 }
+      { "type": "ground_slam", "cooldown": 9, "range": 1.8, "damage": 1.3, "knockback": 80 }
     ]
   },
   "luddite_scrapper": {
@@ -52,7 +52,7 @@
     "size": [16, 16],
     "health": 75,
     "speed": 1.0,
-    "damage": 12,
+    "damage": 14,
     "attackRange": 6,
     "attackSpeed": 0.8,
     "ai": "ranged_kite",
@@ -63,16 +63,16 @@
     "name": "Luddite Warlord",
     "sprite": "sprites/luddite_warlord.png",
     "size": [16, 16],
-    "health": 350,
+    "health": 420,
     "speed": 0.8,
-    "damage": 15,
+    "damage": 18,
     "attackRange": 1.5,
     "attackSpeed": 0.8,
     "ai": "melee_chase",
     "lootTable": "luddite_warlord",
     "xp": 50,
     "specialAttacks": [
-      { "type": "ground_slam", "cooldown": 8, "range": 2.5, "damage": 1.6, "knockback": 160 },
+      { "type": "ground_slam", "cooldown": 8, "range": 2.5, "damage": 1.8, "knockback": 160 },
       { "type": "stun", "cooldown": 12, "damage": 0.6, "duration": 1.2 }
     ]
   },
@@ -94,7 +94,7 @@
     "size": [16, 16],
     "health": 28,
     "speed": 2.2,
-    "damage": 4,
+    "damage": 7,
     "attackRange": 1,
     "attackSpeed": 1.2,
     "ai": "melee_chase",
@@ -261,7 +261,7 @@
     "size": [16, 16],
     "health": 45,
     "speed": 0.9,
-    "damage": 5,
+    "damage": 8,
     "attackRange": 1,
     "attackSpeed": 1.0,
     "ai": "patrol",
@@ -506,9 +506,9 @@
     "ai": "boss_crystal",
     "boss": true,
     "phases": [
-      { "threshold": 1.0, "mode": "ranged", "speed": 1.5, "damage": 16, "projectile": "energy_bolt", "projectileInterval": 1.4 },
-      { "threshold": 0.5, "mode": "ranged", "speed": 1.8, "damage": 18, "projectile": "energy_bolt", "projectileInterval": 1.0 },
-      { "threshold": 0.25, "mode": "summon", "speed": 2.0, "damage": 20, "projectile": "energy_bolt", "projectileInterval": 0.8, "summonType": "array_sentinel", "summonCount": 2, "summonInterval": 12.0 }
+      { "threshold": 1.0, "mode": "ranged", "speed": 1.5, "damage": 19, "projectile": "energy_bolt", "projectileInterval": 1.4 },
+      { "threshold": 0.5, "mode": "ranged", "speed": 1.8, "damage": 21, "projectile": "energy_bolt", "projectileInterval": 1.0 },
+      { "threshold": 0.25, "mode": "summon", "speed": 2.0, "damage": 23, "projectile": "energy_bolt", "projectileInterval": 0.8, "summonType": "array_sentinel", "summonCount": 2, "summonInterval": 12.0 }
     ],
     "lootTable": "array_overseer",
     "xp": 95

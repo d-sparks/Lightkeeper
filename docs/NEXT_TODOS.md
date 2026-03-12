@@ -27,7 +27,8 @@ Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26
 - **Explore mode** — Flag-gated at 7/57 rooms (12.3%). Blocked by `engineer_briefing_complete` on outpost_workshop door. Grant story flags in explore mode for content validation.
 - **Item discovery rate** — Only 5/52 items collected in mainline (9/52 in all-quests). Most ground items are off the main path or lack visibility.
 - **NPC engagement** — Only 20/60 NPCs talked to in mainline (29/60 in all-quests). Many NPCs have no quest reason to visit.
-- **Zero deaths** — 0 deaths across all sim modes despite death penalty being fully implemented. Damage ratio ~12% (1,185 taken vs 9,525 dealt).
+- **Death target tuning (2-4 deaths)** — Buffed mainline monster damage, added shade_stalkers to station_junction, increased quarantine density, reduced healing availability. Sim cannot validate due to pre-existing quarantine navigation loop bug (bot repeatedly cycles depth 1-2 without progressing). Needs manual playtest to confirm 2-4 deaths target.
+- **Quarantine sim loop** — Bot gets stuck cycling quarantine levels 1-2 on mainline runs. Likely a procedural room re-entry issue in headless-sim.js goal resolution.
 
 ## Endgame Loop
 

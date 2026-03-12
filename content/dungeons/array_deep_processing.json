@@ -52,8 +52,7 @@
   "itemSpawns": [
     { "type": "lore_vat_readings", "x": 19, "y": 2 },
     { "type": "lore_array_directive", "x": 2, "y": 16 },
-    { "type": "health_potion", "x": 19, "y": 16 },
-    { "type": "field_medkit", "x": 8, "y": 15 }
+    { "type": "bandage", "x": 19, "y": 16 }
   ],
   "exits": [
     { "x": 1, "y": 18, "leadsTo": "array_synthesis_lab", "type": "stairs_up", "spawnX": 21, "spawnY": 15 },

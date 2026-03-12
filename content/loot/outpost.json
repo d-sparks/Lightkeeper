@@ -1,11 +1,11 @@
 {
   "outpost_biome_common": {
-    "dropChance": 0.5,
+    "dropChance": 0.35,
     "rolls": [
-      { "item": "bandage", "weight": 6 },
-      { "item": "ration_pack", "weight": 5 },
-      { "item": "health_potion", "weight": 3 },
-      { "item": "medical_supplies", "weight": 2 }
+      { "item": "bandage", "weight": 5 },
+      { "item": "ration_pack", "weight": 4 },
+      { "item": "health_potion", "weight": 2 },
+      { "item": "medical_supplies", "weight": 1 }
     ]
   },
   "outpost_biome_uncommon": {
