@@ -60,8 +60,13 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Shared XP/loot distribution across party members (currently individual per-player).
 
 ### Phase 6 — Cooperative Challenges
-- Wave defense system, player-count gating, challenge configs.
-- Cooperative-only legendary modifier pool.
+- ~~Wave defense system, player-count gating, challenge configs.~~ ✓ Implemented — Lighthouse Siege: 10-wave defense for 2-4 players with communal energy pool, lighthouse HP, wave scaling, inter-wave phases, siege_legendary reward table. Engine: startSiege()/updateSiege() in game-loop.js, challenge loader in content-loader.js, SIEGE_STATE message type. Content: challenge JSON, arena dungeon, siege loot tables, cooperative legendary modifiers (lighthouse_lens, deep_resonance, prismatic_core) + item chips.
+- ~~Cooperative-only legendary modifier pool.~~ ✓ Implemented — 3 cooperative-only legendaries in sol_components.json (lighthouse_lens, deep_resonance, prismatic_core) + corresponding item chips in items.json.
+- Siege NPC trigger — need to wire an NPC interaction (e.g. at meridian_station post-endgame) that calls startSiege() via a scripting action or dedicated message type.
+- Siege lighthouse repair interaction — design doc mentions spending silicon to repair between waves; not yet implemented (requires client interaction + action type for repair).
+- Light Sentry placement between waves — design doc mentions placing sentries in inter-wave phase; existing sentry system works but no special siege-mode sentry placement UI.
+- Deep Expedition (Tier 6) — 3-4 player, 7-floor no-checkpoint run with abyssal_sovereign boss requiring coordination mechanics. Not yet implemented.
+- Siege visual feedback — lighthouse entity rendering, wave start/clear announcements, victory/defeat overlay. Currently only HUD bars and event data are sent.
 
 ### Phase 7 — Raids + Faction Rally
 - ~~Timed raid events, structure HP/repair.~~ ✓ Implemented — raid timer ticks per-player in game-loop.js; `_raidConfig` in structures.json defines interval (1200s), chance (30%), monster pool, damage, and scaling; `_executeRaid()` computes damage vs defense rating, distributes damage across random non-turret structures, destroys structures at 0 HP; `updateRepairTimer()` applies drone bay HP recovery; `RAID_ALERT` message notifies client of raid outcomes; structure HP included in `AUTO_STATE` payload.

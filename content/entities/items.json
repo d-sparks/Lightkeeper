@@ -884,5 +884,26 @@
     "type": "sol_component",
     "rarity": "epic",
     "solComponentId": "command_cipher"
+  },
+  "lighthouse_lens_chip": {
+    "name": "Lighthouse Lens",
+    "description": "Forged in the light of a defended Lighthouse. Its radiance illuminates an entire 3x3 area of your Sol Grid, amplifying damage and efficiency for every adjacent component.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "lighthouse_lens"
+  },
+  "deep_resonance_chip": {
+    "name": "Deep Resonance",
+    "description": "Echoes from the deepest Nightside. Its resonant frequency reaches components two steps away, reducing cooldowns and healing with every strike.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "deep_resonance"
+  },
+  "prismatic_core_chip": {
+    "name": "Prismatic Core",
+    "description": "A convergence of all energy sources. This generator produces 12 energy per second — the highest output of any known component.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "prismatic_core"
   }
 }

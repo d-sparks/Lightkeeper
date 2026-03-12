@@ -1447,6 +1447,8 @@ setInterval(() => {
           } else {
             state.expedition = null;
           }
+          // Inject siege state for this room
+          state.siege = gameLoop._getSiegeStateForClient(room);
         }
         // Inject per-player harvester entities when in the automation dungeon
         if (isDaysideRoom && client.playerId) {

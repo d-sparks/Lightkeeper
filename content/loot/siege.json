@@ -1,0 +1,26 @@
+{
+  "siege_legendary": {
+    "dropChance": 1.0,
+    "note": "Guaranteed drop from completing Lighthouse Siege (all 10 waves). Cooperative-only legendaries.",
+    "rolls": [
+      { "item": "lighthouse_lens_chip", "weight": 35 },
+      { "item": "deep_resonance_chip", "weight": 35 },
+      { "item": "prismatic_core_chip", "weight": 20 },
+      { "item": "uranium_generator_chip", "weight": 10 }
+    ]
+  },
+  "siege_wave_drops": {
+    "dropChance": 0.4,
+    "note": "Per-wave loot from siege monsters. Lower-tier consumables and components.",
+    "rolls": [
+      { "item": "health_potion", "weight": 25 },
+      { "item": "ration_pack", "weight": 15 },
+      { "item": "bandage", "weight": 15 },
+      { "item": "battery_chip", "weight": 10 },
+      { "item": "damage_booster_chip", "weight": 10 },
+      { "item": "reinforced_battery_chip", "weight": 10 },
+      { "item": "signal_booster_chip", "weight": 8 },
+      { "item": "rechargeable_battery_chip", "weight": 7 }
+    ]
+  }
+}

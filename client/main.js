@@ -50,6 +50,15 @@
   const bossBarText = document.getElementById('boss-bar-text');
   const bossBarPhase = document.getElementById('boss-bar-phase');
   const partyFrames = document.getElementById('party-frames');
+  const siegeHud = document.getElementById('siege-hud');
+  const siegeTitle = document.getElementById('siege-title');
+  const siegeWave = document.getElementById('siege-wave');
+  const siegePhase = document.getElementById('siege-phase');
+  const siegeLhFill = document.getElementById('siege-lh-fill');
+  const siegeLhText = document.getElementById('siege-lh-text');
+  const siegeEnergyFill = document.getElementById('siege-energy-fill');
+  const siegeEnergyText = document.getElementById('siege-energy-text');
+  const siegeMonsters = document.getElementById('siege-monsters');
   const deathOverlay = document.getElementById('death-overlay');
   const deathDetails = document.getElementById('death-details');
   const PARTY_COLORS = ['#4fc3f7', '#ef5350', '#66bb6a', '#ffa726'];
@@ -2805,6 +2814,50 @@
       }
     } else {
       expeditionHud.style.display = 'none';
+    }
+
+    // Update siege HUD
+    if (msg.siege && msg.siege.phase) {
+      siegeHud.style.display = '';
+      siegeTitle.textContent = msg.siege.displayName || 'SIEGE';
+      if (msg.siege.wave > 0) {
+        siegeWave.textContent = `Wave ${msg.siege.wave} / ${msg.siege.maxWaves}`;
+      } else {
+        siegeWave.textContent = 'Preparing...';
+      }
+      // Phase indicator
+      if (msg.siege.phase === 'preparing' || msg.siege.phase === 'inter_wave') {
+        siegePhase.textContent = `Next wave in ${msg.siege.phaseTimer}s`;
+      } else if (msg.siege.phase === 'active') {
+        siegePhase.textContent = 'WAVE ACTIVE';
+        siegePhase.style.color = '#e53935';
+      } else if (msg.siege.phase === 'victory') {
+        siegePhase.textContent = 'VICTORY!';
+        siegePhase.style.color = '#66bb6a';
+      } else if (msg.siege.phase === 'defeat') {
+        siegePhase.textContent = 'DEFEATED';
+        siegePhase.style.color = '#e53935';
+      }
+      if (msg.siege.phase !== 'active') {
+        siegePhase.style.color = '#aaa';
+      }
+      // Lighthouse HP bar
+      const lhPct = msg.siege.lighthouseMaxHp > 0 ? (msg.siege.lighthouseHp / msg.siege.lighthouseMaxHp) * 100 : 0;
+      siegeLhFill.style.width = lhPct + '%';
+      siegeLhText.textContent = `${msg.siege.lighthouseHp} / ${msg.siege.lighthouseMaxHp}`;
+      // Communal energy bar
+      const enPct = msg.siege.communalEnergyMax > 0 ? (msg.siege.communalEnergy / msg.siege.communalEnergyMax) * 100 : 0;
+      siegeEnergyFill.style.width = enPct + '%';
+      siegeEnergyText.textContent = `${msg.siege.communalEnergy} / ${msg.siege.communalEnergyMax}`;
+      // Monsters remaining
+      if (msg.siege.phase === 'active') {
+        siegeMonsters.textContent = `Enemies: ${msg.siege.monstersRemaining}`;
+        siegeMonsters.style.display = '';
+      } else {
+        siegeMonsters.style.display = 'none';
+      }
+    } else {
+      siegeHud.style.display = 'none';
     }
 
     // Update click-to-move direction based on current position

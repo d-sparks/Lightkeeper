@@ -20,6 +20,7 @@ class ContentLoader {
     this.affixes = {};
     this.crafting = {};
     this.shops = {};
+    this.challenges = {};
     this.worldmap = null;
     this.settings = {};
   }
@@ -42,6 +43,7 @@ class ContentLoader {
     this.loadAffixes();
     this.loadCrafting();
     this.loadShops();
+    this.loadChallenges();
     this.loadWorldmap();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
@@ -56,7 +58,8 @@ class ContentLoader {
                 `${Object.keys(this.expeditions).length} expedition(s), ` +
                 `${Object.keys(this.affixes).length} affix(es), ` +
                 `${Object.keys(this.crafting).length} crafting recipe(s), ` +
-                `${Object.keys(this.shops).length} shop(s)`);
+                `${Object.keys(this.shops).length} shop(s), ` +
+                `${Object.keys(this.challenges).length} challenge(s)`);
   }
 
   loadJSON(filePath) {
@@ -333,6 +336,26 @@ class ContentLoader {
 
   getShop(id) {
     return this.shops[id] || null;
+  }
+
+  loadChallenges() {
+    const dir = path.join(this.contentDir, 'challenges');
+    if (!fs.existsSync(dir)) return;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.json')) continue;
+      const data = this.loadJSON(path.join(dir, file));
+      if (!data.id) continue;
+      this.challenges[data.id] = data;
+      console.log(`[Content]   Challenge: ${data.id} (${data.displayName})`);
+    }
+  }
+
+  getChallenge(id) {
+    return this.challenges[id] || null;
+  }
+
+  getAllChallenges() {
+    return this.challenges;
   }
 
   loadLootTables() {

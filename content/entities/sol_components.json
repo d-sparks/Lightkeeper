@@ -383,5 +383,34 @@
     "bonus": { "energyCostReduction": 0.35, "damageMultiplier": 0.20 },
     "description": "Array override protocols encoded into an efficiency matrix. Reduces energy waste and amplifies output — the language of absolute authority.",
     "shape": [[1, 1]]
+  },
+  "lighthouse_lens": {
+    "type": "modifier",
+    "name": "Lighthouse Lens",
+    "rarity": "legendary",
+    "source": "cooperative",
+    "adjacencyPattern": "area3x3",
+    "bonus": { "damageMultiplier": 0.40, "energyCostReduction": 0.30 },
+    "description": "Forged in the light of a defended Lighthouse.",
+    "shape": [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+  },
+  "deep_resonance": {
+    "type": "modifier",
+    "name": "Deep Resonance",
+    "rarity": "legendary",
+    "source": "cooperative",
+    "adjacencyPattern": "radius2",
+    "bonus": { "cooldownReduction": 0.40, "healOnHit": 8 },
+    "description": "Echoes from the deepest Nightside.",
+    "shape": [[1, 1], [1, 1]]
+  },
+  "prismatic_core": {
+    "type": "generator",
+    "name": "Prismatic Core",
+    "rarity": "legendary",
+    "source": "cooperative",
+    "energyRegen": 12,
+    "description": "A convergence of all energy sources.",
+    "shape": [[1, 1], [1, 1]]
   }
 }

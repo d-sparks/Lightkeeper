@@ -793,6 +793,448 @@ class GameLoop {
     this.spawnMonsters(room);
   }
 
+  // ========== Cooperative Challenge: Siege System ==========
+
+  // Start a siege challenge for players in a room.
+  // Returns { roomId, room, partyMembers } on success, or error object on failure.
+  startSiege(playerId, challengeId) {
+    const challenge = this.content.getChallenge(challengeId);
+    if (!challenge || challenge.type !== 'wave_defense') {
+      console.error(`[GameLoop] No wave_defense challenge: ${challengeId}`);
+      return null;
+    }
+
+    // Validate unlock condition
+    if (challenge.unlockCondition) {
+      const ctx = { playerId };
+      if (!this.conditions.evaluate(challenge.unlockCondition, ctx)) {
+        console.log(`[GameLoop] Player ${playerId} does not meet siege unlock conditions`);
+        return null;
+      }
+    }
+
+    // Check weekly cooldown
+    if (challenge.cooldownFlag) {
+      const lastClear = this.flagStore.getPlayerFlag(playerId, challenge.cooldownFlag);
+      if (lastClear) {
+        const elapsed = (Date.now() - lastClear) / 1000;
+        if (elapsed < (challenge.cooldown || 0)) {
+          const remaining = Math.ceil((challenge.cooldown - elapsed) / 3600);
+          console.log(`[GameLoop] Player ${playerId} on siege cooldown (${remaining}h remaining)`);
+          return { onCooldown: true, hoursRemaining: remaining };
+        }
+      }
+    }
+
+    // Validate player count
+    const originRoom = this._findPlayerRoom(playerId);
+    const playerCount = originRoom ? originRoom.players.size : 1;
+    if (playerCount < challenge.minPlayers) {
+      return { insufficientPlayers: true, required: challenge.minPlayers, present: playerCount };
+    }
+    if (playerCount > challenge.maxPlayers) {
+      return { tooManyPlayers: true, max: challenge.maxPlayers, present: playerCount };
+    }
+
+    // Create the siege arena room
+    const room = this.createRoom(challenge.dungeonId, challenge.dungeonId);
+    if (!room) return null;
+
+    // Initialize siege state on the room
+    room.siege = {
+      challengeId,
+      challenge,
+      wave: 0,
+      maxWaves: challenge.waves || 10,
+      phase: 'preparing', // 'preparing', 'active', 'inter_wave', 'victory', 'defeat'
+      phaseTimer: challenge.interWaveDuration || 15,
+      lighthouseHp: challenge.lighthouseMaxHp || 500,
+      lighthouseMaxHp: challenge.lighthouseMaxHp || 500,
+      lighthouseX: (challenge.lighthousePosition.x + 0.5) * CONSTANTS.TILE_SIZE,
+      lighthouseY: (challenge.lighthousePosition.y + 0.5) * CONSTANTS.TILE_SIZE,
+      communalEnergy: challenge.communalEnergyMax || 200,
+      communalEnergyMax: challenge.communalEnergyMax || 200,
+      monstersRemaining: 0,
+      originRoom: originRoom ? originRoom.id : null,
+    };
+
+    // Gather party members
+    const partyMembers = [];
+    if (originRoom) {
+      for (const [pid] of originRoom.players) {
+        partyMembers.push(pid);
+      }
+    } else {
+      partyMembers.push(playerId);
+    }
+
+    // Set siege tracking flags on all party members
+    for (const pid of partyMembers) {
+      this.flagStore.setPlayerFlag(pid, 'siege_active', true);
+      this.flagStore.setPlayerFlag(pid, 'siege_challenge', challengeId);
+      this.flagStore.setPlayerFlag(pid, 'siege_room', challenge.dungeonId);
+      if (partyMembers.length > 1) {
+        this.flagStore.setPlayerFlag(pid, 'siege_party', partyMembers);
+      }
+    }
+
+    console.log(`[GameLoop] Started siege "${challengeId}" for party [${partyMembers.join(', ')}] in room ${challenge.dungeonId}`);
+    return { roomId: room.id, room, partyMembers };
+  }
+
+  // Update siege state for a room — called each tick from update()
+  updateSiege(room, dt) {
+    const siege = room.siege;
+    if (!siege || siege.phase === 'victory' || siege.phase === 'defeat') return;
+
+    // Check lighthouse health
+    if (siege.lighthouseHp <= 0) {
+      this._failSiege(room);
+      return;
+    }
+
+    // Phase: preparing or inter_wave — countdown to next wave
+    if (siege.phase === 'preparing' || siege.phase === 'inter_wave') {
+      siege.phaseTimer -= dt;
+      if (siege.phaseTimer <= 0) {
+        siege.wave++;
+        if (siege.wave > siege.maxWaves) {
+          this._completeSiege(room);
+          return;
+        }
+        this._spawnSiegeWave(room);
+        siege.phase = 'active';
+      }
+      return;
+    }
+
+    // Phase: active — check if all monsters are dead
+    if (siege.phase === 'active') {
+      // Monsters target lighthouse: any monster near it deals damage
+      const lhx = siege.lighthouseX;
+      const lhy = siege.lighthouseY;
+      const lhRadius = 2.5 * CONSTANTS.TILE_SIZE; // lighthouse hit area
+
+      for (const [, mob] of room.monsters) {
+        const dx = mob.x - lhx;
+        const dy = mob.y - lhy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < lhRadius && mob.attackTimer <= 0) {
+          siege.lighthouseHp -= mob.damage;
+          mob.attackTimer = mob.attackCooldown;
+          room.events.push({
+            type: 'lighthouse_hit',
+            amount: mob.damage,
+            lighthouseHp: Math.max(0, siege.lighthouseHp),
+            lighthouseMaxHp: siege.lighthouseMaxHp,
+            x: lhx, y: lhy,
+          });
+          if (siege.lighthouseHp <= 0) {
+            this._failSiege(room);
+            return;
+          }
+        }
+      }
+
+      // Drain communal energy based on active monsters
+      const drainRate = (siege.challenge.communalEnergyDrainPerWave || 15) / (siege.challenge.waveInterval || 45);
+      siege.communalEnergy = Math.max(0, siege.communalEnergy - drainRate * dt);
+
+      // Check if all monsters are dead — wave clear
+      if (room.monsters.size === 0) {
+        console.log(`[GameLoop] Siege wave ${siege.wave} cleared in room ${room.id}`);
+        room.events.push({
+          type: 'wave_clear',
+          wave: siege.wave,
+          maxWaves: siege.maxWaves,
+        });
+
+        if (siege.wave >= siege.maxWaves) {
+          this._completeSiege(room);
+          return;
+        }
+
+        // Start inter-wave phase
+        siege.phase = 'inter_wave';
+        siege.phaseTimer = siege.challenge.interWaveDuration || 15;
+        // Regen communal energy between waves
+        const regenAmount = siege.challenge.communalEnergyRegenBetweenWaves || 5;
+        siege.communalEnergy = Math.min(siege.communalEnergyMax, siege.communalEnergy + regenAmount);
+      }
+    }
+  }
+
+  // Spawn a wave of monsters for the siege challenge
+  _spawnSiegeWave(room) {
+    const siege = room.siege;
+    const challenge = siege.challenge;
+    const waveNum = siege.wave;
+
+    // Calculate monster count for this wave
+    const baseCount = challenge.baseMonsterCount || 4;
+    const perWaveIncrease = challenge.monstersPerWaveIncrease || 2;
+    const monsterCount = baseCount + (waveNum - 1) * perWaveIncrease;
+
+    // Calculate scaling for this wave
+    const baseScaling = challenge.monsterScaling || { hpMult: 2.0, damageMult: 1.8 };
+    const perWaveScaling = challenge.waveScalingPerWave || { hpMult: 0.15, damageMult: 0.10 };
+    const hpMult = baseScaling.hpMult + (waveNum - 1) * perWaveScaling.hpMult;
+    const damageMult = baseScaling.damageMult + (waveNum - 1) * perWaveScaling.damageMult;
+
+    // Select monster types: include elites from eliteStartWave onward
+    const pool = [...(challenge.monsterPool || [])];
+    const eliteStartWave = challenge.eliteStartWave || 4;
+    const elitePool = challenge.elitePool || [];
+    const useElites = waveNum >= eliteStartWave && elitePool.length > 0;
+
+    // Select spawn points from challenge definition
+    const spawnPoints = challenge.spawnPoints || [{ x: 2, y: 2 }];
+
+    console.log(`[GameLoop] Spawning siege wave ${waveNum}: ${monsterCount} monsters (hp: ${hpMult.toFixed(1)}x, dmg: ${damageMult.toFixed(1)}x${useElites ? ', +elites' : ''})`);
+
+    for (let i = 0; i < monsterCount; i++) {
+      // Pick monster type: 30% chance of elite if elites are available
+      let monsterType;
+      if (useElites && Math.random() < 0.3) {
+        monsterType = elitePool[Math.floor(Math.random() * elitePool.length)];
+      } else {
+        monsterType = pool[Math.floor(Math.random() * pool.length)];
+      }
+
+      const def = this.content.getMonster(monsterType);
+      if (!def) continue;
+
+      // Pick a random spawn point
+      const sp = spawnPoints[Math.floor(Math.random() * spawnPoints.length)];
+      // Add slight random offset to avoid stacking
+      const offsetX = (Math.random() - 0.5) * 2;
+      const offsetY = (Math.random() - 0.5) * 2;
+      const targetTX = Math.floor(sp.x + offsetX);
+      const targetTY = Math.floor(sp.y + offsetY);
+      const validTile = this.findSpawnableTile(room.dungeon, targetTX, targetTY);
+      if (!validTile) continue;
+
+      const spawnX = (validTile.x + 0.5) * CONSTANTS.TILE_SIZE;
+      const spawnY = (validTile.y + 0.5) * CONSTANTS.TILE_SIZE;
+      const scaledHealth = Math.round(def.health * hpMult);
+      const scaledDamage = Math.round(def.damage * damageMult);
+
+      const id = `mob_${room.nextMonsterId++}`;
+      const mob = {
+        id,
+        type: monsterType,
+        name: def.name,
+        x: spawnX,
+        y: spawnY,
+        spawnX,
+        spawnY,
+        elevation: 0,
+        health: scaledHealth,
+        maxHealth: scaledHealth,
+        speed: def.speed,
+        damage: scaledDamage,
+        attackRange: (def.attackRange || 1) * CONSTANTS.TILE_SIZE,
+        attackCooldown: 1 / (def.attackSpeed || 1),
+        attackTimer: 0,
+        ai: def.ai === 'ambush' ? 'melee_chase' : def.ai, // Override ambush to chase in siege
+        facing: 0,
+        idleMode: 'wander',
+        xpMult: 2.0,
+        siegeTarget: true, // Marks this as a siege wave monster
+        lootTable: 'siege_wave_drops', // Override loot table for siege drops
+      };
+
+      // Pack leader aura
+      if (def.ai === 'pack_leader' && def.aura) {
+        mob.aura = def.aura;
+      }
+      // Ranged projectile
+      if (def.ai === 'ranged_kite' && def.projectile) {
+        mob.projectile = def.projectile;
+      }
+      // Boss phases
+      if (def.ai === 'boss_crystal' && def.phases) {
+        mob.bossPhase = 0;
+        mob.bossPhases = def.phases;
+        mob.bossProjectileTimer = 0;
+        mob.bossSummonTimer = 0;
+        mob.bossSummonCount = 0;
+      }
+      // Special attacks
+      if (def.specialAttacks && def.specialAttacks.length > 0) {
+        mob.specialAttacks = def.specialAttacks.map(sa => ({
+          ...sa,
+          timer: sa.cooldown * (0.3 + Math.random() * 0.7),
+        }));
+      }
+
+      // Wander behavior for idle (before they spot players)
+      mob.patrolTimer = 0;
+      mob.patrolState = 'walking';
+      mob.patrolWaitTime = 1.5 + Math.random();
+      mob.patrolAngle = Math.random() * Math.PI * 2;
+
+      room.monsters.set(id, mob);
+    }
+
+    siege.monstersRemaining = room.monsters.size;
+
+    room.events.push({
+      type: 'wave_start',
+      wave: waveNum,
+      maxWaves: siege.maxWaves,
+      monsterCount: room.monsters.size,
+    });
+  }
+
+  // Complete the siege successfully — award rewards to all players
+  _completeSiege(room) {
+    const siege = room.siege;
+    siege.phase = 'victory';
+    console.log(`[GameLoop] Siege "${siege.challengeId}" completed in room ${room.id}!`);
+
+    room.events.push({
+      type: 'siege_victory',
+      challengeId: siege.challengeId,
+    });
+
+    // Award rewards to all players in the room
+    const rewardTableId = siege.challenge.rewardTable;
+    for (const [pid, player] of room.players) {
+      // Roll from the siege legendary loot table
+      if (rewardTableId) {
+        const table = this.content.getLootTable(rewardTableId);
+        if (table && table.rolls && table.rolls.length > 0) {
+          const totalWeight = table.rolls.reduce((sum, r) => sum + (r.weight || 1), 0);
+          let roll = Math.random() * totalWeight;
+          let chosen = null;
+          for (const entry of table.rolls) {
+            roll -= (entry.weight || 1);
+            if (roll <= 0) { chosen = entry; break; }
+          }
+          if (chosen) {
+            const itemDef = this.content.getItem(chosen.item);
+            if (itemDef) {
+              player.inventory.push({
+                id: `siege_reward_${Date.now()}_${pid}`,
+                type: chosen.item,
+                name: itemDef.name,
+                rarity: itemDef.rarity || 'common',
+                category: itemDef.type,
+              });
+              console.log(`[GameLoop] Siege reward for ${pid}: ${itemDef.name}`);
+            }
+          }
+        }
+      }
+
+      // Set cooldown flag
+      if (siege.challenge.cooldownFlag) {
+        this.flagStore.setPlayerFlag(pid, siege.challenge.cooldownFlag, Date.now());
+      }
+
+      // Send updated inventory
+      if (this.actions.sendToPlayer) {
+        this.actions.sendToPlayer(pid, {
+          type: CONSTANTS.MSG.INVENTORY,
+          inventory: player.inventory,
+        });
+      }
+    }
+
+    // Spawn return portal at lighthouse position
+    const lhPos = siege.challenge.lighthousePosition;
+    const originRoom = siege.originRoom || 'meridian_station';
+    if (lhPos) {
+      const ts = CONSTANTS.TILE_SIZE;
+      const portalTX = lhPos.x;
+      const portalTY = lhPos.y + 2; // Below lighthouse
+      const idx = portalTY * room.dungeon.width + portalTX;
+      room.dungeon.data[idx] = 8; // stairs_up tile
+      room.dungeon.exits.push({
+        x: portalTX, y: portalTY,
+        leadsTo: originRoom,
+        type: 'return_portal',
+      });
+      if (this.actions.broadcastToRoom) {
+        this.actions.broadcastToRoom(room.id, {
+          type: CONSTANTS.MSG.DOOR_TOGGLE,
+          x: portalTX, y: portalTY, tileId: 8,
+        });
+      }
+    }
+
+    // Clear siege flags on all party members
+    this._clearSiegeFlags(room);
+  }
+
+  // Fail the siege — lighthouse destroyed
+  _failSiege(room) {
+    const siege = room.siege;
+    siege.phase = 'defeat';
+    siege.lighthouseHp = 0;
+    console.log(`[GameLoop] Siege "${siege.challengeId}" failed in room ${room.id} (lighthouse destroyed)`);
+
+    room.events.push({
+      type: 'siege_defeat',
+      challengeId: siege.challengeId,
+      wavesCompleted: siege.wave - 1,
+    });
+
+    // Spawn return portal so players can leave
+    const lhPos = siege.challenge.lighthousePosition;
+    const originRoom = siege.originRoom || 'meridian_station';
+    if (lhPos) {
+      const portalTX = lhPos.x;
+      const portalTY = lhPos.y + 2;
+      const idx = portalTY * room.dungeon.width + portalTX;
+      room.dungeon.data[idx] = 8;
+      room.dungeon.exits.push({
+        x: portalTX, y: portalTY,
+        leadsTo: originRoom,
+        type: 'return_portal',
+      });
+      if (this.actions.broadcastToRoom) {
+        this.actions.broadcastToRoom(room.id, {
+          type: CONSTANTS.MSG.DOOR_TOGGLE,
+          x: portalTX, y: portalTY, tileId: 8,
+        });
+      }
+    }
+
+    // Clear siege flags
+    this._clearSiegeFlags(room);
+  }
+
+  // Clear siege tracking flags for all players
+  _clearSiegeFlags(room) {
+    for (const [pid] of room.players) {
+      this.flagStore.removePlayerFlag(pid, 'siege_active');
+      this.flagStore.removePlayerFlag(pid, 'siege_challenge');
+      this.flagStore.removePlayerFlag(pid, 'siege_room');
+      this.flagStore.removePlayerFlag(pid, 'siege_party');
+    }
+  }
+
+  // Get siege state for client HUD
+  _getSiegeStateForClient(room) {
+    const siege = room.siege;
+    if (!siege) return null;
+    return {
+      challengeId: siege.challengeId,
+      displayName: siege.challenge.displayName,
+      wave: siege.wave,
+      maxWaves: siege.maxWaves,
+      phase: siege.phase,
+      phaseTimer: Math.ceil(siege.phaseTimer),
+      lighthouseHp: Math.max(0, Math.round(siege.lighthouseHp)),
+      lighthouseMaxHp: siege.lighthouseMaxHp,
+      communalEnergy: Math.round(siege.communalEnergy),
+      communalEnergyMax: siege.communalEnergyMax,
+      monstersRemaining: room.monsters.size,
+    };
+  }
+
   addPlayer(roomId, playerId, name) {
     const room = this.rooms.get(roomId);
     if (!room) return null;
@@ -3042,6 +3484,11 @@ class GameLoop {
       // Apply environmental hazard damage (cold, heat, poison)
       this.updateEnvironmentalHazards(room, dt);
 
+      // Update siege wave defense (if active)
+      if (room.siege) {
+        this.updateSiege(room, dt);
+      }
+
       // Check for floor transitions
       this.checkExits(room);
     }
@@ -4836,11 +5283,13 @@ class GameLoop {
   // playerId is used to filter out path-specific legendary drops the player hasn't unlocked.
   _rollLoot(room, mob, playerId = null) {
     const monsterDef = this.content.getMonster(mob.type);
-    if (!monsterDef || !monsterDef.lootTable) return;
+    // Allow mob-level lootTable override (e.g. siege wave monsters)
+    const baseLootTable = mob.lootTable || (monsterDef && monsterDef.lootTable);
+    if (!baseLootTable) return;
 
     // For expedition bosses, use the expedition-tier-specific boss loot table instead
     // of the monster's default table so path-specific legendaries can drop.
-    let lootTableId = monsterDef.lootTable;
+    let lootTableId = baseLootTable;
     if (monsterDef.boss && playerId) {
       const expBossType = this.flagStore.getPlayerFlag(playerId, 'expedition_boss_type');
       if (expBossType && mob.type === expBossType) {

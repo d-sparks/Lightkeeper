@@ -270,6 +270,74 @@
       margin-top: 2px;
     }
 
+    /* Siege HUD (top-right info panel) */
+    #siege-hud {
+      position: absolute;
+      top: 12px;
+      right: 52px;
+      text-align: right;
+      pointer-events: none;
+      z-index: 20;
+      min-width: 160px;
+    }
+    #siege-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #ffa726;
+      text-shadow: 0 0 6px rgba(255,167,38,0.5), 0 1px 2px #000;
+      letter-spacing: 1px;
+    }
+    #siege-wave {
+      font-size: 11px;
+      color: #eee;
+      text-shadow: 0 1px 2px #000;
+      margin-top: 2px;
+    }
+    #siege-phase {
+      font-size: 10px;
+      color: #aaa;
+      text-shadow: 0 1px 2px #000;
+      margin-top: 2px;
+    }
+    #siege-monsters {
+      font-size: 10px;
+      color: #e53935;
+      text-shadow: 0 1px 2px #000;
+      margin-top: 3px;
+    }
+    .siege-bar-track {
+      width: 100%;
+      height: 10px;
+      background: #1a1a2e;
+      border: 1px solid #4fc3f7;
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .siege-energy-track {
+      border-color: #fdd835;
+    }
+    .siege-bar-fill {
+      height: 100%;
+      transition: width 0.25s ease-out;
+    }
+    .siege-lh-fill {
+      background: linear-gradient(180deg, #4fc3f7, #0288d1);
+    }
+    .siege-energy-fill {
+      background: linear-gradient(180deg, #fdd835, #f9a825);
+    }
+    .siege-bar-text {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: #fff;
+      text-shadow: 0 0 3px #000, 0 0 3px #000;
+    }
+
     /* Inventory HUD button (top-right, all platforms) */
     #inventory-btn {
       position: absolute;
@@ -2322,6 +2390,21 @@
       <div id="expedition-tier"></div>
       <div id="expedition-floor"></div>
       <div id="expedition-party" style="font-size:11px;color:#4fc3f7;text-shadow:0 1px 2px #000;"></div>
+    </div>
+    <!-- Siege HUD (top-right, hidden by default) -->
+    <div id="siege-hud" style="display:none;">
+      <div id="siege-title"></div>
+      <div id="siege-wave"></div>
+      <div id="siege-phase"></div>
+      <div style="margin-top:4px;">
+        <div style="font-size:10px;color:#4fc3f7;margin-bottom:1px;">Lighthouse</div>
+        <div class="siege-bar-track"><div class="siege-bar-fill siege-lh-fill" id="siege-lh-fill"></div><div class="siege-bar-text" id="siege-lh-text"></div></div>
+      </div>
+      <div style="margin-top:3px;">
+        <div style="font-size:10px;color:#fdd835;margin-bottom:1px;">Communal Energy</div>
+        <div class="siege-bar-track siege-energy-track"><div class="siege-bar-fill siege-energy-fill" id="siege-energy-fill"></div><div class="siege-bar-text" id="siege-energy-text"></div></div>
+      </div>
+      <div id="siege-monsters"></div>
     </div>
     <div id="worldmap-btn" title="World Map [N]">MAP</div>
     <div id="quest-btn">LOG</div>

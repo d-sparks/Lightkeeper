@@ -134,6 +134,9 @@ const CONSTANTS = {
     // Chat (Server -> Client)
     CHAT_BROADCAST: 'chat_broadcast',
 
+    // Siege / cooperative challenges (Server -> Client)
+    SIEGE_STATE: 'siege_state',
+
     // Bidirectional
     SOL_GRID_MOVE: 'sol_grid_move',
     SOL_GRID_PLACE: 'sol_grid_place',
