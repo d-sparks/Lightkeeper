@@ -1,6 +1,6 @@
 # TODOs
 
-Prioritized task list — last refreshed 2026-03-12.
+Prioritized task list — last refreshed 2026-03-12, audited 2026-03-12.
 
 Based on headless sim analysis: mainline PASS (28/57 rooms 49.1%, 113 kills, 0 deaths, 24 min); all-quests 10/14 complete (relay_recovery STUCK on junction_a_activated, nightside_expedition + broken_signal TIMEOUT, 36/57 rooms 63.2%, 0 deaths); explore FAIL (7/57 rooms 12.3%, flag-gated at outpost_workshop). The proc_quarantine infinite loop from the prior refresh is fixed — all-quests now completes the main quest. Three Spire dungeons, Lighthouse Mara, Greenway zones, and Dural Voss boss remain unbuilt (~40% of storyboard). 21 rooms never visited even in all-quests mode. Organized: fix what's broken, connect what's disconnected, build what's missing, polish what exists.
 
