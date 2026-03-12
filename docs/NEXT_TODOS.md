@@ -134,7 +134,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Expand tileset PNGs to cover all tile IDs defined in tileset JSONs.~~ ✓ Done — crypt expanded to 640x16 (40 tiles), outpost to 512x16 (32 tiles), quarantine to 208x16 (13 tiles). New tiles include: chest_closed/opened, all sealed_gate variants, blast_door, junction_box_b, maintenance_hatch, transit_gate, garden_plot, notice_board, seed_pot, personal_log, homestead_gate, cache_entrance, resonance_point, survey_marker, crates, ramps, elevated floor/wall, cracked_wall. All use zone-appropriate colors.
 - ~~Animation frames (idle, attack, hit) when engine supports sprite animation.~~ ✓ Implemented — 4-frame animation strips (idle1, idle2/bob, attack/lunge, hit/recoil) generated for all entity sprites; renderer cycles idle frames at ~2Hz, shows attack frame when `attacking` flag set, hit frame on damage flash. Future: hand-drawn per-entity animation poses instead of pixel-shift variants.
 - New tileset strip for dark_city template (PNG exists but no dungeon JSON uses it yet; needs dungeon content before wiring).
-- Checkpoint room visual polish — expedition_checkpoint dungeon uses plain crypt tileset; consider unique tileset or tile decorations for cache points.
+- ~~Checkpoint room visual polish — expedition_checkpoint dungeon uses plain crypt tileset; consider unique tileset or tile decorations for cache points.~~ ✓ Done — expanded to 13×9, added ambientLight: 0.3 (dim emergency lighting), supply crates (tile 30) in four corners, cracked floor (tile 2) scatter for texture. Updated entry message to match the dim amber aesthetic.
 ## Combat & AI
 
 - Tune special attack cooldowns and damage multipliers after playtesting.

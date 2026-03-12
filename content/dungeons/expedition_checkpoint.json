@@ -3,23 +3,26 @@
   "name": "Expedition Cache Point",
   "depth": 0,
   "tileset": "crypt",
-  "width": 9,
-  "height": 7,
+  "width": 13,
+  "height": 9,
+  "ambientLight": 0.3,
   "data": [
-    3, 3, 3, 3, 3, 3, 3, 3, 3,
-    3, 1, 1, 1, 1, 1, 1, 1, 3,
-    3, 1, 1, 1, 1, 1, 1, 1, 3,
-    3, 1, 1, 1, 1, 1, 1, 1, 3,
-    3, 1, 1, 1, 1, 1, 1, 1, 3,
-    3, 1, 1, 1, 1, 1, 1, 1, 3,
-    3, 3, 3, 3, 3, 3, 3, 3, 3
+    3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+    3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,
+    3,  1, 30,  2,  1,  1,  1,  1,  1,  2, 30,  1,  3,
+    3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,
+    3,  1,  2,  1,  1,  1,  1,  1,  1,  1,  2,  1,  3,
+    3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,
+    3,  1, 30,  2,  1,  1,  1,  1,  1,  2, 30,  1,  3,
+    3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,
+    3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3
   ],
   "spawns": [
-    { "x": 4, "y": 5, "type": "player_start" }
+    { "x": 6, "y": 6, "type": "player_start" }
   ],
   "monsterSpawns": [],
   "npcSpawns": [
-    { "type": "expedition_cache", "x": 4, "y": 2 }
+    { "type": "expedition_cache", "x": 6, "y": 3 }
   ],
   "itemSpawns": [],
   "exits": [],
@@ -29,7 +32,8 @@
       "event": "room_entered",
       "actions": [
         { "type": "showMessage", "lines": [
-          "You enter a secured cache point. The air is still and the walls hum with residual power.",
+          "Dim emergency strips cast pale amber light across the floor. Supply crates line the walls.",
+          "The Cache Terminal hums quietly in the center of the room. You're safe here — for now.",
           "Interact with the Cache Terminal to bank your loot. Banked items survive death."
         ]}
       ],
