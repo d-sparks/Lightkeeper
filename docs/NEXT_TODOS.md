@@ -8,7 +8,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Headless sim quarantine loop regression~~ ✓ Fixed — three issues: (1) bot settled diagonally from chest tile, exceeding Euclidean door range despite Manhattan-distance tolerance check; (2) `_findInteractableTile` returned corridor doors instead of quest-relevant chests; (3) combat blocked tile interaction indefinitely when monsters near chest. Now passes ~85% of runs.
 - **Headless sim remaining intermittent failures** — ~25% failure rate from three sources: (a) `umbrasite_retrieval` side quest injected as prereq when navigating exits; the quest gets stuck because `refined_umbrasite` has no accessible source — needs skip-unresolvable-prereq logic; (b) `titanium_cylinders` chest at proc_quarantine depth 2 sometimes fails to open (bot moves to chest, has supply_crate_key, but interaction doesn't trigger) — investigate tryInteract targeting priority; (c) ~2.5% of layouts still have truly unreachable monsters at proc_quarantine depth 3 after 5 kill retries.
 - ~~Content validator expedition flag errors~~ ✓ Resolved — added automation_established, expedition_active, and expedition_tier_1-5_cleared to engineSetFlags array in content-validator.js. Validator now reports 0 errors.
-- Run content validator grep for remaining orphaned flags (setFlag without matching hasFlag consumers).
+- ~~Run content validator grep for remaining orphaned flags (setFlag without matching hasFlag consumers).~~ ✓ See Quest Graph section.
 
 ## Endgame Loop (see docs/endgame-loop.md)
 
@@ -130,6 +130,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Quest Graph
 
-- Remaining orphaned flags audit.
+- ~~Remaining orphaned flags audit.~~ ✓ Complete — `tools/audit-flags.py` comprehensively scans all content JSON (dungeons, tilesets, quests, expeditions, NPC entity dialogueRules) and found 0 orphaned setFlag calls and 0 unset hasFlag conditions. All 228 wired flags have both producers and consumers. The 9 "content-invisible" flags (`automation_established`, `automation_level`, `damage_booster_equipped`, `expedition_active`, `expedition_tier_N_cleared`, `has_traded_meridian`) are set directly by engine code (`server/index.js`, `server/game-loop.js`) outside the trigger/action system — this is expected. **Fix applied**: `automation_level` was checked by expedition tier 3–5 unlock conditions but never written; fixed in `server/index.js` `AUTO_BUILD` handler to update `automation_level` to the current total structure count after each build.
 - Map markers for Nightside Caverns entrance.
 - Ensure sol grid tutorial flow accommodates umbracite trade giving sol_shield_chip.
+- Engine-set flags not visible to content audit tool — consider adding a comment block or `docs/engine-flags.md` registry listing flags set directly by engine code so future content authors know not to add setFlag triggers for them.

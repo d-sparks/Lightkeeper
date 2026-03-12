@@ -936,13 +936,17 @@ wss.on('connection', (ws) => {
         };
         const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY, pathFlags);
         if (built) {
-          // Set automation_established flag once player has built 2+ structures
+          // Update automation flags based on current structure count
+          const autoState = gameLoop.automation.getStateForClient(playerId);
+          const totalStructures = (autoState.stats && autoState.stats.totalStructures) || 0;
+          // automation_established: set once player has built 2+ structures
           if (!gameLoop.flagStore.getPlayerFlag(playerId, 'automation_established')) {
-            const autoState = gameLoop.automation.getStateForClient(playerId);
-            if (autoState.stats && autoState.stats.totalStructures >= 2) {
+            if (totalStructures >= 2) {
               gameLoop.flagStore.setPlayerFlag(playerId, 'automation_established', true);
             }
           }
+          // automation_level: track total structures for expedition tier unlocks
+          gameLoop.flagStore.setPlayerFlag(playerId, 'automation_level', totalStructures);
           // Check for milestone rewards
           const milestoneRewards = gameLoop.automation.checkMilestones(playerId);
           if (milestoneRewards.length > 0) {
