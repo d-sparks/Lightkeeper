@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-12.
+Last cleaned: 2026-03-12 (post sim refresh — proc_quarantine loop fixed, 3 new quest failures identified).
 
 ## Checkpoint Tool — Autosave History
 
@@ -23,7 +23,10 @@ Last cleaned: 2026-03-12.
 
 ## Testing
 
-- **Headless sim proc_quarantine bot combat** — Bot can't fight past monsters, oscillates in place. Root cause: move_to_position goal doesn't yield to combat when monsters block the path. Also: (b) `titanium_cylinders` chest interaction sometimes fails; (c) ~2.5% of layouts have unreachable monsters at proc_quarantine depth 3.
+- **relay_recovery quest STUCK** — Bot stuck at `junction_a_activated` flag in relay_station. The flag requires door interaction at tile (3,3) but the bot never reaches/interacts with it. Either the bot's tile-interact logic can't handle this layout, or the trigger wiring on the door is wrong. See TODOs.md #1.
+- **broken_signal quest TIMEOUT** — Bot may not acquire `daley_coordinates` item from Comms Officer Daley, or doesn't carry it when entering signal_cave. The room_entered trigger requires `hasItem: daley_coordinates`. See TODOs.md #2.
+- **nightside_expedition quest TIMEOUT** — Bot completes steps 1-3 (meet Sable, collect compound, reach underlumen_threshold) but can't navigate back through 6-room Nightside chain to meridian_civic. Needs fast-travel or improved bot backtracking. See TODOs.md #3.
+- **Headless sim proc_quarantine bot combat** — Previously the all-quests sim looped infinitely in proc_quarantine. This is now FIXED — main quest completes in all-quests mode. However: (b) `titanium_cylinders` chest interaction sometimes fails; (c) ~2.5% of layouts have unreachable monsters at proc_quarantine depth 3.
 
 ## Endgame Loop
 
