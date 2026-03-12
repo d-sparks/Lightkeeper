@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-12 (fresh sim — mainline passes ~67%, fails ~33% from proc_quarantine body-blocking; when passing: 25 min, 115 kills, 0 deaths; explore mode broken at 5/57 rooms; 4-5/52 items, 20/60 NPCs).
+Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 7/14 pass, 7 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, relay_recovery STUCK on junction_a_activated, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
 
 ## Checkpoint Tool — Autosave History
 
@@ -23,14 +23,11 @@ Last cleaned: 2026-03-12 (fresh sim — mainline passes ~67%, fails ~33% from pr
 
 ## Testing
 
-- **proc_quarantine depth 3 monster density** — 10 monsters in tight procedural rooms body-block the player. See TODOs.md #1.
-- **relay_recovery quest STUCK** — Junction Box A at (3,3) unreachable or event not firing. See TODOs.md #3.
-- **broken_signal quest TIMEOUT** — Flag ordering dependency. See TODOs.md #4.
-- **nightside_expedition quest TIMEOUT** — No fast-travel return path. See TODOs.md #5.
-- **Unreachable monsters** — ~2.5% of proc_quarantine depth 3 layouts have monsters the bot can't reach.
-- **Explore mode** — Flag-gated at 12.3% coverage. Grant story flags in explore mode for content validation.
-- **Item discovery rate** — Only 5/52 items collected in mainline. Most ground items are off the main path or lack visibility.
-- **NPC engagement** — Only 20/60 NPCs talked to. Many NPCs have no quest reason to visit.
+- **All-quests mode: 7/14 quests fail** — See TODOs.md #1 for full breakdown. Key bugs: underlumen_threshold→meridian_civic has no fast travel (blocks main_quest + nightside_expedition), relay_recovery junction_a_activated flag never fires, broken_signal/lost_tool/the_deserter/phase3_investigation all timeout.
+- **Explore mode** — Flag-gated at 7/57 rooms (12.3%). Blocked by `engineer_briefing_complete` on outpost_workshop door. Grant story flags in explore mode for content validation.
+- **Item discovery rate** — Only 5/52 items collected in mainline (9/52 in all-quests). Most ground items are off the main path or lack visibility.
+- **NPC engagement** — Only 20/60 NPCs talked to in mainline (29/60 in all-quests). Many NPCs have no quest reason to visit.
+- **Zero deaths** — 0 deaths across all sim modes despite death penalty being fully implemented. Damage ratio ~12% (1,185 taken vs 9,525 dealt).
 
 ## Endgame Loop
 

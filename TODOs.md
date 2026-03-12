@@ -1,75 +1,154 @@
 # TODOs
 
-Prioritized task list — last refreshed 2026-03-12.
+Prioritized task list — last refreshed 2026-03-12 (evening).
 
-Based on headless sim analysis: mainline **PASSES ~67%** of runs (28/57 rooms 49.1%, 115 kills, 0 deaths, 25 min) but **FAILS ~33%** due to proc_quarantine body-blocking. Explore mode **BROKEN** (5/57 rooms 8.8%). Zero deaths across all modes despite a fully-implemented death penalty. Only 4-5/52 items collected and 20/60 NPCs talked to — most content is invisible to the player.
+Based on headless sim analysis: mainline **PASSES** (28/57 rooms 49.1%, 112 kills, 0 deaths, 26 min). All-quests mode: **7/14 quests complete, 7 fail** — main_quest itself gets STUCK navigating from underlumen_threshold back to meridian_civic (no fast travel), relay_recovery STUCK on junction_a_activated, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT. Explore mode **BROKEN** (7/57 rooms 12.3%) — blocked by `engineer_briefing_complete` flag on outpost_workshop door. Zero deaths across all modes. Only 5-9/52 items collected and 20-29/60 NPCs talked to.
 
-**Storyboard coverage**: Act I ~55% (Outpost + Nightside done; Lighthouse Mara, Dural Voss, Spire of Vigil missing), Act II ~25% (Dayside partial; Greenway, Bulwark, Spire of Winds missing), Act III ~20% (ending dungeons exist; Spire of Radiance missing). The storyboard targets 31-38 hours of mainline campaign; the sim completes in 25 minutes. Even accounting for bot speed, we have ~10% of the target content depth. The narrative spine — the three Spire dungeons and Lighthouse Mara — is entirely unbuilt.
+**Storyboard coverage**: Act I ~55% (Outpost + Nightside done; Lighthouse Mara, Dural Voss, Spire of Vigil missing), Act II ~25% (Dayside partial; Greenway, Bulwark, Spire of Winds missing), Act III ~20% (ending dungeons exist; Spire of Radiance missing). The storyboard targets 31-38 hours; the sim completes in 26 minutes. The narrative spine — three Spire dungeons and Lighthouse Mara — is unbuilt.
 
-**Big picture**: The engine, progression, and endgame systems are mature. The game works as a dungeon-crawling sandbox but lacks the narrative campaign that turns it into a complete game. Priority order: (1) fix reliability — 33% failure rate is unacceptable, (2) add tension — zero deaths means zero stakes, (3) make existing content discoverable — 92% of items and 67% of NPCs are invisible, (4) build the story dungeons that form the campaign spine, (5) polish visuals and UX.
+**Big picture**: The engine is mature. 57 dungeons, 60 NPCs, 181 items, 43 monster types, 14 quests, 9 loot table sets, full endgame loop — all built. The game works as a sandbox but half the quests are broken and most content is invisible to players. Priority: (1) fix broken quests so all 14 complete in sim, (2) add tension — zero deaths means zero stakes, (3) connect orphaned content so players actually find it, (4) build the campaign spine (Spires + Lighthouse Mara), (5) polish.
 
 ---
 
-## [sonnet] Fix proc_quarantine body-blocking (~33% mainline failure)
+## [sonnet] Fix 7 broken quests in all-quests sim
 
-The mainline sim fails ~33% of runs because proc_quarantine depth 2-3 generates monsters that physically block corridors. When the bot gets stuck, it cycles between quarantine floors endlessly until timeout. The procedural templates spawn too many monsters in rooms with narrow passages. Fix: (a) reduce monster count in small rooms — skip rooms under 40 walkable tiles when placing monsters, (b) guarantee a monster-free buffer zone around the entrance tile, (c) cap `maxPerRoom` proportional to room area (e.g. 1 monster per 20 walkable tiles). This is the single highest-priority fix — the game literally soft-locks a third of the time.
+The most urgent issue: half the quests fail. Specific bugs:
+- **main_quest + nightside_expedition**: Both STUCK navigating from underlumen_threshold to meridian_civic. The bot has no path back — 6 rooms with no fast-travel shortcut. Fix: add a transit portal exit in underlumen_threshold that warps to train_station (gated on `reached_underlumen_threshold` flag). This also makes the game more fun — reaching the Underlumen should feel like a milestone, not a 6-room backtrack.
+- **relay_recovery**: STUCK on `junction_a_activated` flag in relay_station. The Junction Box A interactable at (3,3) either isn't reachable or its event doesn't fire. Debug the tile interaction and flag grant.
+- **broken_signal**: TIMEOUT. Requires `daley_gave_coordinates` which depends on flag ordering that doesn't match natural play flow. Audit the prerequisite chain.
+- **lost_tool**: TIMEOUT. Investigate what step the bot gets stuck on and fix.
+- **the_deserter**: TIMEOUT at 2400s. The quest visits Deep Perimeter East — check if the bot can navigate there and back.
+- **phase3_investigation**: TIMEOUT. This quest involves Directive 11-Kappa — check if prerequisites are met during all-quests flow.
+
+Getting all 14 quests passing in the sim is the single most impactful reliability improvement.
+
+## [sonnet] Fix explore mode — blocked at 12.3% coverage
+
+Explore mode reaches only 7/57 rooms (12.3%) because it gets stuck at the outpost_workshop door requiring `engineer_briefing_complete`. The bot has `met_engineer` and `quest_cylinders_active` but not the briefing flag. Fix: (a) grant all story-progression flags in explore mode startup (engineer_briefing_complete, fenn_opened_gate, perimeter_breach_cleared, arrived_meridian, etc.), (b) add room-visit deduplication so the bot doesn't re-enter proc_quarantine rooms it's already cleared, (c) increase explore timeout to cover the full 57-room graph. Without working explore mode, we can't validate content reachability.
 
 ## [sonnet] Difficulty tuning — zero deaths across all modes
 
-The bot dealt 9,789 damage and took only 992 (10% ratio) with zero deaths across the entire mainline. The death penalty system (25% energy drain + item drop + respawn + death screen) never triggers. The game has no tension. Changes needed: (a) increase Nightside and frost monster damage by 30-40% in monsters.json, (b) reduce healing item spawns in outpost and common loot tables, (c) add 1-2 more monsters to chokepoint rooms (perimeter_breach, nightside_caverns), (d) increase boss special attack damage multipliers from 1.2-1.8x to 1.5-2.2x. Target: 2-4 deaths on a mainline playthrough.
+The bot dealt 9,525 damage and took only 1,185 (12% ratio) with zero deaths across mainline. Even in all-quests mode with 153 kills, zero deaths. The death penalty system (25% energy drain + item drop + respawn + death screen) exists but never triggers. Changes needed:
+- Increase Nightside/frost monster damage by 30-40% in monsters.json (shade_stalker 10→14, rime_stalker 12→16, frostfang_hunter 8→11)
+- Reduce healing item frequency in outpost and common loot tables
+- Add 1-2 monsters to chokepoint rooms (perimeter_breach, nightside_caverns)
+- Increase boss special attack damage multipliers from 1.2-1.8x to 1.5-2.2x
+- Target: 2-4 deaths on a mainline playthrough so players actually experience the death penalty
 
-## [sonnet] Fix explore mode in headless sim
+## [sonnet] Connect orphaned rooms — 25/57 rooms never visited
 
-Explore mode reaches only 5/57 rooms (8.8%) before timing out. It gets trapped in the outpost quarantine loop and never progresses to the wider world. The bot needs flag grants for story-gated doors (fenn_opened_gate, etc.) and smarter room-selection logic. Without a working explore mode, we can't validate that orphaned rooms are actually reachable. Fix: (a) grant all story-progression flags in explore mode at startup, (b) add room-visit deduplication so the bot doesn't re-enter proc_quarantine, (c) increase the explore timeout to cover the full room graph. This unblocks content validation for the rest of the task list.
+Even in all-quests mode, 25/57 rooms are never entered. Key orphans:
+- **crypt_01/02**: Accessible from outpost_basement but no quest sends players there. Add Old Keeper side quest to retrieve a lore item from crypt_02 referencing the Underlumen.
+- **signal_cave, fen_cache, old_watchtower**: Nightside dungeons with content but no NPC breadcrumbs. Wire Pathfinder Ren dialogue to mention fen_cache, Wren Alcott to send players to old_watchtower with a proper quest flag reward.
+- **outer_expanse**: The largest dungeon (200x120) with streaming fog of war — but nothing sends players there. Add Sable dialogue mentioning deep Nightside exploration.
+- **homestead_interior, salvage_yard, old_survey_point**: Side content with no quest hooks. Add dialogue references from relevant NPCs.
+- **void_flats, underlumen_approach**: Late-game rooms. Verify they're reachable from the quest path.
+- **elevation_demo, light_sentry_demo, pulse_cannon_demo**: Demo rooms — remove from room count or mark as dev-only.
 
-## [sonnet] Connect orphaned dungeons to quests and NPCs
+The rooms are built. They need signposts: NPC dialogue mentions, quest steps, or at minimum discoverable exits from rooms players already visit.
 
-29 of 57 rooms are never visited even when the mainline passes. Key orphaned content: crypt_01/02 (accessible from outpost_basement but no quest sends players there), signal_cave, old_watchtower, fen_cache, outer_expanse (Nightside dungeons with content but no NPC breadcrumbs). Fix: (a) add an Old Keeper side quest sending the player to crypt_02 for a lore item referencing the Underlumen, (b) wire Wren Alcott's watchtower hint into a proper side quest with a flag reward, (c) add Pathfinder Ren breadcrumbs for fen_cache and signal_cave, (d) add Sable dialogue mentioning outer_expanse for deep Nightside exploration. The rooms are built — they need signposts.
+## [sonnet] Improve item discovery — only 5-9/52 items found
 
-## [sonnet] Improve item discovery and NPC engagement
+Only 5/52 items collected in mainline (9/52 in all-quests). 181 items are defined but most are in loot tables or side rooms players never visit. Fix:
+- Place 2-3 quest-relevant items along the main quest path in visible locations (health_potion near first combat, battery_chip before nightside descent)
+- Add pickup-hint trigger messages for important items ("This looks like it could be useful to the Engineer")
+- Add `hasItem` dialogueRules so NPCs react when you're carrying relevant items
+- Ensure main-path rooms (perimeter_outer_ring, dead_road, nightside_caverns) have at least one visible ground item
+- Add Warden Holt dialogue mentioning the mess hall and infirmary to drive traffic to those rooms
 
-Only 4-5/52 items collected (8-10%) and 20/60 NPCs talked to (33%) on a successful mainline run. Most loot and dialogue is invisible or skippable. Fix: (a) place 2-3 quest-relevant items along the main quest path (not just in side rooms), (b) add pickup-hint messages for important items ("This looks like it could be useful to the Engineer"), (c) ensure main-quest NPCs have updated dialogue for each quest phase so returning to them feels rewarding, (d) add `hasItem` dialogue rules for lore items pointing players to the relevant NPC, (e) add a Warden Holt dialogue line mentioning the mess hall and infirmary so those rooms get visited. The content exists but the player flows past it.
+## [sonnet] Wire lighthouse_siege_arena to NPCs + lower unlock
 
-## [sonnet] Wire lighthouse_siege_arena to NPC + lower unlock
-
-The lighthouse siege cooperative challenge is fully implemented (10-wave defense, siege_legendary rewards, communal energy pool) but gated behind `expedition_tier_4_cleared` — deep endgame. No NPC ever mentions it. Add: (a) Warden Holt dialogue about siege training grounds after `perimeter_breach_cleared`, (b) lower the unlock condition to `perimeter_breach_cleared`, (c) Old Keeper hint about defending the light. A complete endgame system sitting invisible to players.
+The lighthouse siege cooperative challenge is fully implemented (10-wave defense, siege_legendary rewards, communal energy pool) but gated behind `expedition_tier_4_cleared` — deep endgame. No NPC ever mentions it. Fix:
+- Add Warden Holt dialogue about siege training grounds after `perimeter_breach_cleared`
+- Lower the unlock condition to `perimeter_breach_cleared`
+- Add Old Keeper hint about defending the light
+- This makes a complete endgame system accessible much earlier and gives multiplayer groups something to do mid-campaign
 
 ## [sonnet] Environmental storytelling on the Nightside descent
 
-The nightside_caverns → nightside_depths → nightside_passage → underlumen_threshold path has combat but minimal narrative. This is the player's journey into the unknown — it should feel like crossing a threshold. Add: (a) 3-4 lore items in items.json referencing the Unbounded, the Spires, and the Underlumen substrate, (b) room-entered trigger messages as the player descends ("Your sol unit flickers — something deep is pulling at its frequency"), (c) environmental flavor building dread toward the Act II reveal. Four rooms of combat need narrative gravity.
+The nightside_caverns → nightside_depths → nightside_passage → underlumen_threshold path has combat but minimal narrative texture. This 4-room descent is the player's journey into the unknown — it should build dread and mystery. Add:
+- 3-4 lore items in items.json (Unbounded cave markings, a pre-human artifact, Spire resonance readings, a journal fragment from the Old Keeper's original expedition)
+- Room-entered trigger messages as the player descends ("Your sol unit flickers — something deep is pulling at its frequency", "The walls here aren't natural stone. Something shaped them.")
+- Environmental flavor that foreshadows the Deep Array reveal in Act II
+- Place these items in visible locations so players actually find them (current item discovery rate is <10%)
 
 ## [sonnet] Wire Array dungeon chain into quest narrative
 
-The dayside has 5 dungeons (solar_fields → extraction_outpost → synthesis_lab → deep_processing → control_center/command_throne) but the later ones are only reachable after the ending path choice. The Array complex should feel like a progressive investigation during the main quest, not two disconnected visits. Add quest steps or MERIDIAN-7/Asha Denn breadcrumbs guiding players through the full chain before the choice point. The dungeons exist — the narrative thread connecting them is missing.
+The dayside has 5 dungeons (solar_fields → extraction_outpost → synthesis_lab → deep_processing → control_center/command_throne) but the later ones are gated behind ending path flags. The Array complex should feel like a progressive investigation during the main quest, not a post-choice endgame zone. Add:
+- MERIDIAN-7 breadcrumbs in meridian_array_hub guiding players through the chain
+- Asha Denn dialogue framing each Array dungeon as an investigation step ("The Array's border installations have gone quiet — investigate the extraction outpost")
+- Quest step objectives that take players through at least extraction_outpost and deep_processing before the choice point
+- This connects 3-4 existing dungeons that are currently dead-end endgame content into the mid-game campaign flow
 
-## [sonnet] Add fast-travel from underlumen_threshold
+## [opus] Build Lighthouse Mara — Act I core beat
 
-After reaching underlumen_threshold, the nightside_expedition quest requires navigating back through 6 rooms to deliver a compound to Asha in meridian_civic. There's no shortcut. Add a transit portal in underlumen_threshold (activated once `reached_underlumen_threshold` is set) that warps to train_station or meridian_station. This is also the bridge to Act III — it should feel like a milestone, not a backtrack.
+The single most-referenced missing content: 15+ NPC dialogue lines mention Lighthouse Mara, but no dungeon exists. Core Act I beat from the storyboard — the player's first real expedition after the tutorial.
 
-## [opus] Build Lighthouse Mara dungeon — Act I core beat
+Create a 3-floor dungeon:
+- Floor 1: Frozen approach through dark perimeter, frost_crypt tileset, frostfang_hunters + rime_stalkers
+- Floor 2: Lighthouse exterior — structural damage (not raider-caused), shade_stalkers, environmental cold hazard
+- Floor 3: Lighthouse interior — repair objective, survey marker referencing unusual geological readings, optional Sable sighting in the distance
+- Wire into main quest between "cross perimeter" and "arrive Meridian"
+- Drops: Lighthouse Survey Log (lore item foreshadowing Deep Array), frozen_core, rechargeable_battery
 
-The single most-referenced missing content: 15+ NPC dialogue lines mention Lighthouse Mara, but no dungeon exists. Core Act I beat from the storyboard — the player's first real expedition after the tutorial. Create a 3-floor dungeon through frozen caverns to a failing Lighthouse using frost_crypt tileset and nightside monsters. The damage should look structural, not raider-caused — breadcrumb for the Deep Array reveal. Include a survey marker referencing unusual geological readings and a Sable sighting. Wire into main quest between "cross perimeter" and "arrive Meridian." This transforms Act I from tutorial+fetch-quests into a real expedition with atmosphere and mystery.
+This transforms Act I from tutorial+fetch-quests into a real expedition with atmosphere and mystery. It's the most impactful single piece of new content we can build.
 
 ## [opus] Build Dural Voss boss encounter — Act I antagonist
 
-The luddite_warlord monster type exists and Dural Voss is referenced in NPC dialogue, but there's no actual boss fight. Create: (a) a dedicated `dural_voss` monster entry with ~500 HP, retreat mechanic (flees at 20% HP), and lunge/stun attacks, (b) an encounter room in a raider camp at the edge of the Nightside, (c) pre-fight dialogue ("We didn't touch your Lighthouses — whatever's killing them is deeper than you think"), (d) a retreat flag marking him as fled rather than killed. This gives Act I's antagonist a face and plants the seed that raiders aren't the real threat — the game's central twist.
+The luddite_warlord monster type exists (350 HP, ground_slam/stun) and Dural Voss is referenced in NPC dialogue, but there's no actual boss fight. Create:
+- A dedicated `dural_voss` monster entry (~500 HP, retreat AI — flees at 20% HP, lunge/stun/ground_slam attacks)
+- An encounter room: raider_camp dungeon at the edge of the Nightside, between dead_road and nightside_caverns
+- Pre-fight dialogue: "We didn't touch your Lighthouses — whatever's killing them is deeper than you think"
+- Retreat flag (`dural_voss_fled`) marking him as fled rather than killed — he returns in Act II
+- Post-fight: Dural Voss's camp contains Array energy signatures on a broken console, planting the central twist seed
+
+This gives Act I's antagonist a face and makes the raider threat feel personal before revealing they aren't the real enemy.
 
 ## [opus] Build Spire of Vigil — Act I climax
 
-The storyboard's Act I finale. 2-3 floors: raider fortifications (outer) transitioning to pre-human Underlumen architecture (inner). Use nightside tileset for outer, adapted tileset for inner. Include traps, fortified positions, coordinated pack_leader squads, and mini-boss raider captains. Inner core: light-placement puzzle rooms teaching the Light Sentry mechanic. Core chamber: ability resonance event permanently unlocking Light Sentry. Wire into main quest as the Act I finale. Together with Lighthouse Mara and Dural Voss, this completes Act I's storyboard — transforming the game from a 25-minute bot run into a multi-hour narrative campaign.
+The storyboard's Act I finale — the most ambitious content piece but also the most transformative. A 2-3 floor dungeon:
+- Floor 1 (Raider Stronghold): Luddite fortifications, traps, coordinated pack_leader squads, mini-boss raider captains. Use nightside tileset.
+- Floor 2 (Ancient Core): Architecture shifts to pre-human Underlumen geometry. Puzzle rooms teaching Light Sentry placement. New tileset strip or adapted nightside.
+- Floor 3 (Spire Chamber): Ability resonance event permanently unlocking Light Sentry. Sensor logs showing Array energy signatures. The "someone activated this from the outside" revelation.
+
+Wire into main quest as Act I finale. Together with Lighthouse Mara and Dural Voss, completing this gives the game a real multi-hour Act I campaign instead of a 26-minute bot run.
 
 ## [sonnet] Level-up stat screen and weapon disassemble confirmation
 
-Two high-impact UX improvements: (a) When the player levels up, show a brief stat summary popup (HP increase, damage scaling, energy changes) — every level-up should feel meaningful. (b) Add a confirmation dialog before disassembling weapons ("Disassemble [weapon]? Components will be lost.") to prevent accidental destruction. Both are small engine changes (new message type + client overlay) with outsized impact on player satisfaction.
+Two high-impact UX improvements:
+- **Level-up screen**: When the player levels up, show a brief stat summary popup (HP increase, damage scaling, energy changes) — every level-up should feel meaningful. New NET message type + client overlay.
+- **Disassemble confirmation**: Add a confirmation dialog before disassembling weapons ("Disassemble [weapon]? Components will be lost.") to prevent accidental destruction. Small client-side change.
+
+Both are minimal engine work with outsized impact on player satisfaction and game feel.
 
 ## [sonnet] Replace top-priority placeholder sprites
 
-Priority replacements for maximum visual impact: player character (on screen 100% of the time), Warden Holt (first NPC met), health_potion (most-used item), sol_unit item (key progression item), MERIDIAN-7 terminal (unique entity type). The art style guide exists at docs/art-style-guide.md — these sprites just need to be made with care following the master palette and 16x16 conventions. Even 5-6 intentionally-designed sprites would dramatically improve first impressions.
+Priority replacements for maximum visual impact:
+- Player character (on screen 100% of the time)
+- Warden Holt (first NPC met, 16 dialogue branches)
+- Health potion (most-used item)
+- Sol unit item (key progression item)
+- MERIDIAN-7 terminal (unique entity type, 23 dialogue branches)
+
+The art style guide at docs/art-style-guide.md defines the master palette and 16x16 conventions. The existing sprite redesign pass covered monsters — these core entity sprites need the same treatment. Even 5-6 carefully designed sprites would dramatically improve first impressions.
 
 ## [opus] Build Greenway corridors + Spire of Winds — Act II
 
-Act II setting and climax. Create: (a) 2-3 Greenway corridor dungeons connecting Meridian to the Monument of Winds — agricultural zones under Bulwark martial law with civilian NPCs caught between sides, (b) Bulwark soldier enemy types + a Compact General boss, (c) the Spire of Winds dungeon with vertical navigation puzzles and Hover ability unlock. Requires a greenway tileset (or adapt meridian tileset). This makes the Act II political crisis tangible — players see the occupation rather than just hearing about it in dialogue.
+Act II setting and climax. The political crisis is told through NPC dialogue in Meridian but never shown — no Greenway zones, no Bulwark occupation, no Spire of Winds. Create:
+- 2-3 Greenway corridor dungeons connecting Meridian to the Monument of Winds — agricultural zones under Bulwark martial law with civilian NPCs caught between sides
+- Bulwark soldier enemy types (human military AI, checkpoint mechanics) + a Compact General boss
+- Spire of Winds: vertical navigation puzzles and Hover ability unlock
+- Greenway tileset (adapt meridian tileset with agricultural palette)
+
+This makes Act II tangible — players see the occupation instead of just hearing about it.
 
 ## [opus] Build Spire of Radiance + three-path ending — Act III climax
 
-The final campaign dungeon. The Dayside Spire encased in Array infrastructure. Create: (a) Array-organic hybrid enemies, (b) energy management puzzle rooms, (c) Photonic Pulse ability unlock, (d) confrontation with the Deep Array network, (e) the three-path choice point (Sever/Restore/Subsume) with mechanically distinct endings. The ending path dungeons (array_control_center, merge_nexus, array_command_throne) already exist — this dungeon is their gateway. Completing this + Spire of Vigil + Spire of Winds gives the game its full campaign spine.
+The final campaign dungeon. The ending path dungeons (array_control_center, merge_nexus, array_command_throne) already exist as post-choice rooms, but there's no gateway dungeon where the choice happens in-narrative. Create:
+- The Dayside Spire encased in Array infrastructure
+- Array-organic hybrid enemies (new monster types)
+- Energy management puzzle rooms using Photonic Pulse
+- Photonic Pulse ability unlock in the Spire core
+- The three-path choice confrontation scene, then route to the appropriate ending dungeon
+
+Completing this + Spire of Vigil + Spire of Winds gives the game its full campaign spine from tutorial to credits.

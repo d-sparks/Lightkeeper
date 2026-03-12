@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-12 (fresh sim analysis — mainline PASSES ~67% of runs, FAILS ~33% due to proc_quarantine body-blocking; when passing: 28/57 rooms 49.1%, 115 kills, 0 deaths, 25 min; explore mode FAILS at 5/57 rooms 8.8%; only 4-5/52 items collected and 20/60 NPCs engaged)
+Last updated: 2026-03-12 evening (fresh sim analysis — mainline PASSES consistently: 28/57 rooms 49.1%, 112 kills, 0 deaths, 26 min; all-quests: 7/14 quests pass, 7 fail (main_quest STUCK at underlumen_threshold, relay_recovery STUCK, 4 TIMEOUTs); explore mode FAILS at 7/57 rooms 12.3% (blocked by engineer_briefing_complete); only 5-9/52 items collected and 20-29/60 NPCs engaged)
 
 ## Big Picture
 
@@ -53,19 +53,16 @@ The game needs four things to go from "deep tech demo" to "complete game":
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Fix broken content, add tension, connect orphaned rooms**
+Focus: **Fix broken quests, add tension, connect orphaned content**
 
-1. **Fix proc_quarantine depth 3 monster density** — 10 monsters in tight procedural rooms body-block the player. Reduce monstersPerDepth or add room-size awareness.
-2. **Difficulty tuning** — 0 deaths across all modes. Increase monster damage 30-40%, reduce healing, buff boss specials.
-3. **Fix relay_recovery quest** — STUCK on `junction_a_activated`. Door at (3,3) unreachable or event not firing.
-4. **Fix broken_signal quest** — TIMEOUT. `daley_coordinates` grant requires flag ordering that doesn't match natural play.
-5. **Add fast-travel from underlumen_threshold** — nightside_expedition times out with 6-room backtrack.
-6. **Connect orphaned dungeons** — 21/57 rooms never visited. Wire crypts, Nightside dungeons, siege arena to quests/NPCs.
-7. **Wire lighthouse_siege_arena** — Lower unlock + NPC mentions. Complete system sitting invisible.
-8. **Environmental storytelling: Nightside path** — Lore items and atmosphere for the 4-room descent.
-9. **Distribute crafting materials** — Biome-appropriate drops in frost/fungal/geothermal/nightside/array loot tables.
-10. **Wire Array chain into quest** — NPC breadcrumbs through full Array complex before ending choice.
-11. **Improve item/NPC engagement** — Only 5/52 items collected, 20/60 NPCs talked to. Add pickup hints, quest-path items, dialogue rules.
+1. **Fix 7 broken quests** — main_quest + nightside_expedition STUCK (no fast travel from underlumen_threshold), relay_recovery STUCK (junction_a_activated), broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT. Target: all 14 quests pass in sim.
+2. **Fix explore mode** — Blocked at 7/57 rooms by `engineer_briefing_complete` flag. Grant story flags at startup, add room dedup.
+3. **Difficulty tuning** — 0 deaths across all modes. Increase monster damage 30-40%, reduce healing, buff boss specials. Target: 2-4 deaths on mainline.
+4. **Connect orphaned rooms** — 25/57 rooms never visited even in all-quests. Wire crypts, signal_cave, old_watchtower, fen_cache, outer_expanse to quests/NPCs.
+5. **Improve item/NPC discovery** — Only 5/52 items and 20/60 NPCs engaged. Place items on main path, add pickup hints, add NPC dialogue references.
+6. **Wire lighthouse_siege_arena** — Lower unlock to perimeter_breach_cleared + NPC mentions. Complete system sitting invisible.
+7. **Environmental storytelling: Nightside descent** — Lore items and trigger messages for 4-room descent.
+8. **Wire Array chain into quest narrative** — NPC breadcrumbs through full Array complex before ending choice.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
@@ -213,7 +210,7 @@ These are done and don't need further investment:
 | docs/endgame-loop.md | Active | Phases 1-7 engine done. Remaining: Deep Expedition (Tier 6), Faction Rally |
 | docs/progression-system.md | Active | Core systems done. Harvester scaling done (levels 11-20). Spire ability unlocks not yet wired. |
 | docs/automation_screen.md | Done | All phases implemented |
-| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline passes ~67% (fails ~33% from proc_quarantine body-blocking); when passing: 25 min, 115 kills, 0 deaths; explore mode broken (5/57 rooms); item/NPC engagement very low (4-5/52, 20/60). |
+| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline passes consistently (26 min, 112 kills, 0 deaths); all-quests 7/14 pass; explore mode broken (7/57 rooms); item/NPC engagement very low (5-9/52, 20-29/60). |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented |
 | docs/TESTING.md | Done | Tiers 1-4 complete |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
