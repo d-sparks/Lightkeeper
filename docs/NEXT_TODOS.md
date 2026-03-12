@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 7/14 pass, 7 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, relay_recovery STUCK on junction_a_activated, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
+Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 8/14 pass, 6 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; relay_recovery FIXED; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
 
 ## Checkpoint Tool — Autosave History
 
@@ -23,7 +23,7 @@ Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26
 
 ## Testing
 
-- **All-quests mode: 7/14 quests fail** — See TODOs.md #1 for full breakdown. Key bugs: underlumen_threshold→meridian_civic has no fast travel (blocks main_quest + nightside_expedition), relay_recovery junction_a_activated flag never fires, broken_signal/lost_tool/the_deserter/phase3_investigation all timeout.
+- **All-quests mode: 6/14 quests fail** — See TODOs.md #1 for full breakdown. Key bugs: underlumen_threshold→meridian_civic has no fast travel (blocks main_quest + nightside_expedition), broken_signal/lost_tool/the_deserter/phase3_investigation all timeout. relay_recovery now passes (junction boxes moved to reachable bottom half).
 - **Explore mode** — Flag-gated at 7/57 rooms (12.3%). Blocked by `engineer_briefing_complete` on outpost_workshop door. Grant story flags in explore mode for content validation.
 - **Item discovery rate** — Only 5/52 items collected in mainline (9/52 in all-quests). Most ground items are off the main path or lack visibility.
 - **NPC engagement** — Only 20/60 NPCs talked to in mainline (29/60 in all-quests). Many NPCs have no quest reason to visit.

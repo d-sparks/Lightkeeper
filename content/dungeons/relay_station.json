@@ -12,14 +12,14 @@
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,1,1,1,2,1,1,1,3,3,1,1,1,1,2,1,1,3,
     3,1,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,3,
-    3,1,1,4,1,1,1,1,1,1,1,1,1,17,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,3,3,3,3,3,3,3,18,3,3,3,3,3,3,3,3,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,40,1,1,1,1,1,1,1,1,1,17,1,1,1,3,
     3,1,1,1,2,1,1,1,1,1,1,1,2,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,3,3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,3
@@ -31,16 +31,16 @@
     { "x": 10, "y": 11, "type": "player_start" }
   ],
   "monsterSpawns": [
-    { "type": "nest_mother", "x": 9, "y": 8, "count": 1 },
-    { "type": "dusk_crawler", "x": 5, "y": 9, "count": 2, "patrol": "guard" },
-    { "type": "dusk_crawler", "x": 13, "y": 9, "count": 2, "patrol": "guard" },
-    { "type": "tunnel_creeper", "x": 3, "y": 10, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 1, "y": 7}, {"x": 1, "y": 12}, {"x": 7, "y": 12}, {"x": 7, "y": 7}] },
-    { "type": "tunnel_creeper", "x": 15, "y": 11, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 10, "y": 7}, {"x": 16, "y": 7}, {"x": 16, "y": 12}, {"x": 10, "y": 12}] }
+    { "type": "nest_mother", "x": 9, "y": 3, "count": 1 },
+    { "type": "dusk_crawler", "x": 5, "y": 2, "count": 2, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 13, "y": 2, "count": 2, "patrol": "guard" },
+    { "type": "tunnel_creeper", "x": 3, "y": 4, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 1, "y": 1}, {"x": 7, "y": 1}, {"x": 7, "y": 5}, {"x": 1, "y": 5}] },
+    { "type": "tunnel_creeper", "x": 15, "y": 4, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 10, "y": 1}, {"x": 16, "y": 1}, {"x": 16, "y": 5}, {"x": 10, "y": 5}] }
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "umbracite_shard", "x": 4, "y": 8 },
-    { "type": "relay_log", "x": 14, "y": 8 }
+    { "type": "umbracite_shard", "x": 4, "y": 4 },
+    { "type": "relay_log", "x": 14, "y": 4 }
   ],
   "exits": [
     { "x": 9, "y": 13, "leadsTo": "perimeter_outer_ring", "type": "stairs_up", "spawnX": 2, "spawnY": 5 }
@@ -57,7 +57,7 @@
     {
       "id": "junction_a_interact",
       "event": "door_interacted",
-      "filter": { "tileX": 3, "tileY": 3 },
+      "filter": { "tileX": 3, "tileY": 10 },
       "conditions": [
         { "not": { "hasFlag": "junction_a_activated" } }
       ],
@@ -70,7 +70,7 @@
     {
       "id": "junction_b_interact",
       "event": "door_interacted",
-      "filter": { "tileX": 13, "tileY": 3 },
+      "filter": { "tileX": 13, "tileY": 10 },
       "conditions": [
         { "hasFlag": "junction_a_activated" }
       ],
@@ -111,7 +111,7 @@
       "filter": { "monsterType": "nest_mother" },
       "actions": [
         { "type": "showMessage", "text": "The Nest Mother collapses with a shuddering hiss. The remaining crawlers scatter into the cracks in the walls." },
-        { "type": "spawnItem", "itemType": "chitin_plate", "x": 9, "y": 8 },
+        { "type": "spawnItem", "itemType": "chitin_plate", "x": 9, "y": 3 },
         { "type": "setFlag", "flag": "nest_mother_defeated" }
       ],
       "once": true
