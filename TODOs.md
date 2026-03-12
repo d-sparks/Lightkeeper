@@ -1,13 +1,18 @@
 TODOs
 
-- [opus] Fix headless sim mainline regression: bot gets stuck in proc_quarantine after only 4/52 rooms visited, 0 combat — pathfinding fails when A* path is blocked by monster collision circles, needs pathfind-around-monsters logic or monster-avoidance fallback
-- ~~[opus] Wire MERIDIAN-7 endgame crafting dialogue: craft action type exists in actions.js and crafting.json has recipes, but no NPC dialogue trigger gates the crafting menu behind the endgame_active flag~~ ✓
-- [opus] Add mid-run loot banking checkpoints to expeditions: safe rooms between floors where players can bank collected loot so death only forfeits current floor items, not the entire run
-- [sonnet] Add ending-path-specific automation structure variants: bio_harvester (shutdown), symbiotic_node (merge), array_drone_bay (control) as described in endgame-loop.md Phase 4
-- [opus] Implement cooperative player-count gating for Tier 4-5 expeditions: require 2+ players to start, shared expedition state tracking across party members
-- [sonnet] Improve tileset sprites for crypt, outpost, and quarantine zones — refine textures per zone color identity in art-style-guide.md
-- [sonnet] Add mismatched-path intel flavor text: bringing shutdown intel to Control ending (or other cross-path combinations) should trigger acknowledgment dialogue
-- [opus] Add worldmap connectivity for Array Extraction Outpost — currently reachable from dayside_solar_fields but missing from any overworld navigation or map marker system
-- [opus] Build raid event system for automation defense: periodic nightside creature waves attack dayside structures when auto_turret is unlocked, structure HP/repair, turret defense value reduces damage
-- [sonnet] Add map markers and NPC breadcrumbs for Nightside Caverns entrance so new players can find the nightside content path
-- [sonnet] Audit and wire remaining orphaned flags: run content validator grep for setFlag calls without matching hasFlag consumers and vice versa
+- Fix headless sim mainline regression: bot visits only 5-9 rooms then gets stuck — umbrasite_retrieval side quest injected as prereq has no accessible refined_umbrasite source; needs skip-unresolvable-prereq logic or bot-side quest dependency resolution
+- Add client-side expedition HUD: floor counter, tier indicator, and boss health bar overlay during expedition runs so players know their progress
+- Build cooperative challenge system (Phase 6): Lighthouse Siege wave defense mode for 2-4 players with communal energy pool, wave spawning, and siege_legendary reward table — see endgame-loop.md
+- Define cooperative-only legendary items: lighthouse_lens, deep_resonance, prismatic_core need entries in items.json and sol_components.json with stats from endgame-loop.md, plus a siege_legendary loot table
+- Add banked items inventory tab: show a "Cached" tab in the inventory UI during expeditions so players can see what they've banked at checkpoints
+- Add explicit patrol path waypoints to spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, and crypt_02 — monsters with patrol AI but no patrolPath stand still
+- Place feral_hound_alpha and frostfang_alpha as rare spawns in nightside_caverns and frost procedural templates for mid-game variety
+- Add client-side raid alert UI: toast or overlay showing raid results (structures damaged, turrets active, monsters repelled) and structure HP bars on the automation grid
+- Build dark_city dungeon template: tileset JSON and sprite strip exist but no dungeon uses dark_city yet — design a Meridian undercity or Array suburb floor using the tileset
+- Add Nightside-path discovery hints in earlier rooms (outpost_perimeter or outpost_comms) for players who haven't reached the Dead Road yet
+- Create engine-flags documentation registry (docs/engine-flags.md) listing all flags set directly by engine code so content authors know which flags are managed outside the trigger system
+- Add sprite animation frames (idle 2-frame bob, attack lunge, hit flash) to generate-sprites.js and wire renderer to cycle frames — biggest single visual quality improvement available
+- Implement player manual raid defense: let players teleport to dayside_solar_fields during a raid event to fight monsters in real-time instead of abstract damage calculation
+- Tune battery math: document capacity per tier, energy costs per ability, and casts per full charge — resolve the open design question in progression-system.md so balance can be tested
+- Add checkpoint room visual polish: expedition_checkpoint dungeon currently uses plain crypt tileset — design a unique safe-room look with cache terminal, dim lighting, supply crates
+- Add party disconnect cleanup during expeditions: remove disconnected players from expedition_party flag so remaining members aren't blocked by ghost party state
