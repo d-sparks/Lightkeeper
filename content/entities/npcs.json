@@ -58,6 +58,26 @@
       "key_was_used": [
         { "speaker": "Old Keeper", "text": "So you used the iron key. Good. That door's been shut for a long time." },
         { "speaker": "Old Keeper", "text": "Whatever you found on the other side — I hope it was worth the trouble. Those locks don't yield to much." }
+      ],
+      "asks_about_etching": [
+        { "speaker": "Old Keeper", "text": "You've been to the Bone Chamber. Then you've seen how old these tunnels are — older than the outpost, older than the Ring." },
+        { "speaker": "Old Keeper", "text": "When I was still a Lightkeeper, I found something down there. A stone tablet, covered in markings I'd never seen. Geometric, precise — not human work." },
+        { "speaker": "Old Keeper", "text": "The Unbounded call it the Underlumen — a network beneath the planet's surface. Something ancient. Something that was here before us." },
+        { "speaker": "Old Keeper", "text": "I was too injured to retrieve the tablet. It's still there, in a collapsed alcove on the far side of the Bone Chamber." },
+        { "speaker": "Old Keeper", "text": "Bring it to me. If the old stories are true, that etching could change what we know about this world." }
+      ],
+      "has_underlumen_etching": [
+        { "speaker": "Old Keeper", "text": "You found it. The Underlumen Etching..." },
+        { "speaker": "Old Keeper", "text": "These markings — they match patterns I've seen in Unbounded cave paintings, deep in the Nightside. The same geometry, repeated across hundreds of kilometers." },
+        { "speaker": "Old Keeper", "text": "The Underlumen isn't superstition. It's real. A network running beneath everything we've built, older than anything on this planet." },
+        { "speaker": "Old Keeper", "text": "The Spires, the Lighthouses, the energy the Array harvests — I think it all connects back to this. To whatever carved these marks." },
+        { "speaker": "Old Keeper", "text": "Keep the etching. You'll need it as proof when the time comes. And it will come." },
+        { "speaker": "Old Keeper", "text": "Thank you, Lightkeeper. You've given an old man something he hasn't had in thirty years — hope that the truth is still out there." }
+      ],
+      "post_etching_quest": [
+        { "speaker": "Old Keeper", "text": "The Underlumen Etching you found — I can't stop thinking about those markings." },
+        { "speaker": "Old Keeper", "text": "If Archivist Solen in Meridian ever gets his hands on it, he'll know what to make of the patterns. The old surveys reference similar geometry." },
+        { "speaker": "Old Keeper", "text": "Whatever the Underlumen is, we've been walking on top of it our entire lives without knowing." }
       ]
     },
     "dialogueRules": [
@@ -80,6 +100,18 @@
       {
         "conditions": [{ "hasFlag": "vasik_asked_for_moss" }, { "not": { "hasFlag": "keeper_told_moss_location" } }],
         "use": "asked_about_moss"
+      },
+      {
+        "conditions": [{ "hasItem": "underlumen_etching" }],
+        "use": "has_underlumen_etching"
+      },
+      {
+        "conditions": [{ "hasFlag": "keeper_etching_returned" }],
+        "use": "post_etching_quest"
+      },
+      {
+        "conditions": [{ "hasFlag": "visited_crypt_02" }, { "not": { "hasFlag": "keeper_asked_for_etching" } }],
+        "use": "asks_about_etching"
       },
       {
         "conditions": [{ "hasFlag": "visited_crypt_02" }],

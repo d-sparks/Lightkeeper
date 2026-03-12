@@ -159,6 +159,12 @@
     "type": "key",
     "rarity": "uncommon"
   },
+  "underlumen_etching": {
+    "name": "Underlumen Etching",
+    "description": "A stone tablet etched with geometric patterns that predate human settlement on Erith. The markings pulse faintly when held near a Sol Unit. The Old Keeper in the crypt will want to see this.",
+    "type": "key",
+    "rarity": "rare"
+  },
   "signal_booster_chip": {
     "name": "Signal Booster",
     "description": "A tuned frequency amplifier chip. Place it in a Sol Grid to reduce cooldowns of adjacent abilities.",

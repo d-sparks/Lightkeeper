@@ -661,6 +661,33 @@
         }
       ],
       "once": true
+    },
+    {
+      "id": "keeper_asks_for_etching",
+      "event": "npc_interacted",
+      "filter": { "npcType": "old_keeper" },
+      "conditions": [
+        { "hasFlag": "visited_crypt_02" },
+        { "not": { "hasFlag": "keeper_asked_for_etching" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "keeper_asked_for_etching", "scope": "player" }
+      ],
+      "once": true
+    },
+    {
+      "id": "keeper_receives_etching",
+      "event": "npc_interacted",
+      "filter": { "npcType": "old_keeper" },
+      "conditions": [
+        { "hasItem": "underlumen_etching" },
+        { "not": { "hasFlag": "keeper_etching_returned" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "keeper_etching_returned", "scope": "player" },
+        { "type": "grantXp", "amount": 50 }
+      ],
+      "once": true
     }
   ]
 }
