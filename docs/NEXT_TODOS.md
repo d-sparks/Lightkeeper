@@ -103,7 +103,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - ~~Nightside-path hints in earlier rooms~~ ✓ Implemented — `dead_road_enter` now sets `visited_dead_road` flag on first visit; `perimeter_gate_nightside_hint` (outpost_perimeter) extended with explicit "Nightside" name + `not visited_dead_road` suppression; `wren_nightside_hint` (outpost_comms) gated on `not visited_dead_road`; new `nightside_map_hint` trigger added to outpost_comms comms_room_welcome showing a crossed-out survey map label "Dead Road. Beyond: Nightside" on room entry, suppressed once player has already visited the Dead Road.
 - Place feral_hound_alpha and frostfang_alpha as rare spawns in nightside_caverns and frost proc templates.
 - ~~Place skeleton_archer in crypt_01/crypt_02 and add loot table.~~ ✓ Both crypts already had one archer; added a second patrolling archer to crypt_01; added `skeleton_archer` loot table to outpost.json.
-- Add explicit patrolPath waypoints to patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.
+- ~~Add explicit patrolPath waypoints to patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.~~ ✓ All patrol spawns in these dungeons have explicit 4-point rectangular patrolPath waypoints.
 - ~~Phase 3 investigation quest after Autotroph confrontation (mechanical meaningfulness beyond dialogue).~~ ✓ Implemented — Directive 11-Kappa quest: infiltrate Array Extraction Outpost, collect three evidence types, deliver to Sable/Asha/MERIDIAN-7 for path-specific epic sol components. Intel flags provide mechanical bonuses in ending dungeons.
 - ~~Phase 3 investigation: add worldmap entry for Array Extraction Outpost and connection from dayside_solar_fields.~~ ✓ Implemented — worldmap location added at (0.07, 0.60) in dayside zone; connection auto-generated from dayside_solar_fields exits.
 - ~~Phase 3 investigation: mismatched-path intel triggers.~~ ✓ Implemented — `room_entered` triggers added to all three ending dungeons: `array_control_center.json` (shutdown ending) acknowledges control/merge intel mismatch; `array_command_throne.json` (control ending) acknowledges shutdown/merge intel mismatch; `merge_nexus.json` (merge ending) acknowledges control/shutdown intel mismatch. Each trigger fires once on entry and shows flavor text reflecting the tension between the intel carried and the path chosen. No mechanical penalty — narrative acknowledgment only.
@@ -146,7 +146,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Map Streaming
 
-- outer_expanse patrol paths — many spawns lack explicit patrolPath waypoints.
+- ~~outer_expanse patrol paths — many spawns lack explicit patrolPath waypoints.~~ ✓ Converted all 15 "guard" spawns to "patrol" with explicit 4-point rectangular patrolPath waypoints.
 - Editor reload paths still send full map data (no fog of war chunking).
 - Consider reducing chunk reveal radius for bigger maps.
 
