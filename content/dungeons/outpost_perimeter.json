@@ -2580,6 +2580,11 @@
       "conditions": [
         {
           "hasFlag": "received_sol_unit"
+        },
+        {
+          "not": {
+            "hasFlag": "visited_dead_road"
+          }
         }
       ],
       "actions": [
@@ -2588,6 +2593,7 @@
           "lines": [
             "Through the outer gate to the north, the perimeter opens into uncharted dark. Survey markers were placed years ago — the teams that placed them never came back.",
             "There are stories. Salvagers who found an old road running through the black, a wrecked transport, signs of something that used to live out there.",
+            "Deeper still, they say, is the Nightside — a vast frozen dark where the planet never turns toward the sun. Whatever the Array was searching for, it was out there.",
             "The outer gate is still unlocked."
           ]
         }

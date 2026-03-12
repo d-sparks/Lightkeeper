@@ -100,7 +100,7 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 ## Content Gaps
 
 - ~~Nightside Caverns map markers and NPC breadcrumbs for new players.~~ ✓ Implemented — `perimeter_lookout` NPC added to deep_perimeter_east near south exit; Sable `nightside_hint` dialogue variant added; `nightside_entrance_waypoint` trigger sets minimap waypoint on caverns exit (x:3, y:19); cold air hint trigger; `sable_nightside_breadcrumb` trigger sets waypoint pointing from dead_road toward perimeter; `mark_nightside_visited` trigger in nightside_caverns clears waypoint and sets flag.
-- Consider adding Nightside-path hints in earlier rooms (e.g., outpost_perimeter) for players who haven't yet reached the Dead Road.
+- ~~Nightside-path hints in earlier rooms~~ ✓ Implemented — `dead_road_enter` now sets `visited_dead_road` flag on first visit; `perimeter_gate_nightside_hint` (outpost_perimeter) extended with explicit "Nightside" name + `not visited_dead_road` suppression; `wren_nightside_hint` (outpost_comms) gated on `not visited_dead_road`; new `nightside_map_hint` trigger added to outpost_comms comms_room_welcome showing a crossed-out survey map label "Dead Road. Beyond: Nightside" on room entry, suppressed once player has already visited the Dead Road.
 - Place feral_hound_alpha and frostfang_alpha as rare spawns in nightside_caverns and frost proc templates.
 - ~~Place skeleton_archer in crypt_01/crypt_02 and add loot table.~~ ✓ Both crypts already had one archer; added a second patrolling archer to crypt_01; added `skeleton_archer` loot table to outpost.json.
 - Add explicit patrolPath waypoints to patrol spawns in nightside_caverns, nightside_depths, deep_perimeter_east, perimeter_ravine, crypt_02.

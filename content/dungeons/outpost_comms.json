@@ -326,6 +326,28 @@
       "once": true
     },
     {
+      "id": "nightside_map_hint",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "not": {
+            "hasFlag": "visited_dead_road"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "A hand-drawn survey map is tacked to the wall near the entrance — outpost patrol routes marked in fading ink.",
+            "One route has been crossed out in red pencil. Alongside it, in cramped handwriting: 'Dead Road. Beyond: Nightside. DO NOT PROCEED WITHOUT AUTHORIZATION.'",
+            "The authorization stamp is blank."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "daley_quest_start",
       "event": "npc_interacted",
       "filter": {
@@ -454,6 +476,11 @@
         {
           "not": {
             "hasFlag": "wren_nightside_hint_shown"
+          }
+        },
+        {
+          "not": {
+            "hasFlag": "visited_dead_road"
           }
         }
       ],

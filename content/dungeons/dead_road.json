@@ -64,7 +64,8 @@
       "id": "dead_road_enter",
       "event": "room_entered",
       "actions": [
-        { "type": "showMessage", "text": "Movement ahead — something crouches behind a wrecked transport. Human-shaped." }
+        { "type": "showMessage", "text": "Movement ahead — something crouches behind a wrecked transport. Human-shaped." },
+        { "type": "setFlag", "flag": "visited_dead_road" }
       ],
       "once": true
     },
