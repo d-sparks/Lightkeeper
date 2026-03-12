@@ -9,7 +9,10 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 ## Content — Undercity / dark_city Tileset
 
-- **Second dark_city floor** — `meridian_undercity` (Warrens) exists as the first floor; create a `meridian_undercity_deep` floor accessible via stairs_down from the north zone (currently no stairs_down exit). Narratively: the deep warrens connect to Underlumen-adjacent tunnels or a Nightside maintenance junction.
+- ~~Second dark_city floor~~ ✓ Implemented — `meridian_undercity_deep` (Deep Warrens) accessible via stairs_down at (14,0) in `meridian_undercity`. 30x22 map with flooded west corridors, shade stalker/gloom wraith/shadow ambusher spawns, locked maintenance depot (iron_key), Pathfinder Ren NPC (Unbounded worldbuilding), kill-clear reward, post-ending atmosphere triggers for all three paths.
+- **Deep Warrens sprite** — Pathfinder Ren NPC needs a dedicated sprite (`sprites/pathfinder_ren.png`). Currently will fall back to default NPC sprite.
+- **Deep Warrens discovery trigger** — Consider adding a flavor message in `meridian_undercity` when players approach the stairs_down at (14,0) so they know the passage exists before stepping in.
+- **Underlumen network expansion** — The Deep Warrens establish the Underlumen pathfinder network as a worldbuilding element. Consider adding Underlumen markers or NPC references in other Nightside-adjacent dungeons (nightside_caverns, nightside_depths).
 - **Undercity discovery trigger in meridian_market** — the new stairs_down at (14, 9) has no first-discovery message in the market. Consider adding a `door_interacted` trigger or a positional flavor note so players know the passage exists before stepping in.
 - **Loot table for Luddite gang** — the east-wing `luddite_brawler` monsters have no drop. Once the loot table system is implemented, give the gang cell a chance to drop `supply_crate_key` instead of (or in addition to) the static item spawn, so the pacing feels more organic.
 - **Elara shop follow-up** — Fence Elara currently provides information and the supply crate reward, but no repeatable purchase option. A return-visit shop (smuggled goods, consumables) would give the undercity a reason to revisit after clearing the gang.
@@ -116,6 +119,15 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 - Stats panel currently shows level/XP, max HP (with level bonus), attack damage (with equipment bonus), and energy. Consider also showing sol grid modifier totals (damage boost %, cooldown reduction %, energy efficiency) once the server computes aggregated modifier effects.
 - If additional stats ever scale with level (damage, energy, etc.), update the stats panel bonus breakdowns accordingly.
+
+## Weapon Upgrade System
+
+- **More crafting material tiers** — Currently 6 crafting materials (2 common, 2 uncommon, 2 rare). Consider adding epic/legendary tier materials with stronger bonuses for endgame weapon progression.
+- **Crafting material drops in biome-specific loot tables** — Only `common.json` loot tables updated. Add crafting material drops to `frost.json`, `fungal.json`, `geothermal.json`, `nightside.json`, `array.json`, and expedition loot tables for better distribution across all biomes.
+- **Disassemble confirmation** — Disassemble button currently fires immediately with no confirmation. Add a choice menu confirmation dialog to prevent accidental weapon destruction.
+- **Weapon upgrade persistence edge cases** — Weapon upgrades are saved/restored via session store. Test save/load with upgraded weapons, weapon swaps mid-session, and death-with-upgraded-weapon scenarios.
+- **Weapon upgrade visual feedback** — Consider showing weapon upgrade bonuses in the EQUIP tab and STATS panel so players see the impact without opening the WEAPON tab.
+- **Ground-spawned crafting materials** — Currently crafting materials only drop from monsters. Consider adding static crafting material spawns in dungeon rooms (similar to how sol components and keys are placed).
 
 ## Sol Grid & Progression
 

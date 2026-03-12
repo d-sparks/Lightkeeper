@@ -3901,5 +3901,25 @@
         { "speaker": "Fence Elara", "text": "If you want the supply crate, you need the key. The gang has it somewhere in the east wing." }
       ]
     }
+  },
+  "pathfinder_ren": {
+    "name": "Pathfinder Ren",
+    "dialogue": [
+      { "speaker": "Pathfinder Ren", "text": "You're a long way down, Lightkeeper." }
+    ],
+    "dialogueRules": [
+      { "conditions": [{ "hasFlag": "met_pathfinder_ren" }], "use": "return_visit" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Pathfinder Ren", "text": "You're a long way down, Lightkeeper." },
+        { "speaker": "Pathfinder Ren", "text": "I'm Ren. Underlumen pathfinder. These tunnels are a way station between the Nightside settlements and the Ring border." },
+        { "speaker": "Pathfinder Ren", "text": "Watch the east corridors — shade stalkers have moved in. And the flooded sections to the west have ambushers." }
+      ],
+      "return_visit": [
+        { "speaker": "Pathfinder Ren", "text": "Still exploring? The tunnels are quieter since you cleared them out." },
+        { "speaker": "Pathfinder Ren", "text": "Safe travels, Lightkeeper. The Underlumen network remembers people who don't shoot on sight." }
+      ]
+    }
   }
 }
