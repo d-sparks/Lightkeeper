@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-12 (refreshed — mainline passes 26 min 0 deaths; all-quests STUCK in proc_quarantine depth 3 + 3 quest failures; item/NPC engagement very low 5/52 items 20/60 NPCs).
+Last cleaned: 2026-03-12 (fresh sim — mainline passes ~67%, fails ~33% from proc_quarantine body-blocking; when passing: 25 min, 115 kills, 0 deaths; explore mode broken at 5/57 rooms; 4-5/52 items, 20/60 NPCs).
 
 ## Checkpoint Tool — Autosave History
 

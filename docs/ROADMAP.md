@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-12 (refreshed with sim analysis — mainline PASSES 28/57 rooms 49.1% 106 kills 0 deaths 26 min; all-quests STUCK in proc_quarantine depth 3 where 10 monsters body-block the player + relay_recovery STUCK + nightside_expedition/broken_signal TIMEOUT; only 5/52 items collected and 20/60 NPCs engaged)
+Last updated: 2026-03-12 (fresh sim analysis — mainline PASSES ~67% of runs, FAILS ~33% due to proc_quarantine body-blocking; when passing: 28/57 rooms 49.1%, 115 kills, 0 deaths, 25 min; explore mode FAILS at 5/57 rooms 8.8%; only 4-5/52 items collected and 20/60 NPCs engaged)
 
 ## Big Picture
 
@@ -213,7 +213,7 @@ These are done and don't need further investment:
 | docs/endgame-loop.md | Active | Phases 1-7 engine done. Remaining: Deep Expedition (Tier 6), Faction Rally |
 | docs/progression-system.md | Active | Core systems done. Harvester scaling done (levels 11-20). Spire ability unlocks not yet wired. |
 | docs/automation_screen.md | Done | All phases implemented |
-| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline passes (26 min, 0 deaths); all-quests STUCK in proc_quarantine depth 3 + 3 quest failures; item/NPC engagement very low (5/52, 20/60). |
+| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline passes ~67% (fails ~33% from proc_quarantine body-blocking); when passing: 25 min, 115 kills, 0 deaths; explore mode broken (5/57 rooms); item/NPC engagement very low (4-5/52, 20/60). |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented |
 | docs/TESTING.md | Done | Tiers 1-4 complete |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
