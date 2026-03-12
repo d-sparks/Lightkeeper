@@ -6,6 +6,7 @@ const CONSTANTS = require('../shared/constants');
 class Automation {
   constructor(content) {
     this.content = content;
+    this.flagStore = null; // injected after construction (set by game-loop.js)
     this.playerStates = new Map(); // playerId -> AutoState
     this._gridConfig = null;         // computed 12x12 grid config (blocked cells, etc.)
     this._gridConfigExpanded = null; // computed 16x16 grid config (unlocked at level 6)
@@ -525,9 +526,22 @@ class Automation {
     return placements;
   }
 
+  // Build the path-flag map for a player from the injected flagStore.
+  // Falls back to an empty object if flagStore is not yet wired up.
+  _getPathFlags(playerId) {
+    if (!this.flagStore) return {};
+    return {
+      chose_path_shutdown: this.flagStore.getPlayerFlag(playerId, 'chose_path_shutdown'),
+      chose_path_merge: this.flagStore.getPlayerFlag(playerId, 'chose_path_merge'),
+      chose_path_control: this.flagStore.getPlayerFlag(playerId, 'chose_path_control'),
+    };
+  }
+
   // Get state formatted for client.
   // playerFlags: optional { flagName: value } map; used to mark path-gated structures as locked.
+  // When omitted the method looks them up from this.flagStore automatically.
   getStateForClient(playerId, playerFlags) {
+    const resolvedFlags = playerFlags !== undefined ? playerFlags : this._getPathFlags(playerId);
     const state = this.getState(playerId);
     const structures = this.content.getStructures ? this.content.getStructures() : {};
     const config = this.getGridConfig(playerId);
@@ -548,7 +562,7 @@ class Automation {
     }
 
     // Path cost multiplier for displaying accurate build costs to the client
-    const costMultiplier = this._getPathCostMultiplier(playerFlags);
+    const costMultiplier = this._getPathCostMultiplier(resolvedFlags);
 
     for (const [id, def] of Object.entries(structures)) {
       if (id.startsWith('_')) continue; // skip meta keys
@@ -557,7 +571,7 @@ class Automation {
 
       // A structure is locked if: unlock level not met, OR requires a path flag the player lacks.
       const levelLocked = def.unlockLevel ? automationLevel < def.unlockLevel : false;
-      const flagLocked = def.requiresFlag && playerFlags ? !playerFlags[def.requiresFlag] : false;
+      const flagLocked = def.requiresFlag ? !resolvedFlags[def.requiresFlag] : false;
 
       // Scale displayed cost by path modifier so the UI shows the actual price
       const scaledCost = {};

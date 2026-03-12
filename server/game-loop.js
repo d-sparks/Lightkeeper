@@ -36,6 +36,7 @@ class GameLoop {
 
     // Scripting subsystem
     this.flagStore = new FlagStore();
+    this.automation.flagStore = this.flagStore; // inject so getStateForClient can resolve path flags
     this.eventBus = new EventBus();
     this.conditions = new ConditionEvaluator(this.flagStore);
     this.actions = new ActionExecutor(this.flagStore, this.eventBus, content);
