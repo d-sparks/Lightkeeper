@@ -137,8 +137,16 @@ const CONSTANTS = {
     // Chat (Server -> Client)
     CHAT_BROADCAST: 'chat_broadcast',
 
-    // Siege / cooperative challenges (Server -> Client)
-    SIEGE_STATE: 'siege_state',
+    // Siege / cooperative challenges
+    SIEGE_STATE: 'siege_state',       // Server -> Client
+    SIEGE_REPAIR: 'siege_repair',     // Client -> Server
+
+    // Weapon upgrades (Client -> Server)
+    WEAPON_UPGRADE_PLACE: 'weapon_upgrade_place',
+    WEAPON_UPGRADE_REMOVE: 'weapon_upgrade_remove',
+    WEAPON_DISASSEMBLE: 'weapon_disassemble',
+    // Weapon upgrades (Server -> Client)
+    WEAPON_UPGRADE_STATE: 'weapon_upgrade_state',
 
     // Bidirectional
     SOL_GRID_MOVE: 'sol_grid_move',

@@ -65,6 +65,7 @@
   const siegeEnergyFill = document.getElementById('siege-energy-fill');
   const siegeEnergyText = document.getElementById('siege-energy-text');
   const siegeMonsters = document.getElementById('siege-monsters');
+  const siegeRepairBtn = document.getElementById('siege-repair-btn');
   const deathOverlay = document.getElementById('death-overlay');
   const deathDetails = document.getElementById('death-details');
   const siegeOverlay = document.getElementById('siege-overlay');
@@ -1822,6 +1823,11 @@
     hideRaidIncoming();
   });
 
+  // Siege repair button sends SIEGE_REPAIR to server
+  siegeRepairBtn.addEventListener('click', () => {
+    net.send({ type: CONSTANTS.MSG.SIEGE_REPAIR });
+  });
+
   // --- Tab click handlers ---
   document.querySelectorAll('#character-menu .inv-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -3193,6 +3199,8 @@
           audio.play('level_up');
         } else if (ev.type === 'lighthouse_hit') {
           audio.play('hit_take');
+        } else if (ev.type === 'lighthouse_repair') {
+          audio.play('item_pickup');
         } else if (ev.type === 'siege_victory') {
           siegeOverlay.className = '';
           void siegeOverlay.offsetWidth;
@@ -3389,8 +3397,18 @@
       } else {
         siegeMonsters.style.display = 'none';
       }
+      // Show repair button during inter-wave/preparing if lighthouse is damaged
+      const canRepair = (msg.siege.phase === 'inter_wave' || msg.siege.phase === 'preparing')
+        && msg.siege.lighthouseHp < msg.siege.lighthouseMaxHp;
+      if (canRepair) {
+        siegeRepairBtn.style.display = '';
+        siegeRepairBtn.textContent = `Repair Lighthouse (${msg.siege.repairCost} silicon, +${msg.siege.repairAmount} HP)`;
+      } else {
+        siegeRepairBtn.style.display = 'none';
+      }
     } else {
       siegeHud.style.display = 'none';
+      siegeRepairBtn.style.display = 'none';
     }
 
     // Update click-to-move direction based on current position

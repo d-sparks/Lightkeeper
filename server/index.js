@@ -1050,6 +1050,25 @@ wss.on('connection', (ws) => {
         break;
       }
 
+      case CONSTANTS.MSG.SIEGE_REPAIR: {
+        if (!ws.playerRoom) break;
+        const repairResult = gameLoop.trySiegeRepair(ws.playerRoom, playerId);
+        if (!repairResult) break;
+        if (repairResult.error) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.DIALOGUE,
+            dialogue: [{ speaker: '', text: repairResult.error }],
+          }));
+        } else if (repairResult.ok) {
+          // Send updated automation state (silicon changed)
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.AUTO_STATE,
+            auto: gameLoop.automation.getStateForClient(playerId),
+          }));
+        }
+        break;
+      }
+
       case CONSTANTS.MSG.AUTO_BUILD: {
         if (!ws.playerRoom) break;
         const pathFlags = {

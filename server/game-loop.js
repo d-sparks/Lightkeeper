@@ -1334,7 +1334,57 @@ class GameLoop {
       communalEnergy: Math.round(siege.communalEnergy),
       communalEnergyMax: siege.communalEnergyMax,
       monstersRemaining: room.monsters.size,
+      repairCost: siege.challenge.lighthouseRepairCost || 10,
+      repairAmount: siege.challenge.lighthouseRepairAmount || 50,
     };
+  }
+
+  // Attempt to repair the lighthouse during inter-wave phase.
+  // Costs silicon (automation resource). Returns result object for the client.
+  trySiegeRepair(roomId, playerId) {
+    const room = this.rooms.get(roomId);
+    if (!room || !room.siege) return null;
+    const siege = room.siege;
+
+    // Only allow repair during inter-wave or preparing phases
+    if (siege.phase !== 'inter_wave' && siege.phase !== 'preparing') {
+      return { error: 'Repairs only available between waves.' };
+    }
+
+    // Already at full HP
+    if (siege.lighthouseHp >= siege.lighthouseMaxHp) {
+      return { error: 'Lighthouse is already at full health.' };
+    }
+
+    const repairCost = siege.challenge.lighthouseRepairCost || 10;
+    const repairAmount = siege.challenge.lighthouseRepairAmount || 50;
+
+    // Check silicon (automation resource)
+    const available = this.automation.getResource(playerId, 'silicon');
+    if (available < repairCost) {
+      return { error: `Not enough silicon. Need ${repairCost}, have ${Math.floor(available)}.` };
+    }
+
+    // Spend silicon and apply repair
+    this.automation.spendResources(playerId, { silicon: repairCost });
+    const oldHp = siege.lighthouseHp;
+    siege.lighthouseHp = Math.min(siege.lighthouseMaxHp, siege.lighthouseHp + repairAmount);
+    const actualRepair = Math.round(siege.lighthouseHp - oldHp);
+
+    console.log(`[GameLoop] Player ${playerId} repaired lighthouse for ${actualRepair} HP (cost ${repairCost} silicon)`);
+
+    // Broadcast repair event for visual feedback
+    room.events.push({
+      type: 'lighthouse_repair',
+      playerId,
+      amount: actualRepair,
+      lighthouseHp: Math.round(siege.lighthouseHp),
+      lighthouseMaxHp: siege.lighthouseMaxHp,
+      x: siege.lighthouseX,
+      y: siege.lighthouseY,
+    });
+
+    return { ok: true, repaired: actualRepair, lighthouseHp: Math.round(siege.lighthouseHp) };
   }
 
   addPlayer(roomId, playerId, name) {

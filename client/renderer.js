@@ -4023,6 +4023,14 @@ class Renderer {
         // Shake proportional to damage severity
         const lhPct = ev.lighthouseMaxHp > 0 ? ev.lighthouseHp / ev.lighthouseMaxHp : 0;
         this.screenShake = { intensity: lhPct < 0.3 ? 6 : 3, duration: 0.15, elapsed: 0 };
+      } else if (ev.type === 'lighthouse_repair') {
+        // Healing number at lighthouse position
+        this.damageNumbers.push({
+          text: `+${ev.amount}`,
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.2,
+          color: '#66bb6a',
+        });
       } else if (ev.type === 'boss_intro' && ev.playerId === this.myId) {
         // Start boss intro cinematic
         this.bossIntro = {
