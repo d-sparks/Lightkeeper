@@ -3844,6 +3844,32 @@
     ]
   },
 
+  "siege_warden": {
+    "name": "Siege Warden Kael",
+    "dialogue": [
+      { "speaker": "Siege Warden Kael", "text": "The lighthouse perimeter holds. For now." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Siege Warden Kael", "text": "The lighthouse perimeter holds. For now." }
+      ],
+      "unlocked": [
+        { "speaker": "Siege Warden Kael", "text": "You've seen what's out there beyond the fourth breach. The Nightside isn't just destabilizing — it's converging." },
+        { "speaker": "Siege Warden Kael", "text": "The old lighthouse on the perimeter is our last line of defense. If it falls, the darkness pours straight into the terminator zone." },
+        { "speaker": "Siege Warden Kael", "text": "I need a team — two to four defenders — to hold the lighthouse through ten waves. Interested?" }
+      ],
+      "cooldown": [
+        { "speaker": "Siege Warden Kael", "text": "The lighthouse defenses need time to recharge after the last siege. Come back later — the darkness isn't going anywhere." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "expedition_tier_4_cleared" }],
+        "use": "unlocked"
+      }
+    ]
+  },
+
   "expedition_cache": {
     "name": "Cache Terminal",
     "dialogue": [

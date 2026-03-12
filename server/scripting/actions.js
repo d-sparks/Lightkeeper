@@ -26,6 +26,7 @@
 //   { type: "craft" }  // opens crafting menu with available recipes from crafting.json
 //   { type: "shop",      shopId: "meridian_7_shop" }  // opens buy/sell menu from shops.json
 //   { type: "bankLoot" }  // banks all non-quest inventory items for expedition checkpoint (survives death)
+//   { type: "startSiege", challengeId: "lighthouse_siege" }  // starts cooperative siege challenge
 
 const CONSTANTS = require('../../shared/constants');
 
@@ -127,6 +128,9 @@ class ActionExecutor {
         break;
       case 'bankLoot':
         this.doBankLoot(action, context);
+        break;
+      case 'startSiege':
+        this.doStartSiege(action, context);
         break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
@@ -1052,6 +1056,66 @@ class ActionExecutor {
     });
 
     console.log(`[Actions] Player ${context.playerId} banked ${toBankItems.length} items (total: ${allBanked.length})`);
+  }
+
+  // Start a siege challenge: { type: "startSiege", challengeId: "lighthouse_siege" }
+  // Validates unlock conditions, cooldown, and player count, then transitions party to arena.
+  doStartSiege(action, context) {
+    if (!this.gameLoop) {
+      console.warn('[Actions] startSiege requires gameLoop reference');
+      return;
+    }
+    const challengeId = action.challengeId;
+    if (!challengeId) {
+      console.warn('[Actions] startSiege missing challengeId');
+      return;
+    }
+    const result = this.gameLoop.startSiege(context.playerId, challengeId);
+    if (!result) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.DIALOGUE,
+          dialogue: [{ speaker: 'System', text: 'You do not meet the requirements for this siege challenge.' }],
+        });
+      }
+      return;
+    }
+    if (result.onCooldown) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.DIALOGUE,
+          dialogue: [{ speaker: 'Siege Warden', text: `The lighthouse defenses are still recharging. Try again in ${result.hoursRemaining} hours.` }],
+        });
+      }
+      return;
+    }
+    if (result.insufficientPlayers) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.DIALOGUE,
+          dialogue: [{ speaker: 'Siege Warden', text: `This operation requires ${result.required} defenders. Only ${result.present} present in this area.` }],
+        });
+      }
+      return;
+    }
+    if (result.tooManyPlayers) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.DIALOGUE,
+          dialogue: [{ speaker: 'Siege Warden', text: `Maximum ${result.max} defenders allowed. ${result.present} are present — some must leave first.` }],
+        });
+      }
+      return;
+    }
+    // Queue transitions for all party members to the siege arena
+    const partyMembers = result.partyMembers || [context.playerId];
+    for (const pid of partyMembers) {
+      this.gameLoop.pendingTransitions.push({
+        playerId: pid,
+        fromRoom: context.roomId,
+        toDungeon: result.roomId,
+      });
+    }
   }
 
   // Start an expedition: { type: "startExpedition", tier: 1 }

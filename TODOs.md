@@ -1,6 +1,5 @@
 TODOs
 
-- [opus] Wire Lighthouse Siege start trigger: siege engine exists but no NPC interaction launches it — add a post-endgame NPC or interactable in meridian_station that calls startSiege() so players can actually access the cooperative challenge
 - [sonnet] Fix content validator reachability errors: dayside_raid_defense and lighthouse_siege_arena are unreachable from spawn — add conditional exits or teleport triggers so these special dungeons connect to the world graph
 - [opus] Build dark_city dungeon: tileset JSON and sprite strip exist but no dungeon uses dark_city yet — design a Meridian Warrens or undercity deep floor as a second dark_city dungeon below meridian_undercity
 - [sonnet] Wire expedition_tier_4_cleared and expedition_tier_5_cleared flags into NPC dialogue or gating — these flags are set by the engine but never checked anywhere, wasting progression milestones

@@ -38,7 +38,8 @@
   "monsterSpawns": [],
   "npcSpawns": [
     { "type": "station_master_calloway", "x": 10, "y": 10 },
-    { "type": "expedition_board", "x": 20, "y": 10 }
+    { "type": "expedition_board", "x": 20, "y": 10 },
+    { "type": "siege_warden", "x": 15, "y": 10 }
   ],
   "itemSpawns": [],
   "exits": [
@@ -246,6 +247,63 @@
           "The expedition board is dark. A notice reads: 'NIGHTSIDE BREACH OPERATIONS — AUTHORIZATION REQUIRED.'",
           "'Expeditions into the Nightside perimeter are classified operations. Authorization requires a formal faction mandate from the Civic Council.'",
           "The Council has not yet reached a decision on the Lightkeeper mandate. The path forward isn't clear yet."
+        ]}
+      ]
+    },
+
+    {
+      "id": "siege_warden_launch",
+      "event": "npc_interacted",
+      "filter": { "npcType": "siege_warden" },
+      "conditions": [
+        { "hasFlag": "expedition_tier_4_cleared" },
+        { "not": { "hasFlag": "siege_active" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "siege_confirm", "prompt": "Siege Warden Kael: Ready to defend the lighthouse? You'll need 2-4 defenders.", "options": [
+          { "label": "Begin Lighthouse Siege", "description": "Cooperative wave defense. 10 waves. Requires 2-4 players.", "value": "start" },
+          { "label": "Not yet", "description": "Return to the station.", "value": "cancel" }
+        ]}
+      ]
+    },
+    {
+      "id": "siege_confirm_start",
+      "event": "choice_made",
+      "filter": { "choiceId": "siege_confirm", "value": "start" },
+      "actions": [
+        { "type": "showMessage", "text": "Siege Warden Kael: 'Steel yourselves. The darkness doesn't wait.'" },
+        { "type": "startSiege", "challengeId": "lighthouse_siege" }
+      ]
+    },
+    {
+      "id": "siege_confirm_cancel",
+      "event": "choice_made",
+      "filter": { "choiceId": "siege_confirm", "value": "cancel" },
+      "actions": [
+        { "type": "showMessage", "text": "Siege Warden Kael: 'No rush. The lighthouse isn't going anywhere — yet.'" }
+      ]
+    },
+    {
+      "id": "siege_warden_active",
+      "event": "npc_interacted",
+      "filter": { "npcType": "siege_warden" },
+      "conditions": [{ "hasFlag": "siege_active" }],
+      "actions": [
+        { "type": "showMessage", "text": "Siege Warden Kael: 'You're already deployed. Get back to the lighthouse!'" }
+      ]
+    },
+    {
+      "id": "siege_warden_locked",
+      "event": "npc_interacted",
+      "filter": { "npcType": "siege_warden" },
+      "conditions": [
+        { "not": { "hasFlag": "expedition_tier_4_cleared" } },
+        { "not": { "hasFlag": "siege_active" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Siege Warden Kael: 'You look capable, but this isn't a routine patrol. The lighthouse siege is the hardest thing we run.'",
+          "'Come back after you've cleared a Tier 4 expedition. Then we'll talk.'"
         ]}
       ]
     }
