@@ -73,6 +73,15 @@
     ] },
     { "type": "tunnel_creeper", "x": 8, "y": 12, "count": 1, "patrol": "patrol", "patrolPath": [
       {"x": 5, "y": 12}, {"x": 8, "y": 12}, {"x": 8, "y": 16}, {"x": 5, "y": 16}
+    ] },
+    { "type": "feral_hound", "x": 5, "y": 13, "count": 2, "patrol": "patrol", "patrolPath": [
+      {"x": 3, "y": 12}, {"x": 8, "y": 12}, {"x": 8, "y": 15}, {"x": 3, "y": 15}
+    ] },
+    { "type": "feral_hound_alpha", "x": 4, "y": 13, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 3, "y": 12}, {"x": 8, "y": 12}, {"x": 8, "y": 15}, {"x": 3, "y": 15}
+    ] },
+    { "type": "frostfang_alpha", "x": 18, "y": 13, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 17, "y": 11}, {"x": 20, "y": 11}, {"x": 20, "y": 14}, {"x": 17, "y": 14}
     ] }
   ],
   "npcSpawns": [
