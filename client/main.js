@@ -302,6 +302,7 @@
   // Quest state
   let questState = [];
   let partyQuestsState = [];
+  const expandedQuests = new Set(); // track which quests have their completed steps expanded
   let questToastTimeout = null;
   let milestoneToastTimeout = null;
   let raidToastTimeout = null;
@@ -1608,12 +1609,51 @@
       descDiv.textContent = quest.description;
       questPanelContent.appendChild(descDiv);
 
-      for (const step of quest.steps) {
+      // Separate steps by status
+      const completedSteps = quest.steps.filter(s => s.status === 'completed');
+      const activeSteps = quest.steps.filter(s => s.status === 'active');
+      const isExpanded = expandedQuests.has(quest.id);
+
+      // Collapsed view: "..." + last completed + first active
+      // Expanded view: all completed + all active (no locked)
+      if (completedSteps.length > 1 && !isExpanded) {
+        // "..." row to expand older completed steps
+        const ellipsisDiv = document.createElement('div');
+        ellipsisDiv.className = 'quest-step-ellipsis';
+        ellipsisDiv.textContent = '... ' + (completedSteps.length - 1) + ' completed';
+        ellipsisDiv.addEventListener('click', () => {
+          expandedQuests.add(quest.id);
+          renderQuestPanel();
+        });
+        questPanelContent.appendChild(ellipsisDiv);
+      }
+
+      const stepsToShow = isExpanded ? completedSteps : (completedSteps.length > 0 ? [completedSteps[completedSteps.length - 1]] : []);
+      for (const step of stepsToShow) {
         const stepDiv = document.createElement('div');
-        stepDiv.className = 'quest-step ' + step.status;
+        stepDiv.className = 'quest-step completed';
+        stepDiv.textContent = step.label;
+        questPanelContent.appendChild(stepDiv);
+      }
+
+      // If expanded and there are older completed steps, show a collapse button
+      if (isExpanded && completedSteps.length > 1) {
+        const collapseDiv = document.createElement('div');
+        collapseDiv.className = 'quest-step-ellipsis';
+        collapseDiv.textContent = '... collapse';
+        collapseDiv.addEventListener('click', () => {
+          expandedQuests.delete(quest.id);
+          renderQuestPanel();
+        });
+        questPanelContent.appendChild(collapseDiv);
+      }
+
+      for (const step of activeSteps) {
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'quest-step active';
         stepDiv.textContent = step.label;
 
-        if (step.description && step.status !== 'locked') {
+        if (step.description) {
           const descSpan = document.createElement('div');
           descSpan.className = 'step-desc';
           descSpan.textContent = step.description;
