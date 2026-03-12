@@ -2,11 +2,16 @@ const fs = require('fs');
 const path = require('path');
 
 const SAVES_DIR = path.join(__dirname, '..', 'saves');
+const HISTORY_DIR = path.join(SAVES_DIR, 'history');
+const MAX_HISTORY = 5;
 
 class SessionStore {
   constructor() {
     if (!fs.existsSync(SAVES_DIR)) {
       fs.mkdirSync(SAVES_DIR, { recursive: true });
+    }
+    if (!fs.existsSync(HISTORY_DIR)) {
+      fs.mkdirSync(HISTORY_DIR, { recursive: true });
     }
   }
 
@@ -14,6 +19,10 @@ class SessionStore {
   _filename(name) {
     const safe = name.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 30).toLowerCase();
     return `${safe}.json`;
+  }
+
+  _safeName(name) {
+    return name.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 30).toLowerCase();
   }
 
   _filepath(name) {
@@ -93,7 +102,69 @@ class SessionStore {
       lastSaved: new Date().toISOString(),
     };
     fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
+    this._writeHistory(playerData.name, data);
     console.log(`[SessionStore] Saved session for "${playerData.name}"`);
+  }
+
+  _writeHistory(name, data) {
+    const safe = this._safeName(name);
+    const ts = data.lastSaved.replace(/[:.]/g, '-');
+    const filename = `${safe}_${ts}.json`;
+    fs.writeFileSync(path.join(HISTORY_DIR, filename), JSON.stringify(data, null, 2));
+    this._pruneHistory(safe);
+  }
+
+  _pruneHistory(safe) {
+    const files = fs.readdirSync(HISTORY_DIR)
+      .filter(f => f.startsWith(safe + '_') && f.endsWith('.json'))
+      .sort(); // ISO timestamps sort lexicographically
+    if (files.length > MAX_HISTORY) {
+      const toDelete = files.slice(0, files.length - MAX_HISTORY);
+      for (const f of toDelete) {
+        try { fs.unlinkSync(path.join(HISTORY_DIR, f)); } catch {}
+      }
+    }
+  }
+
+  // List autosave history for a player, most recent first
+  listHistory(name) {
+    if (!fs.existsSync(HISTORY_DIR)) return [];
+    const safe = this._safeName(name);
+    const files = fs.readdirSync(HISTORY_DIR)
+      .filter(f => f.startsWith(safe + '_') && f.endsWith('.json'))
+      .sort()
+      .reverse();
+    return files.map(f => {
+      try {
+        const data = JSON.parse(fs.readFileSync(path.join(HISTORY_DIR, f), 'utf8'));
+        return {
+          filename: f,
+          timestamp: data.lastSaved,
+          room: data.room || '',
+          level: data.level || 1,
+          health: data.health,
+          maxHealth: data.maxHealth,
+          xp: data.xp || 0,
+        };
+      } catch {
+        return null;
+      }
+    }).filter(Boolean);
+  }
+
+  // Load a specific autosave history file for a player
+  loadHistory(name, filename) {
+    const safe = this._safeName(name);
+    const safeFile = path.basename(filename);
+    // Validate the file belongs to this player
+    if (!safeFile.startsWith(safe + '_') || !safeFile.endsWith('.json')) return null;
+    const filepath = path.join(HISTORY_DIR, safeFile);
+    if (!fs.existsSync(filepath)) return null;
+    try {
+      return JSON.parse(fs.readFileSync(filepath, 'utf8'));
+    } catch {
+      return null;
+    }
   }
 
   // Delete a session

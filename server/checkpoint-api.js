@@ -21,7 +21,7 @@ function json(res, status, data) {
   res.end(JSON.stringify(data));
 }
 
-function handleCheckpointAPI(req, res, gameLoop, wss, content) {
+function handleCheckpointAPI(req, res, gameLoop, wss, content, sessionStore) {
   const url = req.url.split('?')[0];
   const method = req.method;
 
@@ -831,6 +831,109 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content) {
       }));
 
       return json(res, 200, { ok: true, count: given.length, items: given });
+    }).catch(() => json(res, 400, { error: 'Invalid request' }));
+  }
+
+  // --- List autosave history for a player ---
+  if (url === '/api/checkpoint/autosaves' && method === 'GET') {
+    const playerName = req.url.split('?')[1]
+      ? new URLSearchParams(req.url.split('?')[1]).get('playerName')
+      : null;
+    if (!playerName) return json(res, 400, { error: 'Missing playerName' });
+    if (!sessionStore) return json(res, 503, { error: 'Session store not available' });
+    const history = sessionStore.listHistory(playerName);
+    return json(res, 200, history);
+  }
+
+  // --- Restore an autosave onto a connected player ---
+  if (url === '/api/checkpoint/autosave-restore' && method === 'POST') {
+    return parseBody(req).then(body => {
+      const { playerName, filename, playerId } = body;
+      if (!playerName || !filename || !playerId) {
+        return json(res, 400, { error: 'Missing playerName, filename, or playerId' });
+      }
+      if (!sessionStore) return json(res, 503, { error: 'Session store not available' });
+
+      const save = sessionStore.loadHistory(playerName, filename);
+      if (!save) return json(res, 404, { error: 'Autosave not found' });
+
+      // Find target player
+      let ws = null;
+      wss.clients.forEach((client) => {
+        if (client.playerId === playerId && client.readyState === 1) ws = client;
+      });
+      if (!ws || !ws.playerRoom) return json(res, 404, { error: 'Target player not found or not in a room' });
+
+      const room = gameLoop.getRoom(ws.playerRoom);
+      if (!room) return json(res, 404, { error: 'Room not found' });
+      const player = room.players.get(playerId);
+      if (!player) return json(res, 404, { error: 'Player not in room' });
+
+      // Restore player state
+      player.inventory = JSON.parse(JSON.stringify(save.inventory || []));
+      player.equipment = JSON.parse(JSON.stringify(save.equipment || { arms: null, sol_unit: null, medipac: null, accessory: null }));
+      player.solGrid = save.solGrid ? JSON.parse(JSON.stringify(save.solGrid)) : null;
+      player.health = save.health || player.maxHealth;
+      player.maxHealth = save.maxHealth || player.maxHealth;
+      player.energy = save.energy || 0;
+      player.maxEnergy = save.maxEnergy || 0;
+      player.credits = save.credits || 0;
+      player.xp = save.xp || 0;
+      player.level = save.level || 1;
+      player.xpToNextLevel = save.xpToNextLevel || gameLoop._xpForLevel(player.level);
+      player.medipacCharges = save.medipacCharges || 0;
+
+      if (save.flags) {
+        gameLoop.flagStore.playerFlags.set(playerId, JSON.parse(JSON.stringify(save.flags)));
+      }
+
+      if (save.questState) {
+        const ctx = { playerId, roomId: ws.playerRoom, room, player };
+        gameLoop.questTracker.restorePlayerState(playerId, save.questState, ctx);
+      }
+
+      gameLoop._rebuildAbilities(player);
+
+      // Room transition if save is from a different room
+      if (save.room && ws.playerRoom !== save.room) {
+        gameLoop.removePlayer(ws.playerRoom, playerId);
+        const targetRoom = gameLoop.getOrCreateRoom(save.room);
+        if (!targetRoom) return json(res, 500, { error: 'Could not create target room' });
+
+        const TILE_SIZE = 32;
+        const spawnTX = Math.floor(save.x / TILE_SIZE);
+        const spawnTY = Math.floor(save.y / TILE_SIZE);
+        gameLoop.addPlayerAt(save.room, player, spawnTX, spawnTY);
+        player.x = save.x;
+        player.y = save.y;
+        ws.playerRoom = save.room;
+
+        ws.send(JSON.stringify({
+          type: 'floor_change',
+          map: targetRoom.dungeon,
+          tileset: content.getTileset(targetRoom.dungeon.tileset),
+        }));
+        gameLoop.emitRoomEntered(playerId, save.room);
+      } else {
+        player.x = save.x;
+        player.y = save.y;
+      }
+
+      ws.send(JSON.stringify({ type: 'inventory', items: player.inventory, equipment: player.equipment }));
+      ws.send(JSON.stringify({ type: 'ability_state', abilities: player.abilities, cooldowns: player.cooldowns }));
+      if (player.solGrid) {
+        ws.send(JSON.stringify({ type: 'sol_grid', grid: player.solGrid }));
+      }
+      ws.send(JSON.stringify({ type: 'quest_state', quests: gameLoop.questTracker.getQuestStateForClient(playerId) }));
+
+      const objective = gameLoop.questTracker.getActiveObjective(playerId);
+      if (objective) {
+        player.questObjective = objective;
+        gameLoop._sendQuestObjective(playerId, ws.playerRoom);
+      }
+
+      const fmtTime = (ts) => { try { return new Date(ts).toLocaleString(); } catch { return ts; } };
+      return json(res, 200, { ok: true, room: save.room, timestamp: fmtTime(save.lastSaved) });
     }).catch(() => json(res, 400, { error: 'Invalid request' }));
   }
 

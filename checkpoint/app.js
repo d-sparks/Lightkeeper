@@ -108,6 +108,16 @@ const api = {
       body: JSON.stringify({ playerId }),
     })).json();
   },
+  async autosaves(playerName) {
+    return (await checkedFetch(`/api/checkpoint/autosaves?playerName=${encodeURIComponent(playerName)}`)).json();
+  },
+  async restoreAutosave(playerName, filename, playerId) {
+    return (await checkedFetch('/api/checkpoint/autosave-restore', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerName, filename, playerId }),
+    })).json();
+  },
 };
 
 // ─── Toast ──────────────────────────────────────────────────
@@ -601,6 +611,88 @@ function GiveItem({ sessions, items }) {
   `;
 }
 
+// ─── Autosave History ────────────────────────────────────────
+function AutosaveHistory({ sessions }) {
+  const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [history, setHistory] = useState([]);
+  const [restoreTargets, setRestoreTargets] = useState({});
+
+  const refreshHistory = useCallback(async () => {
+    if (!selectedPlayer) return;
+    const session = sessions.find(s => s.playerId === selectedPlayer);
+    if (!session) return;
+    try {
+      const data = await api.autosaves(session.name);
+      setHistory(Array.isArray(data) ? data : []);
+    } catch { setHistory([]); }
+  }, [selectedPlayer, sessions]);
+
+  useEffect(() => {
+    if (selectedPlayer) refreshHistory();
+    else setHistory([]);
+  }, [selectedPlayer]);
+
+  const handleRestore = async (entry) => {
+    const targetId = restoreTargets[entry.filename] || selectedPlayer;
+    const session = sessions.find(s => s.playerId === selectedPlayer);
+    if (!session) { showToast('Select a player first', 'err'); return; }
+    const target = sessions.find(s => s.playerId === targetId);
+    if (!target) { showToast('Select a target player', 'err'); return; }
+    const ts = entry.timestamp ? new Date(entry.timestamp).toLocaleString() : entry.filename;
+    if (!confirm(`Restore autosave from ${ts} onto ${target.name}?`)) return;
+    try {
+      const result = await api.restoreAutosave(session.name, entry.filename, targetId);
+      if (result.ok) {
+        showToast(`Restored autosave (${result.room}) onto ${target.name}`);
+      } else {
+        showToast(result.error || 'Restore failed', 'err');
+      }
+    } catch { showToast('Restore failed', 'err'); }
+  };
+
+  const fmtTime = (ts) => {
+    if (!ts) return '—';
+    try { return new Date(ts).toLocaleString(); } catch { return ts; }
+  };
+
+  return html`
+    <div class="flag-editor-header">
+      <select value=${selectedPlayer} onChange=${e => setSelectedPlayer(e.target.value)}>
+        <option value="">-- select player --</option>
+        ${sessions.map(p => html`<option value=${p.playerId}>${p.name} (${p.playerId})</option>`)}
+      </select>
+      ${selectedPlayer && html`<button class="btn btn-save" onClick=${refreshHistory}>Refresh</button>`}
+    </div>
+    ${selectedPlayer && (history.length === 0
+      ? html`<div class="empty">No autosave history yet</div>`
+      : html`
+        <table>
+          <thead><tr><th>Saved</th><th>Room</th><th>Level</th><th>HP</th><th>Restore onto</th><th></th></tr></thead>
+          <tbody>
+            ${history.map(entry => html`
+              <tr key=${entry.filename}>
+                <td>${fmtTime(entry.timestamp)}</td>
+                <td><code style="font-size:11px">${entry.room}</code></td>
+                <td>${entry.level}</td>
+                <td>${entry.health}/${entry.maxHealth}</td>
+                <td>
+                  <select value=${restoreTargets[entry.filename] || selectedPlayer}
+                    onChange=${e => setRestoreTargets(prev => ({ ...prev, [entry.filename]: e.target.value }))}>
+                    ${sessions.map(p => html`<option value=${p.playerId}>${p.name}</option>`)}
+                  </select>
+                </td>
+                <td>
+                  <button class="btn btn-load" onClick=${() => handleRestore(entry)}>Restore</button>
+                </td>
+              </tr>
+            `)}
+          </tbody>
+        </table>
+      `
+    )}
+  `;
+}
+
 // ─── Main View ──────────────────────────────────────────────
 function MainView() {
   const [sessions, setSessions] = useState([]);
@@ -873,6 +965,14 @@ function MainView() {
           </table>
         `
       }
+    </div>
+
+    <div class="panel">
+      <h2>Autosave History</h2>
+      <p style="color:#777;font-size:12px;margin:0 0 8px">
+        The server keeps the last ${5} autosaves per player. Select a player to view and restore a past state.
+      </p>
+      <${AutosaveHistory} sessions=${sessions} />
     </div>
 
     <div class="panel">

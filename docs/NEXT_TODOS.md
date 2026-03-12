@@ -2,6 +2,12 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOS.md tasks.
 
+## Checkpoint Tool — Autosave History
+
+- **MAX_HISTORY constant** — Currently hardcoded to 5 in `server/session-store.js`. Could be exposed as an env var (e.g. `AUTOSAVE_HISTORY_COUNT`) if operators want more or fewer history slots.
+- **In-game autosave indicator** — Consider sending a message to the client when an autosave fires so players know their progress has been captured.
+- **Autosave on checkpoint room entry** — Could trigger an extra autosave when a player reaches a checkpoint room, guaranteeing a clean recovery point before deeper expedition floors.
+
 ## Content — Nightside Path Discovery
 
 - **`visited_dead_road` flag not yet set** — The `perimeter_gate_nightside_hint` trigger in `outpost_perimeter` uses `hasFlag: received_sol_unit` but does not gate on `not visited_dead_road` because that flag is never set. When dead_road.json is updated (e.g. via `dead_road_enter` trigger), consider adding `setFlag: visited_dead_road` there so the hint can be suppressed for players who've already been.

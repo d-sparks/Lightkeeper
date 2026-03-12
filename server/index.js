@@ -220,7 +220,7 @@ const httpServer = http.createServer((req, res) => {
   // --- All other checkpoint API routes require auth ---
   if (urlPath.startsWith('/api/checkpoint/')) {
     if (!isAuthenticated(req)) { sendUnauthorized(res); return; }
-    const handled = handleCheckpointAPI(req, res, gameLoop, wss, content);
+    const handled = handleCheckpointAPI(req, res, gameLoop, wss, content, sessionStore);
     if (handled !== false) return;
   }
 
@@ -529,6 +529,13 @@ wss.on('connection', (ws) => {
             gameLoop.questTracker.restorePlayerState(playerId, savedSession.questState, restoreCtx);
           }
 
+          // Restore weapon upgrade state, or init if weapon is equipped
+          if (savedSession.weaponUpgrades) {
+            player.weaponUpgrades = JSON.parse(JSON.stringify(savedSession.weaponUpgrades));
+          } else if (player.equipment.arms) {
+            gameLoop._initWeaponUpgrades(player);
+          }
+
           // Rebuild abilities from restored equipment/solGrid
           gameLoop._rebuildAbilities(player);
 
@@ -624,6 +631,14 @@ wss.on('connection', (ws) => {
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.SOL_GRID,
             grid: player.solGrid,
+          }));
+        }
+
+        // Send weapon upgrade state if weapon equipped
+        if (player.weaponUpgrades) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+            state: gameLoop.getWeaponUpgradeStateForClient(player),
           }));
         }
 
@@ -732,6 +747,13 @@ wss.on('connection', (ws) => {
               grid: gameLoop.getSolGridForClient(equipPlayer),
             }));
           }
+          // Send weapon upgrade state
+          if (equipPlayer) {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+              state: gameLoop.getWeaponUpgradeStateForClient(equipPlayer),
+            }));
+          }
         }
         break;
       }
@@ -761,6 +783,13 @@ wss.on('connection', (ws) => {
             type: CONSTANTS.MSG.SOL_GRID,
             grid: gameLoop.getSolGridForClient(unequipPlayer),
           }));
+          // Send weapon upgrade state
+          if (unequipPlayer) {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+              state: gameLoop.getWeaponUpgradeStateForClient(unequipPlayer),
+            }));
+          }
         }
         break;
       }
@@ -924,6 +953,94 @@ wss.on('connection', (ws) => {
               cooldowns: p3.cooldowns,
             }));
           }
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.WEAPON_UPGRADE_PLACE: {
+        if (!ws.playerRoom) break;
+        const wupResult = gameLoop.tryWeaponUpgradePlace(
+          ws.playerRoom, playerId, msg.inventoryIndex, msg.gridIndex
+        );
+        if (wupResult) {
+          const wupRoom = gameLoop.getRoom(ws.playerRoom);
+          const wupPlayer = wupRoom && wupRoom.players.get(playerId);
+          if (wupPlayer) {
+            gameLoop._rebuildAbilities(wupPlayer);
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+              state: gameLoop.getWeaponUpgradeStateForClient(wupPlayer),
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.INVENTORY,
+              items: wupPlayer.inventory,
+              equipment: wupPlayer.equipment,
+              medipacCharges: wupPlayer.medipacCharges,
+              credits: wupPlayer.credits || 0,
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.ABILITY_STATE,
+              abilities: wupPlayer.abilities,
+              cooldowns: wupPlayer.cooldowns,
+            }));
+          }
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.WEAPON_UPGRADE_REMOVE: {
+        if (!ws.playerRoom) break;
+        const wurResult = gameLoop.tryWeaponUpgradeRemove(
+          ws.playerRoom, playerId, msg.gridIndex
+        );
+        if (wurResult) {
+          const wurRoom = gameLoop.getRoom(ws.playerRoom);
+          const wurPlayer = wurRoom && wurRoom.players.get(playerId);
+          if (wurPlayer) {
+            gameLoop._rebuildAbilities(wurPlayer);
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+              state: gameLoop.getWeaponUpgradeStateForClient(wurPlayer),
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.INVENTORY,
+              items: wurPlayer.inventory,
+              equipment: wurPlayer.equipment,
+              medipacCharges: wurPlayer.medipacCharges,
+              credits: wurPlayer.credits || 0,
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.ABILITY_STATE,
+              abilities: wurPlayer.abilities,
+              cooldowns: wurPlayer.cooldowns,
+            }));
+          }
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.WEAPON_DISASSEMBLE: {
+        if (!ws.playerRoom) break;
+        const disResult = gameLoop.tryWeaponDisassemble(ws.playerRoom, playerId);
+        if (disResult) {
+          const disRoom = gameLoop.getRoom(ws.playerRoom);
+          const disPlayer = disRoom && disRoom.players.get(playerId);
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+            state: null,
+          }));
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.INVENTORY,
+            items: disResult.inventory,
+            equipment: disResult.equipment,
+            medipacCharges: disPlayer ? disPlayer.medipacCharges : 0,
+            credits: disPlayer ? disPlayer.credits || 0 : 0,
+          }));
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.ABILITY_STATE,
+            abilities: disResult.abilities,
+            cooldowns: disResult.cooldowns,
+          }));
         }
         break;
       }
@@ -1164,6 +1281,7 @@ function gatherPlayerSaveData(ws) {
     inventory: player.inventory,
     equipment: player.equipment,
     solGrid: player.solGrid,
+    weaponUpgrades: player.weaponUpgrades,
     energy: player.energy,
     maxEnergy: player.maxEnergy,
     solGridEnergyRegen: player.solGridEnergyRegen,
