@@ -2,18 +2,18 @@
   "outpost_biome_common": {
     "dropChance": 0.5,
     "rolls": [
-      { "item": "bandage", "weight": 10 },
-      { "item": "ration_pack", "weight": 8 },
-      { "item": "health_potion", "weight": 5 },
-      { "item": "medical_supplies", "weight": 3 }
+      { "item": "bandage", "weight": 6 },
+      { "item": "ration_pack", "weight": 5 },
+      { "item": "health_potion", "weight": 3 },
+      { "item": "medical_supplies", "weight": 2 }
     ]
   },
   "outpost_biome_uncommon": {
     "dropChance": 0.7,
     "rolls": [
-      { "item": "health_potion", "weight": 6 },
-      { "item": "field_medkit", "weight": 3 },
-      { "item": "medical_supplies", "weight": 4 },
+      { "item": "health_potion", "weight": 3 },
+      { "item": "field_medkit", "weight": 2 },
+      { "item": "medical_supplies", "weight": 2 },
       { "item": "damage_booster_chip", "weight": 3 },
       { "item": "reinforced_battery_chip", "weight": 3 },
       { "item": "tempered_blade", "weight": 1 },
@@ -23,7 +23,7 @@
   "outpost_biome_rare": {
     "dropChance": 0.9,
     "rolls": [
-      { "item": "field_medkit", "weight": 5 },
+      { "item": "field_medkit", "weight": 3 },
       { "item": "damage_booster_chip", "weight": 3 },
       { "item": "efficiency_core_chip", "weight": 3 },
       { "item": "area_expander_chip", "weight": 2 },
@@ -34,9 +34,9 @@
   "skeleton_archer": {
     "dropChance": 0.65,
     "rolls": [
-      { "item": "bandage", "weight": 8 },
+      { "item": "bandage", "weight": 5 },
       { "item": "battery_chip", "weight": 6 },
-      { "item": "health_potion", "weight": 4 },
+      { "item": "health_potion", "weight": 2 },
       { "item": "rechargeable_battery_chip", "weight": 2 },
       { "item": "precision_blaster", "weight": 1 }
     ]
