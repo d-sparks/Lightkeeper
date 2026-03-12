@@ -3338,8 +3338,6 @@
   const chatInputRow = document.getElementById('chat-input-row');
   const chatInput = document.getElementById('chat-input');
   const voiceIndicator = document.getElementById('voice-indicator');
-  const CHAT_FADE_MS = 8000;
-
   function addChatLine(text, isSystem) {
     const el = document.createElement('div');
     el.className = 'chat-line' + (isSystem ? ' system' : '');
@@ -3347,8 +3345,6 @@
     chatLog.appendChild(el);
     // Keep max 50 lines
     while (chatLog.children.length > 50) chatLog.removeChild(chatLog.firstChild);
-    // Auto-fade after delay
-    setTimeout(() => { el.classList.add('faded'); }, CHAT_FADE_MS);
   }
 
   net.on(CONSTANTS.MSG.CHAT_BROADCAST, (msg) => {
@@ -3361,7 +3357,6 @@
     el.appendChild(document.createTextNode(msg.text));
     chatLog.appendChild(el);
     while (chatLog.children.length > 50) chatLog.removeChild(chatLog.firstChild);
-    setTimeout(() => { el.classList.add('faded'); }, CHAT_FADE_MS);
   });
 
   function openChat() {
@@ -3369,8 +3364,6 @@
     chatInputRow.classList.add('active');
     chatInput.value = '';
     chatInput.focus();
-    // Unfade recent messages while chat is open
-    for (const line of chatLog.children) line.classList.remove('faded');
   }
 
   function closeChat() {
