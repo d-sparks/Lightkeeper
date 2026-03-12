@@ -10,6 +10,7 @@ class Automation {
     this.playerStates = new Map(); // playerId -> AutoState
     this._gridConfig = null;         // computed 12x12 grid config (blocked cells, etc.)
     this._gridConfigExpanded = null; // computed 16x16 grid config (unlocked at level 6)
+    this._gridConfigTier2 = null;    // computed 20x20 grid config (unlocked at level 12)
   }
 
   // Get or create automation state for a player
@@ -21,7 +22,7 @@ class Automation {
         productionTimers: {},     // structureId -> seconds accumulated
         replicationTimers: {},    // structureId -> seconds accumulated (for self-replicating structures)
         claimedMilestones: [],    // indices of milestones already claimed
-        gridExpanded: false,      // true once player reaches automation level 6 (20 structures)
+        gridExpandedTier: 0,      // 0=12x12, 1=16x16 (level 6), 2=20x20 (level 12)
         structureHp: {},          // "structureId:x:y" -> current HP (0 = destroyed)
         raidTimer: 0,             // seconds since last raid check
         repairTimer: 0,           // seconds since last repair tick
@@ -409,7 +410,7 @@ class Automation {
   checkMilestones(playerId) {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
     const milestones = structures._milestoneRewards || [];
-    const expandedCfg = structures._gridConfigExpanded;
+    const gridExpansions = structures._gridExpansions || [];
     const state = this.getState(playerId);
     if (!state.claimedMilestones) state.claimedMilestones = [];
 
@@ -427,10 +428,20 @@ class Automation {
         const m = milestones[i];
         newRewards.push({ type: 'item', itemId: m.itemId, count: m.count || 1, milestoneName: m.name, milestoneThreshold: m.threshold, milestoneIcon: m.icon || '★' });
 
-        // At the Grid Expansion threshold (20 structures / automation level 6), expand grid to 16x16
-        if (expandedCfg && m.threshold === 20) {
-          state.gridExpanded = true;
-          newRewards.push({ type: 'grid_expansion', newWidth: expandedCfg.gridWidth, newHeight: expandedCfg.gridHeight, milestoneName: 'Grid Expansion', milestoneThreshold: m.threshold, milestoneIcon: '⊞' });
+        // Check data-driven grid expansions at this threshold
+        for (let tier = 0; tier < gridExpansions.length; tier++) {
+          const ge = gridExpansions[tier];
+          if (m.threshold === ge.threshold && state.gridExpandedTier <= tier) {
+            const cfg = structures[ge.configKey];
+            if (cfg) {
+              state.gridExpandedTier = tier + 1;
+              // Invalidate cached grid configs so the new tier is recomputed
+              this._gridConfig = null;
+              this._gridConfigExpanded = null;
+              this._gridConfigTier2 = null;
+              newRewards.push({ type: 'grid_expansion', newWidth: cfg.gridWidth, newHeight: cfg.gridHeight, milestoneName: 'Grid Expansion', milestoneThreshold: m.threshold, milestoneIcon: '⊞' });
+            }
+          }
         }
       }
     }
@@ -457,10 +468,15 @@ class Automation {
   getGridConfig(playerId) {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
 
-    // Determine which config spec to use for this player
-    const useExpanded = playerId && this.playerStates.has(playerId) && this.playerStates.get(playerId).gridExpanded;
-    const cfgKey = useExpanded ? '_gridConfigExpanded' : '_gridConfig';
-    const cacheKey = useExpanded ? '_gridConfigExpanded' : '_gridConfig';
+    // Determine which config spec to use for this player based on expansion tier
+    const tier = (playerId && this.playerStates.has(playerId)) ? (this.playerStates.get(playerId).gridExpandedTier || 0) : 0;
+    const gridExpansions = structures._gridExpansions || [];
+    let cfgKey = '_gridConfig';
+    let cacheKey = '_gridConfig';
+    if (tier > 0 && tier <= gridExpansions.length) {
+      cfgKey = gridExpansions[tier - 1].configKey;
+      cacheKey = cfgKey;
+    }
 
     if (this[cacheKey]) return this[cacheKey];
 
@@ -793,6 +809,11 @@ class Automation {
       { id: 'bio_harvester', type: 'scrap_drone', name: 'Bio-Harvester' },
       { id: 'symbiotic_node', type: 'scrap_drone', name: 'Symbiotic Node' },
       { id: 'array_drone_bay', type: 'scrap_drone', name: 'Array Drone Bay' },
+      { id: 'advanced_refinery', type: 'scrap_drone', name: 'Advanced Refinery' },
+      { id: 'deep_extractor', type: 'scrap_drone', name: 'Deep Extractor' },
+      { id: 'reinforced_turret', type: 'scrap_drone', name: 'Reinforced Turret' },
+      { id: 'quantum_harvester', type: 'scrap_drone', name: 'Quantum Harvester' },
+      { id: 'matter_compiler', type: 'scrap_drone', name: 'Matter Compiler' },
     ];
 
     for (const vs of visualStructures) {
@@ -1079,7 +1100,7 @@ class Automation {
       productionTimers: data.productionTimers || {},
       replicationTimers: data.replicationTimers || {},
       claimedMilestones: data.claimedMilestones || [],
-      gridExpanded: data.gridExpanded || false,
+      gridExpandedTier: data.gridExpandedTier || (data.gridExpanded ? 1 : 0),
       structureHp: data.structureHp || {},
       raidTimer: data.raidTimer || 0,
       repairTimer: data.repairTimer || 0,

@@ -88,6 +88,90 @@
       "reduction": 0.5
     }
   },
+  "advanced_refinery": {
+    "name": "Advanced Refinery",
+    "description": "High-throughput silicon refinery. Produces 1 silicon every 30 seconds. Boosts adjacent Fabricator output by 50%.",
+    "cost": { "silicon": 12 },
+    "maxCount": 4,
+    "gridIcon": "\u2622",
+    "gridColor": "#b39ddb",
+    "unlockLevel": 11,
+    "effect": {
+      "type": "resource_production",
+      "produces": "silicon",
+      "amount": 1,
+      "intervalSeconds": 30
+    },
+    "adjacencyBonus": {
+      "targets": ["fabricator"],
+      "multiplier": 1.5,
+      "description": "+50% output for adjacent Fabricators"
+    }
+  },
+  "deep_extractor": {
+    "name": "Deep Extractor",
+    "description": "Heavy-duty mining rig that pulls salvage from deep underground. Produces 2 salvage every 45 seconds. Boosts adjacent refineries by 50%.",
+    "cost": { "silicon": 20 },
+    "maxCount": 5,
+    "gridIcon": "\u2b07",
+    "gridColor": "#a1887f",
+    "unlockLevel": 13,
+    "effect": {
+      "type": "resource_production",
+      "produces": "salvage",
+      "amount": 2,
+      "intervalSeconds": 45
+    },
+    "adjacencyBonus": {
+      "targets": ["silicon_refinery", "advanced_refinery"],
+      "multiplier": 1.5,
+      "description": "+50% output for adjacent Silicon Refineries and Advanced Refineries"
+    }
+  },
+  "reinforced_turret": {
+    "name": "Reinforced Turret",
+    "description": "Heavy-caliber defense turret with hardened plating. +100 defense rating per turret.",
+    "cost": { "silicon": 25 },
+    "maxCount": 3,
+    "gridIcon": "\u2726",
+    "gridColor": "#e57373",
+    "unlockLevel": 15,
+    "effect": {
+      "type": "defense_value",
+      "amount": 100
+    }
+  },
+  "quantum_harvester": {
+    "name": "Quantum Harvester",
+    "description": "Experimental Array technology that synthesizes silicon from ambient energy fields. Produces 2 silicon every 25 seconds.",
+    "cost": { "silicon": 40 },
+    "maxCount": 3,
+    "gridIcon": "\u269b",
+    "gridColor": "#80deea",
+    "unlockLevel": 16,
+    "effect": {
+      "type": "resource_production",
+      "produces": "silicon",
+      "amount": 2,
+      "intervalSeconds": 25
+    }
+  },
+  "matter_compiler": {
+    "name": "Matter Compiler",
+    "description": "End-game fabrication engine that converts raw energy into both silicon and salvage. Produces 2 silicon and 3 salvage every 20 seconds.",
+    "cost": { "silicon": 75 },
+    "maxCount": 2,
+    "gridIcon": "\u2b22",
+    "gridColor": "#ffab40",
+    "unlockLevel": 19,
+    "effect": {
+      "type": "dual_production",
+      "produces": [
+        { "type": "resource_production", "produces": "silicon", "amount": 2, "intervalSeconds": 20 },
+        { "type": "resource_production", "produces": "salvage", "amount": 3, "intervalSeconds": 20 }
+      ]
+    }
+  },
   "bio_harvester": {
     "name": "Bio-Harvester",
     "description": "Underlumen growth repurposed as automated salvage collection. Places a free copy every 30 minutes, up to 5 total. First placement is also free.",
@@ -147,7 +231,17 @@
     { "name": "Refinery", "threshold": 25 },
     { "name": "Defense Grid", "threshold": 30 },
     { "name": "Fabrication Bay", "threshold": 40 },
-    { "name": "Array Subnet", "threshold": 50 }
+    { "name": "Array Subnet", "threshold": 50 },
+    { "name": "Processing Hub", "threshold": 60 },
+    { "name": "Industrial Sector", "threshold": 75 },
+    { "name": "Deep Mining", "threshold": 95 },
+    { "name": "Foundry Core", "threshold": 115 },
+    { "name": "Array Mainframe", "threshold": 140 },
+    { "name": "Sector Command", "threshold": 170 },
+    { "name": "Megastructure", "threshold": 200 },
+    { "name": "Array Nexus", "threshold": 240 },
+    { "name": "Stellar Array", "threshold": 280 },
+    { "name": "Singularity", "threshold": 330 }
   ],
   "_milestoneRewards": [
     { "threshold": 2, "name": "Damage Booster", "description": "Grid modifier: +20% damage to adjacent abilities", "itemId": "damage_booster_chip", "icon": "\u2694" },
@@ -159,7 +253,17 @@
     { "threshold": 25, "name": "Improved Generator", "description": "Upgraded passive energy regen \u2014 4 energy per second", "itemId": "improved_generator_chip", "icon": "\u26a1" },
     { "threshold": 30, "name": "Sol Shield Emitter", "description": "Defensive Sol ability \u2014 project an energy barrier", "itemId": "sol_shield_chip", "icon": "\ud83d\udee1" },
     { "threshold": 40, "name": "Guardian Core", "description": "Epic grid modifier \u2014 massive boost to adjacent abilities", "itemId": "guardian_core_chip", "icon": "\ud83d\udc8e" },
-    { "threshold": 50, "name": "Advanced Battery", "description": "Military-grade supercapacitor \u2014 150 energy capacity, rechargeable", "itemId": "advanced_rechargeable_battery_chip", "icon": "\u26a1" }
+    { "threshold": 50, "name": "Advanced Battery", "description": "Military-grade supercapacitor \u2014 150 energy capacity, rechargeable", "itemId": "advanced_rechargeable_battery_chip", "icon": "\u26a1" },
+    { "threshold": 60, "name": "Silicon Amplifier", "description": "Grid modifier: +30% damage, tuned for high-output sol grids", "itemId": "silicon_amplifier_chip", "icon": "\u2b20" },
+    { "threshold": 75, "name": "Field Medkit x3", "description": "Advanced field medicine for deep expeditions", "itemId": "field_medkit", "count": 3, "icon": "\u271a" },
+    { "threshold": 95, "name": "Overcharge Core", "description": "Epic modifier: -25% cooldown on adjacent abilities", "itemId": "overcharge_core_chip", "icon": "\u2604" },
+    { "threshold": 140, "name": "Advanced Generator", "description": "High-output energy regen \u2014 6 energy per second", "itemId": "advanced_generator_chip", "icon": "\u26a1" },
+    { "threshold": 200, "name": "Quantum Battery", "description": "Legendary battery \u2014 200 energy capacity, fast recharge", "itemId": "quantum_battery_chip", "icon": "\u269b" },
+    { "threshold": 330, "name": "Architect's Crown", "description": "Legendary modifier \u2014 +50% damage and -30% cooldown to adjacent abilities", "itemId": "architects_crown_chip", "icon": "\u2654" }
+  ],
+  "_gridExpansions": [
+    { "threshold": 20, "configKey": "_gridConfigExpanded" },
+    { "threshold": 75, "configKey": "_gridConfigTier2" }
   ],
   "_gridConfig": {
     "gridWidth": 12,
@@ -172,6 +276,13 @@
     "gridWidth": 16,
     "gridHeight": 16,
     "dungeonOffsetX": 9,
+    "dungeonOffsetY": 3,
+    "dungeonId": "dayside_solar_fields"
+  },
+  "_gridConfigTier2": {
+    "gridWidth": 20,
+    "gridHeight": 20,
+    "dungeonOffsetX": 5,
     "dungeonOffsetY": 3,
     "dungeonId": "dayside_solar_fields"
   },

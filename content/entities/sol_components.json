@@ -412,5 +412,40 @@
     "energyRegen": 12,
     "description": "A convergence of all energy sources.",
     "shape": [[1, 1], [1, 1]]
+  },
+  "silicon_amplifier": {
+    "type": "modifier",
+    "name": "Silicon Amplifier",
+    "rarity": "rare",
+    "bonus": { "damageMultiplier": 0.30 },
+    "shape": [[1]]
+  },
+  "overcharge_core": {
+    "type": "modifier",
+    "name": "Overcharge Core",
+    "rarity": "epic",
+    "bonus": { "cooldownReduction": 0.25 },
+    "shape": [[1, 1]]
+  },
+  "advanced_generator": {
+    "type": "generator",
+    "name": "Advanced Generator",
+    "rarity": "epic",
+    "energyRegen": 6,
+    "shape": [[1]]
+  },
+  "quantum_battery": {
+    "type": "battery",
+    "name": "Quantum Battery",
+    "rarity": "legendary",
+    "energyCapacity": 200,
+    "shape": [[1]]
+  },
+  "architects_crown": {
+    "type": "modifier",
+    "name": "Architect's Crown",
+    "rarity": "legendary",
+    "bonus": { "damageMultiplier": 0.50, "cooldownReduction": 0.30 },
+    "shape": [[1, 1]]
   }
 }

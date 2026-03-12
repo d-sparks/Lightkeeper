@@ -187,3 +187,11 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 - Map markers for Nightside Caverns entrance.
 - Ensure sol grid tutorial flow accommodates umbracite trade giving sol_shield_chip.
 - Engine-set flags not visible to content audit tool — consider adding a comment block or `docs/engine-flags.md` registry listing flags set directly by engine code so future content authors know not to add setFlag triggers for them.
+
+## Harvester Scaling (Levels 11-20)
+
+- **Dayside map expansion for tier 2 grid**: The 20×20 grid config (`_gridConfigTier2`) uses offset (5,3) which may overlap walls in the dayside_solar_fields dungeon. Verify the expanded grid area has sufficient open floor tiles and adjust the dungeon layout if needed.
+- **Loot table integration**: New milestone items (`silicon_amplifier_chip`, `overcharge_core_chip`, `advanced_generator_chip`, `quantum_battery_chip`, `architects_crown_chip`) are only obtainable via automation milestones. Consider adding them to late-game loot tables or expedition rewards for alternate acquisition paths.
+- **Raid scaling for levels 11-20**: The `_raidConfig.scalingPerLevel` of +2 monsters per level means level 20 raids would have 5 + (20-8)*2 = 29 monsters dealing 580 damage. Verify this is balanced against the new reinforced_turret (+100 defense) and existing auto_turret (+50) caps.
+- **Client automation UI**: The automation screen may need UI updates to handle the increased number of structures (16 total types). Verify the structure list and grid render correctly at 20×20 grid size.
+- **Late-game structure sprites**: All new structures (`advanced_refinery`, `deep_extractor`, `reinforced_turret`, `quantum_harvester`, `matter_compiler`) use `scrap_drone` as their visual entity type. Create dedicated sprites for visual differentiation.

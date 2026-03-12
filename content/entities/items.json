@@ -905,5 +905,89 @@
     "type": "sol_component",
     "rarity": "legendary",
     "solComponentId": "prismatic_core"
+  },
+
+  "metal_casing": {
+    "name": "Metal Casing",
+    "description": "A sturdy housing plate stripped from wrecked machinery. Reinforces weapon structure, increasing raw damage output.",
+    "type": "crafting",
+    "rarity": "common",
+    "stackable": true,
+    "weaponUpgrade": { "damage": 1 }
+  },
+  "metal_linker": {
+    "name": "Metal Linker",
+    "description": "A precision connector joint salvaged from automated arms. Improves weapon action speed.",
+    "type": "crafting",
+    "rarity": "common",
+    "stackable": true,
+    "weaponUpgrade": { "cooldownReduction": 0.05 }
+  },
+  "power_conduit": {
+    "name": "Power Conduit",
+    "description": "A high-efficiency energy relay. Routes power more cleanly through weapon systems, reducing energy cost per shot.",
+    "type": "crafting",
+    "rarity": "uncommon",
+    "stackable": true,
+    "weaponUpgrade": { "energyCostReduction": 0.08 }
+  },
+  "stabilizer_rod": {
+    "name": "Stabilizer Rod",
+    "description": "A balanced alloy rod that dampens recoil and vibration. Noticeably improves weapon handling and damage.",
+    "type": "crafting",
+    "rarity": "uncommon",
+    "stackable": true,
+    "weaponUpgrade": { "damage": 2 }
+  },
+  "focusing_lens": {
+    "name": "Focusing Lens",
+    "description": "A polished crystal lens that concentrates energy discharge. Multiplies weapon damage output.",
+    "type": "crafting",
+    "rarity": "rare",
+    "stackable": true,
+    "weaponUpgrade": { "damageMultiplier": 0.10 }
+  },
+  "plasma_coil": {
+    "name": "Plasma Coil",
+    "description": "A superheated energy coil that amplifies weapon output across the board. Boosts damage and speeds up attack cycling.",
+    "type": "crafting",
+    "rarity": "rare",
+    "stackable": true,
+    "weaponUpgrade": { "damage": 2, "cooldownReduction": 0.05 }
+  },
+  "silicon_amplifier_chip": {
+    "name": "Silicon Amplifier",
+    "description": "A precision-tuned silicon circuit that channels energy with exceptional clarity. +30% damage to adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "silicon_amplifier"
+  },
+  "overcharge_core_chip": {
+    "name": "Overcharge Core",
+    "description": "An overclocked processing core that dramatically accelerates Sol ability cycling. -25% cooldown on adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "overcharge_core"
+  },
+  "advanced_generator_chip": {
+    "name": "Advanced Generator",
+    "description": "A high-output power cell with military-grade energy cycling. Restores 6 energy per second.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "advanced_generator"
+  },
+  "quantum_battery_chip": {
+    "name": "Quantum Battery",
+    "description": "Experimental energy storage using quantum-entangled capacitors. 200 energy capacity with rapid recharge.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "quantum_battery"
+  },
+  "architects_crown_chip": {
+    "name": "Architect's Crown",
+    "description": "The pinnacle of Array engineering — a legendary modifier that massively boosts both damage and cooldown reduction for adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "architects_crown"
   }
 }
