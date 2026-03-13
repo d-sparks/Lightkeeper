@@ -11,7 +11,7 @@
   "height": 20,
   "data": [
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,3,
+    3,1,1,1,1,3,1,1,1,1,6,1,1,1,1,1,3,1,1,1,1,3,
     3,1,1,1,1,3,1,2,1,1,1,1,1,1,2,1,3,1,1,1,1,3,
     3,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,3,
     3,1,1,1,1,3,1,2,1,1,1,1,1,1,2,1,3,1,1,1,1,3,
@@ -61,7 +61,10 @@
       "failMessage": "A sealed blast door. The Array's deepest systems lie beyond — but you have no reason to go there. Yet." },
     { "x": 20, "y": 18, "leadsTo": "array_command_throne", "type": "stairs_down", "spawnX": 11, "spawnY": 20,
       "conditions": [{ "hasFlag": "chose_path_control" }],
-      "failMessage": "A sealed blast door. The Array's deepest systems lie beyond — but you have no reason to go there. Yet." }
+      "failMessage": "A sealed blast door. The Array's deepest systems lie beyond — but you have no reason to go there. Yet." },
+    { "x": 10, "y": 1, "leadsTo": "spire_radiance_approach", "type": "stairs_down", "spawnX": 1, "spawnY": 1,
+      "conditions": [{ "hasFlag": "array_overseer_defeated" }],
+      "failMessage": "A massive conduit descends toward the Dayside Spire. The Array Overseer's security field blocks passage — neutralize the facility guardian first." }
   ],
   "triggers": [
     {

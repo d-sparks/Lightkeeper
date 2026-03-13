@@ -1244,5 +1244,41 @@
     "description": "General Thorne's personal command tablet, containing classified reports on the Monument excavation and what the Bulwark found beneath it. Councillor Asha Denn would want to see this.",
     "type": "misc",
     "rarity": "rare"
+  },
+  "spire_radiance_keycard": {
+    "name": "Array Nexus Keycard",
+    "description": "A crystalline access token recovered from hybrid circuitry. It pulses with both Array processing light and faint Underlumen bioluminescence. Opens security bulkheads within the Spire of Radiance.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "lore_radiance_hybrid_log": {
+    "name": "Hybrid Integration Log",
+    "description": "A data fragment from the Nexus systems. 'INTEGRATION CYCLE 7,291: Underlumen substrate successfully bonded to Array processing lattice. Energy throughput: 340% above baseline. Note: substrate exhibits autonomous pattern formation. Suppression protocols engaged. The substrate does not resist — it adapts. Distinction unclear.'",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "lore_radiance_ancient_record": {
+    "name": "Ancient Light Record",
+    "description": "A crystalline disc that predates the Array by millennia. When held near your sol unit, it projects geometric patterns — a blueprint for focusing solar energy through the Spire's architecture. The Underlumen builders understood light at a level that makes the Array look like a child with a mirror.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "lore_radiance_nexus_directive": {
+    "name": "Nexus Directive Zero",
+    "description": "The Array's founding instruction for the Radiance Nexus: 'ENCAPSULATE. INTEGRATE. OPTIMIZE. The Dayside Spire predates all known structures. Its energy focusing capacity exceeds Array projections by orders of magnitude. Do not destroy. Do not replicate. Absorb.' Three centuries of Array expansion — and this Spire was always the prize.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "nexus_guardian_core": {
+    "name": "Nexus Guardian Core",
+    "description": "The processing heart of the Nexus Guardian — a hybrid construct that was neither fully Array nor fully Underlumen. The core still pulses with residual energy, its circuits growing crystalline tendrils that reach toward your sol unit.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "solar_focusing_crystal": {
+    "name": "Solar Focusing Crystal",
+    "description": "An ancient crystal lens from the Spire's original architecture. It concentrates ambient light into a beam of staggering intensity. The Array tried to replicate this for three centuries and failed.",
+    "type": "key",
+    "rarity": "epic"
   }
 }

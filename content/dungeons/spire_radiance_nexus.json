@@ -1,0 +1,133 @@
+{
+  "id": "spire_radiance_nexus",
+  "name": "Spire of Radiance — Deep Array Nexus",
+  "depth": 2,
+  "tileset": "spire_radiance",
+  "theme": "dayside_solar",
+  "tileSize": 32,
+  "ambientLight": 0.5,
+  "environmentalHazard": { "type": "heat", "damage": 6, "interval": 1.5 },
+  "width": 26,
+  "height": 22,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,8,1,1,1,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,3,
+    3,1,1,1,1,16,1,1,1,1,16,1,1,1,1,1,16,1,1,1,1,1,1,1,16,3,
+    3,1,1,2,1,4,1,1,27,1,16,1,1,2,1,1,16,1,1,27,1,1,1,1,16,3,
+    3,1,1,1,1,16,1,1,1,1,4,1,1,1,1,1,4,1,1,1,1,1,1,1,16,3,
+    3,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,4,16,16,16,16,16,3,
+    3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,1,1,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,1,1,2,1,1,3,3,3,1,1,3,3,3,3,3,
+    3,16,16,16,16,16,16,16,16,16,16,1,1,1,1,1,16,16,16,1,1,16,16,16,16,3,
+    3,16,1,1,1,1,1,1,1,1,16,1,1,1,1,1,16,1,1,1,1,1,1,1,16,3,
+    3,16,1,1,1,1,1,1,1,1,4,1,1,7,1,1,4,1,1,1,1,1,2,1,16,3,
+    3,16,1,1,17,1,1,2,1,1,16,1,7,7,7,1,16,1,1,1,1,1,1,1,16,3,
+    3,16,1,1,1,1,1,1,1,1,16,1,1,7,1,1,16,1,1,1,10,1,1,1,16,3,
+    3,16,16,16,9,16,16,16,16,16,16,16,4,16,16,16,16,16,16,16,16,16,16,16,16,3,
+    3,3,3,3,1,1,3,3,3,3,3,3,1,1,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,1,1,3,3,3,3,3,3,1,1,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,16,16,16,1,1,16,16,16,16,16,16,1,1,16,16,16,16,16,16,16,16,16,16,16,3,
+    3,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,16,3,
+    3,16,1,1,1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,1,29,1,6,16,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "hybrid_drone", "x": 7, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_stalker", "x": 13, "y": 3, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 11, "y": 2}, {"x": 15, "y": 2}, {"x": 15, "y": 4}, {"x": 11, "y": 4}] },
+    { "type": "radiance_construct", "x": 20, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_stalker", "x": 13, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_drone", "x": 20, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "array_fabricator", "x": 4, "y": 10, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 2, "y": 9}, {"x": 9, "y": 9}, {"x": 9, "y": 12}, {"x": 2, "y": 12}] },
+    { "type": "hybrid_drone", "x": 14, "y": 10, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 11, "y": 9}, {"x": 15, "y": 9}, {"x": 15, "y": 12}, {"x": 11, "y": 12}] },
+    { "type": "radiance_construct", "x": 21, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_stalker", "x": 20, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "nexus_guardian", "x": 9, "y": 18, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_drone", "x": 6, "y": 17, "count": 1, "patrol": "guard" },
+    { "type": "radiance_construct", "x": 14, "y": 17, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 3, "y": 3 },
+    { "type": "field_medkit", "x": 7, "y": 11 },
+    { "type": "health_potion", "x": 22, "y": 10 },
+    { "type": "lore_radiance_hybrid_log", "x": 13, "y": 7 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_radiance_approach", "type": "stairs_up", "spawnX": 24, "spawnY": 16 },
+    { "x": 23, "y": 18, "leadsTo": "spire_radiance_conduit", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "nexus_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Deep Array Nexus. The architecture here is wrong — not broken, but hybrid. Array processing nodes grow from walls of ancient crystal, their circuitry merging with geometric patterns that predate human civilization by millennia.",
+          "The Underlumen and the Array have fused here. Not in cooperation — in consumption. The Array has been digesting the Spire's ancient systems for three centuries, converting living crystal into computational substrate.",
+          "Something massive patrols the lower chambers. You can feel its electromagnetic signature through your sol unit — a hybrid intelligence, neither fully Array nor fully organic."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "nexus_guardian_defeated",
+      "event": "monster_killed",
+      "filter": { "monsterType": "nexus_guardian" },
+      "actions": [
+        { "type": "setFlag", "flag": "radiance_nexus_guardian_defeated" },
+        { "type": "showMessage", "lines": [
+          "The Nexus Guardian detonates in a cascade of light and crystal shards. Its hybrid chassis — Array alloy fused with Underlumen crystal — splits apart, releasing centuries of accumulated energy in a blinding pulse.",
+          "As the light fades, you see it: the Guardian's processing core, still intact, still pulsing with the fused signatures of two incompatible systems forced into one form.",
+          "The blast doors deeper in the Nexus lose their energy seal. Beyond them, the air shimmers with heat that isn't entirely thermal. Something older than the Array is channeling power through this Spire."
+        ]},
+        { "type": "grantXp", "amount": 120 },
+        { "type": "giveItem", "itemType": "nexus_guardian_core" },
+        { "type": "setQuestObjective", "text": "Descend through the energy conduits to the Spire's solar core" }
+      ],
+      "once": true
+    },
+    {
+      "id": "command_panel",
+      "event": "door_interacted",
+      "filter": { "tileName": "control_panel" },
+      "conditions": [{ "not": { "hasFlag": "nexus_intel_gathered" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "nexus_intel_gathered" },
+        { "type": "showMessage", "lines": [
+          "The Nexus terminal displays hybrid data — Array processing logs interlaced with patterns your sol unit recognizes as Underlumen resonance frequencies:",
+          "'INTEGRATION STATUS: Spire substrate 67% absorbed. Energy output: 4,200% above Array baseline. Warning: substrate exhibits self-repair behavior. Absorption rate declining.'",
+          "'NOTE: Central intelligence has overridden local suppression protocols 847 times in the current cycle. The substrate is not resisting absorption. It is redirecting it.'",
+          "The Spire isn't dying. It's letting the Array think it's winning while routing the Array's own energy back into itself."
+        ]},
+        { "type": "grantXp", "amount": 35 }
+      ],
+      "once": true
+    },
+    {
+      "id": "armory_chest",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "geothermal_biome_uncommon" },
+        { "type": "showMessage", "text": "A hybrid equipment cache. The components inside are Array-manufactured but grown on Underlumen crystal lattice — stronger than either material alone." }
+      ]
+    },
+    {
+      "id": "supply_crate_loot",
+      "event": "door_interacted",
+      "filter": { "tileName": "supply_crate_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "geothermal_biome_uncommon" },
+        { "type": "showMessage", "text": "Maintenance supplies for hybrid systems. The labels are in Array processing notation — no human was ever meant to service these." }
+      ]
+    }
+  ]
+}
