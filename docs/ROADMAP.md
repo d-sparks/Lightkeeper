@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-12 evening (fresh sim analysis — mainline PASSES consistently: 28/57 rooms 49.1%, 112 kills, 0 deaths, 26 min; all-quests: 7/14 quests pass, 7 fail (main_quest STUCK at underlumen_threshold, relay_recovery STUCK, 4 TIMEOUTs); explore mode FAILS at 7/57 rooms 12.3% (blocked by engineer_briefing_complete); only 5-9/52 items collected and 20-29/60 NPCs engaged)
+Last updated: 2026-03-12 night (sim regression — mainline FAILS: bot stuck in quarantine loop, only 6/57 rooms 10.5%, 188 kills, 0 deaths, 40 min timeout. Root cause: traverse_procedural goal never completes supply_crate_key acquisition, bot cycles quarantine depth 1-3 indefinitely. Previous passing state: 28/57 rooms 49.1%, 112 kills, 0 deaths, 26 min. All-quests: 8/14 pass, 6 fail. Explore mode still blocked at 7/57 rooms by engineer_briefing_complete. Item/NPC engagement still very low: 5-9/52 items, 20-29/60 NPCs)
 
 ## Big Picture
 
