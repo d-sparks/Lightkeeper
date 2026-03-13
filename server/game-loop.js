@@ -4637,8 +4637,10 @@ class GameLoop {
         console.log(`[GameLoop] Player ${player.id} died during expedition tier ${expTier} — expedition failed, returning to ${expeditionOrigin}`);
       }
 
-      // Determine respawn destination: expedition origin if applicable, otherwise global spawn room
-      const spawnRoomId = expeditionOrigin || this.content.getSpawnRoom() || 'outpost_entrance';
+      // Determine respawn destination: expedition origin if applicable,
+      // then last activated waypoint, then global spawn room
+      const lastWaypoint = this.flagStore.getPlayerFlag(player.id, 'last_waypoint');
+      const spawnRoomId = expeditionOrigin || lastWaypoint || this.content.getSpawnRoom() || 'outpost_entrance';
       const needsTransition = room.id !== spawnRoomId;
 
       if (needsTransition) {
@@ -5186,6 +5188,9 @@ class GameLoop {
 
       // If an NPC is closer than the door, prefer talking to the NPC
       if (closestNPC && closestDoor && closestDoor.tileDef.togglesTo != null && closestNPCDist < closestDoorDist) {
+        if (closestNPC.type === 'waypoint_beacon') {
+          return this._handleWaypointBeacon(playerId, roomId, closestNPC);
+        }
         const ctx = this._scriptContext(playerId, roomId);
         const dialogue = this._resolveDialogue(closestNPC, ctx);
         this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
@@ -5231,6 +5236,9 @@ class GameLoop {
 
       // No door found — check NPC without door comparison
       if (closestNPC) {
+        if (closestNPC.type === 'waypoint_beacon') {
+          return this._handleWaypointBeacon(playerId, roomId, closestNPC);
+        }
         const ctx = this._scriptContext(playerId, roomId);
         const dialogue = this._resolveDialogue(closestNPC, ctx);
         this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
@@ -5253,6 +5261,9 @@ class GameLoop {
         }
       }
       if (closestNPC) {
+        if (closestNPC.type === 'waypoint_beacon') {
+          return this._handleWaypointBeacon(playerId, roomId, closestNPC);
+        }
         const ctx = this._scriptContext(playerId, roomId);
         const dialogue = this._resolveDialogue(closestNPC, ctx);
         this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
@@ -5263,6 +5274,60 @@ class GameLoop {
     }
 
     return null;
+  }
+
+  // Handle waypoint beacon NPC interaction: activate waypoint + show fast travel menu
+  _handleWaypointBeacon(playerId, roomId, npc) {
+    const waypoints = this.content.getWaypoints();
+    const currentWaypoint = waypoints.find(wp => wp.room === roomId);
+    if (!currentWaypoint) return null;
+
+    const ctx = this._scriptContext(playerId, roomId);
+
+    // Activate this waypoint
+    this.flagStore.setPlayerFlag(playerId, `waypoint_${currentWaypoint.id}`, true);
+    this.flagStore.setPlayerFlag(playerId, 'last_waypoint', currentWaypoint.room);
+
+    // Emit NPC interaction event for triggers
+    this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
+      playerId, roomId, npcType: npc.type, npcId: npc.id,
+    }, ctx);
+
+    // Build fast travel choice menu from activated waypoints
+    const options = [];
+    for (const wp of waypoints) {
+      if (wp.room === roomId) continue; // skip current location
+      if (this.flagStore.getPlayerFlag(playerId, `waypoint_${wp.id}`)) {
+        options.push({ label: wp.name, description: '', value: wp.room });
+      }
+    }
+
+    if (options.length === 0) {
+      // First waypoint — just confirm activation
+      return {
+        interactType: 'dialogue',
+        npcId: npc.id,
+        dialogue: [{ speaker: 'Waypoint Beacon', text: `// BEACON REGISTERED: ${currentWaypoint.name} // Activate beacons at other locations to enable fast travel. //` }],
+      };
+    }
+
+    options.push({ label: 'Stay here', description: '', value: '_cancel' });
+
+    // Send choice menu directly
+    if (this.actions.sendToPlayer) {
+      this.actions.sendToPlayer(playerId, {
+        type: CONSTANTS.MSG.CHOICE_MENU,
+        choiceId: 'fast_travel',
+        prompt: `// TRANSIT BEACON: ${currentWaypoint.name} // Select destination:`,
+        options,
+      });
+    }
+
+    return {
+      interactType: 'dialogue',
+      npcId: npc.id,
+      dialogue: [{ speaker: 'Waypoint Beacon', text: '// BEACON ACTIVE //' }],
+    };
   }
 
   // Handle a player's choice menu selection
@@ -5290,6 +5355,25 @@ class GameLoop {
         this.actions.execute({ type: 'showMessage', text: "MERIDIAN-7: 'Fabrication protocols unlocked. Post-crisis resource allocation permits component reforging and fusion. Select a recipe.'" }, ctx);
         this.actions.execute({ type: 'craft' }, ctx);
       }
+      return;
+    }
+
+    // Intercept fast travel choices — teleport player to selected waypoint
+    if (choiceId === 'fast_travel') {
+      if (value === '_cancel') return;
+      // Don't allow fast travel during expeditions
+      if (this.flagStore.getPlayerFlag(playerId, 'expedition_active')) return;
+      // Validate destination is an activated waypoint
+      const waypoints = this.content.getWaypoints();
+      const dest = waypoints.find(wp => wp.room === value);
+      if (!dest || !this.flagStore.getPlayerFlag(playerId, `waypoint_${dest.id}`)) return;
+      // Queue room transition
+      this.pendingTransitions.push({
+        playerId,
+        fromRoom: roomId,
+        toDungeon: dest.room,
+      });
+      console.log(`[GameLoop] Player ${playerId} fast traveling to ${dest.name} (${dest.room})`);
       return;
     }
 

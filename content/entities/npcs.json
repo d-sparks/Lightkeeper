@@ -4046,5 +4046,26 @@
         { "speaker": "Pathfinder Ren", "text": "Safe travels, Lightkeeper. The Underlumen network remembers people who don't shoot on sight." }
       ]
     }
+  },
+  "waypoint_beacon": {
+    "name": "Waypoint Beacon",
+    "sprite": "waypoint_beacon",
+    "dialogue": [
+      { "speaker": "Waypoint Beacon", "text": "// TRANSIT BEACON ONLINE // Activate to register this location for fast travel. //" }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Waypoint Beacon", "text": "// TRANSIT BEACON ONLINE // Activate to register this location for fast travel. //" }
+      ],
+      "activated": [
+        { "speaker": "Waypoint Beacon", "text": "// BEACON ACTIVE // Select a destination for transit. //" }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "waypoint_active_here" }],
+        "use": "activated"
+      }
+    ]
   }
 }

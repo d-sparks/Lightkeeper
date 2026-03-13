@@ -30,6 +30,14 @@ Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26
 - **Death target tuning (2-4 deaths)** — Buffed mainline monster damage, added shade_stalkers to station_junction, increased quarantine density, reduced healing availability. Sim cannot validate due to quarantine loop bug. Needs manual playtest to confirm 2-4 deaths target.
 - **Quarantine sim loop (CRITICAL — blocks mainline)** — Bot stuck cycling quarantine depth 1-3 indefinitely. Root cause: `traverse_procedural` goal requires `supply_crate_key` item but bot exits quarantine before reaching depth 3 where warlord spawns. Goal stays active, bot re-enters from outpost_workshop. Fix: either improve depth targeting in `doTraverseProcedural()`, or add retry limit/goal failure handling. This is a sim bug, not a content bug — the game itself plays fine manually.
 
+## Waypoint / Fast Travel System
+
+- **Waypoint beacon sprite** — `waypoint_beacon` NPC uses default sprite. Needs a dedicated `sprites/waypoint_beacon.png` (glowing transit pillar or similar).
+- **Additional waypoint locations** — Currently 6 waypoints (Outpost Balor, Meridian Station, Station Junction, Perimeter Gate, Lighthouse Mara, Frost Crypts). Consider adding: Salvage Yard, Dead Road, Signal Cave, Deep Perimeter as player progresses.
+- **Waypoint discovery feedback** — Consider a brief visual/audio effect on first waypoint activation (particle burst, sound cue).
+- **Sim integration** — Teach the sim bot to use waypoint beacons for fast travel instead of walking through every room.
+- **Expedition fast travel block** — Fast travel is blocked during expeditions. Consider also blocking during siege challenges.
+
 ## Endgame Loop
 
 - **Client-side expedition HUD** — Floor counter, boss health bar during expeditions.

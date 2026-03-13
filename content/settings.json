@@ -1,3 +1,11 @@
 {
-  "spawnRoom": "outpost_entrance"
+  "spawnRoom": "outpost_entrance",
+  "waypoints": [
+    { "id": "outpost_entrance", "name": "Outpost Balor", "room": "outpost_entrance" },
+    { "id": "meridian_station", "name": "Meridian Station", "room": "meridian_station" },
+    { "id": "station_junction", "name": "Station Junction", "room": "station_junction" },
+    { "id": "perimeter_gate", "name": "Perimeter Gate", "room": "perimeter_gate" },
+    { "id": "relay_station", "name": "Lighthouse Mara", "room": "relay_station" },
+    { "id": "crypt_01", "name": "Frost Crypts", "room": "crypt_01" }
+  ]
 }

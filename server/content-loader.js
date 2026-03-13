@@ -85,6 +85,10 @@ class ContentLoader {
     return this.settings.spawnRoom || null;
   }
 
+  getWaypoints() {
+    return this.settings.waypoints || [];
+  }
+
   loadDungeons() {
     const dir = path.join(this.contentDir, 'dungeons');
     if (!fs.existsSync(dir)) return;

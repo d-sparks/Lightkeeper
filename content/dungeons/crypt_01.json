@@ -507,6 +507,11 @@
       "type": "sol_engineer_1",
       "x": 20,
       "y": 2
+    },
+    {
+      "type": "waypoint_beacon",
+      "x": 2,
+      "y": 4
     }
   ],
   "exits": [

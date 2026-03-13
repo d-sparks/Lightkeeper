@@ -1817,6 +1817,11 @@
       "type": "outpost_sgt_ellers",
       "x": 42,
       "y": 16
+    },
+    {
+      "type": "waypoint_beacon",
+      "x": 7,
+      "y": 15
     }
   ],
   "itemSpawns": [],

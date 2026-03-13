@@ -35,7 +35,9 @@
     { "type": "shade_stalker", "x": 2, "y": 6, "count": 1, "patrol": "wander" },
     { "type": "shade_stalker", "x": 12, "y": 3, "count": 1, "patrol": "wander" }
   ],
-  "npcSpawns": [],
+  "npcSpawns": [
+    { "type": "waypoint_beacon", "x": 5, "y": 2 }
+  ],
   "itemSpawns": [],
   "exits": [
     { "x": 7, "y": 0, "leadsTo": "train_station", "type": "stairs_up", "spawnX": 22, "spawnY": 9 }

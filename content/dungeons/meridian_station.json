@@ -39,7 +39,8 @@
   "npcSpawns": [
     { "type": "station_master_calloway", "x": 10, "y": 10 },
     { "type": "expedition_board", "x": 20, "y": 10 },
-    { "type": "siege_warden", "x": 15, "y": 10 }
+    { "type": "siege_warden", "x": 15, "y": 10 },
+    { "type": "waypoint_beacon", "x": 13, "y": 17 }
   ],
   "itemSpawns": [],
   "exits": [

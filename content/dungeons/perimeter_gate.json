@@ -278,6 +278,11 @@
       "type": "gate_sgt_fenn",
       "x": 10,
       "y": 6
+    },
+    {
+      "type": "waypoint_beacon",
+      "x": 8,
+      "y": 9
     }
   ],
   "itemSpawns": [],
