@@ -4511,19 +4511,13 @@ class Renderer {
         this.minimapGfx.drawCircle(qx, qy, r + 3);
         this.minimapGfx.lineStyle(0);
       } else {
-        // Chevron/arrow marker for exit-toward-objective
-        const s = r + 1;
-        this.minimapGfx.beginFill(0xffa726, pulse);
-        // Right-pointing chevron
-        this.minimapGfx.moveTo(qx + s, qy);
-        this.minimapGfx.lineTo(qx - s * 0.3, qy - s);
-        this.minimapGfx.lineTo(qx, qy);
-        this.minimapGfx.lineTo(qx - s * 0.3, qy + s);
-        this.minimapGfx.closePath();
+        // Circle marker for exit-toward-objective
+        this.minimapGfx.beginFill(0xffa726, 0.9);
+        this.minimapGfx.drawCircle(qx, qy, r);
         this.minimapGfx.endFill();
 
         // Pulsing outer ring
-        this.minimapGfx.lineStyle(1, 0xffa726, pulse * 0.7);
+        this.minimapGfx.lineStyle(1, 0xffa726, pulse);
         this.minimapGfx.drawCircle(qx, qy, r + 3);
         this.minimapGfx.lineStyle(0);
       }
@@ -4560,7 +4554,7 @@ class Renderer {
 
     // Show label in full map mode or when marker is inside compact minimap
     if (objective.label && (full || inside)) {
-      const label = sameRoom ? objective.label : objective.label + ' \u25CF';
+      const label = objective.label;
       this.questWaypointText.text = label;
       this.questWaypointText.x = Math.round(qx);
       this.questWaypointText.y = Math.round(qy - r - 4);
