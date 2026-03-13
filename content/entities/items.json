@@ -1226,5 +1226,23 @@
     "description": "A duty roster and patrol schedule for the Greenway checkpoint. Lists guard rotations, shift changes, and blind spots in coverage.",
     "type": "misc",
     "rarity": "uncommon"
+  },
+  "spire_winds_keycard": {
+    "name": "Bulwark Command Keycard",
+    "description": "A high-clearance Bulwark security keycard. Opens reinforced doors inside the Monument of Winds fortress.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "bulwark_command_key": {
+    "name": "Bulwark Command Override",
+    "description": "A command-level override key recovered from a Bulwark officer. Grants access to restricted fortress sections.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "thorne_command_tablet": {
+    "name": "Thorne's Command Tablet",
+    "description": "General Thorne's personal command tablet, containing classified reports on the Monument excavation and what the Bulwark found beneath it. Councillor Asha Denn would want to see this.",
+    "type": "misc",
+    "rarity": "rare"
   }
 }

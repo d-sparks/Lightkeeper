@@ -18,9 +18,9 @@ Act 2 Greenway agricultural corridor and Bulwark military faction content added:
 - **Meridian connection** — Added exit from meridian_civic (23,11) to greenway_checkpoint; added greenway_pass grant trigger via Registrar Hollis; added greenway_settlement waypoint to settings.json
 
 Remaining follow-ups:
-- **Spire of Winds dungeon chain** — The Monument of Winds / Spire of Winds is referenced in dialogue but has no dungeon files yet. Needs: spire_winds_approach (Bulwark fortress), spire_winds_core (ancient Spire interior with hover puzzles, wind mechanics). This is the Act 2 climax.
-- **General Thorne boss fight** — Referenced in Compact orders and Asha Denn dialogue. Needs a boss monster entry and placement in the Spire of Winds.
-- **Hover ability unlock** — Act 2 should unlock the Hover ability at the Spire of Winds. Needs hover_emitter sol component placement and unlock trigger.
+- ~~**Spire of Winds dungeon chain**~~ — DONE: 5-floor dungeon chain added (spire_winds_approach, spire_winds_fortress, spire_winds_shaft, spire_winds_underlumen, spire_winds_core). Connected from greenway_supply_depot.
+- ~~**General Thorne boss fight**~~ — DONE: bulwark_general_thorne boss monster (650 HP, 3-phase) placed in spire_winds_fortress.
+- ~~**Hover ability unlock**~~ — DONE: hover_chip granted at spire_winds_core resonance pedestal with full narrative sequence.
 - **Bulwark sprites** — All 7 Bulwark monster types need dedicated sprites (currently using default/placeholder).
 - **Greenway NPC sprites** — Checkpoint Officer Maren, Farmer Dael, Farmer Lissa, Merchant Orin, Councillor Asha Denn, Pvt. Yenn, Elder Moss all need sprites.
 - **Greenway tileset PNG** — `tilesets/greenway.png` sprite strip needed for the 31 tile definitions.
@@ -29,6 +29,34 @@ Remaining follow-ups:
 - **Greenway bio-lab dungeon** — The Greenway's bio-tech labs are referenced in dialogue but have no dungeon. Could be an optional area with sol component rewards.
 - **Bulwark encounter difficulty tuning** — Stats set at Act 2 level (HP 40-400, DMG 10-20). Needs playtesting to confirm balance vs. post-Act 1 player power.
 - **Supply depot combat encounter balance** — 7 monsters in a single room may be overwhelming. Consider adjusting spawn positions or adding wave triggers.
+
+## Content — Spire of Winds (2026-03-13)
+
+Act 2 climax dungeon chain added — 5 floors from Bulwark fortress outer layer through vertical Underlumen core:
+
+- **spire_winds tileset** (`content/tilesets/spire_winds.json`) — 31 tiles: fortress walls, metal walls, security/blast doors, wind chasms, wind bridges, ancient floors/walls, wind grates, elevated platforms, ramps (N/S/E/W), resonance pedestal, supply crates, control panels, barricades
+- **spire_winds_approach** — Bulwark perimeter with outdoor fortifications, barricades, guardhouse. 8 monster spawns (conscripts, riflemen, drone, sergeant). Corporal Venn NPC (sympathetic Bulwark soldier with conditional dialogue). Connects from greenway_supply_depot.
+- **spire_winds_fortress** — Interior military installation. 12 monster spawns including General Thorne boss. Security door (keycard), blast door (thorne defeated flag), supply crates. Command terminal with escalating excavation logs.
+- **spire_winds_shaft** — Vertical transition zone. Wind chasms with stone bridges. Mixed enemy types (Bulwark stragglers + Nightside fauna). Environmental storytelling about abandoned excavation.
+- **spire_winds_underlumen** — Elevation puzzle floor with multiple platform tiers connected by ramps, wind chasms between sections, wind bridges. Nightside fauna enemies.
+- **spire_winds_core** — Resonance chamber (16x16). Pedestal interaction unlocks Hover ability (hover_chip) with full narrative sequence. Chest unlocks post-pedestal. Mirrors spire_vigil_core structure.
+- **General Thorne** (`bulwark_general_thorne` in monsters.json) — 650 HP, 3-phase boss (melee → ranged energy bolts → summon conscripts). Drops thorne_command_tablet on death.
+- **Corporal Venn** (`corporal_venn` in npcs.json) — Sympathetic Bulwark soldier, 5 dialogue lines explaining the excavation + Thorne's fear. Post-defeat dialogue variant.
+- **New items** — spire_winds_keycard (fortress security doors), bulwark_command_key (restricted sections), thorne_command_tablet (quest item for Asha Denn)
+- **Waypoint** — Added spire_winds_approach to settings.json waypoints
+
+Remaining follow-ups:
+- **Spire of Winds tileset PNG** — `tilesets/spire_winds.png` sprite strip needed for the 31 tile definitions
+- **General Thorne sprite** — Currently uses `bulwark_captain.png`. Needs dedicated `sprites/bulwark_general_thorne.png`
+- **Corporal Venn sprite** — Needs dedicated `sprites/corporal_venn.png` (conflicted young soldier)
+- **Wind mechanics** — The shaft and underlumen floors narratively describe wind currents but there's no engine-level wind hazard/push mechanic. Consider adding `environmentalHazard: { type: "wind_push" }` or wind current tiles that move entities
+- **Elevation puzzle depth** — The underlumen floor uses ramps and elevated platforms but the puzzles are navigational only. Consider adding pressure plates, timed bridges, or enemies on different elevations to add mechanical depth
+- **Hover ability integration** — After unlocking Hover, players should be able to revisit Spire of Vigil to access previously unreachable paths (per storyboard). Needs new exits/areas in vigil floors gated by `hover_unlocked` flag
+- **Thorne command tablet turn-in** — thorne_command_tablet has no receiving NPC. Add `hasItem: thorne_command_tablet` dialogue rule to Councillor Asha Denn
+- **Post-Spire narrative triggers** — Per storyboard, activating the Spire should trigger two simultaneous events: 1) MERIDIAN-7 goes silent (Deep Array interference), 2) Compact loses legitimacy. Needs flag-gated triggers in Meridian rooms
+- **Spire replay difficulty** — Both Spires should reconfigure for replay visits with harder enemies and better loot
+- **Main quest integration** — The main_quest needs steps for the Spire of Winds chain (arrive at Monument, defeat Thorne, unlock Hover, return to Asha)
+- **Bulwark encounter balance** — General Thorne at 650 HP with 3 phases needs playtesting. Phase 3 summons conscripts which may overwhelm in tight spaces
 
 ## Checkpoint Tool — Autosave History
 

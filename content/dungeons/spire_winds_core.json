@@ -1,0 +1,131 @@
+{
+  "id": "spire_winds_core",
+  "name": "Spire of Winds — Resonance Core",
+  "depth": 5,
+  "tileset": "spire_winds",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.06,
+  "width": 16,
+  "height": 16,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,13,13,13,13,13, 8,12,12,13,13,13,13,13,13,13,
+    13,13,13,13,13,12,12,12,12,12,13,13,13,13,13,13,
+    13,13,13,13,12,12,12, 2,12,12,12,13,13,13,13,13,
+    13,13,13,12,12,12,12,12,12,12,12,12,13,13,13,13,
+    13,13,12,12,12,14,12,14,12,14,12,12,12,13,13,13,
+    13,12,12,12,14,12, 2,12, 2,12,14,12,12,12,13,13,
+    13,12,12, 2,12,14,12,26,12,14,12, 2,12,12,13,13,
+    13,12,12,12,14,12, 2,12, 2,12,14,12,12,12,13,13,
+    13,13,12,12,12,14,12,14,12,14,12,12,12,13,13,13,
+    13,13,13,12,12,12,12, 4,12,12,12,12,13,13,13,13,
+    13,13,13,13,12,12,12,12,12,12,12,13,13,13,13,13,
+    13,13,13,13,13,12,12,10,12,12,13,13,13,13,13,13,
+    13,13,13,13,13,13,12,12,12,13,13,13,13,13,13,13,
+    13,13,13,13,13,13,13,12,13,13,13,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 7, "y": 1, "type": "player_start" },
+    { "x": 8, "y": 1, "type": "player_start" },
+    { "x": 7, "y": 2, "type": "player_start" },
+    { "x": 8, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [],
+  "itemSpawns": [],
+  "exits": [
+    { "x": 6, "y": 1, "leadsTo": "spire_winds_underlumen", "type": "stairs_up", "spawnX": 20, "spawnY": 20 }
+  ],
+  "triggers": [
+    {
+      "id": "core_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The spiral descent ends in a circular chamber identical in structure to the Spire of Vigil's core — but alive with motion. Wind spirals up from vents in the floor, following invisible channels that make the air itself glow.",
+          "The geometric patterns on every surface pulse with blue-white light, cycling in rhythm with your sol unit. The Spire recognizes the technology — and the activation of its sister structure in the Nightside.",
+          "At the center, a crystal pedestal rises from the floor. Unlike Vigil's dark stillness, this one hums with barely contained energy. The wind currents converge on it from every direction."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "core_pedestal_interact",
+      "event": "door_interacted",
+      "filter": { "tileName": "resonance_pedestal" },
+      "conditions": [
+        { "not": { "hasFlag": "hover_unlocked" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "hover_unlocked" },
+        { "type": "showMessage", "lines": [
+          "You place your hand on the crystal pedestal. The wind stops. Every current, every breeze, every whisper of air in the chamber freezes in place.",
+          "Then it reverses. Wind crashes inward from every direction, channeling through the geometric grooves, converging on your sol unit with a force that lifts you off the ground.",
+          "For a heartbeat you hover — weightless, suspended by forces the Spire's builders mastered millennia ago. Your sol unit drinks in the energy, its housing reconfiguring around a new capability that rewrites its relationship with gravity itself.",
+          "The wind releases you gently. But the knowledge remains, etched into your sol unit's core architecture. You can feel it — the ability to defy the ground beneath you, to rise above obstacles, to navigate vertical space as easily as horizontal.",
+          "HOVER UNLOCKED — activate anti-gravity thrusters to float above the ground, changing elevation levels and crossing chasms."
+        ]},
+        { "type": "giveItem", "itemType": "hover_chip" },
+        { "type": "grantXp", "amount": 150 },
+        { "type": "setQuestObjective", "text": "Return to Councillor Asha Denn with the Spire data" }
+      ],
+      "once": true
+    },
+    {
+      "id": "core_pedestal_revisit",
+      "event": "door_interacted",
+      "filter": { "tileName": "resonance_pedestal" },
+      "conditions": [
+        { "hasFlag": "hover_unlocked" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The pedestal hums quietly. The Spire's gift has been given. The wind currents still flow, but gently now — the core is at rest." }
+      ]
+    },
+    {
+      "id": "core_chest",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "hasFlag": "hover_unlocked" }
+      ],
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "spire_winds_chest" },
+        { "type": "showMessage", "text": "The Spire offers a final gift — ancient components preserved in crystal, designed for technology that wouldn't exist for millennia after the Spire was built." }
+      ]
+    },
+    {
+      "id": "core_chest_locked",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "conditions": [
+        { "not": { "hasFlag": "hover_unlocked" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The cache is sealed in crystal. The resonance pedestal must be activated first." }
+      ]
+    },
+    {
+      "id": "post_unlock_message",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "hover_unlocked" }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The resonance core pulses with gentle wind. The Spire of Winds has fulfilled its purpose. Above, the Bulwark's fortress feels very far away — and very small." }
+      ],
+      "once": true
+    },
+    {
+      "id": "mark_core_visited",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "visited_spire_winds_core", "scope": "player" },
+        { "type": "setFlag", "flag": "spire_winds_core_reached", "scope": "player" }
+      ],
+      "once": true
+    }
+  ]
+}

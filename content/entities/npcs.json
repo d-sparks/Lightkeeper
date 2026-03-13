@@ -11412,5 +11412,50 @@
         "use": "return_visit"
       }
     ]
+  },
+  "corporal_venn": {
+    "name": "Corporal Venn",
+    "dialogue": [
+      {
+        "speaker": "Corporal Venn",
+        "text": "Hold your fire. I'm not... I'm not like the rest of them. Not anymore."
+      },
+      {
+        "speaker": "Corporal Venn",
+        "text": "I signed up because the Council said the Monument was a threat. 'Secure the site, protect the Greenway.' That's what they told us. But Thorne... he's not securing anything. He's digging."
+      },
+      {
+        "speaker": "Corporal Venn",
+        "text": "Something's down there. Something old. Half the engineers have already requested transfers. The ones who went deepest came back talking about wind that moves on its own. Patterns on the walls that glow when you're not looking."
+      },
+      {
+        "speaker": "Corporal Venn",
+        "text": "Thorne sealed Level 7 and told us it was structural instability. But I heard the reports. That's not instability — it's the building waking up."
+      },
+      {
+        "speaker": "Corporal Venn",
+        "text": "If you're going in there... be careful. The fortress interior is divided into sections. Thorne keeps the command wing locked down tight. You'll need a security keycard to get through the blast doors."
+      }
+    ],
+    "dialogueVariants": {
+      "after_thorne": [
+        {
+          "speaker": "Corporal Venn",
+          "text": "I heard the fighting stop. Thorne's down? Good. He was a believer, but he was wrong. The Compact can't control what's under this monument."
+        },
+        {
+          "speaker": "Corporal Venn",
+          "text": "Take his command tablet to Councillor Asha Denn. She needs to see what the Bulwark was really doing here."
+        }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [
+          { "hasFlag": "general_thorne_defeated" }
+        ],
+        "use": "after_thorne"
+      }
+    ]
   }
 }
