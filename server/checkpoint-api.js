@@ -773,6 +773,19 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content, sessionStore) {
         return json(res, 200, { ok: true, item: itemDef.name, count: giveCount, destination: 'automation' });
       }
 
+      // Medical supplies go to medipac charges, not inventory
+      if (resolvedType === 'medical_supplies') {
+        player.medipacCharges = (player.medipacCharges || 0) + giveCount;
+        ws.send(JSON.stringify({
+          type: 'inventory',
+          items: player.inventory,
+          equipment: player.equipment,
+          medipacCharges: player.medipacCharges,
+          credits: player.credits || 0,
+        }));
+        return json(res, 200, { ok: true, item: itemDef.name, count: giveCount, destination: 'medipacCharges' });
+      }
+
       for (let i = 0; i < giveCount; i++) {
         player.inventory.push({
           type: resolvedType,
@@ -787,6 +800,8 @@ function handleCheckpointAPI(req, res, gameLoop, wss, content, sessionStore) {
         type: 'inventory',
         items: player.inventory,
         equipment: player.equipment,
+        medipacCharges: player.medipacCharges || 0,
+        credits: player.credits || 0,
       }));
 
       return json(res, 200, { ok: true, item: itemDef.name, count: giveCount });
