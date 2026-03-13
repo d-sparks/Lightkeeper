@@ -81,6 +81,14 @@ Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26
 - Tune special attack cooldowns and damage multipliers after playtesting.
 - Automation controller support for grid (d-pad navigation, A to place, B to cancel).
 
+## Death Penalty — Modifier Durability
+
+- **Weapon upgrade degradation on death** — User wants weapon upgrades to also degrade on death (similar to modifier durability). Needs design: what degrades, how much, what happens at 0.
+- **Modifier durability tuning** — Default is 3. May need per-rarity defaults (e.g., legendary = 5, common = 2). Can be set via `defaultDurability` in sol_components.json.
+- **Salvage economy** — Destroyed modifiers give 1x salvage. Consider scaling salvage by rarity (e.g., epic → 3 salvage).
+- **Durability repair mechanic** — Currently no way to restore durability. Consider NPC repair service or crafting recipe.
+- **Death penalty balance** — No items drop on death anymore. Verify this feels fair in early game (modifiers are scarce) and late game (modifiers are plentiful).
+
 ## Balance
 
 - Crystal Guardian at 700 HP — verify feels epic, not grindy.

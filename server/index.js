@@ -1550,16 +1550,27 @@ setInterval(() => {
       credits: dp.credits || 0,
     }));
 
+    // Send updated sol grid (modifier durability changed)
+    if (dp.solGrid) {
+      ws.send(JSON.stringify({
+        type: CONSTANTS.MSG.SOL_GRID,
+        grid: dp.solGrid,
+      }));
+    }
+
     // Send death screen notification so the player knows what they lost
     const lines = [];
     if (dp.energyLost > 0) lines.push(`Lost ${dp.energyLost} energy.`);
-    if (dp.droppedItems && dp.droppedItems.length > 0) {
-      if (dp.expeditionForfeit) {
-        lines.push(`Expedition failed. Floor loot forfeited: ${dp.droppedItems.join(', ')}`);
-      } else {
-        lines.push(`Dropped: ${dp.droppedItems.join(', ')}`);
+    if (dp.destroyedMods && dp.destroyedMods.length > 0) {
+      lines.push(`DESTROYED: ${dp.destroyedMods.join(', ')} (converted to salvage)`);
+    }
+    if (dp.degradedMods && dp.degradedMods.length > 0) {
+      for (const mod of dp.degradedMods) {
+        const warning = mod.durability === 1 ? ' — CRITICAL!' : '';
+        lines.push(`${mod.name}: durability ${mod.durability}/3${warning}`);
       }
-    } else if (dp.expeditionForfeit) {
+    }
+    if (dp.expeditionForfeit) {
       lines.push('Expedition failed. Returned to station.');
     }
     if (dp.bankedRestoredCount > 0) {

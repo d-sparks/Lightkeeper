@@ -2100,14 +2100,16 @@
     detailPanel.className = 'inv-detail-panel';
 
     // Group identical items into stacks; use firstIndex for server messages
+    // Items with different durability values don't stack together
     const stacks = [];
-    const seenTypes = new Map(); // type -> stacks index
+    const seenTypes = new Map(); // stackKey -> stacks index
     for (let i = 0; i < inventoryItems.length; i++) {
       const item = inventoryItems[i];
-      if (seenTypes.has(item.type)) {
-        stacks[seenTypes.get(item.type)].count++;
+      const stackKey = item.durability !== undefined ? item.type + ':dur' + item.durability : item.type;
+      if (seenTypes.has(stackKey)) {
+        stacks[seenTypes.get(stackKey)].count++;
       } else {
-        seenTypes.set(item.type, stacks.length);
+        seenTypes.set(stackKey, stacks.length);
         stacks.push({ item, firstIndex: i, count: 1 });
       }
     }
@@ -2128,6 +2130,10 @@
       }
       if (item.category === 'consumable') {
         html += '<span class="inv-use-tag">use</span>';
+      }
+      if (item.durability !== undefined) {
+        const durColor = item.durability <= 1 ? '#ff5252' : item.durability <= 2 ? '#ffab40' : '#aaa';
+        html += '<span class="inv-dur-tag" style="color:' + durColor + '">DUR ' + item.durability + '/3</span>';
       }
       cell.innerHTML = html;
 
@@ -2303,6 +2309,12 @@
               if (comp.bonus.cooldownReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.cooldownReduction * 100) + '% cd</div>';
               if (comp.bonus.healOnHit) html += '<div class="sol-mod-tag">+' + comp.bonus.healOnHit + ' heal</div>';
               if (comp.bonus.energyCostReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.energyCostReduction * 100) + '% cost</div>';
+            }
+            // Show durability indicator
+            if (comp.durability !== undefined) {
+              const maxDur = comp.maxDurability || 3;
+              const durColor = comp.durability <= 1 ? '#ff5252' : comp.durability <= 2 ? '#ffab40' : '#aaa';
+              html += '<div class="sol-mod-tag" style="color:' + durColor + '">DUR ' + comp.durability + '/' + maxDur + '</div>';
             }
             cell.innerHTML = html;
           }

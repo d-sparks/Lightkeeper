@@ -2242,7 +2242,12 @@ class GameLoop {
               originY: comp.gridY,
             };
             if (comp.abilityId) cell.abilityId = comp.abilityId;
-            if (comp.modifierId) cell.modifierId = comp.modifierId;
+            if (comp.modifierId) {
+              cell.modifierId = comp.modifierId;
+              const maxDur = (compDef && compDef.defaultDurability) || 3;
+              cell.durability = maxDur;
+              cell.maxDurability = maxDur;
+            }
             if (comp.batteryId) cell.batteryId = comp.batteryId;
             if (comp.generatorId) cell.generatorId = comp.generatorId;
             if (sx !== 0 || sy !== 0) cell.isExtension = true;
@@ -2327,7 +2332,13 @@ class GameLoop {
           originY: gridY,
         };
         if (compDef.type === 'ability' && compDef.abilityId) cell.abilityId = compDef.abilityId;
-        if (compDef.type === 'modifier') cell.modifierId = itemDef.solComponentId;
+        if (compDef.type === 'modifier') {
+          cell.modifierId = itemDef.solComponentId;
+          // Carry over durability from inventory item, or default to component/global default
+          const maxDur = compDef.defaultDurability || 3;
+          cell.durability = (item.durability !== undefined) ? item.durability : maxDur;
+          cell.maxDurability = maxDur;
+        }
         if (compDef.type === 'generator') cell.generatorId = itemDef.solComponentId;
         if (compDef.type === 'battery') {
           cell.batteryId = itemDef.solComponentId;
@@ -2402,6 +2413,19 @@ class GameLoop {
       }
     }
 
+    // Capture modifier durability before clearing (from origin cell)
+    let savedDurability = undefined;
+    if (clickedCell.modifierId) {
+      // Find origin cell for this placement
+      for (let i = 0; i < size * size; i++) {
+        const c = player.solGrid.cells[i];
+        if (c && c.placementId === pid && !c.isExtension) {
+          savedDurability = c.durability;
+          break;
+        }
+      }
+    }
+
     // Clear all cells with this placementId
     for (let i = 0; i < size * size; i++) {
       const c = player.solGrid.cells[i];
@@ -2423,6 +2447,10 @@ class GameLoop {
       if (solComp && solComp.adjacencyPattern) {
         returnedItem.adjacencyPattern = solComp.adjacencyPattern;
       }
+    }
+    // Preserve modifier durability on returned inventory item
+    if (savedDurability !== undefined) {
+      returnedItem.durability = savedDurability;
     }
     player.inventory.push(returnedItem);
 
@@ -4518,50 +4546,66 @@ class GameLoop {
         this._consumeEnergy(player, energyLost, room);
       }
 
-      // Death penalty: drop non-quest inventory items based on dropBehavior
-      // dropBehavior per item definition: "keep" = retained, "destroy" = removed,
-      // "drop" (default) = spawned on ground. Quest items (key, sol_component) always kept.
-      // Exception: if player is on an expedition, all non-quest loot is forfeited (destroyed).
+      // Death penalty: degrade placed modifier chips (lose 1 durability each)
+      // Modifiers at 0 durability are destroyed and converted to salvage.
       const onExpedition = !!this.flagStore.getPlayerFlag(player.id, 'expedition_active');
-      const droppedItems = [];
-      const keptItems = [];
-      for (const item of player.inventory) {
-        if (item.category === 'key' || item.category === 'sol_component') {
-          keptItems.push(item);
-          continue;
+      const degradedMods = [];
+      const destroyedMods = [];
+      if (player.solGrid) {
+        const size = player.solGrid.size;
+        const seenPlacements = new Set();
+        for (let i = 0; i < size * size; i++) {
+          const cell = player.solGrid.cells[i];
+          if (!cell || !cell.modifierId || cell.isExtension) continue;
+          if (seenPlacements.has(cell.placementId)) continue;
+          seenPlacements.add(cell.placementId);
+
+          // Degrade durability
+          if (cell.durability === undefined) cell.durability = 3;
+          cell.durability -= 1;
+
+          // Propagate durability to extension cells
+          for (let j = 0; j < size * size; j++) {
+            const ext = player.solGrid.cells[j];
+            if (ext && ext.placementId === cell.placementId && ext.isExtension) {
+              ext.durability = cell.durability;
+            }
+          }
+
+          const compDef = this.content.getSolComponent(cell.modifierId);
+          const modName = (compDef && compDef.name) || cell.modifierId.replace(/_/g, ' ');
+
+          if (cell.durability <= 0) {
+            // Destroyed — remove from grid, give salvage
+            destroyedMods.push(modName);
+            for (let j = 0; j < size * size; j++) {
+              const c = player.solGrid.cells[j];
+              if (c && c.placementId === cell.placementId) {
+                player.solGrid.cells[j] = null;
+              }
+            }
+            // Give salvage material to player
+            const salvageItem = this.content.getItem('salvage');
+            if (salvageItem) {
+              player.inventory.push({
+                type: 'salvage',
+                name: salvageItem.name || 'Salvage',
+                rarity: 'common',
+                category: salvageItem.type || 'crafting',
+              });
+            }
+          } else {
+            degradedMods.push({ name: modName, durability: cell.durability });
+          }
         }
-        const itemDef = this.content.getItem(item.type);
-        const behavior = (itemDef && itemDef.dropBehavior) || 'drop';
-        if (behavior === 'keep') {
-          keptItems.push(item);
-        } else if (behavior === 'destroy' || onExpedition) {
-          // Expedition death: forfeit all non-quest floor loot (destroyed, not dropped)
-          droppedItems.push(item);
-        } else {
-          // Default "drop": spawn on ground at death position
-          droppedItems.push(item);
-          const itemId = `item_${room.nextItemId++}`;
-          room.items.set(itemId, {
-            id: itemId,
-            type: item.type,
-            name: item.name,
-            rarity: item.rarity || 'common',
-            category: item.category || 'misc',
-            x: deathX,
-            y: deathY,
-          });
+        // Rebuild abilities if any modifiers were destroyed
+        if (destroyedMods.length > 0) {
+          this._rebuildAbilities(player);
         }
       }
-      player.inventory = keptItems;
 
-      // Record what was lost for checkpoint editor "restore death loot" feature
-      // Store full item objects so the editor can give them back
-      player.lastDeathDrops = droppedItems.map(i => ({
-        type: i.type,
-        name: i.name,
-        rarity: i.rarity || 'common',
-        category: i.category || 'misc',
-      }));
+      // No items are dropped on death — the penalty is modifier degradation
+      player.lastDeathDrops = [];
 
       // Reset player state
       player.health = player.maxHealth;
@@ -4619,7 +4663,6 @@ class GameLoop {
       });
 
       // Queue inventory update for the client
-      const droppedNames = droppedItems.map(i => i.name);
       this.pendingDeathPenalties.push({
         playerId: player.id,
         inventory: player.inventory,
@@ -4627,7 +4670,9 @@ class GameLoop {
         medipacCharges: player.medipacCharges || 0,
         credits: player.credits || 0,
         energyLost,
-        droppedItems: droppedNames,
+        degradedMods,
+        destroyedMods,
+        solGrid: this.getSolGridForClient(player),
         expeditionForfeit: onExpedition,
         bankedRestoredCount,
       });
