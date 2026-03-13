@@ -25,7 +25,7 @@ ONLY=""
 MAX_TURNS=100
 YOLO=false
 LOG_DIR="$REPO_ROOT/.claude/ralph-logs"
-DAILY_LIMIT=80    # Stop if 5-hour usage >= this %
+DAILY_LIMIT=90    # Stop if 5-hour usage >= this %
 WEEKLY_RATE=17             # Max % of 7-day budget per day
 WEEKLY_START="2026-03-07"  # Budget start date (day 1)
 
