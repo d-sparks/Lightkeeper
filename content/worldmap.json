@@ -104,7 +104,7 @@
       "y": 0.40,
       "icon": "lighthouse",
       "description": "The nearest fallen Lighthouse. First expedition into the true Nightside.",
-      "rooms": ["relay_station"]
+      "rooms": ["relay_station", "lighthouse_mara_caverns", "lighthouse_mara_core"]
     },
     {
       "id": "old_watchtower",

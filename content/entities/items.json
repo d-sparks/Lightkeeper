@@ -199,6 +199,24 @@
     "type": "key",
     "rarity": "uncommon"
   },
+  "keepers_journal": {
+    "name": "Keeper's Journal",
+    "description": "A frost-damaged journal from the Lighthouse Mara keeper. The final pages describe structural cracks appearing in the foundation — not from weather, but from below.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "seismic_survey_data": {
+    "name": "Seismic Survey Data",
+    "description": "A data chip from a geological survey marker near Lighthouse Mara. The readings show rhythmic subsurface vibrations at impossible depth — something ancient, moving in patterns too regular to be natural.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "mara_power_cell": {
+    "name": "Mara Power Cell",
+    "description": "A specialized power cell recovered from Lighthouse Mara's backup systems. Still holds a charge. Could be used to restart the lighthouse core.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
   "tannis_dog_tags": {
     "name": "Tannis's Dog Tags",
     "description": "Standard-issue identification tags. The name reads 'PVT. TANNIS, R.' — these must have been torn off during the attack on the perimeter.",

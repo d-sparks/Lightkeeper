@@ -1,0 +1,48 @@
+{
+  "id": "lighthouse_mara",
+  "name": "Lighthouse Mara",
+  "description": "Investigate why Lighthouse Mara went dark and restore its power. The first real expedition into the Nightside — something beneath the lighthouse has broken through.",
+  "startConditions": [{ "hasFlag": "nest_mother_defeated" }],
+  "steps": {
+    "descend_caverns": {
+      "label": "Descend into the Frozen Caverns",
+      "description": "A passage beneath the relay station leads deeper. Explore the frozen caverns below Lighthouse Mara.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "lighthouse_mara_caverns" },
+      "completionConditions": [{ "hasFlag": "visited_mara_caverns" }],
+      "completionActions": [{ "type": "grantXp", "amount": 20 }]
+    },
+    "find_keeper": {
+      "label": "Find the Lighthouse Keeper",
+      "description": "Someone may have survived the collapse. Search the caverns for survivors.",
+      "prerequisiteSteps": ["descend_caverns"],
+      "objective": { "roomId": "lighthouse_mara_caverns", "targetNpc": "keeper_mara" },
+      "completionConditions": [{ "hasFlag": "noticed_structural_damage" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
+    "reach_core": {
+      "label": "Reach the Lighthouse Core",
+      "description": "Descend to the lighthouse's power core. The keeper says a backup power cell can restart the systems.",
+      "prerequisiteSteps": ["find_keeper"],
+      "objective": { "roomId": "lighthouse_mara_core" },
+      "completionConditions": [{ "hasFlag": "visited_mara_core" }],
+      "completionActions": [{ "type": "grantXp", "amount": 20 }]
+    },
+    "restore_power": {
+      "label": "Restore Lighthouse Power",
+      "description": "Route power through both conduits, clear the core chamber, and restart the lighthouse.",
+      "prerequisiteSteps": ["reach_core"],
+      "objective": { "roomId": "lighthouse_mara_core" },
+      "completionConditions": [{ "hasFlag": "lighthouse_mara_restored" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "lines": [
+          "Quest complete: Lighthouse Mara.",
+          "The lighthouse beam cuts across the Nightside once more. But the fractures in the deep rock tell a story that goes far beyond a failed relay station.",
+          "Something ancient is stirring beneath the surface. The seismic survey data might interest someone at the Deep Array — if you can find it."
+        ]}
+      ]
+    }
+  },
+  "startStep": "descend_caverns"
+}

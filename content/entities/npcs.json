@@ -4047,6 +4047,35 @@
       ]
     }
   },
+  "keeper_mara": {
+    "name": "Keeper Renn",
+    "sprite": "old_keeper",
+    "dialogue": [
+      { "speaker": "Keeper Renn", "text": "You... you came from Balor? Thank the light. I've been trapped down here since the quake." },
+      { "speaker": "Keeper Renn", "text": "The foundation cracked three days ago. Not from frost heave — from below. Something pushed up through the bedrock." },
+      { "speaker": "Keeper Renn", "text": "I managed to isolate the backup power conduits, but the core is offline. Without it, the lens stays dark." },
+      { "speaker": "Keeper Renn", "text": "If you can reach the core chamber below, there should be a backup power cell in the storage alcove. Route it through both conduits and the core hatch should unseal." }
+    ],
+    "dialogues": {
+      "default": [
+        { "speaker": "Keeper Renn", "text": "You... you came from Balor? Thank the light. I've been trapped down here since the quake." },
+        { "speaker": "Keeper Renn", "text": "The foundation cracked three days ago. Not from frost heave — from below. Something pushed up through the bedrock." },
+        { "speaker": "Keeper Renn", "text": "I managed to isolate the backup power conduits, but the core is offline. Without it, the lens stays dark." },
+        { "speaker": "Keeper Renn", "text": "If you can reach the core chamber below, there should be a backup power cell in the storage alcove. Route it through both conduits and the core hatch should unseal." }
+      ],
+      "after_restoration": [
+        { "speaker": "Keeper Renn", "text": "The core is online. I can feel the hum through the walls. Lighthouse Mara lives again." },
+        { "speaker": "Keeper Renn", "text": "But what I saw down there... those cracks weren't natural. The geometry in the deep rock — it was too regular. Too deliberate." },
+        { "speaker": "Keeper Renn", "text": "Something old is waking up under the Nightside. Tell Warden Holt. Tell everyone." }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "lighthouse_mara_restored" }],
+        "use": "after_restoration"
+      }
+    ]
+  },
   "waypoint_beacon": {
     "name": "Waypoint Beacon",
     "sprite": "waypoint_beacon",

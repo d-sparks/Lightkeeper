@@ -10,6 +10,16 @@ Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26
 - **In-game autosave indicator** — Consider sending a message to the client when an autosave fires.
 - **Autosave on checkpoint room entry** — Trigger an extra autosave when a player reaches a checkpoint room.
 
+## Content — Lighthouse Mara
+
+- **Lighthouse Mara sprites** — New tiles (power_conduit_a/b, core_hatch, survey_marker, cracked_ice_wall) in frost_crypt tileset need dedicated sprite art in the tileset PNG strip.
+- **Keeper Renn sprite** — Currently uses `old_keeper` sprite. Needs a dedicated `sprites/keeper_renn.png` (frost-worn technician).
+- **Post-restoration NPC reactions** — NPCs at Outpost Balor (Warden Holt, Sgt. Ellers, Tech Maren) should have dialogue updates when `lighthouse_mara_restored` flag is set.
+- **Relay recovery quest chain** — The existing `relay_recovery` quest ends at the nest_mother. Consider linking it to the new `lighthouse_mara` quest or adding a bridge step.
+- **Seismic survey data delivery** — The seismic_survey_data item has no turn-in NPC yet. Should go to someone at the Deep Array or Meridian (MERIDIAN-7 or a geologist NPC).
+- **Lighthouse Mara siege variant** — The existing `lighthouse_siege_arena` challenge could be narratively connected to Lighthouse Mara post-restoration (defend the restored lighthouse).
+- **Environmental hazard tuning** — Cold damage in caverns (2/3s) and core (3/2.5s) needs playtesting. May be too punishing for early Act 1 without frost_salve stockpile.
+
 ## Content — Nightside Path Discovery
 
 - **`visited_dead_road` flag** — The hint triggers don't suppress once the player has already been to the Dead Road. Add `setFlag: visited_dead_road` in dead_road.json.
