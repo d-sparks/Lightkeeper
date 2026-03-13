@@ -1019,5 +1019,30 @@
     "type": "sol_component",
     "rarity": "legendary",
     "solComponentId": "architects_crown"
+  },
+
+  "frozen_expedition_log": {
+    "name": "Frozen Expedition Log",
+    "description": "A frost-cracked survey datapad. Survey Corps, Team Echo — three weeks deep. The final entry reads: 'The crystal formations pulse. Not from vibration or heat expansion. Regular rhythm, 0.4 seconds. Like a heartbeat. Whatever is generating it, it comes from below.' No further entries.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "living_crystal_shard": {
+    "name": "Living Crystal Shard",
+    "description": "A warm umbracite fragment that separated cleanly from the wall when touched — as if offered. Pulses at exactly the same rhythm as the surrounding veins. The Unbounded call crystals like this 'planet-blood.' The term is not metaphorical.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "unbounded_trail_tablet": {
+    "name": "Unbounded Trail Tablet",
+    "description": "A carved stone waymarker with fresh, clean edges — maintained recently. The Unbounded script reads: 'deep path, living rock.' One word repeats three times: 'listen.' And below: 'third descent, approach in quiet.' Someone is still using this path. Still going below. Still coming back.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "ancestors_listening_stone": {
+    "name": "Ancestor's Listening Stone",
+    "description": "A smooth crystal disc worn to perfect flatness on one side by generations of hands. The crystal predates human presence on Erith by millions of years — the Underlumen grew this before there were humans to hold it. Carved on the back in archaic Unbounded script: a name, and below it: 'She listened first. She heard the answer.'",
+    "type": "key",
+    "rarity": "rare"
   }
 }

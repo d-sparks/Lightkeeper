@@ -95,7 +95,8 @@
     { "type": "health_potion", "x": 3, "y": 16 },
     { "type": "flare", "x": 15, "y": 4 },
     { "type": "battery_chip", "x": 9, "y": 11 },
-    { "type": "battery_chip", "x": 19, "y": 5 }
+    { "type": "battery_chip", "x": 19, "y": 5 },
+    { "type": "living_crystal_shard", "x": 4, "y": 15 }
   ],
   "exits": [
     { "x": 1, "y": 18, "leadsTo": "nightside_caverns", "type": "stairs_up", "spawnX": 21, "spawnY": 15 },
@@ -168,6 +169,22 @@
       "once": true
     },
     {
+      "id": "depths_warmth_anomaly",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "depths_warmth_noted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "depths_warmth_noted", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "Your suit's temperature display doesn't make sense. You're deeper than the caverns above — ten, maybe fifteen meters further from the surface. The cold should be worse.",
+          "Instead: warmer. Something from far below is channeling heat upward through the umbracite veins. They're not just mineral deposits. They're conduits. Part of a living system.",
+          "The survey teams mapped this area as geological dead space. The survey teams didn't go deep enough."
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "depths_crystal_guardian_warning",
       "event": "room_entered",
       "conditions": [
@@ -178,6 +195,19 @@
         { "type": "showMessage", "lines": [
           "A deep vibration shakes the floor. Somewhere in the darkness ahead, something massive shifts.",
           "The umbracite veins in the walls pulse brighter for a moment, as if responding to the movement."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "depths_living_crystal_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "living_crystal_shard" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The fragment separated cleanly from the wall when you touched it — as if offered. It's warm. Not room-temperature warm. Body-temperature warm, as if it was pressed against living tissue a moment ago.",
+          "The resonance matches nothing in the Array's mineral catalog. It pulses at exactly the rhythm of the walls — 0.4 seconds, regular as a heartbeat.",
+          "The deeper you go, the stronger it gets. The Unbounded have a name for crystals like this. You've heard Sable use it: 'planet-blood.' She wasn't being poetic."
         ]}
       ],
       "once": true

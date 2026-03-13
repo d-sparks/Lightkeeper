@@ -64,7 +64,8 @@
     { "type": "field_medkit", "x": 20, "y": 12 },
     { "type": "flare", "x": 14, "y": 17 },
     { "type": "battery_chip", "x": 6, "y": 17 },
-    { "type": "battery_chip", "x": 22, "y": 5 }
+    { "type": "battery_chip", "x": 22, "y": 5 },
+    { "type": "unbounded_trail_tablet", "x": 11, "y": 12 }
   ],
   "exits": [
     { "x": 1, "y": 3, "leadsTo": "nightside_depths", "type": "stairs_up", "spawnX": 19, "spawnY": 18 },
@@ -185,6 +186,19 @@
           "The passage opens into a vast natural cavern. Far below, through gaps in the stone, you see light — not sunlight, not Sol light.",
           "A deep, warm bioluminescence radiates from somewhere beneath the planet's crust. The Underlumen.",
           "The stairs at the far end descend toward it. There will be no turning back easily from what lies below."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "passage_trail_tablet_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "unbounded_trail_tablet" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The carved edges are clean, unchipped — maintained recently. The Unbounded are still using this path.",
+          "You recognize some characters from Sable's marks and the patterns sewn into her gear. What you can parse: 'deep path,' 'living rock,' and a word repeated three times that might mean 'listen.' Below that: 'third descent, approach in quiet.'",
+          "The Unbounded have been making this descent for generations. Going below. Coming back. And keeping it quiet from the Ring."
         ]}
       ],
       "once": true

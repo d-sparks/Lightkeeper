@@ -93,6 +93,22 @@ Remaining NPC engagement gaps:
 - **`seismic_survey_data` turn-in** — Item found in Lighthouse Mara caverns has no receiving NPC; add to Warden Holt, Daley, or a Meridian NPC
 - **`waypoint_beacon` dead end** — Waypoint beacon in train_station_junction could point players to Yara; currently just a fast-travel node
 
+## Content — Nightside Descent Storytelling (2026-03-13)
+
+Environmental storytelling pass across the 4-room nightside chain:
+
+- **`nightside_caverns`** — Added `caverns_ambient_entry` (atmospheric room entry), `frozen_expedition_log` item spawn at (14,8), `caverns_expedition_log_found` pickup trigger with Survey Corps Team Echo's final notes (0.4s crystal pulse, day 21, no further entries)
+- **`nightside_depths`** — Added `depths_warmth_anomaly` trigger (temperature inversion — warmer with depth, conduit system), `living_crystal_shard` item spawn at (4,15), `depths_living_crystal_found` pickup trigger ("planet-blood," matches wall rhythm)
+- **`nightside_passage`** — Added `unbounded_trail_tablet` item spawn at (11,12), `passage_trail_tablet_found` pickup trigger (Unbounded script: "listen," "third descent, approach in quiet" — they've been going below for generations)
+- **`underlumen_threshold`** — Added `threshold_deep_exploration` trigger (fires on return visit — crystal patterns ordered, computational, language-like), `ancestors_listening_stone` item spawn at (17,16), `threshold_listening_stone_found` pickup trigger (Sable's ancestor left this behind: "She listened first. She heard the answer.")
+- **`items.json`** — Added 4 new lore items: `frozen_expedition_log`, `living_crystal_shard`, `unbounded_trail_tablet`, `ancestors_listening_stone`
+
+Remaining follow-ups:
+- **Sable dialogue for new items** — Add `hasItem` dialogue rules to `sable_companion` / `sable_nightside_guide` / `sable_threshold` for `living_crystal_shard`, `unbounded_trail_tablet`, and `ancestors_listening_stone` so Sable reacts when the player finds these
+- **Survey team follow-up** — `frozen_expedition_log` mentions Survey Corps Team Echo, Year 441 (R. Delani, Corporal Fen). Consider adding a quest breadcrumb — Archivist Solen or Warden Holt could react to this log
+- **Old Keeper connection** — The expedition log (walls that hum, rhythm from below) connects directly to the Old Keeper's "cryptic ramblings." Add `hasItem: frozen_expedition_log` dialogue rule to `old_keeper` NPC
+- **Threshold deep exploration timing** — `threshold_deep_exploration` fires when `reached_underlumen_threshold` is set on re-entry. Verify this feels correctly timed in practice (should fire after player pushes deeper into the chamber, not at the entrance)
+
 ## Content — Nightside Path Discovery
 
 - **`visited_dead_road` flag** — The hint triggers don't suppress once the player has already been to the Dead Road. Add `setFlag: visited_dead_road` in dead_road.json.
