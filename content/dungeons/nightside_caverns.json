@@ -8,7 +8,7 @@
   "ambientLight": 0.02,
   "environmentalHazard": {
     "type": "cold",
-    "damage": 3,
+    "damage": 4,
     "interval": 2.5
   },
   "width": 25,
@@ -758,14 +758,9 @@
       "y": 6
     },
     {
-      "type": "field_medkit",
+      "type": "bandage",
       "x": 11,
       "y": 11
-    },
-    {
-      "type": "bandage",
-      "x": 2,
-      "y": 15
     },
     { "type": "battery_chip", "x": 16, "y": 14 },
     { "type": "battery_chip", "x": 8, "y": 4 }

@@ -38,12 +38,12 @@
     { "type": "dusk_crawler", "x": 10, "y": 6, "count": 2, "patrol": "wander" },
     { "type": "dusk_crawler", "x": 16, "y": 11, "count": 2, "patrol": "wander" },
     { "type": "feral_hound", "x": 12, "y": 9, "count": 2, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 14, "y": 12, "count": 1, "patrol": "wander" },
     { "type": "gloom_wraith", "x": 11, "y": 5, "count": 1, "patrol": "wander" }
   ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "tannis_dog_tags", "x": 11, "y": 5 },
-    { "type": "bandage", "x": 20, "y": 11 },
     { "type": "lore_raider_confession", "x": 4, "y": 13 }
   ],
   "exits": [
