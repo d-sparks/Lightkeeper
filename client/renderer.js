@@ -4608,7 +4608,7 @@ class Renderer {
     if (onScreen) {
       // Draw a small yellow arrow pointing down at the target from above
       const bobOffset = 4 * Math.sin(Date.now() / 250); // gentle bobbing
-      const arrowTipY = screenY - ts * 0.8 + bobOffset;
+      const arrowTipY = screenY - ts * 1.5 + bobOffset;
       const arrowTipX = screenX;
       const arrowSize = 8;
 
