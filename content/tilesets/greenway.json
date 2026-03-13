@@ -1,0 +1,92 @@
+{
+  "id": "greenway",
+  "image": "tilesets/greenway.png",
+  "tileSize": 16,
+  "tiles": {
+    "0": { "name": "void",              "solid": true  },
+    "1": { "name": "dirt_path",          "solid": false },
+    "2": { "name": "grass_floor",        "solid": false },
+    "3": { "name": "hedge_wall",         "solid": true  },
+    "4": { "name": "door_closed",        "solid": true,  "interactable": "door", "togglesTo": 5 },
+    "5": { "name": "door_open",          "solid": false, "interactable": "door", "togglesTo": 4 },
+    "6": { "name": "stairs_down",        "solid": false, "exit": true },
+    "7": { "name": "irrigation_canal",   "solid": true  },
+    "8": { "name": "stairs_up",          "solid": false, "exit": true },
+    "9": {
+      "name": "checkpoint_gate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "greenway_pass_granted" }],
+      "failMessage": "Bulwark checkpoint. Papers required. Talk to the checkpoint officer."
+    },
+    "10": {
+      "name": "supply_crate_closed",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 11
+    },
+    "11": { "name": "supply_crate_opened", "solid": false },
+    "12": {
+      "name": "locked_supply_crate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 11,
+      "conditions": [{ "hasItem": "bulwark_requisition_key" }],
+      "failMessage": "Military supply crate. Sealed with a Bulwark requisition lock.",
+      "onInteract": [{ "type": "removeItem", "itemType": "bulwark_requisition_key" }]
+    },
+    "13": { "name": "crop_row",           "solid": false },
+    "14": { "name": "plowed_field",       "solid": false },
+    "15": { "name": "wooden_fence",       "solid": true  },
+    "16": { "name": "stone_wall",         "solid": true  },
+    "17": { "name": "barricade",          "solid": true, "destructible": true, "destroysTo": 1 },
+    "18": { "name": "trellis_wall",       "solid": true  },
+    "19": {
+      "name": "depot_gate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasItem": "depot_access_key" }],
+      "failMessage": "The supply depot is locked. Bulwark soldiers control access.",
+      "onInteract": [{ "type": "removeItem", "itemType": "depot_access_key" }]
+    },
+    "20": {
+      "name": "notice_board",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 20
+    },
+    "21": { "name": "greenhouse_floor",   "solid": false },
+    "22": { "name": "greenhouse_wall",    "solid": true  },
+    "23": {
+      "name": "confiscated_crate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 11,
+      "conditions": [{ "hasFlag": "supply_sabotage_started" }],
+      "failMessage": "Confiscated supplies. The Bulwark seal is intact."
+    },
+    "24": { "name": "hay_bale",           "solid": true  },
+    "25": { "name": "water_trough",       "solid": true  },
+    "26": { "name": "elevated_walkway",   "solid": false, "elevation": 1 },
+    "27": {
+      "name": "ramp_north",
+      "solid": false,
+      "ramp": true,
+      "rampDir": "north",
+      "rampFrom": 0,
+      "rampTo": 1
+    },
+    "28": {
+      "name": "ramp_south",
+      "solid": false,
+      "ramp": true,
+      "rampDir": "south",
+      "rampFrom": 0,
+      "rampTo": 1
+    },
+    "29": { "name": "watchtower_wall",    "solid": true, "elevation": 1, "fullWall": true },
+    "30": { "name": "elevated_wall",      "solid": true, "elevation": 1 }
+  }
+}

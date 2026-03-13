@@ -4,6 +4,32 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 8/14 pass, 6 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; relay_recovery FIXED; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
 
+## Content — Greenway Zones & Bulwark Faction (2026-03-13)
+
+Act 2 Greenway agricultural corridor and Bulwark military faction content added:
+
+- **Greenway tileset** (`content/tilesets/greenway.json`) — 31 tiles: dirt paths, grass, crop rows, plowed fields, irrigation canals, hedge/stone/trellis walls, greenhouse, barricades, checkpoint gates, supply crates, elevated walkways, watchtower walls
+- **Bulwark monsters** (7 types in `monsters.json`) — bulwark_conscript (melee), bulwark_rifleman (ranged), bulwark_sergeant (pack_leader w/ aura), bulwark_engineer (ranged, projectile burst), bulwark_shieldwall (guard, high HP), bulwark_captain (boss), bulwark_patrol_drone (patrol)
+- **Greenway NPCs** (7 in `npcs.json`) — Checkpoint Officer Maren, Farmer Dael, Farmer Lissa, Merchant Orin, Councillor Asha Denn, Pvt. Yenn (doubting soldier), Elder Moss; all with conditional dialogue tied to quest flags
+- **Items** (15 new in `items.json`) — bulwark_requisition_key, depot_access_key, greenway_pass, field_ration_greenway, bio_graft, compact_orders, bulwark_combat_rifle, bulwark_shock_baton, military_medkit, bulwark_dog_tags, greenway_seed_sample, confiscated_supplies, bulwark_patrol_log, bio_leech_node_chip, symbiotic_core_chip
+- **Loot tables** (`content/loot/bulwark.json`) — bulwark_common, bulwark_sergeant, bulwark_captain, bulwark_drone
+- **4 dungeons** — greenway_checkpoint (entry from Civic Center, pass required), greenway_farmstead (agricultural fields under patrol), greenway_supply_depot (combat-heavy, confiscated supplies), greenway_settlement (safe hub with Asha Denn + waypoint)
+- **Quest: Greenway Liberation** — Talk to Dael → supply sabotage starts → find depot key (Lissa hint) → recover confiscated supplies → deliver to Asha Denn for XP + symbiotic_core_chip
+- **Meridian connection** — Added exit from meridian_civic (23,11) to greenway_checkpoint; added greenway_pass grant trigger via Registrar Hollis; added greenway_settlement waypoint to settings.json
+
+Remaining follow-ups:
+- **Spire of Winds dungeon chain** — The Monument of Winds / Spire of Winds is referenced in dialogue but has no dungeon files yet. Needs: spire_winds_approach (Bulwark fortress), spire_winds_core (ancient Spire interior with hover puzzles, wind mechanics). This is the Act 2 climax.
+- **General Thorne boss fight** — Referenced in Compact orders and Asha Denn dialogue. Needs a boss monster entry and placement in the Spire of Winds.
+- **Hover ability unlock** — Act 2 should unlock the Hover ability at the Spire of Winds. Needs hover_emitter sol component placement and unlock trigger.
+- **Bulwark sprites** — All 7 Bulwark monster types need dedicated sprites (currently using default/placeholder).
+- **Greenway NPC sprites** — Checkpoint Officer Maren, Farmer Dael, Farmer Lissa, Merchant Orin, Councillor Asha Denn, Pvt. Yenn, Elder Moss all need sprites.
+- **Greenway tileset PNG** — `tilesets/greenway.png` sprite strip needed for the 31 tile definitions.
+- **Meridian political crisis content** — Per storyboard, Meridian itself should transform with Bulwark checkpoints and political tension when Act 2 begins. Needs flag-gated atmosphere triggers in existing Meridian rooms.
+- **MERIDIAN-7 / Array alliance content** — Per storyboard, the Array provides intelligence through MERIDIAN-7 during Act 2. Needs triggers/dialogue tying Array Hub to Greenway operations.
+- **Greenway bio-lab dungeon** — The Greenway's bio-tech labs are referenced in dialogue but have no dungeon. Could be an optional area with sol component rewards.
+- **Bulwark encounter difficulty tuning** — Stats set at Act 2 level (HP 40-400, DMG 10-20). Needs playtesting to confirm balance vs. post-Act 1 player power.
+- **Supply depot combat encounter balance** — 7 monsters in a single room may be overwhelming. Consider adjusting spawn positions or adding wave triggers.
+
 ## Checkpoint Tool — Autosave History
 
 - **MAX_HISTORY constant** — Currently hardcoded to 5 in `server/session-store.js`. Could be exposed as an env var.

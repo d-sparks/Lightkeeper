@@ -4,14 +4,18 @@
     "description": "Restores 25 health",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "heal": 25 }
+    "effect": {
+      "heal": 25
+    }
   },
   "bandage": {
     "name": "Bandage",
     "description": "A basic field dressing. Restores 15 health.",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "heal": 15 }
+    "effect": {
+      "heal": 15
+    }
   },
   "rusty_sword": {
     "name": "Rusty Sword",
@@ -19,7 +23,9 @@
     "type": "weapon",
     "rarity": "common",
     "slot": "weapon",
-    "stats": { "attackDamage": 5 }
+    "stats": {
+      "attackDamage": 5
+    }
   },
   "blaster": {
     "name": "Standard Blaster",
@@ -27,8 +33,14 @@
     "type": "weapon",
     "rarity": "common",
     "slot": "weapon",
-    "stats": { "attackDamage": 3, "projectile": true, "projectileType": "blaster_bolt" },
-    "ability": { "id": "blaster_shot" }
+    "stats": {
+      "attackDamage": 3,
+      "projectile": true,
+      "projectileType": "blaster_bolt"
+    },
+    "ability": {
+      "id": "blaster_shot"
+    }
   },
   "combat_baton": {
     "name": "Combat Baton",
@@ -36,8 +48,12 @@
     "type": "weapon",
     "rarity": "common",
     "slot": "weapon",
-    "stats": { "attackDamage": 5 },
-    "ability": { "id": "melee_strike" }
+    "stats": {
+      "attackDamage": 5
+    },
+    "ability": {
+      "id": "melee_strike"
+    }
   },
   "torch": {
     "name": "Torch",
@@ -69,7 +85,9 @@
     "type": "equipment",
     "rarity": "rare",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 12 },
+    "stats": {
+      "attackDamage": 12
+    },
     "hasSolGrid": true,
     "solUnitId": "sol_unit_mk1"
   },
@@ -86,7 +104,9 @@
     "type": "equipment",
     "rarity": "common",
     "slot": "medipac",
-    "ability": { "id": "medipac_heal" }
+    "ability": {
+      "id": "medipac_heal"
+    }
   },
   "damage_booster_chip": {
     "name": "Damage Booster Chip",
@@ -126,14 +146,18 @@
     "description": "Standard-issue field rations. Bland but nutritious. Restores 10 health.",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "heal": 10 }
+    "effect": {
+      "heal": 10
+    }
   },
   "field_medkit": {
     "name": "Field Medkit",
     "description": "A proper medical kit with fungal salve and stim compounds. Restores 40 health.",
     "type": "consumable",
     "rarity": "uncommon",
-    "effect": { "heal": 40 }
+    "effect": {
+      "heal": 40
+    }
   },
   "circuit_board": {
     "name": "Circuit Board",
@@ -184,14 +208,18 @@
     "description": "A single-use emergency flare. Light it to mark an extraction point — a burning beacon you can return to.",
     "type": "consumable",
     "rarity": "uncommon",
-    "effect": { "createExtraction": true }
+    "effect": {
+      "createExtraction": true
+    }
   },
   "extraction_protocol": {
     "name": "Return to Flare",
     "description": "An active extraction beacon burns somewhere in the dark. Use this to warp back to it.",
     "type": "consumable",
     "rarity": "uncommon",
-    "effect": { "teleportToExtraction": true }
+    "effect": {
+      "teleportToExtraction": true
+    }
   },
   "relay_log": {
     "name": "Relay Log",
@@ -267,8 +295,12 @@
     "type": "weapon",
     "rarity": "uncommon",
     "slot": "weapon",
-    "stats": { "attackDamage": 8 },
-    "ability": { "id": "melee_strike" }
+    "stats": {
+      "attackDamage": 8
+    },
+    "ability": {
+      "id": "melee_strike"
+    }
   },
   "precision_blaster": {
     "name": "Precision Blaster",
@@ -276,8 +308,14 @@
     "type": "weapon",
     "rarity": "uncommon",
     "slot": "weapon",
-    "stats": { "attackDamage": 6, "projectile": true, "projectileType": "blaster_bolt" },
-    "ability": { "id": "precision_shot" }
+    "stats": {
+      "attackDamage": 6,
+      "projectile": true,
+      "projectileType": "blaster_bolt"
+    },
+    "ability": {
+      "id": "precision_shot"
+    }
   },
   "shock_baton": {
     "name": "Shock Baton",
@@ -285,8 +323,12 @@
     "type": "weapon",
     "rarity": "uncommon",
     "slot": "weapon",
-    "stats": { "attackDamage": 7 },
-    "ability": { "id": "shock_strike" }
+    "stats": {
+      "attackDamage": 7
+    },
+    "ability": {
+      "id": "shock_strike"
+    }
   },
   "pulse_rifle": {
     "name": "Pulse Rifle",
@@ -294,8 +336,14 @@
     "type": "weapon",
     "rarity": "rare",
     "slot": "weapon",
-    "stats": { "attackDamage": 8, "projectile": true, "projectileType": "pulse_bolt" },
-    "ability": { "id": "pulse_shot" }
+    "stats": {
+      "attackDamage": 8,
+      "projectile": true,
+      "projectileType": "pulse_bolt"
+    },
+    "ability": {
+      "id": "pulse_shot"
+    }
   },
   "efficiency_core_chip": {
     "name": "Efficiency Core",
@@ -384,7 +432,9 @@
     "description": "A hand-crafted rechargeable power cell. Restores 30 energy when used and can be recharged at any charging station for free. Self-sufficiency in your pocket.",
     "type": "consumable",
     "rarity": "rare",
-    "effect": { "energy": 30 }
+    "effect": {
+      "energy": 30
+    }
   },
   "array_handbook": {
     "name": "Solar Array Handbook",
@@ -459,7 +509,9 @@
     "type": "equipment",
     "rarity": "epic",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 15 },
+    "stats": {
+      "attackDamage": 15
+    },
     "hasSolGrid": true,
     "solUnitId": "sol_unit_mk1_plus"
   },
@@ -474,7 +526,9 @@
     "description": "An upgraded rechargeable power cell built with hardened military components. Restores 60 energy when used and can be recharged at any charging station.",
     "type": "consumable",
     "rarity": "epic",
-    "effect": { "energy": 60 }
+    "effect": {
+      "energy": 60
+    }
   },
   "bio_resonance_amplifier_chip": {
     "name": "Bio-Resonance Amplifier",
@@ -574,7 +628,9 @@
     "description": "A numbing salve brewed from frost lichen. Dulls pain and closes wounds. Restores 20 health.",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "heal": 20 }
+    "effect": {
+      "heal": 20
+    }
   },
   "frozen_core": {
     "name": "Frozen Core",
@@ -587,7 +643,9 @@
     "description": "A bitter draught brewed from bioluminescent mushrooms. Restores 20 health.",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "heal": 20 }
+    "effect": {
+      "heal": 20
+    }
   },
   "spore_sample": {
     "name": "Spore Sample",
@@ -666,17 +724,17 @@
   },
   "bio_leech_node_chip": {
     "name": "Bio-Leech Node",
-    "description": "Greenway bio-tech that siphons life force from struck targets. Place in a Sol Grid for heal-on-hit.",
-    "type": "sol_component",
+    "description": "A Greenway bio-tech sol component. Living tissue that siphons vitality from struck targets.",
+    "type": "misc",
     "rarity": "uncommon",
-    "solComponentId": "bio_leech_node"
+    "solComponent": "bio_leech_node"
   },
   "symbiotic_core_chip": {
     "name": "Symbiotic Core",
-    "description": "A living symbiote from the Greenway that feeds on combat energy, healing its host with each strike. Place in a Sol Grid.",
-    "type": "sol_component",
+    "description": "Rare Greenway sol component. A living symbiote that bonds with the sol grid, boosting damage and healing.",
+    "type": "misc",
     "rarity": "rare",
-    "solComponentId": "symbiotic_core"
+    "solComponent": "symbiotic_core"
   },
   "mycelial_matrix_chip": {
     "name": "Mycelial Matrix",
@@ -705,7 +763,9 @@
     "type": "equipment",
     "rarity": "epic",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 18 },
+    "stats": {
+      "attackDamage": 18
+    },
     "hasSolGrid": true,
     "solUnitId": "nightcaster_frame"
   },
@@ -715,7 +775,9 @@
     "type": "equipment",
     "rarity": "epic",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 14 },
+    "stats": {
+      "attackDamage": 14
+    },
     "hasSolGrid": true,
     "solUnitId": "array_precision_core"
   },
@@ -725,7 +787,9 @@
     "type": "equipment",
     "rarity": "legendary",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 14 },
+    "stats": {
+      "attackDamage": 14
+    },
     "hasSolGrid": true,
     "solUnitId": "greenway_bioframe"
   },
@@ -735,7 +799,9 @@
     "type": "equipment",
     "rarity": "legendary",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 16 },
+    "stats": {
+      "attackDamage": 16
+    },
     "hasSolGrid": true,
     "solUnitId": "underlumen_nexus"
   },
@@ -820,7 +886,9 @@
     "description": "A salvaged single-use power chip. Cracking open the casing releases a quick burst of stored energy — restores 25 energy to your Sol Unit's rechargeable pool.",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "energy": 25 }
+    "effect": {
+      "energy": 25
+    }
   },
   "underlumen_heart_chip": {
     "name": "Underlumen Heart",
@@ -936,14 +1004,15 @@
     "rarity": "legendary",
     "solComponentId": "prismatic_core"
   },
-
   "metal_casing": {
     "name": "Metal Casing",
     "description": "A sturdy housing plate stripped from wrecked machinery. Reinforces weapon structure, increasing raw damage output.",
     "type": "crafting",
     "rarity": "common",
     "stackable": true,
-    "weaponUpgrade": { "damage": 1 }
+    "weaponUpgrade": {
+      "damage": 1
+    }
   },
   "metal_linker": {
     "name": "Metal Linker",
@@ -951,7 +1020,9 @@
     "type": "crafting",
     "rarity": "common",
     "stackable": true,
-    "weaponUpgrade": { "cooldownReduction": 0.05 }
+    "weaponUpgrade": {
+      "cooldownReduction": 0.05
+    }
   },
   "power_conduit": {
     "name": "Power Conduit",
@@ -959,7 +1030,9 @@
     "type": "crafting",
     "rarity": "uncommon",
     "stackable": true,
-    "weaponUpgrade": { "energyCostReduction": 0.08 }
+    "weaponUpgrade": {
+      "energyCostReduction": 0.08
+    }
   },
   "stabilizer_rod": {
     "name": "Stabilizer Rod",
@@ -967,7 +1040,9 @@
     "type": "crafting",
     "rarity": "uncommon",
     "stackable": true,
-    "weaponUpgrade": { "damage": 2 }
+    "weaponUpgrade": {
+      "damage": 2
+    }
   },
   "focusing_lens": {
     "name": "Focusing Lens",
@@ -975,7 +1050,9 @@
     "type": "crafting",
     "rarity": "rare",
     "stackable": true,
-    "weaponUpgrade": { "damageMultiplier": 0.10 }
+    "weaponUpgrade": {
+      "damageMultiplier": 0.1
+    }
   },
   "plasma_coil": {
     "name": "Plasma Coil",
@@ -983,7 +1060,10 @@
     "type": "crafting",
     "rarity": "rare",
     "stackable": true,
-    "weaponUpgrade": { "damage": 2, "cooldownReduction": 0.05 }
+    "weaponUpgrade": {
+      "damage": 2,
+      "cooldownReduction": 0.05
+    }
   },
   "silicon_amplifier_chip": {
     "name": "Silicon Amplifier",
@@ -1020,7 +1100,6 @@
     "rarity": "legendary",
     "solComponentId": "architects_crown"
   },
-
   "frozen_expedition_log": {
     "name": "Frozen Expedition Log",
     "description": "A frost-cracked survey datapad. Survey Corps, Team Echo — three weeks deep. The final entry reads: 'The crystal formations pulse. Not from vibration or heat expansion. Regular rhythm, 0.4 seconds. Like a heartbeat. Whatever is generating it, it comes from below.' No further entries.",
@@ -1044,5 +1123,108 @@
     "description": "A smooth crystal disc worn to perfect flatness on one side by generations of hands. The crystal predates human presence on Erith by millions of years — the Underlumen grew this before there were humans to hold it. Carved on the back in archaic Unbounded script: a name, and below it: 'She listened first. She heard the answer.'",
     "type": "key",
     "rarity": "rare"
+  },
+  "bulwark_requisition_key": {
+    "name": "Bulwark Requisition Key",
+    "description": "A military-issue key used by Bulwark engineers to access supply crates. Stamped with a Compact serial number.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "depot_access_key": {
+    "name": "Depot Access Key",
+    "description": "Opens the main gate to the Greenway supply depot. Taken from an off-duty engineer's toolbox.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "greenway_pass": {
+    "name": "Greenway Transit Pass",
+    "description": "Civic authorization to pass through Bulwark checkpoints in the Greenway corridor. Signed by the Land Registry.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "field_ration_greenway": {
+    "name": "Greenway Field Ration",
+    "description": "Fresh produce from the Greenway farms. More nourishing than standard rations. Restores 40 health.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": {
+      "heal": 40
+    }
+  },
+  "bio_graft": {
+    "name": "Greenway Bio-Graft",
+    "description": "A living tissue patch grown in the Greenway bio-labs. Bonds with flesh to accelerate healing. Restores 60 health.",
+    "type": "consumable",
+    "rarity": "uncommon",
+    "effect": {
+      "heal": 60
+    }
+  },
+  "compact_orders": {
+    "name": "Compact Field Orders",
+    "description": "Sealed orders from General Thorne to the Greenway garrison. Details troop rotations and supply requisition quotas. The numbers are staggering — they're stockpiling far more than a garrison needs.",
+    "type": "misc",
+    "rarity": "uncommon"
+  },
+  "bulwark_combat_rifle": {
+    "name": "Bulwark Combat Rifle",
+    "description": "Standard-issue Compact military weapon. Well-maintained and accurate at range.",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "weapon",
+    "stats": {
+      "attackDamage": 8,
+      "projectile": true,
+      "projectileType": "energy_bolt"
+    },
+    "ability": {
+      "id": "blaster_shot"
+    }
+  },
+  "bulwark_shock_baton": {
+    "name": "Bulwark Shock Baton",
+    "description": "Military-grade close-quarters weapon with integrated stun capacitor. Standard Bulwark issue.",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "weapon",
+    "stats": {
+      "attackDamage": 10
+    },
+    "ability": {
+      "id": "melee_strike"
+    }
+  },
+  "military_medkit": {
+    "name": "Military Medkit",
+    "description": "Compact-issue medical supplies. Better than civilian equipment. Restores 50 health.",
+    "type": "consumable",
+    "rarity": "uncommon",
+    "effect": {
+      "heal": 50
+    }
+  },
+  "bulwark_dog_tags": {
+    "name": "Bulwark Dog Tags",
+    "description": "Identification tags from a Bulwark soldier. The name and rank are stamped in neat lettering.",
+    "type": "misc",
+    "rarity": "common"
+  },
+  "greenway_seed_sample": {
+    "name": "Greenway Seed Sample",
+    "description": "Bio-engineered crop seeds from the Greenway agricultural labs. The husks pulse faintly with embedded living circuitry.",
+    "type": "misc",
+    "rarity": "uncommon"
+  },
+  "confiscated_supplies": {
+    "name": "Confiscated Supplies",
+    "description": "A crate of food and medicine seized from Greenway farmers by the Bulwark. The settlement needs these back.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "bulwark_patrol_log": {
+    "name": "Bulwark Patrol Log",
+    "description": "A duty roster and patrol schedule for the Greenway checkpoint. Lists guard rotations, shift changes, and blind spots in coverage.",
+    "type": "misc",
+    "rarity": "uncommon"
   }
 }

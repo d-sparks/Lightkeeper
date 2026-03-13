@@ -1,0 +1,109 @@
+{
+  "id": "greenway_checkpoint",
+  "name": "Greenway Checkpoint",
+  "depth": 0,
+  "tileset": "greenway",
+  "theme": "greenway_corridor",
+  "tileSize": 32,
+  "width": 28,
+  "height": 16,
+  "data": [
+    16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,
+    16, 1, 1, 1, 1, 1,16, 2, 2, 2, 2, 2,16,16,16, 2, 2, 2, 2, 2,16, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1,16, 2,13,13,13, 2,16,16,16, 2,13,13,13, 2,16, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 4, 2,13,13,13, 2, 1, 1, 1, 2,13,13,13, 2, 4, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1,16, 2,13,13,13, 2, 1, 1, 1, 2,13,13,13, 2,16, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1,16, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2,16, 1, 1, 1, 1, 1, 1,16,
+    16,16,16, 4,16,16,16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,16,16, 9,16,16,16,16,
+     8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16,16,16, 4,16,16,16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,16,16,16,16,16,16,16,
+    16, 1, 1, 1, 1, 1,16, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2,16, 0, 0, 0, 0, 0, 0,16,
+    16, 1, 1,10, 1, 1,16, 2,14,14,14, 2, 1, 1, 1, 2,14,14,14, 2,16, 0, 0, 0, 0, 0, 0,16,
+    16, 1, 1, 1, 1, 1, 4, 2,14,14,14, 2, 1, 1, 1, 2,14,14,14, 2,16, 0, 0, 0, 0, 0, 0,16,
+    16, 1, 1, 1, 1, 1,16, 2,14,14,14, 2, 1, 1, 1, 2,14,14,14, 2,16, 0, 0, 0, 0, 0, 0,16,
+    16, 1, 1, 1, 1, 1,16, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2,16, 0, 0, 0, 0, 0, 0,16,
+    16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16
+  ],
+  "spawns": [
+    { "x": 2, "y": 7, "type": "player_start" },
+    { "x": 2, "y": 8, "type": "player_start" },
+    { "x": 3, "y": 7, "type": "player_start" },
+    { "x": 3, "y": 8, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "bulwark_conscript", "x": 12, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_conscript", "x": 14, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_rifleman", "x": 12, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_patrol_drone", "x": 10, "y": 7, "count": 1, "patrol": "patrol", "patrolPath": [{ "x": 10, "y": 7 }, { "x": 18, "y": 7 }] }
+  ],
+  "npcSpawns": [
+    { "type": "checkpoint_officer_maren", "x": 20, "y": 7 },
+    { "type": "bulwark_soldier_doubter", "x": 4, "y": 2 }
+  ],
+  "itemSpawns": [
+    { "type": "bulwark_patrol_log", "x": 3, "y": 11 }
+  ],
+  "exits": [
+    { "x": 0, "y": 7, "leadsTo": "meridian_civic", "type": "stairs_up", "spawnX": 22, "spawnY": 12 },
+    { "x": 27, "y": 7, "leadsTo": "greenway_farmstead", "type": "stairs_down", "spawnX": 1, "spawnY": 8 }
+  ],
+  "triggers": [
+    {
+      "id": "arrive_checkpoint",
+      "event": "room_entered",
+      "conditions": [{ "not": { "hasFlag": "visited_greenway_checkpoint" } }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The corridor opens into a wide agricultural transit hub. Bright grow-lights line the ceiling, casting everything in warm amber.",
+          "But the warmth ends at the barricades. Bulwark soldiers in grey uniforms man a checkpoint across the main path. Military drones hover overhead, scanning.",
+          "Beyond the barricade, you can see the Greenway \u2014 rows of crops stretching into the distance, greenhouses glinting under artificial sun. And far beyond, a tall stone structure rises above the fields: the Monument of Winds."
+        ]},
+        { "type": "setFlag", "flag": "visited_greenway_checkpoint" }
+      ],
+      "once": true
+    },
+    {
+      "id": "checkpoint_pass_granted",
+      "event": "npc_interacted",
+      "filter": { "npcType": "checkpoint_officer_maren" },
+      "conditions": [
+        { "hasItem": "greenway_pass" },
+        { "not": { "hasFlag": "greenway_pass_granted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "greenway_pass_granted" },
+        { "type": "removeItem", "itemType": "greenway_pass" },
+        { "type": "showMessage", "lines": [
+          "Officer Maren examines your transit pass, then nods curtly.",
+          "'Authorization confirmed. You may proceed through the checkpoint. Stay on designated paths.'"
+        ]},
+        { "type": "grantXp", "amount": 20 }
+      ],
+      "once": true
+    },
+    {
+      "id": "supply_crate_loot",
+      "event": "door_interacted",
+      "filter": { "tileX": 3, "tileY": 11 },
+      "actions": [
+        { "type": "spawnItem", "itemType": "military_medkit", "x": 4, "y": 11 },
+        { "type": "showMessage", "text": "The supply crate contains military medical supplies." }
+      ],
+      "once": true
+    },
+    {
+      "id": "notice_board_checkpoint",
+      "event": "door_interacted",
+      "filter": { "tileX": 13, "tileY": 7 },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "\u2014 COMPACT EMERGENCY ORDER 7-C \u2014",
+          "By authority of General Thorne, all civilian transit through the Greenway agricultural corridor requires Compact authorization.",
+          "The Monument of Winds and surrounding area are designated RESTRICTED MILITARY ZONES.",
+          "Unauthorized personnel will be detained. This order is effective immediately and supersedes all prior civic agreements."
+        ]}
+      ]
+    }
+  ]
+}

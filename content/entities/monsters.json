@@ -635,5 +635,121 @@
     ],
     "lootTable": "threshold_keeper",
     "xp": 130
+  },
+
+  "bulwark_conscript": {
+    "name": "Bulwark Conscript",
+    "sprite": "sprites/bulwark_conscript.png",
+    "size": [16, 16],
+    "health": 80,
+    "speed": 1.3,
+    "damage": 14,
+    "attackRange": 1,
+    "attackSpeed": 1.0,
+    "ai": "melee_chase",
+    "lootTable": "bulwark_common",
+    "xp": 18,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 7, "range": 3.5, "damage": 1.4, "speed": 7, "duration": 0.25 }
+    ]
+  },
+  "bulwark_rifleman": {
+    "name": "Bulwark Rifleman",
+    "sprite": "sprites/bulwark_rifleman.png",
+    "size": [16, 16],
+    "health": 65,
+    "speed": 1.0,
+    "damage": 18,
+    "attackRange": 8,
+    "attackSpeed": 0.7,
+    "projectile": "energy_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "bulwark_common",
+    "xp": 22
+  },
+  "bulwark_sergeant": {
+    "name": "Bulwark Sergeant",
+    "sprite": "sprites/bulwark_sergeant.png",
+    "size": [16, 16],
+    "health": 160,
+    "speed": 1.1,
+    "damage": 16,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "pack_leader",
+    "aura": { "range": 5, "damageMult": 1.2, "speedMult": 1.1 },
+    "lootTable": "bulwark_sergeant",
+    "xp": 30,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 9, "range": 2, "damage": 1.4, "knockback": 120 },
+      { "type": "stun", "cooldown": 12, "damage": 0.5, "duration": 1.0 }
+    ]
+  },
+  "bulwark_engineer": {
+    "name": "Bulwark Engineer",
+    "sprite": "sprites/bulwark_engineer.png",
+    "size": [16, 16],
+    "health": 100,
+    "speed": 0.9,
+    "damage": 12,
+    "attackRange": 6,
+    "attackSpeed": 0.8,
+    "projectile": "energy_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "bulwark_common",
+    "xp": 25,
+    "specialAttacks": [
+      { "type": "projectile_burst", "cooldown": 10, "projectile": "energy_bolt", "count": 3, "spread": 0.4 }
+    ]
+  },
+  "bulwark_shieldwall": {
+    "name": "Bulwark Shieldwall",
+    "sprite": "sprites/bulwark_shieldwall.png",
+    "size": [16, 16],
+    "health": 200,
+    "speed": 0.7,
+    "damage": 12,
+    "attackRange": 1.5,
+    "attackSpeed": 0.6,
+    "ai": "guard",
+    "lootTable": "bulwark_common",
+    "xp": 28,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 10, "range": 2.5, "damage": 1.5, "knockback": 140 }
+    ]
+  },
+  "bulwark_captain": {
+    "name": "Bulwark Captain",
+    "sprite": "sprites/bulwark_captain.png",
+    "size": [16, 16],
+    "health": 400,
+    "speed": 1.2,
+    "damage": 20,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "boss": true,
+    "bossTitle": "Greenway Garrison Commander",
+    "lootTable": "bulwark_captain",
+    "xp": 80,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 6, "range": 4, "damage": 1.6, "speed": 8, "duration": 0.25 },
+      { "type": "ground_slam", "cooldown": 9, "range": 2.5, "damage": 1.6, "knockback": 160 },
+      { "type": "stun", "cooldown": 12, "damage": 0.5, "duration": 1.2 }
+    ]
+  },
+  "bulwark_patrol_drone": {
+    "name": "Bulwark Patrol Drone",
+    "sprite": "sprites/bulwark_drone.png",
+    "size": [16, 16],
+    "health": 40,
+    "speed": 2.0,
+    "damage": 10,
+    "attackRange": 5,
+    "attackSpeed": 1.0,
+    "projectile": "energy_bolt",
+    "ai": "patrol",
+    "lootTable": "bulwark_drone",
+    "xp": 15
   }
 }

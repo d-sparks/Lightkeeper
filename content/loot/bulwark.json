@@ -1,0 +1,53 @@
+{
+  "bulwark_common": {
+    "dropChance": 0.3,
+    "rolls": [
+      { "item": "salvage", "weight": 10 },
+      { "item": "bandage", "weight": 4 },
+      { "item": "health_potion", "weight": 3 },
+      { "item": "bulwark_dog_tags", "weight": 6 },
+      { "item": "military_medkit", "weight": 1 },
+      { "item": "metal_casing", "weight": 4 },
+      { "item": "metal_linker", "weight": 3 },
+      { "item": "bio_leech_node_chip", "weight": 1 }
+    ]
+  },
+  "bulwark_sergeant": {
+    "dropChance": 0.5,
+    "rolls": [
+      { "item": "salvage", "weight": 8 },
+      { "item": "health_potion", "weight": 3 },
+      { "item": "military_medkit", "weight": 2 },
+      { "item": "compact_orders", "weight": 2 },
+      { "item": "bulwark_shock_baton", "weight": 1 },
+      { "item": "bulwark_requisition_key", "weight": 2 },
+      { "item": "stabilizer_rod", "weight": 3 },
+      { "item": "power_conduit", "weight": 2 },
+      { "item": "bio_leech_node_chip", "weight": 1 }
+    ]
+  },
+  "bulwark_captain": {
+    "dropChance": 0.85,
+    "rolls": [
+      { "item": "salvage", "weight": 4 },
+      { "item": "field_medkit", "weight": 3 },
+      { "item": "military_medkit", "weight": 2 },
+      { "item": "bulwark_combat_rifle", "weight": 2 },
+      { "item": "compact_orders", "weight": 3 },
+      { "item": "symbiotic_core_chip", "weight": 1 },
+      { "item": "efficiency_core_chip", "weight": 2 },
+      { "item": "power_conduit", "weight": 2 },
+      { "item": "plasma_coil", "weight": 1 },
+      { "item": "focusing_lens", "weight": 1 }
+    ]
+  },
+  "bulwark_drone": {
+    "dropChance": 0.2,
+    "rolls": [
+      { "item": "salvage", "weight": 12 },
+      { "item": "metal_casing", "weight": 6 },
+      { "item": "metal_linker", "weight": 4 },
+      { "item": "reinforced_battery_chip", "weight": 1 }
+    ]
+  }
+}
