@@ -1,6 +1,12 @@
 # TODOs
 
-- [sonnet] Fix quarantine sim loop bug — bot cycles quarantine depth 1-3 forever instead of progressing. The traverse_procedural goal never acquires supply_crate_key because the bot exits before reaching depth 3. Add retry limit or depth-targeting fix in headless-sim.js doTraverseProcedural(). This blocks all automated mainline testing.
+- [opus] We need a way to reliably get more medical supplies in the early game.
+- [sonnet] Gifting myself medical supplies/bandages/etc in the early game doesn't seem to let me use my medkit ability.
+- [opus] We need to recalibrate the severity of dying, especially in the early game. Here's what I'm thinking: you don't drop anything, however, your modifier chips and weapon ugprades will degrade. So, each modifier chip will have some durability to it - let's say a default of 3. You lose one on each death - with a warning to convey the severity. After 0 durability, the mod will disappear/become useless (maybe you can at least turn it into salvage).
+- [opus] We need a fast travel system, or at least dying shouldn't take you all the way back to outpost balor. Should we add waypoints or what? Come up with a solution, plan, and implement.
+- [opus] Single use batteries don't remember their charge level when you unslot and reslot them - they should! Also, if you don't have enough sol to cast an ability, make sure we can divide the cost amongsts two batteries if necessary. Finally, the tech who gives you single charge batteries should give you batteries if your battery is at less than 15 sol.
+- [sonnet] The on screen indicator pointing to NPCs (yellow bouncing down arrow) needs to be a bit higher. Currently it overlaps with the NPC sprite and is hard to see.
+- [sonnet] The next quest indicator on the minimap should not have a dot after the name of the quest step. Also, the pulsing location idicator should just be a circle, not a circle with arrow.
 - [opus] Fix remaining 6 broken quests — main_quest stuck at underlumen_threshold (no fast travel to meridian_civic), broken_signal/lost_tool/the_deserter/phase3_investigation all TIMEOUT. Each quest needs its nav chain or flag dependencies debugged individually in the sim.
 - [sonnet] Fix explore mode flag gating — blocked at 7/57 rooms (12.3%) by engineer_briefing_complete. Grant story progression flags at explore mode startup so the validator can actually reach all content.
 - [opus] Build Lighthouse Mara dungeon — most-referenced missing content in the game (15+ NPC mentions). Multi-floor frozen cavern expedition per storyboard. Core Act 1 beat that bridges Outpost Balor to the Nightside Spire arc. Should include structural damage clues hinting at Underlumen disruption.
