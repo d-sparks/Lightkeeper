@@ -624,6 +624,11 @@
       "type": "lore_soldiers_journal",
       "x": 21,
       "y": 14
+    },
+    {
+      "type": "medical_supplies",
+      "x": 18,
+      "y": 4
     }
   ],
   "exits": [

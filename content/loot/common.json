@@ -30,6 +30,7 @@
       { "item": "bandage", "weight": 4 },
       { "item": "ration_pack", "weight": 3 },
       { "item": "health_potion", "weight": 1 },
+      { "item": "medical_supplies", "weight": 2 },
       { "item": "reinforced_battery_chip", "weight": 1 },
       { "item": "metal_casing", "weight": 4 },
       { "item": "metal_linker", "weight": 3 }

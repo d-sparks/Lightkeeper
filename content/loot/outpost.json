@@ -5,7 +5,7 @@
       { "item": "bandage", "weight": 5 },
       { "item": "ration_pack", "weight": 4 },
       { "item": "health_potion", "weight": 2 },
-      { "item": "medical_supplies", "weight": 1 }
+      { "item": "medical_supplies", "weight": 3 }
     ]
   },
   "outpost_biome_uncommon": {

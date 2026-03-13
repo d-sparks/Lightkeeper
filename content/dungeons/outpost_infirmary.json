@@ -529,6 +529,37 @@
           "lootTable": "outpost_biome_common"
         }
       ]
+    },
+    {
+      "id": "vasik_resupply",
+      "event": "npc_interacted",
+      "filter": {
+        "npcType": "infirmary_dr_vasik"
+      },
+      "conditions": [
+        {
+          "hasFlag": "vasik_quest_complete"
+        },
+        {
+          "not": {
+            "hasItem": "medical_supplies"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "giveItem",
+          "itemType": "medical_supplies"
+        },
+        {
+          "type": "giveItem",
+          "itemType": "medical_supplies"
+        },
+        {
+          "type": "showMessage",
+          "text": "Dr. Vasik checks her supply cabinet. \"You're running low. Here — two packs. Stay alive out there.\""
+        }
+      ]
     }
   ]
 }
