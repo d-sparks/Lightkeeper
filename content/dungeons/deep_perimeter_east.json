@@ -182,6 +182,22 @@
         { "type": "showMessage", "text": "A current of freezing air rises from the southern end of the perimeter. Something below the surface is much colder than this region has any right to be." }
       ],
       "once": true
+    },
+    {
+      "id": "outer_expanse_breadcrumb",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "outer_expanse_breadcrumb_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "outer_expanse_breadcrumb_seen" },
+        { "type": "showMessage", "lines": [
+          "To the east, the perimeter boundary falls away entirely. No markers, no wire, no infrastructure — just open terrain stretching to the horizon.",
+          "Pre-Collapse survey data marks this zone as 'uninhabited.' Whatever was here before has been gone for a long time.",
+          "There may be ruins worth investigating — if you can survive the cold."
+        ]}
+      ],
+      "once": true
     }
   ]
 }

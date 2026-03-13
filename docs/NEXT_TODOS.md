@@ -34,6 +34,25 @@ Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26
 - **Underlumen puzzle variety** — Current puzzles are activate-all-pedestals. Consider adding timed sequences, mirror/beam-reflection puzzles, and enemy wave defense puzzles for replay variants.
 - **Spire of Vigil waypoint** — Consider adding a waypoint beacon in spire_vigil_approach for fast travel after first clear.
 
+## Content — Orphaned Rooms (2026-03-13)
+
+Added 4 new quests + dungeon triggers to connect orphaned rooms:
+- **`healers_errand`** — Dr. Vasik's moss quest leads players to crypt_01 + crypt_02 (startConditions: `vasik_asked_for_moss`)
+- **`watchtower_journal`** — Dead Road watchtower breadcrumb; tracks full chain: scope → journal → Old Keeper (startConditions: `visited_dead_road`)
+- **`into_the_expanse`** — Outer Expanse + Void Flats exploration quest (startConditions: `outer_expanse_entered`)
+- **`sol_unit_training`** — Formalizes demo room visits (elevation_demo, light_sentry_demo, pulse_cannon_demo); starts on `received_sol_unit`
+
+Remaining orphaned rooms still to connect:
+- **`void_flats`** — Currently an endpoint of `into_the_expanse` but has no interior content beyond entry. Needs monsters, loot, and an onward lead.
+- **`merge_nexus`** — Accessed from underlumen_threshold. Has `visited_merge_nexus` flag but no quest references it.
+- **`homestead_interior`** — Accessed from salvage_yard. Umbral Seed mechanic exists but no quest targets it.
+- **`dayside_solar_fields` / `dayside_raid_defense`** — Dayside content exists but may not be reachable without a formal quest directing players there.
+- **`perimeter_outer_ring`** — Reachable from perimeter_gate and relay_station but no quest targets it directly.
+- **`salvage_yard`** — Has homestead exit and lore but no quest requires visiting.
+- **`expedition_checkpoint`** — Unknown connection; verify in sim.
+- **`meridian_undercity_deep`** — Pathfinder Ren NPC may need a quest step.
+- **`array_*` rooms** — array_access quest connects some; verify all 5 array rooms are reachable in all-quests mode.
+
 ## Content — Nightside Path Discovery
 
 - **`visited_dead_road` flag** — The hint triggers don't suppress once the player has already been to the Dead Road. Add `setFlag: visited_dead_road` in dead_road.json.

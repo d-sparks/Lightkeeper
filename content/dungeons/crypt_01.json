@@ -693,6 +693,20 @@
         { "type": "grantXp", "amount": 50 }
       ],
       "once": true
+    },
+    {
+      "id": "keeper_receives_watchtower_journal",
+      "event": "npc_interacted",
+      "filter": { "npcType": "old_keeper" },
+      "conditions": [
+        { "hasItem": "watchtower_journal" },
+        { "not": { "hasFlag": "keeper_received_journal" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "keeper_received_journal", "scope": "player" },
+        { "type": "grantXp", "amount": 30 }
+      ],
+      "once": true
     }
   ]
 }

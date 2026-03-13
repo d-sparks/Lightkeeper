@@ -1394,6 +1394,12 @@
       "has_sol_unit": [
         { "speaker": "Apprentice Sol Engineer", "text": "That Sol Unit is solid work, if I say so myself. Take care of it and it'll take care of you." },
         { "speaker": "Apprentice Sol Engineer", "text": "When you get back, I might be able to upgrade it. If you bring me the right materials." }
+      ],
+      "training_available": [
+        { "speaker": "Apprentice Sol Engineer", "text": "Now that you've got a Sol Unit, you should run through the training simulators in the basement." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Three chambers — elevation and hover mechanics, the Light Sentry emitter, and the Demolition Range for the Pulse Cannon." },
+        { "speaker": "Apprentice Sol Engineer", "text": "Each one has ability chips to pick up. They're small rooms, but you'll come out knowing what your kit can actually do." },
+        { "speaker": "Apprentice Sol Engineer", "text": "The stairwells are along the lower corridor in the basement. Look for the signs." }
       ]
     },
     "dialogueRules": [
@@ -1404,6 +1410,10 @@
       {
         "conditions": [{ "hasFlag": "received_first_battery" }],
         "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }, { "not": { "hasFlag": "training_rooms_hint_seen" } }],
+        "use": "training_available"
       },
       {
         "conditions": [{ "hasFlag": "sol_training_complete" }],

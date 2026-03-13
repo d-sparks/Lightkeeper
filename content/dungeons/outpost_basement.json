@@ -482,6 +482,23 @@
   ],
   "triggers": [
     {
+      "id": "training_room_hint",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "received_sol_unit" },
+        { "not": { "hasFlag": "training_rooms_hint_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "training_rooms_hint_seen" },
+        { "type": "showMessage", "lines": [
+          "A handwritten sign is posted above three stairwells along the lower corridor:",
+          "'SOL UNIT TRAINING — Authorized Personnel Only. Simulators calibrated for Hover, Sentry, and Demolition modules.'",
+          "The engineer set these up before the luddite attacks. They're still operational."
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "find_journal_fragment",
       "event": "room_entered",
       "conditions": [
