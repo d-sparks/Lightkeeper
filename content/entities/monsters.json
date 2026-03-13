@@ -59,6 +59,57 @@
     "lootTable": "luddite_common",
     "xp": 12
   },
+  "luddite_crossbowman": {
+    "name": "Luddite Crossbowman",
+    "sprite": "sprites/luddite_scrapper.png",
+    "size": [16, 16],
+    "health": 55,
+    "speed": 0.9,
+    "damage": 16,
+    "attackRange": 8,
+    "attackSpeed": 0.6,
+    "projectile": "arrow_bone",
+    "ai": "ranged_kite",
+    "lootTable": "luddite_common",
+    "xp": 14
+  },
+  "luddite_shieldbearer": {
+    "name": "Luddite Shieldbearer",
+    "sprite": "sprites/luddite_brawler.png",
+    "size": [16, 16],
+    "health": 140,
+    "speed": 0.8,
+    "damage": 10,
+    "attackRange": 1.5,
+    "attackSpeed": 0.7,
+    "ai": "pack_leader",
+    "aura": { "range": 4, "damageMult": 1.2, "speedMult": 1.1 },
+    "lootTable": "luddite_common",
+    "xp": 18,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 10, "range": 2, "damage": 1.4, "knockback": 100 }
+    ]
+  },
+  "luddite_captain": {
+    "name": "Raider Captain",
+    "sprite": "sprites/luddite_warlord.png",
+    "size": [16, 16],
+    "health": 300,
+    "speed": 1.1,
+    "damage": 16,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "boss": true,
+    "bossTitle": "Spire Garrison Commander",
+    "lootTable": "luddite_captain",
+    "xp": 60,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 6, "range": 4, "damage": 1.6, "speed": 8, "duration": 0.25 },
+      { "type": "ground_slam", "cooldown": 9, "range": 2.5, "damage": 1.5, "knockback": 140 },
+      { "type": "stun", "cooldown": 12, "damage": 0.5, "duration": 1.0 }
+    ]
+  },
   "luddite_warlord": {
     "name": "Luddite Warlord",
     "sprite": "sprites/luddite_warlord.png",

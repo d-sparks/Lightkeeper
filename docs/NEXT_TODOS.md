@@ -22,13 +22,17 @@ Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26
 
 ## Content — Dural Voss / Spire of Vigil
 
-- **Spire of Vigil outer floors** — Currently only the sanctum (boss room) exists. The full Spire needs 2-3 outer raider stronghold floors (Phase 1 per storyboard) before the boss encounter.
-- **Spire of Vigil inner puzzle floors** — Ancient core puzzle rooms that teach/unlock the Light Sentry ability (Phase 2 per storyboard). Replayable with difficulty tiers.
+- ~~**Spire of Vigil outer floors**~~ — DONE: spire_vigil_approach (outer defenses) and spire_vigil_fortress (raider stronghold with captain mini-boss) added.
+- ~~**Spire of Vigil inner puzzle floors**~~ — DONE: spire_vigil_underlumen (light pedestal puzzles) and spire_vigil_core (resonance chamber, Light Sentry unlock) added.
+- **Spire replayability / difficulty tiers** — Inner puzzle floors should reconfigure on replay visits. Implement Normal/Hard/Legendary difficulty scaling with better modifier drops at higher tiers.
 - **Dural Voss sprite** — Currently uses `luddite_warlord.png`. Needs a dedicated `sprites/dural_voss.png` (armored raider warlord, distinct silhouette).
+- **New raider sprites** — luddite_crossbowman uses luddite_scrapper sprite, luddite_shieldbearer uses luddite_brawler sprite, luddite_captain uses luddite_warlord sprite. All need dedicated sprites.
 - **Voss retreat VFX** — Client-side visual for the `boss_retreat` event (flash, smoke, dramatic exit animation).
 - **Post-Voss quest integration** — The `spire_vigil_data_core` item needs a turn-in step at Warden Holt / Councillor Asha Denn. Connect to main_quest progression.
-- **Raider guard dialogue** — Add NPC raider sentries in outer floors with conditional dialogue (threats, then fear when Spire awakens).
-- **Nightside depths exit hint** — Add a trigger in nightside_depths near the new stairs_down (15,14) hinting at the Spire.
+- **Raider guard dialogue NPCs** — Add NPC raider sentries in approach/fortress floors with conditional dialogue (threats before captain killed, fear/retreat after).
+- **Nightside depths exit hint** — Add a trigger in nightside_depths near the stairs_down (15,14) hinting at the Spire.
+- **Underlumen puzzle variety** — Current puzzles are activate-all-pedestals. Consider adding timed sequences, mirror/beam-reflection puzzles, and enemy wave defense puzzles for replay variants.
+- **Spire of Vigil waypoint** — Consider adding a waypoint beacon in spire_vigil_approach for fast travel after first clear.
 
 ## Content — Nightside Path Discovery
 

@@ -51,6 +51,21 @@
       { "item": "focusing_lens", "weight": 1 }
     ]
   },
+  "luddite_captain": {
+    "dropChance": 0.85,
+    "rolls": [
+      { "item": "salvage", "weight": 4 },
+      { "item": "field_medkit", "weight": 3 },
+      { "item": "health_potion", "weight": 3 },
+      { "item": "tempered_blade", "weight": 2 },
+      { "item": "efficiency_core_chip", "weight": 2 },
+      { "item": "signal_booster_chip", "weight": 2 },
+      { "item": "power_tap_chip", "weight": 1 },
+      { "item": "rechargeable_battery_chip", "weight": 1 },
+      { "item": "stabilizer_rod", "weight": 2 },
+      { "item": "focusing_lens", "weight": 1 }
+    ]
+  },
   "dusk_crawler": {
     "dropChance": 0.15,
     "rolls": [

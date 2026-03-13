@@ -1,14 +1,14 @@
 {
   "id": "spire_vigil_sanctum",
   "name": "Spire of Vigil — Sanctum",
-  "depth": 0,
+  "depth": 3,
   "tileset": "nightside",
   "theme": "nightside",
   "tileSize": 32,
   "ambientLight": 0.03,
   "environmentalHazard": { "type": "cold", "damage": 3, "interval": 3.0 },
   "width": 20,
-  "height": 16,
+  "height": 18,
   "data": [
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,1,1,1,1,3,3,3,3,3,3,3,3,3,3,1,1,1,1,3,
@@ -25,6 +25,8 @@
     3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,
     3,3,3,1,1,1,1,1,3,3,3,3,1,1,1,1,1,3,3,3,
     3,3,3,3,1,1,1,1,3,7,7,3,1,1,1,1,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,6,1,3,3,3,3,3,3,3,3,3,
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
   ],
   "spawns": [
@@ -56,7 +58,8 @@
     { "type": "battery_chip", "x": 17, "y": 11 }
   ],
   "exits": [
-    { "x": 1, "y": 3, "leadsTo": "nightside_depths", "type": "stairs_up", "spawnX": 19, "spawnY": 18 }
+    { "x": 1, "y": 3, "leadsTo": "spire_vigil_fortress", "type": "stairs_up", "spawnX": 11, "spawnY": 19 },
+    { "x": 9, "y": 16, "leadsTo": "spire_vigil_underlumen", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
     {
@@ -65,8 +68,8 @@
       "actions": [
         { "type": "showMessage", "lines": [
           "The architecture shifts. The rough ice walls give way to geometric surfaces of unknown material — smooth, dark, faintly warm to the touch.",
-          "This is the Spire of Vigil. The raiders have fortified the outer chambers, but the structure itself is ancient. Far older than any human settlement on Erith.",
-          "Dural Voss is here. You can hear his voice echoing from the sanctum ahead, barking orders to his raiders."
+          "This is the heart of Voss's stronghold. The Spire itself is ancient — far older than any human settlement on Erith.",
+          "Dural Voss is here. You can hear his voice echoing from the sanctum ahead, barking orders to his remaining raiders."
         ]}
       ],
       "once": true
@@ -100,9 +103,12 @@
           "You examine the Spire's inner walls. Sensor logs are etched into the geometric surfaces — energy signatures, timestamps, activation records.",
           "The data is unmistakable. Something interfaced with this Spire recently — and the energy patterns match Array technology. Not raider tools. Not Nightside fauna. The Array.",
           "The Lighthouse failures weren't sabotage. They were collateral damage. Something activated the Spire network, and the Lighthouses — unknowingly drawing power from the same ancient grid — failed when the current shifted.",
-          "Voss was telling the truth. The real threat didn't come from the dark."
+          "Voss was telling the truth. The real threat didn't come from the dark.",
+          "Beyond the sanctum, a passage leads deeper into the Spire — into architecture that predates the raiders entirely. The ancient core awaits."
         ]},
-        { "type": "spawnItem", "itemType": "spire_vigil_data_core", "x": 9, "y": 9 }
+        { "type": "spawnItem", "itemType": "spire_vigil_data_core", "x": 9, "y": 9 },
+        { "type": "setTile", "x": 9, "y": 15, "tileId": 1 },
+        { "type": "setQuestObjective", "text": "Explore the Spire's ancient core" }
       ],
       "once": true
     },
@@ -114,10 +120,19 @@
         { "type": "setFlag", "flag": "has_spire_data" },
         { "type": "showMessage", "lines": [
           "You extract a crystalline data core from the Spire's console. The energy signatures are recorded here — proof of what activated the Spire.",
-          "Warden Holt needs to see this. Councillor Asha Denn needs to see this. The border war was a distraction from the real threat.",
-          "Return to Outpost Balor and report what you've found."
-        ]},
-        { "type": "setQuestObjective", "text": "Return to Outpost Balor with the Spire data" }
+          "This is critical evidence. But first — the passage Voss fled past leads deeper. The Spire's ancient core may hold more answers."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "underlumen_passage_blocked",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "spire_vigil_cleared" } }
+      ],
+      "actions": [
+        { "type": "setTile", "x": 9, "y": 15, "tileId": 3 }
       ],
       "once": true
     },

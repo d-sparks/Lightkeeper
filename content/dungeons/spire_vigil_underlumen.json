@@ -1,0 +1,248 @@
+{
+  "id": "spire_vigil_underlumen",
+  "name": "Spire of Vigil — Underlumen Chambers",
+  "depth": 4,
+  "tileset": "nightside",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.02,
+  "width": 28,
+  "height": 22,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,8,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,2,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,1,1,1,4,1,1,1,4,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,1,2,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,1,1,1,1,1,2,1,1,1,1,2,1,1,1,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,4,3,3,1,1,1,3,3,4,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,1,3,3,1,2,1,3,3,1,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,1,1,2,1,1,1,2,1,1,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,1,1,1,4,1,1,1,4,1,1,1,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,1,2,1,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,1,6,1,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 8, "y": 4 },
+    { "type": "field_medkit", "x": 17, "y": 10 },
+    { "type": "frost_salve", "x": 11, "y": 15 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_vigil_sanctum", "type": "stairs_up", "spawnX": 9, "spawnY": 16 },
+    { "x": 13, "y": 20, "leadsTo": "spire_vigil_core", "type": "stairs_down", "spawnX": 7, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "underlumen_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The raider fortifications end abruptly. Below lies something far older.",
+          "The walls here are smooth — not carved, but grown. Geometric patterns pulse with a faint inner light that responds to your sol unit's proximity. The material is warm despite the Nightside cold.",
+          "This is Underlumen architecture. The ancient substrate that the Unbounded speak of in whispered legends. And it's responding to you."
+        ]},
+        { "type": "setQuestObjective", "text": "Navigate the Underlumen chambers" }
+      ],
+      "once": true
+    },
+    {
+      "id": "puzzle_1_hint",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "underlumen_puzzle_1_solved" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Two crystal pedestals flank a sealed passage ahead. The geometric patterns on the floor suggest they need to be activated — light placed in the right positions to open the way." }
+      ],
+      "once": true
+    },
+    {
+      "id": "puzzle_1_pedestal_left",
+      "event": "door_interacted",
+      "filter": { "tileX": 6, "tileY": 6 },
+      "conditions": [
+        { "not": { "hasFlag": "underlumen_puzzle_1_solved" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_p1_left", "scope": "room" },
+        { "type": "showMessage", "text": "You channel sol energy into the left pedestal. It glows with a steady blue-white light, and the geometric patterns on the floor pulse outward toward the sealed passage." }
+      ]
+    },
+    {
+      "id": "puzzle_1_pedestal_right",
+      "event": "door_interacted",
+      "filter": { "tileX": 10, "tileY": 6 },
+      "conditions": [
+        { "not": { "hasFlag": "underlumen_puzzle_1_solved" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_p1_right", "scope": "room" },
+        { "type": "showMessage", "text": "You channel sol energy into the right pedestal. It flares to life, and the geometric lines on the walls brighten — tracing a path toward the sealed passage." }
+      ]
+    },
+    {
+      "id": "puzzle_1_check",
+      "event": "flag_changed",
+      "conditions": [
+        { "hasFlag": "underlumen_p1_left" },
+        { "hasFlag": "underlumen_p1_right" },
+        { "not": { "hasFlag": "underlumen_puzzle_1_solved" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_puzzle_1_solved" },
+        { "type": "showMessage", "lines": [
+          "Both pedestals align. The geometric patterns converge on the sealed passage, and the crystal barrier dissolves into motes of light.",
+          "The Underlumen responds to focused light in specific positions — spatial control. Place light sources to hold zones."
+        ]},
+        { "type": "setTile", "x": 6, "y": 6, "tileId": 2 },
+        { "type": "setTile", "x": 10, "y": 6, "tileId": 2 },
+        { "type": "grantXp", "amount": 30 }
+      ],
+      "once": true
+    },
+    {
+      "id": "mid_chamber_enter",
+      "event": "door_interacted",
+      "filter": { "tileX": 6, "tileY": 6 },
+      "conditions": [
+        { "hasFlag": "underlumen_puzzle_1_solved" },
+        { "not": { "hasFlag": "underlumen_puzzle_2_hint" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_puzzle_2_hint" },
+        { "type": "showMessage", "lines": [
+          "A wider chamber opens up. The geometric patterns here are more complex — three sealed gates at cardinal positions, and three crystal pedestals.",
+          "The floor markings suggest a sequence: each pedestal must be activated in the right order. The faintest traces of light show the intended path."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "puzzle_2_pedestal_left",
+      "event": "door_interacted",
+      "filter": { "tileX": 9, "tileY": 12 },
+      "conditions": [
+        { "hasFlag": "underlumen_puzzle_1_solved" },
+        { "not": { "hasFlag": "underlumen_puzzle_2_solved" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_p2_left", "scope": "room" },
+        { "type": "showMessage", "text": "The left pedestal activates. Light pulses outward along the floor grooves, reaching toward the central chamber." }
+      ]
+    },
+    {
+      "id": "puzzle_2_pedestal_right",
+      "event": "door_interacted",
+      "filter": { "tileX": 17, "tileY": 12 },
+      "conditions": [
+        { "hasFlag": "underlumen_puzzle_1_solved" },
+        { "not": { "hasFlag": "underlumen_puzzle_2_solved" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_p2_right", "scope": "room" },
+        { "type": "showMessage", "text": "The right pedestal blazes to life. Two beams of light now converge on the final pedestal below." }
+      ]
+    },
+    {
+      "id": "puzzle_2_check",
+      "event": "flag_changed",
+      "conditions": [
+        { "hasFlag": "underlumen_p2_left" },
+        { "hasFlag": "underlumen_p2_right" },
+        { "not": { "hasFlag": "underlumen_puzzle_2_solved" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_puzzle_2_solved" },
+        { "type": "showMessage", "lines": [
+          "The two beams merge and cascade downward. The final sealed passage cracks open, revealing stairs spiraling deeper into the Spire's foundation.",
+          "Your sol unit is vibrating — not from cold, but from resonance. Something below is responding to your presence. Something ancient and powerful."
+        ]},
+        { "type": "setTile", "x": 9, "y": 12, "tileId": 2 },
+        { "type": "setTile", "x": 17, "y": 12, "tileId": 2 },
+        { "type": "grantXp", "amount": 40 },
+        { "type": "setQuestObjective", "text": "Descend to the Spire's core" }
+      ],
+      "once": true
+    },
+    {
+      "id": "puzzle_2_gate_left_locked",
+      "event": "door_interacted",
+      "filter": { "tileX": 9, "tileY": 12 },
+      "conditions": [
+        { "not": { "hasFlag": "underlumen_puzzle_1_solved" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The pedestal is dark and unresponsive. The upper chamber's puzzle must be completed first." }
+      ]
+    },
+    {
+      "id": "puzzle_2_gate_right_locked",
+      "event": "door_interacted",
+      "filter": { "tileX": 17, "tileY": 12 },
+      "conditions": [
+        { "not": { "hasFlag": "underlumen_puzzle_1_solved" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The pedestal is dark and unresponsive. The upper chamber's puzzle must be completed first." }
+      ]
+    },
+    {
+      "id": "final_gate_locked",
+      "event": "door_interacted",
+      "filter": { "tileX": 11, "tileY": 17 },
+      "conditions": [
+        { "not": { "hasFlag": "underlumen_puzzle_2_solved" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "A crystal barrier seals the lower passage. The pedestals above must be activated to open it." }
+      ]
+    },
+    {
+      "id": "final_gate_locked_2",
+      "event": "door_interacted",
+      "filter": { "tileX": 15, "tileY": 17 },
+      "conditions": [
+        { "not": { "hasFlag": "underlumen_puzzle_2_solved" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "A crystal barrier seals the lower passage. The pedestals above must be activated to open it." }
+      ]
+    },
+    {
+      "id": "open_final_gates",
+      "event": "flag_changed",
+      "filter": { "flag": "underlumen_puzzle_2_solved" },
+      "actions": [
+        { "type": "setTile", "x": 11, "y": 17, "tileId": 5 },
+        { "type": "setTile", "x": 15, "y": 17, "tileId": 5 }
+      ],
+      "once": true
+    },
+    {
+      "id": "mark_underlumen_visited",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "visited_spire_underlumen", "scope": "player" }
+      ],
+      "once": true
+    }
+  ]
+}

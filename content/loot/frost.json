@@ -31,5 +31,18 @@
       { "item": "void_resonator_chip", "weight": 1 },
       { "item": "rechargeable_battery_chip", "weight": 1 }
     ]
+  },
+  "spire_vigil_chest": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "field_medkit", "weight": 4 },
+      { "item": "frozen_core", "weight": 3 },
+      { "item": "shadow_conduit_chip", "weight": 3 },
+      { "item": "signal_booster_chip", "weight": 2 },
+      { "item": "power_tap_chip", "weight": 2 },
+      { "item": "umbral_amplifier_chip", "weight": 2 },
+      { "item": "void_resonator_chip", "weight": 1 },
+      { "item": "rechargeable_battery_chip", "weight": 1 }
+    ]
   }
 }

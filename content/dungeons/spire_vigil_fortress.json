@@ -1,0 +1,146 @@
+{
+  "id": "spire_vigil_fortress",
+  "name": "Spire of Vigil — Raider Fortress",
+  "depth": 2,
+  "tileset": "nightside",
+  "theme": "nightside",
+  "tileSize": 32,
+  "ambientLight": 0.03,
+  "environmentalHazard": { "type": "cold", "damage": 3, "interval": 3.0 },
+  "width": 24,
+  "height": 22,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,8,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,2,1,1,1,1,1,1,1,1,4,1,1,1,1,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,3,3,3,3,1,1,1,1,3,3,3,3,3,3,3,
+    3,3,3,3,1,1,1,3,3,3,3,3,3,1,1,2,1,1,3,3,3,3,3,3,
+    3,3,3,3,1,1,1,3,3,3,3,3,1,1,1,1,1,1,1,3,3,3,3,3,
+    3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,3,3,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,1,1,1,3,3,3,
+    3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,3,3,
+    3,1,1,1,1,1,1,1,1,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,10,1,1,1,3,3,7,7,3,3,1,1,1,1,1,1,10,1,1,3,
+    3,1,1,1,1,1,1,1,3,3,7,7,3,3,1,1,1,1,1,1,1,1,1,3,
+    3,3,1,1,1,1,1,1,1,3,3,3,3,1,1,1,1,1,1,1,1,1,3,3,
+    3,3,3,1,1,1,2,1,1,1,1,1,1,1,1,1,2,1,1,1,1,3,3,3,
+    3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,
+    3,3,3,3,3,3,1,1,1,1,4,4,1,1,1,1,1,1,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,1,1,1,6,1,1,1,1,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "luddite_brawler", "x": 6, "y": 3, "count": 2, "patrol": "guard" },
+    { "type": "luddite_crossbowman", "x": 14, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "luddite_crossbowman", "x": 15, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "luddite_shieldbearer", "x": 5, "y": 6, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 4, "y": 5}, {"x": 6, "y": 5}, {"x": 6, "y": 8}, {"x": 4, "y": 8}] },
+    { "type": "luddite_brawler", "x": 4, "y": 7, "count": 2, "patrol": "guard" },
+    { "type": "luddite_scrapper", "x": 17, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 14, "y": 8, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 12, "y": 7}, {"x": 18, "y": 7}, {"x": 18, "y": 10}, {"x": 12, "y": 10}] },
+    { "type": "luddite_captain", "x": 11, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "luddite_shieldbearer", "x": 9, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 15, "y": 11, "count": 2, "patrol": "guard" },
+    { "type": "luddite_crossbowman", "x": 19, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 7, "y": 14, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 5, "y": 13}, {"x": 10, "y": 13}, {"x": 10, "y": 16}, {"x": 5, "y": 16}] },
+    { "type": "luddite_scrapper", "x": 15, "y": 15, "count": 1, "patrol": "guard" },
+    { "type": "luddite_crossbowman", "x": 13, "y": 16, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 2, "y": 3 },
+    { "type": "field_medkit", "x": 15, "y": 5 },
+    { "type": "frost_salve", "x": 6, "y": 8 },
+    { "type": "health_potion", "x": 18, "y": 9 },
+    { "type": "battery_chip", "x": 6, "y": 14 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_vigil_approach", "type": "stairs_up", "spawnX": 19, "spawnY": 17 },
+    { "x": 11, "y": 19, "leadsTo": "spire_vigil_sanctum", "type": "stairs_down", "spawnX": 1, "spawnY": 2 }
+  ],
+  "triggers": [
+    {
+      "id": "fortress_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The corridor opens into a vaulted chamber — the raiders have turned the Spire's interior into a command post. Weapon racks, supply caches, and crude sleeping quarters line the walls.",
+          "At the center, a Raider Captain directs operations. This is the garrison's command structure. Break through here and Dural Voss himself awaits below."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "entry_gate",
+      "event": "door_interacted",
+      "filter": { "tileX": 11, "tileY": 3 },
+      "actions": [
+        { "type": "showMessage", "text": "The crystal barrier slides aside. Beyond it, the fortress opens into a wide defensive gallery." }
+      ],
+      "once": true
+    },
+    {
+      "id": "captain_killed",
+      "event": "monster_killed",
+      "filter": { "monsterType": "luddite_captain" },
+      "actions": [
+        { "type": "setFlag", "flag": "fortress_captain_killed" },
+        { "type": "grantXp", "amount": 40 },
+        { "type": "showMessage", "lines": [
+          "The Raider Captain falls. Without their commander, the garrison's coordination breaks down.",
+          "The inner gate to Voss's sanctum should be passable now."
+        ]},
+        { "type": "setTile", "x": 10, "y": 17, "tileId": 5 },
+        { "type": "setTile", "x": 11, "y": 17, "tileId": 5 }
+      ],
+      "once": true
+    },
+    {
+      "id": "inner_gate_locked",
+      "event": "door_interacted",
+      "filter": { "tileX": 10, "tileY": 17 },
+      "conditions": [
+        { "not": { "hasFlag": "fortress_captain_killed" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The inner gate is barricaded from the other side. The garrison commander must be maintaining the lock — defeat the Raider Captain to break through." }
+      ]
+    },
+    {
+      "id": "inner_gate_locked_2",
+      "event": "door_interacted",
+      "filter": { "tileX": 11, "tileY": 17 },
+      "conditions": [
+        { "not": { "hasFlag": "fortress_captain_killed" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The inner gate is barricaded from the other side. The garrison commander must be maintaining the lock — defeat the Raider Captain to break through." }
+      ]
+    },
+    {
+      "id": "chest_loot_fortress",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "spire_vigil_chest" }
+      ]
+    },
+    {
+      "id": "mark_fortress_visited",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "visited_spire_fortress", "scope": "player" }
+      ],
+      "once": true
+    }
+  ]
+}
