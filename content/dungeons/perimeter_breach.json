@@ -88,6 +88,19 @@
         { "type": "setFlag", "flag": "found_tannis_tags" }
       ],
       "once": true
+    },
+    {
+      "id": "breach_wraith_killed",
+      "event": "monster_killed",
+      "filter": { "monsterType": "gloom_wraith" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Gloom Wraith collapses. Without its coordination, the remaining creatures scatter back into the dark.",
+          "The breach is clear — for now. Report back to Warden Holt."
+        ]},
+        { "type": "setFlag", "flag": "perimeter_breach_cleared" }
+      ],
+      "once": true
     }
   ]
 }

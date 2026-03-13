@@ -209,6 +209,13 @@
         { "speaker": "Warden Holt", "text": "But the old surveys, the thermal readings, the anomalies the first expeditions documented — that's not history. That's intelligence." },
         { "speaker": "Warden Holt", "text": "Whatever Solen told you, hold onto it. I have a feeling it's going to be relevant to what we're seeing out on the perimeter." }
       ],
+      "breach_cleared": [
+        { "speaker": "Warden Holt", "text": "You cleared the breach? That's the best news I've had in weeks." },
+        { "speaker": "Warden Holt", "text": "We've been losing ground there for months. Those Gloom Wraiths — whatever is driving them, it's gone quiet now." },
+        { "speaker": "Warden Holt", "text": "When you get to Meridian Station, find Siege Warden Kael. He runs a defensive operation near the lighthouse perimeter — a full siege drill against Nightside assault waves." },
+        { "speaker": "Warden Holt", "text": "It's not training. It's the real thing. He's been waiting for people capable enough to run it." },
+        { "speaker": "Warden Holt", "text": "Tell him I sent you. He'll know you've earned the right." }
+      ],
       "void_flats_explored": [
         { "speaker": "Warden Holt", "text": "You went into the Void Flats?" },
         { "speaker": "Warden Holt", "text": "That's not on any of our patrol maps. Our range ends at the ridge — too far, too dark, too unknown to commit resources to." },
@@ -274,6 +281,10 @@
       {
         "conditions": [{ "hasFlag": "arrived_meridian" }],
         "use": "returned_from_meridian"
+      },
+      {
+        "conditions": [{ "hasFlag": "perimeter_breach_cleared" }, { "hasFlag": "received_first_battery" }, { "not": { "hasFlag": "arrived_meridian" } }],
+        "use": "breach_cleared"
       },
       {
         "conditions": [{ "hasFlag": "void_flats_entered" }, { "not": { "hasFlag": "arrived_meridian" } }],

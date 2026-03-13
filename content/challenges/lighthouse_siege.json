@@ -24,7 +24,7 @@
   "rewardTable": "siege_legendary",
   "cooldown": 604800,
   "cooldownFlag": "lighthouse_siege_last_clear",
-  "unlockCondition": { "hasFlag": "expedition_tier_4_cleared" },
+  "unlockCondition": { "hasFlag": "perimeter_breach_cleared" },
   "spawnPoints": [
     { "x": 2, "y": 2 },
     { "x": 17, "y": 2 },

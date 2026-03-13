@@ -276,7 +276,7 @@
       "event": "npc_interacted",
       "filter": { "npcType": "siege_warden" },
       "conditions": [
-        { "hasFlag": "expedition_tier_4_cleared" },
+        { "hasFlag": "perimeter_breach_cleared" },
         { "not": { "hasFlag": "siege_active" } }
       ],
       "actions": [
@@ -317,13 +317,13 @@
       "event": "npc_interacted",
       "filter": { "npcType": "siege_warden" },
       "conditions": [
-        { "not": { "hasFlag": "expedition_tier_4_cleared" } },
+        { "not": { "hasFlag": "perimeter_breach_cleared" } },
         { "not": { "hasFlag": "siege_active" } }
       ],
       "actions": [
         { "type": "showMessage", "lines": [
           "Siege Warden Kael: 'You look capable, but this isn't a routine patrol. The lighthouse siege is the hardest thing we run.'",
-          "'Come back after you've cleared a Tier 4 expedition. Then we'll talk.'"
+          "'Clear the breach on the old perimeter line — prove you can handle what comes out of the dark. Then we'll talk.'"
         ]}
       ]
     }

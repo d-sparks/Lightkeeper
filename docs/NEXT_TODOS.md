@@ -10,6 +10,21 @@ Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26
 - **In-game autosave indicator** — Consider sending a message to the client when an autosave fires.
 - **Autosave on checkpoint room entry** — Trigger an extra autosave when a player reaches a checkpoint room.
 
+## Content — Lighthouse Siege Arena (2026-03-13)
+
+Wired lighthouse_siege_arena — was invisible behind `expedition_tier_4_cleared`. Now unlocks on `perimeter_breach_cleared`.
+
+Changes made:
+- **`perimeter_breach.json`** — Added `monster_killed`→`gloom_wraith` trigger that sets `perimeter_breach_cleared` flag and displays a room-cleared message
+- **`challenges/lighthouse_siege.json`** — `unlockCondition` changed from `expedition_tier_4_cleared` → `perimeter_breach_cleared`
+- **`meridian_station.json`** — Siege Warden Kael's `siege_warden_launch` and `siege_warden_locked` triggers updated to use `perimeter_breach_cleared`; locked message now directs player to clear the breach
+- **`entities/npcs.json`** — Warden Holt gains `breach_cleared` dialogue state (mentions Siege Warden Kael + siege arena) and matching dialogueRule that fires post-breach pre-Meridian
+
+Remaining follow-ups:
+- **Siege arena monster spawns** — `lighthouse_siege_arena.json` has no monster spawns defined at the dungeon level; wave monsters are spawned by the challenge system (engine). Verify wave spawn positions work with the arena layout.
+- **Siege arena solo blocker** — `minPlayers: 2` means solo players can never start the siege. Consider adding an NPC hint about this requirement.
+- **Breach clear as a quest step** — perimeter_breach is visited during early exploration but has no quest formally directing players there. The `gloom_wraith` kill flag ties it in organically, but a quest step would make it explicit.
+
 ## Content — Lighthouse Mara
 
 - **Lighthouse Mara sprites** — New tiles (power_conduit_a/b, core_hatch, survey_marker, cracked_ice_wall) in frost_crypt tileset need dedicated sprite art in the tileset PNG strip.
