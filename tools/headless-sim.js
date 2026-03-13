@@ -168,6 +168,19 @@ function processTransitions(gameLoop, botState) {
               playerInRoom.x += (dx / len) * TILE_SIZE;
               playerInRoom.y += (dy / len) * TILE_SIZE;
             }
+            // Pop any move_to_position on top — its cached A* path may route
+            // through this exit tile (e.g. key spawned behind the stairs_up).
+            const top = botState.currentGoal();
+            if (top && top.type === 'move_to_position') {
+              botState.popGoal();
+            }
+            // Record this exit tile as a pathfinding obstacle so A* routes around
+            // it when the goal re-pushes a new move_to_position.
+            const alreadyBlocked = botState._blockedExitTiles.some(
+              e => e.x === t.exitX && e.y === t.exitY && e.room === t.fromRoom);
+            if (!alreadyBlocked) {
+              botState._blockedExitTiles.push({ x: t.exitX, y: t.exitY, room: t.fromRoom });
+            }
             continue;
           }
         }
@@ -243,6 +256,9 @@ function processTransitions(gameLoop, botState) {
       botState.popGoal();
     }
     botState.currentPath = null;
+    // Clear blocked exit tile records for the room we just left — they're
+    // room-specific and no longer relevant once we've successfully transitioned.
+    botState._blockedExitTiles = botState._blockedExitTiles.filter(e => e.room !== t.fromRoom);
   }
 }
 
@@ -446,6 +462,19 @@ class Bot {
     this._combatStuckTicks = 0;
     this._combatSkipTicks = 0;
     this._lastCombatKey = null;
+    // Exit tiles that A* should route around (wrong-direction exits in proc rooms)
+    this._blockedExitTiles = []; // Array of { x, y, room }
+  }
+
+  // Build a Set of tile keys (y*width+x) for exit tiles that should be avoided
+  // during A* pathfinding in the current room (wrong-direction exits).
+  _getBlockedExitSet(dungeon) {
+    if (!this._blockedExitTiles || this._blockedExitTiles.length === 0) return null;
+    const roomBlocked = this._blockedExitTiles.filter(e => e.room === this.currentRoom);
+    if (roomBlocked.length === 0) return null;
+    const set = new Set();
+    for (const e of roomBlocked) set.add(e.y * dungeon.width + e.x);
+    return set;
   }
 
   getPlayer() {
@@ -893,7 +922,8 @@ class Bot {
 
     // Compute A* path if needed — stored per-goal so sub-goals don't share stale paths
     if (!goal._path || goal._path.length === 0) {
-      goal._path = astarPath(room.dungeon, currentTX, currentTY, goal.tileX, goal.tileY);
+      const blockedExits = this._getBlockedExitSet(room.dungeon);
+      goal._path = astarPath(room.dungeon, currentTX, currentTY, goal.tileX, goal.tileY, blockedExits);
       goal._pathIndex = 0;
 
       if (!goal._path || goal._path.length === 0) {
@@ -940,6 +970,8 @@ class Bot {
         goal._monsterAvoidRetries = (goal._monsterAvoidRetries || 0) + 1;
         if (goal._monsterAvoidRetries <= 3 && room.monsters && room.monsters.size > 0) {
           const monsterTiles = this._getMonsterBlockedTiles(room);
+          const blockedExits = this._getBlockedExitSet(room.dungeon);
+          if (blockedExits) for (const k of blockedExits) monsterTiles.add(k);
           const avoidPath = astarPath(room.dungeon, currentTX, currentTY, goal.tileX, goal.tileY, monsterTiles);
           if (avoidPath && avoidPath.length > 0) {
             goal._path = avoidPath;
@@ -1228,6 +1260,18 @@ class Bot {
       }
 
       if (goal._targetTileX != null) {
+        // Kill monsters before attempting chest interaction — they may block the path
+        // and their presence prevents reliable melee-range interaction.
+        if (room.monsters.size > 0 && !goal._killingMonsters) {
+          goal._killingMonsters = true;
+          goal._killRetryCount = (goal._killRetryCount || 0) + 1;
+          if (goal._killRetryCount <= 5) {
+            this.pushGoal({ type: 'kill_monsters' });
+            return;
+          }
+        }
+        if (room.monsters.size === 0) goal._killingMonsters = false;
+
         const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
         const dist = Math.abs(ptx - goal._targetTileX) + Math.abs(pty - goal._targetTileY);
         // Navigate toward the tile if far away; track whether we've already
@@ -1550,11 +1594,35 @@ class Bot {
       if (dist <= meleeRange) return;
 
       const mobTile = pixelToTile(mob.x, mob.y);
-      const path = astarPath(room.dungeon, ptx, pty, mobTile.tx, mobTile.ty);
+      // If monster is standing on an exit tile, target an adjacent non-exit floor
+      // tile instead to avoid triggering an unintended room transition.
+      let targetTX = mobTile.tx;
+      let targetTY = mobTile.ty;
+      if (room.dungeon.exits) {
+        const onExit = room.dungeon.exits.some(e => e.x === targetTX && e.y === targetTY);
+        if (onExit) {
+          const offsets = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+          let redirected = false;
+          for (const [ox, oy] of offsets) {
+            const nx = targetTX + ox;
+            const ny = targetTY + oy;
+            if (nx >= 0 && ny >= 0 && nx < room.dungeon.width && ny < room.dungeon.height &&
+                !isTileSolid(room.dungeon, nx, ny) &&
+                !room.dungeon.exits.some(e => e.x === nx && e.y === ny)) {
+              targetTX = nx;
+              targetTY = ny;
+              redirected = true;
+              break;
+            }
+          }
+          if (!redirected) continue; // No safe approach tile — skip this monster
+        }
+      }
+      const path = astarPath(room.dungeon, ptx, pty, targetTX, targetTY);
       if (path && path.length > 0) {
         // Push a move_to_position sub-goal to walk to the monster's vicinity.
         // tolerance=1 so we get close enough for reliable line-of-sight combat.
-        this.pushGoal({ type: 'move_to_position', tileX: mobTile.tx, tileY: mobTile.ty, tolerance: 1 });
+        this.pushGoal({ type: 'move_to_position', tileX: targetTX, tileY: targetTY, tolerance: 1 });
         return;
       }
     }
