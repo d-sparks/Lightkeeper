@@ -2343,7 +2343,9 @@ class GameLoop {
         if (compDef.type === 'battery') {
           cell.batteryId = itemDef.solComponentId;
           if (compDef.singleUse) {
-            cell.remainingCapacity = compDef.energyCapacity;
+            // Restore saved charge level from inventory item, or use full capacity
+            cell.remainingCapacity = (item.remainingCapacity !== undefined)
+              ? item.remainingCapacity : compDef.energyCapacity;
           }
         }
         cell.componentRarity = item.rarity || compDef.rarity || 'common';
@@ -2355,10 +2357,12 @@ class GameLoop {
     // Remove from inventory
     player.inventory.splice(inventoryIndex, 1);
 
-    // If placing a single-use battery, fill its energy pool
+    // If placing a single-use battery, fill its energy pool with saved or full capacity
     if (compDef.type === 'battery' && compDef.singleUse && compDef.energyCapacity) {
-      player.singleUseEnergy += compDef.energyCapacity;
-      player.energy += compDef.energyCapacity;
+      const addedEnergy = (item.remainingCapacity !== undefined)
+        ? item.remainingCapacity : compDef.energyCapacity;
+      player.singleUseEnergy += addedEnergy;
+      player.energy += addedEnergy;
     }
 
     this._rebuildAbilities(player);
@@ -2415,6 +2419,7 @@ class GameLoop {
 
     // Capture modifier durability before clearing (from origin cell)
     let savedDurability = undefined;
+    let savedRemainingCapacity = undefined;
     if (clickedCell.modifierId) {
       // Find origin cell for this placement
       for (let i = 0; i < size * size; i++) {
@@ -2422,6 +2427,20 @@ class GameLoop {
         if (c && c.placementId === pid && !c.isExtension) {
           savedDurability = c.durability;
           break;
+        }
+      }
+    }
+    // Capture single-use battery remaining capacity before clearing
+    if (clickedCell.batteryId) {
+      const compDef = this.content.getSolComponent(clickedCell.batteryId);
+      if (compDef && compDef.singleUse) {
+        for (let i = 0; i < size * size; i++) {
+          const c = player.solGrid.cells[i];
+          if (c && c.placementId === pid && !c.isExtension) {
+            savedRemainingCapacity = c.remainingCapacity !== undefined
+              ? c.remainingCapacity : compDef.energyCapacity;
+            break;
+          }
         }
       }
     }
@@ -2451,6 +2470,10 @@ class GameLoop {
     // Preserve modifier durability on returned inventory item
     if (savedDurability !== undefined) {
       returnedItem.durability = savedDurability;
+    }
+    // Preserve single-use battery remaining capacity on returned inventory item
+    if (savedRemainingCapacity !== undefined) {
+      returnedItem.remainingCapacity = savedRemainingCapacity;
     }
     player.inventory.push(returnedItem);
 

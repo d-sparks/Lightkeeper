@@ -740,9 +740,10 @@
           "hasFlag": "sol_training_complete"
         },
         {
-          "not": {
-            "hasItem": "single_use_battery_chip"
-          }
+          "or": [
+            { "not": { "hasItem": "single_use_battery_chip" } },
+            { "singleUseEnergyBelow": 15 }
+          ]
         }
       ],
       "actions": [
@@ -764,9 +765,10 @@
           "hasFlag": "sol_training_complete"
         },
         {
-          "not": {
-            "hasItem": "single_use_battery_chip"
-          }
+          "or": [
+            { "not": { "hasItem": "single_use_battery_chip" } },
+            { "singleUseEnergyBelow": 15 }
+          ]
         }
       ],
       "actions": [

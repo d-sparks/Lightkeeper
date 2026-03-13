@@ -9,6 +9,7 @@
 //   { "flagGreaterThan": { "flag": "name", "value": 3 } }
 //   { "flagLessThan": { "flag": "name", "value": 3 } }
 //   { "hasItem": "item_type" }                          - player has item in inventory
+//   { "singleUseEnergyBelow": 15 }                       - single-use battery energy below threshold
 //   { "not": <condition> }
 //   { "and": [<condition>, ...] }
 //   { "or": [<condition>, ...] }
@@ -60,6 +61,13 @@ class ConditionEvaluator {
       const { flag, value, scope } = condition.flagLessThan;
       const actual = this.flagStore.getFlag(context.playerId, context.roomId, flag, scope || 'player');
       return (actual || 0) < value;
+    }
+
+    // --- Sol grid energy checks ---
+    if (condition.singleUseEnergyBelow !== undefined) {
+      const player = context.player;
+      if (!player) return true; // No player = no battery = below threshold
+      return (player.singleUseEnergy || 0) < condition.singleUseEnergyBelow;
     }
 
     // --- Inventory checks ---

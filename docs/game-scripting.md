@@ -174,6 +174,14 @@ Check a room-scoped flag:
 
 Returns true if the player has at least one item of this type.
 
+#### `singleUseEnergyBelow` — Check single-use battery energy
+
+```json
+{ "singleUseEnergyBelow": 15 }
+```
+
+Returns true if the player's total single-use battery energy is below the given threshold (or they have no single-use batteries).
+
 #### `flagGreaterThan` / `flagLessThan` — Numeric comparisons
 
 ```json
