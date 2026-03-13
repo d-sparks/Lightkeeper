@@ -1,0 +1,133 @@
+{
+  "id": "spire_vigil_sanctum",
+  "name": "Spire of Vigil — Sanctum",
+  "depth": 0,
+  "tileset": "nightside",
+  "theme": "nightside",
+  "tileSize": 32,
+  "ambientLight": 0.03,
+  "environmentalHazard": { "type": "cold", "damage": 3, "interval": 3.0 },
+  "width": 20,
+  "height": 16,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,3,3,3,3,3,3,3,3,3,3,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,3,
+    3,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,
+    3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,
+    3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,
+    3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,
+    3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,
+    3,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,3,
+    3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,
+    3,3,3,1,1,1,1,1,3,3,3,3,1,1,1,1,1,3,3,3,
+    3,3,3,3,1,1,1,1,3,7,7,3,1,1,1,1,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" },
+    { "x": 1, "y": 3, "type": "player_start" },
+    { "x": 2, "y": 3, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "luddite_brawler", "x": 6, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 13, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "luddite_scrapper", "x": 15, "y": 2, "count": 1, "patrol": "guard" },
+    { "type": "luddite_scrapper", "x": 4, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 15, "y": 8, "count": 1, "patrol": "guard" },
+    {
+      "type": "dural_voss",
+      "x": 9,
+      "y": 10,
+      "count": 1,
+      "patrol": "guard",
+      "retreatX": 5,
+      "retreatY": 13
+    }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 17, "y": 2 },
+    { "type": "field_medkit", "x": 2, "y": 11 },
+    { "type": "battery_chip", "x": 17, "y": 11 }
+  ],
+  "exits": [
+    { "x": 1, "y": 3, "leadsTo": "nightside_depths", "type": "stairs_up", "spawnX": 19, "spawnY": 18 }
+  ],
+  "triggers": [
+    {
+      "id": "spire_vigil_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The architecture shifts. The rough ice walls give way to geometric surfaces of unknown material — smooth, dark, faintly warm to the touch.",
+          "This is the Spire of Vigil. The raiders have fortified the outer chambers, but the structure itself is ancient. Far older than any human settlement on Erith.",
+          "Dural Voss is here. You can hear his voice echoing from the sanctum ahead, barking orders to his raiders."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "voss_retreat_dialogue",
+      "event": "flag_changed",
+      "filter": { "flag": "dural_voss_retreated" },
+      "actions": [
+        { "type": "showMessage", "speaker": "Dural Voss", "lines": [
+          "Voss staggers back, blood on his armor. He raises a hand — not in surrender, but to stop the fight.",
+          "'ENOUGH! You want the truth, Lightkeeper? We didn't touch your precious Lighthouses!'",
+          "'We found this Spire already broken — its systems humming with energy that wasn't ours. Whatever activated it came from the light side, not the dark.'",
+          "'Your machines did this. The Array. I've seen their markings on the deep systems — geometric, precise, inhuman. They reached into this place and woke something that should have stayed sleeping.'",
+          "'You want to save your border? Stop looking at us. Look at what's feeding your sol units.'",
+          "Voss turns and retreats deeper into the Spire. His raiders fall back with him, vanishing into passages you can't follow."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "voss_defeated_revelation",
+      "event": "monster_killed",
+      "filter": { "monsterType": "dural_voss" },
+      "actions": [
+        { "type": "setFlag", "flag": "voss_confronted" },
+        { "type": "setFlag", "flag": "spire_vigil_cleared" },
+        { "type": "grantXp", "amount": 100 },
+        { "type": "showMessage", "lines": [
+          "The sanctum falls silent. Voss is gone, but his words hang in the air.",
+          "You examine the Spire's inner walls. Sensor logs are etched into the geometric surfaces — energy signatures, timestamps, activation records.",
+          "The data is unmistakable. Something interfaced with this Spire recently — and the energy patterns match Array technology. Not raider tools. Not Nightside fauna. The Array.",
+          "The Lighthouse failures weren't sabotage. They were collateral damage. Something activated the Spire network, and the Lighthouses — unknowingly drawing power from the same ancient grid — failed when the current shifted.",
+          "Voss was telling the truth. The real threat didn't come from the dark."
+        ]},
+        { "type": "spawnItem", "itemType": "spire_vigil_data_core", "x": 9, "y": 9 }
+      ],
+      "once": true
+    },
+    {
+      "id": "data_core_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "spire_vigil_data_core" },
+      "actions": [
+        { "type": "setFlag", "flag": "has_spire_data" },
+        { "type": "showMessage", "lines": [
+          "You extract a crystalline data core from the Spire's console. The energy signatures are recorded here — proof of what activated the Spire.",
+          "Warden Holt needs to see this. Councillor Asha Denn needs to see this. The border war was a distraction from the real threat.",
+          "Return to Outpost Balor and report what you've found."
+        ]},
+        { "type": "setQuestObjective", "text": "Return to Outpost Balor with the Spire data" }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_spire_vigil",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_rare" }
+      ]
+    }
+  ]
+}

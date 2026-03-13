@@ -781,6 +781,12 @@
     "type": "key",
     "rarity": "epic"
   },
+  "spire_vigil_data_core": {
+    "name": "Spire Vigil Data Core",
+    "description": "A crystalline data core extracted from the Spire of Vigil. Contains sensor logs showing Array energy signatures that activated the Spire — proof that the Lighthouse failures were not caused by raiders.",
+    "type": "key",
+    "rarity": "epic"
+  },
   "array_harmonic_stabilizer_chip": {
     "name": "Array Harmonic Stabilizer",
     "description": "An Array-manufactured sol component that reduces energy waste during ability use. Adjacent abilities cost less energy to activate.",

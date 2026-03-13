@@ -360,6 +360,20 @@ class GameLoop {
           mob.bossSummonTimer = 0;
           mob.bossSummonCount = 0;
         }
+        // Boss retreat: fights then flees at low HP
+        if (def.ai === 'boss_retreat') {
+          mob.retreatThreshold = def.retreatThreshold || 0.2;
+          mob.retreating = false;
+          // Retreat point from spawn data, or fallback to spawn position
+          if (spawn.retreatX != null && spawn.retreatY != null) {
+            mob.retreatPointX = (spawn.retreatX + 0.5) * CONSTANTS.TILE_SIZE;
+            mob.retreatPointY = (spawn.retreatY + 0.5) * CONSTANTS.TILE_SIZE;
+          } else {
+            mob.retreatPointX = null;
+            mob.retreatPointY = null;
+          }
+          mob.bossPhases = [{ threshold: 1.0 }]; // Needed for boss intro
+        }
         // Special attacks: initialize cooldown timers from definition
         if (def.specialAttacks && def.specialAttacks.length > 0) {
           mob.specialAttacks = def.specialAttacks.map(sa => ({
@@ -2635,8 +2649,10 @@ class GameLoop {
       if (Math.abs(angleDiff) > halfAngle) continue;
 
       // Hit this monster
+      if (mob.invulnerable) continue;
       const effectiveDamage = mob.damageTakenMult ? damage * mob.damageTakenMult : damage;
       mob.health -= effectiveDamage;
+      if (mob.ai === 'boss_retreat' && mob.health <= 0) mob.health = 1;
       mob.aggroTarget = player.id;
       room.events.push({
         type: 'damage',
@@ -2730,8 +2746,10 @@ class GameLoop {
     if (!nearestMob) return false;
 
     // Deal damage
+    if (nearestMob.invulnerable) return false;
     const damage = this.getPlayerAttackDamage(player) * (abilityDef.damageMultiplier || 1.0);
     nearestMob.health -= damage;
+    if (nearestMob.ai === 'boss_retreat' && nearestMob.health <= 0) nearestMob.health = 1;
     nearestMob.aggroTarget = player.id;
 
     // Melee slash visual
@@ -3172,7 +3190,9 @@ class GameLoop {
       // Damage falloff: full at center, 50% at edge
       const falloff = 1.0 - 0.5 * Math.min(dist / aoeRadius, 1.0);
       const dmg = proj.damage * falloff * (mob.damageTakenMult || 1.0);
+      if (mob.invulnerable) continue;
       mob.health -= dmg;
+      if (mob.ai === 'boss_retreat' && mob.health <= 0) mob.health = 1;
       mob.aggroTarget = proj.ownerId;
 
       room.events.push({
@@ -3418,7 +3438,9 @@ class GameLoop {
       sentry.beamTimer += sentry.beamTickRate;
 
       const sentryDmg = sentry.damage * (mob.damageTakenMult || 1.0);
+      if (mob.invulnerable) return;
       mob.health -= sentryDmg;
+      if (mob.ai === 'boss_retreat' && mob.health <= 0) mob.health = 1;
       mob.aggroTarget = sentry.ownerId;
 
       room.events.push({
@@ -4026,6 +4048,12 @@ class GameLoop {
 
       const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
 
+      // Boss retreat: check retreat even when out of aggro range
+      if (mob.ai === 'boss_retreat') {
+        this._updateBossRetreat(mob, nearest, nearestDist, room, dt);
+        continue;
+      }
+
       // Ambush: stay hidden until player is very close
       if (mob.ai === 'ambush' && mob.hidden) {
         const revealRange = 3 * CONSTANTS.TILE_SIZE;
@@ -4462,6 +4490,139 @@ class GameLoop {
   }
 
   /**
+   * Boss retreat AI: fights like melee_chase with special attacks, but when HP drops
+   * below retreatThreshold, becomes invulnerable and moves to a retreat point.
+   * Once reaching the retreat point, despawns and emits monster_killed.
+   * Used for bosses that flee rather than die (e.g. Dural Voss).
+   */
+  _updateBossRetreat(mob, nearest, nearestDist, room, dt) {
+    const TILE = CONSTANTS.TILE_SIZE;
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+    const hpPct = mob.health / mob.maxHealth;
+
+    // Check if we should enter retreat mode
+    if (!mob.retreating && hpPct <= mob.retreatThreshold) {
+      mob.retreating = true;
+      mob.invulnerable = true;
+
+      // Find retreat point from spawn data or default to a corner
+      if (mob.retreatPointX == null) {
+        // Default retreat: move away from nearest player toward spawn
+        mob.retreatPointX = mob.spawnX;
+        mob.retreatPointY = mob.spawnY;
+      }
+
+      room.events.push({
+        type: 'boss_retreat',
+        targetId: mob.id,
+        bossName: mob.name,
+        x: mob.x, y: mob.y,
+      });
+
+      // Emit flag_changed so triggers can fire retreat dialogue
+      for (const [pid] of room.players) {
+        const ctx = this._scriptContext(pid, room.id);
+        this._emitGameEvent(EventBus.Events.FLAG_CHANGED, {
+          playerId: pid,
+          roomId: room.id,
+          flag: `${mob.type}_retreated`,
+          value: true,
+        }, ctx);
+        // Also set the flag so conditions can check it later
+        this.flagStore.setPlayerFlag(pid, `${mob.type}_retreated`, true);
+      }
+    }
+
+    // Retreat mode: move to retreat point, then despawn
+    if (mob.retreating) {
+      const dx = mob.retreatPointX - mob.x;
+      const dy = mob.retreatPointY - mob.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < TILE * 0.5) {
+        // Reached retreat point — despawn the boss
+        const mid = mob.id;
+        room.events.push({
+          type: 'death', targetId: mid,
+          monsterType: mob.type,
+          x: mob.x, y: mob.y,
+        });
+        room.monsters.delete(mid);
+
+        if (mob.spawnKey) {
+          if (!this.killedMonsters.has(room.dungeonId)) {
+            this.killedMonsters.set(room.dungeonId, new Set());
+          }
+          this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
+        }
+
+        // Grant XP to all players in room
+        const monsterDef = this.content.getMonster(mob.type);
+        for (const [pid, player] of room.players) {
+          if (monsterDef && monsterDef.xp) {
+            this.grantXp(player, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
+          }
+          const ctx = this._scriptContext(pid, room.id);
+          this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
+            playerId: pid,
+            roomId: room.id,
+            monsterType: mob.type,
+            monsterId: mid,
+            monsterX: mob.x, monsterY: mob.y,
+          }, ctx);
+        }
+        return;
+      }
+
+      // Move toward retreat point (faster than normal)
+      const retreatSpeed = mob.speed * 1.5 * TILE * dt;
+      if (dist > 0) {
+        const nx = mob.x + (dx / dist) * retreatSpeed;
+        const ny = mob.y + (dy / dist) * retreatSpeed;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
+        mob.facing = Math.atan2(dy, dx);
+      }
+      return;
+    }
+
+    // Normal combat: melee_chase with special attacks
+    // Only engage if player is within aggro range
+    const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * TILE;
+    if (!mob.aggroTarget && nearestDist > aggroRange) return;
+
+    const dx = nearest.x - mob.x;
+    const dy = nearest.y - mob.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    mob.facing = Math.atan2(dy, dx);
+
+    // Try special attacks first
+    if (mob.specialAttacks) {
+      if (this._trySpecialAttack(mob, nearest, nearestDist, room, dt)) return;
+    }
+
+    if (nearestDist > mob.attackRange) {
+      // Chase player
+      const speed = mob.speed * TILE * dt;
+      if (len > 0) {
+        const nx = mob.x + (dx / len) * speed;
+        const ny = mob.y + (dy / len) * speed;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
+      }
+    } else if (mob.attackTimer <= 0) {
+      // Melee attack
+      nearest.health -= mob.damage;
+      mob.attackTimer = mob.attackCooldown;
+      room.events.push({
+        type: 'damage', targetId: nearest.id,
+        amount: mob.damage, x: nearest.x, y: nearest.y,
+      });
+      this._checkPlayerDeath(nearest, room);
+    }
+  }
+
+  /**
    * Try to use a special attack. Returns true if one was used (preempts normal behavior).
    * Special attack types: lunge, stun, ground_slam
    */
@@ -4887,9 +5048,11 @@ class GameLoop {
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < hitRadius) {
+          if (mob.invulnerable) continue;
           // Hit monster — force aggro on the attacker
           const projDmg = proj.damage * (mob.damageTakenMult || 1.0);
           mob.health -= projDmg;
+          if (mob.ai === 'boss_retreat' && mob.health <= 0) mob.health = 1;
           mob.aggroTarget = proj.ownerId;
           room.events.push({
             type: 'damage',

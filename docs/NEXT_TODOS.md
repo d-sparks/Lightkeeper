@@ -20,6 +20,16 @@ Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26
 - **Lighthouse Mara siege variant** — The existing `lighthouse_siege_arena` challenge could be narratively connected to Lighthouse Mara post-restoration (defend the restored lighthouse).
 - **Environmental hazard tuning** — Cold damage in caverns (2/3s) and core (3/2.5s) needs playtesting. May be too punishing for early Act 1 without frost_salve stockpile.
 
+## Content — Dural Voss / Spire of Vigil
+
+- **Spire of Vigil outer floors** — Currently only the sanctum (boss room) exists. The full Spire needs 2-3 outer raider stronghold floors (Phase 1 per storyboard) before the boss encounter.
+- **Spire of Vigil inner puzzle floors** — Ancient core puzzle rooms that teach/unlock the Light Sentry ability (Phase 2 per storyboard). Replayable with difficulty tiers.
+- **Dural Voss sprite** — Currently uses `luddite_warlord.png`. Needs a dedicated `sprites/dural_voss.png` (armored raider warlord, distinct silhouette).
+- **Voss retreat VFX** — Client-side visual for the `boss_retreat` event (flash, smoke, dramatic exit animation).
+- **Post-Voss quest integration** — The `spire_vigil_data_core` item needs a turn-in step at Warden Holt / Councillor Asha Denn. Connect to main_quest progression.
+- **Raider guard dialogue** — Add NPC raider sentries in outer floors with conditional dialogue (threats, then fear when Spire awakens).
+- **Nightside depths exit hint** — Add a trigger in nightside_depths near the new stairs_down (15,14) hinting at the Spire.
+
 ## Content — Nightside Path Discovery
 
 - **`visited_dead_road` flag** — The hint triggers don't suppress once the player has already been to the Dead Road. Add `setFlag: visited_dead_road` in dead_road.json.
