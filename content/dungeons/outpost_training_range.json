@@ -612,7 +612,9 @@
     }
   ],
   "npcSpawns": [],
-  "itemSpawns": [],
+  "itemSpawns": [
+    { "type": "bandage", "x": 7, "y": 3 }
+  ],
   "exits": [
     {
       "x": 13,
@@ -738,10 +740,15 @@
           "flag": "sol_training_complete"
         },
         {
+          "type": "giveItem",
+          "itemType": "rechargeable_battery_chip"
+        },
+        {
           "type": "showMessage",
           "lines": [
             "Training complete. You felt the difference — the Sol Cone hits hard but empties your reserves.",
             "Out in the field, energy management is life and death. Your blaster costs nothing, but your sol abilities need power.",
+            "A rechargeable battery chip has been added to your inventory — install it in your Sol Grid to extend your capacity.",
             "Head to the Power Station — Tech Maren can set you up with a field battery. Back through the workshop, then south."
           ]
         }
@@ -777,10 +784,15 @@
           "flag": "sol_training_complete"
         },
         {
+          "type": "giveItem",
+          "itemType": "rechargeable_battery_chip"
+        },
+        {
           "type": "showMessage",
           "lines": [
             "Training complete. You felt the difference — the Sol Cone hits hard but empties your reserves.",
             "Out in the field, energy management is life and death. Your blaster costs nothing, but your sol abilities need power.",
+            "A rechargeable battery chip has been added to your inventory — install it in your Sol Grid to extend your capacity.",
             "Head to the Power Station — Tech Maren can set you up with a field battery. Back through the workshop, then south."
           ]
         }

@@ -21,10 +21,10 @@
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
   ],
   "spawns": [
-    { "x": 7, "y": 1, "type": "player_start" },
-    { "x": 8, "y": 1, "type": "player_start" },
-    { "x": 7, "y": 2, "type": "player_start" },
-    { "x": 8, "y": 2, "type": "player_start" }
+    { "x": 7, "y": 4, "type": "player_start" },
+    { "x": 8, "y": 4, "type": "player_start" },
+    { "x": 7, "y": 5, "type": "player_start" },
+    { "x": 8, "y": 5, "type": "player_start" }
   ],
   "monsterSpawns": [
     { "type": "dusk_crawler", "x": 4, "y": 5, "count": 2, "patrol": "guard" },
@@ -38,7 +38,10 @@
   "npcSpawns": [
     { "type": "waypoint_beacon", "x": 5, "y": 2 }
   ],
-  "itemSpawns": [],
+  "itemSpawns": [
+    { "type": "bandage", "x": 2, "y": 8 },
+    { "type": "ration_pack", "x": 12, "y": 2 }
+  ],
   "exits": [
     { "x": 7, "y": 0, "leadsTo": "train_station", "type": "stairs_up", "spawnX": 22, "spawnY": 9 }
   ],
@@ -61,6 +64,40 @@
       "actions": [
         { "type": "showMessage", "text": "You reset the junction box and seal the damaged conduit. The power flow stabilizes. Yara will be relieved." },
         { "type": "setFlag", "flag": "junction_cleared" }
+      ],
+      "once": true
+    },
+    {
+      "id": "junction_cleared_via_beacon",
+      "event": "npc_interacted",
+      "filter": { "npcType": "waypoint_beacon" },
+      "conditions": [
+        { "hasFlag": "yara_junction_quest" },
+        { "not": { "hasFlag": "junction_cleared" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The waypoint beacon pulses — it's wired directly into the junction conduit control system.",
+          "You enter Yara's override code. The power conduit stabilizes with a heavy clunk. Yara will be relieved.",
+          "You search the crawler nest and find some supplies they'd dragged in."
+        ]},
+        { "type": "setFlag", "flag": "junction_cleared" },
+        { "type": "setFlag", "flag": "junction_crawlers_cleared" },
+        { "type": "giveItem", "itemType": "bandage" }
+      ],
+      "once": true
+    },
+    {
+      "id": "junction_beacon_already_cleared",
+      "event": "npc_interacted",
+      "filter": { "npcType": "waypoint_beacon" },
+      "conditions": [
+        { "hasFlag": "junction_cleared" },
+        { "not": { "hasFlag": "yara_transit_pass_ready_hint" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Junction conduit: STABLE. Return to Yara at the train station to claim your transit pass." },
+        { "type": "setFlag", "flag": "yara_transit_pass_ready_hint" }
       ],
       "once": true
     },

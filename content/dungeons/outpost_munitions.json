@@ -686,6 +686,11 @@
   ],
   "itemSpawns": [
     {
+      "type": "bandage",
+      "x": 4,
+      "y": 9
+    },
+    {
       "type": "medical_supplies",
       "x": 22,
       "y": 8
@@ -722,6 +727,24 @@
     }
   ],
   "triggers": [
+    {
+      "id": "medical_supplies_pickup_hint",
+      "event": "item_picked_up",
+      "filter": { "itemType": "medical_supplies" },
+      "actions": [
+        { "type": "showMessage", "text": "Military medical supplies. Each charge restores health — press [F] to use your medipac in the field." }
+      ],
+      "once": true
+    },
+    {
+      "id": "bandage_pickup_hint",
+      "event": "item_picked_up",
+      "filter": { "itemType": "bandage" },
+      "actions": [
+        { "type": "showMessage", "text": "A field bandage. Restores a small amount of health. Items go to your inventory [I]." }
+      ],
+      "once": true
+    },
     {
       "id": "enter_munitions",
       "event": "room_entered",

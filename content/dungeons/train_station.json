@@ -43,10 +43,26 @@
   "exits": [
     { "x": 12, "y": 14, "leadsTo": "station_approach", "type": "stairs_up", "spawnX": 9, "spawnY": 2 },
     { "x": 12, "y": 0, "leadsTo": "meridian_station", "type": "stairs_down", "spawnX": 15, "spawnY": 17 },
-    { "x": 23, "y": 9, "leadsTo": "station_junction", "type": "stairs_down", "spawnX": 7, "spawnY": 1 },
+    { "x": 23, "y": 9, "leadsTo": "station_junction", "type": "stairs_down", "spawnX": 7, "spawnY": 4 },
     { "x": 0, "y": 9, "leadsTo": "dayside_solar_fields", "type": "stairs_down", "spawnX": 15, "spawnY": 27 }
   ],
   "triggers": [
+    {
+      "id": "umbracite_pickup_hint",
+      "event": "item_picked_up",
+      "filter": { "itemType": "umbracite" },
+      "conditions": [
+        { "not": { "hasFlag": "umbracite_hint_shown" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "umbracite_hint_shown" },
+        { "type": "showMessage", "lines": [
+          "Umbracite — a dense crystallized energy mineral. Rare out here.",
+          "MERIDIAN-7 at the terminal across the platform accepts umbracite in exchange for solar infrastructure and Sol components."
+        ]}
+      ],
+      "once": true
+    },
     {
       "id": "enter_train_station",
       "event": "room_entered",

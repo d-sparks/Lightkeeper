@@ -68,10 +68,12 @@ Remaining orphaned rooms still to connect:
 
 - **All-quests mode: 5/14 quests fail** — See TODOs.md #1 for full breakdown. Key bugs: underlumen_threshold→meridian_civic has no fast travel (blocks main_quest + nightside_expedition), lost_tool/the_deserter/phase3_investigation all timeout. relay_recovery and broken_signal now pass (relay: junction boxes moved; broken_signal: Daley radios coordinates on Meridian arrival).
 - **Explore mode** — Flag-gated at 7/57 rooms (12.3%). Blocked by `engineer_briefing_complete` on outpost_workshop door. Grant story flags in explore mode for content validation.
-- **Item discovery rate** — Only 5/52 items collected in mainline (9/52 in all-quests). Most ground items are off the main path or lack visibility.
+- **Item discovery rate** — Only 5/52 items collected in mainline (9/52 in all-quests). Partially addressed 2026-03-13: added bandage near outpost_munitions entrance, bandage+ration_pack in station_junction, bandage in outpost_training_range; added pickup hints for medical_supplies, bandage, umbracite (Meridian-7 trade hint), single_use_battery_chip, basic_generator_chip; rechargeable_battery_chip now given on training completion. Many ground items (perimeter zones, dead_road, outer_ring) still only encountered if player explores off-path.
 - **NPC engagement** — Only 20/60 NPCs talked to in mainline (29/60 in all-quests). Many NPCs have no quest reason to visit.
 - **Death target tuning (2-4 deaths)** — Second tuning pass (2026-03-13): raised damage 25-50% on 15 mid-game monsters (luddite_brawler 12→16, scrapper 14→18, shade_stalker 14→18, gloom_wraith 12→16, dusk_crawler 7→10, rime_stalker 16→20, frostfang_hunter 11→15, etc.), added luddite_crossbowman to quarantine pool, raised quarantine budget (base 5→7, perDepth 3→4, maxPerRoom 3→4), removed bandage from perimeter_breach, downgraded field_medkit→bandage in nightside_caverns, raised cold hazard 3→4, halved medical_supplies in both quarantine templates. Sim damage taken jumped 1,840→5,205 but bot still shows 0 deaths (Sol Shield heals 3.5 HP/s passively). **Needs manual playtest** to confirm 2-4 deaths — sim bot can't reach target zones due to quest progression bugs.
 - **Quarantine sim loop (CRITICAL — blocks mainline)** — Bot stuck cycling quarantine depth 1-3 indefinitely. Root cause: `traverse_procedural` goal requires `supply_crate_key` item but bot exits quarantine before reaching depth 3 where warlord spawns. Goal stays active, bot re-enters from outpost_workshop. Fix: either improve depth targeting in `doTraverseProcedural()`, or add retry limit/goal failure handling. This is a sim bug, not a content bug — the game itself plays fine manually.
+- **junction_cleared trigger fixed (2026-03-13)** — `junction_cleared` flag was only settable via door interaction at (7,7), which the bot never triggers. Fixed by adding `npc_interacted` trigger on `waypoint_beacon` that sets `junction_cleared` when `yara_junction_quest` is active. The door trigger still works as an alternative path for human players who explore the room.
+- **receive_medipac deprecated condition format** — `outpost_entrance.json` trigger `receive_medipac` uses `{ "type": "not", "condition": ... }` format that conditions.js no longer parses. The trigger works correctly because `once: true` prevents re-firing, but the condition always returns `true`. Fix: update to `{ "not": { "hasFlag": "received_medipac" } }` format.
 
 ## Waypoint / Fast Travel System
 
@@ -150,6 +152,9 @@ Remaining orphaned rooms still to connect:
 
 - **Equipment items (sol units, bioframes)** — Add brief equip instructions for players unfamiliar with the Sol Grid.
 - **Lore items with no NPC connection** — Add `hasItem` dialogue rules for lore items that have pickup hints pointing to specific NPCs.
+- **Perimeter/Dead Road items** — bandage, ration_pack, salvage, field_medkit in outpost_perimeter / perimeter_outer_ring / perimeter_breach / dead_road have no pickup hints. Add item_picked_up triggers in those dungeons.
+- **Sol component discovery** — Most sol chips found in the world (efficiency_core_chip, area_expander_chip, etc.) lack pickup hints explaining what they do. Consider a generic sol_component_hint trigger.
+- **Health potion hint** — health_potion has no pickup hint. Add one to outpost_munitions (where it can be obtained via Voss side quest) or in loot tables.
 
 ## Quest Graph
 
