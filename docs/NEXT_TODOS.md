@@ -53,6 +53,31 @@ Remaining orphaned rooms still to connect:
 - **`meridian_undercity_deep`** — Pathfinder Ren NPC may need a quest step.
 - **`array_*` rooms** — array_access quest connects some; verify all 5 array rooms are reachable in all-quests mode.
 
+## Content — NPC Engagement (2026-03-13)
+
+Pass completed adding cross-NPC references and quest breadcrumbs to 10 NPCs:
+
+- **`charging_guard_pell`** — Now reacts to quest state; directs player to Daley (comms) and Brannigan (kitchen mystery)
+- **`munitions_pvt_korrin`** — Now references Quartermaster's supply manifest quest and directs pre-departure player to Sgt. Fenn
+- **`mess_pvt_osei`** — Default dialogue now directs player to Pvt. Tannis; new post-perimeter state; has_sol_unit hints at Brannigan mystery
+- **`mess_surveyor_kade`** — Now mentions Sgt. Fenn, Old Keeper, and Daley; new post-perimeter state cross-referencing Daley's signals
+- **`gate_sgt_fenn`** — New pre-departure hints (Vasik, Daley, Yara); returned state directs to Warden + Daley; comms_restored state highlights Daley's new signals
+- **`perimeter_lookout`** — Now mentions Sable by name; new sable_hint state with Old Keeper/Underlumen breadcrumb; visited state directs to Daley
+- **`sable_companion`** — Now reacts to underlumen_etching (directs to Archivist Solen), watchtower journal, and crypt visits
+- **`fence_elara`** — Now mentions Quartermaster's manifest; reacts to manifest_found and basement quest completion; admits to helping the shelter-seeker
+- **`pathfinder_ren`** — Now directs player to Old Keeper (knows_sable path) and Councillor Asha (has_etching path); reacts to underlumen_etching
+- **`keeper_mara`** (Keeper Renn) — After restoration now explicitly names Old Keeper as shared history, directs to Warden Holt and Daley
+- **`jorrit`** — References Vell's lost cat; reacts to Archives visit with Solen/Asha cross-references
+- **`vell`** — Default now names Archivist Solen; new frontier_visitor state referencing Daley; post-quest state references Jorrit
+- **`station_master_calloway`** — Default now names Councillor Asha, Crafter Yun, and Archivist Solen; returning state specifically prompts visiting Asha
+
+Remaining NPC engagement gaps:
+- **Post-`lighthouse_mara_restored` reactions** — Warden Holt, Sgt. Ellers, Tech Maren still have no `lighthouse_mara_restored` dialogue states (see Lighthouse Mara section above)
+- **`mess_cook_brannigan` default** — Already mentions workshop; consider adding Tannis reference to her default state
+- **Hub-to-hub breadcrumbs** — Meridian Market NPCs (merchant_reva, weaponsmith_garro) don't yet reference Council or Archives district
+- **`seismic_survey_data` turn-in** — Item found in Lighthouse Mara caverns has no receiving NPC; add to Warden Holt, Daley, or a Meridian NPC
+- **`waypoint_beacon` dead end** — Waypoint beacon in train_station_junction could point players to Yara; currently just a fast-travel node
+
 ## Content — Nightside Path Discovery
 
 - **`visited_dead_road` flag** — The hint triggers don't suppress once the player has already been to the Dead Road. Add `setFlag: visited_dead_road` in dead_road.json.
@@ -69,7 +94,7 @@ Remaining orphaned rooms still to connect:
 - **All-quests mode: 5/14 quests fail** — See TODOs.md #1 for full breakdown. Key bugs: underlumen_threshold→meridian_civic has no fast travel (blocks main_quest + nightside_expedition), lost_tool/the_deserter/phase3_investigation all timeout. relay_recovery and broken_signal now pass (relay: junction boxes moved; broken_signal: Daley radios coordinates on Meridian arrival).
 - **Explore mode** — Flag-gated at 7/57 rooms (12.3%). Blocked by `engineer_briefing_complete` on outpost_workshop door. Grant story flags in explore mode for content validation.
 - **Item discovery rate** — Only 5/52 items collected in mainline (9/52 in all-quests). Partially addressed 2026-03-13: added bandage near outpost_munitions entrance, bandage+ration_pack in station_junction, bandage in outpost_training_range; added pickup hints for medical_supplies, bandage, umbracite (Meridian-7 trade hint), single_use_battery_chip, basic_generator_chip; rechargeable_battery_chip now given on training completion. Many ground items (perimeter zones, dead_road, outer_ring) still only encountered if player explores off-path.
-- **NPC engagement** — Only 20/60 NPCs talked to in mainline (29/60 in all-quests). Many NPCs have no quest reason to visit.
+- **NPC engagement** — Only 20/60 NPCs talked to in mainline (29/60 in all-quests). Many NPCs have no quest reason to visit. Cross-NPC references and quest breadcrumbs added 2026-03-13 (see NPC Engagement section below). Re-run sim to measure improvement.
 - **Death target tuning (2-4 deaths)** — Second tuning pass (2026-03-13): raised damage 25-50% on 15 mid-game monsters (luddite_brawler 12→16, scrapper 14→18, shade_stalker 14→18, gloom_wraith 12→16, dusk_crawler 7→10, rime_stalker 16→20, frostfang_hunter 11→15, etc.), added luddite_crossbowman to quarantine pool, raised quarantine budget (base 5→7, perDepth 3→4, maxPerRoom 3→4), removed bandage from perimeter_breach, downgraded field_medkit→bandage in nightside_caverns, raised cold hazard 3→4, halved medical_supplies in both quarantine templates. Sim damage taken jumped 1,840→5,205 but bot still shows 0 deaths (Sol Shield heals 3.5 HP/s passively). **Needs manual playtest** to confirm 2-4 deaths — sim bot can't reach target zones due to quest progression bugs.
 - **Quarantine sim loop (CRITICAL — blocks mainline)** — Bot stuck cycling quarantine depth 1-3 indefinitely. Root cause: `traverse_procedural` goal requires `supply_crate_key` item but bot exits quarantine before reaching depth 3 where warlord spawns. Goal stays active, bot re-enters from outpost_workshop. Fix: either improve depth targeting in `doTraverseProcedural()`, or add retry limit/goal failure handling. This is a sim bug, not a content bug — the game itself plays fine manually.
 - **junction_cleared trigger fixed (2026-03-13)** — `junction_cleared` flag was only settable via door interaction at (7,7), which the bot never triggers. Fixed by adding `npc_interacted` trigger on `waypoint_beacon` that sets `junction_cleared` when `yara_junction_quest` is active. The door trigger still works as an alternative path for human players who explore the room.

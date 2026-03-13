@@ -768,9 +768,35 @@
       "default": [
         { "speaker": "Guard Pell", "text": "Power room's access-restricted. Tech Maren's the only one authorized to touch those consoles." },
         { "speaker": "Guard Pell", "text": "You need a battery, you talk to her." }
+      ],
+      "quest_active": [
+        { "speaker": "Guard Pell", "text": "Power room's locked down tighter than usual. Those luddites in the east wing have Maren nervous — if they push closer to the capacitor banks, we're in trouble." },
+        { "speaker": "Guard Pell", "text": "Clear them out when you get the chance. The whole outpost runs on what's behind this door." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Guard Pell", "text": "So you're the Lightkeeper heading to Mara. Good." },
+        { "speaker": "Guard Pell", "text": "Before you go — check in with Comms Officer Daley. Her radio room is west of the entrance hall. She's been picking up strange signals and nobody's taken the time to listen." },
+        { "speaker": "Guard Pell", "text": "Also, if you haven't talked to the cook about the missing rations... probably nothing, but she's been wound up about it for days." }
+      ],
+      "post_shutdown": [
+        { "speaker": "Guard Pell", "text": "Nothing to guard now — Array's offline, power's local. Maren says the capacitor banks are holding, but she looks worried." },
+        { "speaker": "Guard Pell", "text": "Honestly? I sleep better knowing we built this ourselves." }
       ]
     },
-    "dialogueRules": []
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "chose_path_shutdown" }],
+        "use": "post_shutdown"
+      },
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasFlag": "quest_cylinders_active" }],
+        "use": "quest_active"
+      }
+    ]
   },
   "munitions_quartermaster": {
     "name": "Quartermaster Voss",
@@ -848,9 +874,35 @@
         { "speaker": "Pvt. Korrin", "text": "Six light rifles in here haven't been serviced in eight weeks. Quartermaster says no time. I say that's how you get a misfire." },
         { "speaker": "Pvt. Korrin", "text": "Everything on this rock runs on Sol energy. The lighthouses, the weapons, the outpost grid." },
         { "speaker": "Pvt. Korrin", "text": "The beacons go down, we lose power too — eventually. Not right away, but it cascades." }
+      ],
+      "quest_active": [
+        { "speaker": "Pvt. Korrin", "text": "You're heading into the occupied wing? Keep your eyes open in there." },
+        { "speaker": "Pvt. Korrin", "text": "Quartermaster Voss lost a supply manifest when the luddites hit the east corridor. She's driving everyone mad about it. If you see it, she'll probably give you something in return." }
+      ],
+      "received_weapon": [
+        { "speaker": "Pvt. Korrin", "text": "Good choice from the Quartermaster. That model's reliable — I've field-stripped a dozen of them." },
+        { "speaker": "Pvt. Korrin", "text": "Head over to the engineer's shop when you can. He's finishing a Sol Unit — that's what'll actually keep you alive past the perimeter." },
+        { "speaker": "Pvt. Korrin", "text": "Sol weapons hit harder than anything I stock. The difference is a beam of focused light vs. a charge pack. No contest in the dark." }
+      ],
+      "has_sol_unit": [
+        { "speaker": "Pvt. Korrin", "text": "You've got a Sol Unit. Nice kit." },
+        { "speaker": "Pvt. Korrin", "text": "Before you go through the gate, talk to Sgt. Fenn if you haven't. He knows every crawl space and choke point between here and the train station. That kind of local knowledge keeps you alive." }
       ]
     },
-    "dialogueRules": []
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }],
+        "use": "has_sol_unit"
+      },
+      {
+        "conditions": [{ "hasFlag": "received_weapon" }],
+        "use": "received_weapon"
+      },
+      {
+        "conditions": [{ "hasFlag": "quest_cylinders_active" }],
+        "use": "quest_active"
+      }
+    ]
   },
   "station_tech_yara": {
     "name": "Tech Yara",
@@ -1062,16 +1114,27 @@
         { "speaker": "Pvt. Osei", "text": "I just got posted here three weeks ago. They didn't tell us much in training — just 'hold the line' and 'don't go past the perimeter alone.'" },
         { "speaker": "Pvt. Osei", "text": "Is it true what they say about the Nightside? That there are things out there that don't need light to see?" },
         { "speaker": "Pvt. Osei", "text": "Sgt. Ellers says the dark isn't empty. He says it's full. That's what scares me." },
-        { "speaker": "Pvt. Osei", "text": "I signed up to protect people. I just... didn't think it would be this quiet. The waiting is worse than the fighting." }
+        { "speaker": "Pvt. Osei", "text": "I signed up to protect people. I just... didn't think it would be this quiet. The waiting is worse than the fighting." },
+        { "speaker": "Pvt. Osei", "text": "If you want real stories about what's out there — talk to Pvt. Tannis in the infirmary. He was on the perimeter when they hit. He's seen things the briefings don't cover." }
       ],
       "has_sol_unit": [
         { "speaker": "Pvt. Osei", "text": "You have a Sol Unit? Those are rare — I've only seen pictures in the manual." },
         { "speaker": "Pvt. Osei", "text": "How does it feel? Does it really push back the dark?" },
         { "speaker": "Pvt. Osei", "text": "I wish I had one. Maybe then I wouldn't be scared of patrol duty." },
-        { "speaker": "Pvt. Osei", "text": "Be careful out there. And... come back, okay? Morale's bad enough as it is." }
+        { "speaker": "Pvt. Osei", "text": "Before you go — Cook Brannigan noticed something was off in the kitchen supply room. Might be nothing, but she seemed rattled. Worth checking in with her if you have time." },
+        { "speaker": "Pvt. Osei", "text": "And come back, okay? Morale's bad enough as it is." }
+      ],
+      "post_perimeter": [
+        { "speaker": "Pvt. Osei", "text": "You went past the gate. You came back." },
+        { "speaker": "Pvt. Osei", "text": "What's it like out there? The Surveyor's maps make it look like just terrain, but Tannis said the maps don't capture the feeling." },
+        { "speaker": "Pvt. Osei", "text": "Did you run into anything unusual? I keep hearing reports about new creature types — things the standard briefings don't mention." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "reached_station_approach" }],
+        "use": "post_perimeter"
+      },
       {
         "conditions": [{ "hasFlag": "received_sol_unit" }],
         "use": "has_sol_unit"
@@ -1088,14 +1151,25 @@
         { "speaker": "Surveyor Kade", "text": "I'm a civilian cartographer — attached to the outpost for the survey season. Mapping the terminator zone between here and the train station." },
         { "speaker": "Surveyor Kade", "text": "The terrain shifts constantly out there. The temperature gradient at the terminator creates geological instability. Paths that existed last month are gone." },
         { "speaker": "Surveyor Kade", "text": "If you're heading through the perimeter, I can mark what I know on your HUD. There are side routes that avoid the main luddite patrol lanes." },
-        { "speaker": "Surveyor Kade", "text": "Just promise me you'll report back what you see. I need ground truth for the survey." }
+        { "speaker": "Surveyor Kade", "text": "Also — talk to Sgt. Fenn at the perimeter gate before you leave. He's been out there thirty years. If anyone knows the current patrol patterns and creature movement, it's him." },
+        { "speaker": "Surveyor Kade", "text": "And if you come across anything unusual in the old crypts — strange rock formations, inscriptions, unusual temperature readings — mark it on your map. My survey is supposed to cover underground geology too, but nobody here will go in with me." }
       ],
       "intel_given": [
         { "speaker": "Surveyor Kade", "text": "I've shared what I know. The marked paths should help you avoid the worst of it." },
+        { "speaker": "Surveyor Kade", "text": "The Old Keeper in the crypts knows this terrain better than anyone. I've tried to get him to consult on the survey, but he says 'the maps lie.' Whatever that means." },
         { "speaker": "Surveyor Kade", "text": "Remember — the dark side erodes landmarks. Don't trust anything that looks too familiar." }
+      ],
+      "post_perimeter": [
+        { "speaker": "Surveyor Kade", "text": "You crossed the perimeter and came back. Good. How was the terrain past the gate?" },
+        { "speaker": "Surveyor Kade", "text": "The geological data I'm getting from the eastern sector doesn't match anything in the old surveys. Subsurface readings suggest... cavities. Large ones. Recent formation." },
+        { "speaker": "Surveyor Kade", "text": "If you find anything underground — passages, formations, structures — I'd pay for annotated notes. Daley in the comms room might also want to know if those cavities correspond to the anomalous signals she's been picking up." }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "reached_station_approach" }],
+        "use": "post_perimeter"
+      },
       {
         "conditions": [{ "hasFlag": "kade_intel_received" }],
         "use": "intel_given"
@@ -1457,15 +1531,42 @@
         { "speaker": "Sgt. Fenn", "text": "I'm opening the gate. Once it closes behind you... well, there's no coming back through this way." },
         { "speaker": "Sgt. Fenn", "text": "Good luck out there. You'll need it." }
       ],
+      "pre_departure_hints": [
+        { "speaker": "Sgt. Fenn", "text": "Before you go — you talked to everyone here?" },
+        { "speaker": "Sgt. Fenn", "text": "Dr. Vasik in the infirmary has medkit training she'll share if you help her. Worth knowing before you're bleeding out in the dark." },
+        { "speaker": "Sgt. Fenn", "text": "Comms Officer Daley's radio room is worth a stop too. She's been picking up signals from the other outposts. Bad signals." },
+        { "speaker": "Sgt. Fenn", "text": "The train station has a tech named Yara. Alone out there for weeks. When you get there, she'll need your help before she'll let you through." }
+      ],
       "gate_opened": [
         { "speaker": "Sgt. Fenn", "text": "Gate's open. Head north through the outer ring." },
         { "speaker": "Sgt. Fenn", "text": "Remember — Shade Stalkers hunt in pairs. Keep your Sol Unit charged and your eyes open." }
+      ],
+      "returned": [
+        { "speaker": "Sgt. Fenn", "text": "You made it back. I don't say that to everyone who goes through this gate." },
+        { "speaker": "Sgt. Fenn", "text": "Report in to Warden Holt first — she'll want to hear everything. Then find Daley in the comms room. If you saw anything unusual out there, she'll want to cross-reference it with what she's picking up on the frequencies." }
+      ],
+      "comms_restored_hint": [
+        { "speaker": "Sgt. Fenn", "text": "I heard Daley finally got the long-range comms working. About time." },
+        { "speaker": "Sgt. Fenn", "text": "Twenty years on this gate and I could never get a straight report from the other outposts. Whatever she's picking up — it matters." },
+        { "speaker": "Sgt. Fenn", "text": "Talk to her before you head back out. She mentioned signals from an old relay station. Coordinates that don't match anything on my maps." }
       ]
     },
     "dialogueRules": [
       {
+        "conditions": [{ "hasFlag": "arrived_meridian" }],
+        "use": "returned"
+      },
+      {
+        "conditions": [{ "hasFlag": "comms_restored" }],
+        "use": "comms_restored_hint"
+      },
+      {
         "conditions": [{ "hasFlag": "fenn_opened_gate" }],
         "use": "gate_opened"
+      },
+      {
+        "conditions": [{ "hasFlag": "received_sol_unit" }, { "not": { "hasFlag": "fenn_opened_gate" } }],
+        "use": "pre_departure_hints"
       }
     ]
   },
@@ -1547,17 +1648,29 @@
         { "speaker": "Perimeter Scout", "text": "I've been posted at this perimeter line for six years. Never got used to the cold rising from that southern drop." },
         { "speaker": "Perimeter Scout", "text": "The locals called it the Nightside Caverns. A cave system that goes deep — the temperature falls fast once you're inside." },
         { "speaker": "Perimeter Scout", "text": "My squad went down to investigate three months back. Two came back. They won't talk about what they saw." },
+        { "speaker": "Perimeter Scout", "text": "There's an old Unbounded woman — calls herself Sable — who's been passing through this area. She knows more about what's in those caverns than anyone who lives in the Ring." },
         { "speaker": "Perimeter Scout", "text": "The entrance is right at the south edge of this perimeter — past the old boundary markers. You'll see the frost creeping up the rock face." }
+      ],
+      "sable_hint": [
+        { "speaker": "Perimeter Scout", "text": "You've met Sable, then. Good." },
+        { "speaker": "Perimeter Scout", "text": "I've crossed paths with her twice. Once on the Dead Road, once near the ravine. She moves quietly — you don't hear her coming." },
+        { "speaker": "Perimeter Scout", "text": "She told me the Nightside Caverns have been more active lately. Creatures moving up, moving out. She said it's something pushing them from deeper down." },
+        { "speaker": "Perimeter Scout", "text": "The Old Keeper in the crypts calls it the Underlumen. I used to think it was superstition. Now I'm not sure." }
       ],
       "visited": [
         { "speaker": "Perimeter Scout", "text": "You came back from the Nightside Caverns. I've stopped being surprised by what people can survive." },
-        { "speaker": "Perimeter Scout", "text": "The cold follows you. You'll feel it for days." }
+        { "speaker": "Perimeter Scout", "text": "The cold follows you. You'll feel it for days." },
+        { "speaker": "Perimeter Scout", "text": "Comms Officer Daley at Outpost Balor has been monitoring deep-earth signals. Whatever you found down there, she might be able to cross-reference it with what she's picking up. Worth the trip back." }
       ]
     },
     "dialogueRules": [
       {
         "conditions": [{ "hasFlag": "visited_nightside_caverns" }],
         "use": "visited"
+      },
+      {
+        "conditions": [{ "hasFlag": "helped_sable" }],
+        "use": "sable_hint"
       }
     ]
   },
@@ -1572,9 +1685,38 @@
         { "speaker": "Sable", "text": "That symbol — the broken circle — means 'settlement nearby.' Someone from the deep Nightside came through here before me." },
         { "speaker": "Sable", "text": "The dead crawlers near the entrance... something killed them recently. Something bigger than a stalker." },
         { "speaker": "Sable", "text": "The dark has its own ecosystem. We Unbounded have studied it for generations. But lately, even we can't predict what's coming next." }
+      ],
+      "has_etching": [
+        { "speaker": "Sable", "text": "What's that you're carrying? Those markings — I recognize the pattern." },
+        { "speaker": "Sable", "text": "The Underlumen Script. My people have fragments of it in the deep settlements, inscribed on cave walls. Nobody knows who made it." },
+        { "speaker": "Sable", "text": "Whoever gave this to you — do you trust them? Because what you're holding is older than anything I've seen come out of the Ring's archives." },
+        { "speaker": "Sable", "text": "In Meridian, find the Archivist. His name is Solen. He studies the old surveys. If anyone in the city can read those markings, it's him." }
+      ],
+      "has_watchtower_info": [
+        { "speaker": "Sable", "text": "You've been to the old watchtower? My people gave up using that route years ago — too exposed." },
+        { "speaker": "Sable", "text": "The Unbounded know the perimeter well. The Ring builds walls and calls it safety. We move through the dark and call it knowledge." },
+        { "speaker": "Sable", "text": "Watcher Corrin — if that name means something to you, the Old Keeper in the crypts remembers him. Those two have history." }
+      ],
+      "post_crypt": [
+        { "speaker": "Sable", "text": "You've been in the old crypts. I can tell — that particular smell of cold stone and old bone doesn't leave you quickly." },
+        { "speaker": "Sable", "text": "The Unbounded call those tunnels 'the Seam.' A boundary between the planet's surface and something deeper." },
+        { "speaker": "Sable", "text": "Whatever you found down there — bring it to Meridian. The city has people who will want to understand it, even if they don't know they need to yet." }
       ]
     },
-    "dialogueRules": []
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "underlumen_etching" }],
+        "use": "has_etching"
+      },
+      {
+        "conditions": [{ "hasFlag": "found_watchtower_journal" }],
+        "use": "has_watchtower_info"
+      },
+      {
+        "conditions": [{ "hasFlag": "visited_crypt_02" }],
+        "use": "post_crypt"
+      }
+    ]
   },
   "sable_station": {
     "name": "Sable",
@@ -1670,12 +1812,14 @@
       "default": [
         { "speaker": "Station Master Calloway", "text": "Welcome to Meridian City, traveler. You've come from the frontier, I can tell. That look in your eyes — everyone who crosses the dark has it." },
         { "speaker": "Station Master Calloway", "text": "The city's divided into districts. Head north through the main concourse for the Market Quarter — supplies, weapons, components, everything you need." },
-        { "speaker": "Station Master Calloway", "text": "East corridor leads to the Civic Center — land registration, government offices. If you're claiming a salvage lot, that's where you go." },
-        { "speaker": "Station Master Calloway", "text": "West takes you to the Workshop District. Crafters, engineers, practical folk." },
+        { "speaker": "Station Master Calloway", "text": "East corridor leads to the Civic Center — land registration, government offices. Councillor Asha's office is there too, if you have business with the Council." },
+        { "speaker": "Station Master Calloway", "text": "West takes you to the Workshop District. Crafter Yun's shop is the one worth stopping at — she does custom work, not just off-the-shelf." },
+        { "speaker": "Station Master Calloway", "text": "One more thing: there's an Archivist in the Archives district — Solen. If you found anything unusual out in the field — data cores, relay logs, survey equipment — he pays well for primary sources." },
         { "speaker": "Station Master Calloway", "text": "The directory board on the wall has a full listing if you need it. Safe travels." }
       ],
       "returning": [
         { "speaker": "Station Master Calloway", "text": "Back again? The trains run on schedule now, thanks to the Array's timetable systems." },
+        { "speaker": "Station Master Calloway", "text": "If you haven't made it to the Civic Center yet — Councillor Asha's been asking about frontier reports. She's specifically interested in anything from the deep perimeter." },
         { "speaker": "Station Master Calloway", "text": "Need directions? Market north, Civic east, Workshop west. Same as always." }
       ],
       "courier_asked": [
@@ -3550,17 +3694,25 @@
       "default": [
         { "speaker": "Vell", "text": "Name's Vell. I've been on the East Terrace since before they paved the walkways. Watched this whole neighborhood grow up around me." },
         { "speaker": "Vell", "text": "My cat Ember's gone missing again. She wanders off, usually comes back. But it's been two days now." },
-        { "speaker": "Vell", "text": "If you spot an orange tabby anywhere in the city, would you let me know? She likes warm places and people who smell like books." }
+        { "speaker": "Vell", "text": "If you spot an orange tabby anywhere in the city, would you let me know? She likes warm places and people who smell like books. Probably found her way into the Archives again — that's where Archivist Solen is." }
+      ],
+      "frontier_visitor": [
+        { "speaker": "Vell", "text": "You've come from the frontier. I can tell. There's a kind of alertness that never fully goes away once you've lived near the dark perimeter." },
+        { "speaker": "Vell", "text": "My grandchildren live near Outpost Balor. I haven't been able to reach them since the relay issues started." },
+        { "speaker": "Vell", "text": "The Comms Officer there — Daley, I think — was supposed to be working on the long-range radio. If you came through that way, did you hear anything?" },
+        { "speaker": "Vell", "text": "Oh, and — my cat Ember's gone missing again. Orange tabby. Check the Archives if you have time." }
       ],
       "cat_found": [
         { "speaker": "Vell", "text": "You found Ember?! In the Archives? Of course — Solen's been feeding her fish scraps, the old softie." },
         { "speaker": "Vell", "text": "Thank you, truly. When you're my age and living alone, a cat's the best company there is." },
-        { "speaker": "Vell", "text": "Here — take these. It's not much, but the terrace shares what it has." }
+        { "speaker": "Vell", "text": "Here — take these. It's not much, but the terrace shares what it has." },
+        { "speaker": "Vell", "text": "If you're going back to the Archives, tell Solen I said thank you for keeping her fed. And tell him to stop it — she's fat enough." }
       ],
       "post_quest": [
         { "speaker": "Vell", "text": "Ember's back home and sleeping on the warm spot by the heater. All's right with the world." },
         { "speaker": "Vell", "text": "You know, this terrace used to be a relay station. Before the city expanded, before they decommissioned the old network. Just pylons and open sky." },
-        { "speaker": "Vell", "text": "Sometimes I miss those days. Simpler times. But then I remember the dark was closer then, too." }
+        { "speaker": "Vell", "text": "Jorrit — the water systems fellow down the hall — says there's been tremors in the pipes lately. Deep ones, below the foundation. The engineers say it's normal geology. Jorrit doesn't believe them." },
+        { "speaker": "Vell", "text": "Sometimes I miss those simpler days. But then I remember the dark was closer then, too." }
       ]
     },
     "dialogueRules": [
@@ -3571,6 +3723,10 @@
       {
         "conditions": [{ "hasFlag": "lost_cat_found" }],
         "use": "cat_found"
+      },
+      {
+        "conditions": [{ "hasFlag": "reached_station_approach" }],
+        "use": "frontier_visitor"
       }
     ]
   },
@@ -3585,7 +3741,13 @@
         { "speaker": "Jorrit", "text": "I'm Jorrit. I keep the terrace water system running. Pumps, filters, reclamation units — the unglamorous essentials." },
         { "speaker": "Jorrit", "text": "The Array offered to automate the whole thing once. MERIDIAN-7 said it could run the water system 'with zero human oversight required.'" },
         { "speaker": "Jorrit", "text": "We put it to a vote. The terrace voted no, twenty-three to four. People up here like doing things themselves." },
-        { "speaker": "Jorrit", "text": "The Array doesn't get that. It sees inefficiency. We see independence." }
+        { "speaker": "Jorrit", "text": "The Array doesn't get that. It sees inefficiency. We see independence." },
+        { "speaker": "Jorrit", "text": "If you're new to the city, talk to Vell — she's been on the East Terrace her whole life. Knows everyone and everything. And she's looking for her cat, last I heard." }
+      ],
+      "visited_archives": [
+        { "speaker": "Jorrit", "text": "You went to the Archives? Solen put you to work, I'm sure. He does that to anyone who shows the slightest interest in history." },
+        { "speaker": "Jorrit", "text": "He's been trying to get the Council to fund a subsurface survey for three years. Councillor Asha is sympathetic, but the rest of them think he's chasing ghosts." },
+        { "speaker": "Jorrit", "text": "I've lived above the earth my whole life. Never once thought about what's underneath. After what I've been hearing lately — I think about it now." }
       ],
       "post_watch": [
         { "speaker": "Jorrit", "text": "Heard you took a watch shift. Good on you — the terrace appreciates people who pitch in." },
@@ -3593,6 +3755,10 @@
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "visited_meridian_archives" }],
+        "use": "visited_archives"
+      },
       {
         "conditions": [{ "hasFlag": "terrace_watch_complete" }],
         "use": "post_watch"
@@ -4023,17 +4189,29 @@
       { "speaker": "Fence Elara", "text": "You're a long way from the market, friend." }
     ],
     "dialogueRules": [
+      { "conditions": [{ "hasFlag": "voss_supply_quest_complete" }], "use": "manifest_found" },
+      { "conditions": [{ "hasFlag": "brannigan_quest_complete" }], "use": "post_basement" },
       { "conditions": [{ "hasFlag": "met_fence_elara" }], "use": "return_visit" }
     ],
     "dialogues": {
       "default": [
         { "speaker": "Fence Elara", "text": "You're a long way from the market." },
         { "speaker": "Fence Elara", "text": "Name's Elara. I move things — goods, information, people — between the upper city and the warrens. No records. No questions." },
-        { "speaker": "Fence Elara", "text": "There's a Luddite cell in the east wing. They've been here three months and nobody's been able to move them. Watch yourself." }
+        { "speaker": "Fence Elara", "text": "There's a Luddite cell in the east wing. They've been here three months and nobody's been able to move them. Watch yourself." },
+        { "speaker": "Fence Elara", "text": "The Quartermaster's been loud about losing a supply manifest in the raid. Whatever's in the east wing, she wants that paperwork back more than she wants the cargo. Bureaucracy." }
       ],
       "return_visit": [
         { "speaker": "Fence Elara", "text": "Still alive. Good." },
-        { "speaker": "Fence Elara", "text": "If you want the supply crate, you need the key. The gang has it somewhere in the east wing." }
+        { "speaker": "Fence Elara", "text": "If you want the supply crate, you need the key. The gang has it somewhere in the east wing." },
+        { "speaker": "Fence Elara", "text": "Also — the cook upstairs has been counting her rations and coming up short. I may have helped someone shelter in the basement for a few days. Don't tell her it was me." }
+      ],
+      "manifest_found": [
+        { "speaker": "Fence Elara", "text": "You got Voss her manifest back? She owes me a drink. I bet her you could do it." },
+        { "speaker": "Fence Elara", "text": "The east wing's been a problem for months. Whatever you cleared out of there — good." }
+      ],
+      "post_basement": [
+        { "speaker": "Fence Elara", "text": "The basement mystery solved itself, I hear. Brannigan can stop counting her ration packs." },
+        { "speaker": "Fence Elara", "text": "Whoever was hiding down there — they're not the first person I've helped move through this outpost quietly. Not my place to judge." }
       ]
     }
   },
@@ -4043,13 +4221,28 @@
       { "speaker": "Pathfinder Ren", "text": "You're a long way down, Lightkeeper." }
     ],
     "dialogueRules": [
+      { "conditions": [{ "hasItem": "underlumen_etching" }], "use": "has_etching" },
+      { "conditions": [{ "hasFlag": "helped_sable" }], "use": "knows_sable" },
       { "conditions": [{ "hasFlag": "met_pathfinder_ren" }], "use": "return_visit" }
     ],
     "dialogues": {
       "default": [
         { "speaker": "Pathfinder Ren", "text": "You're a long way down, Lightkeeper." },
         { "speaker": "Pathfinder Ren", "text": "I'm Ren. Underlumen pathfinder. These tunnels are a way station between the Nightside settlements and the Ring border." },
-        { "speaker": "Pathfinder Ren", "text": "Watch the east corridors — shade stalkers have moved in. And the flooded sections to the west have ambushers." }
+        { "speaker": "Pathfinder Ren", "text": "Watch the east corridors — shade stalkers have moved in. And the flooded sections to the west have ambushers." },
+        { "speaker": "Pathfinder Ren", "text": "If you find anything carved into the walls down here — geometric patterns, spirals, anything that doesn't look natural — don't touch it. Tell me. The Underlumen marks its own, and those markings are warnings." }
+      ],
+      "knows_sable": [
+        { "speaker": "Pathfinder Ren", "text": "You've met Sable. She told me about the Lightkeeper who helped her on the Dead Road." },
+        { "speaker": "Pathfinder Ren", "text": "That matters. The Unbounded don't forget who shows respect in the dark." },
+        { "speaker": "Pathfinder Ren", "text": "If you're trying to understand what's happening beneath this planet — the creatures, the displacement, the waking — find the Old Keeper. He was a Lightkeeper before the Ring, before the lighthouses. He knows the old stories." },
+        { "speaker": "Pathfinder Ren", "text": "He's somewhere in the old crypts near Outpost Balor. Stubborn old man, but he carries real knowledge." }
+      ],
+      "has_etching": [
+        { "speaker": "Pathfinder Ren", "text": "Where did you get that?" },
+        { "speaker": "Pathfinder Ren", "text": "That script — Underlumen Script. We find fragments of it on deep cave walls, always older than any human construction on this planet." },
+        { "speaker": "Pathfinder Ren", "text": "You should not be carrying this casually. It's a resonance key — the Underlumen responds to these markings. Having it near the network changes how the tunnels behave." },
+        { "speaker": "Pathfinder Ren", "text": "Take it to Sable, if you know her. If not, there's a woman in Meridian — a Councillor who studies biological anomalies. Her name is Asha. She can tell you what it means without accidentally activating anything." }
       ],
       "return_visit": [
         { "speaker": "Pathfinder Ren", "text": "Still exploring? The tunnels are quieter since you cleared them out." },
@@ -4076,7 +4269,9 @@
       "after_restoration": [
         { "speaker": "Keeper Renn", "text": "The core is online. I can feel the hum through the walls. Lighthouse Mara lives again." },
         { "speaker": "Keeper Renn", "text": "But what I saw down there... those cracks weren't natural. The geometry in the deep rock — it was too regular. Too deliberate." },
-        { "speaker": "Keeper Renn", "text": "Something old is waking up under the Nightside. Tell Warden Holt. Tell everyone." }
+        { "speaker": "Keeper Renn", "text": "Something old is waking up under the Nightside. Tell Warden Holt when you get back to Balor. And if you haven't spoken with the Old Keeper in the crypts — you should. He's been saying this for years. Nobody listened." },
+        { "speaker": "Keeper Renn", "text": "He and I trained together, a long time ago. Different Lighthouses, same commission. He went to the border crypts, I came here. We've both felt the same thing — something underneath, patient, building." },
+        { "speaker": "Keeper Renn", "text": "Also — there's a Comms Officer at Outpost Balor. Daley. She was trying to restore long-range radio contact when I last heard. If she's managed it, she might already have reports from the other lighthouse keepers. This didn't just happen at Mara." }
       ]
     },
     "dialogueRules": [
