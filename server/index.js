@@ -12,6 +12,7 @@ const { isAuthenticated, handleLogin, sendUnauthorized } = require('./editor-aut
 const contentGit = require('./content-git');
 const ChunkManager = require('./chunk-manager');
 const SessionStore = require('./session-store');
+const ActivityLog = require('./activity-log');
 
 // --- Configuration ---
 const PORT = process.env.PORT || 3000;
@@ -326,6 +327,8 @@ const chunkManager = new ChunkManager();
 
 // --- Session persistence ---
 const sessionStore = new SessionStore();
+const activityLog = new ActivityLog();
+gameLoop.activityLog = activityLog;
 
 // --- WebSocket server ---
 const wss = new WebSocketServer({ server: httpServer });
@@ -558,6 +561,16 @@ wss.on('connection', (ws) => {
 
           console.log(`[Session] Restored saved session for "${ws.playerName}"`);
         }
+
+        // Activity logging: register player and log session start
+        activityLog.registerPlayer(playerId, ws.playerName);
+        ws.joinedAt = Date.now();
+        const joinedPlayer = gameLoop.getRoom(ws.playerRoom).players.get(playerId);
+        activityLog.log(ws.playerName, 'session_start', {
+          room: ws.playerRoom,
+          level: joinedPlayer ? joinedPlayer.level : 1,
+          restored: !!savedSession,
+        });
 
         const room = gameLoop.getRoom(ws.playerRoom);
         const overlayedDungeon = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
@@ -1078,6 +1091,8 @@ wss.on('connection', (ws) => {
         };
         const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY, pathFlags);
         if (built) {
+          activityLog.logById(playerId, 'auto_build', { structure: msg.structureId, room: ws.playerRoom });
+
           // Update automation flags based on current structure count
           const autoState = gameLoop.automation.getStateForClient(playerId);
           const totalStructures = (autoState.stats && autoState.stats.totalStructures) || 0;
@@ -1175,6 +1190,8 @@ wss.on('connection', (ws) => {
         if (!ws.playerRoom) break;
         const tradeResult = gameLoop.automation.trade(playerId, msg.tradeId);
         if (tradeResult) {
+          activityLog.logById(playerId, 'auto_trade', { trade: msg.tradeId, room: ws.playerRoom });
+
           // Give items to player
           const room = gameLoop.getRoom(ws.playerRoom);
           const player = room && room.players.get(playerId);
@@ -1250,11 +1267,31 @@ wss.on('connection', (ws) => {
         });
         break;
       }
+
+      case CONSTANTS.MSG.PLAYER_NOTE: {
+        if (!ws.playerName) break;
+        const noteText = typeof msg.text === 'string' ? msg.text.trim().slice(0, 500) : '';
+        if (!noteText) break;
+        activityLog.log(ws.playerName, 'note', { text: noteText, room: ws.playerRoom });
+        break;
+      }
     }
   });
 
   ws.on('close', () => {
     console.log(`[WS] Client disconnected: ${playerId}`);
+
+    // Activity logging: log session end before cleanup
+    if (ws.playerRoom && ws.playerName) {
+      const endRoom = gameLoop.getRoom(ws.playerRoom);
+      const endPlayer = endRoom && endRoom.players.get(playerId);
+      activityLog.log(ws.playerName, 'session_end', {
+        room: ws.playerRoom,
+        level: endPlayer ? endPlayer.level : undefined,
+        playtime_s: ws.joinedAt ? Math.round((Date.now() - ws.joinedAt) / 1000) : undefined,
+      });
+      activityLog.unregisterPlayer(playerId);
+    }
 
     // Save session before cleanup
     if (ws.playerRoom && ws.playerName) {

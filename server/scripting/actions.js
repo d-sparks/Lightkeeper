@@ -766,6 +766,12 @@ class ActionExecutor {
       dialogue: [{ speaker: 'MERIDIAN-7', text: `Fabrication complete: ${resultDef.name}.` }],
     });
 
+    if (this.gameLoop && this.gameLoop.activityLog) {
+      this.gameLoop.activityLog.logById(context.playerId, 'craft', {
+        recipe: recipeId, result: recipe.result.itemType, room: context.roomId,
+      });
+    }
+
     return true;
   }
 
@@ -981,6 +987,12 @@ class ActionExecutor {
       this.sendToPlayer(context.playerId, {
         type: CONSTANTS.MSG.DIALOGUE,
         dialogue: [{ speaker, text: `// FABRICATION COMPLETE // ${itemName} delivered // ${sellEntry.creditsCost} CREDITS DEDUCTED // Balance: ${player.credits} //` }],
+      });
+    }
+
+    if (this.gameLoop && this.gameLoop.activityLog) {
+      this.gameLoop.activityLog.logById(context.playerId, 'shop', {
+        shop: shopId, transaction: transactionValue, room: context.roomId,
       });
     }
   }

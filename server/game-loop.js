@@ -104,6 +104,69 @@ class GameLoop {
       this.triggers.processEvent('flag_changed', payload, ctx);
       this.questTracker.processEvent('flag_changed', ctx);
     });
+
+    // Activity logging via EventBus — activityLog is set externally by index.js
+    this.activityLog = null;
+    this._initActivityLogging();
+  }
+
+  _initActivityLogging() {
+    const resolve = (playerId, roomId) => {
+      if (!this.activityLog) return null;
+      const room = this.rooms.get(roomId);
+      const player = room && room.players.get(playerId);
+      return player ? player.name : this.activityLog.resolvePlayerName(playerId);
+    };
+
+    this.eventBus.on(EventBus.Events.ROOM_ENTERED, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'room_enter', { room: p.roomId, dungeon: p.dungeonId });
+    });
+
+    this.eventBus.on(EventBus.Events.MONSTER_KILLED, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'monster_kill', { monster: p.monsterType, room: p.roomId });
+    });
+
+    this.eventBus.on(EventBus.Events.ITEM_PICKED_UP, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'item_pickup', { item: p.itemType, name: p.itemName, room: p.roomId });
+    });
+
+    this.eventBus.on(EventBus.Events.PLAYER_DEATH, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'death', { room: p.roomId });
+    });
+
+    this.eventBus.on(EventBus.Events.ABILITY_USED, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'ability_used', { ability: p.abilityId, room: p.roomId });
+    });
+
+    this.eventBus.on(EventBus.Events.NPC_INTERACTED, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'npc_interact', { npc: p.npcType, room: p.roomId });
+    });
+
+    this.eventBus.on(EventBus.Events.FLAG_CHANGED, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'flag_changed', { flag: p.flag, value: p.value, room: p.roomId });
+    });
+  }
+
+  _logDamage(player, amount, source, roomId) {
+    if (!this.activityLog || !player) return;
+    this.activityLog.logById(player.id, 'damage_taken', {
+      amount, source, room: roomId,
+      hp: player.health, maxHp: player.maxHealth,
+    });
   }
 
   // Build a scripting context object for triggers/conditions/actions
@@ -2859,6 +2922,14 @@ class GameLoop {
     player.health += healAmount;
     player.cooldowns[slotIdx] = abilityDef.cooldown || 8.0;
 
+    if (this.activityLog) {
+      const source = abilityDef.consumesItem === 'medical_supplies' ? 'medipac' : (abilityDef.id || 'heal');
+      this.activityLog.logById(player.id, 'heal', {
+        amount: healAmount, source, room: room.id,
+        hp: player.health, maxHp: player.maxHealth,
+      });
+    }
+
     room.events.push({
       type: 'heal', targetId: player.id,
       amount: healAmount, x: player.x, y: player.y,
@@ -3844,6 +3915,7 @@ class GameLoop {
         player.darknessDamageTimer -= 2.0;
         const damage = 5;
         player.health -= damage;
+        this._logDamage(player, damage, 'darkness', room.id);
         room.events.push({
           type: 'darkness_damage', targetId: pid,
           amount: damage, x: player.x, y: player.y,
@@ -3872,6 +3944,7 @@ class GameLoop {
       if (player.hazardDamageTimer >= interval) {
         player.hazardDamageTimer -= interval;
         player.health -= damage;
+        this._logDamage(player, damage, hazardType, room.id);
         room.events.push({
           type: 'hazard_damage', hazardType, targetId: pid,
           amount: damage, x: player.x, y: player.y,
@@ -4131,6 +4204,7 @@ class GameLoop {
               mob.ambushRevealed = false;
             }
             nearest.health -= damage;
+            this._logDamage(nearest, damage, mob.type || 'monster', room.id);
             mob.attackTimer = mob.attackCooldown;
             room.events.push({
               type: 'damage', targetId: nearest.id,
@@ -4695,6 +4769,7 @@ class GameLoop {
             const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
             if (pdist <= saRange && pdist > 0) {
               player.health -= slamDmg;
+              this._logDamage(player, slamDmg, mob.type || 'boss_slam', room.id);
               // Apply knockback only if not immune
               if (!(player.stunImmunityTime > 0)) {
                 player.knockbackVx = (pdx / pdist) * knockback;
@@ -5140,6 +5215,7 @@ class GameLoop {
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < hitRadius) {
             player.health -= proj.damage;
+            this._logDamage(player, proj.damage, 'projectile', room.id);
             room.events.push({
               type: 'damage', targetId: pid,
               amount: proj.damage, x: player.x, y: player.y,
@@ -6129,6 +6205,12 @@ class GameLoop {
       // Increase max HP and heal the gained amount
       player.maxHealth += hpPerLevel;
       player.health = Math.min(player.health + hpPerLevel, player.maxHealth);
+
+      if (this.activityLog) {
+        this.activityLog.logById(player.id, 'level_up', {
+          level: player.level, room: room ? room.id : undefined,
+        });
+      }
 
       if (room) {
         room.events.push({

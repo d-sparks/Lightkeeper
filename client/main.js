@@ -3789,6 +3789,46 @@
   input.onChatOpen = openChat;
   input.onChatClose = closeChat;
 
+  // --- Player note (Ctrl+Enter to jot a note to the activity log) ---
+  const noteInputRow = document.getElementById('note-input-row');
+  const noteInput = document.getElementById('note-input');
+
+  function openNote() {
+    input.noteActive = true;
+    noteInputRow.classList.add('active');
+    noteInput.value = '';
+    noteInput.focus();
+  }
+
+  function closeNote() {
+    input.noteActive = false;
+    noteInputRow.classList.remove('active');
+    noteInput.blur();
+  }
+
+  function sendNote() {
+    const text = noteInput.value.trim();
+    if (text) {
+      net.send({ type: CONSTANTS.MSG.PLAYER_NOTE, text });
+    }
+    closeNote();
+  }
+
+  noteInput.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendNote();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      closeNote();
+    }
+  });
+  noteInput.addEventListener('keyup', (e) => { e.stopPropagation(); });
+
+  input.onNoteOpen = openNote;
+  input.onNoteClose = closeNote;
+
   // --- Voice chat (hold V to speak) ---
   let voiceRecognition = null;
   let voiceActive = false;

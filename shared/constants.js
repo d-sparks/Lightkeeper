@@ -132,6 +132,9 @@ const CONSTANTS = {
     SESSION_LIST_RESPONSE: 'session_list_response',
     SESSION_DELETE_RESPONSE: 'session_delete_response',
 
+    // Player note (Client -> Server) — logged to activity log, not broadcast
+    PLAYER_NOTE: 'player_note',
+
     // Chat (Client -> Server)
     CHAT: 'chat',
     // Chat (Server -> Client)

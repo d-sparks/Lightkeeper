@@ -2754,6 +2754,34 @@
       font-family: inherit;
     }
     #chat-input::placeholder { color: #777; }
+    #note-input-row {
+      display: none;
+      position: fixed;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      pointer-events: auto;
+    }
+    #note-input-row.active { display: flex; align-items: center; gap: 6px; }
+    #note-label {
+      color: #ffa726;
+      font-size: 13px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    #note-input {
+      width: 400px;
+      background: rgba(0,0,0,0.85);
+      border: 1px solid #ffa726;
+      border-radius: 3px;
+      color: #fff;
+      font-size: 13px;
+      padding: 6px 10px;
+      outline: none;
+      font-family: inherit;
+    }
+    #note-input::placeholder { color: #777; }
     #voice-indicator {
       display: none;
       color: #ef5350;
@@ -2883,6 +2911,12 @@
     <div id="chat-input-row">
       <input id="chat-input" type="text" maxlength="200" placeholder="Type a message..." autocomplete="off">
     </div>
+  </div>
+
+  <!-- Player note input (Ctrl+Enter to open) -->
+  <div id="note-input-row">
+    <span id="note-label">NOTE:</span>
+    <input id="note-input" type="text" maxlength="500" placeholder="Jot a note to the log..." autocomplete="off">
   </div>
 
   <!-- Mobile touch controls -->
