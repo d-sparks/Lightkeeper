@@ -242,6 +242,11 @@ function processTransitions(gameLoop, botState) {
     }
 
     gameLoop.addPlayerAt(targetRoomId, player, spawnX, spawnY);
+    // Restore health on death respawn (mirrors what the actual game client triggers).
+    // Without this, the player stays at ≤0 HP and dies again every tick.
+    if (t.deathRespawn) {
+      player.health = player.maxHealth;
+    }
     gameLoop.emitRoomEntered(t.playerId, targetRoomId);
 
     botState.currentRoom = targetRoomId;
@@ -455,6 +460,7 @@ class Bot {
     this.questsCompleted = new Set();
     this.failedQuestPrereqs = new Set(); // quests whose prereqs couldn't be resolved
     this.unreachableExits = new Set();   // "from:to" edges the bot can't unblock
+    this.skipCombat = false;             // set true in explore mode to skip combat
     this.deathCount = 0;
     this.ticksWithoutProgress = 0;
     this.questDeaths = 0;
@@ -549,7 +555,7 @@ class Bot {
           this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
         }
       }
-      if (this.doCombat(player, room, tick, isNavigating)) {
+      if (!this.skipCombat && this.doCombat(player, room, tick, isNavigating)) {
         // Track progress even during combat so stuck detection works
         this.trackProgress(player, tick);
         // Count combat ticks for the current move_to_position goal
@@ -1070,9 +1076,10 @@ class Bot {
       // Close enough — interact
       this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
       const result = this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
-      // If we picked up an item or toggled a door instead of talking to the NPC,
-      // move closer to the NPC to get out of door/item range
-      if (result && (result.interactType === 'pickup' || result.interactType === 'door')) {
+      // If we picked up an item, toggled a door, or interacted with the wrong NPC,
+      // move closer to the target NPC and retry
+      if (result && (result.interactType === 'pickup' || result.interactType === 'door' ||
+          (result.npcId && !result.npcId.includes(goal.npcType)))) {
         if (!goal._retryCloser) {
           goal._retryCloser = true;
           const npcTile = pixelToTile(targetNpc.x, targetNpc.y);
@@ -1632,15 +1639,19 @@ class Bot {
   doExploreRoom(goal, player, room) {
     if (!room) { this.popGoal(); return; }
 
-    // Explore: interact with all NPCs, pick up all items, open all doors
+    // Explore: interact with all NPCs, pick up all items, open all doors.
+    // In explore mode (goal.doorsOnly) skip NPCs/items to save time budget.
     if (!goal._explored) {
-      goal._explored = { npcs: [], items: [], doors: [], phase: 'npcs', idx: 0 };
-      // Collect all NPCs and items in this room
-      for (const [npcId, npc] of room.npcs) {
-        goal._explored.npcs.push(npc);
-      }
-      for (const [itemId, item] of room.items) {
-        goal._explored.items.push(item);
+      const startPhase = goal.doorsOnly ? 'doors' : 'npcs';
+      goal._explored = { npcs: [], items: [], doors: [], phase: startPhase, idx: 0 };
+      // Collect all NPCs and items in this room (skip if doorsOnly)
+      if (!goal.doorsOnly) {
+        for (const [npcId, npc] of room.npcs) {
+          goal._explored.npcs.push(npc);
+        }
+        for (const [itemId, item] of room.items) {
+          goal._explored.items.push(item);
+        }
       }
       // Find interactable tiles (doors, crates, etc.)
       const tileset = content.getTileset(room.dungeon.tileset);
@@ -2718,6 +2729,17 @@ function runQuest(gameLoop, bot, questId, maxSeconds) {
 
   const goals = buildQuestGoals(questId, gameLoop, bot.exitGraph);
 
+  // Debug: dump goal list
+  console.log(`[Bot:goals] Quest "${questId}" generated ${goals.length} goals:`);
+  for (let i = 0; i < goals.length; i++) {
+    const g = goals[i];
+    const extra = g.room ? ` room=${g.room}` : '';
+    const pos = g.tileX != null ? ` (${g.tileX},${g.tileY})` : '';
+    const flag = g.flag ? ` flag=${g.flag}` : '';
+    const npc = g.npcType ? ` npc=${g.npcType}` : '';
+    console.log(`  [${i}] ${g.type}${extra}${pos}${flag}${npc} step=${g.stepId||'-'}`);
+  }
+
   // Push goals in reverse so they execute in order (stack)
   for (let i = goals.length - 1; i >= 0; i--) {
     bot.pushGoal(goals[i]);
@@ -2739,8 +2761,17 @@ function runQuest(gameLoop, bot, questId, maxSeconds) {
     stuckGoal: result.stuckGoal || null,
   };
 
+  // Override status if the quest was abandoned (failedQuestPrereqs) — the sim
+  // returns 'completed' when the goal stack empties, but abandoned goals are
+  // not real completions.
+  if (bot.failedQuestPrereqs.has(questId) && result.status === 'completed') {
+    questResult.status = 'timeout';
+  }
+
   bot.stats.questResults.push(questResult);
-  bot.questsCompleted.add(questId);
+  if (questResult.status === 'completed') {
+    bot.questsCompleted.add(questId);
+  }
 
   return questResult;
 }
@@ -2767,7 +2798,56 @@ function runAllQuests(gameLoop, bot) {
   return results;
 }
 
+// Flags to pre-grant in explore mode so all doors/gates are passable.
+// These are the story progression flags that control physical tile gates
+// (tileset conditions) and exit-level transitions across all dungeons.
+const EXPLORE_FLAGS = [
+  // Tileset-gated physical doors (outpost, crypt, meridian, station tilesets)
+  'talked_to_warden',
+  'received_weapon',
+  'received_sol_unit',
+  'fenn_opened_gate',
+  'junction_a_activated',
+  'relay_junction_complete',
+  'has_transit_pass',
+  'has_yard_deed',
+  'fen_letter_accepted',
+  'damage_booster_equipped',
+  'engineer_briefing_complete',
+  // Exit-level gate flags (dungeon transitions)
+  'arrived_meridian',
+  'chose_path_control',
+  'chose_path_merge',
+  'chose_path_shutdown',
+  'kappa_coordinates_received',
+  'meridian_umbrasite_quest_complete',
+  'reached_underlumen_threshold',
+];
+
 function runExplore(gameLoop, bot) {
+  // Grant all story progression flags so tile gates and exit conditions don't
+  // block exploration — the goal is to reach every room, not replay the story.
+  for (const flag of EXPLORE_FLAGS) {
+    gameLoop.flagStore.setPlayerFlag(PLAYER_ID, flag, true);
+  }
+  console.log(`[Explore] Pre-granted ${EXPLORE_FLAGS.length} story flags for full dungeon access`);
+
+  // Skip combat in explore mode — the validator only cares about reachability,
+  // not survivability. Fighting 30+ monsters wastes the entire time budget.
+  bot.skipCombat = true;
+
+  // Boost player health massively so combat doesn't kill the bot in monster rooms.
+  // The explore validator cares about reachability, not survivability.
+  const startingSpawnRoom = content.getSpawnRoom() || 'outpost_entrance';
+  const startRoom = gameLoop.getRoom(startingSpawnRoom);
+  if (startRoom) {
+    const player = startRoom.players.get(PLAYER_ID);
+    if (player) {
+      player.maxHealth = 9999;
+      player.health = 9999;
+    }
+  }
+
   // Visit every reachable dungeon
   const dungeons = content.getAllDungeons();
   const spawnRoom = content.getSpawnRoom() || 'outpost_entrance';
