@@ -728,10 +728,7 @@
         },
         {
           "type": "showMessage",
-          "lines": [
-            "Maren presses a generator chip into your hand: 'Install this in your Sol Grid. It'll slowly refill your battery between fights.'",
-            "Open your inventory [I] and place it on the Sol Grid — it works best adjacent to your battery chip."
-          ]
+          "text": "Open your inventory [I] and place the generator chip on your Sol Grid — it works best adjacent to your battery chip."
         }
       ],
       "once": true
@@ -764,10 +761,7 @@
         },
         {
           "type": "showMessage",
-          "lines": [
-            "Maren hands you a single-use battery chip: 'Pop this in your Sol Grid. It'll hold enough charge for a few abilities — one use only, so make it count.'",
-            "Open your inventory [I] to place it on your Sol Grid next to your Sol Cone."
-          ]
+          "text": "Open your inventory [I] to place the battery chip on your Sol Grid next to your Sol Cone."
         }
       ]
     },

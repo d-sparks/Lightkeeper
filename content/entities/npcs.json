@@ -1801,61 +1801,17 @@
       "default": [
         {
           "speaker": "Tech Maren",
-          "text": "This is the main capacitor bank. Solar collectors on the outer hull run continuous collection along the terminator — the light out here never stops."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "Devices that run on Sol energy — Sol Units, light rifles, beacon relay cores — can all be charged at the interface terminals. Third slot from the left."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "We're still calibrating the output profiles. The system isn't fully certified yet, but it's stable enough."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "When you get a Sol Unit, bring it in. Once we're fully online, a charge cycle takes minutes."
+          "text": "Charging station's online. Get a Sol Unit and come back — I'll keep your cells topped off."
         }
       ],
       "give_battery": [
         {
           "speaker": "Tech Maren",
-          "text": "Sol Unit's running dry? Station's output isn't certified for full charge cycles yet — too much risk of surge damage."
+          "text": "Running low? Here — field cell, single-use, hundred energy units. Slot it into your Sol Grid."
         },
         {
           "speaker": "Tech Maren",
-          "text": "What I can do is field cells. Single-use, but rated for a hundred energy units. Enough to get you through a deployment."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "Here — take this. Slot it into your Sol Unit's grid and it'll top off your reserve. Come back when it's drained and I'll have another ready."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "You should know — this generator is the single most valuable piece of equipment at Outpost Balor. Maybe on this whole stretch of the terminator."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "Erith is tidally locked. Permanent day on one hemisphere, permanent night on the other. We live on the terminator — the thin strip between the two."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "The only scalable power source on the planet is solar, and all of it comes from the dayside. Every watt that reaches the nightside comes through the lighthouse relay network."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "On the nightside? Batteries and portable generators. Both expensive. Both limited. If the supply lines from the dayside ever get cut..."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "So this generator — and the lighthouse network that powers it — that's what keeps every Sol Unit, every light rifle, every outpost on the terminator running."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "Lighthouse Mara going dark isn't just a security problem. It's an energy problem. Without that relay, this whole sector loses its power feed."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "Keep your unit running. And keep those lighthouses lit. Everything depends on it."
+          "text": "Come back when it's drained. I'll have another ready."
         }
       ],
       "has_battery": [
@@ -1867,29 +1823,17 @@
       "give_generator": [
         {
           "speaker": "Tech Maren",
-          "text": "The charging terminal took a hit during that last incursion. Capacitor array's cracked — I can't fix it without parts from the dayside."
+          "text": "Got a portable generator for you. Install it in your Sol Grid — passive energy regen between fights."
         },
         {
           "speaker": "Tech Maren",
-          "text": "Good news is we have a backup. Portable generator — salvaged from a relay station, been sitting in the maintenance locker for two years."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "You're heading out anyway. Take it. Install it in your Sol Unit's grid and it'll give you a trickle charge in the field — passive energy regeneration."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "It's not much. But out there, between engagements, it'll keep your unit from going dark. You'll want it."
+          "text": "Not much output, but it'll keep your unit from going dark out there."
         }
       ],
       "has_sol_unit": [
         {
           "speaker": "Tech Maren",
-          "text": "You've got a Sol Unit? Good. Once you've run your training, come back and I'll set you up with a field cell."
-        },
-        {
-          "speaker": "Tech Maren",
-          "text": "We can't do full charge cycles yet — station's still being calibrated. But I keep a stock of single-use cells for deployments."
+          "text": "Got a Sol Unit? Finish your training, then come back — I'll set you up with a field cell."
         }
       ]
     },
