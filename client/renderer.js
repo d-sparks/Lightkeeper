@@ -3029,6 +3029,28 @@ class Renderer {
 
   // --- Cone effects ---
 
+  // Ray-cast from (x1,y1) along direction angle, return distance to first solid tile (or maxDist).
+  _coneRayToWall(x1, y1, angle, maxDist) {
+    if (!this.map || !this.tileset) return maxDist;
+    const ts = CONSTANTS.TILE_SIZE;
+    const cosA = Math.cos(angle);
+    const sinA = Math.sin(angle);
+    const step = ts * 0.5;
+    const steps = Math.ceil(maxDist / step);
+    for (let i = 1; i <= steps; i++) {
+      const d = Math.min(i * step, maxDist);
+      const px = x1 + cosA * d;
+      const py = y1 + sinA * d;
+      const tx = Math.floor(px / ts);
+      const ty = Math.floor(py / ts);
+      if (tx < 0 || ty < 0 || tx >= this.map.width || ty >= this.map.height) return d;
+      const tileId = this.map.data[ty * this.map.width + tx];
+      const tileDef = this.tileset.tiles[String(tileId)];
+      if (!tileDef || tileDef.solid) return d;
+    }
+    return maxDist;
+  }
+
   renderConeEffects() {
     this.coneGfx.clear();
     const dt = 1 / 60;
@@ -3062,18 +3084,21 @@ class Renderer {
       // Center in screen coords
       const c = toScreen(cone.x, cone.y);
 
-      // Sample points along the cone arc in world space, convert to screen
+      // Sample points along the cone arc in world space, clip to walls, convert to screen
       const outerPoints = [];
       const innerPoints = [];
       for (let i = 0; i <= SEGMENTS; i++) {
         const a = startAngle + (endAngle - startAngle) * (i / SEGMENTS);
-        const owx = cone.x + Math.cos(a) * outerRange;
-        const owy = cone.y + Math.sin(a) * outerRange;
+        const wallDist = this._coneRayToWall(cone.x, cone.y, a, cone.range);
+        const clippedOuter = Math.min(outerRange, wallDist);
+        const owx = cone.x + Math.cos(a) * clippedOuter;
+        const owy = cone.y + Math.sin(a) * clippedOuter;
         outerPoints.push(toScreen(owx, owy));
 
         if (innerRange > 1) {
-          const iwx = cone.x + Math.cos(a) * innerRange;
-          const iwy = cone.y + Math.sin(a) * innerRange;
+          const clippedInner = Math.min(innerRange, wallDist);
+          const iwx = cone.x + Math.cos(a) * clippedInner;
+          const iwy = cone.y + Math.sin(a) * clippedInner;
           innerPoints.push(toScreen(iwx, iwy));
         }
       }
