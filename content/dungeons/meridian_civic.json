@@ -553,6 +553,35 @@
     },
 
     {
+      "id": "bulwark_authority_civic",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "bulwark_authority_civic_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "bulwark_authority_civic_seen" },
+        { "type": "showMessage", "lines": [
+          "A Bulwark checkpoint officer has set up a portable desk at the southeast corridor — the passage toward the Greenway. There is a queue of three people in front of it, none of them looking happy.",
+          "The officer is methodical: checking transit documents, logging names in a thick ledger, turning people away who lack Compact countersignatures on their authorizations.",
+          "A hand-lettered placard on the desk reads: 'GREENWAY CORRIDOR — COMPACT AUTHORIZATION REQUIRED. COUNCIL DOCUMENTS NOT ACCEPTED AT THIS CHECKPOINT.'",
+          "Councillor Asha's door is closed. Muffled voices behind it — more than two, all speaking quickly."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "bulwark_spawn_civic",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" }
+      ],
+      "actions": [
+        { "type": "spawnNpc", "npcType": "bulwark_checkpoint_civic", "x": 21, "y": 11 }
+      ]
+    },
+
+    {
       "id": "post_vigil_civic",
       "event": "room_entered",
       "conditions": [

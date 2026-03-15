@@ -4,6 +4,15 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 8/14 pass, 6 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; relay_recovery FIXED; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
 
+## Act 2 Political Crisis — Meridian (2026-03-15)
+
+Bulwark checkpoint atmosphere added to all three Meridian hubs after `spire_vigil_cleared`. Outstanding items:
+
+- **Bulwark NPC sprites**: `bulwark_patrol_meridian` and `bulwark_checkpoint_civic` use default NPC sprites. Add distinct placeholder sprites (grey-uniformed soldier) in `sprites/`.
+- **Greenway corridor_sign timing**: The `greenway_corridor_sign` trigger in `meridian_civic.json` fires on `arrived_meridian` (before Vigil is cleared), showing grey-uniform soldiers. This creates mild narrative overlap with the Act 2 escalation — consider gating it on `spire_vigil_cleared` instead, or differentiating the pre-crisis vs. post-crisis patrol presence more clearly.
+- **Market merchant stock disruption**: Weaponsmith Garro has no post-vigil dialogue variant — he could note increased demand from Bulwark soldiers or supply chain disruption. Low priority.
+- **Checkpoint blocking**: The Bulwark checkpoint officer in `meridian_civic` is narrative-only — players can still pass through the Greenway exit if they have the pass. Consider whether the spawned checkpoint officer should physically block the path (engine change needed) or remain dialogue-only.
+
 ## Spire Replay System (2026-03-15)
 
 Spire replay with difficulty tiers implemented. Outstanding items:

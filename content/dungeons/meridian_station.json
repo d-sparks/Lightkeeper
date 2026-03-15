@@ -347,6 +347,35 @@
     },
 
     {
+      "id": "bulwark_emergency_station",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "station_post_vigil_entered" },
+        { "not": { "hasFlag": "bulwark_emergency_station_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "bulwark_emergency_station_seen" },
+        { "type": "showMessage", "lines": [
+          "Two Bulwark soldiers have taken up positions at the corridor entrances. Their grey-and-black uniforms bear the Compact insignia — not the transit authority's usual blue.",
+          "A new notice has been posted over the station directory board: 'BY ORDER OF COMPACT EMERGENCY AUTHORITY — All Lightkeeper transit authorizations are subject to Bulwark review. Report to the nearest checkpoint before proceeding to restricted zones.'",
+          "Station Master Calloway is behind his window as always. He looks like a man who has been arguing all morning and lost every argument."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "bulwark_spawn_station",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" }
+      ],
+      "actions": [
+        { "type": "spawnNpc", "npcType": "bulwark_patrol_meridian", "x": 3, "y": 9 },
+        { "type": "spawnNpc", "npcType": "bulwark_patrol_meridian", "x": 26, "y": 9 }
+      ]
+    },
+
+    {
       "id": "post_winds_station",
       "event": "room_entered",
       "conditions": [

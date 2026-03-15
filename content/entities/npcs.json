@@ -4694,6 +4694,24 @@
           "speaker": "Station Master Calloway",
           "text": "Good riddance, I say. I run a clean operation here."
         }
+      ],
+      "post_vigil": [
+        {
+          "speaker": "Station Master Calloway",
+          "text": "They put soldiers in my station. Bulwark soldiers. Standing right there at the corridor entrances."
+        },
+        {
+          "speaker": "Station Master Calloway",
+          "text": "I've been station master here for eleven years. I've dealt with transit strikes, power failures, a raider incursion that got three platforms inside the perimeter. I handled all of it with my own staff and a radio."
+        },
+        {
+          "speaker": "Station Master Calloway",
+          "text": "'Emergency Authority,' they told me. 'Temporary measure.' In my experience, temporary measures in train stations become permanent fixtures."
+        },
+        {
+          "speaker": "Station Master Calloway",
+          "text": "If you're heading to the Civic Center — talk to Councillor Denn. She's the only person in that building still pushing back."
+        }
       ]
     },
     "dialogueRules": [
@@ -4717,6 +4735,14 @@
           }
         ],
         "use": "courier_asked"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_vigil_cleared"
+          }
+        ],
+        "use": "post_vigil"
       },
       {
         "conditions": [
@@ -4842,6 +4868,24 @@
           "speaker": "Merchant Reva",
           "text": "I hate the audits. I do not hate the process. Ask me again in a year which feeling wins."
         }
+      ],
+      "post_vigil": [
+        {
+          "speaker": "Merchant Reva",
+          "text": "Business? Don't ask about business. The Bulwark checkpoint on the supply corridor added two hours to every delivery from the east farms this week."
+        },
+        {
+          "speaker": "Merchant Reva",
+          "text": "Two hours. Per delivery. Because the soldiers need to inspect every crate for 'Compact contraband,' which apparently includes whatever they feel like today."
+        },
+        {
+          "speaker": "Merchant Reva",
+          "text": "My prices are going up. My margins are getting thin. And the customers have the nerve to complain to me about it, as if I'm the one wearing grey."
+        },
+        {
+          "speaker": "Merchant Reva",
+          "text": "Whatever's going on with the Spire and the Compact and the Council — sort it out fast. I have a business to run."
+        }
       ]
     },
     "dialogueRules": [
@@ -4868,6 +4912,14 @@
           }
         ],
         "use": "post_control"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_vigil_cleared"
+          }
+        ],
+        "use": "post_vigil"
       },
       {
         "conditions": [
@@ -5223,6 +5275,24 @@
           "text": "Asha's the only one on the Council who's thinking past the next crisis. She could use an ally."
         }
       ],
+      "post_vigil_authority": [
+        {
+          "speaker": "Land Registrar Hollis",
+          "text": "Emergency transit authorization review. That's what I'm processing now. Three Bulwark officers delivered a directive this morning: all Lightkeeper travel documents in my registry are suspended pending Compact countersignature."
+        },
+        {
+          "speaker": "Land Registrar Hollis",
+          "text": "I pointed out that Lightkeeper authorizations are issued under Council mandate, not Compact authority. The officer told me the Emergency Security Proclamation supersedes standard Council procedure. I asked to see the Proclamation text. He said it was classified."
+        },
+        {
+          "speaker": "Land Registrar Hollis",
+          "text": "Your documents should still be valid — I haven't countersigned the Bulwark review list yet. But if a checkpoint officer tells you otherwise... I can't help you past that door."
+        },
+        {
+          "speaker": "Land Registrar Hollis",
+          "text": "Talk to Councillor Denn. She needs to know the Bulwark has moved into administrative override, not just security enforcement. That's a different kind of problem."
+        }
+      ],
       "array_secret_discovered": [
         {
           "speaker": "Land Registrar Hollis",
@@ -5371,6 +5441,14 @@
           }
         ],
         "use": "post_yun_political"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_vigil_cleared"
+          }
+        ],
+        "use": "post_vigil_authority"
       },
       {
         "conditions": [
@@ -11830,6 +11908,80 @@
           }
         ],
         "use": "return_visit"
+      }
+    ]
+  },
+  "bulwark_patrol_meridian": {
+    "name": "Bulwark Soldier",
+    "dialogue": [
+      {
+        "speaker": "Bulwark Soldier",
+        "text": "Compact Emergency Authority is in effect. Keep moving."
+      }
+    ],
+    "dialogues": {
+      "default": [
+        {
+          "speaker": "Bulwark Soldier",
+          "text": "Compact Emergency Authority is in effect across Meridian City. All civilian transit is subject to checkpoint verification."
+        },
+        {
+          "speaker": "Bulwark Soldier",
+          "text": "Lightkeeper authorizations are under review. If you're heading to the Greenway, you'll need a valid Compact-issued pass — not a Council document. Those are suspended."
+        }
+      ],
+      "has_greenway_pass": [
+        {
+          "speaker": "Bulwark Soldier",
+          "text": "Pass verified. You're clear to proceed. Stay on the designated corridors — Bulwark patrols have standing orders east of the checkpoint line."
+        }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "greenway_pass" }],
+        "use": "has_greenway_pass"
+      }
+    ]
+  },
+  "bulwark_checkpoint_civic": {
+    "name": "Bulwark Checkpoint Officer",
+    "dialogue": [
+      {
+        "speaker": "Bulwark Checkpoint Officer",
+        "text": "Access to the Greenway corridor requires Compact authorization."
+      }
+    ],
+    "dialogues": {
+      "default": [
+        {
+          "speaker": "Bulwark Checkpoint Officer",
+          "text": "This corridor is restricted under Compact Emergency Authority. The Greenway is a militarily sensitive zone while the Spire incident is under assessment."
+        },
+        {
+          "speaker": "Bulwark Checkpoint Officer",
+          "text": "Your Lightkeeper status has been flagged for review. Council authorizations are not valid at Bulwark checkpoints — you need a Compact-issued transit permit."
+        },
+        {
+          "speaker": "Bulwark Checkpoint Officer",
+          "text": "If Councillor Asha Denn issued your clearance, she should have filed a Compact request form. Did she file a Compact request form?"
+        }
+      ],
+      "has_pass": [
+        {
+          "speaker": "Bulwark Checkpoint Officer",
+          "text": "Greenway transit authorization confirmed. You may proceed through the checkpoint."
+        },
+        {
+          "speaker": "Bulwark Checkpoint Officer",
+          "text": "Stay on the marked corridors east of the line. Do not approach the Monument perimeter without a Bulwark escort. Patrols have standing orders."
+        }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasItem": "greenway_pass" }],
+        "use": "has_pass"
       }
     ]
   },

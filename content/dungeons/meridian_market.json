@@ -334,6 +334,34 @@
     },
 
     {
+      "id": "bulwark_patrol_market_atmosphere",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "bulwark_patrol_market_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "bulwark_patrol_market_seen" },
+        { "type": "showMessage", "lines": [
+          "A Bulwark patrol has taken up a position in the Market Quarter. The soldier moves between stalls with the slow, deliberate pace of someone being visible on purpose.",
+          "Conversations drop when the patrol passes. Vendors rearrange their displays with unnecessary focus. The market's usual energy — the haggling, the noise, the movement — has a new quieter undertone.",
+          "A notice on the east wall: 'COMPACT REQUISITION NOTICE — Vendors are required to report surplus stock exceeding 30 units to the nearest Bulwark logistics post. Failure to report is a breach of Emergency Authority regulations.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "bulwark_spawn_market",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" }
+      ],
+      "actions": [
+        { "type": "spawnNpc", "npcType": "bulwark_patrol_meridian", "x": 8, "y": 10 }
+      ]
+    },
+
+    {
       "id": "post_shutdown_market",
       "event": "room_entered",
       "conditions": [{ "hasFlag": "ending_shutdown_complete" }],
