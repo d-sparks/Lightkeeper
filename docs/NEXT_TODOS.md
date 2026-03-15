@@ -175,7 +175,7 @@ Split into narrative segments with intermediate quest objectives, healing caches
 
 - [x] **Sim can't solve lighthouse_mara_core conduit puzzle reliably** — FIXED: added `tryInteractTile()` to game-loop.js for targeted tile interaction, bot now uses it in `doInteractWithTile`. Core hatch auto-opens via `conduits_reopen_hatch` trigger on room re-entry.
 - [ ] **Sim can't kill shade_stalker_alpha in lighthouse_mara_core** — bot reaches boss area (hatch opens correctly) but dies repeatedly to boss (110 HP, 18 dmg, lunge+stun) + environmental cold damage (3 dmg/2.5s). 92 deaths in a single run. Consider: reducing boss HP, adding healing spawns near boss area, or improving bot combat AI for boss fights.
-- [ ] **Sim `into_the_expanse` stuck** — outer_expanse (200x120 map) is too large for A* pathfinding. Need pathfinding chunk optimization or waypoint-based navigation for large maps.
+- [x] **Sim `into_the_expanse` stuck** — FIXED: A* upgraded to binary heap + octile heuristic (was O(n²) linear scan). Added doors to 48 enclosed rooms in outer_expanse. Bot now reaches map and pathfinds correctly; remaining stuck is combat-related (monster density blocks movement).
 - [ ] **Sim `lighthouse_mara` side quest stuck** — A* failure from (21,12) in caverns room. Likely pathing issue near solid tiles.
 - [ ] **Sim doesn't handle `showChoice` actions** — ending path choice (Asha's three-path choice in meridian_civic) requires player input the bot can't provide. Need bot choice-selection logic for quest resolution.
 

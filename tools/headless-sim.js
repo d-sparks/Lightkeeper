@@ -344,9 +344,48 @@ function findRoomPath(exitGraph, from, to, skipEdges) {
   return null; // No path found
 }
 
+// ─── Binary min-heap priority queue (keyed on .f) ───────────────────
+class MinHeap {
+  constructor() { this._data = []; }
+  get size() { return this._data.length; }
+  push(node) {
+    this._data.push(node);
+    this._bubbleUp(this._data.length - 1);
+  }
+  pop() {
+    const top = this._data[0];
+    const last = this._data.pop();
+    if (this._data.length > 0) { this._data[0] = last; this._sinkDown(0); }
+    return top;
+  }
+  _bubbleUp(i) {
+    const d = this._data;
+    while (i > 0) {
+      const p = (i - 1) >> 1;
+      if (d[i].f >= d[p].f) break;
+      [d[i], d[p]] = [d[p], d[i]];
+      i = p;
+    }
+  }
+  _sinkDown(i) {
+    const d = this._data, n = d.length;
+    while (true) {
+      let smallest = i;
+      const l = 2 * i + 1, r = 2 * i + 2;
+      if (l < n && d[l].f < d[smallest].f) smallest = l;
+      if (r < n && d[r].f < d[smallest].f) smallest = r;
+      if (smallest === i) break;
+      [d[i], d[smallest]] = [d[smallest], d[i]];
+      i = smallest;
+    }
+  }
+}
+
 // A* pathfinding on dungeon tile grid
 // blockedTiles: optional Set of tile keys (y * width + x) to treat as impassable (e.g. monster positions)
 // playerFlags: optional flag map — used to treat locked interactable doors as solid
+// Uses binary heap for O(n log n) performance on large maps (e.g. outer_expanse 200x120).
+const ASTAR_MAX_NODES = 100000; // Safety cap to prevent hangs on pathological maps
 function astarPath(dungeon, startTX, startTY, goalTX, goalTY, blockedTiles, playerFlags) {
   if (startTX === goalTX && startTY === goalTY) return [];
 
@@ -375,47 +414,66 @@ function astarPath(dungeon, startTX, startTY, goalTX, goalTY, blockedTiles, play
     }
   }
 
-  const open = new Map(); // key -> { x, y, g, f, parent }
-  const closed = new Set();
+  // Octile distance heuristic — admissible for 8-directional movement with
+  // cardinal cost 1 and diagonal cost √2 ≈ 1.414
+  const SQRT2_MINUS_1 = Math.SQRT2 - 1; // ~0.414
+  const heuristic = (x, y) => {
+    const adx = Math.abs(x - actualGoalX);
+    const ady = Math.abs(y - actualGoalY);
+    return Math.max(adx, ady) + SQRT2_MINUS_1 * Math.min(adx, ady);
+  };
 
-  const heuristic = (x, y) => Math.abs(x - actualGoalX) + Math.abs(y - actualGoalY);
+  const open = new MinHeap();
+  const gScore = new Float32Array(w * h); // best-known g for each tile
+  gScore.fill(Infinity);
+  const closed = new Uint8Array(w * h); // 0 = open, 1 = closed
+  const parentX = new Int16Array(w * h); // reconstruct path via parent pointers
+  const parentY = new Int16Array(w * h);
 
-  const startNode = { x: startTX, y: startTY, g: 0, f: heuristic(startTX, startTY), parent: null };
-  open.set(key(startTX, startTY), startNode);
+  const sk = key(startTX, startTY);
+  gScore[sk] = 0;
+  open.push({ x: startTX, y: startTY, g: 0, f: heuristic(startTX, startTY) });
 
   const dirs = [
     [0, -1], [0, 1], [-1, 0], [1, 0],
     [-1, -1], [-1, 1], [1, -1], [1, 1],
   ];
 
+  let expanded = 0;
+
   while (open.size > 0) {
-    // Find lowest f in open set
-    let best = null;
-    for (const node of open.values()) {
-      if (!best || node.f < best.f) best = node;
-    }
+    const best = open.pop();
+    const bk = key(best.x, best.y);
+
+    // Skip stale entries (node was already expanded via a cheaper path)
+    if (closed[bk]) continue;
+    closed[bk] = 1;
+    expanded++;
+
+    if (expanded > ASTAR_MAX_NODES) return null; // Safety cap
 
     if (best.x === actualGoalX && best.y === actualGoalY) {
-      // Reconstruct path
+      // Reconstruct path via parent pointers
       const path = [];
-      let node = best;
-      while (node.parent) {
-        path.unshift({ x: node.x, y: node.y });
-        node = node.parent;
+      let cx = best.x, cy = best.y;
+      while (cx !== startTX || cy !== startTY) {
+        path.push({ x: cx, y: cy });
+        const pk = key(cx, cy);
+        const px = parentX[pk], py = parentY[pk];
+        cx = px; cy = py;
       }
+      path.reverse();
       return path;
     }
-
-    open.delete(key(best.x, best.y));
-    closed.add(key(best.x, best.y));
 
     for (const [dx, dy] of dirs) {
       const nx = best.x + dx;
       const ny = best.y + dy;
       if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
-      if (closed.has(key(nx, ny))) continue;
+      const nk = key(nx, ny);
+      if (closed[nk]) continue;
       if (isTileSolid(dungeon, nx, ny)) continue;
-      if (blockedTiles && blockedTiles.has(key(nx, ny))) continue;
+      if (blockedTiles && blockedTiles.has(nk)) continue;
 
       // For diagonal movement, check that both cardinal neighbors are clear
       if (dx !== 0 && dy !== 0) {
@@ -424,11 +482,12 @@ function astarPath(dungeon, startTX, startTY, goalTX, goalTY, blockedTiles, play
 
       const cost = (dx !== 0 && dy !== 0) ? 1.414 : 1;
       const g = best.g + cost;
-      const existing = open.get(key(nx, ny));
 
-      if (!existing || g < existing.g) {
-        const node = { x: nx, y: ny, g, f: g + heuristic(nx, ny), parent: best };
-        open.set(key(nx, ny), node);
+      if (g < gScore[nk]) {
+        gScore[nk] = g;
+        parentX[nk] = best.x;
+        parentY[nk] = best.y;
+        open.push({ x: nx, y: ny, g, f: g + heuristic(nx, ny) });
       }
     }
   }
