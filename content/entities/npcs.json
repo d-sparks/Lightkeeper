@@ -225,9 +225,43 @@
           "speaker": "Old Keeper",
           "text": "Whatever the Underlumen is, we've been walking on top of it our entire lives without knowing."
         }
+      ],
+      "has_expedition_log": [
+        {
+          "speaker": "Old Keeper",
+          "text": "Survey Corps, Team Echo. Give me that."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "I know this team. I sent them down. Thirty years ago — before I was retired from the field, before my legs gave out on the third descent. I gave them the route markers myself."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "Three weeks deep, and then nothing. The Corps logged them as missing. Equipment failure, the official report said. I never believed it."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "'The crystal formations pulse. Regular rhythm, 0.4 seconds. Like a heartbeat.' That's exactly what I saw on my own descent, years before. We wrote it in our logs too. The Corps buried those reports."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "They weren't killed by equipment failure. They heard what I heard — what we weren't supposed to hear. The Underlumen is alive down there and it was already awake thirty years ago."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "Keep that log. If you ever reach anyone with authority who isn't afraid of the truth — show them. Show them we've known for thirty years and said nothing."
+        }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [
+          {
+            "hasItem": "frozen_expedition_log"
+          }
+        ],
+        "use": "has_expedition_log"
+      },
       {
         "conditions": [
           {
@@ -8365,9 +8399,125 @@
           "speaker": "Sable",
           "text": "The Underlumen Threshold is ahead. Whatever happens there happens to all of us — Ring, Unbounded, Array."
         }
+      ],
+      "has_ancestors_stone": [
+        {
+          "speaker": "Sable",
+          "text": "Wait — is that an Ancestor's Listening Stone? Where did you find this?"
+        },
+        {
+          "speaker": "Sable",
+          "text": "This is a listening stone. Unbounded elders carried these for generations. The crystal isn't just old — it grew alongside the Underlumen's first pulse, before humans were here to name it."
+        },
+        {
+          "speaker": "Sable",
+          "text": "The name carved on the back... I can't read it. Archaic script, older than anything in the deep settlements. She listened first. She heard the answer."
+        },
+        {
+          "speaker": "Sable",
+          "text": "My grandmother talked about stones like this. She said the elders who carried them could feel the planet's rhythm in their bones. Sleep and wake with it."
+        },
+        {
+          "speaker": "Sable",
+          "text": "You holding it means the planet gave it to you. Or something down here decided you should have it. Either way — don't lose it."
+        }
+      ],
+      "has_unbounded_trail_tablet": [
+        {
+          "speaker": "Sable",
+          "text": "You found one of our trail tablets. Someone is still maintaining this path."
+        },
+        {
+          "speaker": "Sable",
+          "text": "The script says 'deep path, living rock.' Third descent, approach in quiet. This is a deep-travel marker — a route that goes further down than most Unbounded ever go."
+        },
+        {
+          "speaker": "Sable",
+          "text": "The edges are clean. Someone re-carved this recently. Within the last season, maybe less."
+        },
+        {
+          "speaker": "Sable",
+          "text": "The word 'listen' three times — that's a sacred instruction. Not a warning. An invitation. Whoever placed this was asking travelers to hear something, not just pass through."
+        },
+        {
+          "speaker": "Sable",
+          "text": "Keep it. When we reach the lower passage, I may need to read it again. These tablets carry context that changes depending on where you are when you look at them."
+        }
+      ],
+      "has_living_crystal_shard": [
+        {
+          "speaker": "Sable",
+          "text": "That shard in your pack — you picked it up from the wall?"
+        },
+        {
+          "speaker": "Sable",
+          "text": "Planet-blood. That's what we call it. The crystals along these passages aren't mineral deposits — they're the Underlumen expressing itself upward. Finding a place where a piece comes free means the planet's pulse is strong there."
+        },
+        {
+          "speaker": "Sable",
+          "text": "The fact that it separated cleanly when you touched it... the Underlumen doesn't shed itself accidentally. My grandmother said it offers pieces of itself to people it's decided to trust."
+        },
+        {
+          "speaker": "Sable",
+          "text": "I know how that sounds to a Ring citizen. Keep the shard. Feel the pulse in it. And tell me if it changes rhythm when we go deeper."
+        }
+      ],
+      "has_geometric_tablet": [
+        {
+          "speaker": "Sable",
+          "text": "Stop. That tablet — where did you find it?"
+        },
+        {
+          "speaker": "Sable",
+          "text": "The patterns on it — I've seen this geometry. In cave paintings in the deep Nightside, thirty meters below the frost line. The same shapes, the same proportions. Hundreds of kilometers apart."
+        },
+        {
+          "speaker": "Sable",
+          "text": "This is a map. Not of the tunnels — of the network. The nodes and lines show the Underlumen's major pulse-points. The spire symbol at the center is what the elders call the Heart."
+        },
+        {
+          "speaker": "Sable",
+          "text": "The geometry rearranges in different light — I've heard of tablets like this but never seen one. They respond to the Underlumen's frequency. The patterns shift to show different layers of the network."
+        },
+        {
+          "speaker": "Sable",
+          "text": "The Old Keeper in the crypts — the one who gave you the etching quest — he mentioned a tablet he couldn't retrieve. I think this is it. Hold onto it. The elders will want to see it."
+        }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [
+          {
+            "hasItem": "ancestors_listening_stone"
+          }
+        ],
+        "use": "has_ancestors_stone"
+      },
+      {
+        "conditions": [
+          {
+            "hasItem": "unbounded_trail_tablet"
+          }
+        ],
+        "use": "has_unbounded_trail_tablet"
+      },
+      {
+        "conditions": [
+          {
+            "hasItem": "living_crystal_shard"
+          }
+        ],
+        "use": "has_living_crystal_shard"
+      },
+      {
+        "conditions": [
+          {
+            "hasItem": "crypt_geometric_tablet"
+          }
+        ],
+        "use": "has_geometric_tablet"
+      },
       {
         "conditions": [
           {

@@ -91,6 +91,20 @@ Remaining follow-ups:
 - **Depth display** — Verify client shows floor depth correctly for 12-floor dungeons.
 - **Garrison battle plans lore update** — The garrison_battle_plans item says "The Spire has five levels." Should be updated to reflect the expanded 12-floor layout.
 
+## Content — Nightside Lore Item Reactions (2026-03-15)
+
+Connected scattered Nightside lore items to Sable and Old Keeper:
+
+- **Sable (`sable_nightside_guide`)** — Added `hasItem` dialogue rules for `ancestors_listening_stone`, `unbounded_trail_tablet`, `living_crystal_shard`, and `crypt_geometric_tablet`. Each triggers multi-line dialogue where Sable explains the Unbounded significance of the item and connects it to the Underlumen narrative.
+- **Old Keeper** — Added `hasItem: frozen_expedition_log` dialogue rule. He recognizes Survey Corps Team Echo as an expedition he personally sent 30 years ago, confirming the Underlumen's heartbeat pulse was known and suppressed by the Corps.
+
+Note: The task referred to `found_geometric_tablet` by name, but that is a flag (set when `crypt_geometric_tablet` is picked up). The Sable rule uses `hasItem: "crypt_geometric_tablet"` to check for the actual item in inventory.
+
+Remaining follow-ups:
+- **Geometric tablet connection to Old Keeper** — The `has_geometric_tablet` Sable dialogue mentions the Old Keeper as the origin of the tablet. Adding a corresponding `hasItem: crypt_geometric_tablet` rule to Old Keeper himself (perhaps after he's already given the etching quest) would strengthen the thread.
+- **Expedition log follow-up quest** — Old Keeper's reaction to the frozen_expedition_log is emotionally significant but has no quest attached. A potential follow-up: deliver the log to the Corps historian in Meridian or Archivist Solen to trigger a suppressed-records quest.
+- **Listening stone elder dialogue** — The `ancestors_listening_stone` dialogue hints at an archaic name carved on the stone. A corresponding dialogue line from Elder Vael (if the player shows it to them) would close the loop.
+
 ## Checkpoint Tool — Autosave History
 
 - **MAX_HISTORY constant** — Currently hardcoded to 5 in `server/session-store.js`. Could be exposed as an env var.
