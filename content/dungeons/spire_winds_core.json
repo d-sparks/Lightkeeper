@@ -168,6 +168,7 @@
           { "hasFlag": "spire_winds_replay_tier", "value": "hard" }
         ],
         "actions": [
+          { "type": "setFlag", "flag": "spire_winds_hard_cleared", "scope": "player" },
           { "type": "rollLootTable", "lootTable": "spire_winds_replay_hard" },
           { "type": "rollLootTable", "lootTable": "spire_winds_replay_hard" },
           { "type": "showMessage", "text": "The Spire rewards your courage \u2014 rare components forged in the deeper resonance of Hard difficulty." }
@@ -182,6 +183,7 @@
           { "hasFlag": "spire_winds_replay_tier", "value": "legendary" }
         ],
         "actions": [
+          { "type": "setFlag", "flag": "spire_winds_legendary_cleared", "scope": "player" },
           { "type": "rollLootTable", "lootTable": "spire_winds_replay_legendary" },
           { "type": "rollLootTable", "lootTable": "spire_winds_replay_legendary" },
           { "type": "rollLootTable", "lootTable": "spire_winds_replay_legendary" },

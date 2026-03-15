@@ -219,6 +219,7 @@
           { "hasFlag": "spire_radiance_replay_tier", "value": "hard" }
         ],
         "actions": [
+          { "type": "setFlag", "flag": "spire_radiance_hard_cleared", "scope": "player" },
           { "type": "rollLootTable", "lootTable": "spire_radiance_replay_hard" },
           { "type": "rollLootTable", "lootTable": "spire_radiance_replay_hard" },
           { "type": "showMessage", "text": "The Spire rewards your courage \u2014 rare components forged in the deeper resonance of Hard difficulty." }
@@ -233,6 +234,7 @@
           { "hasFlag": "spire_radiance_replay_tier", "value": "legendary" }
         ],
         "actions": [
+          { "type": "setFlag", "flag": "spire_radiance_legendary_cleared", "scope": "player" },
           { "type": "rollLootTable", "lootTable": "spire_radiance_replay_legendary" },
           { "type": "rollLootTable", "lootTable": "spire_radiance_replay_legendary" },
           { "type": "rollLootTable", "lootTable": "spire_radiance_replay_legendary" },

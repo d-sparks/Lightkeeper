@@ -45,7 +45,7 @@ Spire replay with difficulty tiers implemented. Outstanding items:
 - **Replay XP scaling**: The xpMult from tier scaling affects monster XP but is not shown in UI. Consider a HUD indicator for active replay tier.
 - **spire_winds_chest loot table**: Missing — the Spire of Winds core references `spire_winds_chest` as its first-clear loot table, but this table doesn't exist in any loot file. Add it to `content/loot/` (similar to `spire_vigil_chest` in frost.json).
 - **Multiplayer replay coordination**: If multiple players enter the same inner floor with different tier flags, the first player's tier wins (room scaling is applied once). Consider per-party tier consensus or preventing mismatched tier entry.
-- **Replay completion tracking**: No flags track highest tier cleared per spire. Could add `spire_vigil_hard_cleared`, `spire_vigil_legendary_cleared` etc. for gating progression or cosmetic rewards.
+- **Replay completion flag gating**: `spire_vigil_hard_cleared`, `spire_vigil_legendary_cleared` (and winds/radiance equivalents) are now set on chest interaction in each core. Wire these to NPC dialogue reactions (e.g., Archivist Solen, Councillor Asha) or cosmetic unlock triggers once those rewards are designed.
 
 ## Content — Greenway Zones & Bulwark Faction (2026-03-13)
 
