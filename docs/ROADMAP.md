@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-15 night. Sim quarantine loop FIXED — bot now reaches lighthouse_mara_core (37/124 rooms, 90 kills, 2 deaths, 10m12s). Blocks at conduit puzzle (tile interact conflict). All-quests: 2/21 pass (tannis_tags, relay_recovery), 2 STUCK (pathing), 17 TIMEOUT. Content validator: 0 errors, 59 warnings (unused visited_* flags). Major completed: quarantine fix, item ref fixes, sim tile interaction support, Greenway bio-lab, MERIDIAN-7 alliance content, puzzle variety, full campaign audit, Sol Shield heal nerfed to 1.25 HP/s. Critical remaining: sim conduit puzzle, sol_cone wall penetration, Lighthouse Mara pacing (19 floors with no checkpoints), 15+ missing sprites.
+Last updated: 2026-03-15 night. Sim reaches lighthouse_mara_core (47/124 rooms/38%, 167 kills, 78 deaths, 90m). Bot now opens conduit hatch correctly but dies repeatedly to shade_stalker_alpha boss + cold damage combo. Content validator: 0 errors, 4 warnings. Unit tests: 320/320 pass (healOnHit cap fixed 15→10). Major completed: quarantine fix, item ref fixes, sim tile interaction, Greenway bio-lab, MERIDIAN-7 alliance, puzzle variety, full campaign audit, Sol Shield nerfed, Mara pacing split, orphaned flags wired. Critical remaining: sim boss death loop, showChoice handler, sol_cone wall penetration, player HP scaling, array_door_override dead item, spire_winds_chest missing loot, tileset PNGs.
 
 ## Big Picture
 

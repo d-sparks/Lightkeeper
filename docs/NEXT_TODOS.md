@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-15 (full playtest audit — mainline sim reaches ~37% rooms/46 of 124, blocks at lighthouse_mara_core boss fight; all-quests: 2/21 pass (tannis_tags, relay_recovery), rest TIMEOUT; content validator: 0 errors, 3 warnings).
+Last cleaned: 2026-03-15 night (mainline sim: 47/124 rooms (38%), 167 kills, 78 deaths, blocks at lighthouse_mara_core boss — shade_stalker_alpha death loop; content validator: 0 errors, 4 warnings; unit tests: 320/320 pass after healOnHit cap fix).
 
 ## Three-Act Campaign Playtest Audit (2026-03-15)
 

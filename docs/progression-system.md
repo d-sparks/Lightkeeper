@@ -318,7 +318,7 @@ This means efficiency-type modifiers have dual use: they reduce ability energy c
   - Cooldown reduction: caps at **75%** (minimum 25% of base cooldown)
   - Energy cost reduction: caps at **75%** (minimum 25% of base cost)
   - Damage multiplier: stacks additively, no hard cap (grid space limits it naturally)
-  - Heal on hit: caps at **15 HP per hit** per ability
+  - Heal on hit: caps at **10 HP per hit** per ability
 
 ---
 
