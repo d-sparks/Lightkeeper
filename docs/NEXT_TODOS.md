@@ -85,7 +85,7 @@ Split into narrative segments with intermediate quest objectives, healing caches
 
 Wired Act 2 "Array Alliance" content for the Greenway/Spire of Winds assault. MERIDIAN-7 now offers tactical intel, Bulwark position data, and equipment upgrades when gated by `supply_sabotage_complete` + `spire_vigil_cleared`. Outstanding items:
 
-- **Quest log entry needed**: The alliance flow (offer → intel → equipment → final briefing) does not yet have a quest definition in `content/quests/`. Should create a quest like `greenway_assault` with steps tracking each phase.
+- [x] **Quest log entry added**: `content/quests/greenway_assault.json` created with three steps (secure_alliance → receive_intel → choose_equipment), gated on `supply_sabotage_complete`. Players now get quest log entries and waypoints for the full alliance flow.
 - **Spire of Winds door override integration**: The `array_door_override` key item is given to the player but no locked doors in `spire_winds_fortress.json` or `spire_winds_approach.json` currently check for it. Add `hasItem: "array_door_override"` conditions to Bulwark security door tiles.
 - **Signal Tap combat effect**: The `array_signal_tap` sol component has stat bonuses but no runtime mechanic for enemy accuracy/reaction debuff. Would need engine support in `game-loop.js` for area debuff effects.
 - **Greenway supply depot routing**: The final briefing tells player to approach through supply depot. Verify the exit chain `greenway_farmstead → greenway_supply_depot → spire_winds_approach` is navigable and the sim bot can path through it.
