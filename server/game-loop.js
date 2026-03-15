@@ -2734,6 +2734,9 @@ class GameLoop {
 
       if (Math.abs(angleDiff) > halfAngle) continue;
 
+      // Check line-of-sight — cone should not hit through walls
+      if (!this._hasLineOfSight(room.dungeon, player.x, player.y, mob.x, mob.y)) continue;
+
       // Hit this monster
       if (mob.invulnerable) continue;
       const effectiveDamage = mob.damageTakenMult ? damage * mob.damageTakenMult : damage;
