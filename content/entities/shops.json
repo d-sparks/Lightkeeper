@@ -12,6 +12,20 @@
       { "item": "salvage", "creditsReward": 4, "label": "Sell Salvage (4 cr each)", "sellAll": true }
     ]
   },
+  "mara_supply_depot": {
+    "name": "Dasha's Cache",
+    "speaker": "Dasha",
+    "sells": [
+      { "item": "frost_salve", "creditsCost": 8, "label": "Frost Salve (8 cr)" },
+      { "item": "bandage", "creditsCost": 5, "label": "Bandage (5 cr)" },
+      { "item": "field_medkit", "creditsCost": 35, "label": "Field Medkit (35 cr)" },
+      { "item": "flare", "creditsCost": 18, "label": "Flare (18 cr)" }
+    ],
+    "buys": [
+      { "item": "salvage", "creditsReward": 4, "label": "Sell Salvage (4 cr each)", "sellAll": true },
+      { "item": "umbracite_shard", "creditsReward": 12, "label": "Sell Umbracite (12 cr each)", "sellAll": true }
+    ]
+  },
   "meridian_7_shop": {
     "name": "MERIDIAN-7 Exchange",
     "speaker": "MERIDIAN-7",

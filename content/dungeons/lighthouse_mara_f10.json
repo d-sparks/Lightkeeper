@@ -483,7 +483,13 @@
       "patrol": "ambush"
     }
   ],
-  "npcSpawns": [],
+  "npcSpawns": [
+    {
+      "type": "cache_runner_mara",
+      "x": 7,
+      "y": 10
+    }
+  ],
   "itemSpawns": [
     {
       "type": "frost_salve",
@@ -494,6 +500,21 @@
       "type": "umbracite_shard",
       "x": 20,
       "y": 4
+    },
+    {
+      "type": "frost_salve",
+      "x": 6,
+      "y": 7
+    },
+    {
+      "type": "frost_salve",
+      "x": 7,
+      "y": 7
+    },
+    {
+      "type": "bandage",
+      "x": 6,
+      "y": 8
     }
   ],
   "exits": [
@@ -539,6 +560,87 @@
         {
           "type": "rollLootTable",
           "lootTable": "frost_biome_uncommon"
+        }
+      ]
+    },
+    {
+      "id": "f10_supply_cache_note",
+      "event": "room_entered",
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "A crude shelter has been set up in a side passage — supply crates stacked against the wall, a portable heat lamp cutting the worst of the cold.",
+            "Someone has been here recently."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "f10_dasha_meet",
+      "event": "npc_interacted",
+      "filter": { "npcType": "cache_runner_mara" },
+      "conditions": [{ "not": { "hasFlag": "met_cache_runner_mara" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "met_cache_runner_mara" },
+        {
+          "type": "showChoice",
+          "choiceId": "dasha_first_meet",
+          "prompt": "A woman in worn cold-weather gear looks up from a thermal flask. 'Supply runner. Ten floors deep is where I stop and you keep going. What do you need?'",
+          "options": [
+            { "label": "Browse supplies", "value": "browse" },
+            { "label": "Ask about the lower floors", "value": "ask_below" },
+            { "label": "Nothing right now", "value": "dismiss" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f10_dasha_return",
+      "event": "npc_interacted",
+      "filter": { "npcType": "cache_runner_mara" },
+      "conditions": [{ "hasFlag": "met_cache_runner_mara" }],
+      "actions": [
+        {
+          "type": "showChoice",
+          "choiceId": "dasha_return",
+          "prompt": "Dasha looks up. 'Back already? Or still heading down?'",
+          "options": [
+            { "label": "Browse supplies", "value": "browse" },
+            { "label": "Nothing", "value": "dismiss" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f10_dasha_open_shop",
+      "event": "choice_selected",
+      "filter": { "choiceId": "dasha_first_meet", "value": "browse" },
+      "actions": [
+        { "type": "shop", "shopId": "mara_supply_depot" }
+      ]
+    },
+    {
+      "id": "f10_dasha_open_shop_return",
+      "event": "choice_selected",
+      "filter": { "choiceId": "dasha_return", "value": "browse" },
+      "actions": [
+        { "type": "shop", "shopId": "mara_supply_depot" }
+      ]
+    },
+    {
+      "id": "f10_dasha_ask_below",
+      "event": "choice_selected",
+      "filter": { "choiceId": "dasha_first_meet", "value": "ask_below" },
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "Dasha: 'Floors 12 through 18 are where the real cold sets in. Your suit's thermal rating matters less than how many salves you're carrying.'",
+            "Dasha: 'Floor 15 is the worst — old maintenance passages, metal walls that conduct the cold straight through. I've seen crews burn through six salves just crossing it.'",
+            "Dasha: 'The core is deep. Whatever you're going for, don't count on coming back to restock.'"
+          ]
         }
       ]
     },

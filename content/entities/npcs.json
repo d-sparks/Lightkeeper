@@ -12029,5 +12029,35 @@
         "use": "after_thorne"
       }
     ]
+  },
+  "cache_runner_mara": {
+    "name": "Dasha",
+    "dialogues": {
+      "default": [
+        {
+          "speaker": "Dasha",
+          "text": "Still alive. That makes two of us."
+        },
+        {
+          "speaker": "Dasha",
+          "text": "I've been running supplies to crews going deep into the Mara for three seasons. The cold gets worse below this level — trust me."
+        },
+        {
+          "speaker": "Dasha",
+          "text": "I stock what matters: frost salves, medkits, basics. If you're heading for the core, load up now."
+        }
+      ],
+      "after_purchase": [
+        {
+          "speaker": "Dasha",
+          "text": "Good. The floor 15 maintenance corridors are the worst — ambient cold there doesn't care what suit rating you've got."
+        },
+        {
+          "speaker": "Dasha",
+          "text": "Pace yourself. Burn through supplies too fast and you'll be making decisions you regret on the way back."
+        }
+      ]
+    },
+    "dialogueRules": []
   }
 }
