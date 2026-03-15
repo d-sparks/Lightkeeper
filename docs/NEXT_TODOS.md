@@ -29,6 +29,9 @@ Split into narrative segments with intermediate quest objectives, healing caches
 - [x] **Add Keeper Mara presence** — Keeper Renn's handwriting on f07 wall, abandoned survey notes on f15
 - [x] **Add mid-tower waypoint beacon** — waypoint_beacon on f10 near Dasha's camp, registered as "Mara Deep Tower" in settings.json
 - [ ] **Lighthouse cold damage variety** — floors 2-10 still use identical cold hazard params. Consider varying damage/interval or adding brief warm zones on milestone floors
+- [ ] **New Mara monster sprites** — permafrost_hulk, cave_borer_drone, and seismic_leech currently reuse existing sprites (glacial_maw, tunnel_creeper, rime_stalker). Need unique 16x16 sprites.
+- [ ] **New frost_crypt tile sprites** — tiles 23-26 (ice_stalagmite, collapsed_rubble, frozen_pipe, seismic_crack) need unique 16x16 sprites in tilesets/frost_crypt.png
+- [ ] **Place more decorative tiles on Mara floors** — new tileset tiles (23-26) are only placed on a few floors. Use the visual editor to add more ice_stalagmite, collapsed_rubble, frozen_pipe, and seismic_crack tiles across F02-F10 for richer visual variety
 
 ### HIGH — Balance Issues
 
@@ -53,7 +56,7 @@ Split into narrative segments with intermediate quest objectives, healing caches
 ### MODERATE — Narrative Gaps
 
 - [x] **No NPC guidance for 19-floor Mara descent** — FIXED: quest now has 4 steps with descriptions, f02 descent warning, f10/f15 milestone messages
-- [ ] **Lighthouse Mara floors 2-10 are functionally identical** — same frost_crypt tileset, same cold damage, same monster types. Ambient narrative now varies but visual/mechanical variety still needed.
+- [x] **Lighthouse Mara floors 2-10 are functionally identical** — DONE: added 3 new monster types (permafrost_hulk, cave_borer_drone, seismic_leech), 4 new decorative tiles (ice_stalagmite, collapsed_rubble, frozen_pipe, seismic_crack), unique monster encounters per floor, and ambient geological instability triggers. Cold damage variety still needed.
 - [x] **Missing waypoint in Lighthouse Mara** — FIXED: waypoint beacon added on f10 ("Mara Deep Tower")
 
 ### LOW — Orphaned Content

@@ -62,7 +62,7 @@
     1,
     1,
     1,
-    2,
+    26,
     3,
     3,
     3,
@@ -591,6 +591,21 @@
             "You feel it now — a low vibration in the floor, rhythmic and constant. Every 4.7 seconds, like a heartbeat. The crystals resonate with each pulse.",
             "Someone left a supply cache near the eastern wall. Frost salves and a medkit, still sealed. Whatever crew cached these didn't come back for them."
           ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "f05_crystal_shatter",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_f05_instability_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_f05_instability_seen", "scope": "player" },
+        {
+          "type": "showMessage",
+          "text": "A crystal column shatters as you watch, spraying frozen shards across the grotto floor. The vibrations from below are getting stronger — the formations can't hold."
         }
       ],
       "once": true

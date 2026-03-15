@@ -114,8 +114,8 @@
     3,
     3,
     16,
-    1,
-    1,
+    24,
+    24,
     1,
     3,
     3,
@@ -571,11 +571,11 @@
       "patrol": "guard"
     },
     {
-      "type": "frostfang_hunter",
+      "type": "permafrost_hulk",
       "x": 6,
       "y": 10,
-      "count": 2,
-      "patrol": "pack"
+      "count": 1,
+      "patrol": "guard"
     },
     {
       "type": "rime_stalker",
@@ -669,6 +669,24 @@
           "lines": [
             "Scratched into the ice wall near the stairwell, in the same handwriting as the keeper's journal: \"Gallery level. Fractures consistent to depth 12. Not geological — STRUCTURAL. Something is reshaping the substrate from below.\"",
             "Below the note, a single word underlined twice: \"Geometry.\""
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "f07_gallery_collapse",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_f07_instability_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_f07_instability_seen", "scope": "player" },
+        {
+          "type": "showMessage",
+          "lines": [
+            "A section of the gallery ceiling has caved in, leaving a mound of frozen rubble. Through the gap you can see more parallel fractures extending upward into darkness.",
+            "The structural damage goes all the way to the surface. This mountain is being hollowed out from below."
           ]
         }
       ],

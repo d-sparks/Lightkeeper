@@ -168,7 +168,7 @@
     3,
     3,
     3,
-    3,
+    25,
     3,
     3,
     3,
@@ -382,11 +382,11 @@
       "patrol": "wander"
     },
     {
-      "type": "rime_stalker",
+      "type": "cave_borer_drone",
       "x": 19,
       "y": 3,
-      "count": 1,
-      "patrol": "ambush"
+      "count": 2,
+      "patrol": "pack"
     },
     {
       "type": "frostfang_hunter",
@@ -452,6 +452,21 @@
             "A frozen stream cuts through the cavern floor, its surface a mirror of black ice. The current still flows somewhere far beneath.",
             "The water must come from deeper underground. In the silence, you can almost hear it moving."
           ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "f04_structural_damage",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_f04_instability_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_f04_instability_seen", "scope": "player" },
+        {
+          "type": "showMessage",
+          "text": "The stream has carved deeper than it should. Exposed bedrock shows stress fractures running in parallel lines — the geological damage here goes further than just ice."
         }
       ],
       "once": true

@@ -71,6 +71,22 @@
     "22": {
       "name": "damaged_panel",
       "solid": true
+    },
+    "23": {
+      "name": "ice_stalagmite",
+      "solid": true
+    },
+    "24": {
+      "name": "collapsed_rubble",
+      "solid": false
+    },
+    "25": {
+      "name": "frozen_pipe",
+      "solid": true
+    },
+    "26": {
+      "name": "seismic_crack",
+      "solid": false
     }
   }
 }

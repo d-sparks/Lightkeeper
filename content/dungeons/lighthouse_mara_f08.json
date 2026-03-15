@@ -199,7 +199,7 @@
     1,
     1,
     1,
-    2,
+    26,
     7,
     7,
     1,
@@ -470,11 +470,11 @@
       "patrol": "guard"
     },
     {
-      "type": "dusk_crawler",
+      "type": "permafrost_hulk",
       "x": 16,
       "y": 14,
-      "count": 2,
-      "patrol": "wander"
+      "count": 1,
+      "patrol": "guard"
     }
   ],
   "npcSpawns": [],
@@ -535,6 +535,21 @@
           "lootTable": "frost_biome_uncommon"
         }
       ]
+    },
+    {
+      "id": "f08_frozen_infrastructure",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_f08_instability_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_f08_instability_seen", "scope": "player" },
+        {
+          "type": "showMessage",
+          "text": "Frozen pipes jut from the waterfall wall — old infrastructure, swallowed by ice. The flash-freeze that created this must have caught the whole sub-basement at once."
+        }
+      ],
+      "once": true
     },
     {
       "id": "mark_lighthouse_mara_f08_visited",

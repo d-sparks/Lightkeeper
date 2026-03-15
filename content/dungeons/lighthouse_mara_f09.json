@@ -35,7 +35,7 @@
     3,
     1,
     8,
-    2,
+    26,
     1,
     3,
     3,
@@ -341,11 +341,11 @@
       "patrol": "guard"
     },
     {
-      "type": "dusk_crawler",
+      "type": "seismic_leech",
       "x": 14,
       "y": 9,
       "count": 2,
-      "patrol": "wander"
+      "patrol": "ambush"
     },
     {
       "type": "shade_stalker",
@@ -411,6 +411,21 @@
             "The passage narrows to a crevasse barely wide enough to move through. The walls press in, covered in geometric fracture patterns.",
             "You can feel vibration through the stone — faint, rhythmic, like a pulse. It's coming from below."
           ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "f09_seismic_activity",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_f09_instability_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_f09_instability_seen", "scope": "player" },
+        {
+          "type": "showMessage",
+          "text": "The vibration is unmistakable now — a deep rhythmic pulse that makes the ice walls hum. Small stones bounce on the floor with each cycle. Whatever is generating this is very close."
         }
       ],
       "once": true

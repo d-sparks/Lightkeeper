@@ -108,7 +108,7 @@
     1,
     1,
     1,
-    1,
+    23,
     7,
     1,
     1,
@@ -391,29 +391,11 @@
   ],
   "monsterSpawns": [
     {
-      "type": "tunnel_creeper",
+      "type": "cave_borer_drone",
       "x": 10,
       "y": 3,
-      "count": 2,
-      "patrol": "patrol",
-      "patrolPath": [
-        {
-          "x": 9,
-          "y": 2
-        },
-        {
-          "x": 13,
-          "y": 2
-        },
-        {
-          "x": 13,
-          "y": 4
-        },
-        {
-          "x": 9,
-          "y": 4
-        }
-      ]
+      "count": 3,
+      "patrol": "pack"
     },
     {
       "type": "frostfang_hunter",
@@ -499,6 +481,21 @@
           "lootTable": "frost_biome_common"
         }
       ]
+    },
+    {
+      "id": "f03_shelf_instability",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_f03_instability_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_f03_instability_seen", "scope": "player" },
+        {
+          "type": "showMessage",
+          "text": "The ice shelf groans beneath your feet. Hairline cracks web across the surface — this entire ledge is slowly separating from the wall."
+        }
+      ],
+      "once": true
     },
     {
       "id": "mark_lighthouse_mara_f03_visited",

@@ -476,7 +476,7 @@
       "patrol": "guard"
     },
     {
-      "type": "rime_stalker",
+      "type": "seismic_leech",
       "x": 19,
       "y": 11,
       "count": 1,
@@ -710,6 +710,21 @@
           ]
         }
       ]
+    },
+    {
+      "id": "f10_buried_infrastructure",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_f10_instability_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_f10_instability_seen", "scope": "player" },
+        {
+          "type": "showMessage",
+          "text": "Corroded pipe sections emerge from the ice near the far wall. This deep, the old lighthouse infrastructure is everywhere — frozen mid-collapse when the bedrock gave way."
+        }
+      ],
+      "once": true
     },
     {
       "id": "mark_lighthouse_mara_f10_visited",

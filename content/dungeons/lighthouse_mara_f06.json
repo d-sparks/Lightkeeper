@@ -566,6 +566,21 @@
       "once": true
     },
     {
+      "id": "f06_widening_fractures",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_f06_instability_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_f06_instability_seen", "scope": "player" },
+        {
+          "type": "showMessage",
+          "text": "The geometric fractures are wider here than on the floor above. Some you can fit your hand into. The edges are sharp — clean breaks, not erosion. Whatever force made these is still active."
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "mark_lighthouse_mara_f06_visited",
       "event": "room_entered",
       "actions": [

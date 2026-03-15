@@ -100,12 +100,12 @@
     3,
     3,
     3,
-    1,
+    20,
     10,
     1,
     1,
     1,
-    1,
+    20,
     1,
     1,
     3,
@@ -469,11 +469,11 @@
       ]
     },
     {
-      "type": "dusk_crawler",
+      "type": "cave_borer_drone",
       "x": 18,
       "y": 10,
-      "count": 2,
-      "patrol": "wander"
+      "count": 3,
+      "patrol": "pack"
     }
   ],
   "npcSpawns": [],
@@ -549,6 +549,21 @@
             "The air gets colder with every step down. This cavern system runs deep — the keeper's journal mentioned sub-basement levels far below.",
             "Stock up on frost salves. It's a long way to the bottom, and a longer way back."
           ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "f02_instability",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_f02_instability_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_f02_instability_seen", "scope": "player" },
+        {
+          "type": "showMessage",
+          "text": "Loose stones rattle overhead. A section of ceiling has collapsed recently — the rubble is fresh, not yet frozen over."
         }
       ],
       "once": true
