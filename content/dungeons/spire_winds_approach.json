@@ -53,7 +53,21 @@
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "greenway_supply_depot", "type": "stairs_up", "spawnX": 18, "spawnY": 8 },
-    { "x": 24, "y": 16, "leadsTo": "spire_winds_guardpost", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    {
+      "x": 24, "y": 16,
+      "leadsTo": "spire_winds_guardpost",
+      "type": "stairs_down",
+      "spawnX": 1, "spawnY": 1,
+      "conditions": [
+        {
+          "or": [
+            { "hasItem": "array_door_override" },
+            { "hasItem": "spire_winds_keycard" }
+          ]
+        }
+      ],
+      "failMessage": "A Bulwark security checkpoint. The panel flashes: ARRAY SECURITY PROTOCOL — AUTHORIZATION REQUIRED. You need a security keycard or a device that can bypass the relay lock."
+    }
   ],
   "triggers": [
       {

@@ -56,7 +56,21 @@
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "spire_winds_laboratory", "type": "stairs_up", "spawnX": 13, "spawnY": 16 },
-    { "x": 23, "y": 18, "leadsTo": "spire_winds_excavation", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    {
+      "x": 23, "y": 18,
+      "leadsTo": "spire_winds_excavation",
+      "type": "stairs_down",
+      "spawnX": 1, "spawnY": 1,
+      "conditions": [
+        {
+          "or": [
+            { "hasItem": "array_door_override" },
+            { "hasFlag": "general_thorne_defeated" }
+          ]
+        }
+      ],
+      "failMessage": "Reinforced blast doors, sealed by General Thorne's command. The lock panel reads: ARRAY SECURITY PROTOCOL — COMMAND AUTHORIZATION REQUIRED. Defeat Thorne to unlock this, or use a device that bypasses Array relay locks."
+    }
   ],
   "triggers": [
       {
