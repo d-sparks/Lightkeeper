@@ -91,7 +91,10 @@ Remaining follow-ups:
 - **Greenway tileset PNG** — `tilesets/greenway.png` sprite strip needed for the 31 tile definitions.
 - **Meridian political crisis content** — Per storyboard, Meridian itself should transform with Bulwark checkpoints and political tension when Act 2 begins. Needs flag-gated atmosphere triggers in existing Meridian rooms.
 - **MERIDIAN-7 / Array alliance content** — Per storyboard, the Array provides intelligence through MERIDIAN-7 during Act 2. Needs triggers/dialogue tying Array Hub to Greenway operations.
-- **Greenway bio-lab dungeon** — The Greenway's bio-tech labs are referenced in dialogue but have no dungeon. Could be an optional area with sol component rewards.
+- ~~**Greenway bio-lab dungeon**~~ — DONE: 4-floor optional dungeon added (greenway_biolab_f01 through f04). Bio-themed enemies (Rogue Tendril, Sap Spitter, Bio-Construct, Feral Cultivar, Apex Overgrowth boss). Environmental storytelling via research terminals about Project Verdant. Sol component rewards: Photosynthesis Node (rare, greenway), Adaptive Tissue Graft (epic, greenway). Researcher Tova NPC on F01 with state-reactive dialogue. Accessible from greenway_settlement (stairs_down at east edge).
+- **Bio-lab sprites needed** — biolab_tendril, biolab_spitter, biolab_construct, biolab_guardian, biolab_alpha, greenway_npc (for Researcher Tova) all need placeholder sprite PNGs.
+- **Bio-lab tileset PNG needed** — `tilesets/biolab.png` sprite strip for the 21 tile definitions.
+- **Elder Moss bio-lab dialogue** — Elder Moss already mentions bio-labs in dialogue. Could add a conditional dialogue variant when `biolab_alpha_defeated` is set, acknowledging the labs are safe again.
 - **Bulwark encounter difficulty tuning** — Stats set at Act 2 level (HP 40-400, DMG 10-20). Needs playtesting to confirm balance vs. post-Act 1 player power.
 - **Supply depot combat encounter balance** — 7 monsters in a single room may be overwhelming. Consider adjusting spawn positions or adding wave triggers.
 

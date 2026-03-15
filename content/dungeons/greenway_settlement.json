@@ -20,7 +20,7 @@
     16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
     16, 1, 1,18,18, 4,18,18, 1, 1,22,22,22,22,22, 1, 1,18,18, 4,18,18, 1, 1,16,
     16, 1, 1,18, 1, 1, 1,18, 1, 1,22,21,21,21,22, 1, 1,18, 1, 1, 1,18, 1, 1,16,
-    16, 1, 1,18, 1, 1, 1,18, 1, 1,22,21,21,21,22, 1, 1,18, 1, 1, 1,18, 1, 1,16,
+    16, 1, 1,18, 1, 1, 1,18, 1, 1,22,21,21,21,22, 1, 1,18, 1, 1, 1,18, 1, 6,16,
     16, 1, 1,18,18,18,18,18, 1, 1,22,22, 4,22,22, 1, 1,18,18,18,18,18, 1, 1,16,
     16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
     16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
@@ -45,7 +45,8 @@
     { "type": "bio_graft", "x": 12, "y": 12 }
   ],
   "exits": [
-    { "x": 0, "y": 2, "leadsTo": "greenway_farmstead", "type": "stairs_up", "spawnX": 10, "spawnY": 17 }
+    { "x": 0, "y": 2, "leadsTo": "greenway_farmstead", "type": "stairs_up", "spawnX": 10, "spawnY": 17 },
+    { "x": 23, "y": 12, "leadsTo": "greenway_biolab_f01", "type": "stairs_down", "spawnX": 2, "spawnY": 2 }
   ],
   "triggers": [
     {
@@ -107,6 +108,19 @@
         { "type": "giveItem", "itemType": "bio_leech_node_chip" },
         { "type": "showMessage", "text": "Elder Moss presses a small, pulsing component into your hands. 'The Greenway's gift. It will serve you well.'" },
         { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    },
+    {
+      "id": "biolab_entrance_discovered",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "visited_greenway_settlement" },
+        { "not": { "hasFlag": "biolab_entrance_noted" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Behind one of the eastern shelters, a set of stairs descends into the ground. The entrance is partially concealed by overgrown hedges, but you can feel warm, humid air rising from below. A faded sign reads: 'Greenway Agricultural Sciences — Authorized Personnel Only.'" },
+        { "type": "setFlag", "flag": "biolab_entrance_noted" }
       ],
       "once": true
     }

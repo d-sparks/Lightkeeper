@@ -465,5 +465,23 @@
     "rarity": "legendary",
     "bonus": { "damageMultiplier": 0.50, "cooldownReduction": 0.30 },
     "shape": [[1, 1]]
+  },
+  "photosynthesis_node": {
+    "type": "modifier",
+    "name": "Photosynthesis Node",
+    "rarity": "rare",
+    "faction": "greenway",
+    "bonus": { "healOnHit": 2, "energyCostReduction": 0.15 },
+    "description": "Living bio-circuitry that converts ambient light into restorative energy, healing its host while reducing ability costs.",
+    "shape": [[1]]
+  },
+  "adaptive_tissue": {
+    "type": "modifier",
+    "name": "Adaptive Tissue Graft",
+    "rarity": "epic",
+    "faction": "greenway",
+    "bonus": { "healOnHit": 4, "damageMultiplier": 0.30 },
+    "description": "Self-evolving bio-tech from the Greenway labs. Amplifies damage while regenerating the host with each strike.",
+    "shape": [[1, 1]]
   }
 }

@@ -12457,5 +12457,64 @@
       ]
     },
     "dialogueRules": []
+  },
+  "biolab_researcher_tova": {
+    "name": "Researcher Tova",
+    "sprite": "sprites/greenway_npc.png",
+    "size": [16, 16],
+    "dialogues": {
+      "default": [
+        {
+          "speaker": "Researcher Tova",
+          "text": "You're not from the lab. Good — the last crew that came through here was three years ago. They didn't stay long."
+        },
+        {
+          "speaker": "Researcher Tova",
+          "text": "I'm Tova. I was the lead botanist on Project Verdant — growing living sol components from engineered plant tissue. The Greenway's gift to the Ring, Elder Moss called it."
+        },
+        {
+          "speaker": "Researcher Tova",
+          "text": "The project worked. Too well. Batch 7 grew beyond our parameters. Autonomous root systems, phototropic circuitry that sought out energy sources on its own. We lost containment on the lower floors."
+        },
+        {
+          "speaker": "Researcher Tova",
+          "text": "The settlement sealed the entrance and pretended the labs didn't exist. But the growth hasn't stopped. It's been feeding on the geothermal vents for years."
+        }
+      ],
+      "after_keycard": [
+        {
+          "speaker": "Researcher Tova",
+          "text": "You found one of the access keycards? The lower containment levels will have more of the mature specimens. Be careful — the bio-constructs down there have had years to evolve."
+        },
+        {
+          "speaker": "Researcher Tova",
+          "text": "If you reach the core lab, look for the central growth pod. That's where the Apex specimen rooted itself. It's the original Batch 7 alpha — everything else grew from it."
+        }
+      ],
+      "post_boss": [
+        {
+          "speaker": "Researcher Tova",
+          "text": "You cleared the core lab? The Apex Overgrowth is gone?"
+        },
+        {
+          "speaker": "Researcher Tova",
+          "text": "Then the secondary growth should die back within weeks. Without the alpha's root network feeding them, the specimens can't sustain themselves."
+        },
+        {
+          "speaker": "Researcher Tova",
+          "text": "The research wasn't wrong — just rushed. The components we grew here could change everything about how the Ring builds technology. Maybe now we can try again. Carefully, this time."
+        }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "biolab_alpha_defeated" }],
+        "use": "post_boss"
+      },
+      {
+        "conditions": [{ "hasFlag": "biolab_found_keycard" }],
+        "use": "after_keycard"
+      }
+    ]
   }
 }

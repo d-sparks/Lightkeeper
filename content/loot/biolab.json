@@ -1,0 +1,41 @@
+{
+  "biolab_common": {
+    "dropChance": 0.5,
+    "rolls": [
+      { "item": "bandage", "weight": 8 },
+      { "item": "ration_pack", "weight": 5 },
+      { "item": "growth_serum", "weight": 6 },
+      { "item": "salvage", "weight": 4 }
+    ]
+  },
+  "biolab_uncommon": {
+    "dropChance": 0.6,
+    "rolls": [
+      { "item": "growth_serum", "weight": 6 },
+      { "item": "bio_graft", "weight": 3 },
+      { "item": "field_medkit", "weight": 4 },
+      { "item": "bio_leech_node_chip", "weight": 3 },
+      { "item": "salvage", "weight": 5 }
+    ]
+  },
+  "biolab_rare": {
+    "dropChance": 0.8,
+    "rolls": [
+      { "item": "bio_graft", "weight": 4 },
+      { "item": "field_medkit", "weight": 3 },
+      { "item": "bio_leech_node_chip", "weight": 4 },
+      { "item": "symbiotic_core_chip", "weight": 2 },
+      { "item": "photosynthesis_node_chip", "weight": 2 }
+    ]
+  },
+  "biolab_boss": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "bio_graft", "weight": 3 },
+      { "item": "symbiotic_core_chip", "weight": 4 },
+      { "item": "photosynthesis_node_chip", "weight": 4 },
+      { "item": "adaptive_tissue_chip", "weight": 3 },
+      { "item": "mycelial_matrix_chip", "weight": 1 }
+    ]
+  }
+}

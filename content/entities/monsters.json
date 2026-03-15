@@ -130,6 +130,25 @@
       { "type": "stun", "cooldown": 14, "damage": 0.5, "duration": 1.0 }
     ]
   },
+  "quarantine_warlord": {
+    "name": "Luddite Warlord",
+    "sprite": "sprites/luddite_warlord.png",
+    "size": [16, 16],
+    "health": 200,
+    "speed": 1.0,
+    "damage": 18,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "boss": true,
+    "bossTitle": "Luddite Warlord",
+    "lootTable": "luddite_warlord",
+    "xp": 40,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 5, "range": 5, "damage": 1.3, "speed": 10 },
+      { "type": "ground_slam", "cooldown": 10, "range": 2.5, "damage": 1.5, "knockback": 140 }
+    ]
+  },
   "luddite_warlord": {
     "name": "Luddite Warlord",
     "sprite": "sprites/luddite_warlord.png",
@@ -1103,5 +1122,95 @@
     ],
     "lootTable": "spire_replay_boss",
     "xp": 100
+  },
+  "biolab_tendril": {
+    "name": "Rogue Tendril",
+    "sprite": "sprites/biolab_tendril.png",
+    "size": [16, 16],
+    "health": 35,
+    "speed": 1.6,
+    "damage": 8,
+    "attackRange": 1.5,
+    "attackSpeed": 1.3,
+    "ai": "melee_chase",
+    "lootTable": "biolab_common",
+    "xp": 6,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 6, "range": 3, "damage": 1.3, "speed": 7, "duration": 0.2 }
+    ]
+  },
+  "biolab_spitter": {
+    "name": "Sap Spitter",
+    "sprite": "sprites/biolab_spitter.png",
+    "size": [16, 16],
+    "health": 45,
+    "speed": 0.9,
+    "damage": 12,
+    "attackRange": 7,
+    "attackSpeed": 0.8,
+    "projectile": "spore_cloud",
+    "ai": "ranged_kite",
+    "lootTable": "biolab_common",
+    "xp": 10
+  },
+  "biolab_construct": {
+    "name": "Bio-Construct",
+    "sprite": "sprites/biolab_construct.png",
+    "size": [16, 16],
+    "health": 100,
+    "speed": 1.0,
+    "damage": 14,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "lootTable": "biolab_uncommon",
+    "xp": 16,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 7, "range": 4, "damage": 1.4, "speed": 7, "duration": 0.25 },
+      { "type": "poison", "cooldown": 10, "damage": 0.3, "dps": 3, "duration": 4.0 }
+    ]
+  },
+  "biolab_guardian": {
+    "name": "Feral Cultivar",
+    "sprite": "sprites/biolab_guardian.png",
+    "size": [16, 16],
+    "health": 130,
+    "speed": 1.2,
+    "damage": 16,
+    "attackRange": 1.5,
+    "attackSpeed": 1.0,
+    "ai": "pack_leader",
+    "aura": { "range": 4, "damageMult": 1.15, "speedMult": 1.1 },
+    "lootTable": "biolab_rare",
+    "xp": 22,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 9, "range": 2, "damage": 1.4, "knockback": 90 },
+      { "type": "poison", "cooldown": 8, "damage": 0.3, "dps": 4, "duration": 5.0 }
+    ]
+  },
+  "biolab_alpha": {
+    "name": "Apex Overgrowth",
+    "bossTitle": "The Greenway's Failed Experiment",
+    "sprite": "sprites/biolab_alpha.png",
+    "size": [16, 16],
+    "health": 450,
+    "speed": 1.1,
+    "damage": 20,
+    "attackRange": 2,
+    "attackSpeed": 0.8,
+    "ai": "boss_crystal",
+    "boss": true,
+    "phases": [
+      { "threshold": 1.0, "mode": "melee", "speed": 1.1, "damage": 20 },
+      { "threshold": 0.5, "mode": "ranged", "speed": 1.3, "damage": 16, "projectile": "spore_cloud", "projectileInterval": 1.2 },
+      { "threshold": 0.25, "mode": "summon", "speed": 1.5, "damage": 22, "projectile": "spore_cloud", "projectileInterval": 0.9, "summonType": "biolab_tendril", "summonCount": 2, "summonInterval": 10.0 }
+    ],
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 8, "range": 2.5, "damage": 1.6, "knockback": 140 },
+      { "type": "poison", "cooldown": 7, "damage": 0.4, "dps": 5, "duration": 5.0 },
+      { "type": "wound", "cooldown": 12, "damage": 0.4, "duration": 5.0, "healReduction": 0.5 }
+    ],
+    "lootTable": "biolab_boss",
+    "xp": 75
   }
 }

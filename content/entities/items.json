@@ -1328,5 +1328,46 @@
     "type": "key",
     "rarity": "uncommon",
     "hazardResist": ["wind"]
+  },
+  "biolab_keycard": {
+    "name": "Bio-Lab Keycard",
+    "description": "A laminated access card with a faded Greenway Agricultural Sciences logo. The magnetic strip still functions.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "growth_serum": {
+    "name": "Growth Serum",
+    "description": "A vial of luminescent green liquid originally used to accelerate crop development. Works on human tissue too. Restores 30 health.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": {
+      "heal": 30
+    }
+  },
+  "biolab_research_log": {
+    "name": "Research Log: Project Verdant",
+    "description": "A damaged data tablet from the Greenway bio-labs. The readable entries describe experiments in bio-circuitry — growing sol-compatible components from living tissue. The final entry reads: 'Batch 7 exhibited autonomous growth patterns. Containment recommended. Request denied — the harvest schedule takes priority.'",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "biolab_specimen_notes": {
+    "name": "Specimen Chamber Notes",
+    "description": "Handwritten notes pinned to a growth chamber: 'Subject exhibits phototropic response to sol energy. Tissue samples show 300% improved conductivity vs synthetic components. If we can stabilize the growth cycle, every farmer on the Ring could carry living technology.' The margins are filled with worried corrections.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "photosynthesis_node_chip": {
+    "name": "Photosynthesis Node",
+    "description": "A living sol component grown in the Greenway bio-labs. Chlorophyll-laced circuitry that converts ambient light into restorative energy. Heals its host on every strike while reducing ability energy costs.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "photosynthesis_node"
+  },
+  "adaptive_tissue_chip": {
+    "name": "Adaptive Tissue Graft",
+    "description": "Bio-engineered tissue from Project Verdant's final batch. It bonds with sol grid architecture, amplifying damage output while feeding life energy back to the user.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "adaptive_tissue"
   }
 }
