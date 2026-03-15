@@ -1224,6 +1224,27 @@ class Bot {
       const inCorrectProc = this.currentRoom.startsWith('proc:' + goal.templateId + ':');
       const currentDepth = inCorrectProc ? this._getProcDepth(this.getRoom()) : -1;
       if (!inCorrectProc || currentDepth !== goal.expectedDepth) {
+        goal._depthRetryCount = (goal._depthRetryCount || 0) + 1;
+
+        // After too many depth recovery cycles (bot keeps dying or getting ejected),
+        // abandon the goal to prevent infinite quarantine loops.
+        if (goal._depthRetryCount > 5) {
+          console.log(`[Bot] wait_for_item "${goal.itemType}" exceeded ${goal._depthRetryCount} depth recovery attempts — giving up`);
+          if (goal.questId) {
+            this.failedQuestPrereqs.add(goal.questId);
+            this._abandonQuestGoals(goal.questId);
+          } else {
+            this.popGoal();
+          }
+          return;
+        }
+
+        // On retry, clear once-trigger flags for this template so that item-spawning
+        // triggers (e.g. warlord_killed) can fire again on a fresh room instance.
+        // Without this, killing the boss then dying before pickup permanently prevents
+        // the item from ever spawning again.
+        this._clearOnceTriggerFlags(goal.templateId);
+
         // Reset state for retry — clear tile target too so stale coordinates from a
         // previous room instance don't misdirect the bot in the new room.
         goal._killingMonsters = false;
@@ -1357,12 +1378,14 @@ class Bot {
       const inCorrectProc = this.currentRoom.startsWith('proc:' + goal.templateId + ':');
       const currentDepth = inCorrectProc ? this._getProcDepth(this.getRoom()) : -1;
       if (inCorrectProc && currentDepth === goal.expectedDepth) {
-        console.log(`[Bot] Depth ${currentDepth} of "${goal.templateId}" — no monsters, no "${goal.itemType}". Resetting killedMonsters for fresh respawn.`);
+        console.log(`[Bot] Depth ${currentDepth} of "${goal.templateId}" — no monsters, no "${goal.itemType}". Resetting killedMonsters and once-triggers for fresh respawn.`);
         for (const dId of [...this.gameLoop.killedMonsters.keys()]) {
           if (dId.includes(':' + goal.templateId + ':')) {
             this.gameLoop.killedMonsters.delete(dId);
           }
         }
+        // Also clear once-trigger flags so item-spawning triggers fire again
+        this._clearOnceTriggerFlags(goal.templateId);
         goal._resetKilled = true;
         goal._killingMonsters = false;
         goal._killRetryCount = 0;
@@ -1849,6 +1872,19 @@ class Bot {
       }
     }
     return 1; // Default fallback
+  }
+
+  // Clear once-trigger flags for a procedural template so item-spawning triggers
+  // (like warlord_killed) can fire again when the room is regenerated.
+  _clearOnceTriggerFlags(templateId) {
+    const flags = this.gameLoop.flagStore.getPlayerFlags(PLAYER_ID);
+    const prefix = `__trigger_`;
+    const templateSuffix = `_${templateId}_`;
+    for (const key of Object.keys(flags)) {
+      if (key.startsWith(prefix) && key.includes(templateSuffix)) {
+        this.gameLoop.flagStore.setPlayerFlag(PLAYER_ID, key, false);
+      }
+    }
   }
 
   // Build a set of tile keys blocked by monster collision circles
@@ -2497,12 +2533,14 @@ function runSimulation(gameLoop, bot, maxGameSeconds, label) {
     // 2. Advance engine one tick
     gameLoop.update(DT);
 
-    // 3. Process floor transitions and drain death penalties
+    // 3. Track combat events BEFORE transitions — rooms may be destroyed
+    //    during processTransitions (death respawn empties the room), which
+    //    would lose death events that haven't been counted yet.
+    trackCombatEvents(gameLoop, bot);
+
+    // 4. Process floor transitions and drain death penalties
     processTransitions(gameLoop, bot);
     gameLoop.consumeDeathPenalties();
-
-    // 4. Track combat events
-    trackCombatEvents(gameLoop, bot);
 
     // 5. Track flag changes
     trackFlagChanges(gameLoop, bot, startTick + tick);
