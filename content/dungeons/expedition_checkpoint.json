@@ -25,7 +25,9 @@
     { "type": "expedition_cache", "x": 6, "y": 3 }
   ],
   "itemSpawns": [],
-  "exits": [],
+  "exits": [
+    { "x": 6, "y": 8, "leadsTo": "spire_radiance_approach", "type": "stairs_up", "spawnX": 5, "spawnY": 8 }
+  ],
   "triggers": [
     {
       "id": "checkpoint_enter",

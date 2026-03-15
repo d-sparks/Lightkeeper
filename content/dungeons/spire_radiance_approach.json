@@ -55,7 +55,8 @@
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "array_deep_processing", "type": "stairs_up", "spawnX": 1, "spawnY": 17 },
-    { "x": 24, "y": 16, "leadsTo": "spire_radiance_perimeter", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 24, "y": 16, "leadsTo": "spire_radiance_perimeter", "type": "stairs_down", "spawnX": 1, "spawnY": 1 },
+    { "x": 5, "y": 9, "leadsTo": "expedition_checkpoint", "type": "stairs_down", "spawnX": 6, "spawnY": 6 }
   ],
   "triggers": [
       {
@@ -188,6 +189,18 @@
             "flag": "spire_radiance_approach_visited",
             "scope": "player"
           }
+        ],
+        "once": true
+      },
+      {
+        "id": "cache_point_hint",
+        "event": "room_entered",
+        "conditions": [
+          { "not": { "hasFlag": "cache_point_hint_seen" } }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "cache_point_hint_seen" },
+          { "type": "showMessage", "text": "A maintenance hatch near the west corridor leads to a reinforced sublevel — an expedition cache point. Bank your valuables before pushing deeper into Array territory." }
         ],
         "once": true
       }

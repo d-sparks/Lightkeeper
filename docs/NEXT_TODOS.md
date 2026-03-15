@@ -4,6 +4,16 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 8/14 pass, 6 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; relay_recovery FIXED; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
 
+## Orphaned Room Integration Follow-ups (2026-03-15)
+
+Wired 6 orphaned rooms into quest flow. Outstanding items:
+
+- **void_frequency_log delivery**: The void_flats signal beacon gives a `void_frequency_log` item but there's no NPC turn-in trigger for it yet. Add a delivery trigger to Archivist Solen or Councillor Asha that grants XP and advances lore about structures beyond the mapped frontier.
+- **perimeter_outer_ring side quest**: Room now has exploration XP and Sgt. Fenn breadcrumb, but could benefit from a formal 1-step side quest (e.g., "Survey the Outer Ring") triggered by the Warden or Fenn.
+- **expedition_checkpoint bankLoot action**: The `bankLoot` action type may not be implemented in the engine yet. Verify `server/scripting/actions.js` handles it — if not, it's a no-op that needs engine work.
+- **homestead_interior**: Now reachable via salvage_yard main quest step, but the umbral_seed growth mechanic depends on Sable (Nightside NPC). Verify Sable's quest chain properly provides the umbral_seed item.
+- **warrens_contact quest breadcrumbs**: Asha's undercity hint fires on `arrived_meridian` + first interaction. Consider whether other NPCs (Calloway, market NPCs) should also hint at undercity activity.
+
 ## Act 2 Political Crisis — Meridian (2026-03-15)
 
 Bulwark checkpoint atmosphere added to all three Meridian hubs after `spire_vigil_cleared`. Outstanding items:

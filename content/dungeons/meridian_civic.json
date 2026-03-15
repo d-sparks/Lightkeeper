@@ -142,6 +142,23 @@
       "once": true
     },
     {
+      "id": "asha_undercity_hint",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "arrived_meridian" },
+        { "not": { "hasFlag": "asha_undercity_hint" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_undercity_hint" },
+        { "type": "showMessage", "lines": [
+          "'One more thing. There are tunnels beneath the market district — old civil maintenance warrens. My contacts say an Unbounded pathfinder has been using them as a way station.'",
+          "'The Council calls everyone beyond the Lighthouses hostile. I think that's convenient, not accurate. If you're willing to go deep, finding this pathfinder could give us a perspective the Council doesn't have.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "asha_quest_offer",
       "event": "npc_interacted",
       "filter": { "npcType": "councillor_asha" },

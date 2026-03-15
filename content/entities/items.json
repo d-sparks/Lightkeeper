@@ -699,6 +699,12 @@
     "type": "key",
     "rarity": "uncommon"
   },
+  "void_frequency_log": {
+    "name": "Void Frequency Log",
+    "description": "A data core from a pre-Collapse signal beacon found in the Void Flats. Contains centuries of recorded transmissions — outgoing pings into deep Nightside and their return echoes. The return patterns are geometrically regular, suggesting the signals bounced off artificial structures far beyond any mapped territory. Someone — or something — built infrastructure past the edge of every survey.",
+    "type": "key",
+    "rarity": "rare"
+  },
   "shadow_conduit_chip": {
     "name": "Shadow Conduit",
     "description": "A Nightside-forged circuit that channels umbral energy into raw damage. Place in a Sol Grid to boost adjacent abilities.",

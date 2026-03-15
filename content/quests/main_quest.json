@@ -30,7 +30,7 @@
       "label": "Defeat the Warlord",
       "description": "Descend to the deepest level of the quarantine wing and defeat the luddite warlord.",
       "prerequisiteSteps": ["talk_to_engineer"],
-      "objective": { "roomId": "proc_quarantine", "depth": 3, "targetMonster": "luddite_warlord" },
+      "objective": { "roomId": "proc_quarantine", "depth": 3, "targetMonster": "quarantine_warlord" },
       "completionConditions": [{ "hasItem": "supply_crate_key" }],
       "completionActions": [{ "type": "grantXp", "amount": 40 }]
     },
@@ -170,10 +170,18 @@
       "completionConditions": [{ "hasFlag": "has_yard_deed" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
     },
+    "visit_salvage_yard": {
+      "label": "Visit Your Salvage Yard",
+      "description": "Head northeast from the Civic Center to the East Terrace and inspect Lot 7 — your new salvage yard. Meet the neighbors and start building your solar infrastructure.",
+      "prerequisiteSteps": ["visit_civic_center"],
+      "objective": { "roomId": "salvage_yard", "targetNpc": "neighbor_sera" },
+      "completionConditions": [{ "hasFlag": "sera_first_meeting" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
     "visit_workshop": {
       "label": "Visit the Workshop District",
       "description": "Head west from the station to the Workshop District and meet Master Crafter Yun.",
-      "prerequisiteSteps": ["visit_civic_center"],
+      "prerequisiteSteps": ["visit_salvage_yard"],
       "objective": { "roomId": "meridian_workshop", "targetNpc": "crafter_yun" },
       "completionConditions": [{ "hasFlag": "met_crafter_yun" }],
       "completionActions": [{ "type": "grantXp", "amount": 30 }]

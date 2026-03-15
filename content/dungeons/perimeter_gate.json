@@ -392,6 +392,22 @@
       ]
     },
     {
+      "id": "fenn_outer_ring_hint",
+      "event": "npc_interacted",
+      "filter": { "npcType": "gate_sgt_fenn" },
+      "conditions": [
+        { "hasFlag": "fenn_opened_gate" },
+        { "not": { "hasFlag": "visited_outer_ring" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "'The Outer Ring beyond this gate is dangerous, but it's worth sweeping if you've got time. Old guard posts, supply caches — and one of our forward scouts left a notebook somewhere in there before the line collapsed.'",
+          "'West side leads to a relay station. Northeast passage goes to a breach in the perimeter wall. Stay sharp either way.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "gate_closes_behind",
       "event": "room_entered",
       "filter": {

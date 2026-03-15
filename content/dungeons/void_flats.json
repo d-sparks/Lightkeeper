@@ -77,6 +77,26 @@
         { "type": "grantXp", "amount": 20 }
       ],
       "once": true
+    },
+    {
+      "id": "void_signal_beacon",
+      "event": "door_interacted",
+      "filter": { "tileX": 10, "tileY": 8 },
+      "conditions": [
+        { "not": { "hasFlag": "void_beacon_activated" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "void_beacon_activated" },
+        { "type": "giveItem", "itemType": "void_frequency_log" },
+        { "type": "grantXp", "amount": 35 },
+        { "type": "showMessage", "lines": [
+          "Half-buried in the hardpan — a signal beacon, old enough to predate the Collapse. Its shell is cracked but the core still pulses with a faint, rhythmic light.",
+          "You brush the dust away and find an output port. The beacon has been recording — broadcasting into the void and logging whatever came back.",
+          "A frequency log. Centuries of signals bouncing off... something. The return patterns are too regular to be natural.",
+          "The Archivist in Meridian — or Councillor Asha — would want to see this. Something is out there, past the edge of every map."
+        ]}
+      ],
+      "once": true
     }
   ]
 }
