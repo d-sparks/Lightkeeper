@@ -229,7 +229,7 @@
           { "type": "setTile", "x": 9, "y": 11, "tileId": 1 },
           { "type": "setTile", "x": 10, "y": 11, "tileId": 2 },
           { "type": "setTile", "x": 11, "y": 11, "tileId": 1 },
-          { "type": "spawnItem", "itemType": "shadow_conduit", "x": 10, "y": 11 }
+          { "type": "spawnItem", "itemType": "shadow_conduit_chip", "x": 10, "y": 11 }
         ]
       },
       {
@@ -252,7 +252,7 @@
       {
         "id": "hover_pool_pickup",
         "event": "item_picked_up",
-        "filter": { "itemType": "shadow_conduit" },
+        "filter": { "itemType": "shadow_conduit_chip" },
         "actions": [
           {
             "type": "setFlag",

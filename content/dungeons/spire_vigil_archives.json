@@ -223,7 +223,7 @@
           { "type": "setTile", "x": 12, "y": 9, "tileId": 1 },
           { "type": "setTile", "x": 12, "y": 10, "tileId": 1 },
           { "type": "setTile", "x": 13, "y": 10, "tileId": 2 },
-          { "type": "spawnItem", "itemType": "resonance_detector", "x": 13, "y": 10 }
+          { "type": "spawnItem", "itemType": "resonance_detector_chip", "x": 13, "y": 10 }
         ]
       },
       {
@@ -246,7 +246,7 @@
       {
         "id": "hover_alcove_pickup",
         "event": "item_picked_up",
-        "filter": { "itemType": "resonance_detector" },
+        "filter": { "itemType": "resonance_detector_chip" },
         "actions": [
           {
             "type": "setFlag",

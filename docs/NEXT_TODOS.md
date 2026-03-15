@@ -2,7 +2,62 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 8/14 pass, 6 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; relay_recovery FIXED; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
+Last cleaned: 2026-03-15 (full playtest audit — mainline sim reaches ~38% rooms/48 of 124, blocks at lighthouse_mara_core conduit puzzle; all-quests: 2/21 pass (tannis_tags, relay_recovery), rest TIMEOUT; content validator: 0 errors, 59 warnings).
+
+## Full Campaign Playtest Audit (2026-03-15)
+
+### Fixes Applied This Session
+
+1. **Fixed 3 broken item references in Spire Vigil**: `umbral_amplifier` → `umbral_amplifier_chip`, `resonance_detector` → `resonance_detector_chip`, `shadow_conduit` → `shadow_conduit_chip` in `spire_vigil_aerie.json`, `spire_vigil_archives.json`, `spire_vigil_fortress.json`.
+
+2. **Improved headless sim** with tile interaction puzzle support:
+   - New `interact_with_tile` goal type for junction/conduit puzzles
+   - `findDoorThatSetsFlag` now handles `tileName` filters (not just tileX/tileY)
+   - Recursive prerequisite chain resolution for multi-step puzzles (e.g., conduit A → conduit B → hatch)
+   - Pathfinding fix: self-toggling tiles (`togglesTo === tileId`) treated as permanently solid
+   - `doInteractWithTile` retries when item pickup steals the interaction
+   - Door flag resolution tries tile interactions before falling back to NPCs
+
+### CRITICAL — Lighthouse Mara Pacing
+
+Lighthouse Mara is 19 consecutive floors with ZERO intermediate quest steps, no NPC presence, and insufficient healing. This is the biggest pacing problem in the campaign.
+
+- [ ] **Split `restore_lighthouse_core` into 2-3 quest steps** — add intermediate objective at ~f10 ("Reach the Deep Tower") so the player gets narrative checkpoints
+- [ ] **Add healing items to mid-tower floors** — f05, f10, f15 need field_medkit/bandage spawns; current healing is insufficient for continuous cold damage + monsters across 19 floors
+- [ ] **Add ambient narrative triggers** to floors f05, f10, f14 — messages about deepening fractures, rhythmic pulses, geological survey readings to sustain interest
+- [ ] **Add descent warning trigger on f02 entry** — set expectation about the scale ("This will be a long climb back out")
+- [ ] **Add Keeper Mara presence** via message trigger on f10/f14 (not full NPC spawn, just environmental voice)
+
+### HIGH — Balance Issues
+
+- [ ] **Quarantine Warlord vs starting weapon**: Standard Blaster (3 dmg) vs 200 HP boss is a war of attrition. Ensure weapon upgrade drops in quarantine OR require weapon upgrade before warlord quest step.
+- [ ] **Lighthouse cold damage resource drain**: 2-4 dmg/1.5-3s is tedious, not threatening. Floors 2-10 are visually and mechanically identical — needs variety.
+- [ ] **relay_station Nest Mother**: 300 HP boss with stun + ground slam combo in a confined corridor. 4 Dusk Crawlers (speed 2.2) rush simultaneously. Consider reducing crawler count to 2 or increasing stun cooldown.
+
+### HIGH — Quest Connectivity
+
+- [ ] **`spire_vigil.json` format inconsistency**: Uses old array-based step format instead of object-based. May cause quest tracker parser issues. Convert to standard format.
+- [ ] **Greenway → Spire of Winds exit has no flag gate**: `greenway_supply_depot` exit to `spire_winds_approach` at (22,11) has no conditions. Player can skip supply sabotage quest. Add `{ "hasFlag": "supply_sabotage_complete" }`.
+- [ ] **`spire_winds_cleared` flag never checked**: Player can skip Spire of Winds core and still progress to Act 3. Consider gating Dayside entry on this flag.
+
+### MODERATE — Sim Improvements Needed
+
+- [ ] **Sim can't solve lighthouse_mara_core conduit puzzle reliably** — the bot interacts with conduit A but `tryInteract` sometimes picks up ground items instead. The retry mechanism helps but isn't consistent. Need either: (a) targeted tile interact in game-loop.js, or (b) bot clears items before puzzle.
+- [ ] **Sim `into_the_expanse` stuck** — outer_expanse (200x120 map) is too large for A* pathfinding. Need pathfinding chunk optimization or waypoint-based navigation for large maps.
+- [ ] **Sim `lighthouse_mara` side quest stuck** — A* failure from (21,12) in caverns room. Likely pathing issue near solid tiles.
+- [ ] **Sim doesn't handle `showChoice` actions** — ending path choice (Asha's three-path choice in meridian_civic) requires player input the bot can't provide. Need bot choice-selection logic for quest resolution.
+
+### MODERATE — Narrative Gaps
+
+- [ ] **No NPC guidance for 19-floor Mara descent** — Keeper Mara dialogue doesn't mention tower structure or depth. Quest description says "Descend through the lighthouse ruins" (vague).
+- [ ] **Lighthouse Mara floors 2-10 are functionally identical** — same frost_crypt tileset, same cold damage, same monster types. No narrative variation.
+- [ ] **Missing waypoint in Lighthouse Mara** — no waypoint beacon between caverns entry and core. 19-floor death means restarting from outpost or station_junction.
+
+### LOW — Orphaned Content
+
+- [ ] 56 flags set but never checked (per flag audit) — mostly `visited_*` tracking flags. These are harmless but indicate planned features that never materialized. Consider using them for: achievement tracking, NPC dialogue variations, or room-revisit triggers.
+- [ ] 2 intentional one-way exits (merge_nexus → array_deep_processing, underlumen_threshold → train_station) — document as intentional in dungeon comments.
+- [ ] Spire replay gating unclear — `spire_*_hard_cleared` / `spire_*_legendary_cleared` flags are set but unclear if replays require first-clear.
 
 ## MERIDIAN-7 Array Alliance — Act 2 Content (2026-03-15)
 

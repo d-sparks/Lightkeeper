@@ -81,7 +81,7 @@
       "actions": [
         {
           "type": "giveItem",
-          "itemType": "umbral_amplifier"
+          "itemType": "umbral_amplifier_chip"
         },
         {
           "type": "grantXp",
