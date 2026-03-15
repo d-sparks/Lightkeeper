@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-15 (full playtest audit — mainline sim reaches ~37% rooms/46 of 124, blocks at lighthouse_mara_core boss fight; all-quests: 2/21 pass (tannis_tags, relay_recovery), rest TIMEOUT; content validator: 0 errors, 59 warnings).
+Last cleaned: 2026-03-15 (full playtest audit — mainline sim reaches ~37% rooms/46 of 124, blocks at lighthouse_mara_core boss fight; all-quests: 2/21 pass (tannis_tags, relay_recovery), rest TIMEOUT; content validator: 0 errors, 3 warnings).
 
 ## Full Campaign Playtest Audit (2026-03-15)
 
@@ -61,9 +61,9 @@ Split into narrative segments with intermediate quest objectives, healing caches
 
 ### LOW — Orphaned Content
 
-- [ ] 56 flags set but never checked (per flag audit) — mostly `visited_*` tracking flags. These are harmless but indicate planned features that never materialized. Consider using them for: achievement tracking, NPC dialogue variations, or room-revisit triggers.
+- [x] 54 orphaned flags wired to NPC reactions (2026-03-15): narrative flags → Warden Holt/Old Keeper/Asha/Solen/Sable/Sol Engineer dialogue; spire tier flags → Holt congratulations + title grants; visited_* flags → grouped milestone dialogue across 6 NPCs; misc flags → minor NPC reactions. Remaining: 1 engine flag (`expedition_party`) not appropriate for NPC dialogue.
 - [ ] 2 intentional one-way exits (merge_nexus → array_deep_processing, underlumen_threshold → train_station) — document as intentional in dungeon comments.
-- [ ] Spire replay gating unclear — `spire_*_hard_cleared` / `spire_*_legendary_cleared` flags are set but unclear if replays require first-clear.
+- [x] Spire replay tier flags wired — `spire_*_hard_cleared` / `spire_*_legendary_cleared` now trigger Warden Holt congratulation dialogue with title grants (Vigil Breaker, Radiance Walker, Windwalker).
 
 ## MERIDIAN-7 Array Alliance — Act 2 Content (2026-03-15)
 
@@ -85,17 +85,17 @@ Added beam reflection puzzle to Radiance Observatory and wind resonance sequence
 - **Spire of Vigil unchanged**: Vigil still uses the standard pedestal patterns (armory dual pedestal, resonance chamber sequential). Could add a third distinct mechanic here in a future pass.
 - **Crucible puzzle unchanged**: The Radiance Crucible (depth 11) still uses a 3-pedestal activate-all pattern. Could convert to use beam mechanics for consistency with the Observatory.
 
-## Remaining Unchecked Flags (2026-03-15)
+## Remaining Unchecked Flags (2026-03-15) — RESOLVED
 
-53 validator flag warnings remain. The most interesting candidates for future NPC reactions:
+All 54 content-side orphaned flags have been wired to NPC reactions. Only `expedition_party` (engine-set) remains unchecked.
 
-- **visited_lighthouse_mara_f02–f19** (18 flags): Lighthouse Mara floor visit flags. Could wire to Warden Holt or Old Keeper for progressive acknowledgment as the player climbs ("You've made it to floor X").
-- **seen_mara_breach / seen_mara_fractures**: Mara structural damage flags. Could trigger Warden Holt or engineer NPC reactions about lighthouse stability.
-- **resonance_complete**: Vigil Resonance Chamber puzzle completion. Good candidate for Archivist Solen reaction.
-- **visited_spire_***: Individual Spire room visited flags (archives, armory, garrison, etc.). Could aggregate into a "thorough Spire explorer" dialogue.
-- **found_geometric_tablet / found_raider_manifest / found_raider_journal**: Nightside discovery flags. Good candidates for Old Keeper or Sable reactions.
-- **aerie_lore_found**: Vigil Aerie lore discovery. Another Archivist Solen candidate.
-- **underlumen_emergence_defeated**: Lighthouse Mara F19 boss kill. Strong candidate for Warden Holt or Asha reaction.
+Flags wired by NPC:
+- **Warden Holt**: underlumen_emergence_defeated, seen_mara_breach, seen_mara_fractures, found_raider_journal, found_raider_manifest, crypt_hint_from_scout, has_mara_power_cell, spire tier completions (6 flags), spire core reached (3 flags), spire vigil military visited (4 flags)
+- **Old Keeper**: found_geometric_tablet, aerie_lore_found, resonance_complete, visited_frost_crypt, mara mid-floors (f06-f09), spire vigil explorer (aerie/watchtower/descent/core), archives_alcove_looted, fortress_pool_looted
+- **Archivist Solen**: resonance_complete, found_geometric_tablet, has_spire_data, aerie_lore_found, spire vigil scholarly (archives/resonance/underlumen)
+- **Councillor Asha**: underlumen_emergence_defeated, seen_mara_breach, has_spire_data, mara upper floors (f11-f14), spire_radiance_approach_visited
+- **Sol Engineer**: has_mara_power_cell, seen_mara_fractures, seen_mara_breach, mara lower floors (f02-f05)
+- **Sable (meridian)**: underlumen_emergence_defeated, seen_mara_breach, seen_mara_fractures, found_raider_journal, mara deep floors (f16-f19), ren_warned_creatures, deep_depot_looted
 
 ## Orphaned Room Integration Follow-ups (2026-03-15)
 
@@ -351,7 +351,7 @@ Remaining follow-ups:
 - **Post-Voss quest integration** — The `spire_vigil_data_core` item needs a turn-in step at Warden Holt / Councillor Asha Denn. Connect to main_quest progression.
 - **Raider guard dialogue NPCs** — Add NPC raider sentries in approach/fortress floors with conditional dialogue (threats before captain killed, fear/retreat after).
 - **Underlumen puzzle variety** — Current puzzles are activate-all-pedestals. Consider adding timed sequences, mirror/beam-reflection puzzles, and enemy wave defense puzzles for replay variants.
-- **Frost crypt connection to Sable** — Add dialogue rules to sable_nightside_guide/sable_companion reacting to `found_geometric_tablet` and `visited_frost_crypt` flags.
+- [x] **Frost crypt connection to Sable** — `found_geometric_tablet` wired to Old Keeper + Archivist Solen; `visited_frost_crypt` wired to Old Keeper. Sable already has `has_geometric_tablet` dialogue in nightside_guide variant.
 - **Garrison warlord vs. existing warlord** — spire_vigil_garrison uses `luddite_warlord` monster type. Verify HP/damage are appropriate for a mid-Spire mini-boss (currently same as the general luddite_warlord used elsewhere).
 - **Room-entry dialogue suppression** — nightside_outpost, nightside_frost_crypt, and spire_vigil_garrison all have room_entered + showMessage + monsterSpawns. Need `noHostilesInRoom` condition + `room_cleared` paired triggers (see Room-Entry Dialogue Suppression section).
 

@@ -273,9 +273,201 @@
           "speaker": "Old Keeper",
           "text": "Keep that log. If you ever reach anyone with authority who isn't afraid of the truth — show them. Show them we've known for thirty years and said nothing."
         }
+      ],
+      "found_geometric_tablet_response": [
+        {
+          "speaker": "Old Keeper",
+          "text": "A geometric tablet? From the Nightside frost crypt?"
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "I've seen markings like these before — on the Underlumen Etching, in Unbounded cave paintings. The same precise geometry, repeated everywhere this planet's oldest structures are found."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "Whoever carved this understood the network beneath us. Not as myth — as engineering."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "Show this to Archivist Solen in Meridian. He's been collecting pieces of this puzzle longer than anyone."
+        }
+      ],
+      "post_aerie_lore": [
+        {
+          "speaker": "Old Keeper",
+          "text": "You found records in the Spire of Vigil's aerie? The watchtower level — where the vigil-keepers maintained their observation posts."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "The aeries were the eyes of the old network. Each one tracked Underlumen resonance across a sector of the dark side."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "If the data you found matches the patterns in the frost crypt... then the vigil-keepers knew what was down there. They were watching it. Measuring it."
+        }
+      ],
+      "post_resonance_complete": [
+        {
+          "speaker": "Old Keeper",
+          "text": "You completed the Resonance Chamber sequence? In the Spire of Vigil?"
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "That chamber was sealed when the vigil-keepers abandoned the Spire. The resonance frequencies it contains — they're the same patterns I've felt in the deep crypts. The same hum in the crystal formations."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "You've activated something that's been dormant for centuries. I don't know what that means yet. But I suspect we'll find out."
+        }
+      ],
+      "post_frost_crypt": [
+        {
+          "speaker": "Old Keeper",
+          "text": "The frost crypt in the deep Nightside. You went there?"
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "That place is old. Older than the outpost, older than the Ring settlements. The ice preserved things down there that should have crumbled to dust centuries ago."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "If you found anything intact, guard it carefully. The cold kept it alive — the warmth of civilization won't be as kind."
+        }
+      ],
+      "mara_mid_explored": [
+        {
+          "speaker": "Old Keeper",
+          "text": "You've pushed into the middle levels of Lighthouse Mara. Not many go that deep and come back to talk about it."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "The mid-tower is where the original builders did their most interesting work. Resonance conduits, crystal arrays, observation chambers — all designed to interact with something beneath the foundation."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "Keep going. Whatever's happening to that lighthouse, the answers are deeper still."
+        }
+      ],
+      "spire_vigil_explorer": [
+        {
+          "speaker": "Old Keeper",
+          "text": "The watchtower, the aerie, the descent into the core — you've seen more of the Spire of Vigil than anyone in living memory."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "The vigil-keepers built those observation posts to watch the Underlumen from every angle. Above, below, and from the heart of the structure itself."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "You're walking in the footsteps of people who understood this planet better than we do. Learn from what they left behind."
+        }
+      ],
+      "spire_thorough_scavenger": [
+        {
+          "speaker": "Old Keeper",
+          "text": "You've been thorough in the Spire of Vigil. The hidden alcoves, the sealed pools — you found caches that the vigil-keepers themselves probably forgot about."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "A good Lightkeeper misses nothing. That instinct will serve you well in the deeper places."
+        }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [
+          {
+            "hasFlag": "resonance_complete"
+          }
+        ],
+        "use": "post_resonance_complete"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "found_geometric_tablet"
+          }
+        ],
+        "use": "found_geometric_tablet_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "aerie_lore_found"
+          }
+        ],
+        "use": "post_aerie_lore"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "visited_frost_crypt"
+          },
+          {
+            "not": {
+              "hasFlag": "found_geometric_tablet"
+            }
+          }
+        ],
+        "use": "post_frost_crypt"
+      },
+      {
+        "conditions": [
+          {
+            "or": [
+              {
+                "hasFlag": "visited_lighthouse_mara_f06"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f07"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f08"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f09"
+              }
+            ]
+          }
+        ],
+        "use": "mara_mid_explored"
+      },
+      {
+        "conditions": [
+          {
+            "or": [
+              {
+                "hasFlag": "visited_spire_aerie"
+              },
+              {
+                "hasFlag": "visited_spire_watchtower"
+              },
+              {
+                "hasFlag": "visited_spire_descent"
+              },
+              {
+                "hasFlag": "visited_spire_core"
+              }
+            ]
+          }
+        ],
+        "use": "spire_vigil_explorer"
+      },
+      {
+        "conditions": [
+          {
+            "or": [
+              {
+                "hasFlag": "archives_alcove_looted"
+              },
+              {
+                "hasFlag": "fortress_pool_looted"
+              }
+            ]
+          }
+        ],
+        "use": "spire_thorough_scavenger"
+      },
       {
         "conditions": [
           {
@@ -823,6 +1015,208 @@
           "speaker": "Warden Holt",
           "text": "I'll pass this along to Meridian Command. Quietly. The Council doesn't need another reason to argue."
         }
+      ],
+      "post_emergence_defeated": [
+        {
+          "speaker": "Warden Holt",
+          "text": "You fought something in the depths of Lighthouse Mara. My sensor crew picked up the seismic spike from here — magnitude off the charts, then silence."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "An Underlumen Emergence. We'd heard reports from the deep survey teams, but nobody had ever confirmed one. Until you."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Whatever was pushing creatures toward the perimeter — I think you just cut the head off it. Incursion reports have dropped forty percent since that signal went quiet."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "I'm filing your report as classified. The Council doesn't need to panic about what's living underneath the lighthouse network. Not yet."
+        }
+      ],
+      "post_mara_breach_seen": [
+        {
+          "speaker": "Warden Holt",
+          "text": "You saw structural breaches inside Lighthouse Mara? How bad?"
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "If the containment walls are failing at the sub-basement level, that's not wear and tear. Something is pushing through from underneath."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "I'm pulling the maintenance teams back until we know more. No sense losing people to a collapsing structure."
+        }
+      ],
+      "post_mara_fractures_seen": [
+        {
+          "speaker": "Warden Holt",
+          "text": "Fracture lines inside the lighthouse? That's not good."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Mara was built to last centuries. If the walls are cracking, the stress is coming from somewhere we didn't plan for."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Watch your footing in there. And report anything else you see — I need to know how fast it's getting worse."
+        }
+      ],
+      "post_raider_journal": [
+        {
+          "speaker": "Warden Holt",
+          "text": "A raider journal from a Nightside outpost? Let me see that."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Supply movements, patrol schedules, morale notes... this is operational intelligence. These aren't random scavengers — they're organized."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "I'll pass this to our scouts. Anything that helps us predict their movements is worth its weight in sol batteries."
+        }
+      ],
+      "post_raider_manifest": [
+        {
+          "speaker": "Warden Holt",
+          "text": "A supply manifest from a raider outpost? That's useful."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "They're stockpiling more than survival gear — weapons components, signal jammers, thermal shielding. Someone is equipping them."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "This changes our threat assessment. I'll brief the perimeter teams."
+        }
+      ],
+      "post_scout_crypt_hint": [
+        {
+          "speaker": "Warden Holt",
+          "text": "You helped that wounded scout near the Nightside outpost? Good. We lost contact with their patrol weeks ago."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "If they pointed you toward the frost crypt, listen carefully — that area has been sealed on our maps for years. Not because it's empty."
+        }
+      ],
+      "post_mara_power_cell": [
+        {
+          "speaker": "Warden Holt",
+          "text": "A power cell from inside Lighthouse Mara? Those are hardened sol-crystalline units — military grade, pre-settlement design."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "The lighthouse network runs on technology we barely understand. That cell could power this entire outpost for a month."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Hold onto it. You'll need every advantage you can get in there."
+        }
+      ],
+      "spire_vigil_legendary_response": [
+        {
+          "speaker": "Warden Holt",
+          "text": "Legendary clearance of the Spire of Vigil. Command has taken notice — that's the highest difficulty rating we have."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "I'm authorizing a field commendation. You've earned the title 'Vigil Breaker.' Wear it well."
+        }
+      ],
+      "spire_vigil_hard_response": [
+        {
+          "speaker": "Warden Holt",
+          "text": "You cleared the Spire of Vigil on hard difficulty? That garrison was no joke even at standard threat levels."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Impressive work, Lightkeeper. Command will want a debrief."
+        }
+      ],
+      "spire_radiance_legendary_response": [
+        {
+          "speaker": "Warden Holt",
+          "text": "The Spire of Radiance, legendary difficulty. Nobody on record has done that before."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "I'm authorizing the title 'Radiance Walker.' The Council will hear about this."
+        }
+      ],
+      "spire_radiance_hard_response": [
+        {
+          "speaker": "Warden Holt",
+          "text": "Hard clearance of the Spire of Radiance. The thermal anomalies alone should have stopped you."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Well done. You're pushing the boundaries of what we thought was possible out there."
+        }
+      ],
+      "spire_winds_legendary_response": [
+        {
+          "speaker": "Warden Holt",
+          "text": "Legendary clearance of the Spire of Winds. Even Thorne's best soldiers couldn't manage that."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "I'm authorizing the title 'Windwalker.' That's a name that will open doors in Meridian."
+        }
+      ],
+      "spire_winds_hard_response": [
+        {
+          "speaker": "Warden Holt",
+          "text": "The Spire of Winds, hard difficulty. Those wind corridors are death traps at standard level."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "You've proven yourself beyond any doubt. Meridian Command will hear about this."
+        }
+      ],
+      "spire_vigil_core_response": [
+        {
+          "speaker": "Warden Holt",
+          "text": "You reached the core of the Spire of Vigil? That's deeper than any survey team has gone."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Whatever you found at the center — document everything. Those Spires are older than anything we've built."
+        }
+      ],
+      "spire_radiance_core_response": [
+        {
+          "speaker": "Warden Holt",
+          "text": "The Spire of Radiance core. Our thermal surveys showed impossible energy readings from that depth."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "If you've seen what's generating those readings firsthand... I need that report."
+        }
+      ],
+      "spire_winds_core_response": [
+        {
+          "speaker": "Warden Holt",
+          "text": "You made it to the Spire of Winds core? Through those pressure differentials?"
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "The Compact had that Spire locked down for years. Now we know why — whatever's at the center was worth guarding."
+        }
+      ],
+      "spire_vigil_military": [
+        {
+          "speaker": "Warden Holt",
+          "text": "You've been through the Spire of Vigil's military sections. Garrison, barracks, fortress — the full defensive infrastructure."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "That Spire was a fortress as much as a watchtower. The vigil-keepers expected to defend it against something. The question is what."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Your reconnaissance is invaluable. I'm updating our tactical assessments."
+        }
       ]
     },
     "dialogueRules": [
@@ -849,6 +1243,204 @@
           }
         ],
         "use": "post_control"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "underlumen_emergence_defeated"
+          },
+          {
+            "hasFlag": "lighthouse_mara_restored"
+          }
+        ],
+        "use": "post_emergence_defeated"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "seen_mara_breach"
+          },
+          {
+            "not": {
+              "hasFlag": "lighthouse_mara_restored"
+            }
+          }
+        ],
+        "use": "post_mara_breach_seen"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "seen_mara_fractures"
+          },
+          {
+            "not": {
+              "hasFlag": "seen_mara_breach"
+            }
+          }
+        ],
+        "use": "post_mara_fractures_seen"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "found_raider_journal"
+          },
+          {
+            "hasFlag": "arrived_meridian"
+          }
+        ],
+        "use": "post_raider_journal"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "found_raider_manifest"
+          },
+          {
+            "hasFlag": "arrived_meridian"
+          }
+        ],
+        "use": "post_raider_manifest"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "crypt_hint_from_scout"
+          }
+        ],
+        "use": "post_scout_crypt_hint"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "has_mara_power_cell"
+          },
+          {
+            "not": {
+              "hasFlag": "lighthouse_mara_restored"
+            }
+          }
+        ],
+        "use": "post_mara_power_cell"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "arrived_meridian"
+          },
+          {
+            "or": [
+              {
+                "hasFlag": "visited_spire_garrison"
+              },
+              {
+                "hasFlag": "visited_spire_barracks"
+              },
+              {
+                "hasFlag": "visited_spire_fortress"
+              },
+              {
+                "hasFlag": "visited_spire_armory"
+              }
+            ]
+          }
+        ],
+        "use": "spire_vigil_military"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_vigil_legendary_cleared"
+          }
+        ],
+        "use": "spire_vigil_legendary_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_vigil_hard_cleared"
+          }
+        ],
+        "use": "spire_vigil_hard_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_vigil_core_reached"
+          },
+          {
+            "not": {
+              "hasFlag": "spire_vigil_hard_cleared"
+            }
+          }
+        ],
+        "use": "spire_vigil_core_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_radiance_legendary_cleared"
+          }
+        ],
+        "use": "spire_radiance_legendary_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_radiance_hard_cleared"
+          }
+        ],
+        "use": "spire_radiance_hard_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_radiance_core_reached"
+          },
+          {
+            "not": {
+              "hasFlag": "spire_radiance_hard_cleared"
+            }
+          }
+        ],
+        "use": "spire_radiance_core_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_winds_legendary_cleared"
+          }
+        ],
+        "use": "spire_winds_legendary_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_winds_hard_cleared"
+          }
+        ],
+        "use": "spire_winds_hard_response"
+      },
+      {
+        "conditions": [
+          {
+            "or": [
+              {
+                "hasFlag": "spire_winds_core_reached"
+              },
+              {
+                "hasFlag": "visited_spire_winds_core"
+              }
+            ]
+          },
+          {
+            "not": {
+              "hasFlag": "spire_winds_hard_cleared"
+            }
+          }
+        ],
+        "use": "spire_winds_core_response"
       },
       {
         "conditions": [
@@ -3867,9 +4459,122 @@
           "speaker": "Apprentice Sol Engineer",
           "text": "The stairwells are along the lower corridor in the basement. Look for the signs."
         }
+      ],
+      "post_mara_power_cell": [
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "Is that a lighthouse power cell? Let me see — sol-crystalline matrix, pre-settlement fabrication... this is beautiful engineering."
+        },
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "The energy density in this cell is three times what we can produce today. Whoever built the lighthouse network had manufacturing capabilities we've lost."
+        },
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "I can't replicate it, but I can study it. If you find more of these, bring them to me."
+        }
+      ],
+      "post_mara_fractures": [
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "Fracture lines in the lighthouse walls? That shouldn't be possible — those structures were built to withstand tectonic stress."
+        },
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "Unless the stress isn't geological. If something is pushing against the foundation from underneath... the containment architecture wasn't designed for internal pressure."
+        },
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "Be careful in there. If the structural integrity is compromised, the whole section could shift without warning."
+        }
+      ],
+      "post_mara_breach": [
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "Structural breaches? In the deep levels?"
+        },
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "The sub-basement was designed as the lighthouse's anchor point. If that's compromised, the entire superstructure is at risk."
+        },
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "I need to review the schematics. If the breach pattern matches the thermal conduit network underneath... the lighthouse might have been built directly on top of something."
+        }
+      ],
+      "mara_lower_explored": [
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "You've been into the lower levels of Lighthouse Mara? What's the state of the power distribution system?"
+        },
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "Those early floors house the primary conduit arrays. If they're still functioning, there's hope for the rest of the structure."
+        },
+        {
+          "speaker": "Apprentice Sol Engineer",
+          "text": "Report anything unusual — power fluctuations, temperature spikes, crystal growth in the walls. It all matters."
+        }
       ]
     },
     "dialogueRules": [
+      {
+        "conditions": [
+          {
+            "hasFlag": "met_engineer"
+          },
+          {
+            "hasFlag": "seen_mara_breach"
+          }
+        ],
+        "use": "post_mara_breach"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "met_engineer"
+          },
+          {
+            "hasFlag": "seen_mara_fractures"
+          }
+        ],
+        "use": "post_mara_fractures"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "met_engineer"
+          },
+          {
+            "hasFlag": "has_mara_power_cell"
+          }
+        ],
+        "use": "post_mara_power_cell"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "met_engineer"
+          },
+          {
+            "or": [
+              {
+                "hasFlag": "visited_lighthouse_mara_f02"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f03"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f04"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f05"
+              }
+            ]
+          }
+        ],
+        "use": "mara_lower_explored"
+      },
       {
         "conditions": [
           {
@@ -5970,6 +6675,80 @@
           "speaker": "Councillor Asha Denn",
           "text": "'Hold this close for now. I need time to verify the chain of evidence before I bring it to the full Council. But thank you, Lightkeeper. Some truths are worth the cost of finding them.'"
         }
+      ],
+      "post_emergence_defeated": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "An Underlumen Emergence — a living manifestation of the planetary network — and you defeated it?"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "My team detected the seismic event from Meridian. The readings were unlike anything in our geological databases. Biological in origin, massive in scale."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "This confirms our worst hypothesis and our best hope simultaneously. The Underlumen is active, it can manifest physically, and it can be confronted."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "The Council needs to know. But carefully — half of them will want to weaponize this information, and the other half will want to bury it."
+        }
+      ],
+      "post_mara_breach": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Structural breaches inside Lighthouse Mara? At the deep levels?"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "The lighthouses aren't just beacons — they're part of the containment grid. If one is structurally compromised, the suppression field weakens."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "I need to brief the Cultivar Corps on contingency planning. If the grid fails, the biological changes we've been tracking will accelerate."
+        }
+      ],
+      "post_spire_data_received": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "You recovered a data core from the Spire of Vigil? The actual operational records?"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Thorne's people had soldiers stationed at every Spire for years. They never shared the data — 'strategic asset classification,' they called it."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "This changes the information asymmetry entirely. With vigil-keeper records, we can finally understand what the containment grid was built to do — and whether we should be maintaining it or dismantling it."
+        }
+      ],
+      "mara_upper_explored": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "You've reached the upper tower of Lighthouse Mara? My research team has been trying to get sensor data from those levels for months."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "The biological readings from that depth are extraordinary — organisms adapted to the lighthouse's energy field, living inside the walls themselves."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Whatever the lighthouse is doing to the local ecosystem, it's most pronounced at those upper levels. The containment field is strongest there."
+        }
+      ],
+      "spire_radiance_approach_noted": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "You've reached the approach to the Spire of Radiance? The thermal readings from that area are extraordinary."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "The Cultivar Corps has been monitoring biological activity near the Spire for months. The closer you get to the core, the more the local ecosystem adapts — accelerated evolution in real time."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Be careful. The Spire of Radiance earned its name."
+        }
       ]
     },
     "dialogueRules": [
@@ -5996,6 +6775,79 @@
           }
         ],
         "use": "post_control"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "underlumen_emergence_defeated"
+          },
+          {
+            "hasFlag": "arrived_meridian"
+          }
+        ],
+        "use": "post_emergence_defeated"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "seen_mara_breach"
+          },
+          {
+            "hasFlag": "arrived_meridian"
+          }
+        ],
+        "use": "post_mara_breach"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "has_spire_data"
+          },
+          {
+            "hasFlag": "arrived_meridian"
+          },
+          {
+            "not": {
+              "hasFlag": "array_secret_discovered"
+            }
+          }
+        ],
+        "use": "post_spire_data_received"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "arrived_meridian"
+          },
+          {
+            "or": [
+              {
+                "hasFlag": "visited_lighthouse_mara_f11"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f12"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f13"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f14"
+              }
+            ]
+          }
+        ],
+        "use": "mara_upper_explored"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_radiance_approach_visited"
+          },
+          {
+            "hasFlag": "arrived_meridian"
+          }
+        ],
+        "use": "spire_radiance_approach_noted"
       },
       {
         "conditions": [
@@ -7047,6 +7899,88 @@
           "speaker": "Archivist Solen",
           "text": "I need to cross-reference this with the Delta-7 thermal data. If the Resonance Chamber readings align with the conduit network... we may finally understand what the Underlumen actually is. Keep exploring those Spires, Lightkeeper."
         }
+      ],
+      "post_resonance_complete": [
+        {
+          "speaker": "Archivist Solen",
+          "text": "The Resonance Chamber — you activated the full sequence? Do you understand what you've done?"
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "That chamber was designed to harmonize with the Underlumen's natural frequency. Completing the sequence means the Spire is resonating again — for the first time since the vigil-keepers sealed it."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "The data this generates... I need to cross-reference it with every survey marker in our archives. If the chamber's output matches the thermal conduit network, we'll have a complete map of the Underlumen's nervous system."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "This is the breakthrough I've been waiting for. Keep exploring those Spires, Lightkeeper."
+        }
+      ],
+      "post_geometric_tablet": [
+        {
+          "speaker": "Archivist Solen",
+          "text": "A geometric tablet from the Nightside frost crypt? May I examine it?"
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "These markings... they're consistent with the Underlumen Etching patterns, but the notation is different. More structured. This isn't art — it's a technical diagram."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "If I'm reading this correctly, it shows junction points in the subsurface network. Places where the thermal conduits converge. The builders of this tablet mapped the Underlumen's architecture."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "This is invaluable. Combined with the Delta-7 survey data, I can triangulate the major convergence points. The Underlumen isn't random — it has a topology."
+        }
+      ],
+      "post_spire_data": [
+        {
+          "speaker": "Archivist Solen",
+          "text": "You recovered a data core from the Spire of Vigil's sanctum? A primary source from the vigil-keepers themselves?"
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "This is exactly what I've been looking for. The vigil-keepers documented everything — resonance readings, Underlumen activity patterns, containment protocols."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "With this data and the survey markers, I can finally build a complete picture of what the old network was designed to do. Not just observe — contain. And possibly communicate."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "You've advanced my research by years, Lightkeeper. Years."
+        }
+      ],
+      "post_aerie_lore": [
+        {
+          "speaker": "Archivist Solen",
+          "text": "The Spire aerie records — observational data from the vigil-keepers' highest vantage point."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "Their thermal tracking methodologies were surprisingly sophisticated. They could detect Underlumen resonance shifts from kilometers away using nothing but crystal-tuned instruments."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "This complements the archival records beautifully. The aerie watched from above while the resonance chambers listened from below. A complete surveillance system."
+        }
+      ],
+      "spire_vigil_scholarly": [
+        {
+          "speaker": "Archivist Solen",
+          "text": "You've explored the scholarly sections of the Spire of Vigil — the archives, the resonance chamber, the underlumen observation post."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "Those areas were the vigil-keepers' research facilities. Everything they learned about the Underlumen was documented there."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "If any of those records survived, they could rewrite our understanding of this planet's history."
+        }
       ]
     },
     "dialogueRules": [
@@ -7060,6 +7994,62 @@
           }
         ],
         "use": "has_resonance_fragment"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "resonance_complete"
+          },
+          {
+            "hasFlag": "solen_quest_complete"
+          }
+        ],
+        "use": "post_resonance_complete"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "has_spire_data"
+          },
+          {
+            "hasFlag": "solen_quest_complete"
+          }
+        ],
+        "use": "post_spire_data"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "found_geometric_tablet"
+          }
+        ],
+        "use": "post_geometric_tablet"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "aerie_lore_found"
+          }
+        ],
+        "use": "post_aerie_lore"
+      },
+      {
+        "conditions": [
+          {
+            "or": [
+              {
+                "hasFlag": "visited_spire_archives"
+              },
+              {
+                "hasFlag": "visited_spire_resonance_chamber"
+              },
+              {
+                "hasFlag": "visited_spire_underlumen"
+              }
+            ]
+          }
+        ],
+        "use": "spire_vigil_scholarly"
       },
       {
         "conditions": [
@@ -8193,6 +9183,80 @@
           "speaker": "Sable",
           "text": "We'll talk when the time is right."
         }
+      ],
+      "post_emergence_defeated": [
+        {
+          "speaker": "Sable",
+          "text": "You fought an Emergence? A physical manifestation of the Underlumen?"
+        },
+        {
+          "speaker": "Sable",
+          "text": "My grandmother spoke of them. The planet defending itself — sending something up from the deep network when the surface threat becomes unbearable."
+        },
+        {
+          "speaker": "Sable",
+          "text": "That it manifested inside a lighthouse means the containment grid is failing. Or... the Underlumen has decided the lighthouses are the threat."
+        },
+        {
+          "speaker": "Sable",
+          "text": "Whatever you felt down there — the presence, the awareness — that wasn't a creature. That was the planet looking at you."
+        }
+      ],
+      "post_mara_fractures": [
+        {
+          "speaker": "Sable",
+          "text": "Fractures inside the lighthouse? The Unbounded have a word for that — the planet remembering what was there before the lighthouse was built."
+        },
+        {
+          "speaker": "Sable",
+          "text": "The containment grid presses down. The Underlumen pushes back. Eventually, something gives."
+        },
+        {
+          "speaker": "Sable",
+          "text": "The question is whether you want to fix the cracks... or listen to what's coming through them."
+        }
+      ],
+      "post_mara_breach": [
+        {
+          "speaker": "Sable",
+          "text": "A breach in the deep levels of Mara? Then it's happening faster than my grandmother predicted."
+        },
+        {
+          "speaker": "Sable",
+          "text": "The lighthouses were built to suppress the Underlumen. But suppression isn't the same as peace. The longer you hold something down, the harder it pushes back."
+        },
+        {
+          "speaker": "Sable",
+          "text": "Be careful, Lightkeeper. What's coming through those breaches isn't hostile. It's desperate."
+        }
+      ],
+      "post_raider_journal": [
+        {
+          "speaker": "Sable",
+          "text": "A raider journal? Let me see... these aren't the raiders you think they are."
+        },
+        {
+          "speaker": "Sable",
+          "text": "Some of them are Unbounded who lost their way. Pushed out of the caves by Underlumen activity, no welcome in the Ring settlements. They became what necessity demanded."
+        },
+        {
+          "speaker": "Sable",
+          "text": "It doesn't excuse what they've done. But understanding why people break tells you something about the world that broke them."
+        }
+      ],
+      "mara_deep_explored": [
+        {
+          "speaker": "Sable",
+          "text": "The deep levels of Lighthouse Mara... you've been closer to the Underlumen than almost anyone alive."
+        },
+        {
+          "speaker": "Sable",
+          "text": "My grandmother said the lighthouses were built at convergence points — where the planet's nervous system comes closest to the surface."
+        },
+        {
+          "speaker": "Sable",
+          "text": "What you felt down there — the humming, the awareness — that's the Underlumen responding to you. Not as a threat. As a question."
+        }
       ]
     },
     "dialogueRules": [
@@ -8400,6 +9464,74 @@
           }
         ],
         "use": "act3_sable_low_trust"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "underlumen_emergence_defeated"
+          },
+          {
+            "hasFlag": "helped_sable"
+          }
+        ],
+        "use": "post_emergence_defeated"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "seen_mara_breach"
+          },
+          {
+            "hasFlag": "helped_sable"
+          }
+        ],
+        "use": "post_mara_breach"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "seen_mara_fractures"
+          },
+          {
+            "hasFlag": "helped_sable"
+          }
+        ],
+        "use": "post_mara_fractures"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "found_raider_journal"
+          },
+          {
+            "hasFlag": "helped_sable"
+          }
+        ],
+        "use": "post_raider_journal"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "helped_sable"
+          },
+          {
+            "or": [
+              {
+                "hasFlag": "visited_lighthouse_mara_f16"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f17"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f18"
+              },
+              {
+                "hasFlag": "visited_lighthouse_mara_f19"
+              }
+            ]
+          }
+        ],
+        "use": "mara_deep_explored"
       },
       {
         "conditions": [
@@ -11138,7 +12270,11 @@
     },
     "dialogueRules": [
       {
-        "conditions": [{ "hasFlag": "healed_wounded_scout" }],
+        "conditions": [
+          {
+            "hasFlag": "healed_wounded_scout"
+          }
+        ],
         "use": "after_heal"
       }
     ]
@@ -11692,6 +12828,17 @@
       {
         "conditions": [
           {
+            "hasFlag": "ren_warned_creatures"
+          },
+          {
+            "hasFlag": "deep_depot_looted"
+          }
+        ],
+        "use": "post_depot_and_warning"
+      },
+      {
+        "conditions": [
+          {
             "hasItem": "underlumen_etching"
           }
         ],
@@ -11777,6 +12924,16 @@
         {
           "speaker": "Pathfinder Ren",
           "text": "Safe travels, Lightkeeper. The Underlumen network remembers people who don't shoot on sight."
+        }
+      ],
+      "post_depot_and_warning": [
+        {
+          "speaker": "Pathfinder Ren",
+          "text": "You found the deep depot? And survived what's down there?"
+        },
+        {
+          "speaker": "Pathfinder Ren",
+          "text": "Those tunnels go deeper than anyone maps. What I told you about the creatures — that wasn't exaggeration. The deeper you go, the stranger they get."
         }
       ]
     }
@@ -12337,7 +13494,11 @@
     },
     "dialogueRules": [
       {
-        "conditions": [{ "hasItem": "greenway_pass" }],
+        "conditions": [
+          {
+            "hasItem": "greenway_pass"
+          }
+        ],
         "use": "has_greenway_pass"
       }
     ]
@@ -12378,7 +13539,11 @@
     },
     "dialogueRules": [
       {
-        "conditions": [{ "hasItem": "greenway_pass" }],
+        "conditions": [
+          {
+            "hasItem": "greenway_pass"
+          }
+        ],
         "use": "has_pass"
       }
     ]
@@ -12422,7 +13587,9 @@
     "dialogueRules": [
       {
         "conditions": [
-          { "hasFlag": "general_thorne_defeated" }
+          {
+            "hasFlag": "general_thorne_defeated"
+          }
         ],
         "use": "after_thorne"
       }
@@ -12461,7 +13628,10 @@
   "biolab_researcher_tova": {
     "name": "Researcher Tova",
     "sprite": "sprites/greenway_npc.png",
-    "size": [16, 16],
+    "size": [
+      16,
+      16
+    ],
     "dialogues": {
       "default": [
         {
@@ -12508,11 +13678,19 @@
     },
     "dialogueRules": [
       {
-        "conditions": [{ "hasFlag": "biolab_alpha_defeated" }],
+        "conditions": [
+          {
+            "hasFlag": "biolab_alpha_defeated"
+          }
+        ],
         "use": "post_boss"
       },
       {
-        "conditions": [{ "hasFlag": "biolab_found_keycard" }],
+        "conditions": [
+          {
+            "hasFlag": "biolab_found_keycard"
+          }
+        ],
         "use": "after_keycard"
       }
     ]
