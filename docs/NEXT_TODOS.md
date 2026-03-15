@@ -124,7 +124,7 @@ Wired Lighthouse Mara into the main quest flow. The transit pass is already gate
 
 Remaining follow-ups:
 - **`lighthouse_mara` side quest alignment** — `lighthouse_mara.json` side quest (4 steps: descend_caverns → find_keeper → reach_core → restore_power) runs in parallel with the new main quest steps. Verify no step conflicts or double-completion edge cases.
-- **Post-restoration NPC reactions** — Warden Holt, Sgt. Ellers, Tech Maren should react to `lighthouse_mara_restored`. See existing NPC engagement TODOs.
+- ~~**Post-restoration NPC reactions**~~ — DONE: Warden Holt, Sgt. Ellers, Tech Maren now react to `lighthouse_mara_restored`. See Lighthouse Mara section for follow-ups.
 
 ## Content — Lighthouse Mara (expanded 2026-03-15)
 
@@ -153,9 +153,11 @@ Remaining follow-ups:
 - **Lighthouse Mara sprites** — New tiles (power_conduit_a/b, core_hatch, survey_marker, cracked_ice_wall, geometric_fracture, broken_machinery, frozen_pillar, ice_rubble, metal_floor, damaged_panel) in frost_crypt tileset need dedicated sprite art in the tileset PNG strip.
 - **New monster sprites** — ice_borer, glacial_maw, frost_revenant, underlumen_emergence all need dedicated sprites (currently placeholder paths).
 - **Keeper Renn sprite** — Currently uses `old_keeper` sprite. Needs a dedicated `sprites/keeper_renn.png` (frost-worn technician).
-- **Post-restoration NPC reactions** — NPCs at Outpost Balor (Warden Holt, Sgt. Ellers, Tech Maren) should have dialogue updates when `lighthouse_mara_restored` flag is set.
+- ~~**Post-restoration NPC reactions**~~ — DONE: Warden Holt, Sgt. Ellers, and Tech Maren now have `lighthouse_mara_restored` dialogue sets and matching dialogueRules. Seismic survey turn-in wired to Warden Holt via `seismic_survey_turnin` trigger in `outpost_entrance.json` (removeItem + setFlag + 40 XP). See follow-ups below.
 - **Relay recovery quest chain** — The existing `relay_recovery` quest ends at the nest_mother. Consider linking it to the new `lighthouse_mara` quest or adding a bridge step.
-- **Seismic survey data delivery** — The seismic_survey_data item has no turn-in NPC yet. Should go to someone at the Deep Array or Meridian (MERIDIAN-7 or a geologist NPC).
+- ~~**Seismic survey data delivery**~~ — DONE: `seismic_survey_data` turn-in wired to Warden Holt. Trigger removes item, sets `seismic_survey_delivered`, grants 40 XP. Holt has `has_seismic_survey` and `seismic_survey_delivered` dialogue states. An alternative Meridian geologist turn-in (MERIDIAN-7 or a new NPC) would be a stronger narrative fit per the original quest hint ("might interest someone at the Deep Array") — see follow-ups.
+- **Seismic survey Meridian route** — The lighthouse_mara quest completion message says the data "might interest someone at the Deep Array." A geologist NPC in meridian_civic or an MERIDIAN-7 dialogue branch would be more narratively consistent. The Warden Holt route is functional but is the simpler path.
+- **Tech Maren restoration dialogue gating** — Tech Maren's `lighthouse_mara_restored` dialogueRule fires before `give_battery`, so after Mara is restored she always shows the restoration reaction rather than offering batteries. Fix: add an `npc_interacted` trigger in `outpost_charging_station.json` that sets `mara_restored_acknowledged_maren` flag on first talk with Maren post-restoration, then add `not: mara_restored_acknowledged_maren` to her restoration dialogueRule. Dialogue would then revert to battery service after first acknowledgment.
 - **Lighthouse Mara siege variant** — The existing `lighthouse_siege_arena` challenge could be narratively connected to Lighthouse Mara post-restoration (defend the restored lighthouse).
 - **Environmental hazard tuning** — Cold damage escalates from 2/3s (upper caves) through 3/2.5s (mid) to 4/2s (breach) and 3/2.5s (core). Needs playtesting — may be too punishing without frost_salve stockpile across 20 floors.
 - **Frost salve economy** — 20 floors of cold damage requires significant healing. Verify frost_salve drop rates from frost_biome loot tables are sufficient. Consider adding a mid-dungeon NPC vendor or supply cache.

@@ -695,6 +695,48 @@
           "speaker": "Warden Holt",
           "text": "We run a tighter operation now. More resources, more responsibility. Keep your edge, Lightkeeper."
         }
+      ],
+      "lighthouse_mara_restored": [
+        {
+          "speaker": "Warden Holt",
+          "text": "You restored Lighthouse Mara. The gap in the beacon line is closed — we started getting signal again two hours after you fixed the core."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "The luddites pulled back from the breach the moment the lighthouse came back online. Thirty years on this line, and I've never seen them retreat that fast. Whatever Mara was doing out there, they knew it."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Well done, Lightkeeper. Genuinely."
+        }
+      ],
+      "has_seismic_survey": [
+        {
+          "speaker": "Warden Holt",
+          "text": "What's this? SITE MARA-7 — classified geological survey data from the lighthouse core?"
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "A rhythmic subsurface signal at 3.2 kilometers, magnitude increasing 0.3% per cycle, non-natural origin... and Meridian Central denied the survey recommendation. Someone buried this."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "I need to get this to the geological survey office in Meridian. Leave it with me — I'll make sure the right people see it."
+        }
+      ],
+      "seismic_survey_delivered": [
+        {
+          "speaker": "Warden Holt",
+          "text": "I forwarded that seismic data to the Meridian geological survey office. Their response was... measured."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "'Additional analysis required.' That's bureaucratic for: they know what it means and they're not sure who to tell."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Whatever's down there at 3.2 kilometers isn't going away. Someone will have to deal with it eventually."
+        }
       ]
     },
     "dialogueRules": [
@@ -721,6 +763,41 @@
           }
         ],
         "use": "post_control"
+      },
+      {
+        "conditions": [
+          {
+            "hasItem": "seismic_survey_data"
+          },
+          {
+            "hasFlag": "lighthouse_mara_restored"
+          }
+        ],
+        "use": "has_seismic_survey"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "seismic_survey_delivered"
+          },
+          {
+            "hasFlag": "lighthouse_mara_restored"
+          }
+        ],
+        "use": "seismic_survey_delivered"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "lighthouse_mara_restored"
+          },
+          {
+            "not": {
+              "hasFlag": "arrived_meridian"
+            }
+          }
+        ],
+        "use": "lighthouse_mara_restored"
       },
       {
         "conditions": [
@@ -1736,6 +1813,20 @@
           "speaker": "Sgt. Ellers",
           "text": "Thirty years says: anything you push down hard enough pushes back eventually."
         }
+      ],
+      "lighthouse_mara_restored": [
+        {
+          "speaker": "Sgt. Ellers",
+          "text": "Signal came back from Lighthouse Mara. Clean pulse, full strength. I checked it twice before I believed it."
+        },
+        {
+          "speaker": "Sgt. Ellers",
+          "text": "I've watched that lighthouse go dark before — maintenance failures, both times. Back online in a day. This was different. Three days, enemy pressure through the gap, and you still got it back."
+        },
+        {
+          "speaker": "Sgt. Ellers",
+          "text": "The line holds because of what you did out there. Don't let anyone tell you otherwise."
+        }
       ]
     },
     "dialogueRules": [
@@ -1762,6 +1853,29 @@
           }
         ],
         "use": "post_control"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "lighthouse_mara_restored"
+          },
+          {
+            "not": {
+              "hasFlag": "chose_path_shutdown"
+            }
+          },
+          {
+            "not": {
+              "hasFlag": "chose_path_merge"
+            }
+          },
+          {
+            "not": {
+              "hasFlag": "chose_path_control"
+            }
+          }
+        ],
+        "use": "lighthouse_mara_restored"
       },
       {
         "conditions": [
@@ -1835,6 +1949,16 @@
           "speaker": "Tech Maren",
           "text": "Got a Sol Unit? Finish your training, then come back — I'll set you up with a field cell."
         }
+      ],
+      "lighthouse_mara_restored": [
+        {
+          "speaker": "Tech Maren",
+          "text": "Signal from Lighthouse Mara is back on the grid. I checked it three times — full power output, stable resonance frequency."
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "A lot of the station's backup systems just switched back to primary grid support. That's your work."
+        }
       ]
     },
     "dialogueRules": [
@@ -1861,6 +1985,14 @@
           }
         ],
         "use": "has_battery"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "lighthouse_mara_restored"
+          }
+        ],
+        "use": "lighthouse_mara_restored"
       },
       {
         "conditions": [
