@@ -36,7 +36,8 @@
       { "item": "efficiency_core_chip", "weight": 2 },
       { "item": "power_conduit", "weight": 2 },
       { "item": "plasma_coil", "weight": 1 },
-      { "item": "focusing_lens", "weight": 1 }
+      { "item": "focusing_lens", "weight": 1 },
+      { "item": "bulwark_assault_plating", "weight": 1 }
     ]
   },
   "bulwark_drone": {

@@ -46,7 +46,8 @@
       { "item": "rechargeable_battery_chip", "weight": 1 },
       { "item": "stabilizer_rod", "weight": 3 },
       { "item": "power_conduit", "weight": 2 },
-      { "item": "focusing_lens", "weight": 1 }
+      { "item": "focusing_lens", "weight": 1 },
+      { "item": "hardened_exo_liner", "weight": 1 }
     ]
   },
   "luddite_captain": {
@@ -93,7 +94,8 @@
       { "item": "area_expander_chip", "weight": 2 },
       { "item": "cooldown_reducer_mk2_chip", "weight": 1 },
       { "item": "stabilizer_rod", "weight": 3 },
-      { "item": "focusing_lens", "weight": 1 }
+      { "item": "focusing_lens", "weight": 1 },
+      { "item": "reinforced_vest", "weight": 2 }
     ]
   },
   "scrap_drone": {
@@ -138,7 +140,8 @@
       { "item": "efficiency_core_chip", "weight": 2 },
       { "item": "rechargeable_battery_chip", "weight": 1 },
       { "item": "plasma_coil", "weight": 2 },
-      { "item": "focusing_lens", "weight": 1 }
+      { "item": "focusing_lens", "weight": 1 },
+      { "item": "hardened_exo_liner", "weight": 1 }
     ]
   }
 }

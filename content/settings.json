@@ -1,5 +1,11 @@
 {
   "spawnRoom": "outpost_entrance",
+  "xpSystem": {
+    "baseXpToLevel": 100,
+    "xpScalingFactor": 1.5,
+    "maxLevel": 20,
+    "hpPerLevel": 15
+  },
   "waypoints": [
     { "id": "outpost_entrance", "name": "Outpost Balor", "room": "outpost_entrance" },
     { "id": "meridian_station", "name": "Meridian Station", "room": "meridian_station" },

@@ -6019,6 +6019,7 @@ class GameLoop {
       this._initWeaponUpgrades(player);
     }
 
+    this._recalcMaxHealth(player);
     this._rebuildAbilities(player);
     return { inventory: player.inventory, equipment: player.equipment, abilities: player.abilities, cooldowns: player.cooldowns };
   }
@@ -6059,6 +6060,7 @@ class GameLoop {
       category: equipped.category || 'misc',
     });
 
+    this._recalcMaxHealth(player);
     this._rebuildAbilities(player);
     return { inventory: player.inventory, equipment: player.equipment, abilities: player.abilities, cooldowns: player.cooldowns };
   }
@@ -6244,6 +6246,36 @@ class GameLoop {
       monsterId: mid,
       monsterX: mob.x, monsterY: mob.y,
     }, ctx);
+  }
+
+  // Sum maxHealthBonus from all equipped items
+  _getEquipmentMaxHealthBonus(player) {
+    let bonus = 0;
+    for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
+      const item = player.equipment[slot];
+      if (item && item.stats && item.stats.maxHealthBonus) {
+        bonus += item.stats.maxHealthBonus;
+      }
+    }
+    return bonus;
+  }
+
+  // Recalculate player maxHealth from base + levels + equipment.
+  // Adjusts current health proportionally: heals on increase, clamps on decrease.
+  _recalcMaxHealth(player) {
+    const settings = this.content.getSettings();
+    const xpSys = (settings && settings.xpSystem) || {};
+    const hpPerLevel = xpSys.hpPerLevel || 10;
+    const newMax = CONSTANTS.PLAYER_MAX_HEALTH
+      + (player.level - 1) * hpPerLevel
+      + this._getEquipmentMaxHealthBonus(player);
+    const delta = newMax - player.maxHealth;
+    player.maxHealth = newMax;
+    if (delta > 0) {
+      player.health = Math.min(player.health + delta, player.maxHealth);
+    } else {
+      player.health = Math.min(player.health, player.maxHealth);
+    }
   }
 
   getPlayerAttackDamage(player) {
@@ -6498,9 +6530,8 @@ class GameLoop {
       levelsGained++;
       player.xpToNextLevel = this._xpForLevel(player.level);
 
-      // Increase max HP and heal the gained amount
-      player.maxHealth += hpPerLevel;
-      player.health = Math.min(player.health + hpPerLevel, player.maxHealth);
+      // Recalculate max HP (base + levels + equipment) and heal the gained amount
+      this._recalcMaxHealth(player);
 
       if (this.activityLog) {
         this.activityLog.logById(player.id, 'level_up', {

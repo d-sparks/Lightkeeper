@@ -1994,7 +1994,7 @@
 
     // HP
     html += '<div class="stat-row"><span class="stat-label">Max HP</span><span class="stat-value">' + s.maxHealth;
-    if (bonusHP > 0) html += '<span class="stat-bonus">+' + bonusHP + ' from levels</span>';
+    if (bonusHP > 0) html += '<span class="stat-bonus">+' + bonusHP + '</span>';
     html += '</span></div>';
 
     // Current HP

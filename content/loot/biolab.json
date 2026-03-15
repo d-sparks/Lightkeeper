@@ -35,7 +35,8 @@
       { "item": "symbiotic_core_chip", "weight": 4 },
       { "item": "photosynthesis_node_chip", "weight": 4 },
       { "item": "adaptive_tissue_chip", "weight": 3 },
-      { "item": "mycelial_matrix_chip", "weight": 1 }
+      { "item": "mycelial_matrix_chip", "weight": 1 },
+      { "item": "greenway_bioweave_vest", "weight": 2 }
     ]
   }
 }

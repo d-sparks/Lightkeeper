@@ -27,7 +27,8 @@
       { "item": "efficiency_core_chip", "weight": 3 },
       { "item": "area_expander_chip", "weight": 2 },
       { "item": "shock_baton", "weight": 2 },
-      { "item": "precision_blaster", "weight": 1 }
+      { "item": "precision_blaster", "weight": 1 },
+      { "item": "reinforced_vest", "weight": 1 }
     ]
   },
   "skeleton_archer": {

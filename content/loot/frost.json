@@ -42,7 +42,8 @@
       { "item": "guardian_core_chip", "weight": 3 },
       { "item": "void_resonator_chip", "weight": 2 },
       { "item": "array_harmonic_stabilizer_chip", "weight": 2 },
-      { "item": "uranium_generator_chip", "weight": 1 }
+      { "item": "uranium_generator_chip", "weight": 1 },
+      { "item": "bulwark_assault_plating", "weight": 1 }
     ]
   },
   "spire_vigil_chest": {

@@ -29,7 +29,7 @@ These issues were identified through content review but need human playtesting t
 **HIGH priority (potential blockers):**
 - [ ] **Nexus Guardian stun+wound combo**: 1.5s stun guarantees a free 50-damage slam, wound then reduces healing 60% for 7s. Solo players may find this mechanically impossible. Consider: make wound and stun mutually exclusive on the same boss, or add a 2s stun immunity window after being stunned.
 - [ ] **General Thorne phase 3**: 28-damage projectiles at 0.9s interval + conscript summons creates an overwhelming combination. May need longer summon interval (10→15s) or lower phase 3 projectile damage.
-- [ ] **Player max HP never scales**: 100 HP from start to finish while monster damage scales 7→34. Late-game bosses can near-one-shot. Consider: HP-boosting sol components, or equipment with +maxHP, or a per-Spire +25 HP bonus.
+- [x] **Player max HP never scales**: Fixed — hpPerLevel increased 10→15 (max level 20 = 385 HP), added 7 accessory-slot equipment items with +maxHP (25/40/60/60/80/100/125 by rarity tier), distributed across loot tables from Act 1 through endgame. With best accessory at level 20: 510 HP. Follow-up: consider per-Spire-cleared +25 HP permanent bonus and HP-boosting sol components as future enhancements.
 
 **MEDIUM priority (pacing/balance):**
 - [ ] **Weapon progression plateau**: Between Sol Unit (12 attackDamage) and epic sol units (14-18), there is no intermediate weapon. Players may feel stagnant through most of Act 2. Consider a rare-tier weapon drop from General Thorne or Spire Winds content.

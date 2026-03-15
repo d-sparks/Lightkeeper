@@ -128,7 +128,8 @@
       { "item": "array_harmonic_stabilizer_chip", "weight": 4 },
       { "item": "uranium_generator_chip", "weight": 3 },
       { "item": "resonance_fragment", "weight": 3 },
-      { "item": "underlumen_nexus", "weight": 1 }
+      { "item": "underlumen_nexus", "weight": 1 },
+      { "item": "architects_aegis", "weight": 1 }
     ]
   }
 }

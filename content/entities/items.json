@@ -1369,5 +1369,76 @@
     "type": "sol_component",
     "rarity": "epic",
     "solComponentId": "adaptive_tissue"
+  },
+
+  "reinforced_vest": {
+    "name": "Reinforced Vest",
+    "description": "Salvaged body armor with crude plating. Not pretty, but it keeps you alive longer.",
+    "type": "equipment",
+    "rarity": "common",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 25
+    }
+  },
+  "hardened_exo_liner": {
+    "name": "Hardened Exo-Liner",
+    "description": "A fitted under-armor layer with impact-absorbing gel inserts. Standard Outpost issue for deep patrols.",
+    "type": "equipment",
+    "rarity": "uncommon",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 40
+    }
+  },
+  "nightside_vitality_weave": {
+    "name": "Nightside Vitality Weave",
+    "description": "Shadow-threaded mesh that toughens the wearer's body through low-frequency umbral pulses. Nightside scouts swear by it.",
+    "type": "equipment",
+    "rarity": "rare",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 60
+    }
+  },
+  "greenway_bioweave_vest": {
+    "name": "Greenway Bioweave Vest",
+    "description": "Living armor grown from mycelial fibers. It bonds with the wearer's skin, reinforcing tissue at a cellular level.",
+    "type": "equipment",
+    "rarity": "rare",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 60
+    }
+  },
+  "bulwark_assault_plating": {
+    "name": "Bulwark Assault Plating",
+    "description": "Military-grade composite armor stripped from a Bulwark heavy trooper. Significantly increases survivability.",
+    "type": "equipment",
+    "rarity": "epic",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 80
+    }
+  },
+  "wardens_resolve": {
+    "name": "Warden's Resolve",
+    "description": "A dense crystalline plate recovered from a fallen Threshold Warden. Resonates with protective energy.",
+    "type": "equipment",
+    "rarity": "epic",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 100
+    }
+  },
+  "architects_aegis": {
+    "name": "Architect's Aegis",
+    "description": "Pre-Collapse masterwork. Layers of phase-shifted alloy absorb punishment that would shatter lesser armor.",
+    "type": "equipment",
+    "rarity": "legendary",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 125
+    }
   }
 }

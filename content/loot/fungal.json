@@ -27,7 +27,8 @@
       { "item": "deep_fungus", "weight": 3 },
       { "item": "bio_leech_node_chip", "weight": 3 },
       { "item": "symbiotic_core_chip", "weight": 2 },
-      { "item": "mycelial_matrix_chip", "weight": 1 }
+      { "item": "mycelial_matrix_chip", "weight": 1 },
+      { "item": "greenway_bioweave_vest", "weight": 1 }
     ]
   }
 }
