@@ -519,3 +519,13 @@ Sol Shield nerfed from heal:35/CD:10s (3.5 HP/s) → heal:15/CD:12s (1.25 HP/s b
 - **Death risk verification** — Sim bot shows 13-14 deaths (bot doesn't use sol abilities optimally), but a skilled human player should see 2-4 deaths. Needs manual verification on a fresh playthrough.
 - **CDR interaction** — With heavy cooldown reduction stacking (~44%), effective rate rises to ~2.2 HP/s. If this still trivializes combat, consider reducing heal further to 12 or adding a minimum cooldown floor on sol_shield specifically.
 - **Feel check** — At 15 HP per use (15% of max health), the ability should feel meaningful but not game-breaking. Verify it doesn't feel useless compared to medipac (90 HP heal).
+
+## Sprite Art Commission — Priority Batch (2026-03-15)
+
+Created art commission brief (`docs/art-commission-brief.md`) and improved placeholders for the 10 most-seen entities. Added 3 previously missing NPC sprites (outpost_warden, meridian_7, sol_engineer_1). Outstanding items:
+
+- **Commission artist** — Find pixel artist for 13 sprite files (4 player variants + 5 NPCs + 4 monsters). Brief is in `docs/art-commission-brief.md` with full specs, palette, and character descriptions.
+- **Custom animation frames** — Current 4-frame strips are auto-generated from base frame (shift offsets). Hand-drawn attack/hit frames would be a major visual upgrade. Discuss with artist whether to include custom animation in scope.
+- **Remaining NPC sprites** — Many NPCs beyond the priority 10 still use `npc_default.png` fallback. Next batch should cover: old_keeper, farmer_dael, farmer_lissa, archivist_solen, fence_elara.
+- **Remaining monster sprites** — All monster sprites are placeholders. After the priority batch, next priorities: luddite_warlord, gloom_wraith, magma_brute, array_overseer (boss-tier enemies seen in later acts).
+- **Tileset art** — All tilesets are also placeholders. Consider commissioning tileset art alongside entity sprites for visual consistency.

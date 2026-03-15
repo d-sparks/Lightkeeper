@@ -1152,26 +1152,26 @@ function generateMonsterSprites() {
   const Tg = C.teal;
   drawPixelArt(dcrawl, 0, 0, [
     //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
-    [_, _, _, Dp, _, _, _, _, _, _, _, _, Dp, _, _, _],  // antenna tips
-    [_, _, Dp, Pp, Dp, _, _, _, _, _, Dp, Pp, Dp, _, _, _],  // antennae
-    [_, _, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _, _],  // head
-    [_, _, _, Dp, Pp,Oe, Pp, Pp, Pp,Oe, Pp, Dp, _, _, _, _],  // orange hostile eyes
-    [_, _, _, _, Dp, Dp, Lp, Pp, Lp, Dp, Dp, _, _, _, _, _],  // jaw/neck taper
-    [_, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _],  // upper body
-    [Dp, Pp, Pp, Pp, Lp, Pp, Pp, Pp, Pp, Pp, Lp, Pp, Pp, Dp, _, _],  // widest body
-    [Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _],  // body center
-    [_, Dp, Pp, Pp, Tg, Pp, Pp, Pp, Pp, Pp, Tg, Pp, Dp, _, _, _],  // teal bioluminescent accents
-    [_, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _, _],  // lower body
-    [_, Dp, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, Dp, _, _, _],  // rear leg joints
-    [Dp, _, _, _, Dp, Pp, Pp, Pp, Pp, Dp, _, _, _, Dp, _, _],  // rear leg tips
-    [_, _, _, _, _, Dp, Dp, Pp, Dp, Dp, _, _, _, _, _, _],  // tail taper
-    [_, _, _, _, _, _, Dp, Dp, Dp, _, _, _, _, _, _, _],  // tail tip
+    [_, _, Dp, _, _, _, _, _, _, _, _, _, _, Dp, _, _],  // antenna tips (asymmetric)
+    [_, _, _, Dp, _, _, _, _, _, _, _, _, Dp, _, _, _],  // antennae
+    [_, _, _, Dp, Dp, Pp, Pp, Pp, Pp, Pp, Dp, Dp, _, _, _, _],  // head carapace
+    [_, _, _, Dp, Pp,Oe, Pp, Lp, Pp,Oe, Pp, Dp, _, _, _, _],  // orange hostile eyes, light mandible
+    [_, _, _, _, Dp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _, _, _],  // jaw taper
+    [_, Dp, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, Dp, _, _],  // upper body + front legs
+    [Dp, _, Dp, Pp, Lp, Pp, Pp, Pp, Pp, Lp, Pp, Pp, Dp, _, Dp, _],  // widest body (legs spread)
+    [_, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _],  // body center
+    [_, Dp, _, Dp, Pp, Tg, Pp, Pp, Pp, Tg, Pp, Dp, _, Dp, _, _],  // teal glow + mid legs
+    [Dp, _, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, Dp, _],  // lower body + rear legs
+    [_, _, _, _, Dp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _, _, _],  // abdomen
+    [_, _, _, _, _, Dp, Tg, Pp, Tg, Dp, _, _, _, _, _, _],  // abdomen glow accents
+    [_, _, _, _, _, _, Dp, Pp, Dp, _, _, _, _, _, _, _],  // tail taper
+    [_, _, _, _, _, _, _, Dp, _, _, _, _, _, _, _, _],  // tail tip
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
   ]);
   savePNG(dcrawl, path.join(CONTENT_DIR, 'sprites', 'dusk_crawler.png'));
 
-  // --- Crystal Guardian: geometric crystalline boss, faceted body, orange eyes ---
+  // --- Crystal Guardian: geometric crystalline boss, faceted body, orange eyes, fills full sprite ---
   const cguard = createPNG(16, 16);
   const Cb = C.lightBlue;
   const Cm = C.blue;
@@ -1180,22 +1180,22 @@ function generateMonsterSprites() {
   const Cpg = C.paleGray;
   drawPixelArt(cguard, 0, 0, [
     //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
-    [_, _, _, _,Cw, _,Cb, _,Cb, _,Cw, _, _, _, _, _],  // crystal crown spires
-    [_, _, _, _,Cb,Cw,Cm,Cm,Cm,Cw,Cb, _, _, _, _, _],  // crown base with white facets
-    [_, _, _, _,Cm,Cb,Cm,Cm,Cm,Cb,Cm, _, _, _, _, _],  // head faceted
-    [_, _, _, _,Cm,Oe,Cm,Cm,Cm,Oe,Cm, _, _, _, _, _],  // orange hostile eyes
-    [_, _, _, _,Cd2,Cm,Cb,Cd2,Cd2,Cb,Cm,Cd2, _, _, _, _],  // lower face crystal facets
+    [_, _, _,Cw, _, _,Cb,Cw,Cw,Cb, _, _,Cw, _, _, _],  // crown spires (3 points)
+    [_, _, _,Cb,Cw,Cb,Cm,Cm,Cm,Cm,Cb,Cw,Cb, _, _, _],  // crown base + outer spire tips
+    [_, _, _, _,Cb,Cm,Cb,Cm,Cm,Cb,Cm,Cb, _, _, _, _],  // head faceted
+    [_, _, _, _,Cm,Oe,Cm,Cpg,Cpg,Cm,Oe,Cm, _, _, _, _],  // orange eyes + pale face plate
+    [_, _, _, _,Cd2,Cm,Cm,Cd2,Cd2,Cm,Cm,Cd2, _, _, _, _],  // lower face crystal facets
     [_, _, _, _, _,Cd2,Cm,Cm,Cm,Cm,Cd2, _, _, _, _, _],  // neck
-    [_, _, _, _, _, _,Cd2,Cm,Cm,Cd2, _, _, _, _, _, _],  // neck taper
-    [_, _,Cw,Cb,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cb,Cw, _, _],  // crystal shard shoulders
-    [_, _,Cpg,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cpg, _, _],  // wide chest
+    [_,Cw,Cb,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cb,Cw, _],  // crystal shard shoulders (wide)
+    [_, _,Cpg,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cpg, _, _],  // broad chest
     [_, _, _,Cd2,Cb,Cm,Cw,Cm,Cm,Cw,Cm,Cb,Cd2, _, _, _],  // chest facet shine
     [_, _, _, _,Cd2,Cm,Cb,Cm,Cm,Cb,Cm,Cd2, _, _, _, _],  // lower torso
     [_, _, _, _, _,Cd2,Cm,Cw,Cw,Cm,Cd2, _, _, _, _, _],  // crystal core glow
-    [_, _, _, _, _,Cd2,Cd2,Cd2,Cd2,Cd2,Cd2, _, _, _, _, _],  // hips
-    [_, _, _, _, _,Cd2, _, _, _, _,Cd2, _, _, _, _, _],  // legs
-    [_, _, _, _, _,Cd2, _, _, _, _,Cd2, _, _, _, _, _],  // legs
-    [_, _, _, _,Cd2,Cd2, _, _, _, _,Cd2,Cd2, _, _, _, _],  // feet
+    [_, _, _, _, _,Cd2,Cd2,Cm,Cm,Cd2,Cd2, _, _, _, _, _],  // hips
+    [_, _, _, _, _,Cd2,Cm, _,  _,Cm,Cd2, _, _, _, _, _],  // legs (blue accents)
+    [_, _, _, _, _,Cd2,Cm, _,  _,Cm,Cd2, _, _, _, _, _],  // legs
+    [_, _, _, _,Cd2,Cd2,Cd2, _, _,Cd2,Cd2,Cd2, _, _, _, _],  // wide crystalline feet
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
   ]);
   savePNG(cguard, path.join(CONTENT_DIR, 'sprites', 'crystal_guardian.png'));
 
@@ -1259,21 +1259,21 @@ function generateMonsterSprites() {
   drawPixelArt(sstalker, 0, 0, [
     //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],  // head
+    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],  // head (hunched forward)
     [_, _, _, _, _, Ss, Sm, Sm, Sm, Sm, Ss, _, _, _, _, _],  // head body
     [_, _, _, _, _, Ss,Oe, Ss, Ss,Oe, Ss, _, _, _, _, _],  // orange hostile eyes
-    [_, _, _, _, _, _, Ss, Sm, Sm, Ss, _, _, _, _, _, _],  // jaw
-    [_, _, _, _, _, _, _, Ss, Ss, _, _, _, _, _, _, _],  // neck
-    [_, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, _],  // wide hunched shoulders
-    [_, Ss, Sm, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Sm, Ss, _, _],  // shoulder highlight detail
-    [_, _, Ss, Sm, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Sm, Ss, _, _, _],  // arms taper inward
-    [_, _, Ss, _, Sm, Ss, Ss, Ss, Ss, Ss, Sm, _, Ss, _, _, _],  // arms reaching out
-    [_, Ss, _, _, _, Ss, Sm, Ss, Ss, Sm, Ss, _, _, _, Ss, _],  // long claw reach
-    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],  // lower torso
+    [_, _, _, _, _, _, Ss, Sm, Sm, Ss, _, _, _, _, _, _],  // jaw (slightly open)
+    [_, Ss, Ss, _, _, _, _, Ss, Ss, _, _, _, _, Ss, Ss, _],  // neck + outer arm start
+    [_, _, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, _, _],  // hunched shoulders (wide)
+    [_, _, _, Ss, Sm, Ss, Ss, Ss, Ss, Ss, Ss, Sm, Ss, _, _, _],  // shoulder mass
+    [_, _, Ss, _, Sm, Ss, Ss, Ss, Ss, Ss, Sm, _, _, Ss, _, _],  // arms taper + reach
+    [_, Ss, _, _, _, Ss, Sm, Ss, Ss, Sm, Ss, _, _, _, Ss, _],  // long arms reaching
+    [Ss, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, Ss],  // claw tips (full width!)
+    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],  // narrow torso
     [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],  // hips
-    [_, _, _, _, _, _, Ss, _, _, Ss, _, _, _, _, _, _],  // legs
-    [_, _, _, _, _, _, Ss, _, _, Ss, _, _, _, _, _, _],  // legs
-    [_, _, _, _, _, Ss, Ss, _, _, Ss, Ss, _, _, _, _, _],  // feet
+    [_, _, _, _, _, Ss, Ss, _, _, Ss, Ss, _, _, _, _, _],  // legs (wider stance)
+    [_, _, _, _, _, Ss, Ss, _, _, Ss, Ss, _, _, _, _, _],  // legs
+    [_, _, _, _, Ss, Ss, _, _, _, _, Ss, Ss, _, _, _, _],  // splayed feet
   ]);
   savePNG(sstalker, path.join(CONTENT_DIR, 'sprites', 'shade_stalker.png'));
 
@@ -1396,18 +1396,18 @@ function generateMonsterSprites() {
     //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _,Fd,Fm, _, _, _, _, _, _, _, _, _, _, _, _],  // ear tips
+    [_, _,Fd,Fm, _, _, _, _, _, _, _, _, _, _, _, _],  // pointed ear tips
     [_, _,Fm,Fi,Fi,Fm, _, _, _, _, _, _, _, _, _, _],  // wolf head
     [_, _,Fm,Oe,Fi,Oe,Fm, _, _, _, _, _, _, _, _, _],  // orange hostile eyes
-    [_, _,Fm,Fw,Fw,Fm,Fm,Fd, _, _, _, _, _, _, _, _],  // snarling teeth
-    [_, _, _,Fm,Fm,Fm,Fm,Fm,Fm, _, _, _, _, _, _, _],  // neck/jaw
-    [_, _, _, _,Fm,Fi,Fi,Fi,Fm,Fm,Fm,Fm, _, _, _, _],  // body front
-    [_, _, _, _,Fm,Fi,Fi,Fi,Fi,Fi,Fi,Fm, _, _, _, _],  // body main
-    [_, _, _, _, _,Fm,Fi,Fw,Fw,Fi,Fm,Fd,Fd, _, _, _],  // body rear + tail base
-    [_, _, _, _, _,Fd,Fm,Fm,Fm,Fm,Fd, _,Fd, _, _, _],  // rear legs + tail
-    [_, _, _, _,Fd, _,Fd,Fm,Fm,Fd, _, _,Fd, _, _, _],  // front/rear paws
-    [_, _, _,Fd, _, _,Fd, _, _,Fd, _, _, _, _, _, _],  // paw tips
+    [_, _,Fd,Fw,Fw,Fm,Fm,Fd, _, _, _, _, _, _, _, _],  // snarling fangs + jaw
+    [_, _, _,Fm,Fm,Fi,Fm,Fm,Fm, _, _, _, _, _, _, _],  // neck (thicker)
+    [_, _, _, _,Fm,Fi,Fi,Fi,Fm,Fm,Fm, _, _, _, _, _],  // body front (leaner)
+    [_, _, _, _,Fd,Fi,Fi,Fi,Fi,Fi,Fi,Fm, _, _, _, _],  // body main (frost-furred)
+    [_, _, _, _, _,Fm,Fi,Fw,Fw,Fi,Fi,Fm,Fd, _, _, _],  // underbelly white + tail base
+    [_, _, _, _, _,Fd,Fm,Fm,Fm,Fm,Fd, _,Fd,Fd, _, _],  // rear legs + tail (longer)
+    [_, _, _, _,Fd, _,Fd,Fm,Fm,Fd, _, _, _,Fd, _, _],  // tail tip + paws
+    [_, _, _, Fd, _, _, Fd, _, _, Fd, _, _, _, _, _, _],  // front/rear paw tips
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
   ]);
@@ -1945,22 +1945,22 @@ function generatePlayerSprites() {
     const m = pc.dark;   // dark accent
     drawPixelArt(png, 0, 0, [
       //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],  // 0
-      [_, _, _, _, _, _,Hd,Hd,Hd,Hd, _, _, _, _, _, _],  // 1  helmet top
-      [_, _, _, _, _,Hd,Hl, H, H, H,Hd, _, _, _, _, _],  // 2  helmet (top-left highlight)
-      [_, _, _, _, _,Hd, M, M, M, M,Hd, _, _, _, _, _],  // 3  visor (accent color)
-      [_, _, _, _, _,Hd, H,Hd,Hd, H,Hd, _, _, _, _, _],  // 4  lower helmet / mouth guard
+      [_, _, _, _, _, _,Hd,Hd,Hd,Hd, _, _, _, _, _, _],  // 0  helmet crown
+      [_, _, _, _, _,Hd,Hl, H,Hl, H,Hd, _, _, _, _, _],  // 1  helmet top (highlight ridge)
+      [_, _, _, _, _,Hd, M, M, M, M,Hd, _, _, _, _, _],  // 2  visor (accent color)
+      [_, _, _, _, _,Hd, M, M, M, M,Hd, _, _, _, _, _],  // 3  visor lower
+      [_, _, _, _, _,Hd, H,Hd,Hd, H,Hd, _, _, _, _, _],  // 4  mouth guard / rebreather
       [_, _, _, _, _, _,Hd, H, H,Hd, _, _, _, _, _, _],  // 5  chin
       [_, _, _, _, _, _, _, M, M, _, _, _, _, _, _, _],  // 6  collar (accent)
-      [_, _, _, _,Hd, M, M, M, M, M, M,Hd, _, _, _, _],  // 7  shoulder pauldrons
-      [_, _, _, _, _, M, M,SG, M, M, M, _, _, _, _, _],  // 8  chest + sol unit glow
+      [_, _, _, _,Hd, M, M, M, M, M, M,Hd, _, _, _, _],  // 7  shoulder pauldrons (gray caps)
+      [_, _, _, _, m, M,SG,SG, M, M, M, m, _, _, _, _],  // 8  chest + sol unit glow (wider)
       [_, _, _, _, _, M, M, H, H, M, M, _, _, _, _, _],  // 9  torso (belt buckle gray)
-      [_, _, _, _, _, m, M, M, M, M, m, _, _, _, _, _],  // 10 waist (shadow on edges)
-      [_, _, _, _, _, _, m, M, M, m, _, _, _, _, _, _],  // 11 belt
+      [_, _, _, _, _, m, M, N, N, M, m, _, _, _, _, _],  // 10 utility belt (brown pouches)
+      [_, _, _, _, _, _, m, M, M, m, _, _, _, _, _, _],  // 11 lower belt
       [_, _, _, _, _, _, m, m, m, m, _, _, _, _, _, _],  // 12 hips
       [_, _, _, _, _, _, m, _, _, m, _, _, _, _, _, _],  // 13 legs
-      [_, _, _, _, _, _, m, _, _, m, _, _, _, _, _, _],  // 14 legs
-      [_, _, _, _, _, n, m, _, _, m, n, _, _, _, _, _],  // 15 boots
+      [_, _, _, _, _, n, m, _, _, m, n, _, _, _, _, _],  // 14 boots top
+      [_, _, _, _, _, n, n, _, _, n, n, _, _, _, _, _],  // 15 boots (brown, heavier)
     ]);
     savePNG(png, path.join(CONTENT_DIR, 'sprites', `player_${pc.name}.png`));
   }
@@ -2304,7 +2304,7 @@ function generateNPCSprites() {
   //     Cultivar Corps diplomat, deep crimson formal robe, gold insignia.
   //     Distinct from farmers (green), military (teal/blue), nightside (purple). ---
   const Dr = C.darkRed;   // dark crimson robe body
-  const Rd = C.red;       // crimson highlight on chest
+  const Rd2 = C.red;      // crimson highlight on chest
   const asha = createPNG(16, 16);
   drawPixelArt(asha, 0, 0, [
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
@@ -2313,12 +2313,12 @@ function generateNPCSprites() {
     [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],  // eyes
     [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],  // mouth
     [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],  // chin
-    [_, _, _, _, _, _,SG,SG,SG,SG, _, _, _, _, _, _],  // gold collar (diplomatic rank)
-    [_, _, _,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _],  // formal robe (wide)
-    [_, _, _,Dr,Dr,Dr,Dr,Rd,Rd,Dr,Dr,Dr,Dr, _, _, _],  // chest (lighter highlight)
-    [_, _, _, _,Dr,Dr,SG,Dr,Dr,SG,Dr,Dr, _, _, _, _],  // gold insignia (Cultivar Corps)
+    [_, _, _, _,SG,SG,SG,SG,SG,SG,SG,SG, _, _, _, _],  // gold collar (wider, more prominent)
+    [_, _, _,Dr,Dr,Dr,Dr,Rd2,Rd2,Dr,Dr,Dr,Dr, _, _, _],  // formal robe (red chest highlight)
+    [_, _, _,Dr,Dr,Rd2,SG,Dr,Dr,SG,Rd2,Dr,Dr, _, _, _],  // gold insignia + red highlights
+    [_, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _],  // robe body
     [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],  // robe mid
-    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],  // robe lower
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],  // robe lower (flows)
     [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],
     [_, _, _, _, _,Dr,Dr, _, _,Dr,Dr, _, _, _, _, _],  // legs
     [_, _, _, _, _,Dr,Dr, _, _,Dr,Dr, _, _, _, _, _],
@@ -2347,6 +2347,81 @@ function generateNPCSprites() {
     [_, _, _, _, n,Dr,Dr, _, _,Dr,Dr, n, _, _, _, _],
   ]);
   savePNG(ashaDenn, path.join(CONTENT_DIR, 'sprites', 'councillor_asha_denn.png'));
+
+  // --- Warden Holt (outpost_warden): military commander, teal uniform, short gray-brown hair ---
+  const warden = createPNG(16, 16);
+  drawPixelArt(warden, 0, 0, [
+    //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, G, G, G, G, _, _, _, _, _, _],  // short cropped gray hair
+    [_, _, _, _, _, G, S, S, S, S, G, _, _, _, _, _],  // face
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],  // eyes (white, not hostile)
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],  // stern mouth
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],  // chin
+    [_, _, _, _, _, _,Lg,Lg,Lg,Lg, _, _, _, _, _, _],  // gray collar / rank insignia
+    [_, _, _, dt, Te, Te, Te, Te, Te, Te, Te, Te, dt, _, _, _],  // teal uniform (wide shoulders)
+    [_, _, _, dt, Te, Te, Te, Te, Te, Te, Te, Te, dt, _, _, _],  // chest
+    [_, _, _, _, dt, Te, Te,Lg, Te, Te, Te, dt, _, _, _, _],  // belt buckle (gray)
+    [_, _, _, _, _, dt, Te, Te, Te, Te, dt, _, _, _, _, _],  // waist
+    [_, _, _, _, _, dt, dt, Te, Te, dt, dt, _, _, _, _, _],  // belt
+    [_, _, _, _, _, dt, dt, dt, dt, dt, dt, _, _, _, _, _],  // hips
+    [_, _, _, _, _, dt, dt, _, _, dt, dt, _, _, _, _, _],  // legs
+    [_, _, _, _, _, dt, dt, _, _, dt, dt, _, _, _, _, _],  // legs
+    [_, _, _, _, n, dt, dt, _, _, dt, dt, n, _, _, _, _],  // boots
+  ]);
+  savePNG(warden, path.join(CONTENT_DIR, 'sprites', 'outpost_warden.png'));
+
+  // --- MERIDIAN-7 terminal: sleek vertical terminal/monolith, gold screen, teal data lines ---
+  const m7 = createPNG(16, 16);
+  const M7g = C.midGray;
+  const M7d = C.darkSlate;
+  const M7s = C.gray;
+  const M7t = C.lightTeal;
+  drawPixelArt(m7, 0, 0, [
+    //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    [_, _, _, _, _, _, _, Te, Te, _, _, _, _, _, _, _],  // antenna
+    [_, _, _, _, _, _, _, Te, Te, _, _, _, _, _, _, _],  // antenna stem
+    [_, _, _, _, _,M7d,M7d,M7d,M7d,M7d,M7d, _, _, _, _, _],  // top frame
+    [_, _, _, _,M7d,M7s,SG,SG,SG,SG,M7s,M7d, _, _, _, _],  // screen top (gold display)
+    [_, _, _, _,M7d,SG,SG,SG,SG,SG,SG,M7d, _, _, _, _],  // screen
+    [_, _, _, _,M7d,SG, Te,SG, Te,SG,SG,M7d, _, _, _, _],  // screen with teal data readouts
+    [_, _, _, _,M7d,SG,SG, Te,SG,SG,SG,M7d, _, _, _, _],  // screen
+    [_, _, _, _,M7d,SG, Te,SG,SG, Te,SG,M7d, _, _, _, _],  // screen with data
+    [_, _, _, _,M7d,M7s,SG,SG,SG,SG,M7s,M7d, _, _, _, _],  // screen bottom
+    [_, _, _, _,M7d,M7g,M7g,M7g,M7g,M7g,M7g,M7d, _, _, _, _],  // chassis
+    [_, _, _, _,M7d,M7g,M7t,M7g,M7g,M7t,M7g,M7d, _, _, _, _],  // teal status lights
+    [_, _, _, _,M7d,M7g,M7g,M7g,M7g,M7g,M7g,M7d, _, _, _, _],  // chassis body
+    [_, _, _, _,M7d,M7g,M7g,M7g,M7g,M7g,M7g,M7d, _, _, _, _],  // chassis lower
+    [_, _, _, _,M7d,M7d,M7g,M7g,M7g,M7g,M7d,M7d, _, _, _, _],  // base taper
+    [_, _, _,M7d,M7d,M7d,M7d,M7d,M7d,M7d,M7d,M7d,M7d, _, _, _],  // base plate
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(m7, path.join(CONTENT_DIR, 'sprites', 'meridian_7.png'));
+
+  // --- Apprentice Sol Engineer: orange coveralls, goggles on forehead, tool belt ---
+  const solEng = createPNG(16, 16);
+  const Ob = C.orange;
+  const Rs = C.rust;
+  drawPixelArt(solEng, 0, 0, [
+    //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _,SG, N, N,SG, _, _, _, _, _, _],  // brown hair + gold goggles on forehead
+    [_, _, _, _, _, N, S, S, S, S, N, _, _, _, _, _],  // hair framing face
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],  // eyes
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],  // mouth
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],  // chin
+    [_, _, _, _, _, _, _,Ob,Ob, _, _, _, _, _, _, _],  // collar
+    [_, _, _, Rs, Ob, Ob, Ob, Ob, Ob, Ob, Ob, Ob, Rs, _, _, _],  // orange coveralls (shoulders)
+    [_, _, _, Ob, Ob, Ob, Ob, Ob, Ob, Ob, Ob, Ob, Ob, _, _, _],  // chest
+    [_, _, _, _, Ob, Ob,SG, Ob, Ob, Ob, Ob, Ob, _, _, _, _],  // sol gold tool on belt
+    [_, _, _, _, _, Rs, Ob, Ob, Ob, Ob, Rs, _, _, _, _, _],  // waist
+    [_, _, _, _, _, Rs, Rs, Ob, Ob, Rs, Rs, _, _, _, _, _],  // belt with tools
+    [_, _, _, _, _, Rs, Rs, Rs, Rs, Rs, Rs, _, _, _, _, _],  // hips
+    [_, _, _, _, _, Rs, Rs, _, _, Rs, Rs, _, _, _, _, _],  // legs
+    [_, _, _, _, _, Rs, Rs, _, _, Rs, Rs, _, _, _, _, _],  // legs
+    [_, _, _, _, n, Rs, Rs, _, _, Rs, Rs, n, _, _, _, _],  // boots
+  ]);
+  savePNG(solEng, path.join(CONTENT_DIR, 'sprites', 'sol_engineer_1.png'));
 }
 
 // ============================================================================

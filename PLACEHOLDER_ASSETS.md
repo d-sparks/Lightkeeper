@@ -61,6 +61,9 @@ any public release:
 - `content/sprites/wren_alcott.png`
 - `content/sprites/councillor_asha.png`
 - `content/sprites/councillor_asha_denn.png`
+- `content/sprites/outpost_warden.png`
+- `content/sprites/meridian_7.png`
+- `content/sprites/sol_engineer_1.png`
 
 ### Item Sprites (16x16 each)
 - `content/sprites/health_potion.png`
