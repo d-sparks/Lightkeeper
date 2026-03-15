@@ -10247,6 +10247,51 @@
       }
     ]
   },
+  "wounded_unbounded_scout": {
+    "name": "Kael",
+    "dialogue": [
+      {
+        "speaker": "Kael",
+        "text": "The Unbounded scout clutches her bandaged arm. She's been watching you since you entered."
+      },
+      {
+        "speaker": "Kael",
+        "text": "The Spire is ahead. Voss has fortified every level. Be ready for a fight."
+      }
+    ],
+    "dialogues": {
+      "default": [
+        {
+          "speaker": "Kael",
+          "text": "I've been watching the raiders for weeks. Voss found something in the Spire — something that changed him."
+        },
+        {
+          "speaker": "Kael",
+          "text": "He stopped sending scouts. Started posting guards on every level. Whatever he found, he's guarding it like it matters more than the war."
+        }
+      ],
+      "after_heal": [
+        {
+          "speaker": "Kael",
+          "text": "Thank you. The cold was getting through — another few hours and I wouldn't have made it back."
+        },
+        {
+          "speaker": "Kael",
+          "text": "The crypt to the north is worth seeing. It predates the Spire. Whoever built it understood light the way we understand breathing — instinctively, completely."
+        },
+        {
+          "speaker": "Kael",
+          "text": "The elders say the Spire and the crypt are part of the same network. Nodes in a system that spans the planet."
+        }
+      ]
+    },
+    "dialogueRules": [
+      {
+        "conditions": [{ "hasFlag": "healed_wounded_scout" }],
+        "use": "after_heal"
+      }
+    ]
+  },
   "unbounded_elder": {
     "name": "Elder Vael",
     "dialogue": [

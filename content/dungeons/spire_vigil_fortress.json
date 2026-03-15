@@ -64,7 +64,7 @@
     { "type": "battery_chip", "x": 6, "y": 14 }
   ],
   "exits": [
-    { "x": 1, "y": 1, "leadsTo": "spire_vigil_approach", "type": "stairs_up", "spawnX": 19, "spawnY": 17 },
+    { "x": 1, "y": 1, "leadsTo": "spire_vigil_garrison", "type": "stairs_up", "spawnX": 19, "spawnY": 16 },
     { "x": 11, "y": 19, "leadsTo": "spire_vigil_sanctum", "type": "stairs_down", "spawnX": 1, "spawnY": 2 }
   ],
   "triggers": [

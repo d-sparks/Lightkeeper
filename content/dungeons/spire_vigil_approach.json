@@ -60,8 +60,8 @@
     { "type": "health_potion", "x": 3, "y": 16 }
   ],
   "exits": [
-    { "x": 1, "y": 1, "leadsTo": "nightside_depths", "type": "stairs_up", "spawnX": 15, "spawnY": 14 },
-    { "x": 19, "y": 17, "leadsTo": "spire_vigil_fortress", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 1, "y": 1, "leadsTo": "nightside_outpost", "type": "stairs_up", "spawnX": 18, "spawnY": 12 },
+    { "x": 19, "y": 17, "leadsTo": "spire_vigil_garrison", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
     {

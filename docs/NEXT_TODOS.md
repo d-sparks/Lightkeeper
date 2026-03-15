@@ -116,19 +116,52 @@ Remaining follow-ups:
 - **Floor layout variety** — Generated layouts are functional but could benefit from hand-tuning for visual distinctiveness. Floors 14-17 (sub-basement) use metal floor tiles for infrastructure feel.
 - **Quest integration** — The `lighthouse_mara` quest (4 steps) may need updating to reflect the expanded 20-floor expedition. Current steps may complete too early.
 
-## Content — Dural Voss / Spire of Vigil
+## Content — Nightside Scouting & Spire of Vigil (expanded 2026-03-15)
 
-- ~~**Spire of Vigil outer floors**~~ — DONE: spire_vigil_approach (outer defenses) and spire_vigil_fortress (raider stronghold with captain mini-boss) added.
-- ~~**Spire of Vigil inner puzzle floors**~~ — DONE: spire_vigil_underlumen (light pedestal puzzles) and spire_vigil_core (resonance chamber, Light Sentry unlock) added.
+Act 1 climax content expanded — 3 new dungeons, 1 new quest, Act 2 gating, waypoints.
+
+**New dungeons added:**
+- **nightside_outpost** — Abandoned raider forward camp between nightside_depths and spire_vigil_approach. Mixed fauna + raider stragglers. Wounded Unbounded scout NPC (Kael) with heal interaction. Supply manifest and camp journal lore items. Side exit to nightside_frost_crypt.
+- **nightside_frost_crypt** — Optional side dungeon from outpost. Ancient geometric architecture foreshadowing the Underlumen. Crystal guardian encounters, light pedestal puzzle (same mechanic as Spire underlumen), geometric tablet lore item (Underlumen network map). Dead-end dungeon with rare loot rewards.
+- **spire_vigil_garrison** — New floor between spire_vigil_approach and spire_vigil_fortress. Raider garrison with luddite_warlord mini-boss gating the inner fortress exit. Battle plans lore item revealing Spire layout. Heavy combat (12 monster spawns).
+
+**New quest:**
+- **spire_vigil** (`content/quests/spire_vigil.json`) — 7-step main quest: find_outpost → reach_spire → breach_garrison → breach_fortress → confront_voss → explore_underlumen → reach_core. Tracks the full Spire of Vigil arc.
+
+**Routing changes:**
+- nightside_depths (15,14) exit now routes to nightside_outpost (was spire_vigil_approach)
+- spire_vigil_approach back exit (1,1) now routes to nightside_outpost (was nightside_depths)
+- spire_vigil_approach forward exit (19,17) now routes to spire_vigil_garrison (was spire_vigil_fortress)
+- spire_vigil_fortress back exit (1,1) now routes to spire_vigil_garrison (was spire_vigil_approach)
+
+**Act 2 gating:**
+- meridian_civic → greenway_checkpoint exit now requires `spire_vigil_cleared` flag. Fail message: "The Greenway checkpoint is on high alert — the Bulwark has locked down passage until the Nightside threat is resolved."
+
+**New entities:**
+- 4 new key items: raider_supply_manifest, raider_camp_journal, crypt_geometric_tablet, garrison_battle_plans
+- 1 new NPC: wounded_unbounded_scout (Kael) with default + after_heal dialogue states
+
+**Waypoints added:** nightside_caverns, spire_vigil_approach
+
+**Full dungeon chain (11 rooms):** nightside_caverns → nightside_depths → nightside_outpost → (side: nightside_frost_crypt) → spire_vigil_approach → spire_vigil_garrison → spire_vigil_fortress → spire_vigil_sanctum → spire_vigil_underlumen → spire_vigil_core
+
+Remaining follow-ups:
+- ~~**Spire of Vigil outer floors**~~ — DONE
+- ~~**Spire of Vigil inner puzzle floors**~~ — DONE
+- ~~**Nightside scouting intermediate content**~~ — DONE
+- ~~**Act 2 gating behind Spire completion**~~ — DONE
+- ~~**Spire of Vigil waypoint**~~ — DONE
 - **Spire replayability / difficulty tiers** — Inner puzzle floors should reconfigure on replay visits. Implement Normal/Hard/Legendary difficulty scaling with better modifier drops at higher tiers.
 - **Dural Voss sprite** — Currently uses `luddite_warlord.png`. Needs a dedicated `sprites/dural_voss.png` (armored raider warlord, distinct silhouette).
 - **New raider sprites** — luddite_crossbowman uses luddite_scrapper sprite, luddite_shieldbearer uses luddite_brawler sprite, luddite_captain uses luddite_warlord sprite. All need dedicated sprites.
+- **Wounded scout sprite** — wounded_unbounded_scout (Kael) needs dedicated sprite.
 - **Voss retreat VFX** — Client-side visual for the `boss_retreat` event (flash, smoke, dramatic exit animation).
 - **Post-Voss quest integration** — The `spire_vigil_data_core` item needs a turn-in step at Warden Holt / Councillor Asha Denn. Connect to main_quest progression.
 - **Raider guard dialogue NPCs** — Add NPC raider sentries in approach/fortress floors with conditional dialogue (threats before captain killed, fear/retreat after).
-- **Nightside depths exit hint** — Add a trigger in nightside_depths near the stairs_down (15,14) hinting at the Spire.
 - **Underlumen puzzle variety** — Current puzzles are activate-all-pedestals. Consider adding timed sequences, mirror/beam-reflection puzzles, and enemy wave defense puzzles for replay variants.
-- **Spire of Vigil waypoint** — Consider adding a waypoint beacon in spire_vigil_approach for fast travel after first clear.
+- **Frost crypt connection to Sable** — Add dialogue rules to sable_nightside_guide/sable_companion reacting to `found_geometric_tablet` and `visited_frost_crypt` flags.
+- **Garrison warlord vs. existing warlord** — spire_vigil_garrison uses `luddite_warlord` monster type. Verify HP/damage are appropriate for a mid-Spire mini-boss (currently same as the general luddite_warlord used elsewhere).
+- **Room-entry dialogue suppression** — nightside_outpost, nightside_frost_crypt, and spire_vigil_garrison all have room_entered + showMessage + monsterSpawns. Need `noHostilesInRoom` condition + `room_cleared` paired triggers (see Room-Entry Dialogue Suppression section).
 
 ## Content — Orphaned Rooms (2026-03-13)
 

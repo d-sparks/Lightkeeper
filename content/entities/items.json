@@ -1112,6 +1112,30 @@
     "type": "key",
     "rarity": "rare"
   },
+  "raider_supply_manifest": {
+    "name": "Raider Supply Manifest",
+    "description": "A supply ledger from the abandoned raider outpost. The final entries detail a full garrison deployment to something called 'the Spire.' Week 7: 'Last supply run. Voss won't say what he found, but he's posted guards on every level.'",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "raider_camp_journal": {
+    "name": "Raider Surveyor's Journal",
+    "description": "A leather-bound journal from K. Brenn, Luddite Surveyor. Documents geometric crystal formations in the deep Nightside and an ancient crypt whose walls 'respond to light — Sol-frequency light specifically.' The author questions how structures built before humans reached Erith could respond to human technology.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "crypt_geometric_tablet": {
+    "name": "Geometric Tablet",
+    "description": "A crystalline tablet etched with patterns that physically rearrange in response to light frequency. Shows a diagram of a planetary network — nodes connected by lines of light, with a recurring spire symbol at the largest node. A map of the Underlumen.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "garrison_battle_plans": {
+    "name": "Garrison Battle Plans",
+    "description": "Battle plans scratched on salvaged metal plates. Maps five levels of the Spire of Vigil. Below level three, a single word: 'SEALED.' Includes energy readings from below — massive, regular pulses matching no known power source. Voss has been trying to break through for weeks.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
   "unbounded_trail_tablet": {
     "name": "Unbounded Trail Tablet",
     "description": "A carved stone waymarker with fresh, clean edges — maintained recently. The Unbounded script reads: 'deep path, living rock.' One word repeats three times: 'listen.' And below: 'third descent, approach in quiet.' Someone is still using this path. Still going below. Still coming back.",

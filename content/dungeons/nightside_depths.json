@@ -101,7 +101,7 @@
   "exits": [
     { "x": 1, "y": 18, "leadsTo": "nightside_caverns", "type": "stairs_up", "spawnX": 21, "spawnY": 15 },
     { "x": 19, "y": 18, "leadsTo": "nightside_passage", "type": "stairs_down", "spawnX": 2, "spawnY": 2 },
-    { "x": 15, "y": 14, "leadsTo": "spire_vigil_approach", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 15, "y": 14, "leadsTo": "nightside_outpost", "type": "stairs_down", "spawnX": 2, "spawnY": 2 }
   ],
   "triggers": [
     {

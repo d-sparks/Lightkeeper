@@ -49,7 +49,14 @@
     { "x": 24, "y": 16, "leadsTo": "meridian_residential", "type": "stairs_down", "spawnX": 1, "spawnY": 2 },
     { "x": 12, "y": 17, "leadsTo": "meridian_station", "type": "stairs_up", "spawnX": 28, "spawnY": 9 },
     { "x": 24, "y": 2, "leadsTo": "salvage_yard", "type": "stairs_down", "spawnX": 20, "spawnY": 14 },
-    { "x": 23, "y": 11, "leadsTo": "greenway_checkpoint", "type": "stairs_down", "spawnX": 2, "spawnY": 7 }
+    {
+      "x": 23, "y": 11,
+      "leadsTo": "greenway_checkpoint",
+      "type": "stairs_down",
+      "spawnX": 2, "spawnY": 7,
+      "conditions": [{ "hasFlag": "spire_vigil_cleared" }],
+      "failMessage": "The Greenway checkpoint is on high alert — the Bulwark has locked down passage until the Nightside threat is resolved. Clear the Spire of Vigil first."
+    }
   ],
   "triggers": [
     {

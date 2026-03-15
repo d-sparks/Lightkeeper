@@ -1,0 +1,160 @@
+{
+  "id": "spire_vigil_garrison",
+  "name": "Spire of Vigil — Garrison",
+  "depth": 2,
+  "tileset": "nightside",
+  "theme": "nightside",
+  "tileSize": 32,
+  "ambientLight": 0.035,
+  "environmentalHazard": { "type": "cold", "damage": 3, "interval": 3.0 },
+  "width": 22,
+  "height": 18,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,8,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,2,1,1,1,1,4,1,1,1,3,3,3,3,3,3,3,3,3,3,
+    3,3,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,
+    3,3,3,1,1,1,1,1,1,1,1,2,1,1,3,3,3,3,3,3,3,3,
+    3,3,3,1,1,2,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,
+    3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,
+    3,3,1,1,1,1,1,1,10,1,1,1,1,1,1,1,1,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,3,3,3,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,
+    3,1,1,1,1,1,1,3,3,3,3,1,1,1,1,1,1,10,1,1,3,3,
+    3,3,1,1,1,1,3,3,7,7,3,3,1,1,2,1,1,1,1,1,1,3,
+    3,3,3,1,1,1,3,3,7,7,3,3,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,1,1,1,3,3,3,3,1,1,1,1,1,4,1,1,2,1,3,
+    3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,6,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "luddite_brawler", "x": 6, "y": 4, "count": 2, "patrol": "guard" },
+    { "type": "luddite_crossbowman", "x": 11, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "luddite_shieldbearer", "x": 10, "y": 6, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 8, "y": 5}, {"x": 13, "y": 5}, {"x": 13, "y": 8}, {"x": 8, "y": 8}
+    ] },
+    { "type": "luddite_brawler", "x": 5, "y": 8, "count": 2, "patrol": "patrol", "patrolPath": [
+      {"x": 3, "y": 7}, {"x": 8, "y": 7}, {"x": 8, "y": 10}, {"x": 3, "y": 10}
+    ] },
+    { "type": "luddite_crossbowman", "x": 14, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "luddite_scrapper", "x": 16, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "luddite_warlord", "x": 12, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 15, "y": 12, "count": 2, "patrol": "patrol", "patrolPath": [
+      {"x": 13, "y": 11}, {"x": 18, "y": 11}, {"x": 18, "y": 14}, {"x": 13, "y": 14}
+    ] },
+    { "type": "luddite_shieldbearer", "x": 8, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "luddite_crossbowman", "x": 18, "y": 14, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 10, "y": 15, "count": 2, "patrol": "patrol", "patrolPath": [
+      {"x": 7, "y": 14}, {"x": 13, "y": 14}, {"x": 13, "y": 16}, {"x": 7, "y": 16}
+    ] },
+    { "type": "luddite_scrapper", "x": 15, "y": 15, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 3, "y": 3 },
+    { "type": "field_medkit", "x": 12, "y": 5 },
+    { "type": "frost_salve", "x": 4, "y": 10 },
+    { "type": "health_potion", "x": 16, "y": 10 },
+    { "type": "battery_chip", "x": 7, "y": 15 },
+    { "type": "garrison_battle_plans", "x": 14, "y": 14 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_vigil_approach", "type": "stairs_up", "spawnX": 19, "spawnY": 17 },
+    {
+      "x": 19, "y": 16,
+      "leadsTo": "spire_vigil_fortress",
+      "type": "stairs_down",
+      "spawnX": 1, "spawnY": 1,
+      "conditions": [{ "hasFlag": "garrison_warlord_killed" }],
+      "failMessage": "The passage to the inner fortress is barricaded. A Luddite Warlord commands this garrison — defeat them to break through."
+    }
+  ],
+  "triggers": [
+    {
+      "id": "garrison_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Spire's outer galleries have been converted into a military garrison. Weapon racks line the walls between ancient geometric carvings. Ammunition crates sit on floors that predate human history.",
+          "The contrast is stark — crude metalwork bolted onto architecture of impossible precision. The raiders are using this place, but they don't understand it.",
+          "A Luddite Warlord holds command here. The inner fortress lies beyond this garrison."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "garrison_entry_gate",
+      "event": "door_interacted",
+      "filter": { "tileX": 8, "tileY": 3 },
+      "actions": [
+        { "type": "showMessage", "text": "The crystal gate slides open. The raiders haven't figured out how to lock these — the Spire only responds to Sol-frequency light." }
+      ],
+      "once": true
+    },
+    {
+      "id": "garrison_warlord_killed",
+      "event": "monster_killed",
+      "filter": { "monsterType": "luddite_warlord" },
+      "actions": [
+        { "type": "setFlag", "flag": "garrison_warlord_killed" },
+        { "type": "grantXp", "amount": 60 },
+        { "type": "showMessage", "lines": [
+          "The Warlord collapses. The remaining raiders scatter — without leadership, the garrison's discipline crumbles.",
+          "The barricade blocking the inner fortress can be cleared now. Dural Voss and his personal guard wait below."
+        ]},
+        { "type": "setQuestObjective", "text": "Push deeper into the Spire — Dural Voss awaits" }
+      ],
+      "once": true
+    },
+    {
+      "id": "garrison_inner_gate",
+      "event": "door_interacted",
+      "filter": { "tileX": 16, "tileY": 14 },
+      "conditions": [
+        { "not": { "hasFlag": "garrison_warlord_killed" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The crystal gate won't open — the Warlord's forces have barricaded the far side. Eliminate the garrison commander first." }
+      ]
+    },
+    {
+      "id": "garrison_battle_plans_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "garrison_battle_plans" },
+      "actions": [
+        { "type": "setFlag", "flag": "found_battle_plans" },
+        { "type": "showMessage", "lines": [
+          "Battle plans scratched onto salvaged metal plates. You can piece together Voss's strategy:",
+          "The Spire has five levels. The outer defenses and this garrison hold levels one and two. Voss himself commands level three — the sanctum. Below that...",
+          "The plans stop. Voss has drawn a line across the page and written one word: 'SEALED.' Whatever lies beneath the sanctum, even Voss hasn't breached it.",
+          "But the plans include energy readings from below — massive, regular pulses that match no known power source. Voss has been trying to break through for weeks."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_garrison",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "spire_vigil_chest" }
+      ]
+    },
+    {
+      "id": "mark_garrison_visited",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "visited_spire_garrison", "scope": "player" }
+      ],
+      "once": true
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "id": "nightside_frost_crypt",
+  "name": "Frost Crypt",
+  "depth": 0,
+  "tileset": "nightside",
+  "theme": "nightside",
+  "tileSize": 32,
+  "ambientLight": 0.015,
+  "environmentalHazard": { "type": "cold", "damage": 5, "interval": 2.0 },
+  "width": 18,
+  "height": 16,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,3,3,3,1,1,1,1,1,1,1,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,2,1,1,10,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,1,1,1,3,3,1,1,1,3,3,1,1,1,1,3,3,
+    3,3,1,1,1,3,7,1,2,1,7,3,1,1,1,1,3,3,
+    3,1,1,1,1,3,3,1,1,1,3,3,1,1,2,1,1,3,
+    3,1,1,2,1,1,4,1,1,1,4,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,2,1,1,1,1,1,1,10,1,3,
+    3,1,1,1,1,3,3,1,1,1,3,3,1,1,1,1,1,3,
+    3,3,1,1,1,3,7,1,2,1,7,3,1,1,2,1,3,3,
+    3,3,1,1,1,3,3,1,1,1,3,3,1,1,1,1,3,3,
+    3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,10,1,1,1,1,1,2,1,1,3,
+    3,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 14, "type": "player_start" },
+    { "x": 2, "y": 14, "type": "player_start" },
+    { "x": 1, "y": 13, "type": "player_start" },
+    { "x": 2, "y": 13, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "crystal_guardian", "x": 8, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "shade_stalker_alpha", "x": 14, "y": 3, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 12, "y": 2}, {"x": 16, "y": 2}, {"x": 16, "y": 4}, {"x": 12, "y": 4}
+    ] },
+    { "type": "gloom_wraith", "x": 4, "y": 7, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 2, "y": 6}, {"x": 5, "y": 6}, {"x": 5, "y": 9}, {"x": 2, "y": 9}
+    ] },
+    { "type": "gloom_wraith", "x": 14, "y": 8, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 12, "y": 7}, {"x": 16, "y": 7}, {"x": 16, "y": 10}, {"x": 12, "y": 10}
+    ] },
+    { "type": "shade_stalker", "x": 3, "y": 12, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 1, "y": 11}, {"x": 5, "y": 11}, {"x": 5, "y": 14}, {"x": 1, "y": 14}
+    ] },
+    { "type": "rime_stalker", "x": 13, "y": 12, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 11, "y": 11}, {"x": 16, "y": 11}, {"x": 16, "y": 14}, {"x": 11, "y": 14}
+    ] },
+    { "type": "crystal_guardian", "x": 8, "y": 10, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 3, "y": 2 },
+    { "type": "frost_salve", "x": 14, "y": 6 },
+    { "type": "battery_chip", "x": 3, "y": 8 },
+    { "type": "umbracite", "x": 8, "y": 2 },
+    { "type": "umbracite", "x": 8, "y": 10 },
+    { "type": "crypt_geometric_tablet", "x": 8, "y": 8 }
+  ],
+  "exits": [
+    { "x": 1, "y": 14, "leadsTo": "nightside_outpost", "type": "stairs_up", "spawnX": 10, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "crypt_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The architecture changes the moment you cross the threshold. Rough cavern walls give way to smooth geometric surfaces — perfectly angled, mathematically precise. Not carved. Grown.",
+          "The walls pulse with inner light as your Sol unit draws near. Patterns you can't read trace circuits across every surface, reacting to your presence like a living system recognizing a familiar signal.",
+          "This crypt is ancient. Far older than any human structure on Erith. Older, perhaps, than human civilization itself.",
+          "Whatever built this place understood light the way humans understand language."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "crypt_geometric_tablet_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "crypt_geometric_tablet" },
+      "actions": [
+        { "type": "setFlag", "flag": "found_geometric_tablet" },
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "lines": [
+          "A flat crystalline tablet, etched with geometric patterns that shift when you tilt it in the light. Not optical illusions — the patterns are physically changing, rearranging themselves in response to the light frequency.",
+          "You recognize some of the geometry. It matches the interference patterns your Sol unit generates. Whoever built this understood Sol-frequency light — and built an entire architecture around it.",
+          "The tablet shows a diagram: a network of nodes connected by lines of light, spread beneath a planetary surface. Each node is labeled with a geometric symbol. One symbol repeats at the largest node — it looks like a spire.",
+          "This is a map. A map of the Underlumen network. And the Spire of Vigil is one of its primary nodes.",
+          "The Array's energy readings. The Lighthouse failures. The geometric patterns in the deep caverns. It's all connected — and this crypt was built to explain the connection to anyone who could read light."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "crypt_crystal_guardian_warning",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "crypt_guardian_warned" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "crypt_guardian_warned" },
+        { "type": "showMessage", "lines": [
+          "A deep resonance fills the chamber. The crystal formations embedded in the walls vibrate with a frequency you feel in your chest.",
+          "Something massive shifts in the darkness ahead. The crypt has guardians — and they are very much awake."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "crypt_central_puzzle",
+      "event": "door_interacted",
+      "filter": { "tileX": 6, "tileY": 7 },
+      "conditions": [
+        { "not": { "hasFlag": "crypt_left_pedestal" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "crypt_left_pedestal", "scope": "room" },
+        { "type": "showMessage", "text": "You channel Sol energy into the crystal pedestal. It flares to life, light racing along geometric grooves in the floor toward the sealed central chamber." }
+      ]
+    },
+    {
+      "id": "crypt_central_puzzle_right",
+      "event": "door_interacted",
+      "filter": { "tileX": 10, "tileY": 7 },
+      "conditions": [
+        { "not": { "hasFlag": "crypt_right_pedestal" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "crypt_right_pedestal", "scope": "room" },
+        { "type": "showMessage", "text": "The right pedestal ignites. Two lines of light converge on the sealed chamber between them." }
+      ]
+    },
+    {
+      "id": "crypt_puzzle_check",
+      "event": "flag_changed",
+      "conditions": [
+        { "hasFlag": "crypt_left_pedestal" },
+        { "hasFlag": "crypt_right_pedestal" },
+        { "not": { "hasFlag": "crypt_puzzle_solved" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "crypt_puzzle_solved" },
+        { "type": "grantXp", "amount": 35 },
+        { "type": "showMessage", "lines": [
+          "Both beams converge. The sealed chamber between the pedestals fills with light — and the crystal barriers dissolve.",
+          "The central pool chambers are now accessible. The geometric patterns on the walls pulse with approval, if architecture can approve."
+        ]},
+        { "type": "setTile", "x": 6, "y": 7, "tileId": 5 },
+        { "type": "setTile", "x": 10, "y": 7, "tileId": 5 }
+      ],
+      "once": true
+    },
+    {
+      "id": "chest_loot_crypt",
+      "event": "door_interacted",
+      "filter": { "tileName": "chest_closed" },
+      "actions": [
+        { "type": "rollLootTable", "lootTable": "frost_biome_rare" }
+      ]
+    },
+    {
+      "id": "mark_crypt_visited",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "visited_frost_crypt", "scope": "player" }
+      ],
+      "once": true
+    }
+  ]
+}

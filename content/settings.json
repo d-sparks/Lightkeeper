@@ -7,6 +7,8 @@
     { "id": "perimeter_gate", "name": "Perimeter Gate", "room": "perimeter_gate" },
     { "id": "relay_station", "name": "Lighthouse Mara", "room": "relay_station" },
     { "id": "crypt_01", "name": "Frost Crypts", "room": "crypt_01" },
+    { "id": "nightside_caverns", "name": "Nightside Caverns", "room": "nightside_caverns" },
+    { "id": "spire_vigil_approach", "name": "Spire of Vigil", "room": "spire_vigil_approach" },
     { "id": "greenway_settlement", "name": "Greenway Settlement", "room": "greenway_settlement" },
     { "id": "spire_winds_approach", "name": "Spire of Winds", "room": "spire_winds_approach" },
     { "id": "spire_radiance_approach", "name": "Spire of Radiance", "room": "spire_radiance_approach" }
