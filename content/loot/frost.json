@@ -31,6 +31,20 @@
       { "item": "rechargeable_battery_chip", "weight": 1 }
     ]
   },
+  "spire_winds_chest": {
+    "dropChance": 1.0,
+    "note": "Spire of Winds first-clear chest. Higher tier than Vigil — rarer components, energy-focused.",
+    "rolls": [
+      { "item": "field_medkit", "weight": 3 },
+      { "item": "signal_booster_chip", "weight": 4 },
+      { "item": "rechargeable_battery_chip", "weight": 4 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 3 },
+      { "item": "guardian_core_chip", "weight": 3 },
+      { "item": "void_resonator_chip", "weight": 2 },
+      { "item": "array_harmonic_stabilizer_chip", "weight": 2 },
+      { "item": "uranium_generator_chip", "weight": 1 }
+    ]
+  },
   "spire_vigil_chest": {
     "dropChance": 1.0,
     "rolls": [
