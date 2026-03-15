@@ -2299,6 +2299,54 @@ function generateNPCSprites() {
     [_, _, _, _, n, dt, dt, _, _, dt, dt, n, _, _, _, _],
   ]);
   savePNG(wndScout, path.join(CONTENT_DIR, 'sprites', 'wounded_unbounded_scout.png'));
+
+  // --- Councillor Asha Denn (councillor_asha / councillor_asha_denn):
+  //     Cultivar Corps diplomat, deep crimson formal robe, gold insignia.
+  //     Distinct from farmers (green), military (teal/blue), nightside (purple). ---
+  const Dr = C.darkRed;   // dark crimson robe body
+  const Rd = C.red;       // crimson highlight on chest
+  const asha = createPNG(16, 16);
+  drawPixelArt(asha, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, n, N, N, n, _, _, _, _, _, _],  // short dark hair (formal cut)
+    [_, _, _, _, _, n, S, S, S, S, n, _, _, _, _, _],  // hair framing face
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],  // eyes
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],  // mouth
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],  // chin
+    [_, _, _, _, _, _,SG,SG,SG,SG, _, _, _, _, _, _],  // gold collar (diplomatic rank)
+    [_, _, _,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _],  // formal robe (wide)
+    [_, _, _,Dr,Dr,Dr,Dr,Rd,Rd,Dr,Dr,Dr,Dr, _, _, _],  // chest (lighter highlight)
+    [_, _, _, _,Dr,Dr,SG,Dr,Dr,SG,Dr,Dr, _, _, _, _],  // gold insignia (Cultivar Corps)
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],  // robe mid
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],  // robe lower
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, _,Dr,Dr, _, _,Dr,Dr, _, _, _, _, _],  // legs
+    [_, _, _, _, _,Dr,Dr, _, _,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, n,Dr,Dr, _, _,Dr,Dr, n, _, _, _, _],  // feet
+  ]);
+  savePNG(asha, path.join(CONTENT_DIR, 'sprites', 'councillor_asha.png'));
+
+  // councillor_asha_denn: same character, early encounter in Greenway (travel cloak variant)
+  const ashaDenn = createPNG(16, 16);
+  drawPixelArt(ashaDenn, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, n, N, N, n, _, _, _, _, _, _],  // short dark hair
+    [_, _, _, _, _, n, S, S, S, S, n, _, _, _, _, _],  // hair framing face
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],  // eyes
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],  // mouth
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],  // chin
+    [_, _, _, _, _, _,Dr,Dr,Dr,Dr, _, _, _, _, _, _],  // crimson collar (travel wear)
+    [_, _, _,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _],  // travel cloak (same crimson)
+    [_, _, _,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _],  // cloak body (no insignia — informal)
+    [_, _, _, _,Dr,Dr,Dr,SG,SG,Dr,Dr,Dr, _, _, _, _],  // small gold clasp at center
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, _,Dr,Dr, _, _,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, _,Dr,Dr, _, _,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, n,Dr,Dr, _, _,Dr,Dr, n, _, _, _, _],
+  ]);
+  savePNG(ashaDenn, path.join(CONTENT_DIR, 'sprites', 'councillor_asha_denn.png'));
 }
 
 // ============================================================================

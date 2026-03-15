@@ -59,6 +59,8 @@ any public release:
 - `content/sprites/sable_threshold.png`
 - `content/sprites/unbounded_elder.png`
 - `content/sprites/wren_alcott.png`
+- `content/sprites/councillor_asha.png`
+- `content/sprites/councillor_asha_denn.png`
 
 ### Item Sprites (16x16 each)
 - `content/sprites/health_potion.png`
