@@ -50,7 +50,7 @@
   ],
   "exits": [
     { "x": 0, "y": 7, "leadsTo": "greenway_farmstead", "type": "stairs_up", "spawnX": 28, "spawnY": 7 },
-    { "x": 22, "y": 11, "leadsTo": "spire_winds_approach", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 22, "y": 11, "leadsTo": "spire_winds_approach", "type": "stairs_down", "spawnX": 1, "spawnY": 1, "conditions": { "hasFlag": "supply_sabotage_complete" }, "failMessage": "The route to the Spire of Winds is too dangerous. You should finish what you came here to do first." }
   ],
   "triggers": [
     {

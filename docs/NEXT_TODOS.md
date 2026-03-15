@@ -39,7 +39,7 @@ Split into narrative segments with intermediate quest objectives, healing caches
 ### HIGH — Quest Connectivity
 
 - [ ] **`spire_vigil.json` format inconsistency**: Uses old array-based step format instead of object-based. May cause quest tracker parser issues. Convert to standard format.
-- [ ] **Greenway → Spire of Winds exit has no flag gate**: `greenway_supply_depot` exit to `spire_winds_approach` at (22,11) has no conditions. Player can skip supply sabotage quest. Add `{ "hasFlag": "supply_sabotage_complete" }`.
+- [x] **Greenway → Spire of Winds exit has no flag gate**: `greenway_supply_depot` exit to `spire_winds_approach` at (22,11) has no conditions. Player can skip supply sabotage quest. Add `{ "hasFlag": "supply_sabotage_complete" }`. — DONE
 - [ ] **`spire_winds_cleared` flag never checked**: Player can skip Spire of Winds core and still progress to Act 3. Consider gating Dayside entry on this flag.
 
 ### MODERATE — Sim Improvements Needed
