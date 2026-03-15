@@ -56,6 +56,7 @@
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "solar_focusing_crystal", "x": 6, "y": 6 },
+    { "type": "light_sentry_chip", "x": 3, "y": 11 },
     { "type": "field_medkit", "x": 16, "y": 7 },
     { "type": "umbracite", "x": 16, "y": 12 },
     { "type": "bandage", "x": 11, "y": 17 }

@@ -12,7 +12,7 @@
     13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
     13, 8,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,
     13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
-    13,12,12,25,12,12, 7, 7, 7, 7, 7, 7,12,12,25,12,12,13,
+    13,12,12,26,12,12, 7, 7, 7, 7, 7, 7,12,12,26,12,12,13,
     13,12,12,12,12,18, 7, 7, 7, 7, 7, 7,18,12,12,12,12,13,
     13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
     13,12, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,12,13,
@@ -23,7 +23,7 @@
     13,12, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,12,13,
     13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
     13,12,12,12,12,18, 7, 7, 7, 7, 7, 7,18,12,12,12,12,13,
-    13,12,12,25,12,12, 7, 7, 7, 7, 7, 7,12,12,25,12,12,13,
+    13,12,12,26,12,12, 7, 7, 7, 7, 7, 7,12,12,26,12,12,13,
     13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
     13,12,12,12,12,12,12, 6,12,12,12,12,12,12,12,12,12,13,
     13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
@@ -60,8 +60,8 @@
             "type": "showMessage",
             "lines": [
               "A vast circular chamber opens before you, dominated by a central platform suspended over a swirling void. Wind currents spiral upward in visible patterns, carrying motes of luminescent dust.",
-              "Four energy conduits are set into the chamber walls at cardinal positions, each pulsing with dormant light. Ancient mechanisms connect them to the central platform through channels carved into the stone floor.",
-              "The passage to the core below is sealed. The wind currents form a barrier too powerful to cross. The conduits must hold the key."
+              "Four resonance pedestals are set into the chamber at cardinal positions, each carved with wind-current glyphs. The pedestals must be attuned in the order the wind remembers \u2014 or the currents will scatter your progress.",
+              "An inscription on the floor reads: 'Born where light first touches stone, spiraling through the high places, descending through shadow, coming to rest in the deep below.'"
             ]
           }
         ],
@@ -80,150 +80,173 @@
             "type": "showMessage",
             "lines": [
               "A vast circular chamber opens before you, dominated by a central platform suspended over a swirling void. Wind currents spiral upward in visible patterns, carrying motes of luminescent dust.",
-              "Four energy conduits are set into the chamber walls at cardinal positions, each pulsing with dormant light. Ancient mechanisms connect them to the central platform through channels carved into the stone floor.",
-              "The passage to the core below is sealed. The wind currents form a barrier too powerful to cross. The conduits must hold the key."
+              "Four resonance pedestals are set into the chamber at cardinal positions, each carved with wind-current glyphs. The pedestals must be attuned in the order the wind remembers \u2014 or the currents will scatter your progress.",
+              "An inscription on the floor reads: 'Born where light first touches stone, spiraling through the high places, descending through shadow, coming to rest in the deep below.'"
             ]
           }
         ],
         "once": true
       },
       {
-        "id": "valve_1_activate",
+        "id": "attune_east_correct",
         "event": "door_interacted",
-        "filter": {
-          "tileName": "energy_conduit"
-        },
+        "filter": { "tileX": 14, "tileY": 3 },
         "conditions": [
-          {
-            "not": {
-              "hasFlag": "antechamber_valve_1"
-            }
-          }
+          { "not": { "hasFlag": "wind_attune_1" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
         ],
         "actions": [
-          {
-            "type": "setFlag",
-            "flag": "antechamber_valve_1"
-          },
+          { "type": "setFlag", "flag": "wind_attune_1" },
           {
             "type": "showMessage",
             "lines": [
-              "The first conduit responds to your touch. Ancient mechanisms grind to life as wind channels realign. A quarter of the barrier currents redirect, flowing into the conduit's carved channels.",
-              "The conduit glows with steady blue light. Three more remain."
+              "The eastern pedestal responds to your touch. Wind currents swirl around it, rising in a gentle spiral. The glyph of dawn glows steadily \u2014 where light first touches stone.",
+              "The wind whispers upward, toward the high places. Three pedestals remain."
             ]
-          },
-          {
-            "type": "grantXp",
-            "amount": 15
           }
-        ],
-        "once": true
+        ]
       },
       {
-        "id": "valve_2_activate",
+        "id": "attune_north_correct",
         "event": "door_interacted",
-        "filter": {
-          "tileName": "energy_conduit"
-        },
+        "filter": { "tileX": 3, "tileY": 3 },
         "conditions": [
-          {
-            "hasFlag": "antechamber_valve_1"
-          },
-          {
-            "not": {
-              "hasFlag": "antechamber_valve_2"
-            }
-          }
+          { "hasFlag": "wind_attune_1" },
+          { "not": { "hasFlag": "wind_attune_2" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
         ],
         "actions": [
-          {
-            "type": "setFlag",
-            "flag": "antechamber_valve_2"
-          },
+          { "type": "setFlag", "flag": "wind_attune_2" },
           {
             "type": "showMessage",
             "lines": [
-              "The second conduit activates. The wind barrier weakens noticeably \u2014 the spiral currents slow and thin. The chamber hums with a harmonic that resonates in your bones.",
-              "Two conduits remain. The ancient mechanism is waking up."
+              "The northern pedestal ignites. Wind rushes upward through carved channels, carrying motes of light to the ceiling. The glyph of ascent blazes \u2014 spiraling through the high places.",
+              "The currents shift westward, descending through shadow. Two pedestals remain."
             ]
-          },
-          {
-            "type": "grantXp",
-            "amount": 15
           }
-        ],
-        "once": true
+        ]
       },
       {
-        "id": "valve_3_activate",
+        "id": "attune_north_wrong",
         "event": "door_interacted",
-        "filter": {
-          "tileName": "energy_conduit"
-        },
+        "filter": { "tileX": 3, "tileY": 3 },
         "conditions": [
-          {
-            "hasFlag": "antechamber_valve_2"
-          },
-          {
-            "not": {
-              "hasFlag": "antechamber_valve_3"
-            }
-          }
+          { "not": { "hasFlag": "wind_attune_1" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
         ],
         "actions": [
-          {
-            "type": "setFlag",
-            "flag": "antechamber_valve_3"
-          },
+          { "type": "removeFlag", "flag": "wind_attune_1" },
+          { "type": "removeFlag", "flag": "wind_attune_2" },
+          { "type": "removeFlag", "flag": "wind_attune_3" },
           {
             "type": "showMessage",
             "lines": [
-              "The third conduit flares to life. The wind barrier is barely a whisper now. The geometric patterns on every surface glow with increasing intensity, tracing paths of energy through the ancient stone.",
-              "One conduit remains. The passage to the core is almost open."
+              "The pedestal rejects your touch. A violent gust erupts from the void below, scattering the resonance you've built. The wind currents reset to their chaotic spiral.",
+              "The sequence is wrong. The wind remembers its path \u2014 you must follow it from the beginning."
             ]
-          },
-          {
-            "type": "grantXp",
-            "amount": 15
           }
-        ],
-        "once": true
+        ]
       },
       {
-        "id": "valve_4_complete",
+        "id": "attune_west_correct",
         "event": "door_interacted",
-        "filter": {
-          "tileName": "energy_conduit"
-        },
+        "filter": { "tileX": 3, "tileY": 14 },
         "conditions": [
-          {
-            "hasFlag": "antechamber_valve_3"
-          },
-          {
-            "not": {
-              "hasFlag": "antechamber_puzzle_complete"
-            }
-          }
+          { "hasFlag": "wind_attune_2" },
+          { "not": { "hasFlag": "wind_attune_3" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
         ],
         "actions": [
-          {
-            "type": "setFlag",
-            "flag": "antechamber_puzzle_complete"
-          },
+          { "type": "setFlag", "flag": "wind_attune_3" },
           {
             "type": "showMessage",
             "lines": [
-              "The final conduit blazes with light. All four channels converge \u2014 the wind barrier dissolves in a cascading wave of released energy that washes over you like a warm exhale.",
+              "The western pedestal awakens. Wind descends through the chamber in cooling waves, carrying the scent of deep stone. The glyph of twilight pulses \u2014 descending through shadow.",
+              "The currents pull downward now, toward the final pedestal. One remains."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "attune_west_wrong",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 14 },
+        "conditions": [
+          { "not": { "hasFlag": "wind_attune_2" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          { "type": "removeFlag", "flag": "wind_attune_1" },
+          { "type": "removeFlag", "flag": "wind_attune_2" },
+          { "type": "removeFlag", "flag": "wind_attune_3" },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The pedestal rejects your touch. A violent gust erupts from the void below, scattering the resonance you've built. The wind currents reset to their chaotic spiral.",
+              "The sequence is wrong. The wind remembers its path \u2014 you must follow it from the beginning."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "attune_south_correct",
+        "event": "door_interacted",
+        "filter": { "tileX": 14, "tileY": 14 },
+        "conditions": [
+          { "hasFlag": "wind_attune_3" },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "antechamber_puzzle_complete" },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The southern pedestal blazes with light. All four glyphs ignite in sequence \u2014 dawn, ascent, twilight, deep \u2014 and the wind barrier dissolves in a cascading wave of released energy.",
               "The chamber transforms. The swirling void below the central platform calms to a gentle updraft. The passage to the resonance core opens with a deep, resonant tone that echoes through the entire Monument.",
-              "The Spire of Winds recognizes your intent. The way to the core is open."
+              "The Spire of Winds recognizes the ancient pattern. The way to the core is open."
             ]
           },
           {
             "type": "grantXp",
-            "amount": 30
+            "amount": 50
           }
+        ]
+      },
+      {
+        "id": "attune_south_wrong",
+        "event": "door_interacted",
+        "filter": { "tileX": 14, "tileY": 14 },
+        "conditions": [
+          { "not": { "hasFlag": "wind_attune_3" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
         ],
-        "once": true
+        "actions": [
+          { "type": "removeFlag", "flag": "wind_attune_1" },
+          { "type": "removeFlag", "flag": "wind_attune_2" },
+          { "type": "removeFlag", "flag": "wind_attune_3" },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The pedestal rejects your touch. A violent gust erupts from the void below, scattering the resonance you've built. The wind currents reset to their chaotic spiral.",
+              "The sequence is wrong. The wind remembers its path \u2014 you must follow it from the beginning."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "attune_east_already",
+        "event": "door_interacted",
+        "filter": { "tileX": 14, "tileY": 3 },
+        "conditions": [
+          { "hasFlag": "wind_attune_1" },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The eastern pedestal hums steadily. Its glyph of dawn already glows \u2014 this node is attuned. The wind guides you onward."
+          }
+        ]
       }
     ]
 }

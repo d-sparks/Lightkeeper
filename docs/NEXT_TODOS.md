@@ -4,6 +4,16 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 8/14 pass, 6 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; relay_recovery FIXED; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
 
+## Spire Puzzle Variety Follow-ups (2026-03-15)
+
+Added beam reflection puzzle to Radiance Observatory and wind resonance sequence to Winds Antechamber. Outstanding items:
+
+- **Manual playtesting needed**: The beam puzzle in the Observatory requires deploying a light sentry and positioning it so the beam bounces through 3 mirrors to hit the photosensor. Verify mirror angles (135°, 45°, 135°) produce a valid path from west→south→east→south.
+- **Light sentry availability**: Added `light_sentry_chip` to Radiance Forge (depth 7, one floor before Observatory). Verify players can realistically acquire and equip it before reaching the Observatory at depth 8.
+- **Winds Antechamber pedestal tiles**: Changed tiles at (3,3), (14,3), (3,14), (14,14) from `full_wall` (25) to `resonance_pedestal` (26). The old valve puzzle used `tileName: "energy_conduit"` filter but no such tile exists in the spire_winds tileset — the old puzzle may have been non-functional.
+- **Spire of Vigil unchanged**: Vigil still uses the standard pedestal patterns (armory dual pedestal, resonance chamber sequential). Could add a third distinct mechanic here in a future pass.
+- **Crucible puzzle unchanged**: The Radiance Crucible (depth 11) still uses a 3-pedestal activate-all pattern. Could convert to use beam mechanics for consistency with the Observatory.
+
 ## Remaining Unchecked Flags (2026-03-15)
 
 53 validator flag warnings remain. The most interesting candidates for future NPC reactions:
