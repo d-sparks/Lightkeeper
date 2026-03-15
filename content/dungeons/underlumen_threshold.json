@@ -107,7 +107,6 @@
       "id": "threshold_reached_flag",
       "event": "room_entered",
       "conditions": [
-        { "hasFlag": "nightside_expedition_started" },
         { "not": { "hasFlag": "reached_underlumen_threshold" } },
         { "noHostilesInRoom": true }
       ],
@@ -125,7 +124,6 @@
       "id": "threshold_reached_flag_cleared",
       "event": "room_cleared",
       "conditions": [
-        { "hasFlag": "nightside_expedition_started" },
         { "not": { "hasFlag": "reached_underlumen_threshold" } }
       ],
       "actions": [

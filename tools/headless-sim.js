@@ -1228,7 +1228,7 @@ class Bot {
 
         // After too many depth recovery cycles (bot keeps dying or getting ejected),
         // abandon the goal to prevent infinite quarantine loops.
-        if (goal._depthRetryCount > 5) {
+        if (goal._depthRetryCount > 12) {
           console.log(`[Bot] wait_for_item "${goal.itemType}" exceeded ${goal._depthRetryCount} depth recovery attempts — giving up`);
           if (goal.questId) {
             this.failedQuestPrereqs.add(goal.questId);
