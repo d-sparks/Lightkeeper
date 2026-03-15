@@ -8,8 +8,8 @@
   "ambientLight": 0.04,
   "environmentalHazard": {
     "type": "cold",
-    "damage": 3,
-    "interval": 2.5
+    "damage": 2,
+    "interval": 3.5
   },
   "width": 20,
   "height": 16,
@@ -49,6 +49,7 @@
   "itemSpawns": [
     { "type": "frost_salve", "x": 3, "y": 3 },
     { "type": "field_medkit", "x": 15, "y": 5 },
+    { "type": "frost_salve", "x": 8, "y": 11 },
     { "type": "seismic_survey_data", "x": 16, "y": 4 },
     { "type": "umbracite_shard", "x": 9, "y": 13 },
     { "type": "reinforced_battery_chip", "x": 5, "y": 8 }

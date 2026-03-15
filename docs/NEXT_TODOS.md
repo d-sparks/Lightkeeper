@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-15 night (mainline sim: 47/124 rooms (38%), 167 kills, 78 deaths, blocks at lighthouse_mara_core boss — shade_stalker_alpha death loop; content validator: 0 errors, 4 warnings; unit tests: 320/320 pass after healOnHit cap fix).
+Last cleaned: 2026-03-15 night (mainline sim: 47/124 rooms (38%), 167 kills, 78 deaths, blocks at lighthouse_mara_core boss — shade_stalker_alpha death loop; content validator: 0 errors, 4 warnings; unit tests: 320/320 pass after healOnHit cap fix). Balance fix applied for shade_stalker_alpha death loop — see Fixes Applied #6.
 
 ## Three-Act Campaign Playtest Audit (2026-03-15)
 
@@ -19,6 +19,8 @@ Full end-to-end audit of Acts 1-3, ending paths, and endgame loop. Sim verified 
 4. **Solar Core Warden phase 3 overtuned**: Phase 3 was dealing 68 DPS from projectiles alone (34 dmg × 0.5s interval), with a 68-damage ground slam. Reduced phase 3 damage 34→28, projectile interval 0.5→0.9, slam multiplier 2.0→1.6, burst count 6→5, wound duration 8→6s, wound heal reduction 0.6→0.5. Still the hardest boss but no longer mathematically impossible solo.
 
 5. **Act 3 healing drought**: Added `field_medkit` (weight 3) to `array_sentinel` loot table. Array sentinels had zero healing drops — the most common Act 3 enemy was the only enemy type in the game with no consumable drops at all.
+
+6. **Shade Stalker Alpha death loop (lighthouse_mara_core)**: Bot died 78 times due to compounding boss damage + environmental cold. Reduced alpha HP 110→80, damage 18→14, lunge multiplier 1.6→1.4, stun duration 1.0→0.8s. Reduced core cold hazard from 3 dmg/2.5s (1.2 DPS) to 2 dmg/3.5s (0.57 DPS). Added frost_salve spawn at (8,11) near boss corridor entrance. Sim bot navigation currently stalls in early outpost rooms (pre-existing issue) — cannot verify fix via sim; needs manual playtest.
 
 ### Outstanding — Manual Playtest Required
 
