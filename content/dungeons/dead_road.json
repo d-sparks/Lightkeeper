@@ -64,7 +64,8 @@
       "id": "dead_road_enter",
       "event": "room_entered",
       "actions": [
-        { "type": "showMessage", "text": "Movement ahead — something crouches behind a wrecked transport. Human-shaped." }
+        { "type": "showMessage", "text": "Movement ahead — something crouches behind a wrecked transport. Human-shaped." },
+        { "type": "setFlag", "flag": "visited_dead_road" }
       ],
       "once": true
     },
@@ -99,6 +100,24 @@
         { "type": "showMessage", "text": "To the west, the darkness deepens beyond the old perimeter line. The terrain has changed since you were last here — the shadows seem closer, the creatures bolder." }
       ],
       "once": true
+    },
+    {
+      "id": "sable_nightside_breadcrumb",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sable_dead_road" },
+      "conditions": [
+        { "hasFlag": "helped_sable" },
+        { "not": { "hasFlag": "visited_nightside_caverns" } }
+      ],
+      "actions": [
+        {
+          "type": "setQuestObjective",
+          "label": "Find the Nightside Caverns",
+          "roomId": "dead_road",
+          "tileX": 0,
+          "tileY": 8
+        }
+      ]
     }
   ]
 }

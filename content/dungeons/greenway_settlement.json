@@ -1,0 +1,128 @@
+{
+  "id": "greenway_settlement",
+  "name": "Greenway Settlement",
+  "depth": 1,
+  "tileset": "greenway",
+  "theme": "greenway_corridor",
+  "tileSize": 32,
+  "width": 25,
+  "height": 18,
+  "data": [
+    16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,
+    16, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,16,
+     8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1,18,18,18,18,18, 1, 1,18,18,18,18,18, 1, 1,18,18,18,18,18, 1, 1,16,
+    16, 1, 1,18, 1, 1, 1,18, 1, 1,18, 1, 1, 1,18, 1, 1,18, 1, 1, 1,18, 1, 1,16,
+    16, 1, 1,18, 1, 1, 1,18, 1, 1,18, 1, 1, 1,18, 1, 1,18, 1, 1, 1,18, 1, 1,16,
+    16, 1, 1,18, 1, 1, 1, 4, 1, 1, 4, 1, 1, 1, 4, 1, 1, 4, 1, 1, 1,18, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1,18,18, 4,18,18, 1, 1,22,22,22,22,22, 1, 1,18,18, 4,18,18, 1, 1,16,
+    16, 1, 1,18, 1, 1, 1,18, 1, 1,22,21,21,21,22, 1, 1,18, 1, 1, 1,18, 1, 1,16,
+    16, 1, 1,18, 1, 1, 1,18, 1, 1,22,21,21,21,22, 1, 1,18, 1, 1, 1,18, 1, 6,16,
+    16, 1, 1,18,18,18,18,18, 1, 1,22,22, 4,22,22, 1, 1,18,18,18,18,18, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,16,
+    16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16
+  ],
+  "spawns": [
+    { "x": 14, "y": 2, "type": "player_start" },
+    { "x": 13, "y": 2, "type": "player_start" },
+    { "x": 14, "y": 3, "type": "player_start" },
+    { "x": 13, "y": 3, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [
+    { "type": "councillor_asha_denn", "x": 12, "y": 9 },
+    { "type": "greenway_elder_moss", "x": 5, "y": 9 },
+    { "type": "greenway_merchant_orin", "x": 19, "y": 9 },
+    { "type": "waypoint_beacon", "x": 12, "y": 15 }
+  ],
+  "itemSpawns": [
+    { "type": "bandage", "x": 5, "y": 6 },
+    { "type": "bio_graft", "x": 12, "y": 12 }
+  ],
+  "exits": [
+    { "x": 0, "y": 2, "leadsTo": "greenway_farmstead", "type": "stairs_up", "spawnX": 10, "spawnY": 17 },
+    { "x": 23, "y": 12, "leadsTo": "greenway_biolab_f01", "type": "stairs_down", "spawnX": 2, "spawnY": 2 }
+  ],
+  "triggers": [
+    {
+      "id": "arrive_settlement",
+      "event": "room_entered",
+      "conditions": [{ "not": { "hasFlag": "visited_greenway_settlement" } }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The settlement is a cluster of prefab shelters and greenhouses, built around an open commons. This is where the Greenway's families live \u2014 the people who tend the crops that feed Meridian.",
+          "Under normal circumstances, it would be a quiet farming community. Now it's a pocket of resistance. Faces peer from doorways. Whispered conversations stop as you pass.",
+          "A woman in civic robes stands in the commons, speaking quietly with an elder. She looks up as you approach. There's recognition in her eyes."
+        ]},
+        { "type": "setFlag", "flag": "visited_greenway_settlement" }
+      ],
+      "once": true
+    },
+    {
+      "id": "asha_denn_intro",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha_denn" },
+      "conditions": [{ "not": { "hasFlag": "met_asha_denn" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "met_asha_denn" },
+        { "type": "grantXp", "amount": 20 }
+      ],
+      "once": true
+    },
+    {
+      "id": "supply_delivery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha_denn" },
+      "conditions": [
+        { "hasItem": "confiscated_supplies" },
+        { "hasFlag": "supply_sabotage_started" },
+        { "not": { "hasFlag": "supply_sabotage_complete" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "confiscated_supplies" },
+        { "type": "setFlag", "flag": "supply_sabotage_complete" },
+        { "type": "showMessage", "lines": [
+          "Asha Denn takes the supply manifest and reads it quickly. Her eyes widen.",
+          "'You got the medical supplies too? This changes everything. The families here have been rationing for weeks.'",
+          "'You've done more than supply a village. You've shown the Greenway that the Compact's grip isn't absolute.'",
+          "'Now we need to deal with the real problem. The Monument of Winds \u2014 what the Compact calls a strategic asset. I believe it's one of the ancient Spires.'",
+          "QUEST COMPLETE: Greenway Liberation. The settlement has supplies to survive."
+        ]},
+        { "type": "grantXp", "amount": 50 },
+        { "type": "giveItem", "itemType": "symbiotic_core_chip" }
+      ],
+      "once": true
+    },
+    {
+      "id": "elder_moss_gift",
+      "event": "npc_interacted",
+      "filter": { "npcType": "greenway_elder_moss" },
+      "conditions": [{ "not": { "hasFlag": "elder_moss_gift_given" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "elder_moss_gift_given" },
+        { "type": "giveItem", "itemType": "bio_leech_node_chip" },
+        { "type": "showMessage", "text": "Elder Moss presses a small, pulsing component into your hands. 'The Greenway's gift. It will serve you well.'" },
+        { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    },
+    {
+      "id": "biolab_entrance_discovered",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "visited_greenway_settlement" },
+        { "not": { "hasFlag": "biolab_entrance_noted" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "Behind one of the eastern shelters, a set of stairs descends into the ground. The entrance is partially concealed by overgrown hedges, but you can feel warm, humid air rising from below. A faded sign reads: 'Greenway Agricultural Sciences — Authorized Personnel Only.'" },
+        { "type": "setFlag", "flag": "biolab_entrance_noted" }
+      ],
+      "once": true
+    }
+  ]
+}

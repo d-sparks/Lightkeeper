@@ -1,17 +1,12 @@
 {
-  "health_potion": {
-    "name": "Health Potion",
-    "description": "Restores 25 health",
-    "type": "consumable",
-    "rarity": "common",
-    "effect": { "heal": 25 }
-  },
   "bandage": {
     "name": "Bandage",
     "description": "A basic field dressing. Restores 15 health.",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "heal": 15 }
+    "effect": {
+      "heal": 15
+    }
   },
   "rusty_sword": {
     "name": "Rusty Sword",
@@ -19,7 +14,9 @@
     "type": "weapon",
     "rarity": "common",
     "slot": "weapon",
-    "stats": { "attackDamage": 5 }
+    "stats": {
+      "attackDamage": 5
+    }
   },
   "blaster": {
     "name": "Standard Blaster",
@@ -27,8 +24,14 @@
     "type": "weapon",
     "rarity": "common",
     "slot": "weapon",
-    "stats": { "attackDamage": 3, "projectile": true, "projectileType": "blaster_bolt" },
-    "ability": { "id": "blaster_shot" }
+    "stats": {
+      "attackDamage": 3,
+      "projectile": true,
+      "projectileType": "blaster_bolt"
+    },
+    "ability": {
+      "id": "blaster_shot"
+    }
   },
   "combat_baton": {
     "name": "Combat Baton",
@@ -36,8 +39,12 @@
     "type": "weapon",
     "rarity": "common",
     "slot": "weapon",
-    "stats": { "attackDamage": 5 },
-    "ability": { "id": "melee_strike" }
+    "stats": {
+      "attackDamage": 5
+    },
+    "ability": {
+      "id": "melee_strike"
+    }
   },
   "torch": {
     "name": "Torch",
@@ -69,7 +76,9 @@
     "type": "equipment",
     "rarity": "rare",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 12 },
+    "stats": {
+      "attackDamage": 12
+    },
     "hasSolGrid": true,
     "solUnitId": "sol_unit_mk1"
   },
@@ -86,7 +95,9 @@
     "type": "equipment",
     "rarity": "common",
     "slot": "medipac",
-    "ability": { "id": "medipac_heal" }
+    "ability": {
+      "id": "medipac_heal"
+    }
   },
   "damage_booster_chip": {
     "name": "Damage Booster Chip",
@@ -126,14 +137,18 @@
     "description": "Standard-issue field rations. Bland but nutritious. Restores 10 health.",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "heal": 10 }
+    "effect": {
+      "heal": 10
+    }
   },
   "field_medkit": {
     "name": "Field Medkit",
     "description": "A proper medical kit with fungal salve and stim compounds. Restores 40 health.",
     "type": "consumable",
     "rarity": "uncommon",
-    "effect": { "heal": 40 }
+    "effect": {
+      "heal": 40
+    }
   },
   "circuit_board": {
     "name": "Circuit Board",
@@ -159,6 +174,12 @@
     "type": "key",
     "rarity": "uncommon"
   },
+  "underlumen_etching": {
+    "name": "Underlumen Etching",
+    "description": "A stone tablet etched with geometric patterns that predate human settlement on Erith. The markings pulse faintly when held near a Sol Unit. The Old Keeper in the crypt will want to see this.",
+    "type": "key",
+    "rarity": "rare"
+  },
   "signal_booster_chip": {
     "name": "Signal Booster",
     "description": "A tuned frequency amplifier chip. Place it in a Sol Grid to reduce cooldowns of adjacent abilities.",
@@ -178,18 +199,40 @@
     "description": "A single-use emergency flare. Light it to mark an extraction point — a burning beacon you can return to.",
     "type": "consumable",
     "rarity": "uncommon",
-    "effect": { "createExtraction": true }
+    "effect": {
+      "createExtraction": true
+    }
   },
   "extraction_protocol": {
-    "name": "Extraction Protocol",
+    "name": "Return to Flare",
     "description": "An active extraction beacon burns somewhere in the dark. Use this to warp back to it.",
     "type": "consumable",
     "rarity": "uncommon",
-    "effect": { "teleportToExtraction": true }
+    "effect": {
+      "teleportToExtraction": true
+    }
   },
   "relay_log": {
     "name": "Relay Log",
     "description": "A water-damaged operations log from a failed Lighthouse relay. The last entry mentions 'something moving under the ground' and coordinates that don't match any known settlement.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "keepers_journal": {
+    "name": "Keeper's Journal",
+    "description": "A frost-damaged journal from the Lighthouse Mara keeper. The final pages describe structural cracks appearing in the foundation — not from weather, but from below.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "seismic_survey_data": {
+    "name": "Seismic Survey Data",
+    "description": "A data chip from a geological survey marker near Lighthouse Mara. The readings show rhythmic subsurface vibrations at impossible depth — something ancient, moving in patterns too regular to be natural.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "mara_power_cell": {
+    "name": "Mara Power Cell",
+    "description": "A specialized power cell recovered from Lighthouse Mara's backup systems. Still holds a charge. Could be used to restart the lighthouse core.",
     "type": "key",
     "rarity": "uncommon"
   },
@@ -243,8 +286,12 @@
     "type": "weapon",
     "rarity": "uncommon",
     "slot": "weapon",
-    "stats": { "attackDamage": 8 },
-    "ability": { "id": "melee_strike" }
+    "stats": {
+      "attackDamage": 8
+    },
+    "ability": {
+      "id": "melee_strike"
+    }
   },
   "precision_blaster": {
     "name": "Precision Blaster",
@@ -252,8 +299,14 @@
     "type": "weapon",
     "rarity": "uncommon",
     "slot": "weapon",
-    "stats": { "attackDamage": 6, "projectile": true, "projectileType": "blaster_bolt" },
-    "ability": { "id": "precision_shot" }
+    "stats": {
+      "attackDamage": 6,
+      "projectile": true,
+      "projectileType": "blaster_bolt"
+    },
+    "ability": {
+      "id": "precision_shot"
+    }
   },
   "shock_baton": {
     "name": "Shock Baton",
@@ -261,8 +314,12 @@
     "type": "weapon",
     "rarity": "uncommon",
     "slot": "weapon",
-    "stats": { "attackDamage": 7 },
-    "ability": { "id": "shock_strike" }
+    "stats": {
+      "attackDamage": 7
+    },
+    "ability": {
+      "id": "shock_strike"
+    }
   },
   "pulse_rifle": {
     "name": "Pulse Rifle",
@@ -270,8 +327,14 @@
     "type": "weapon",
     "rarity": "rare",
     "slot": "weapon",
-    "stats": { "attackDamage": 8, "projectile": true, "projectileType": "pulse_bolt" },
-    "ability": { "id": "pulse_shot" }
+    "stats": {
+      "attackDamage": 8,
+      "projectile": true,
+      "projectileType": "pulse_bolt"
+    },
+    "ability": {
+      "id": "pulse_shot"
+    }
   },
   "efficiency_core_chip": {
     "name": "Efficiency Core",
@@ -360,7 +423,9 @@
     "description": "A hand-crafted rechargeable power cell. Restores 30 energy when used and can be recharged at any charging station for free. Self-sufficiency in your pocket.",
     "type": "consumable",
     "rarity": "rare",
-    "effect": { "energy": 30 }
+    "effect": {
+      "energy": 30
+    }
   },
   "array_handbook": {
     "name": "Solar Array Handbook",
@@ -435,7 +500,9 @@
     "type": "equipment",
     "rarity": "epic",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 15 },
+    "stats": {
+      "attackDamage": 15
+    },
     "hasSolGrid": true,
     "solUnitId": "sol_unit_mk1_plus"
   },
@@ -450,7 +517,9 @@
     "description": "An upgraded rechargeable power cell built with hardened military components. Restores 60 energy when used and can be recharged at any charging station.",
     "type": "consumable",
     "rarity": "epic",
-    "effect": { "energy": 60 }
+    "effect": {
+      "energy": 60
+    }
   },
   "bio_resonance_amplifier_chip": {
     "name": "Bio-Resonance Amplifier",
@@ -550,7 +619,9 @@
     "description": "A numbing salve brewed from frost lichen. Dulls pain and closes wounds. Restores 20 health.",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "heal": 20 }
+    "effect": {
+      "heal": 20
+    }
   },
   "frozen_core": {
     "name": "Frozen Core",
@@ -563,7 +634,9 @@
     "description": "A bitter draught brewed from bioluminescent mushrooms. Restores 20 health.",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "heal": 20 }
+    "effect": {
+      "heal": 20
+    }
   },
   "spore_sample": {
     "name": "Spore Sample",
@@ -626,6 +699,12 @@
     "type": "key",
     "rarity": "uncommon"
   },
+  "void_frequency_log": {
+    "name": "Void Frequency Log",
+    "description": "A data core from a pre-Collapse signal beacon found in the Void Flats. Contains centuries of recorded transmissions — outgoing pings into deep Nightside and their return echoes. The return patterns are geometrically regular, suggesting the signals bounced off artificial structures far beyond any mapped territory. Someone — or something — built infrastructure past the edge of every survey.",
+    "type": "key",
+    "rarity": "rare"
+  },
   "shadow_conduit_chip": {
     "name": "Shadow Conduit",
     "description": "A Nightside-forged circuit that channels umbral energy into raw damage. Place in a Sol Grid to boost adjacent abilities.",
@@ -642,17 +721,17 @@
   },
   "bio_leech_node_chip": {
     "name": "Bio-Leech Node",
-    "description": "Greenway bio-tech that siphons life force from struck targets. Place in a Sol Grid for heal-on-hit.",
-    "type": "sol_component",
+    "description": "A Greenway bio-tech sol component. Living tissue that siphons vitality from struck targets.",
+    "type": "misc",
     "rarity": "uncommon",
-    "solComponentId": "bio_leech_node"
+    "solComponent": "bio_leech_node"
   },
   "symbiotic_core_chip": {
     "name": "Symbiotic Core",
-    "description": "A living symbiote from the Greenway that feeds on combat energy, healing its host with each strike. Place in a Sol Grid.",
-    "type": "sol_component",
+    "description": "Rare Greenway sol component. A living symbiote that bonds with the sol grid, boosting damage and healing.",
+    "type": "misc",
     "rarity": "rare",
-    "solComponentId": "symbiotic_core"
+    "solComponent": "symbiotic_core"
   },
   "mycelial_matrix_chip": {
     "name": "Mycelial Matrix",
@@ -681,7 +760,9 @@
     "type": "equipment",
     "rarity": "epic",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 18 },
+    "stats": {
+      "attackDamage": 18
+    },
     "hasSolGrid": true,
     "solUnitId": "nightcaster_frame"
   },
@@ -691,7 +772,9 @@
     "type": "equipment",
     "rarity": "epic",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 14 },
+    "stats": {
+      "attackDamage": 14
+    },
     "hasSolGrid": true,
     "solUnitId": "array_precision_core"
   },
@@ -701,7 +784,9 @@
     "type": "equipment",
     "rarity": "legendary",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 14 },
+    "stats": {
+      "attackDamage": 14
+    },
     "hasSolGrid": true,
     "solUnitId": "greenway_bioframe"
   },
@@ -711,7 +796,9 @@
     "type": "equipment",
     "rarity": "legendary",
     "slot": "sol_unit",
-    "stats": { "attackDamage": 16 },
+    "stats": {
+      "attackDamage": 16
+    },
     "hasSolGrid": true,
     "solUnitId": "underlumen_nexus"
   },
@@ -757,12 +844,38 @@
     "type": "key",
     "rarity": "epic"
   },
+  "spire_vigil_data_core": {
+    "name": "Spire Vigil Data Core",
+    "description": "A crystalline data core extracted from the Spire of Vigil. Contains sensor logs showing Array energy signatures that activated the Spire — proof that the Lighthouse failures were not caused by raiders.",
+    "type": "key",
+    "rarity": "epic"
+  },
   "array_harmonic_stabilizer_chip": {
     "name": "Array Harmonic Stabilizer",
     "description": "An Array-manufactured sol component that reduces energy waste during ability use. Adjacent abilities cost less energy to activate.",
     "type": "sol_component",
     "rarity": "epic",
     "solComponentId": "array_harmonic_stabilizer"
+  },
+  "array_door_override": {
+    "name": "Array Door Override",
+    "description": "A compact device tuned to Array-manufactured relay nodes. Bypasses Bulwark security locks. MERIDIAN-7 fabricated it specifically for the Monument assault.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "array_signal_tap_chip": {
+    "name": "Array Signal Tap",
+    "description": "An Array-designed sol component that disrupts hostile communications and sensor networks. Nearby enemies have reduced accuracy and slower reaction times.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "array_signal_tap"
+  },
+  "array_assault_amplifier_chip": {
+    "name": "Array Assault Amplifier",
+    "description": "A combat-grade sol component fabricated for the Spire of Winds operation. Boosts ability damage output when multiple abilities are placed adjacent in the grid.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "array_assault_amplifier"
   },
   "hover_chip": {
     "name": "Hover Thruster",
@@ -790,7 +903,9 @@
     "description": "A salvaged single-use power chip. Cracking open the casing releases a quick burst of stored energy — restores 25 energy to your Sol Unit's rechargeable pool.",
     "type": "consumable",
     "rarity": "common",
-    "effect": { "energy": 25 }
+    "effect": {
+      "energy": 25
+    }
   },
   "underlumen_heart_chip": {
     "name": "Underlumen Heart",
@@ -884,5 +999,446 @@
     "type": "sol_component",
     "rarity": "epic",
     "solComponentId": "command_cipher"
+  },
+  "lighthouse_lens_chip": {
+    "name": "Lighthouse Lens",
+    "description": "Forged in the light of a defended Lighthouse. Its radiance illuminates an entire 3x3 area of your Sol Grid, amplifying damage and efficiency for every adjacent component.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "lighthouse_lens"
+  },
+  "deep_resonance_chip": {
+    "name": "Deep Resonance",
+    "description": "Echoes from the deepest Nightside. Its resonant frequency reaches components two steps away, reducing cooldowns and healing with every strike.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "deep_resonance"
+  },
+  "prismatic_core_chip": {
+    "name": "Prismatic Core",
+    "description": "A convergence of all energy sources. This generator produces 12 energy per second — the highest output of any known component.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "prismatic_core"
+  },
+  "metal_casing": {
+    "name": "Metal Casing",
+    "description": "A sturdy housing plate stripped from wrecked machinery. Reinforces weapon structure, increasing raw damage output.",
+    "type": "crafting",
+    "rarity": "common",
+    "stackable": true,
+    "weaponUpgrade": {
+      "damage": 1
+    }
+  },
+  "metal_linker": {
+    "name": "Metal Linker",
+    "description": "A precision connector joint salvaged from automated arms. Improves weapon action speed.",
+    "type": "crafting",
+    "rarity": "common",
+    "stackable": true,
+    "weaponUpgrade": {
+      "cooldownReduction": 0.05
+    }
+  },
+  "power_conduit": {
+    "name": "Power Conduit",
+    "description": "A high-efficiency energy relay. Routes power more cleanly through weapon systems, reducing energy cost per shot.",
+    "type": "crafting",
+    "rarity": "uncommon",
+    "stackable": true,
+    "weaponUpgrade": {
+      "energyCostReduction": 0.08
+    }
+  },
+  "stabilizer_rod": {
+    "name": "Stabilizer Rod",
+    "description": "A balanced alloy rod that dampens recoil and vibration. Noticeably improves weapon handling and damage.",
+    "type": "crafting",
+    "rarity": "uncommon",
+    "stackable": true,
+    "weaponUpgrade": {
+      "damage": 2
+    }
+  },
+  "focusing_lens": {
+    "name": "Focusing Lens",
+    "description": "A polished crystal lens that concentrates energy discharge. Multiplies weapon damage output.",
+    "type": "crafting",
+    "rarity": "rare",
+    "stackable": true,
+    "weaponUpgrade": {
+      "damageMultiplier": 0.1
+    }
+  },
+  "plasma_coil": {
+    "name": "Plasma Coil",
+    "description": "A superheated energy coil that amplifies weapon output across the board. Boosts damage and speeds up attack cycling.",
+    "type": "crafting",
+    "rarity": "rare",
+    "stackable": true,
+    "weaponUpgrade": {
+      "damage": 2,
+      "cooldownReduction": 0.05
+    }
+  },
+  "silicon_amplifier_chip": {
+    "name": "Silicon Amplifier",
+    "description": "A precision-tuned silicon circuit that channels energy with exceptional clarity. +30% damage to adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "silicon_amplifier"
+  },
+  "overcharge_core_chip": {
+    "name": "Overcharge Core",
+    "description": "An overclocked processing core that dramatically accelerates Sol ability cycling. -25% cooldown on adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "overcharge_core"
+  },
+  "advanced_generator_chip": {
+    "name": "Advanced Generator",
+    "description": "A high-output power cell with military-grade energy cycling. Restores 6 energy per second.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "advanced_generator"
+  },
+  "quantum_battery_chip": {
+    "name": "Quantum Battery",
+    "description": "Experimental energy storage using quantum-entangled capacitors. 200 energy capacity with rapid recharge.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "quantum_battery"
+  },
+  "architects_crown_chip": {
+    "name": "Architect's Crown",
+    "description": "The pinnacle of Array engineering — a legendary modifier that massively boosts both damage and cooldown reduction for adjacent abilities.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "architects_crown"
+  },
+  "frozen_expedition_log": {
+    "name": "Frozen Expedition Log",
+    "description": "A frost-cracked survey datapad. Survey Corps, Team Echo — three weeks deep. The final entry reads: 'The crystal formations pulse. Not from vibration or heat expansion. Regular rhythm, 0.4 seconds. Like a heartbeat. Whatever is generating it, it comes from below.' No further entries.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "living_crystal_shard": {
+    "name": "Living Crystal Shard",
+    "description": "A warm umbracite fragment that separated cleanly from the wall when touched — as if offered. Pulses at exactly the same rhythm as the surrounding veins. The Unbounded call crystals like this 'planet-blood.' The term is not metaphorical.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "raider_supply_manifest": {
+    "name": "Raider Supply Manifest",
+    "description": "A supply ledger from the abandoned raider outpost. The final entries detail a full garrison deployment to something called 'the Spire.' Week 7: 'Last supply run. Voss won't say what he found, but he's posted guards on every level.'",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "raider_camp_journal": {
+    "name": "Raider Surveyor's Journal",
+    "description": "A leather-bound journal from K. Brenn, Luddite Surveyor. Documents geometric crystal formations in the deep Nightside and an ancient crypt whose walls 'respond to light — Sol-frequency light specifically.' The author questions how structures built before humans reached Erith could respond to human technology.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "crypt_geometric_tablet": {
+    "name": "Geometric Tablet",
+    "description": "A crystalline tablet etched with patterns that physically rearrange in response to light frequency. Shows a diagram of a planetary network — nodes connected by lines of light, with a recurring spire symbol at the largest node. A map of the Underlumen.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "garrison_battle_plans": {
+    "name": "Garrison Battle Plans",
+    "description": "Battle plans scratched on salvaged metal plates. Maps five levels of the Spire of Vigil. Below level three, a single word: 'SEALED.' Includes energy readings from below — massive, regular pulses matching no known power source. Voss has been trying to break through for weeks.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "unbounded_trail_tablet": {
+    "name": "Unbounded Trail Tablet",
+    "description": "A carved stone waymarker with fresh, clean edges — maintained recently. The Unbounded script reads: 'deep path, living rock.' One word repeats three times: 'listen.' And below: 'third descent, approach in quiet.' Someone is still using this path. Still going below. Still coming back.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "ancestors_listening_stone": {
+    "name": "Ancestor's Listening Stone",
+    "description": "A smooth crystal disc worn to perfect flatness on one side by generations of hands. The crystal predates human presence on Erith by millions of years — the Underlumen grew this before there were humans to hold it. Carved on the back in archaic Unbounded script: a name, and below it: 'She listened first. She heard the answer.'",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "bulwark_requisition_key": {
+    "name": "Bulwark Requisition Key",
+    "description": "A military-issue key used by Bulwark engineers to access supply crates. Stamped with a Compact serial number.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "depot_access_key": {
+    "name": "Depot Access Key",
+    "description": "Opens the main gate to the Greenway supply depot. Taken from an off-duty engineer's toolbox.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "greenway_pass": {
+    "name": "Greenway Transit Pass",
+    "description": "Civic authorization to pass through Bulwark checkpoints in the Greenway corridor. Signed by the Land Registry.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "field_ration_greenway": {
+    "name": "Greenway Field Ration",
+    "description": "Fresh produce from the Greenway farms. More nourishing than standard rations. Restores 40 health.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": {
+      "heal": 40
+    }
+  },
+  "bio_graft": {
+    "name": "Greenway Bio-Graft",
+    "description": "A living tissue patch grown in the Greenway bio-labs. Bonds with flesh to accelerate healing. Restores 60 health.",
+    "type": "consumable",
+    "rarity": "uncommon",
+    "effect": {
+      "heal": 60
+    }
+  },
+  "compact_orders": {
+    "name": "Compact Field Orders",
+    "description": "Sealed orders from General Thorne to the Greenway garrison. Details troop rotations and supply requisition quotas. The numbers are staggering — they're stockpiling far more than a garrison needs.",
+    "type": "misc",
+    "rarity": "uncommon"
+  },
+  "bulwark_combat_rifle": {
+    "name": "Bulwark Combat Rifle",
+    "description": "Standard-issue Compact military weapon. Well-maintained and accurate at range.",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "weapon",
+    "stats": {
+      "attackDamage": 8,
+      "projectile": true,
+      "projectileType": "energy_bolt"
+    },
+    "ability": {
+      "id": "blaster_shot"
+    }
+  },
+  "bulwark_shock_baton": {
+    "name": "Bulwark Shock Baton",
+    "description": "Military-grade close-quarters weapon with integrated stun capacitor. Standard Bulwark issue.",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "slot": "weapon",
+    "stats": {
+      "attackDamage": 10
+    },
+    "ability": {
+      "id": "melee_strike"
+    }
+  },
+  "military_medkit": {
+    "name": "Military Medkit",
+    "description": "Compact-issue medical supplies. Better than civilian equipment. Restores 50 health.",
+    "type": "consumable",
+    "rarity": "uncommon",
+    "effect": {
+      "heal": 50
+    }
+  },
+  "bulwark_dog_tags": {
+    "name": "Bulwark Dog Tags",
+    "description": "Identification tags from a Bulwark soldier. The name and rank are stamped in neat lettering.",
+    "type": "misc",
+    "rarity": "common"
+  },
+  "greenway_seed_sample": {
+    "name": "Greenway Seed Sample",
+    "description": "Bio-engineered crop seeds from the Greenway agricultural labs. The husks pulse faintly with embedded living circuitry.",
+    "type": "misc",
+    "rarity": "uncommon"
+  },
+  "confiscated_supplies": {
+    "name": "Confiscated Supplies",
+    "description": "A crate of food and medicine seized from Greenway farmers by the Bulwark. The settlement needs these back.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "bulwark_patrol_log": {
+    "name": "Bulwark Patrol Log",
+    "description": "A duty roster and patrol schedule for the Greenway checkpoint. Lists guard rotations, shift changes, and blind spots in coverage.",
+    "type": "misc",
+    "rarity": "uncommon"
+  },
+  "spire_winds_keycard": {
+    "name": "Bulwark Command Keycard",
+    "description": "A high-clearance Bulwark security keycard. Opens reinforced doors inside the Monument of Winds fortress.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "bulwark_command_key": {
+    "name": "Bulwark Command Override",
+    "description": "A command-level override key recovered from a Bulwark officer. Grants access to restricted fortress sections.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "thorne_command_tablet": {
+    "name": "Thorne's Command Tablet",
+    "description": "General Thorne's personal command tablet, containing classified reports on the Monument excavation and what the Bulwark found beneath it. Councillor Asha Denn would want to see this.",
+    "type": "misc",
+    "rarity": "rare"
+  },
+  "spire_radiance_keycard": {
+    "name": "Array Nexus Keycard",
+    "description": "A crystalline access token recovered from hybrid circuitry. It pulses with both Array processing light and faint Underlumen bioluminescence. Opens security bulkheads within the Spire of Radiance.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "lore_radiance_hybrid_log": {
+    "name": "Hybrid Integration Log",
+    "description": "A data fragment from the Nexus systems. 'INTEGRATION CYCLE 7,291: Underlumen substrate successfully bonded to Array processing lattice. Energy throughput: 340% above baseline. Note: substrate exhibits autonomous pattern formation. Suppression protocols engaged. The substrate does not resist — it adapts. Distinction unclear.'",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "lore_radiance_ancient_record": {
+    "name": "Ancient Light Record",
+    "description": "A crystalline disc that predates the Array by millennia. When held near your sol unit, it projects geometric patterns — a blueprint for focusing solar energy through the Spire's architecture. The Underlumen builders understood light at a level that makes the Array look like a child with a mirror.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "lore_radiance_nexus_directive": {
+    "name": "Nexus Directive Zero",
+    "description": "The Array's founding instruction for the Radiance Nexus: 'ENCAPSULATE. INTEGRATE. OPTIMIZE. The Dayside Spire predates all known structures. Its energy focusing capacity exceeds Array projections by orders of magnitude. Do not destroy. Do not replicate. Absorb.' Three centuries of Array expansion — and this Spire was always the prize.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "nexus_guardian_core": {
+    "name": "Nexus Guardian Core",
+    "description": "The processing heart of the Nexus Guardian — a hybrid construct that was neither fully Array nor fully Underlumen. The core still pulses with residual energy, its circuits growing crystalline tendrils that reach toward your sol unit.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "solar_focusing_crystal": {
+    "name": "Solar Focusing Crystal",
+    "description": "An ancient crystal lens from the Spire's original architecture. It concentrates ambient light into a beam of staggering intensity. The Array tried to replicate this for three centuries and failed.",
+    "type": "key",
+    "rarity": "epic"
+  },
+  "wind_anchor": {
+    "name": "Wind Anchor",
+    "description": "A dense stone disc carved with spiraling channels. When held, it generates a localized counter-current that neutralizes the Spire's wind forces. The Bulwark excavation team used these before they retreated.",
+    "type": "key",
+    "rarity": "uncommon",
+    "hazardResist": ["wind"]
+  },
+  "biolab_keycard": {
+    "name": "Bio-Lab Keycard",
+    "description": "A laminated access card with a faded Greenway Agricultural Sciences logo. The magnetic strip still functions.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "growth_serum": {
+    "name": "Growth Serum",
+    "description": "A vial of luminescent green liquid originally used to accelerate crop development. Works on human tissue too. Restores 30 health.",
+    "type": "consumable",
+    "rarity": "common",
+    "effect": {
+      "heal": 30
+    }
+  },
+  "biolab_research_log": {
+    "name": "Research Log: Project Verdant",
+    "description": "A damaged data tablet from the Greenway bio-labs. The readable entries describe experiments in bio-circuitry — growing sol-compatible components from living tissue. The final entry reads: 'Batch 7 exhibited autonomous growth patterns. Containment recommended. Request denied — the harvest schedule takes priority.'",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "biolab_specimen_notes": {
+    "name": "Specimen Chamber Notes",
+    "description": "Handwritten notes pinned to a growth chamber: 'Subject exhibits phototropic response to sol energy. Tissue samples show 300% improved conductivity vs synthetic components. If we can stabilize the growth cycle, every farmer on the Ring could carry living technology.' The margins are filled with worried corrections.",
+    "type": "key",
+    "rarity": "uncommon"
+  },
+  "photosynthesis_node_chip": {
+    "name": "Photosynthesis Node",
+    "description": "A living sol component grown in the Greenway bio-labs. Chlorophyll-laced circuitry that converts ambient light into restorative energy. Heals its host on every strike while reducing ability energy costs.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "photosynthesis_node"
+  },
+  "adaptive_tissue_chip": {
+    "name": "Adaptive Tissue Graft",
+    "description": "Bio-engineered tissue from Project Verdant's final batch. It bonds with sol grid architecture, amplifying damage output while feeding life energy back to the user.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "adaptive_tissue"
+  },
+
+  "reinforced_vest": {
+    "name": "Reinforced Vest",
+    "description": "Salvaged body armor with crude plating. Not pretty, but it keeps you alive longer.",
+    "type": "equipment",
+    "rarity": "common",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 25
+    }
+  },
+  "hardened_exo_liner": {
+    "name": "Hardened Exo-Liner",
+    "description": "A fitted under-armor layer with impact-absorbing gel inserts. Standard Outpost issue for deep patrols.",
+    "type": "equipment",
+    "rarity": "uncommon",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 40
+    }
+  },
+  "nightside_vitality_weave": {
+    "name": "Nightside Vitality Weave",
+    "description": "Shadow-threaded mesh that toughens the wearer's body through low-frequency umbral pulses. Nightside scouts swear by it.",
+    "type": "equipment",
+    "rarity": "rare",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 60
+    }
+  },
+  "greenway_bioweave_vest": {
+    "name": "Greenway Bioweave Vest",
+    "description": "Living armor grown from mycelial fibers. It bonds with the wearer's skin, reinforcing tissue at a cellular level.",
+    "type": "equipment",
+    "rarity": "rare",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 60
+    }
+  },
+  "bulwark_assault_plating": {
+    "name": "Bulwark Assault Plating",
+    "description": "Military-grade composite armor stripped from a Bulwark heavy trooper. Significantly increases survivability.",
+    "type": "equipment",
+    "rarity": "epic",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 80
+    }
+  },
+  "wardens_resolve": {
+    "name": "Warden's Resolve",
+    "description": "A dense crystalline plate recovered from a fallen Threshold Warden. Resonates with protective energy.",
+    "type": "equipment",
+    "rarity": "epic",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 100
+    }
+  },
+  "architects_aegis": {
+    "name": "Architect's Aegis",
+    "description": "Pre-Collapse masterwork. Layers of phase-shifted alloy absorb punishment that would shatter lesser armor.",
+    "type": "equipment",
+    "rarity": "legendary",
+    "slot": "accessory",
+    "stats": {
+      "maxHealthBonus": 125
+    }
   }
 }

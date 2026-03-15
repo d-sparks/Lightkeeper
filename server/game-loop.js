@@ -36,6 +36,7 @@ class GameLoop {
 
     // Scripting subsystem
     this.flagStore = new FlagStore();
+    this.automation.flagStore = this.flagStore; // inject so getStateForClient can resolve path flags
     this.eventBus = new EventBus();
     this.conditions = new ConditionEvaluator(this.flagStore);
     this.actions = new ActionExecutor(this.flagStore, this.eventBus, content);
@@ -103,6 +104,69 @@ class GameLoop {
       this.triggers.processEvent('flag_changed', payload, ctx);
       this.questTracker.processEvent('flag_changed', ctx);
     });
+
+    // Activity logging via EventBus — activityLog is set externally by index.js
+    this.activityLog = null;
+    this._initActivityLogging();
+  }
+
+  _initActivityLogging() {
+    const resolve = (playerId, roomId) => {
+      if (!this.activityLog) return null;
+      const room = this.rooms.get(roomId);
+      const player = room && room.players.get(playerId);
+      return player ? player.name : this.activityLog.resolvePlayerName(playerId);
+    };
+
+    this.eventBus.on(EventBus.Events.ROOM_ENTERED, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'room_enter', { room: p.roomId, dungeon: p.dungeonId });
+    });
+
+    this.eventBus.on(EventBus.Events.MONSTER_KILLED, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'monster_kill', { monster: p.monsterType, room: p.roomId });
+    });
+
+    this.eventBus.on(EventBus.Events.ITEM_PICKED_UP, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'item_pickup', { item: p.itemType, name: p.itemName, room: p.roomId });
+    });
+
+    this.eventBus.on(EventBus.Events.PLAYER_DEATH, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'death', { room: p.roomId });
+    });
+
+    this.eventBus.on(EventBus.Events.ABILITY_USED, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'ability_used', { ability: p.abilityId, room: p.roomId });
+    });
+
+    this.eventBus.on(EventBus.Events.NPC_INTERACTED, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'npc_interact', { npc: p.npcType, room: p.roomId });
+    });
+
+    this.eventBus.on(EventBus.Events.FLAG_CHANGED, (p) => {
+      if (!this.activityLog) return;
+      const name = resolve(p.playerId, p.roomId);
+      if (name) this.activityLog.log(name, 'flag_changed', { flag: p.flag, value: p.value, room: p.roomId });
+    });
+  }
+
+  _logDamage(player, amount, source, roomId) {
+    if (!this.activityLog || !player) return;
+    this.activityLog.logById(player.id, 'damage_taken', {
+      amount, source, room: roomId,
+      hp: player.health, maxHp: player.maxHealth,
+    });
   }
 
   // Build a scripting context object for triggers/conditions/actions
@@ -125,6 +189,16 @@ class GameLoop {
     this.eventBus.emit(eventType, eventPayload);
     this.triggers.processEvent(eventType, eventPayload, context);
     this.questTracker.processEvent(eventType, context);
+
+    // When the last monster in a room dies, emit room_cleared for all players
+    if (eventType === EventBus.Events.MONSTER_KILLED && context.room && context.room.monsters.size === 0) {
+      for (const [pid] of context.room.players) {
+        const ctx = this._scriptContext(pid, context.roomId);
+        this._emitGameEvent(EventBus.Events.ROOM_CLEARED, {
+          playerId: pid, roomId: context.roomId,
+        }, ctx);
+      }
+    }
   }
 
   start() {
@@ -249,8 +323,18 @@ class GameLoop {
   }
 
   // Find a nearby spawnable tile using a spiral search from the given tile position
-  findSpawnableTile(dungeon, tileX, tileY) {
-    if (this.content.isSpawnable(dungeon, tileX, tileY)) {
+  // occupiedTiles is an optional array of {x, y} tile positions to keep spacing from
+  findSpawnableTile(dungeon, tileX, tileY, occupiedTiles) {
+    const minSpacing = CONSTANTS.MONSTER_MIN_SPAWN_SPACING;
+    const tooClose = (tx, ty) => {
+      if (!occupiedTiles) return false;
+      for (const ot of occupiedTiles) {
+        const dx = tx - ot.x, dy = ty - ot.y;
+        if (Math.sqrt(dx * dx + dy * dy) < minSpacing) return true;
+      }
+      return false;
+    };
+    if (this.content.isSpawnable(dungeon, tileX, tileY) && !tooClose(tileX, tileY)) {
       return { x: tileX, y: tileY };
     }
     // Search expanding rings up to 5 tiles away
@@ -258,8 +342,9 @@ class GameLoop {
       for (let dx = -r; dx <= r; dx++) {
         for (let dy = -r; dy <= r; dy++) {
           if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue; // Only ring perimeter
-          if (this.content.isSpawnable(dungeon, tileX + dx, tileY + dy)) {
-            return { x: tileX + dx, y: tileY + dy };
+          const cx = tileX + dx, cy = tileY + dy;
+          if (this.content.isSpawnable(dungeon, cx, cy) && !tooClose(cx, cy)) {
+            return { x: cx, y: cy };
           }
         }
       }
@@ -270,6 +355,7 @@ class GameLoop {
   spawnMonsters(room) {
     if (!room.dungeon.monsterSpawns) return;
     const killed = this.killedMonsters.get(room.dungeonId);
+    const occupiedTiles = []; // Track where monsters have been placed for spacing
     for (let si = 0; si < room.dungeon.monsterSpawns.length; si++) {
       const spawn = room.dungeon.monsterSpawns[si];
       const def = this.content.getMonster(spawn.type);
@@ -282,11 +368,12 @@ class GameLoop {
         const offsetX = count > 1 ? (i - (count - 1) / 2) * 1.5 : 0;
         const targetTileX = Math.floor(spawn.x + 0.5 + offsetX);
         const targetTileY = spawn.y;
-        const validTile = this.findSpawnableTile(room.dungeon, targetTileX, targetTileY);
+        const validTile = this.findSpawnableTile(room.dungeon, targetTileX, targetTileY, occupiedTiles);
         if (!validTile) {
           console.warn(`[GameLoop] No valid spawn tile for ${spawn.type} near (${targetTileX}, ${targetTileY}), skipping`);
           continue;
         }
+        occupiedTiles.push({ x: validTile.x, y: validTile.y });
         const spawnX = (validTile.x + 0.5) * CONSTANTS.TILE_SIZE;
         const spawnY = (validTile.y + 0.5) * CONSTANTS.TILE_SIZE;
         // Determine spawn tile elevation
@@ -358,6 +445,20 @@ class GameLoop {
           mob.bossProjectileTimer = 0;
           mob.bossSummonTimer = 0;
           mob.bossSummonCount = 0;
+        }
+        // Boss retreat: fights then flees at low HP
+        if (def.ai === 'boss_retreat') {
+          mob.retreatThreshold = def.retreatThreshold || 0.2;
+          mob.retreating = false;
+          // Retreat point from spawn data, or fallback to spawn position
+          if (spawn.retreatX != null && spawn.retreatY != null) {
+            mob.retreatPointX = (spawn.retreatX + 0.5) * CONSTANTS.TILE_SIZE;
+            mob.retreatPointY = (spawn.retreatY + 0.5) * CONSTANTS.TILE_SIZE;
+          } else {
+            mob.retreatPointX = null;
+            mob.retreatPointY = null;
+          }
+          mob.bossPhases = [{ threshold: 1.0 }]; // Needed for boss intro
         }
         // Special attacks: initialize cooldown timers from definition
         if (def.specialAttacks && def.specialAttacks.length > 0) {
@@ -552,6 +653,14 @@ class GameLoop {
         depth: context.depth || (template.depth && template.depth.min) || 0,
         serverEpoch: this.serverEpoch,
       };
+
+      // Check if a procedural instance already exists for this exact context
+      // (same exit tile + server epoch = same seed = same instanceId)
+      const seedStr = `${genContext.fromDungeon}_${genContext.exitX}_${genContext.exitY}_${genContext.serverEpoch}`;
+      const expectedId = `proc:${template.id}:${seedStr}`;
+      room = this.rooms.get(expectedId);
+      if (room) return room;
+
       // Forward expedition overrides for floor/boss generation
       if (context.maxDepth) genContext.maxDepth = context.maxDepth;
       if (context.bossType) genContext.bossType = context.bossType;
@@ -568,6 +677,98 @@ class GameLoop {
     // 4. Normal dungeon from content
     room = this.createRoom(dungeonId, dungeonId);
     return room;
+  }
+
+  // ─── Raid Manual Defense ──────────────────────────────────────────────
+
+  // Create a raid defense room instance with the given raid monsters
+  startRaidDefense(playerId, raidData, originRoomId) {
+    const roomId = `raid_defense_${playerId}_${Date.now()}`;
+    const room = this.createRoom(roomId, 'dayside_raid_defense');
+    if (!room) {
+      console.error(`[GameLoop] Failed to create raid defense room`);
+      return null;
+    }
+
+    // Tag the room so we can detect raid completion
+    room.raidDefense = {
+      playerId,
+      originRoom: originRoomId,
+      monsterCount: raidData.monsters.length,
+      monstersKilled: 0,
+    };
+
+    // Dynamically inject raid monsters as spawns
+    const spawnPositions = [
+      { x: 3, y: 3 }, { x: 16, y: 3 }, { x: 3, y: 16 }, { x: 16, y: 16 },
+      { x: 10, y: 2 }, { x: 2, y: 10 }, { x: 17, y: 10 }, { x: 10, y: 17 },
+      { x: 6, y: 6 }, { x: 13, y: 6 }, { x: 6, y: 13 }, { x: 13, y: 13 },
+      { x: 10, y: 5 }, { x: 5, y: 10 }, { x: 14, y: 10 }, { x: 10, y: 14 },
+      { x: 8, y: 3 }, { x: 12, y: 16 }, { x: 3, y: 8 }, { x: 16, y: 12 },
+    ];
+
+    for (let i = 0; i < raidData.monsters.length; i++) {
+      const monsterType = raidData.monsters[i];
+      const def = this.content.getMonster(monsterType);
+      if (!def) continue;
+
+      const pos = spawnPositions[i % spawnPositions.length];
+      const id = `mob_${room.nextMonsterId++}`;
+      const spawnX = (pos.x + 0.5) * CONSTANTS.TILE_SIZE;
+      const spawnY = (pos.y + 0.5) * CONSTANTS.TILE_SIZE;
+
+      const mob = {
+        id,
+        spawnKey: `raid_${i}`,
+        type: monsterType,
+        name: def.name,
+        x: spawnX,
+        y: spawnY,
+        spawnX,
+        spawnY,
+        elevation: 0,
+        health: def.health,
+        maxHealth: def.health,
+        speed: def.speed,
+        damage: def.damage,
+        attackRange: (def.attackRange || 1) * CONSTANTS.TILE_SIZE,
+        attackCooldown: 1 / (def.attackSpeed || 1),
+        attackTimer: 0,
+        ai: def.ai || 'melee_chase',
+        facing: 0,
+        idleMode: 'wander',
+        xpMult: 1,
+        raidMonster: true,
+      };
+      if (def.specialAttacks && def.specialAttacks.length > 0) {
+        mob.specialAttacks = def.specialAttacks.map(sa => ({
+          ...sa,
+          timer: sa.cooldown * (0.3 + Math.random() * 0.7),
+        }));
+      }
+      // Wander state for raid monsters
+      mob.patrolTimer = 0;
+      mob.patrolState = 'walking';
+      mob.patrolWaitTime = 1.5 + Math.random();
+      mob.patrolAngle = Math.random() * Math.PI * 2;
+      room.monsters.set(id, mob);
+    }
+
+    console.log(`[GameLoop] Created raid defense room ${roomId} with ${raidData.monsters.length} monsters for player ${playerId}`);
+    return { roomId, room };
+  }
+
+  // Check if a raid defense room is complete (all monsters killed)
+  checkRaidDefenseComplete(room) {
+    if (!room.raidDefense) return false;
+    // Room is complete when all monsters are dead
+    return room.monsters.size === 0;
+  }
+
+  // Clean up a raid defense room after completion or abandonment
+  cleanupRaidDefenseRoom(roomId) {
+    this.rooms.delete(roomId);
+    console.log(`[GameLoop] Cleaned up raid defense room ${roomId}`);
   }
 
   // Start an expedition for a player: generate the first floor and transition them
@@ -763,7 +964,43 @@ class GameLoop {
     }
   }
 
-  // Remove a player from their expedition party (e.g. on death).
+  // Handle player disconnect: clean up party memberships and cooperative flags.
+  // Called before removePlayer() so party references are updated while room still exists.
+  handlePlayerDisconnect(playerId) {
+    const expActive = this.flagStore.getPlayerFlag(playerId, 'expedition_active');
+    if (expActive) {
+      this._removeFromExpeditionParty(playerId);
+      this._clearExpeditionFlags(playerId);
+      console.log(`[GameLoop] Cleaned up expedition state for disconnected player ${playerId}`);
+    }
+
+    const siegeActive = this.flagStore.getPlayerFlag(playerId, 'siege_active');
+    if (siegeActive) {
+      this._removeFromSiegeParty(playerId);
+      this.flagStore.removePlayerFlag(playerId, 'siege_active');
+      this.flagStore.removePlayerFlag(playerId, 'siege_challenge');
+      this.flagStore.removePlayerFlag(playerId, 'siege_room');
+      this.flagStore.removePlayerFlag(playerId, 'siege_party');
+      console.log(`[GameLoop] Cleaned up siege state for disconnected player ${playerId}`);
+    }
+  }
+
+  // Remove a player from their siege party.
+  // Updates the party list for remaining members.
+  _removeFromSiegeParty(playerId) {
+    const party = this.flagStore.getPlayerFlag(playerId, 'siege_party');
+    if (!party) return;
+    const remaining = party.filter(pid => pid !== playerId);
+    for (const pid of remaining) {
+      if (remaining.length > 1) {
+        this.flagStore.setPlayerFlag(pid, 'siege_party', remaining);
+      } else {
+        this.flagStore.removePlayerFlag(pid, 'siege_party');
+      }
+    }
+  }
+
+  // Remove a player from their expedition party (e.g. on death or disconnect).
   // Updates the party list for remaining members.
   _removeFromExpeditionParty(playerId) {
     const party = this.flagStore.getPlayerFlag(playerId, 'expedition_party');
@@ -791,6 +1028,522 @@ class GameLoop {
     room.nextMonsterId = 0;
     this.killedMonsters.delete(room.id);
     this.spawnMonsters(room);
+  }
+
+  // ========== Spire Replay System ==========
+
+  // Apply spire replay scaling to a room — swaps in replayMonsterSpawns and scales stats
+  // tierConfig: { scaling: { hpMult, damageMult, xpMult }, lootTableSuffix }
+  applySpireReplayScaling(room, tierConfig) {
+    if (room.spireReplayTier) return; // Already set up
+    room.spireReplayTier = tierConfig.id;
+
+    // If the dungeon has replayMonsterSpawns, use those instead of regular spawns
+    if (room.dungeon.replayMonsterSpawns && room.dungeon.replayMonsterSpawns.length > 0) {
+      room.dungeon.monsterSpawns = room.dungeon.replayMonsterSpawns;
+    }
+
+    // Apply scaling via the same mechanism as expeditions
+    room.expeditionScaling = tierConfig.scaling;
+    room.monsters.clear();
+    room.nextMonsterId = 0;
+    this.killedMonsters.delete(room.id);
+    this.spawnMonsters(room);
+    console.log(`[GameLoop] Spire replay applied: tier=${tierConfig.id}, hpMult=${tierConfig.scaling.hpMult}, room=${room.id}`);
+  }
+
+  // ========== Cooperative Challenge: Siege System ==========
+
+  // Start a siege challenge for players in a room.
+  // Returns { roomId, room, partyMembers } on success, or error object on failure.
+  startSiege(playerId, challengeId) {
+    const challenge = this.content.getChallenge(challengeId);
+    if (!challenge || challenge.type !== 'wave_defense') {
+      console.error(`[GameLoop] No wave_defense challenge: ${challengeId}`);
+      return null;
+    }
+
+    // Validate unlock condition
+    if (challenge.unlockCondition) {
+      const ctx = { playerId };
+      if (!this.conditions.evaluate(challenge.unlockCondition, ctx)) {
+        console.log(`[GameLoop] Player ${playerId} does not meet siege unlock conditions`);
+        return null;
+      }
+    }
+
+    // Check weekly cooldown
+    if (challenge.cooldownFlag) {
+      const lastClear = this.flagStore.getPlayerFlag(playerId, challenge.cooldownFlag);
+      if (lastClear) {
+        const elapsed = (Date.now() - lastClear) / 1000;
+        if (elapsed < (challenge.cooldown || 0)) {
+          const remaining = Math.ceil((challenge.cooldown - elapsed) / 3600);
+          console.log(`[GameLoop] Player ${playerId} on siege cooldown (${remaining}h remaining)`);
+          return { onCooldown: true, hoursRemaining: remaining };
+        }
+      }
+    }
+
+    // Validate player count
+    const originRoom = this._findPlayerRoom(playerId);
+    const playerCount = originRoom ? originRoom.players.size : 1;
+    if (playerCount < challenge.minPlayers) {
+      return { insufficientPlayers: true, required: challenge.minPlayers, present: playerCount };
+    }
+    if (playerCount > challenge.maxPlayers) {
+      return { tooManyPlayers: true, max: challenge.maxPlayers, present: playerCount };
+    }
+
+    // Create the siege arena room
+    const room = this.createRoom(challenge.dungeonId, challenge.dungeonId);
+    if (!room) return null;
+
+    // Initialize siege state on the room
+    room.siege = {
+      challengeId,
+      challenge,
+      wave: 0,
+      maxWaves: challenge.waves || 10,
+      phase: 'preparing', // 'preparing', 'active', 'inter_wave', 'victory', 'defeat'
+      phaseTimer: challenge.interWaveDuration || 15,
+      lighthouseHp: challenge.lighthouseMaxHp || 500,
+      lighthouseMaxHp: challenge.lighthouseMaxHp || 500,
+      lighthouseX: (challenge.lighthousePosition.x + 0.5) * CONSTANTS.TILE_SIZE,
+      lighthouseY: (challenge.lighthousePosition.y + 0.5) * CONSTANTS.TILE_SIZE,
+      communalEnergy: challenge.communalEnergyMax || 200,
+      communalEnergyMax: challenge.communalEnergyMax || 200,
+      monstersRemaining: 0,
+      originRoom: originRoom ? originRoom.id : null,
+    };
+
+    // Gather party members
+    const partyMembers = [];
+    if (originRoom) {
+      for (const [pid] of originRoom.players) {
+        partyMembers.push(pid);
+      }
+    } else {
+      partyMembers.push(playerId);
+    }
+
+    // Set siege tracking flags on all party members
+    for (const pid of partyMembers) {
+      this.flagStore.setPlayerFlag(pid, 'siege_active', true);
+      this.flagStore.setPlayerFlag(pid, 'siege_challenge', challengeId);
+      this.flagStore.setPlayerFlag(pid, 'siege_room', challenge.dungeonId);
+      if (partyMembers.length > 1) {
+        this.flagStore.setPlayerFlag(pid, 'siege_party', partyMembers);
+      }
+    }
+
+    console.log(`[GameLoop] Started siege "${challengeId}" for party [${partyMembers.join(', ')}] in room ${challenge.dungeonId}`);
+    return { roomId: room.id, room, partyMembers };
+  }
+
+  // Update siege state for a room — called each tick from update()
+  updateSiege(room, dt) {
+    const siege = room.siege;
+    if (!siege || siege.phase === 'victory' || siege.phase === 'defeat') return;
+
+    // Check lighthouse health
+    if (siege.lighthouseHp <= 0) {
+      this._failSiege(room);
+      return;
+    }
+
+    // Phase: preparing or inter_wave — countdown to next wave
+    if (siege.phase === 'preparing' || siege.phase === 'inter_wave') {
+      siege.phaseTimer -= dt;
+      if (siege.phaseTimer <= 0) {
+        siege.wave++;
+        if (siege.wave > siege.maxWaves) {
+          this._completeSiege(room);
+          return;
+        }
+        this._spawnSiegeWave(room);
+        siege.phase = 'active';
+      }
+      return;
+    }
+
+    // Phase: active — check if all monsters are dead
+    if (siege.phase === 'active') {
+      // Monsters target lighthouse: any monster near it deals damage
+      const lhx = siege.lighthouseX;
+      const lhy = siege.lighthouseY;
+      const lhRadius = 2.5 * CONSTANTS.TILE_SIZE; // lighthouse hit area
+
+      for (const [, mob] of room.monsters) {
+        const dx = mob.x - lhx;
+        const dy = mob.y - lhy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < lhRadius && mob.attackTimer <= 0) {
+          siege.lighthouseHp -= mob.damage;
+          mob.attackTimer = mob.attackCooldown;
+          room.events.push({
+            type: 'lighthouse_hit',
+            amount: mob.damage,
+            lighthouseHp: Math.max(0, siege.lighthouseHp),
+            lighthouseMaxHp: siege.lighthouseMaxHp,
+            x: lhx, y: lhy,
+          });
+          if (siege.lighthouseHp <= 0) {
+            this._failSiege(room);
+            return;
+          }
+        }
+      }
+
+      // Drain communal energy based on active monsters
+      const drainRate = (siege.challenge.communalEnergyDrainPerWave || 15) / (siege.challenge.waveInterval || 45);
+      siege.communalEnergy = Math.max(0, siege.communalEnergy - drainRate * dt);
+
+      // Check if all monsters are dead — wave clear
+      if (room.monsters.size === 0) {
+        console.log(`[GameLoop] Siege wave ${siege.wave} cleared in room ${room.id}`);
+        room.events.push({
+          type: 'wave_clear',
+          wave: siege.wave,
+          maxWaves: siege.maxWaves,
+        });
+
+        if (siege.wave >= siege.maxWaves) {
+          this._completeSiege(room);
+          return;
+        }
+
+        // Start inter-wave phase
+        siege.phase = 'inter_wave';
+        siege.phaseTimer = siege.challenge.interWaveDuration || 15;
+        // Regen communal energy between waves
+        const regenAmount = siege.challenge.communalEnergyRegenBetweenWaves || 5;
+        siege.communalEnergy = Math.min(siege.communalEnergyMax, siege.communalEnergy + regenAmount);
+      }
+    }
+  }
+
+  // Spawn a wave of monsters for the siege challenge
+  _spawnSiegeWave(room) {
+    const siege = room.siege;
+    const challenge = siege.challenge;
+    const waveNum = siege.wave;
+
+    // Calculate monster count for this wave
+    const baseCount = challenge.baseMonsterCount || 4;
+    const perWaveIncrease = challenge.monstersPerWaveIncrease || 2;
+    const monsterCount = baseCount + (waveNum - 1) * perWaveIncrease;
+
+    // Calculate scaling for this wave
+    const baseScaling = challenge.monsterScaling || { hpMult: 2.0, damageMult: 1.8 };
+    const perWaveScaling = challenge.waveScalingPerWave || { hpMult: 0.15, damageMult: 0.10 };
+    const hpMult = baseScaling.hpMult + (waveNum - 1) * perWaveScaling.hpMult;
+    const damageMult = baseScaling.damageMult + (waveNum - 1) * perWaveScaling.damageMult;
+
+    // Select monster types: include elites from eliteStartWave onward
+    const pool = [...(challenge.monsterPool || [])];
+    const eliteStartWave = challenge.eliteStartWave || 4;
+    const elitePool = challenge.elitePool || [];
+    const useElites = waveNum >= eliteStartWave && elitePool.length > 0;
+
+    // Select spawn points from challenge definition
+    const spawnPoints = challenge.spawnPoints || [{ x: 2, y: 2 }];
+
+    console.log(`[GameLoop] Spawning siege wave ${waveNum}: ${monsterCount} monsters (hp: ${hpMult.toFixed(1)}x, dmg: ${damageMult.toFixed(1)}x${useElites ? ', +elites' : ''})`);
+
+    for (let i = 0; i < monsterCount; i++) {
+      // Pick monster type: 30% chance of elite if elites are available
+      let monsterType;
+      if (useElites && Math.random() < 0.3) {
+        monsterType = elitePool[Math.floor(Math.random() * elitePool.length)];
+      } else {
+        monsterType = pool[Math.floor(Math.random() * pool.length)];
+      }
+
+      const def = this.content.getMonster(monsterType);
+      if (!def) continue;
+
+      // Pick a random spawn point
+      const sp = spawnPoints[Math.floor(Math.random() * spawnPoints.length)];
+      // Add slight random offset to avoid stacking
+      const offsetX = (Math.random() - 0.5) * 2;
+      const offsetY = (Math.random() - 0.5) * 2;
+      const targetTX = Math.floor(sp.x + offsetX);
+      const targetTY = Math.floor(sp.y + offsetY);
+      const validTile = this.findSpawnableTile(room.dungeon, targetTX, targetTY);
+      if (!validTile) continue;
+
+      const spawnX = (validTile.x + 0.5) * CONSTANTS.TILE_SIZE;
+      const spawnY = (validTile.y + 0.5) * CONSTANTS.TILE_SIZE;
+      const scaledHealth = Math.round(def.health * hpMult);
+      const scaledDamage = Math.round(def.damage * damageMult);
+
+      const id = `mob_${room.nextMonsterId++}`;
+      const mob = {
+        id,
+        type: monsterType,
+        name: def.name,
+        x: spawnX,
+        y: spawnY,
+        spawnX,
+        spawnY,
+        elevation: 0,
+        health: scaledHealth,
+        maxHealth: scaledHealth,
+        speed: def.speed,
+        damage: scaledDamage,
+        attackRange: (def.attackRange || 1) * CONSTANTS.TILE_SIZE,
+        attackCooldown: 1 / (def.attackSpeed || 1),
+        attackTimer: 0,
+        ai: def.ai === 'ambush' ? 'melee_chase' : def.ai, // Override ambush to chase in siege
+        facing: 0,
+        idleMode: 'wander',
+        xpMult: 2.0,
+        siegeTarget: true, // Marks this as a siege wave monster
+        lootTable: 'siege_wave_drops', // Override loot table for siege drops
+      };
+
+      // Pack leader aura
+      if (def.ai === 'pack_leader' && def.aura) {
+        mob.aura = def.aura;
+      }
+      // Ranged projectile
+      if (def.ai === 'ranged_kite' && def.projectile) {
+        mob.projectile = def.projectile;
+      }
+      // Boss phases
+      if (def.ai === 'boss_crystal' && def.phases) {
+        mob.bossPhase = 0;
+        mob.bossPhases = def.phases;
+        mob.bossProjectileTimer = 0;
+        mob.bossSummonTimer = 0;
+        mob.bossSummonCount = 0;
+      }
+      // Special attacks
+      if (def.specialAttacks && def.specialAttacks.length > 0) {
+        mob.specialAttacks = def.specialAttacks.map(sa => ({
+          ...sa,
+          timer: sa.cooldown * (0.3 + Math.random() * 0.7),
+        }));
+      }
+
+      // Wander behavior for idle (before they spot players)
+      mob.patrolTimer = 0;
+      mob.patrolState = 'walking';
+      mob.patrolWaitTime = 1.5 + Math.random();
+      mob.patrolAngle = Math.random() * Math.PI * 2;
+
+      room.monsters.set(id, mob);
+    }
+
+    siege.monstersRemaining = room.monsters.size;
+
+    room.events.push({
+      type: 'wave_start',
+      wave: waveNum,
+      maxWaves: siege.maxWaves,
+      monsterCount: room.monsters.size,
+    });
+  }
+
+  // Complete the siege successfully — award rewards to all players
+  _completeSiege(room) {
+    const siege = room.siege;
+    siege.phase = 'victory';
+    console.log(`[GameLoop] Siege "${siege.challengeId}" completed in room ${room.id}!`);
+
+    room.events.push({
+      type: 'siege_victory',
+      challengeId: siege.challengeId,
+    });
+
+    // Award rewards to all players in the room
+    const rewardTableId = siege.challenge.rewardTable;
+    for (const [pid, player] of room.players) {
+      // Roll from the siege legendary loot table
+      if (rewardTableId) {
+        const table = this.content.getLootTable(rewardTableId);
+        if (table && table.rolls && table.rolls.length > 0) {
+          const totalWeight = table.rolls.reduce((sum, r) => sum + (r.weight || 1), 0);
+          let roll = Math.random() * totalWeight;
+          let chosen = null;
+          for (const entry of table.rolls) {
+            roll -= (entry.weight || 1);
+            if (roll <= 0) { chosen = entry; break; }
+          }
+          if (chosen) {
+            const itemDef = this.content.getItem(chosen.item);
+            if (itemDef) {
+              player.inventory.push({
+                id: `siege_reward_${Date.now()}_${pid}`,
+                type: chosen.item,
+                name: itemDef.name,
+                rarity: itemDef.rarity || 'common',
+                category: itemDef.type,
+              });
+              console.log(`[GameLoop] Siege reward for ${pid}: ${itemDef.name}`);
+            }
+          }
+        }
+      }
+
+      // Set cooldown flag
+      if (siege.challenge.cooldownFlag) {
+        this.flagStore.setPlayerFlag(pid, siege.challenge.cooldownFlag, Date.now());
+      }
+
+      // Send updated inventory
+      if (this.actions.sendToPlayer) {
+        this.actions.sendToPlayer(pid, {
+          type: CONSTANTS.MSG.INVENTORY,
+          inventory: player.inventory,
+        });
+      }
+    }
+
+    // Spawn return portal at lighthouse position
+    const lhPos = siege.challenge.lighthousePosition;
+    const originRoom = siege.originRoom || 'meridian_station';
+    if (lhPos) {
+      const ts = CONSTANTS.TILE_SIZE;
+      const portalTX = lhPos.x;
+      const portalTY = lhPos.y + 2; // Below lighthouse
+      const idx = portalTY * room.dungeon.width + portalTX;
+      room.dungeon.data[idx] = 8; // stairs_up tile
+      room.dungeon.exits.push({
+        x: portalTX, y: portalTY,
+        leadsTo: originRoom,
+        type: 'return_portal',
+      });
+      if (this.actions.broadcastToRoom) {
+        this.actions.broadcastToRoom(room.id, {
+          type: CONSTANTS.MSG.DOOR_TOGGLE,
+          x: portalTX, y: portalTY, tileId: 8,
+        });
+      }
+    }
+
+    // Clear siege flags on all party members
+    this._clearSiegeFlags(room);
+  }
+
+  // Fail the siege — lighthouse destroyed
+  _failSiege(room) {
+    const siege = room.siege;
+    siege.phase = 'defeat';
+    siege.lighthouseHp = 0;
+    console.log(`[GameLoop] Siege "${siege.challengeId}" failed in room ${room.id} (lighthouse destroyed)`);
+
+    room.events.push({
+      type: 'siege_defeat',
+      challengeId: siege.challengeId,
+      wavesCompleted: siege.wave - 1,
+    });
+
+    // Spawn return portal so players can leave
+    const lhPos = siege.challenge.lighthousePosition;
+    const originRoom = siege.originRoom || 'meridian_station';
+    if (lhPos) {
+      const portalTX = lhPos.x;
+      const portalTY = lhPos.y + 2;
+      const idx = portalTY * room.dungeon.width + portalTX;
+      room.dungeon.data[idx] = 8;
+      room.dungeon.exits.push({
+        x: portalTX, y: portalTY,
+        leadsTo: originRoom,
+        type: 'return_portal',
+      });
+      if (this.actions.broadcastToRoom) {
+        this.actions.broadcastToRoom(room.id, {
+          type: CONSTANTS.MSG.DOOR_TOGGLE,
+          x: portalTX, y: portalTY, tileId: 8,
+        });
+      }
+    }
+
+    // Clear siege flags
+    this._clearSiegeFlags(room);
+  }
+
+  // Clear siege tracking flags for all players
+  _clearSiegeFlags(room) {
+    for (const [pid] of room.players) {
+      this.flagStore.removePlayerFlag(pid, 'siege_active');
+      this.flagStore.removePlayerFlag(pid, 'siege_challenge');
+      this.flagStore.removePlayerFlag(pid, 'siege_room');
+      this.flagStore.removePlayerFlag(pid, 'siege_party');
+    }
+  }
+
+  // Get siege state for client HUD
+  _getSiegeStateForClient(room) {
+    const siege = room.siege;
+    if (!siege) return null;
+    return {
+      challengeId: siege.challengeId,
+      displayName: siege.challenge.displayName,
+      wave: siege.wave,
+      maxWaves: siege.maxWaves,
+      phase: siege.phase,
+      phaseTimer: Math.ceil(siege.phaseTimer),
+      lighthouseHp: Math.max(0, Math.round(siege.lighthouseHp)),
+      lighthouseMaxHp: siege.lighthouseMaxHp,
+      lighthouseX: siege.lighthouseX,
+      lighthouseY: siege.lighthouseY,
+      communalEnergy: Math.round(siege.communalEnergy),
+      communalEnergyMax: siege.communalEnergyMax,
+      monstersRemaining: room.monsters.size,
+      repairCost: siege.challenge.lighthouseRepairCost || 10,
+      repairAmount: siege.challenge.lighthouseRepairAmount || 50,
+    };
+  }
+
+  // Attempt to repair the lighthouse during inter-wave phase.
+  // Costs silicon (automation resource). Returns result object for the client.
+  trySiegeRepair(roomId, playerId) {
+    const room = this.rooms.get(roomId);
+    if (!room || !room.siege) return null;
+    const siege = room.siege;
+
+    // Only allow repair during inter-wave or preparing phases
+    if (siege.phase !== 'inter_wave' && siege.phase !== 'preparing') {
+      return { error: 'Repairs only available between waves.' };
+    }
+
+    // Already at full HP
+    if (siege.lighthouseHp >= siege.lighthouseMaxHp) {
+      return { error: 'Lighthouse is already at full health.' };
+    }
+
+    const repairCost = siege.challenge.lighthouseRepairCost || 10;
+    const repairAmount = siege.challenge.lighthouseRepairAmount || 50;
+
+    // Check silicon (automation resource)
+    const available = this.automation.getResource(playerId, 'silicon');
+    if (available < repairCost) {
+      return { error: `Not enough silicon. Need ${repairCost}, have ${Math.floor(available)}.` };
+    }
+
+    // Spend silicon and apply repair
+    this.automation.spendResources(playerId, { silicon: repairCost });
+    const oldHp = siege.lighthouseHp;
+    siege.lighthouseHp = Math.min(siege.lighthouseMaxHp, siege.lighthouseHp + repairAmount);
+    const actualRepair = Math.round(siege.lighthouseHp - oldHp);
+
+    console.log(`[GameLoop] Player ${playerId} repaired lighthouse for ${actualRepair} HP (cost ${repairCost} silicon)`);
+
+    // Broadcast repair event for visual feedback
+    room.events.push({
+      type: 'lighthouse_repair',
+      playerId,
+      amount: actualRepair,
+      lighthouseHp: Math.round(siege.lighthouseHp),
+      lighthouseMaxHp: siege.lighthouseMaxHp,
+      x: siege.lighthouseX,
+      y: siege.lighthouseY,
+    });
+
+    return { ok: true, repaired: actualRepair, lighthouseHp: Math.round(siege.lighthouseHp) };
   }
 
   addPlayer(roomId, playerId, name) {
@@ -822,6 +1575,7 @@ class GameLoop {
       hovering: false,
       hoverTime: 0,
       solGrid: null,
+      weaponUpgrades: null,
       energy: 0,
       maxEnergy: 0,
       singleUseEnergy: 0,
@@ -1255,7 +2009,7 @@ class GameLoop {
     // Apply stacking caps
     cdReduce = Math.min(cdReduce, 0.75);
     energyCostReduce = Math.min(energyCostReduce, 0.75);
-    healOnHit = Math.min(healOnHit, 15);
+    healOnHit = Math.min(healOnHit, 10);
 
     if (dmgMult > 0) {
       modified.damageMultiplier = (baseAbilityDef.damageMultiplier || 1.0) + dmgMult;
@@ -1380,6 +2134,22 @@ class GameLoop {
         if (abilityDef) {
           const slotIdx = (abilityDef.defaultSlot || 1) - 1;
           player.abilities[slotIdx] = itemDef.ability.id;
+          // Apply weapon upgrade bonuses to the weapon's ability
+          if (player.weaponUpgrades) {
+            const wuBonuses = this._computeWeaponUpgradeBonuses(player);
+            if (wuBonuses.cooldownReduction > 0 || wuBonuses.energyCostReduction > 0) {
+              const existing = player.abilityOverrides[slotIdx] || {};
+              const cdReduce = Math.min(wuBonuses.cooldownReduction, 0.75);
+              if (cdReduce > 0 && abilityDef.cooldown) {
+                existing.cooldown = Math.max(0.1, (existing.cooldown || abilityDef.cooldown) * (1 - cdReduce));
+              }
+              const ecReduce = Math.min(wuBonuses.energyCostReduction, 0.75);
+              if (ecReduce > 0 && abilityDef.energyCost) {
+                existing.energyCost = Math.max(1, Math.round((existing.energyCost || abilityDef.energyCost) * (1 - ecReduce)));
+              }
+              player.abilityOverrides[slotIdx] = existing;
+            }
+          }
         }
       } else if (itemDef && itemDef.stats && itemDef.stats.projectile) {
         // Legacy projectile weapons without explicit ability → use blaster_shot
@@ -1594,7 +2364,12 @@ class GameLoop {
               originY: comp.gridY,
             };
             if (comp.abilityId) cell.abilityId = comp.abilityId;
-            if (comp.modifierId) cell.modifierId = comp.modifierId;
+            if (comp.modifierId) {
+              cell.modifierId = comp.modifierId;
+              const maxDur = (compDef && compDef.defaultDurability) || 3;
+              cell.durability = maxDur;
+              cell.maxDurability = maxDur;
+            }
             if (comp.batteryId) cell.batteryId = comp.batteryId;
             if (comp.generatorId) cell.generatorId = comp.generatorId;
             if (sx !== 0 || sy !== 0) cell.isExtension = true;
@@ -1679,12 +2454,20 @@ class GameLoop {
           originY: gridY,
         };
         if (compDef.type === 'ability' && compDef.abilityId) cell.abilityId = compDef.abilityId;
-        if (compDef.type === 'modifier') cell.modifierId = itemDef.solComponentId;
+        if (compDef.type === 'modifier') {
+          cell.modifierId = itemDef.solComponentId;
+          // Carry over durability from inventory item, or default to component/global default
+          const maxDur = compDef.defaultDurability || 3;
+          cell.durability = (item.durability !== undefined) ? item.durability : maxDur;
+          cell.maxDurability = maxDur;
+        }
         if (compDef.type === 'generator') cell.generatorId = itemDef.solComponentId;
         if (compDef.type === 'battery') {
           cell.batteryId = itemDef.solComponentId;
           if (compDef.singleUse) {
-            cell.remainingCapacity = compDef.energyCapacity;
+            // Restore saved charge level from inventory item, or use full capacity
+            cell.remainingCapacity = (item.remainingCapacity !== undefined)
+              ? item.remainingCapacity : compDef.energyCapacity;
           }
         }
         cell.componentRarity = item.rarity || compDef.rarity || 'common';
@@ -1696,10 +2479,12 @@ class GameLoop {
     // Remove from inventory
     player.inventory.splice(inventoryIndex, 1);
 
-    // If placing a single-use battery, fill its energy pool
+    // If placing a single-use battery, fill its energy pool with saved or full capacity
     if (compDef.type === 'battery' && compDef.singleUse && compDef.energyCapacity) {
-      player.singleUseEnergy += compDef.energyCapacity;
-      player.energy += compDef.energyCapacity;
+      const addedEnergy = (item.remainingCapacity !== undefined)
+        ? item.remainingCapacity : compDef.energyCapacity;
+      player.singleUseEnergy += addedEnergy;
+      player.energy += addedEnergy;
     }
 
     this._rebuildAbilities(player);
@@ -1754,6 +2539,34 @@ class GameLoop {
       }
     }
 
+    // Capture modifier durability before clearing (from origin cell)
+    let savedDurability = undefined;
+    let savedRemainingCapacity = undefined;
+    if (clickedCell.modifierId) {
+      // Find origin cell for this placement
+      for (let i = 0; i < size * size; i++) {
+        const c = player.solGrid.cells[i];
+        if (c && c.placementId === pid && !c.isExtension) {
+          savedDurability = c.durability;
+          break;
+        }
+      }
+    }
+    // Capture single-use battery remaining capacity before clearing
+    if (clickedCell.batteryId) {
+      const compDef = this.content.getSolComponent(clickedCell.batteryId);
+      if (compDef && compDef.singleUse) {
+        for (let i = 0; i < size * size; i++) {
+          const c = player.solGrid.cells[i];
+          if (c && c.placementId === pid && !c.isExtension) {
+            savedRemainingCapacity = c.remainingCapacity !== undefined
+              ? c.remainingCapacity : compDef.energyCapacity;
+            break;
+          }
+        }
+      }
+    }
+
     // Clear all cells with this placementId
     for (let i = 0; i < size * size; i++) {
       const c = player.solGrid.cells[i];
@@ -1775,6 +2588,14 @@ class GameLoop {
       if (solComp && solComp.adjacencyPattern) {
         returnedItem.adjacencyPattern = solComp.adjacencyPattern;
       }
+    }
+    // Preserve modifier durability on returned inventory item
+    if (savedDurability !== undefined) {
+      returnedItem.durability = savedDurability;
+    }
+    // Preserve single-use battery remaining capacity on returned inventory item
+    if (savedRemainingCapacity !== undefined) {
+      returnedItem.remainingCapacity = savedRemainingCapacity;
     }
     player.inventory.push(returnedItem);
 
@@ -1935,9 +2756,14 @@ class GameLoop {
 
       if (Math.abs(angleDiff) > halfAngle) continue;
 
+      // Check line-of-sight — cone should not hit through walls
+      if (!this._hasLineOfSight(room.dungeon, player.x, player.y, mob.x, mob.y)) continue;
+
       // Hit this monster
+      if (mob.invulnerable) continue;
       const effectiveDamage = mob.damageTakenMult ? damage * mob.damageTakenMult : damage;
       mob.health -= effectiveDamage;
+      if (mob.ai === 'boss_retreat' && mob.health <= 0) mob.health = 1;
       mob.aggroTarget = player.id;
       room.events.push({
         type: 'damage',
@@ -1949,7 +2775,7 @@ class GameLoop {
 
       // Heal on hit
       if (abilityDef.healOnHit > 0) {
-        player.health = Math.min(player.maxHealth, player.health + abilityDef.healOnHit);
+        this._applyHealOnHit(player, abilityDef.healOnHit);
       }
 
       // Apply knockback
@@ -2031,8 +2857,10 @@ class GameLoop {
     if (!nearestMob) return false;
 
     // Deal damage
+    if (nearestMob.invulnerable) return false;
     const damage = this.getPlayerAttackDamage(player) * (abilityDef.damageMultiplier || 1.0);
     nearestMob.health -= damage;
+    if (nearestMob.ai === 'boss_retreat' && nearestMob.health <= 0) nearestMob.health = 1;
     nearestMob.aggroTarget = player.id;
 
     // Melee slash visual
@@ -2052,7 +2880,7 @@ class GameLoop {
 
     // Heal on hit
     if (abilityDef.healOnHit > 0) {
-      player.health = Math.min(player.maxHealth, player.health + abilityDef.healOnHit);
+      this._applyHealOnHit(player, abilityDef.healOnHit);
     }
 
     // Apply knockback
@@ -2136,11 +2964,24 @@ class GameLoop {
       if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
-    const healAmount = Math.min(abilityDef.heal || 0, player.maxHealth - player.health);
+    let rawHeal = abilityDef.heal || 0;
+    // Apply wound heal reduction
+    if (player.woundTime > 0 && player.woundHealReduction > 0) {
+      rawHeal = Math.round(rawHeal * (1 - player.woundHealReduction));
+    }
+    const healAmount = Math.min(rawHeal, player.maxHealth - player.health);
     if (healAmount <= 0) return false;
 
     player.health += healAmount;
     player.cooldowns[slotIdx] = abilityDef.cooldown || 8.0;
+
+    if (this.activityLog) {
+      const source = abilityDef.consumesItem === 'medical_supplies' ? 'medipac' : (abilityDef.id || 'heal');
+      this.activityLog.logById(player.id, 'heal', {
+        amount: healAmount, source, room: room.id,
+        hp: player.health, maxHp: player.maxHealth,
+      });
+    }
 
     room.events.push({
       type: 'heal', targetId: player.id,
@@ -2473,7 +3314,9 @@ class GameLoop {
       // Damage falloff: full at center, 50% at edge
       const falloff = 1.0 - 0.5 * Math.min(dist / aoeRadius, 1.0);
       const dmg = proj.damage * falloff * (mob.damageTakenMult || 1.0);
+      if (mob.invulnerable) continue;
       mob.health -= dmg;
+      if (mob.ai === 'boss_retreat' && mob.health <= 0) mob.health = 1;
       mob.aggroTarget = proj.ownerId;
 
       room.events.push({
@@ -2517,7 +3360,7 @@ class GameLoop {
       if (proj.healOnHit > 0) {
         const attacker = room.players.get(proj.ownerId);
         if (attacker) {
-          attacker.health = Math.min(attacker.maxHealth, attacker.health + proj.healOnHit);
+          this._applyHealOnHit(attacker, proj.healOnHit);
         }
       }
     }
@@ -2719,7 +3562,9 @@ class GameLoop {
       sentry.beamTimer += sentry.beamTickRate;
 
       const sentryDmg = sentry.damage * (mob.damageTakenMult || 1.0);
+      if (mob.invulnerable) return;
       mob.health -= sentryDmg;
+      if (mob.ai === 'boss_retreat' && mob.health <= 0) mob.health = 1;
       mob.aggroTarget = sentry.ownerId;
 
       room.events.push({
@@ -2731,7 +3576,7 @@ class GameLoop {
       if (sentry.healOnHit > 0) {
         const owner = room.players.get(sentry.ownerId);
         if (owner && owner.health < owner.maxHealth) {
-          owner.health = Math.min(owner.maxHealth, owner.health + sentry.healOnHit);
+          this._applyHealOnHit(owner, sentry.healOnHit);
           room.events.push({
             type: 'heal', targetId: sentry.ownerId,
             amount: sentry.healOnHit,
@@ -2943,6 +3788,36 @@ class GameLoop {
           player.stunImmunityTime -= dt;
           if (player.stunImmunityTime <= 0) player.stunImmunityTime = 0;
         }
+        // Tick poison DoT
+        if (player.poisonTime > 0) {
+          player.poisonTime -= dt;
+          player.poisonTickTimer = (player.poisonTickTimer || 0) - dt;
+          if (player.poisonTickTimer <= 0) {
+            const poisonDmg = player.poisonDps || 4;
+            player.health -= poisonDmg;
+            this._logDamage(player, poisonDmg, 'poison', room.id);
+            room.events.push({
+              type: 'damage', targetId: player.id,
+              amount: poisonDmg, x: player.x, y: player.y,
+              damageType: 'poison',
+            });
+            this._checkPlayerDeath(player, room);
+            player.poisonTickTimer += 1.0; // tick once per second
+          }
+          if (player.poisonTime <= 0) {
+            player.poisonTime = 0;
+            player.poisonDps = 0;
+            player.poisonTickTimer = 0;
+          }
+        }
+        // Tick wound (heal reduction) debuff
+        if (player.woundTime > 0) {
+          player.woundTime -= dt;
+          if (player.woundTime <= 0) {
+            player.woundTime = 0;
+            player.woundHealReduction = 0;
+          }
+        }
         // Tick channeling (pulse cannon etc.)
         if (player.channeling) {
           // Cancel if stunned or knocked back
@@ -3005,6 +3880,49 @@ class GameLoop {
 
         // Tick automation production (silicon harvesters etc.)
         this.automation.updateProduction(pid, dt);
+
+        // Tick raid timer (nightside creature waves attack dayside structures)
+        const raidResult = this.automation.updateRaidTimer(pid, dt);
+        if (raidResult && raidResult.occurred) {
+          if (this.actions.sendToPlayer) {
+            if (raidResult.pending) {
+              // Send raid incoming alert — player can choose to defend manually
+              this.actions.sendToPlayer(pid, {
+                type: CONSTANTS.MSG.RAID_INCOMING,
+                raid: raidResult,
+              });
+            } else {
+              // Direct raid result (fallback)
+              this.actions.sendToPlayer(pid, {
+                type: CONSTANTS.MSG.RAID_ALERT,
+                raid: raidResult,
+              });
+              this.actions.sendToPlayer(pid, {
+                type: CONSTANTS.MSG.AUTO_STATE,
+                auto: this.automation.getStateForClient(pid),
+              });
+            }
+          }
+        }
+
+        // Tick pending raid countdown
+        const pendingUpdate = this.automation.updatePendingRaid(pid, dt);
+        if (pendingUpdate && pendingUpdate.type === 'expired') {
+          // Player didn't defend — abstract damage was applied
+          if (this.actions.sendToPlayer) {
+            this.actions.sendToPlayer(pid, {
+              type: CONSTANTS.MSG.RAID_ALERT,
+              raid: pendingUpdate.result,
+            });
+            this.actions.sendToPlayer(pid, {
+              type: CONSTANTS.MSG.AUTO_STATE,
+              auto: this.automation.getStateForClient(pid),
+            });
+          }
+        }
+
+        // Tick structure repair (drone bays heal damaged structures)
+        this.automation.updateRepairTimer(pid, dt);
       }
 
       // Update monsters (AI + attacks)
@@ -3021,6 +3939,46 @@ class GameLoop {
 
       // Apply environmental hazard damage (cold, heat, poison)
       this.updateEnvironmentalHazards(room, dt);
+
+      // Apply wind current push forces
+      this.updateWindCurrents(room, dt);
+
+      // Update siege wave defense (if active)
+      if (room.siege) {
+        this.updateSiege(room, dt);
+      }
+
+      // Check raid defense completion (all raid monsters killed)
+      if (room.raidDefense && this.checkRaidDefenseComplete(room)) {
+        const rd = room.raidDefense;
+        // Mark raid as defended — no structure damage
+        this.automation.completeRaidDefense(rd.playerId);
+        // Teleport player back to their origin room
+        for (const [pid] of room.players) {
+          this.pendingTransitions.push({
+            playerId: pid,
+            fromRoom: room.id,
+            toDungeon: rd.originRoom,
+            raidDefenseReturn: true,
+          });
+        }
+        // Notify the player
+        if (this.actions.sendToPlayer) {
+          this.actions.sendToPlayer(rd.playerId, {
+            type: CONSTANTS.MSG.RAID_ALERT,
+            raid: {
+              occurred: true,
+              defended: true,
+              monsterCount: rd.monsterCount,
+              effectiveDamage: 0,
+              damaged: [],
+              destroyed: [],
+            },
+          });
+        }
+        // Schedule cleanup after transition processes
+        room.raidDefense.complete = true;
+      }
 
       // Check for floor transitions
       this.checkExits(room);
@@ -3043,6 +4001,7 @@ class GameLoop {
         player.darknessDamageTimer -= 2.0;
         const damage = 5;
         player.health -= damage;
+        this._logDamage(player, damage, 'darkness', room.id);
         room.events.push({
           type: 'darkness_damage', targetId: pid,
           amount: damage, x: player.x, y: player.y,
@@ -3071,6 +4030,7 @@ class GameLoop {
       if (player.hazardDamageTimer >= interval) {
         player.hazardDamageTimer -= interval;
         player.health -= damage;
+        this._logDamage(player, damage, hazardType, room.id);
         room.events.push({
           type: 'hazard_damage', hazardType, targetId: pid,
           amount: damage, x: player.x, y: player.y,
@@ -3104,6 +4064,63 @@ class GameLoop {
       }
     }
     return false;
+  }
+
+  updateWindCurrents(room, dt) {
+    const currents = room.dungeon.windCurrents;
+    if (!currents || currents.length === 0) return;
+
+    const ts = CONSTANTS.TILE_SIZE;
+    const pr = CONSTANTS.PLAYER_RADIUS;
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+
+    for (const current of currents) {
+      // Current zone in tile coords: x, y, w, h
+      const zoneLeft = current.x * ts;
+      const zoneTop = current.y * ts;
+      const zoneRight = (current.x + current.w) * ts;
+      const zoneBottom = (current.y + current.h) * ts;
+
+      // Direction vector
+      let wdx = 0, wdy = 0;
+      switch (current.direction) {
+        case 'north': wdy = -1; break;
+        case 'south': wdy = 1; break;
+        case 'east':  wdx = 1; break;
+        case 'west':  wdx = -1; break;
+      }
+      const force = (current.force || 2) * ts * dt; // tiles/sec converted to pixels
+
+      // Push players
+      for (const [pid, player] of room.players) {
+        if (player.x < zoneLeft || player.x >= zoneRight ||
+            player.y < zoneTop || player.y >= zoneBottom) continue;
+        // Check elevation match (0 = ground level by default)
+        const currentElev = current.elevation != null ? current.elevation : 0;
+        if (Math.floor(player.elevation || 0) !== currentElev) continue;
+        // Check wind resistance
+        if (this._playerResistsHazard(player, 'wind')) continue;
+
+        const nx = player.x + wdx * force;
+        const ny = player.y + wdy * force;
+        if (!this.physics.collidesAt(nx, player.y, room.dungeon, pr, player.elevation)) player.x = nx;
+        if (!this.physics.collidesAt(player.x, ny, room.dungeon, pr, player.elevation)) player.y = ny;
+      }
+
+      // Push monsters
+      for (const [mid, mob] of room.monsters) {
+        if (mob.health <= 0) continue;
+        if (mob.x < zoneLeft || mob.x >= zoneRight ||
+            mob.y < zoneTop || mob.y >= zoneBottom) continue;
+        const currentElev = current.elevation != null ? current.elevation : 0;
+        if (Math.floor(mob.elevation || 0) !== currentElev) continue;
+
+        const nx = mob.x + wdx * force;
+        const ny = mob.y + wdy * force;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
+      }
+    }
   }
 
   updateMonsters(room, dt) {
@@ -3247,6 +4264,12 @@ class GameLoop {
 
       const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
 
+      // Boss retreat: check retreat even when out of aggro range
+      if (mob.ai === 'boss_retreat') {
+        this._updateBossRetreat(mob, nearest, nearestDist, room, dt);
+        continue;
+      }
+
       // Ambush: stay hidden until player is very close
       if (mob.ai === 'ambush' && mob.hidden) {
         const revealRange = 3 * CONSTANTS.TILE_SIZE;
@@ -3324,6 +4347,7 @@ class GameLoop {
               mob.ambushRevealed = false;
             }
             nearest.health -= damage;
+            this._logDamage(nearest, damage, mob.type || 'monster', room.id);
             mob.attackTimer = mob.attackCooldown;
             room.events.push({
               type: 'damage', targetId: nearest.id,
@@ -3683,8 +4707,141 @@ class GameLoop {
   }
 
   /**
+   * Boss retreat AI: fights like melee_chase with special attacks, but when HP drops
+   * below retreatThreshold, becomes invulnerable and moves to a retreat point.
+   * Once reaching the retreat point, despawns and emits monster_killed.
+   * Used for bosses that flee rather than die (e.g. Dural Voss).
+   */
+  _updateBossRetreat(mob, nearest, nearestDist, room, dt) {
+    const TILE = CONSTANTS.TILE_SIZE;
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+    const hpPct = mob.health / mob.maxHealth;
+
+    // Check if we should enter retreat mode
+    if (!mob.retreating && hpPct <= mob.retreatThreshold) {
+      mob.retreating = true;
+      mob.invulnerable = true;
+
+      // Find retreat point from spawn data or default to a corner
+      if (mob.retreatPointX == null) {
+        // Default retreat: move away from nearest player toward spawn
+        mob.retreatPointX = mob.spawnX;
+        mob.retreatPointY = mob.spawnY;
+      }
+
+      room.events.push({
+        type: 'boss_retreat',
+        targetId: mob.id,
+        bossName: mob.name,
+        x: mob.x, y: mob.y,
+      });
+
+      // Emit flag_changed so triggers can fire retreat dialogue
+      for (const [pid] of room.players) {
+        const ctx = this._scriptContext(pid, room.id);
+        this._emitGameEvent(EventBus.Events.FLAG_CHANGED, {
+          playerId: pid,
+          roomId: room.id,
+          flag: `${mob.type}_retreated`,
+          value: true,
+        }, ctx);
+        // Also set the flag so conditions can check it later
+        this.flagStore.setPlayerFlag(pid, `${mob.type}_retreated`, true);
+      }
+    }
+
+    // Retreat mode: move to retreat point, then despawn
+    if (mob.retreating) {
+      const dx = mob.retreatPointX - mob.x;
+      const dy = mob.retreatPointY - mob.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < TILE * 0.5) {
+        // Reached retreat point — despawn the boss
+        const mid = mob.id;
+        room.events.push({
+          type: 'death', targetId: mid,
+          monsterType: mob.type,
+          x: mob.x, y: mob.y,
+        });
+        room.monsters.delete(mid);
+
+        if (mob.spawnKey) {
+          if (!this.killedMonsters.has(room.dungeonId)) {
+            this.killedMonsters.set(room.dungeonId, new Set());
+          }
+          this.killedMonsters.get(room.dungeonId).add(mob.spawnKey);
+        }
+
+        // Grant XP to all players in room
+        const monsterDef = this.content.getMonster(mob.type);
+        for (const [pid, player] of room.players) {
+          if (monsterDef && monsterDef.xp) {
+            this.grantXp(player, Math.round(monsterDef.xp * (mob.xpMult || 1)), room);
+          }
+          const ctx = this._scriptContext(pid, room.id);
+          this._emitGameEvent(EventBus.Events.MONSTER_KILLED, {
+            playerId: pid,
+            roomId: room.id,
+            monsterType: mob.type,
+            monsterId: mid,
+            monsterX: mob.x, monsterY: mob.y,
+          }, ctx);
+        }
+        return;
+      }
+
+      // Move toward retreat point (faster than normal)
+      const retreatSpeed = mob.speed * 1.5 * TILE * dt;
+      if (dist > 0) {
+        const nx = mob.x + (dx / dist) * retreatSpeed;
+        const ny = mob.y + (dy / dist) * retreatSpeed;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
+        mob.facing = Math.atan2(dy, dx);
+      }
+      return;
+    }
+
+    // Normal combat: melee_chase with special attacks
+    // Only engage if player is within aggro range
+    const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * TILE;
+    if (!mob.aggroTarget && nearestDist > aggroRange) return;
+
+    const dx = nearest.x - mob.x;
+    const dy = nearest.y - mob.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    mob.facing = Math.atan2(dy, dx);
+
+    // Try special attacks first
+    if (mob.specialAttacks) {
+      if (this._trySpecialAttack(mob, nearest, nearestDist, room, dt)) return;
+    }
+
+    if (nearestDist > mob.attackRange) {
+      // Chase player
+      const speed = mob.speed * TILE * dt;
+      if (len > 0) {
+        const nx = mob.x + (dx / len) * speed;
+        const ny = mob.y + (dy / len) * speed;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
+      }
+    } else if (mob.attackTimer <= 0) {
+      // Melee attack
+      nearest.health -= mob.damage;
+      mob.attackTimer = mob.attackCooldown;
+      room.events.push({
+        type: 'damage', targetId: nearest.id,
+        amount: mob.damage, x: nearest.x, y: nearest.y,
+      });
+      this._checkPlayerDeath(nearest, room);
+    }
+  }
+
+  /**
    * Try to use a special attack. Returns true if one was used (preempts normal behavior).
-   * Special attack types: lunge, stun, ground_slam
+   * Special attack types: lunge, stun, ground_slam, thrown_projectile, poison, wound
    */
   _trySpecialAttack(mob, target, dist, room, dt) {
     const TILE = CONSTANTS.TILE_SIZE;
@@ -3741,6 +4898,36 @@ class GameLoop {
           this._checkPlayerDeath(target, room);
           return true;
         }
+      } else if (sa.type === 'thrown_projectile') {
+        // Thrown projectile: ranged attack for melee mobs (anti-kite)
+        if (dist > mob.attackRange && dist <= saRange) {
+          const dx = target.x - mob.x;
+          const dy = target.y - mob.y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          if (len > 0) {
+            const projSpeed = (sa.speed || 0.7) * CONSTANTS.PROJECTILE_SPEED;
+            const projId = `proj_${room.nextProjectileId++}`;
+            room.projectiles.push({
+              id: projId,
+              ownerId: mob.id,
+              isMonsterProjectile: true,
+              projectileType: sa.projectileType || mob.projectile || null,
+              x: mob.x,
+              y: mob.y,
+              vx: (dx / len) * projSpeed,
+              vy: (dy / len) * projSpeed,
+              damage: Math.round(mob.damage * (sa.damage || 1.0)),
+              lifetime: sa.lifetime || CONSTANTS.PROJECTILE_LIFETIME,
+            });
+            mob.facing = Math.atan2(dy, dx);
+            sa.timer = sa.cooldown;
+            room.events.push({
+              type: 'ranged_attack', targetId: mob.id,
+              x: mob.x, y: mob.y,
+            });
+            return true;
+          }
+        }
       } else if (sa.type === 'ground_slam') {
         // Ground slam: AOE knockback + damage when in range
         if (dist <= saRange && mob.attackTimer <= 0) {
@@ -3755,6 +4942,7 @@ class GameLoop {
             const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
             if (pdist <= saRange && pdist > 0) {
               player.health -= slamDmg;
+              this._logDamage(player, slamDmg, mob.type || 'boss_slam', room.id);
               // Apply knockback only if not immune
               if (!(player.stunImmunityTime > 0)) {
                 player.knockbackVx = (pdx / pdist) * knockback;
@@ -3774,9 +4962,68 @@ class GameLoop {
           });
           return true;
         }
+      } else if (sa.type === 'poison') {
+        // Poison: apply DoT when in melee range
+        if (dist <= mob.attackRange && mob.attackTimer <= 0) {
+          const poisonDmg = Math.round(mob.damage * (sa.damage || 0.3));
+          target.health -= poisonDmg;
+          // Apply poison DoT (stacks refresh duration, takes highest dps)
+          const dps = sa.dps || 4;
+          const duration = sa.duration || 5.0;
+          target.poisonTime = Math.max(target.poisonTime || 0, duration);
+          target.poisonDps = Math.max(target.poisonDps || 0, dps);
+          if (!target.poisonTickTimer || target.poisonTickTimer <= 0) {
+            target.poisonTickTimer = 1.0;
+          }
+          mob.attackTimer = mob.attackCooldown;
+          sa.timer = sa.cooldown;
+          room.events.push({
+            type: 'damage', targetId: target.id,
+            amount: poisonDmg, x: target.x, y: target.y,
+          });
+          room.events.push({
+            type: 'debuff', targetId: target.id,
+            debuffType: 'poison', duration,
+            x: target.x, y: target.y,
+          });
+          this._checkPlayerDeath(target, room);
+          return true;
+        }
+      } else if (sa.type === 'wound') {
+        // Wound: reduce healing received for a duration
+        if (dist <= (sa.range || mob.attackRange) && mob.attackTimer <= 0) {
+          const woundDmg = Math.round(mob.damage * (sa.damage || 0.4));
+          target.health -= woundDmg;
+          const duration = sa.duration || 6.0;
+          const healReduction = sa.healReduction || 0.5;
+          target.woundTime = Math.max(target.woundTime || 0, duration);
+          target.woundHealReduction = Math.max(target.woundHealReduction || 0, healReduction);
+          mob.attackTimer = mob.attackCooldown;
+          sa.timer = sa.cooldown;
+          room.events.push({
+            type: 'damage', targetId: target.id,
+            amount: woundDmg, x: target.x, y: target.y,
+          });
+          room.events.push({
+            type: 'debuff', targetId: target.id,
+            debuffType: 'wound', duration,
+            x: target.x, y: target.y,
+          });
+          this._checkPlayerDeath(target, room);
+          return true;
+        }
       }
     }
     return false;
+  }
+
+  _applyHealOnHit(player, amount) {
+    if (player.woundTime > 0 && player.woundHealReduction > 0) {
+      amount = Math.round(amount * (1 - player.woundHealReduction));
+    }
+    if (amount > 0) {
+      player.health = Math.min(player.maxHealth, player.health + amount);
+    }
   }
 
   _checkPlayerDeath(player, room) {
@@ -3790,41 +5037,66 @@ class GameLoop {
         this._consumeEnergy(player, energyLost, room);
       }
 
-      // Death penalty: drop non-quest inventory items based on dropBehavior
-      // dropBehavior per item definition: "keep" = retained, "destroy" = removed,
-      // "drop" (default) = spawned on ground. Quest items (key, sol_component) always kept.
-      // Exception: if player is on an expedition, all non-quest loot is forfeited (destroyed).
+      // Death penalty: degrade placed modifier chips (lose 1 durability each)
+      // Modifiers at 0 durability are destroyed and converted to salvage.
       const onExpedition = !!this.flagStore.getPlayerFlag(player.id, 'expedition_active');
-      const droppedItems = [];
-      const keptItems = [];
-      for (const item of player.inventory) {
-        if (item.category === 'key' || item.category === 'sol_component') {
-          keptItems.push(item);
-          continue;
+      const degradedMods = [];
+      const destroyedMods = [];
+      if (player.solGrid) {
+        const size = player.solGrid.size;
+        const seenPlacements = new Set();
+        for (let i = 0; i < size * size; i++) {
+          const cell = player.solGrid.cells[i];
+          if (!cell || !cell.modifierId || cell.isExtension) continue;
+          if (seenPlacements.has(cell.placementId)) continue;
+          seenPlacements.add(cell.placementId);
+
+          // Degrade durability
+          if (cell.durability === undefined) cell.durability = 3;
+          cell.durability -= 1;
+
+          // Propagate durability to extension cells
+          for (let j = 0; j < size * size; j++) {
+            const ext = player.solGrid.cells[j];
+            if (ext && ext.placementId === cell.placementId && ext.isExtension) {
+              ext.durability = cell.durability;
+            }
+          }
+
+          const compDef = this.content.getSolComponent(cell.modifierId);
+          const modName = (compDef && compDef.name) || cell.modifierId.replace(/_/g, ' ');
+
+          if (cell.durability <= 0) {
+            // Destroyed — remove from grid, give salvage
+            destroyedMods.push(modName);
+            for (let j = 0; j < size * size; j++) {
+              const c = player.solGrid.cells[j];
+              if (c && c.placementId === cell.placementId) {
+                player.solGrid.cells[j] = null;
+              }
+            }
+            // Give salvage material to player
+            const salvageItem = this.content.getItem('salvage');
+            if (salvageItem) {
+              player.inventory.push({
+                type: 'salvage',
+                name: salvageItem.name || 'Salvage',
+                rarity: 'common',
+                category: salvageItem.type || 'crafting',
+              });
+            }
+          } else {
+            degradedMods.push({ name: modName, durability: cell.durability });
+          }
         }
-        const itemDef = this.content.getItem(item.type);
-        const behavior = (itemDef && itemDef.dropBehavior) || 'drop';
-        if (behavior === 'keep') {
-          keptItems.push(item);
-        } else if (behavior === 'destroy' || onExpedition) {
-          // Expedition death: forfeit all non-quest floor loot (destroyed, not dropped)
-          droppedItems.push(item);
-        } else {
-          // Default "drop": spawn on ground at death position
-          droppedItems.push(item);
-          const itemId = `item_${room.nextItemId++}`;
-          room.items.set(itemId, {
-            id: itemId,
-            type: item.type,
-            name: item.name,
-            rarity: item.rarity || 'common',
-            category: item.category || 'misc',
-            x: deathX,
-            y: deathY,
-          });
+        // Rebuild abilities if any modifiers were destroyed
+        if (destroyedMods.length > 0) {
+          this._rebuildAbilities(player);
         }
       }
-      player.inventory = keptItems;
+
+      // No items are dropped on death — the penalty is modifier degradation
+      player.lastDeathDrops = [];
 
       // Reset player state
       player.health = player.maxHealth;
@@ -3856,8 +5128,10 @@ class GameLoop {
         console.log(`[GameLoop] Player ${player.id} died during expedition tier ${expTier} — expedition failed, returning to ${expeditionOrigin}`);
       }
 
-      // Determine respawn destination: expedition origin if applicable, otherwise global spawn room
-      const spawnRoomId = expeditionOrigin || this.content.getSpawnRoom() || 'outpost_entrance';
+      // Determine respawn destination: expedition origin if applicable,
+      // then last activated waypoint, then global spawn room
+      const lastWaypoint = this.flagStore.getPlayerFlag(player.id, 'last_waypoint');
+      const spawnRoomId = expeditionOrigin || lastWaypoint || this.content.getSpawnRoom() || 'outpost_entrance';
       const needsTransition = room.id !== spawnRoomId;
 
       if (needsTransition) {
@@ -3882,7 +5156,6 @@ class GameLoop {
       });
 
       // Queue inventory update for the client
-      const droppedNames = droppedItems.map(i => i.name);
       this.pendingDeathPenalties.push({
         playerId: player.id,
         inventory: player.inventory,
@@ -3890,7 +5163,9 @@ class GameLoop {
         medipacCharges: player.medipacCharges || 0,
         credits: player.credits || 0,
         energyLost,
-        droppedItems: droppedNames,
+        degradedMods,
+        destroyedMods,
+        solGrid: this.getSolGridForClient(player),
         expeditionForfeit: onExpedition,
         bankedRestoredCount,
       });
@@ -4080,9 +5355,11 @@ class GameLoop {
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < hitRadius) {
+          if (mob.invulnerable) continue;
           // Hit monster — force aggro on the attacker
           const projDmg = proj.damage * (mob.damageTakenMult || 1.0);
           mob.health -= projDmg;
+          if (mob.ai === 'boss_retreat' && mob.health <= 0) mob.health = 1;
           mob.aggroTarget = proj.ownerId;
           room.events.push({
             type: 'damage',
@@ -4170,6 +5447,7 @@ class GameLoop {
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < hitRadius) {
             player.health -= proj.damage;
+            this._logDamage(player, proj.damage, 'projectile', room.id);
             room.events.push({
               type: 'damage', targetId: pid,
               amount: proj.damage, x: player.x, y: player.y,
@@ -4404,6 +5682,9 @@ class GameLoop {
 
       // If an NPC is closer than the door, prefer talking to the NPC
       if (closestNPC && closestDoor && closestDoor.tileDef.togglesTo != null && closestNPCDist < closestDoorDist) {
+        if (closestNPC.type === 'waypoint_beacon') {
+          return this._handleWaypointBeacon(playerId, roomId, closestNPC);
+        }
         const ctx = this._scriptContext(playerId, roomId);
         const dialogue = this._resolveDialogue(closestNPC, ctx);
         this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
@@ -4449,6 +5730,9 @@ class GameLoop {
 
       // No door found — check NPC without door comparison
       if (closestNPC) {
+        if (closestNPC.type === 'waypoint_beacon') {
+          return this._handleWaypointBeacon(playerId, roomId, closestNPC);
+        }
         const ctx = this._scriptContext(playerId, roomId);
         const dialogue = this._resolveDialogue(closestNPC, ctx);
         this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
@@ -4471,6 +5755,9 @@ class GameLoop {
         }
       }
       if (closestNPC) {
+        if (closestNPC.type === 'waypoint_beacon') {
+          return this._handleWaypointBeacon(playerId, roomId, closestNPC);
+        }
         const ctx = this._scriptContext(playerId, roomId);
         const dialogue = this._resolveDialogue(closestNPC, ctx);
         this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
@@ -4481,6 +5768,120 @@ class GameLoop {
     }
 
     return null;
+  }
+
+  // Targeted tile interaction — skips item pickup, interacts only with the tile at (targetTX, targetTY).
+  // Used by the headless sim bot to avoid picking up nearby ground items instead of activating puzzle tiles.
+  tryInteractTile(roomId, playerId, targetTX, targetTY) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player) return null;
+
+    const ts = CONSTANTS.TILE_SIZE;
+    const tileset = this.content.getTileset(room.dungeon.tileset);
+    if (!tileset) return null;
+
+    if (targetTX < 0 || targetTY < 0 || targetTX >= room.dungeon.width || targetTY >= room.dungeon.height) return null;
+
+    const tileId = room.dungeon.data[targetTY * room.dungeon.width + targetTX];
+    const tileDef = tileset.tiles[String(tileId)];
+    if (!tileDef || !tileDef.interactable || tileDef.togglesTo == null) return null;
+
+    // Range check — player must be within door interact range of the target tile
+    const tileCX = (targetTX + 0.5) * ts;
+    const tileCY = (targetTY + 0.5) * ts;
+    const dx = tileCX - player.x;
+    const dy = tileCY - player.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const doorRange = CONSTANTS.DOOR_INTERACT_RANGE * ts;
+    if (dist > doorRange) return null;
+
+    const ctx = this._scriptContext(playerId, roomId);
+
+    // Evaluate tile conditions (e.g., locked doors)
+    if (tileDef.conditions) {
+      if (!this.conditions.evaluate(tileDef.conditions, ctx)) {
+        const failMsg = tileDef.failMessage || 'You can\'t do that yet.';
+        return { interactType: 'message', text: failMsg };
+      }
+    }
+
+    // Execute onInteract actions (e.g., consume key)
+    if (tileDef.onInteract) {
+      this.actions.executeAll(tileDef.onInteract, ctx);
+    }
+
+    const newTileId = tileDef.togglesTo;
+    const idx = targetTY * room.dungeon.width + targetTX;
+    room.dungeon.data[idx] = newTileId;
+
+    // Emit door_interacted scripting event
+    this._emitGameEvent(EventBus.Events.DOOR_INTERACTED, {
+      playerId, roomId, tileX: targetTX, tileY: targetTY,
+      tileName: tileDef.name,
+    }, ctx);
+
+    return {
+      interactType: 'door',
+      x: targetTX,
+      y: targetTY,
+      tileId: newTileId,
+    };
+  }
+
+  // Handle waypoint beacon NPC interaction: activate waypoint + show fast travel menu
+  _handleWaypointBeacon(playerId, roomId, npc) {
+    const waypoints = this.content.getWaypoints();
+    const currentWaypoint = waypoints.find(wp => wp.room === roomId);
+    if (!currentWaypoint) return null;
+
+    const ctx = this._scriptContext(playerId, roomId);
+
+    // Activate this waypoint
+    this.flagStore.setPlayerFlag(playerId, `waypoint_${currentWaypoint.id}`, true);
+    this.flagStore.setPlayerFlag(playerId, 'last_waypoint', currentWaypoint.room);
+
+    // Emit NPC interaction event for triggers
+    this._emitGameEvent(EventBus.Events.NPC_INTERACTED, {
+      playerId, roomId, npcType: npc.type, npcId: npc.id,
+    }, ctx);
+
+    // Build fast travel choice menu from activated waypoints
+    const options = [];
+    for (const wp of waypoints) {
+      if (wp.room === roomId) continue; // skip current location
+      if (this.flagStore.getPlayerFlag(playerId, `waypoint_${wp.id}`)) {
+        options.push({ label: wp.name, description: '', value: wp.room });
+      }
+    }
+
+    if (options.length === 0) {
+      // First waypoint — just confirm activation
+      return {
+        interactType: 'dialogue',
+        npcId: npc.id,
+        dialogue: [{ speaker: 'Waypoint Beacon', text: `// BEACON REGISTERED: ${currentWaypoint.name} // Activate beacons at other locations to enable fast travel. //` }],
+      };
+    }
+
+    options.push({ label: 'Stay here', description: '', value: '_cancel' });
+
+    // Send choice menu directly
+    if (this.actions.sendToPlayer) {
+      this.actions.sendToPlayer(playerId, {
+        type: CONSTANTS.MSG.CHOICE_MENU,
+        choiceId: 'fast_travel',
+        prompt: `// TRANSIT BEACON: ${currentWaypoint.name} // Select destination:`,
+        options,
+      });
+    }
+
+    return {
+      interactType: 'dialogue',
+      npcId: npc.id,
+      dialogue: [{ speaker: 'Waypoint Beacon', text: '// BEACON ACTIVE //' }],
+    };
   }
 
   // Handle a player's choice menu selection
@@ -4504,7 +5905,29 @@ class GameLoop {
         this.actions.execute({ type: 'openAutomation' }, ctx);
       } else if (value === 'open_shop') {
         this.actions.execute({ type: 'shop', shopId: 'meridian_7_shop' }, ctx);
+      } else if (value === 'open_craft') {
+        this.actions.execute({ type: 'showMessage', text: "MERIDIAN-7: 'Fabrication protocols unlocked. Post-crisis resource allocation permits component reforging and fusion. Select a recipe.'" }, ctx);
+        this.actions.execute({ type: 'craft' }, ctx);
       }
+      return;
+    }
+
+    // Intercept fast travel choices — teleport player to selected waypoint
+    if (choiceId === 'fast_travel') {
+      if (value === '_cancel') return;
+      // Don't allow fast travel during expeditions
+      if (this.flagStore.getPlayerFlag(playerId, 'expedition_active')) return;
+      // Validate destination is an activated waypoint
+      const waypoints = this.content.getWaypoints();
+      const dest = waypoints.find(wp => wp.room === value);
+      if (!dest || !this.flagStore.getPlayerFlag(playerId, `waypoint_${dest.id}`)) return;
+      // Queue room transition
+      this.pendingTransitions.push({
+        playerId,
+        fromRoom: roomId,
+        toDungeon: dest.room,
+      });
+      console.log(`[GameLoop] Player ${playerId} fast traveling to ${dest.name} (${dest.room})`);
       return;
     }
 
@@ -4559,6 +5982,16 @@ class GameLoop {
       }
     }
 
+    // If swapping weapons, return old weapon's upgrade materials
+    if (slot === 'arms' && player.weaponUpgrades) {
+      for (const mat of player.weaponUpgrades.slots) {
+        if (mat) {
+          player.inventory.push({ type: mat.type, name: mat.name, rarity: mat.rarity, category: 'crafting' });
+        }
+      }
+      player.weaponUpgrades = null;
+    }
+
     player.inventory.splice(inventoryIndex, 1);
     if (currentEquipped) {
       player.inventory.push(currentEquipped);
@@ -4581,6 +6014,12 @@ class GameLoop {
       }
     }
 
+    // If equipping a weapon, init the weapon upgrade grid
+    if (slot === 'arms') {
+      this._initWeaponUpgrades(player);
+    }
+
+    this._recalcMaxHealth(player);
     this._rebuildAbilities(player);
     return { inventory: player.inventory, equipment: player.equipment, abilities: player.abilities, cooldowns: player.cooldowns };
   }
@@ -4603,6 +6042,16 @@ class GameLoop {
       player.solGrid = null;
     }
 
+    // If unequipping a weapon, return upgrade materials and clear grid
+    if (slot === 'arms' && player.weaponUpgrades) {
+      for (const mat of player.weaponUpgrades.slots) {
+        if (mat) {
+          player.inventory.push({ type: mat.type, name: mat.name, rarity: mat.rarity, category: 'crafting' });
+        }
+      }
+      player.weaponUpgrades = null;
+    }
+
     player.equipment[slot] = null;
     player.inventory.push({
       type: equipped.type,
@@ -4611,6 +6060,7 @@ class GameLoop {
       category: equipped.category || 'misc',
     });
 
+    this._recalcMaxHealth(player);
     this._rebuildAbilities(player);
     return { inventory: player.inventory, equipment: player.equipment, abilities: player.abilities, cooldowns: player.cooldowns };
   }
@@ -4634,7 +6084,11 @@ class GameLoop {
     // Heal effect
     if (itemDef.effect.heal) {
       if (player.health >= player.maxHealth) return null; // Already full
-      const healAmount = Math.min(itemDef.effect.heal, player.maxHealth - player.health);
+      let rawItemHeal = itemDef.effect.heal;
+      if (player.woundTime > 0 && player.woundHealReduction > 0) {
+        rawItemHeal = Math.round(rawItemHeal * (1 - player.woundHealReduction));
+      }
+      const healAmount = Math.min(rawItemHeal, player.maxHealth - player.health);
       player.health += healAmount;
       used = true;
 
@@ -4681,7 +6135,13 @@ class GameLoop {
       player.extractionPoint = ep;
 
       // Replace the flare with an extraction protocol item
-      player.inventory.splice(inventoryIndex, 1, { type: 'extraction_protocol' });
+      const epDef = this.content.getItem('extraction_protocol');
+      player.inventory.splice(inventoryIndex, 1, {
+        type: 'extraction_protocol',
+        name: epDef ? epDef.name : 'Extraction Protocol',
+        rarity: epDef ? epDef.rarity : 'uncommon',
+        category: epDef ? epDef.type : 'consumable',
+      });
 
       room.events.push({
         type: 'extraction_placed', x: player.x, y: player.y, ownerId: playerId,
@@ -4788,6 +6248,36 @@ class GameLoop {
     }, ctx);
   }
 
+  // Sum maxHealthBonus from all equipped items
+  _getEquipmentMaxHealthBonus(player) {
+    let bonus = 0;
+    for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
+      const item = player.equipment[slot];
+      if (item && item.stats && item.stats.maxHealthBonus) {
+        bonus += item.stats.maxHealthBonus;
+      }
+    }
+    return bonus;
+  }
+
+  // Recalculate player maxHealth from base + levels + equipment.
+  // Adjusts current health proportionally: heals on increase, clamps on decrease.
+  _recalcMaxHealth(player) {
+    const settings = this.content.getSettings();
+    const xpSys = (settings && settings.xpSystem) || {};
+    const hpPerLevel = xpSys.hpPerLevel || 10;
+    const newMax = CONSTANTS.PLAYER_MAX_HEALTH
+      + (player.level - 1) * hpPerLevel
+      + this._getEquipmentMaxHealthBonus(player);
+    const delta = newMax - player.maxHealth;
+    player.maxHealth = newMax;
+    if (delta > 0) {
+      player.health = Math.min(player.health + delta, player.maxHealth);
+    } else {
+      player.health = Math.min(player.health, player.maxHealth);
+    }
+  }
+
   getPlayerAttackDamage(player) {
     let damage = CONSTANTS.PLAYER_ATTACK_DAMAGE;
     for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
@@ -4796,7 +6286,140 @@ class GameLoop {
         damage += item.stats.attackDamage;
       }
     }
+    // Apply weapon upgrade bonuses
+    if (player.weaponUpgrades) {
+      const bonuses = this._computeWeaponUpgradeBonuses(player);
+      damage += bonuses.flatDamage;
+      damage = Math.round(damage * (1 + bonuses.damageMultiplier));
+    }
     return damage;
+  }
+
+  // --- Weapon Upgrade System ---
+
+  _getWeaponUpgradeGridSize(rarity) {
+    switch (rarity) {
+      case 'common': return 2;
+      case 'uncommon': return 3;
+      case 'rare': return 4;
+      case 'epic': return 4;
+      case 'legendary': return 5;
+      default: return 2;
+    }
+  }
+
+  _initWeaponUpgrades(player) {
+    const weapon = player.equipment.arms;
+    if (!weapon) {
+      player.weaponUpgrades = null;
+      return;
+    }
+    const size = this._getWeaponUpgradeGridSize(weapon.rarity || 'common');
+    player.weaponUpgrades = {
+      weaponType: weapon.type,
+      weaponName: weapon.name,
+      weaponRarity: weapon.rarity,
+      size: size,
+      slots: new Array(size * size).fill(null), // flat grid of placed crafting items
+    };
+  }
+
+  _computeWeaponUpgradeBonuses(player) {
+    const result = { flatDamage: 0, damageMultiplier: 0, cooldownReduction: 0, energyCostReduction: 0 };
+    if (!player.weaponUpgrades) return result;
+    for (const slot of player.weaponUpgrades.slots) {
+      if (!slot) continue;
+      const itemDef = this.content.getItem(slot.type);
+      if (!itemDef || !itemDef.weaponUpgrade) continue;
+      const u = itemDef.weaponUpgrade;
+      if (u.damage) result.flatDamage += u.damage;
+      if (u.damageMultiplier) result.damageMultiplier += u.damageMultiplier;
+      if (u.cooldownReduction) result.cooldownReduction += u.cooldownReduction;
+      if (u.energyCostReduction) result.energyCostReduction += u.energyCostReduction;
+    }
+    return result;
+  }
+
+  getWeaponUpgradeStateForClient(player) {
+    if (!player.weaponUpgrades) return null;
+    const wu = player.weaponUpgrades;
+    const slots = wu.slots.map(s => {
+      if (!s) return null;
+      const itemDef = this.content.getItem(s.type);
+      return {
+        type: s.type,
+        name: s.name,
+        rarity: s.rarity,
+        bonus: itemDef && itemDef.weaponUpgrade ? itemDef.weaponUpgrade : {},
+      };
+    });
+    const bonuses = this._computeWeaponUpgradeBonuses(player);
+    return {
+      weaponType: wu.weaponType,
+      weaponName: wu.weaponName,
+      weaponRarity: wu.weaponRarity,
+      size: wu.size,
+      slots: slots,
+      totalBonuses: bonuses,
+    };
+  }
+
+  tryWeaponUpgradePlace(roomId, playerId, inventoryIndex, gridIndex) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player || !player.weaponUpgrades) return null;
+
+    if (inventoryIndex < 0 || inventoryIndex >= player.inventory.length) return null;
+    const item = player.inventory[inventoryIndex];
+    if (item.category !== 'crafting') return null;
+
+    const wu = player.weaponUpgrades;
+    if (gridIndex < 0 || gridIndex >= wu.slots.length) return null;
+    if (wu.slots[gridIndex] !== null) return null; // slot occupied
+
+    // Place the crafting material
+    wu.slots[gridIndex] = { type: item.type, name: item.name, rarity: item.rarity };
+    player.inventory.splice(inventoryIndex, 1);
+    return true;
+  }
+
+  tryWeaponUpgradeRemove(roomId, playerId, gridIndex) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player || !player.weaponUpgrades) return null;
+
+    const wu = player.weaponUpgrades;
+    if (gridIndex < 0 || gridIndex >= wu.slots.length) return null;
+    if (!wu.slots[gridIndex]) return null; // nothing to remove
+
+    const mat = wu.slots[gridIndex];
+    wu.slots[gridIndex] = null;
+    // Return material to inventory
+    player.inventory.push({ type: mat.type, name: mat.name, rarity: mat.rarity, category: 'crafting' });
+    return true;
+  }
+
+  tryWeaponDisassemble(roomId, playerId) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player || !player.weaponUpgrades || !player.equipment.arms) return null;
+
+    // Return all upgrade materials to inventory
+    for (const slot of player.weaponUpgrades.slots) {
+      if (slot) {
+        player.inventory.push({ type: slot.type, name: slot.name, rarity: slot.rarity, category: 'crafting' });
+      }
+    }
+
+    // Destroy the weapon
+    player.equipment.arms = null;
+    player.weaponUpgrades = null;
+
+    this._rebuildAbilities(player);
+    return { inventory: player.inventory, equipment: player.equipment, abilities: player.abilities, cooldowns: player.cooldowns };
   }
 
   // Calculate XP required to advance from a given level.
@@ -4813,11 +6436,13 @@ class GameLoop {
   // playerId is used to filter out path-specific legendary drops the player hasn't unlocked.
   _rollLoot(room, mob, playerId = null) {
     const monsterDef = this.content.getMonster(mob.type);
-    if (!monsterDef || !monsterDef.lootTable) return;
+    // Allow mob-level lootTable override (e.g. siege wave monsters)
+    const baseLootTable = mob.lootTable || (monsterDef && monsterDef.lootTable);
+    if (!baseLootTable) return;
 
     // For expedition bosses, use the expedition-tier-specific boss loot table instead
     // of the monster's default table so path-specific legendaries can drop.
-    let lootTableId = monsterDef.lootTable;
+    let lootTableId = baseLootTable;
     if (monsterDef.boss && playerId) {
       const expBossType = this.flagStore.getPlayerFlag(playerId, 'expedition_boss_type');
       if (expBossType && mob.type === expBossType) {
@@ -4905,9 +6530,14 @@ class GameLoop {
       levelsGained++;
       player.xpToNextLevel = this._xpForLevel(player.level);
 
-      // Increase max HP and heal the gained amount
-      player.maxHealth += hpPerLevel;
-      player.health = Math.min(player.health + hpPerLevel, player.maxHealth);
+      // Recalculate max HP (base + levels + equipment) and heal the gained amount
+      this._recalcMaxHealth(player);
+
+      if (this.activityLog) {
+        this.activityLog.logById(player.id, 'level_up', {
+          level: player.level, room: room ? room.id : undefined,
+        });
+      }
 
       if (room) {
         room.events.push({
@@ -4969,11 +6599,17 @@ class GameLoop {
         energy: Math.round(p.energy), maxEnergy: p.maxEnergy,
         singleUseEnergy: Math.round(p.singleUseEnergy || 0), singleUseMaxEnergy: p.singleUseMaxEnergy || 0,
         xp: p.xp, level: p.level, xpToNextLevel: p.xpToNextLevel,
+        attackDamage: this.getPlayerAttackDamage(p),
         colorIndex: p.colorIndex,
         elevation: Math.round((p.elevation || 0) * 100) / 100,
         hovering: p.hovering || false,
         stunned: (p.stunTime || 0) > 0,
+        poisoned: (p.poisonTime || 0) > 0,
+        wounded: (p.woundTime || 0) > 0,
       };
+      if (p.attackTimer > 0) {
+        pData.attacking = true;
+      }
       // Include weapon name if equipped (for rendering)
       if (p.equipment && p.equipment.arms) {
         pData.weapon = p.equipment.arms.name;
@@ -5010,6 +6646,9 @@ class GameLoop {
       if (m.bossPhases) {
         mData.boss = true;
         mData.bossPhase = m.bossPhase + 1;
+      }
+      if (m.attackTimer > m.attackCooldown * 0.5) {
+        mData.attacking = true;
       }
       if (m.sentrySlowTime > 0) {
         mData.slowed = true;

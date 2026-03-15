@@ -1,0 +1,156 @@
+{
+  "id": "spire_vigil_approach",
+  "name": "Spire of Vigil — Outer Defenses",
+  "depth": 1,
+  "tileset": "nightside",
+  "theme": "nightside",
+  "tileSize": 32,
+  "ambientLight": 0.04,
+  "environmentalHazard": { "type": "cold", "damage": 3, "interval": 3.0 },
+  "width": 26,
+  "height": 20,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,8,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,2,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,1,1,1,1,1,1,1,1,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,
+    3,3,3,1,1,1,1,1,1,1,1,1,4,1,1,1,1,2,1,1,1,3,3,3,3,3,
+    3,3,3,3,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,
+    3,3,3,1,1,1,1,1,3,3,3,1,1,1,3,3,3,1,1,1,1,1,1,1,3,3,
+    3,3,3,1,1,1,1,3,3,7,3,1,1,1,3,7,3,3,1,1,2,1,1,1,1,3,
+    3,3,3,1,1,1,1,3,3,7,3,1,1,1,3,7,3,3,1,1,1,1,1,1,1,3,
+    3,3,3,1,1,2,1,1,3,3,3,1,1,1,3,3,3,1,1,1,1,1,1,1,3,3,
+    3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,
+    3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,3,3,1,1,1,1,1,1,1,1,1,4,1,1,1,1,2,1,1,1,3,3,3,3,3,
+    3,3,1,1,1,1,1,1,1,1,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,
+    3,1,1,2,1,1,1,1,3,3,3,3,3,3,3,3,1,1,10,1,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,1,1,6,3,3,3,3,3,3,
+    3,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "luddite_brawler", "x": 8, "y": 5, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 6, "y": 4}, {"x": 10, "y": 4}, {"x": 10, "y": 7}, {"x": 6, "y": 7}] },
+    { "type": "luddite_crossbowman", "x": 17, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "luddite_crossbowman", "x": 15, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "luddite_shieldbearer", "x": 12, "y": 7, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 10, "y": 6}, {"x": 14, "y": 6}, {"x": 14, "y": 8}, {"x": 10, "y": 8}] },
+    { "type": "luddite_brawler", "x": 11, "y": 8, "count": 2, "patrol": "guard" },
+    { "type": "luddite_scrapper", "x": 20, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 21, "y": 9, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 19, "y": 8}, {"x": 23, "y": 8}, {"x": 23, "y": 11}, {"x": 19, "y": 11}] },
+    { "type": "luddite_crossbowman", "x": 22, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 8, "y": 12, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 5, "y": 11}, {"x": 10, "y": 11}, {"x": 10, "y": 14}, {"x": 5, "y": 14}] },
+    { "type": "luddite_shieldbearer", "x": 15, "y": 13, "count": 1, "patrol": "guard" },
+    { "type": "luddite_brawler", "x": 16, "y": 14, "count": 2, "patrol": "guard" },
+    { "type": "luddite_scrapper", "x": 5, "y": 16, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 3, "y": 15}, {"x": 7, "y": 15}, {"x": 7, "y": 18}, {"x": 3, "y": 18}] }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "frost_salve", "x": 17, "y": 5 },
+    { "type": "field_medkit", "x": 20, "y": 9 },
+    { "type": "bandage", "x": 5, "y": 11 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "nightside_outpost", "type": "stairs_up", "spawnX": 18, "spawnY": 12 },
+    { "x": 19, "y": 17, "leadsTo": "spire_vigil_watchtower", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+      {
+        "id": "approach_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The cavern opens into a massive gallery \u2014 and there it is. The Spire of Vigil rises from the bedrock like a dark needle, its surface smooth and geometric where the ice hasn't claimed it.",
+              "The raiders have built fortifications around the base. Barricades of salvaged metal and bone, firelight flickering behind crude walls. You can hear voices, the clang of weapons being sharpened.",
+              "This is Dural Voss's stronghold. The outer defenses are between you and the Spire's interior."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "approach_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The cavern opens into a massive gallery \u2014 and there it is. The Spire of Vigil rises from the bedrock like a dark needle, its surface smooth and geometric where the ice hasn't claimed it.",
+              "The raiders have built fortifications around the base. Barricades of salvaged metal and bone, firelight flickering behind crude walls. You can hear voices, the clang of weapons being sharpened.",
+              "This is Dural Voss's stronghold. The outer defenses are between you and the Spire's interior."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "approach_gate_west",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 12,
+          "tileY": 5
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The crystal gate grinds open. Beyond it, raider fortifications line the corridor \u2014 they've turned the Spire's architecture into defensive positions."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "approach_gate_east",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 12,
+          "tileY": 14
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The lower gate yields. The path narrows ahead, winding down toward the Spire's inner levels."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "chest_loot_approach",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "spire_vigil_chest"
+          }
+        ]
+      },
+      {
+        "id": "mark_approach_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_approach",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      }
+    ]
+}

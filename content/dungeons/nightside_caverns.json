@@ -8,7 +8,7 @@
   "ambientLight": 0.02,
   "environmentalHazard": {
     "type": "cold",
-    "damage": 3,
+    "damage": 4,
     "interval": 2.5
   },
   "width": 25,
@@ -730,6 +730,19 @@
         {"x": 16, "y": 16},
         {"x": 11, "y": 16}
       ]
+    },
+    {
+      "type": "rime_stalker",
+      "x": 4,
+      "y": 7,
+      "count": 1,
+      "patrol": "patrol",
+      "patrolPath": [
+        {"x": 3, "y": 7},
+        {"x": 9, "y": 7},
+        {"x": 9, "y": 8},
+        {"x": 3, "y": 8}
+      ]
     }
   ],
   "npcSpawns": [],
@@ -745,17 +758,13 @@
       "y": 6
     },
     {
-      "type": "field_medkit",
+      "type": "bandage",
       "x": 11,
       "y": 11
     },
-    {
-      "type": "bandage",
-      "x": 2,
-      "y": 15
-    },
     { "type": "battery_chip", "x": 16, "y": 14 },
-    { "type": "battery_chip", "x": 8, "y": 4 }
+    { "type": "battery_chip", "x": 8, "y": 4 },
+    { "type": "frozen_expedition_log", "x": 14, "y": 8 }
   ],
   "exits": [
     {
@@ -776,6 +785,34 @@
     }
   ],
   "triggers": [
+    {
+      "id": "caverns_ambient_entry",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Nightside Caverns. Past the border now — past everything the Lighthouses protect and everything the surveys call understood.",
+          "Your Sol Unit's glow catches umbracite veins in the walls. For a moment you see them pulse — not reflecting your light back, but holding it. Considering it. Returning it slightly changed.",
+          "The old survey maps call this area geologically inert. You're not sure they were right."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "caverns_expedition_log_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "frozen_expedition_log" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Survey Corps, Team Echo, Year 441. Three weeks deep.",
+          "The deposits here exceed all projections. Umbracite this dense shouldn't exist at this depth without geothermal pressure we have no readings for.",
+          "More significant: the crystal formations pulse. Not from vibration — we checked. Not heat expansion. They pulse in a regular rhythm, 0.4 seconds. Like a heartbeat. Corporal Fen says we're imagining it. I measured it three times.",
+          "We're staying overnight to run additional scans. Whatever is generating that rhythm, it's coming from below.",
+          "— R. Delani, Lead Surveyor, day 21",
+          "[The log ends here. No further entries.]"
+        ]}
+      ],
+      "once": true
+    },
     {
       "id": "cavern_quest_hint",
       "event": "room_entered",
@@ -809,6 +846,15 @@
           "lootTable": "frost_biome_common"
         }
       ]
+    },
+    {
+      "id": "mark_nightside_visited",
+      "event": "room_entered",
+      "actions": [
+        { "type": "setFlag", "flag": "visited_nightside_caverns", "scope": "player" },
+        { "type": "clearQuestObjective" }
+      ],
+      "once": true
     }
   ]
 }

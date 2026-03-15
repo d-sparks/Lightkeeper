@@ -12,6 +12,7 @@ const { isAuthenticated, handleLogin, sendUnauthorized } = require('./editor-aut
 const contentGit = require('./content-git');
 const ChunkManager = require('./chunk-manager');
 const SessionStore = require('./session-store');
+const ActivityLog = require('./activity-log');
 
 // --- Configuration ---
 const PORT = process.env.PORT || 3000;
@@ -220,7 +221,7 @@ const httpServer = http.createServer((req, res) => {
   // --- All other checkpoint API routes require auth ---
   if (urlPath.startsWith('/api/checkpoint/')) {
     if (!isAuthenticated(req)) { sendUnauthorized(res); return; }
-    const handled = handleCheckpointAPI(req, res, gameLoop, wss, content);
+    const handled = handleCheckpointAPI(req, res, gameLoop, wss, content, sessionStore);
     if (handled !== false) return;
   }
 
@@ -326,6 +327,8 @@ const chunkManager = new ChunkManager();
 
 // --- Session persistence ---
 const sessionStore = new SessionStore();
+const activityLog = new ActivityLog();
+gameLoop.activityLog = activityLog;
 
 // --- WebSocket server ---
 const wss = new WebSocketServer({ server: httpServer });
@@ -529,6 +532,13 @@ wss.on('connection', (ws) => {
             gameLoop.questTracker.restorePlayerState(playerId, savedSession.questState, restoreCtx);
           }
 
+          // Restore weapon upgrade state, or init if weapon is equipped
+          if (savedSession.weaponUpgrades) {
+            player.weaponUpgrades = JSON.parse(JSON.stringify(savedSession.weaponUpgrades));
+          } else if (player.equipment.arms) {
+            gameLoop._initWeaponUpgrades(player);
+          }
+
           // Rebuild abilities from restored equipment/solGrid
           gameLoop._rebuildAbilities(player);
 
@@ -539,6 +549,11 @@ wss.on('connection', (ws) => {
             }
           }
 
+          // Restore last death drops (for checkpoint editor restore feature)
+          if (savedSession.lastDeathDrops) {
+            player.lastDeathDrops = JSON.parse(JSON.stringify(savedSession.lastDeathDrops));
+          }
+
           // Restore automation state (structures, resources, production timers)
           if (savedSession.automationState) {
             gameLoop.automation.restoreState(playerId, savedSession.automationState);
@@ -546,6 +561,16 @@ wss.on('connection', (ws) => {
 
           console.log(`[Session] Restored saved session for "${ws.playerName}"`);
         }
+
+        // Activity logging: register player and log session start
+        activityLog.registerPlayer(playerId, ws.playerName);
+        ws.joinedAt = Date.now();
+        const joinedPlayer = gameLoop.getRoom(ws.playerRoom).players.get(playerId);
+        activityLog.log(ws.playerName, 'session_start', {
+          room: ws.playerRoom,
+          level: joinedPlayer ? joinedPlayer.level : 1,
+          restored: !!savedSession,
+        });
 
         const room = gameLoop.getRoom(ws.playerRoom);
         const overlayedDungeon = gameLoop.automation.getOverlayedMapData(playerId, room.dungeon);
@@ -587,6 +612,7 @@ wss.on('connection', (ws) => {
           equipment: player.equipment,
           medipacCharges: player.medipacCharges,
           credits: player.credits || 0,
+          bankedItems: gameLoop.flagStore.getPlayerFlag(playerId, 'expedition_banked_loot') || [],
         }));
 
         // Send ability state
@@ -623,6 +649,14 @@ wss.on('connection', (ws) => {
           ws.send(JSON.stringify({
             type: CONSTANTS.MSG.SOL_GRID,
             grid: player.solGrid,
+          }));
+        }
+
+        // Send weapon upgrade state if weapon equipped
+        if (player.weaponUpgrades) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+            state: gameLoop.getWeaponUpgradeStateForClient(player),
           }));
         }
 
@@ -731,6 +765,13 @@ wss.on('connection', (ws) => {
               grid: gameLoop.getSolGridForClient(equipPlayer),
             }));
           }
+          // Send weapon upgrade state
+          if (equipPlayer) {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+              state: gameLoop.getWeaponUpgradeStateForClient(equipPlayer),
+            }));
+          }
         }
         break;
       }
@@ -760,6 +801,13 @@ wss.on('connection', (ws) => {
             type: CONSTANTS.MSG.SOL_GRID,
             grid: gameLoop.getSolGridForClient(unequipPlayer),
           }));
+          // Send weapon upgrade state
+          if (unequipPlayer) {
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+              state: gameLoop.getWeaponUpgradeStateForClient(unequipPlayer),
+            }));
+          }
         }
         break;
       }
@@ -927,6 +975,113 @@ wss.on('connection', (ws) => {
         break;
       }
 
+      case CONSTANTS.MSG.WEAPON_UPGRADE_PLACE: {
+        if (!ws.playerRoom) break;
+        const wupResult = gameLoop.tryWeaponUpgradePlace(
+          ws.playerRoom, playerId, msg.inventoryIndex, msg.gridIndex
+        );
+        if (wupResult) {
+          const wupRoom = gameLoop.getRoom(ws.playerRoom);
+          const wupPlayer = wupRoom && wupRoom.players.get(playerId);
+          if (wupPlayer) {
+            gameLoop._rebuildAbilities(wupPlayer);
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+              state: gameLoop.getWeaponUpgradeStateForClient(wupPlayer),
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.INVENTORY,
+              items: wupPlayer.inventory,
+              equipment: wupPlayer.equipment,
+              medipacCharges: wupPlayer.medipacCharges,
+              credits: wupPlayer.credits || 0,
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.ABILITY_STATE,
+              abilities: wupPlayer.abilities,
+              cooldowns: wupPlayer.cooldowns,
+            }));
+          }
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.WEAPON_UPGRADE_REMOVE: {
+        if (!ws.playerRoom) break;
+        const wurResult = gameLoop.tryWeaponUpgradeRemove(
+          ws.playerRoom, playerId, msg.gridIndex
+        );
+        if (wurResult) {
+          const wurRoom = gameLoop.getRoom(ws.playerRoom);
+          const wurPlayer = wurRoom && wurRoom.players.get(playerId);
+          if (wurPlayer) {
+            gameLoop._rebuildAbilities(wurPlayer);
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+              state: gameLoop.getWeaponUpgradeStateForClient(wurPlayer),
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.INVENTORY,
+              items: wurPlayer.inventory,
+              equipment: wurPlayer.equipment,
+              medipacCharges: wurPlayer.medipacCharges,
+              credits: wurPlayer.credits || 0,
+            }));
+            ws.send(JSON.stringify({
+              type: CONSTANTS.MSG.ABILITY_STATE,
+              abilities: wurPlayer.abilities,
+              cooldowns: wurPlayer.cooldowns,
+            }));
+          }
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.WEAPON_DISASSEMBLE: {
+        if (!ws.playerRoom) break;
+        const disResult = gameLoop.tryWeaponDisassemble(ws.playerRoom, playerId);
+        if (disResult) {
+          const disRoom = gameLoop.getRoom(ws.playerRoom);
+          const disPlayer = disRoom && disRoom.players.get(playerId);
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.WEAPON_UPGRADE_STATE,
+            state: null,
+          }));
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.INVENTORY,
+            items: disResult.inventory,
+            equipment: disResult.equipment,
+            medipacCharges: disPlayer ? disPlayer.medipacCharges : 0,
+            credits: disPlayer ? disPlayer.credits || 0 : 0,
+          }));
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.ABILITY_STATE,
+            abilities: disResult.abilities,
+            cooldowns: disResult.cooldowns,
+          }));
+        }
+        break;
+      }
+
+      case CONSTANTS.MSG.SIEGE_REPAIR: {
+        if (!ws.playerRoom) break;
+        const repairResult = gameLoop.trySiegeRepair(ws.playerRoom, playerId);
+        if (!repairResult) break;
+        if (repairResult.error) {
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.DIALOGUE,
+            dialogue: [{ speaker: '', text: repairResult.error }],
+          }));
+        } else if (repairResult.ok) {
+          // Send updated automation state (silicon changed)
+          ws.send(JSON.stringify({
+            type: CONSTANTS.MSG.AUTO_STATE,
+            auto: gameLoop.automation.getStateForClient(playerId),
+          }));
+        }
+        break;
+      }
+
       case CONSTANTS.MSG.AUTO_BUILD: {
         if (!ws.playerRoom) break;
         const pathFlags = {
@@ -936,13 +1091,19 @@ wss.on('connection', (ws) => {
         };
         const built = gameLoop.automation.build(playerId, msg.structureId, msg.gridX, msg.gridY, pathFlags);
         if (built) {
-          // Set automation_established flag once player has built 2+ structures
+          activityLog.logById(playerId, 'auto_build', { structure: msg.structureId, room: ws.playerRoom });
+
+          // Update automation flags based on current structure count
+          const autoState = gameLoop.automation.getStateForClient(playerId);
+          const totalStructures = (autoState.stats && autoState.stats.totalStructures) || 0;
+          // automation_established: set once player has built 2+ structures
           if (!gameLoop.flagStore.getPlayerFlag(playerId, 'automation_established')) {
-            const autoState = gameLoop.automation.getStateForClient(playerId);
-            if (autoState.stats && autoState.stats.totalStructures >= 2) {
+            if (totalStructures >= 2) {
               gameLoop.flagStore.setPlayerFlag(playerId, 'automation_established', true);
             }
           }
+          // automation_level: track total structures for expedition tier unlocks
+          gameLoop.flagStore.setPlayerFlag(playerId, 'automation_level', totalStructures);
           // Check for milestone rewards
           const milestoneRewards = gameLoop.automation.checkMilestones(playerId);
           if (milestoneRewards.length > 0) {
@@ -1029,6 +1190,8 @@ wss.on('connection', (ws) => {
         if (!ws.playerRoom) break;
         const tradeResult = gameLoop.automation.trade(playerId, msg.tradeId);
         if (tradeResult) {
+          activityLog.logById(playerId, 'auto_trade', { trade: msg.tradeId, room: ws.playerRoom });
+
           // Give items to player
           const room = gameLoop.getRoom(ws.playerRoom);
           const player = room && room.players.get(playerId);
@@ -1071,6 +1234,27 @@ wss.on('connection', (ws) => {
         break;
       }
 
+      case CONSTANTS.MSG.RAID_DEFEND: {
+        if (!ws.playerRoom) break;
+        // Player wants to manually defend against a pending raid
+        const raidData = gameLoop.automation.claimPendingRaid(playerId);
+        if (!raidData) break; // No pending raid
+
+        const result = gameLoop.startRaidDefense(playerId, raidData, ws.playerRoom);
+        if (!result) break;
+
+        // Queue transition to the raid defense room
+        gameLoop.pendingTransitions.push({
+          playerId,
+          fromRoom: ws.playerRoom,
+          toDungeon: result.roomId,
+          spawnX: 10,
+          spawnY: 10,
+          raidDefense: true,
+        });
+        break;
+      }
+
       case CONSTANTS.MSG.CHAT: {
         if (!ws.playerRoom) break;
         const text = typeof msg.text === 'string' ? msg.text.trim().slice(0, 200) : '';
@@ -1083,11 +1267,31 @@ wss.on('connection', (ws) => {
         });
         break;
       }
+
+      case CONSTANTS.MSG.PLAYER_NOTE: {
+        if (!ws.playerName) break;
+        const noteText = typeof msg.text === 'string' ? msg.text.trim().slice(0, 500) : '';
+        if (!noteText) break;
+        activityLog.log(ws.playerName, 'note', { text: noteText, room: ws.playerRoom });
+        break;
+      }
     }
   });
 
   ws.on('close', () => {
     console.log(`[WS] Client disconnected: ${playerId}`);
+
+    // Activity logging: log session end before cleanup
+    if (ws.playerRoom && ws.playerName) {
+      const endRoom = gameLoop.getRoom(ws.playerRoom);
+      const endPlayer = endRoom && endRoom.players.get(playerId);
+      activityLog.log(ws.playerName, 'session_end', {
+        room: ws.playerRoom,
+        level: endPlayer ? endPlayer.level : undefined,
+        playtime_s: ws.joinedAt ? Math.round((Date.now() - ws.joinedAt) / 1000) : undefined,
+      });
+      activityLog.unregisterPlayer(playerId);
+    }
 
     // Save session before cleanup
     if (ws.playerRoom && ws.playerName) {
@@ -1098,6 +1302,7 @@ wss.on('connection', (ws) => {
     }
 
     chunkManager.removePlayer(playerId);
+    gameLoop.handlePlayerDisconnect(playerId);
     if (ws.playerRoom) {
       gameLoop.removePlayer(ws.playerRoom, playerId);
       gameLoop.questTracker.removePlayer(playerId);
@@ -1138,6 +1343,7 @@ function gatherPlayerSaveData(ws) {
     inventory: player.inventory,
     equipment: player.equipment,
     solGrid: player.solGrid,
+    weaponUpgrades: player.weaponUpgrades,
     energy: player.energy,
     maxEnergy: player.maxEnergy,
     solGridEnergyRegen: player.solGridEnergyRegen,
@@ -1150,6 +1356,7 @@ function gatherPlayerSaveData(ws) {
     credits: player.credits || 0,
     revealedChunks,
     automationState: gameLoop.automation.serializeState(ws.playerId),
+    lastDeathDrops: player.lastDeathDrops || [],
   };
 }
 
@@ -1275,6 +1482,21 @@ setInterval(() => {
       if (t.expeditionScaling) {
         gameLoop.applyExpeditionScaling(targetRoom, t.expeditionScaling, t.expeditionBossAffixes);
       }
+
+      // Apply spire replay scaling if this is an inner spire floor and the spire is cleared
+      if (!t.expeditionScaling && !targetRoom.spireReplayTier) {
+        const spireConfig = content.getSpireReplayForFloor(t.toDungeon);
+        if (spireConfig) {
+          const clearedFlag = gameLoop.flagStore.getPlayerFlag(t.playerId, spireConfig.clearedFlag);
+          if (clearedFlag) {
+            const tierValue = gameLoop.flagStore.getPlayerFlag(t.playerId, spireConfig.replayFlag) || 'normal';
+            const tierConfig = content.getSpireReplayTier(tierValue);
+            if (tierConfig) {
+              gameLoop.applySpireReplayScaling(targetRoom, tierConfig);
+            }
+          }
+        }
+      }
     }
 
     // Resolve spawn position: targetId > spawnX/Y > first player_start > fallback (2,2)
@@ -1357,6 +1579,14 @@ setInterval(() => {
     if (player.questObjective) {
       gameLoop._sendQuestObjective(t.playerId, targetRoomId);
     }
+
+    // Clean up raid defense rooms after player leaves
+    if (t.fromRoom && t.fromRoom.startsWith('raid_defense_')) {
+      const fromRoom = gameLoop.getRoom(t.fromRoom);
+      if (fromRoom && (!fromRoom.players || fromRoom.players.size === 0)) {
+        gameLoop.cleanupRaidDefenseRoom(t.fromRoom);
+      }
+    }
   }
 
   // Process death penalties — send updated inventory to players who died
@@ -1372,16 +1602,27 @@ setInterval(() => {
       credits: dp.credits || 0,
     }));
 
+    // Send updated sol grid (modifier durability changed)
+    if (dp.solGrid) {
+      ws.send(JSON.stringify({
+        type: CONSTANTS.MSG.SOL_GRID,
+        grid: dp.solGrid,
+      }));
+    }
+
     // Send death screen notification so the player knows what they lost
     const lines = [];
     if (dp.energyLost > 0) lines.push(`Lost ${dp.energyLost} energy.`);
-    if (dp.droppedItems && dp.droppedItems.length > 0) {
-      if (dp.expeditionForfeit) {
-        lines.push(`Expedition failed. Floor loot forfeited: ${dp.droppedItems.join(', ')}`);
-      } else {
-        lines.push(`Dropped: ${dp.droppedItems.join(', ')}`);
+    if (dp.destroyedMods && dp.destroyedMods.length > 0) {
+      lines.push(`DESTROYED: ${dp.destroyedMods.join(', ')} (converted to salvage)`);
+    }
+    if (dp.degradedMods && dp.degradedMods.length > 0) {
+      for (const mod of dp.degradedMods) {
+        const warning = mod.durability === 1 ? ' — CRITICAL!' : '';
+        lines.push(`${mod.name}: durability ${mod.durability}/3${warning}`);
       }
-    } else if (dp.expeditionForfeit) {
+    }
+    if (dp.expeditionForfeit) {
       lines.push('Expedition failed. Returned to station.');
     }
     if (dp.bankedRestoredCount > 0) {
@@ -1443,6 +1684,8 @@ setInterval(() => {
           } else {
             state.expedition = null;
           }
+          // Inject siege state for this room
+          state.siege = gameLoop._getSiegeStateForClient(room);
         }
         // Inject per-player harvester entities when in the automation dungeon
         if (isDaysideRoom && client.playerId) {

@@ -137,6 +137,10 @@ class Renderer {
     // Boss intro cinematic state
     this.bossIntro = null; // { bossName, x, y, elapsed, duration, phase }
 
+    // Siege lighthouse rendering state
+    this.lighthouseSprite = null;  // PIXI.Container for lighthouse entity
+    this.siegeAnnouncements = [];  // floating center-screen text announcements
+
     this._initPixi();
   }
 
@@ -301,6 +305,35 @@ class Renderer {
     tex.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
     this.textureCache[spritePath] = tex;
     return tex;
+  }
+
+  // Load a 4-frame animation strip (64x16) and return array of frame textures.
+  // Entity sprites are generated as horizontal strips: idle1, idle2, attack, hit.
+  loadAnimFrames(spritePath) {
+    const key = spritePath + '#frames';
+    if (this.textureCache[key]) return this.textureCache[key];
+    const baseTex = PIXI.BaseTexture.from('/content/' + spritePath);
+    baseTex.scaleMode = PIXI.SCALE_MODES.NEAREST;
+    const frames = [];
+    for (let i = 0; i < 4; i++) {
+      frames.push(new PIXI.Texture(baseTex, new PIXI.Rectangle(i * 16, 0, 16, 16)));
+    }
+    this.textureCache[key] = frames;
+    return frames;
+  }
+
+  // Determine animation frame index for an entity.
+  // Returns 0-3: 0=idle1, 1=idle2, 2=attack, 3=hit
+  _getAnimFrame(entityId, isAttacking, isHit) {
+    if (isHit) return 3;
+    if (isAttacking) return 2;
+    // Idle bob: alternate between frame 0 and 1 at ~2Hz.
+    // Stagger by entity id so not all entities bob in sync.
+    const idHash = typeof entityId === 'string'
+      ? (entityId.charCodeAt(0) + (entityId.charCodeAt(1) || 0))
+      : (entityId % 256);
+    const t = Math.floor((Date.now() + idHash * 137) / 500);
+    return t % 2;
   }
 
   _buildTileTextures() {
@@ -524,7 +557,7 @@ class Renderer {
       minimap: {
         dark_stone_floor: 0x1a1528, umbracite_floor: 0x241a3a, umbracite_vein_wall: 0x3a2a5a,
         crystal_door_closed: 0x4a3070, crystal_door_open: 0x1e1528, deep_stairs_down: 0x2a1a3e,
-        deep_stairs_up: 0x1a2e3a, dark_pool: 0x0e0a1e, void: 0x08060e,
+        deep_stairs_up: 0x1a2e3a, transit_portal: 0x3a5a8a, dark_pool: 0x0e0a1e, void: 0x08060e,
         chest_closed: 0x2e2848, chest_opened: 0x1a1830,
       },
     },
@@ -1218,6 +1251,54 @@ class Renderer {
       'full_wall':     'full_wall',
       'elevated_wall': 'elevated_wall',
       'cracked_wall':  'cracked_wall',
+      // Nightside tileset
+      'dark_stone_floor':    'floor',
+      'umbracite_floor':     'floor2',
+      'umbracite_vein_wall': 'wall',
+      'crystal_door_closed': 'door_closed',
+      'crystal_door_open':   'door_open',
+      'deep_stairs_down':    'stairs_down',
+      'deep_stairs_up':      'stairs_up',
+      'transit_portal':      'stairs_up',
+      'dark_pool':           'water',
+      // Frost crypt tileset
+      'frozen_stone':        'floor',
+      'ice_patch':           'floor2',
+      'frost_wall':          'wall',
+      'frozen_door_closed':  'door_closed',
+      'frozen_door_open':    'door_open',
+      'ice_stairs_down':     'stairs_down',
+      'ice_stairs_up':       'stairs_up',
+      'frozen_pool':         'water',
+      // Fungal forest tileset
+      'mossy_ground':        'floor',
+      'mycelium_floor':      'floor2',
+      'fungal_wall':         'wall',
+      'spore_door_closed':   'door_closed',
+      'spore_door_open':     'door_open',
+      'root_stairs_down':    'stairs_down',
+      'root_stairs_up':      'stairs_up',
+      'spore_pool':          'water',
+      // Misc tiles from other tilesets
+      'sealed_gate_workshop':  'door_closed',
+      'sealed_gate_charger':   'door_closed',
+      'sealed_gate_briefing':  'door_closed',
+      'sealed_gate_training':  'door_closed',
+      'hidden_passage':        'door_closed',
+      'blast_door':            'door_closed',
+      'transit_gate':          'door_closed',
+      'homestead_gate':        'door_closed',
+      'cache_entrance':        'door_closed',
+      'maintenance_hatch':     'door_closed',
+      'junction_box_b':        'chest_closed',
+      'crate_closed':          'chest_closed',
+      'crate_opened':          'chest_opened',
+      'garden_plot':           'floor',
+      'notice_board':          'floor',
+      'seed_pot':              'floor',
+      'personal_log':          'floor',
+      'resonance_point':       'floor',
+      'survey_marker':         'floor',
     };
 
     this.isoThemeId = this.tileset ? this.tileset.id : 'crypt';
@@ -1479,6 +1560,7 @@ class Renderer {
     this.renderExits();
     this.renderClickTarget();
     this.renderAimLine();
+    this.renderLighthouse();
     this.renderItems();
     this.renderNPCs();
     this.renderMonsters();
@@ -1499,6 +1581,7 @@ class Renderer {
     this.renderMinimap();
     this.renderQuestArrow();
     this.renderSpeechBubble();
+    this.renderSiegeAnnouncements();
 
     // Y-sort the entity container
     this.entityContainer.sortChildren();
@@ -2077,6 +2160,27 @@ class Renderer {
     return false;
   }
 
+  // Set sprite texture from a 4-frame animation strip, selecting the given frame
+  _setAnimSpriteTexture(sprite, spritePath, fallbackSize, frameIndex) {
+    const frames = this.loadAnimFrames(spritePath);
+    const tex = frames[frameIndex] || frames[0];
+    const sz = this.isoMode ? 36 : CONSTANTS.TILE_SIZE;
+    if (tex.valid) {
+      sprite.texture = tex;
+      sprite.tint = 0xffffff;
+      sprite.width = sz;
+      sprite.height = sz;
+      sprite.y = this.isoMode ? -sz / 2 : 0;
+      return true;
+    }
+    sprite.texture = this._getDiamondTexture();
+    const fsz = fallbackSize || 20;
+    sprite.width = fsz;
+    sprite.height = fsz;
+    sprite.y = this.isoMode ? -fsz / 2 : 0;
+    return false;
+  }
+
   _drawHealthBar(healthBg, healthFill, x, y, w, h, pct, barColor) {
     healthBg.clear();
     healthBg.beginFill(0x333333);
@@ -2111,9 +2215,9 @@ class Renderer {
       healthBg.clear();
       healthFill.clear();
 
-      // Sprite
+      // Sprite — use frame 0 (idle) from animation strip
       const spritePath = 'sprites/' + item.type + '.png';
-      const loaded = this._setSpriteTexture(sprite, spritePath, 20);
+      const loaded = this._setAnimSpriteTexture(sprite, spritePath, 20, 0);
       if (!loaded) {
         // Fallback color tint based on rarity
         const rarityColors = {
@@ -2174,11 +2278,12 @@ class Renderer {
 
       this._positionEntity(container, npc.x, npc.y);
 
-      // Sprite (per-type if available, else npc_default)
+      // Sprite — use animation frame (NPCs only idle-bob, no attack/hit)
       const spritePath = npc.type ? 'sprites/' + npc.type + '.png' : 'sprites/npc_default.png';
-      let loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+      const animFrame = this._getAnimFrame(npc.id, false, false);
+      let loaded = this._setAnimSpriteTexture(sprite, spritePath, r * 2, animFrame);
       if (!loaded && npc.type) {
-        loaded = this._setSpriteTexture(sprite, 'sprites/npc_default.png', r * 2);
+        loaded = this._setAnimSpriteTexture(sprite, 'sprites/npc_default.png', r * 2, animFrame);
       }
       if (!loaded) sprite.tint = 0x64b5f6;
 
@@ -2233,10 +2338,12 @@ class Renderer {
       const mobShadow = container.children[0];
       if (mobShadow) mobShadow.y = container._shadowOffset || 0;
 
-      // Sprite
+      // Sprite — use animation frame from 4-frame strip
       const spritePath = mob.type ? 'sprites/' + mob.type + '.png' : null;
+      const isHit = this.hitFlashes.has(mob.id);
+      const animFrame = this._getAnimFrame(mob.id, mob.attacking, isHit);
       if (spritePath) {
-        const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+        const loaded = this._setAnimSpriteTexture(sprite, spritePath, r * 2, animFrame);
         if (!loaded) sprite.tint = 0xe53935;
       } else {
         sprite.texture = PIXI.Texture.WHITE;
@@ -2247,7 +2354,7 @@ class Renderer {
       }
 
       // Hit flash: override tint to white briefly
-      if (this.hitFlashes.has(mob.id)) {
+      if (isHit) {
         sprite.tint = 0xffffff;
       } else if (mob.slowed) {
         // Light blue tint when slowed by sentry beam
@@ -2740,17 +2847,19 @@ class Renderer {
         shadow.y = container._shadowOffset || 0;
       }
 
-      // Sprite
+      // Sprite — use animation frame from 4-frame strip
       const spriteName = playerSpriteNames[player.colorIndex] || 'player_blue';
       const spritePath = 'sprites/' + spriteName + '.png';
-      const loaded = this._setSpriteTexture(sprite, spritePath, r * 2);
+      const isHit = this.hitFlashes.has(player.id);
+      const animFrame = this._getAnimFrame(player.id, player.attacking, isHit);
+      const loaded = this._setAnimSpriteTexture(sprite, spritePath, r * 2, animFrame);
       if (!loaded) {
         const playerColors = [0x4fc3f7, 0xef5350, 0x66bb6a, 0xffa726];
         sprite.tint = playerColors[player.colorIndex] || 0xffffff;
       }
 
       // Hit flash: override tint to white briefly
-      if (this.hitFlashes.has(player.id)) {
+      if (isHit) {
         sprite.tint = 0xffffff;
       }
 
@@ -2920,6 +3029,28 @@ class Renderer {
 
   // --- Cone effects ---
 
+  // Ray-cast from (x1,y1) along direction angle, return distance to first solid tile (or maxDist).
+  _coneRayToWall(x1, y1, angle, maxDist) {
+    if (!this.map || !this.tileset) return maxDist;
+    const ts = CONSTANTS.TILE_SIZE;
+    const cosA = Math.cos(angle);
+    const sinA = Math.sin(angle);
+    const step = ts * 0.5;
+    const steps = Math.ceil(maxDist / step);
+    for (let i = 1; i <= steps; i++) {
+      const d = Math.min(i * step, maxDist);
+      const px = x1 + cosA * d;
+      const py = y1 + sinA * d;
+      const tx = Math.floor(px / ts);
+      const ty = Math.floor(py / ts);
+      if (tx < 0 || ty < 0 || tx >= this.map.width || ty >= this.map.height) return d;
+      const tileId = this.map.data[ty * this.map.width + tx];
+      const tileDef = this.tileset.tiles[String(tileId)];
+      if (!tileDef || tileDef.solid) return d;
+    }
+    return maxDist;
+  }
+
   renderConeEffects() {
     this.coneGfx.clear();
     const dt = 1 / 60;
@@ -2953,18 +3084,21 @@ class Renderer {
       // Center in screen coords
       const c = toScreen(cone.x, cone.y);
 
-      // Sample points along the cone arc in world space, convert to screen
+      // Sample points along the cone arc in world space, clip to walls, convert to screen
       const outerPoints = [];
       const innerPoints = [];
       for (let i = 0; i <= SEGMENTS; i++) {
         const a = startAngle + (endAngle - startAngle) * (i / SEGMENTS);
-        const owx = cone.x + Math.cos(a) * outerRange;
-        const owy = cone.y + Math.sin(a) * outerRange;
+        const wallDist = this._coneRayToWall(cone.x, cone.y, a, cone.range);
+        const clippedOuter = Math.min(outerRange, wallDist);
+        const owx = cone.x + Math.cos(a) * clippedOuter;
+        const owy = cone.y + Math.sin(a) * clippedOuter;
         outerPoints.push(toScreen(owx, owy));
 
         if (innerRange > 1) {
-          const iwx = cone.x + Math.cos(a) * innerRange;
-          const iwy = cone.y + Math.sin(a) * innerRange;
+          const clippedInner = Math.min(innerRange, wallDist);
+          const iwx = cone.x + Math.cos(a) * clippedInner;
+          const iwy = cone.y + Math.sin(a) * clippedInner;
           innerPoints.push(toScreen(iwx, iwy));
         }
       }
@@ -3430,6 +3564,199 @@ class Renderer {
     });
   }
 
+  // --- Siege Lighthouse Entity ---
+
+  renderLighthouse() {
+    const siege = this.state && this.state.siege;
+    if (!siege || !siege.lighthouseX) {
+      // Remove lighthouse if siege ended
+      if (this.lighthouseSprite) {
+        this.entityContainer.removeChild(this.lighthouseSprite);
+        this.lighthouseSprite.destroy({ children: true });
+        this.lighthouseSprite = null;
+      }
+      return;
+    }
+
+    // Create lighthouse container on first render
+    if (!this.lighthouseSprite) {
+      const container = new PIXI.Container();
+
+      // Pulsing glow circle behind the lighthouse
+      const glow = new PIXI.Graphics();
+      glow.name = 'glow';
+      container.addChild(glow);
+
+      // Main lighthouse body (drawn procedurally)
+      const body = new PIXI.Graphics();
+      body.name = 'body';
+      container.addChild(body);
+
+      // Name tag
+      const nameTag = new PIXI.Text('LIGHTHOUSE', {
+        fontFamily: 'Courier New',
+        fontSize: 10,
+        fontWeight: 'bold',
+        fill: '#4fc3f7',
+        align: 'center',
+      });
+      nameTag.anchor.set(0.5, 1);
+      container.addChild(nameTag);
+
+      // Health bar background
+      const hpBg = new PIXI.Graphics();
+      hpBg.name = 'hpBg';
+      container.addChild(hpBg);
+
+      // Health bar fill
+      const hpFill = new PIXI.Graphics();
+      hpFill.name = 'hpFill';
+      container.addChild(hpFill);
+
+      this.entityContainer.addChild(container);
+      this.lighthouseSprite = container;
+    }
+
+    const container = this.lighthouseSprite;
+    const lhx = siege.lighthouseX;
+    const lhy = siege.lighthouseY;
+
+    this._positionEntity(container, lhx, lhy);
+
+    const hpPct = siege.lighthouseMaxHp > 0 ? siege.lighthouseHp / siege.lighthouseMaxHp : 0;
+    const pulse = 0.6 + 0.4 * Math.sin(Date.now() / 800);
+    const isHurt = hpPct < 0.4;
+
+    // Glow circle
+    const glow = container.getChildByName('glow');
+    glow.clear();
+    const glowColor = isHurt ? 0xe53935 : 0x4fc3f7;
+    const glowRadius = (this.isoMode ? 28 : 24) * pulse;
+    glow.beginFill(glowColor, 0.15 * pulse);
+    glow.drawCircle(0, this.isoMode ? -10 : 0, glowRadius);
+    glow.endFill();
+
+    // Lighthouse body
+    const body = container.getChildByName('body');
+    body.clear();
+    const sz = this.isoMode ? 18 : 16;
+    const baseY = this.isoMode ? -sz : -sz / 2;
+    // Tapered tower
+    body.beginFill(0xb0bec5);
+    body.moveTo(-sz / 2, baseY + sz);
+    body.lineTo(-sz / 3, baseY);
+    body.lineTo(sz / 3, baseY);
+    body.lineTo(sz / 2, baseY + sz);
+    body.closePath();
+    body.endFill();
+    // Beacon top
+    const beaconColor = isHurt ? 0xe53935 : (hpPct < 0.7 ? 0xffa726 : 0x4fc3f7);
+    body.beginFill(beaconColor);
+    body.drawCircle(0, baseY - 2, 4 + pulse * 2);
+    body.endFill();
+
+    // Name tag position
+    const nameTag = container.children[2]; // nameTag
+    nameTag.y = baseY - 10;
+
+    // Health bar
+    const hpBg = container.getChildByName('hpBg');
+    const hpFill = container.getChildByName('hpFill');
+    const barW = 30;
+    const barH = 3;
+    const barY = this.isoMode ? 10 : sz / 2 + 4;
+    hpBg.clear();
+    hpBg.beginFill(0x333333);
+    hpBg.drawRect(-barW / 2, barY, barW, barH);
+    hpBg.endFill();
+    hpFill.clear();
+    const barColor = hpPct > 0.5 ? 0x4fc3f7 : (hpPct > 0.25 ? 0xffa726 : 0xe53935);
+    hpFill.beginFill(barColor);
+    hpFill.drawRect(-barW / 2, barY, barW * hpPct, barH);
+    hpFill.endFill();
+  }
+
+  // --- Siege Announcements (center-screen floating text) ---
+
+  renderSiegeAnnouncements() {
+    const dt = 1 / 60;
+    this.siegeAnnouncements = this.siegeAnnouncements.filter(ann => {
+      ann.age += dt;
+      if (ann.age >= ann.maxAge) {
+        this.overlayContainer.removeChild(ann.textObj);
+        ann.textObj.destroy();
+        if (ann.subObj) {
+          this.overlayContainer.removeChild(ann.subObj);
+          ann.subObj.destroy();
+        }
+        return false;
+      }
+      const progress = ann.age / ann.maxAge;
+      // Fade in for first 15%, hold, fade out last 30%
+      let alpha;
+      if (progress < 0.15) {
+        alpha = progress / 0.15;
+      } else if (progress > 0.7) {
+        alpha = 1 - (progress - 0.7) / 0.3;
+      } else {
+        alpha = 1;
+      }
+      // Slight upward drift
+      const drift = -ann.age * 12;
+      ann.textObj.x = this.viewW / 2;
+      ann.textObj.y = this.viewH * 0.3 + drift;
+      ann.textObj.alpha = alpha;
+      // Scale punch on entry
+      const scale = progress < 0.1 ? 1 + (1 - progress / 0.1) * 0.3 : 1;
+      ann.textObj.scale.set(scale);
+
+      if (ann.subObj) {
+        ann.subObj.x = this.viewW / 2;
+        ann.subObj.y = this.viewH * 0.3 + drift + 22;
+        ann.subObj.alpha = alpha * 0.8;
+      }
+      return true;
+    });
+  }
+
+  showSiegeAnnouncement(text, color, subtitle, duration) {
+    if (!this.ready) return;
+    const maxAge = duration || 2.5;
+    const textObj = new PIXI.Text(text, {
+      fontFamily: 'Courier New',
+      fontSize: 20,
+      fontWeight: 'bold',
+      fill: color || '#ffffff',
+      align: 'center',
+      dropShadow: true,
+      dropShadowColor: '#000000',
+      dropShadowDistance: 2,
+    });
+    textObj.anchor.set(0.5);
+    textObj.x = this.viewW / 2;
+    textObj.y = this.viewH * 0.3;
+    this.overlayContainer.addChild(textObj);
+
+    let subObj = null;
+    if (subtitle) {
+      subObj = new PIXI.Text(subtitle, {
+        fontFamily: 'Courier New',
+        fontSize: 12,
+        fill: '#aaaaaa',
+        align: 'center',
+        dropShadow: true,
+        dropShadowColor: '#000000',
+        dropShadowDistance: 1,
+      });
+      subObj.anchor.set(0.5);
+      subObj.x = this.viewW / 2;
+      subObj.y = this.viewH * 0.3 + 22;
+      this.overlayContainer.addChild(subObj);
+    }
+
+    this.siegeAnnouncements.push({ textObj, subObj, age: 0, maxAge });
+  }
+
   renderDeathAnims() {
     const dt = 1 / 60;
     this.deathAnims = this.deathAnims.filter(da => {
@@ -3698,6 +4025,38 @@ class Renderer {
           age: 0, maxAge: 0.6,
         });
         this.screenShake = { intensity: 8, duration: 0.4, elapsed: 0 };
+      } else if (ev.type === 'wave_start') {
+        this.showSiegeAnnouncement(
+          `WAVE ${ev.wave}`,
+          '#e53935',
+          `${ev.monsterCount} enemies incoming`,
+          3.0
+        );
+        this.screenShake = { intensity: 4, duration: 0.3, elapsed: 0 };
+      } else if (ev.type === 'wave_clear') {
+        const msg = ev.wave >= ev.maxWaves ? 'FINAL WAVE CLEARED!' : `WAVE ${ev.wave} CLEARED`;
+        const color = ev.wave >= ev.maxWaves ? '#ffa726' : '#66bb6a';
+        this.showSiegeAnnouncement(msg, color, null, 2.5);
+      } else if (ev.type === 'lighthouse_hit') {
+        // Damage number at lighthouse position
+        this.damageNumbers.push({
+          text: `-${ev.amount}`,
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.0,
+          color: '#4fc3f7',
+        });
+        this.hitFlashes.set('lighthouse', 0.12);
+        // Shake proportional to damage severity
+        const lhPct = ev.lighthouseMaxHp > 0 ? ev.lighthouseHp / ev.lighthouseMaxHp : 0;
+        this.screenShake = { intensity: lhPct < 0.3 ? 6 : 3, duration: 0.15, elapsed: 0 };
+      } else if (ev.type === 'lighthouse_repair') {
+        // Healing number at lighthouse position
+        this.damageNumbers.push({
+          text: `+${ev.amount}`,
+          x: ev.x, y: ev.y,
+          age: 0, maxAge: 1.2,
+          color: '#66bb6a',
+        });
       } else if (ev.type === 'boss_intro' && ev.playerId === this.myId) {
         // Start boss intro cinematic
         this.bossIntro = {
@@ -4177,19 +4536,13 @@ class Renderer {
         this.minimapGfx.drawCircle(qx, qy, r + 3);
         this.minimapGfx.lineStyle(0);
       } else {
-        // Chevron/arrow marker for exit-toward-objective
-        const s = r + 1;
-        this.minimapGfx.beginFill(0xffa726, pulse);
-        // Right-pointing chevron
-        this.minimapGfx.moveTo(qx + s, qy);
-        this.minimapGfx.lineTo(qx - s * 0.3, qy - s);
-        this.minimapGfx.lineTo(qx, qy);
-        this.minimapGfx.lineTo(qx - s * 0.3, qy + s);
-        this.minimapGfx.closePath();
+        // Circle marker for exit-toward-objective
+        this.minimapGfx.beginFill(0xffa726, 0.9);
+        this.minimapGfx.drawCircle(qx, qy, r);
         this.minimapGfx.endFill();
 
         // Pulsing outer ring
-        this.minimapGfx.lineStyle(1, 0xffa726, pulse * 0.7);
+        this.minimapGfx.lineStyle(1, 0xffa726, pulse);
         this.minimapGfx.drawCircle(qx, qy, r + 3);
         this.minimapGfx.lineStyle(0);
       }
@@ -4226,7 +4579,7 @@ class Renderer {
 
     // Show label in full map mode or when marker is inside compact minimap
     if (objective.label && (full || inside)) {
-      const label = sameRoom ? objective.label : objective.label + ' \u25CF';
+      const label = objective.label;
       this.questWaypointText.text = label;
       this.questWaypointText.x = Math.round(qx);
       this.questWaypointText.y = Math.round(qy - r - 4);
@@ -4274,7 +4627,7 @@ class Renderer {
     if (onScreen) {
       // Draw a small yellow arrow pointing down at the target from above
       const bobOffset = 4 * Math.sin(Date.now() / 250); // gentle bobbing
-      const arrowTipY = screenY - ts * 0.8 + bobOffset;
+      const arrowTipY = screenY - ts * 1.5 + bobOffset;
       const arrowTipX = screenX;
       const arrowSize = 8;
 

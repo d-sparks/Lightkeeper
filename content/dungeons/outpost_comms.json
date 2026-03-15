@@ -326,6 +326,28 @@
       "once": true
     },
     {
+      "id": "nightside_map_hint",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "not": {
+            "hasFlag": "visited_dead_road"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "A hand-drawn survey map is tacked to the wall near the entrance — outpost patrol routes marked in fading ink.",
+            "One route has been crossed out in red pencil. Alongside it, in cramped handwriting: 'Dead Road. Beyond: Nightside. DO NOT PROCEED WITHOUT AUTHORIZATION.'",
+            "The authorization stamp is blank."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "daley_quest_start",
       "event": "npc_interacted",
       "filter": {
@@ -437,7 +459,42 @@
           "lines": [
             "A printed log of early Array communications, dated years before this outpost was built.",
             "One entry is circled in red ink: 'REQUEST: Subsurface mineral survey data, Nightside quadrant 7-North. PRIORITY: Maximum. REASON: [FIELD EXCEEDS PROTOCOL LENGTH].'",
-            "Someone has written in the margin: 'They never did explain why.'"
+            "Someone has written in the margin: 'They never did explain why.'",
+            "Wren Alcott monitors Array communications. She'd find this very interesting."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "wren_nightside_hint",
+      "event": "npc_interacted",
+      "filter": {
+        "npcType": "wren_alcott"
+      },
+      "conditions": [
+        {
+          "not": {
+            "hasFlag": "wren_nightside_hint_shown"
+          }
+        },
+        {
+          "not": {
+            "hasFlag": "visited_dead_road"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "setFlag",
+          "flag": "wren_nightside_hint_shown"
+        },
+        {
+          "type": "showMessage",
+          "lines": [
+            "Wren taps the circled entry in the array transmission log. 'Nightside quadrant 7-North. Maximum priority, reason redacted — that's not normal Array protocol.'",
+            "'I've been trying to triangulate the source. Whatever they were after is out past the Dead Road, beyond the outer perimeter gate. North into the black.'",
+            "'If you're heading out that way, bring everything you've got. The cold out there isn't natural.'"
           ]
         }
       ],

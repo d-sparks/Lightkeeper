@@ -25,7 +25,7 @@ ONLY=""
 MAX_TURNS=100
 YOLO=false
 LOG_DIR="$REPO_ROOT/.claude/ralph-logs"
-DAILY_LIMIT=80    # Stop if 5-hour usage >= this %
+DAILY_LIMIT=90    # Stop if 5-hour usage >= this %
 WEEKLY_RATE=17             # Max % of 7-day budget per day
 WEEKLY_START="2026-03-07"  # Budget start date (day 1)
 
@@ -106,9 +106,10 @@ check_budget() {
   start_epoch="$(date -d "$WEEKLY_START" +%s)"
   now_epoch="$(date +%s)"
   days_elapsed=$(( (now_epoch - start_epoch) / 86400 + 1 ))
-  weekly_limit=$((days_elapsed * WEEKLY_RATE))
+  day_in_week=$(( ((days_elapsed - 1) % 7) + 1 ))
+  weekly_limit=$((day_in_week * WEEKLY_RATE))
 
-  echo "  Budget: 5h ${daily_used}% / ${DAILY_LIMIT}% cap, 7d ${weekly_used}% / ${weekly_limit}% cap (day ${days_elapsed}, ${WEEKLY_RATE}%/day)"
+  echo "  Budget: 5h ${daily_used}% / ${DAILY_LIMIT}% cap, 7d ${weekly_used}% / ${weekly_limit}% cap (day ${day_in_week}/7, ${WEEKLY_RATE}%/day)"
 
   # Compare as integers (bash can't do float comparison)
   local daily_int weekly_int
@@ -121,7 +122,7 @@ check_budget() {
     exit 0
   fi
   if [[ "$weekly_int" -ge "$weekly_limit" ]]; then
-    echo "  BUDGET STOP: 7-day usage ${weekly_used}% >= ${weekly_limit}% cap (day ${days_elapsed})."
+    echo "  BUDGET STOP: 7-day usage ${weekly_used}% >= ${weekly_limit}% cap (day ${day_in_week}/7)."
     budget_summary
     exit 0
   fi

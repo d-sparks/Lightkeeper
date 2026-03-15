@@ -49,6 +49,7 @@ EventBus.Events = {
   ABILITY_USED:            'ability_used',
   PHOTOSENSOR_ACTIVATED:   'photosensor_activated',
   PHOTOSENSOR_DEACTIVATED: 'photosensor_deactivated',
+  ROOM_CLEARED:            'room_cleared',
 };
 
 module.exports = EventBus;

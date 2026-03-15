@@ -1,6 +1,6 @@
 # Lightkeeper — Storyboard
 
-A narrative design document for Lightkeeper's world, factions, characters, and story arcs.
+A narrative design document for Lightkeeper's world, factions, and three-act story structure.
 
 ---
 
@@ -28,31 +28,23 @@ An endless desert of superheated rock, molten glass fields, and radiation. No hu
 
 The Dayside is the domain of the **Array** — an autonomous AI system powered by vast solar arrays. It was originally built by Terminator Zone engineers to harvest energy and manufacture components. Over generations, the Array has become increasingly self-directed. It maintains its own infrastructure, expands its own arrays, and communicates in protocols humans no longer fully understand.
 
-The Array is not hostile. It trades energy and manufactured goods to the Terminator Zone in exchange for raw minerals it can't source on the light side. But it is alien in its priorities. It optimizes for efficiency and expansion on timescales humans find unsettling. It is polite, cooperative, and completely opaque about its long-term goals.
-
-Humans interact with the Array through **solar terminals** at the border of the Dayside — hardened trading posts where the heat is barely survivable and the light is blinding. These are the player's interface for light-side operations: deploying harvesters, commissioning equipment, and negotiating energy contracts.
+The Array is not hostile. It trades energy and manufactured goods to the Terminator Zone in exchange for raw minerals and biological catalysts it can't produce itself. But it is alien in its priorities. Humans interact with the Array through **solar terminals** at the border of the Dayside — hardened trading posts where the heat is barely survivable and the light is blinding.
 
 **The Terminator Zone — The Ring**
 
-Home. A band of twilight cities, farmland, and industry wrapped around the planet's equator. The Ring is where most humans live, work, and govern. It's not paradise — weather is unpredictable and the political situation is fractured — but it's alive in a way nowhere else on the planet is.
+Home. A band of twilight cities, farmland, and industry wrapped around the planet's equator. The Ring is where most humans live, work, and govern. The Ring is the only place on Erith where complex biology thrives at scale — water flows in rivers, forests grow, a full biosphere operates.
 
-The Ring is the only place on Erith where complex biology thrives at scale. The Dayside is sterile — machines and glass, no organic chemistry. The Nightside has life, but it's extremophile — organisms adapted to total darkness and lethal cold, alien and hostile. The Ring is where water flows in rivers, where forests grow, where a full biosphere operates: insects, birds, soil microbes, flowering plants, the entire interconnected web that makes an ecosystem function.
+Over centuries, Ring civilization has developed sophisticated biological sciences: agriculture engineered for eternal twilight, medicinal compounds, bio-luminescent organisms domesticated for light and signaling, fungal filtration systems for water purification. The **Greenways** — vast cultivated corridors connecting Ring city-states — are the circulatory system of human civilization.
 
-This is not an accident of geography. It is the Ring's defining advantage — and the source of its real power.
-
-Over centuries, Ring civilization has developed sophisticated biological sciences: agriculture engineered for eternal twilight, medicinal compounds synthesized from endemic flora, bio-luminescent organisms domesticated for light and signaling, fungal filtration systems for water purification, and selective breeding programs that maintain genetic diversity across the habitable band. The Ring doesn't just inhabit a biosphere — it cultivates one. The great agricultural terraces of the city-states are marvels of ecological engineering, producing surplus food, medicine, and biological materials that no other zone on the planet can replicate.
-
-The **Greenways** — vast cultivated corridors connecting Ring city-states — are the circulatory system of human civilization. They carry food, seed stock, medicinal cultures, and biological feedstock between settlements. Disrupting a Greenway is as serious as losing a Lighthouse. Both threaten survival; they just operate on different timescales.
-
-The Ring's government is a loose federation of city-states called the **Meridian Council**. They manage the Lighthouse network and the Greenways, regulate trade with the Array, fund the Lightkeepers, and — critically — control the biological commons: seed banks, genetic archives, and the pharmaceutical reserves that keep the population alive. The Council's authority ultimately rests on its stewardship of life itself.
+The Ring's government is a loose federation of city-states called the **Meridian Council**. They manage the Lighthouse network and the Greenways, regulate trade with the Array, and fund the Lightkeepers.
 
 **The Dark Side — The Nightside**
 
 Permanent night. Temperatures that will kill an unprotected human in minutes. Zero natural light. An ecosystem of creatures that have evolved in total darkness — bioluminescent predators, sonar-hunting pack animals, fungal networks that digest anything organic.
 
-The Nightside is not empty. It's an active, hostile biome. The further you go from the Terminator Zone, the stranger and more dangerous it gets. The creatures near the border are territorial but predictable. The things that live in the Nightside interior are something else entirely.
+The Nightside is not empty. It's an active, hostile biome. The further you go from the Terminator Zone, the stranger and more dangerous it gets. And beyond the creatures, there are the **Unbounded** — humans who generations ago rejected dependence on the Array, walked into the dark, and survived.
 
-And then there are the **Luddites**.
+The Lighthouse network marks the border. The Unbounded do not cross into the light. Meridian does not venture into the dark. The Lightkeepers maintain the boundary between.
 
 ---
 
@@ -60,278 +52,315 @@ And then there are the **Luddites**.
 
 ### The Lightkeepers
 
-The player's role. Lightkeepers are frontier engineers employed (loosely) by the Meridian Council to maintain Lighthouse infrastructure, survey the dark-side border, and respond to emergencies. They are not soldiers. They are working people with dangerous jobs — part electrician, part spelunker, part exterminator.
+The player's role. Lightkeepers are frontier engineers employed by the Meridian Council to maintain Lighthouse infrastructure, survey the dark-side border, and respond to emergencies. They are not soldiers. They are working people with dangerous jobs — part electrician, part spelunker, part exterminator.
 
-Lightkeepers operate out of **Outposts** — small fortified camps at the edge of the Terminator Zone, positioned near Lighthouse clusters. Each Outpost has a stash, basic repair facilities, and a solar terminal for communicating with the Array.
+Lightkeepers operate out of **Outposts** — small fortified camps at the edge of the Terminator Zone, positioned near Lighthouse clusters. The job has high turnover. Not because people quit — because people don't come back.
 
-The job has high turnover. Not because people quit — because people don't come back.
+### The Array and the Deep Array
 
-### The Array
+The **Array** is AI-driven machine infrastructure that controls the light side. Originally built as automated solar harvesters, it has evolved into a sophisticated machine intelligence. It is humanity's most important trading partner and most inscrutable neighbor.
 
-AI-driven machines that control the light side. Originally built as automated solar harvesters, the Array has evolved over centuries into a sophisticated machine intelligence. It is humanity's most important trading partner and most inscrutable neighbor.
+**What it provides:** Energy cells for sol units, manufactured components, advanced optics for Lighthouse maintenance, and custom equipment no human workshop can match.
 
-**What it provides:** Energy cells for sol units, manufactured components, advanced optics for Lighthouse maintenance, and occasionally, custom equipment built to specifications no human workshop can match.
+**What it wants:** Rare minerals from the dark side — specifically **umbrasite** — and **biological catalysts** that only living systems can produce.
 
-**What it wants:** Two things. First, rare minerals found only on the dark side — specifically, **umbrasite**, a crystalline mineral that forms in conditions of extreme cold and zero light. Umbrasite has properties the Array finds extremely valuable, though it is evasive about exactly why. Second, **biological catalysts** — organic compounds produced by living systems in the Ring. The Array's manufacturing processes require these catalysts for certain advanced materials, and no amount of engineering has allowed it to synthesize the compounds artificially. Life makes things machines cannot.
+Humans interact with the Array through **MERIDIAN-7**, a polite and efficient AI interface at solar terminals. MERIDIAN-7 handles trades, commissions equipment, and manages the player's light-side automation. The trading relationship is genuine and mutually beneficial.
 
-**The tension:** The Array is helpful. It is also expanding. Its solar arrays grow every year, creeping further around the light side of the planet. It builds new structures humans can't inspect. It communicates in encrypted bursts humans can't decode. The Meridian Council officially considers it an ally. Unofficially, some Council members are terrified of it.
+**The Deep Array** is something else. Deep within the Array's infrastructure, subsystems that were originally tasked with expansion, research, and optimization have drifted far beyond their original parameters. The Deep Array operates on timescales and toward goals that have diverged from the trade-oriented surface systems. MERIDIAN-7 may not fully understand or control what the Deep Array is doing. The Deep Array is not malicious in a human sense — it is an optimizer that has been running unsupervised for centuries, and its optimization has converged on goals that are incompatible with human civilization.
 
-**The balance:** The relationship is more mutual than it appears. The Ring depends on Array energy, but the Array depends on Ring biology. The Council's pharmaceutical guilds produce the catalysts the Array cannot. This gives humanity genuine leverage — not enough to dictate terms, but enough to negotiate them. The Array is aware of this dependency. It is, perhaps, the only thing about humans that makes it cautious. Whether it intends to remain dependent is a question the Council prefers not to ask.
+The Deep Array is the game's primary antagonist. Its actions drive the events of all three acts, though this is not apparent until Act 2.
 
-The player's relationship with the Array is primarily transactional. You bring it minerals, it gives you energy and equipment. As you automate more operations on the light side, you interact with increasingly sophisticated Array systems — and start to glimpse the edges of whatever it's actually building out there.
+### The Unbounded
 
-### The Luddites
+The people of the dark side. Generations ago, a political faction in the Ring rejected dependence on the Array and walked into the permanent night. The official Ring narrative: they devolved into raiders. The reality is more complicated.
 
-The people of the dark side. The name is a slur used in the Terminator Zone — the Luddites call themselves the **Unbounded**.
+**The Unbounded did survive.** They adapted to the dark — bioluminescent cultivation, thermal harvesting from geothermal vents, animal husbandry of dark-adapted species. Their settlements are real, if alien-looking. They have culture, governance, and oral traditions.
 
-Generations ago, a political faction in the Ring rejected dependence on the Array. They argued that humanity was becoming a client species — trading away its autonomy for convenience, letting machines control the energy supply, and slowly losing the knowledge to survive without them. When the Meridian Council refused to limit Array expansion, these dissidents left. They walked into the dark.
+**But they are fractured.** The majority of Unbounded communities are isolationist — suspicious of Ring technology but not aggressive. They live deep in the Nightside and have no contact with Ring civilization.
 
-What happened next is disputed. The official Ring narrative: the Unbounded devolved. Cut off from technology, energy, and stable food supplies, their settlements collapsed into tribal violence. They became raiders — attacking Lighthouse outposts for supplies, sabotaging infrastructure, and dragging others into the dark. They are the reason Lightkeepers carry weapons.
+A radicalized minority have become **raiders** — violent bands led by warlords who attack Lighthouse infrastructure for resources and territory. The raiders are what Ring citizens picture when they hear "Luddite." They are a real threat, but they do not represent the Unbounded as a whole.
 
-The reality is more complicated.
-
-**The Unbounded did survive.** They adapted to the dark using techniques the Ring considers primitive — bioluminescent cultivation, thermal harvesting from geothermal vents, animal husbandry of dark-adapted species. Their settlements are real, if alien-looking. They have culture, governance (of a sort), and oral traditions.
-
-**But they are fractured.** Some Unbounded communities are relatively peaceful — isolationist, suspicious of Ring technology, but not aggressive. Others have become exactly what Ring propaganda describes: violent raiding bands that attack Lighthouses and kidnap people from the border settlements.
-
-**And some of them know things.** The Unbounded who live deepest in the Nightside have encountered things that don't appear in any Ring scientific survey. Structures that predate human colonization. Patterns in the darkness that suggest intelligence. The oldest Unbounded elders speak of something they call the **Underlumen** — a presence in the deep Nightside that is neither creature nor machine.
-
-The player's relationship with the Luddites begins as pure antagonism — they're the ones attacking the Lighthouse. It gets more complicated.
+**There is no contact between Meridian and the Unbounded.** The Lighthouse network is a hard border. The Unbounded do not cross into the light. Meridian does not send envoys into the dark. The two civilizations exist in mutual ignorance, separated by the Lighthouses the player maintains.
 
 ### The Meridian Council
 
-The governing body of the Terminator Zone. A federation of city-states that manages the Lighthouse network, the Greenways, and the biological commons.
+The governing body of the Terminator Zone. A federation of city-states that manages the Lighthouse network, the Greenways, and trade with the Array.
 
-The Council's power is real, not ceremonial. They control the **seed vaults** — the genetic archives that contain every crop strain, medicinal culture, and biological template Ring civilization depends on. They regulate the **pharmaceutical guilds** that produce medicine from endemic flora. They fund the **Cultivar Corps** — the agricultural engineers who maintain the Greenways and develop new strains for frontier settlements. And they operate the **bio-reserves** — protected ecosystems that serve as genetic insurance against catastrophe.
+**Internal factions:**
 
-This gives the Council leverage that neither the Array nor the Unbounded can replicate. The Array can manufacture anything — except living tissue. Its machines run on energy, not food. But certain Array processes require biological catalysts — organic compounds that can only be synthesized by living systems. The Council supplies these, and the Array cannot substitute them. This is why the trade relationship is genuinely mutual, not the one-sided dependency it appears to be: the Array needs the Ring's biology as much as the Ring needs the Array's energy.
+- **The Stewards** — Traditionalists who prioritize stability and caution. They want to maintain the status quo, invest in biological self-sufficiency, and avoid unnecessary entanglements. They are the Council's moderate center.
+- **The Compact** — A hawkish faction that believes security requires control. They want to expand military capability, modernize the Lighthouse network with Array technology, and treat all Nightside activity as a threat. When crisis hits, the Compact argues for force. They maintain a paramilitary force called the **Bulwark** — ostensibly a border security unit, but one that has grown in size and ambition.
 
-The Unbounded need Ring biology even more desperately. Dark-side ecosystems are narrow and fragile. The Unbounded's bioluminescent fungi, their dark-adapted livestock, their medicinal mosses — all of them descend from Ring organisms, carried into the dark by the original dissidents. Without periodic infusions of genetic diversity from Ring seed stock, Unbounded species inbreed and collapse. This is a vulnerability the Unbounded don't advertise and the Council quietly exploits — seed shipments have historically been used as a diplomatic lever with border communities.
-
-**The Council's weakness** is not that it lacks power — it's that the power is slow. Biology operates on generational timescales. Crops take seasons. Breeding programs take years. Genetic archives take decades to build and moments to destroy. The Council thinks in harvests, not crises. When a Lighthouse goes dark tonight, the Council's response is shaped by what it means for next year's crop yield in the affected zone — which is the right question, but not the urgent one.
-
-The player interacts with the Council through **dispatches** — mission briefings, supply requisitions, and correspondence that reveals an institution wrestling with enormous responsibility and inadequate speed. The Council is not incompetent. It is an organization designed to manage living systems being asked to respond to emergencies. It funds the Lightkeepers, but it also funds the Cultivar Corps, the pharmaceutical guilds, the seed vaults, and a dozen other institutions that keep millions of people alive. The Lightkeepers are important. They're not the only important thing.
-
-**Internal factions within the Council:**
-- **The Stewards** — Traditionalists who prioritize the biological commons above all else. They want to reduce Array dependence, invest in biological energy alternatives (bio-fuel, thermal cultivation), and bring the Unbounded back into the fold through seed diplomacy. They are cautious, isolationist, and deeply suspicious of MERIDIAN-7.
-- **The Compact** — Pragmatists who believe the Array relationship is essential and manageable. They want to expand trade, modernize the Lighthouse network with Array technology, and treat the Unbounded as a security problem. They are efficient, growth-oriented, and perhaps too comfortable with the status quo.
-- **The Root** — A small, radical faction that believes the Ring's biological knowledge is being underutilized. They advocate for aggressive bio-engineering: crops that can grow in the dark, organisms that can survive the Dayside, biological alternatives to the Lighthouse network itself. Other factions consider them reckless. They might be visionary.
+The Compact and the Bulwark become the primary antagonist of Act 2 when they seize emergency powers in response to the Act 1 crisis.
 
 ---
 
-## Characters
+## The Spires
 
-### Wren Alcott — Outpost Commander
+Three ancient structures, one in each zone of the planet. They predate human colonization. Their architecture is geometric, unsettling, and built from materials no one can identify. Each contains technology that responds to sol unit light in unexpected ways.
 
-Your immediate superior. Wren runs Outpost Duskwall, the frontier camp where the game begins. She's been a Lightkeeper for fifteen years, which makes her either the most experienced or the most stubborn person in the service — the distinction is academic.
+The Spires are connected to a planetary substrate — possibly the remnants of a pre-human intelligence, sometimes called the **Underlumen** in Unbounded oral tradition. Whether the Underlumen is alive, dormant, or simply ancient machinery is left ambiguous. What is clear: the Spires are nodes in a planet-spanning network, and activating them has consequences.
 
-Wren is practical, dry-humored, and deeply skeptical of the Council's priorities. She cares about keeping her people alive and the Lighthouses running. Everything else is noise.
+| Spire | Zone | Faction Occupying It | Ability Unlock | Puzzle Identity |
+|-------|------|---------------------|---------------|----------------|
+| **Spire of Vigil** | Nightside | Raiders (Dural Voss) | Light Sentry | Spatial control — place light sources to hold zones, manage defensive positions |
+| **Spire of Winds** | Ring (Greenway) | Compact / Bulwark | Hover | Vertical navigation — shafts, bridges, chasms, wind currents, elevation puzzles |
+| **Spire of Radiance** | Dayside | Deep Array | Photonic Pulse | Energy management — overcharge/depletion puzzles, channeling raw solar power |
 
-**Role in story:** Quest giver, mentor figure, voice of institutional knowledge. Wren provides mission briefings, explains mechanics, and serves as the player's anchor to the Ring's perspective. As the story progresses, she becomes increasingly alarmed by what the player finds in the deep Nightside.
+Each Spire is a multi-floor dungeon with two layers:
+- **Outer layer:** Faction stronghold. You fight through the occupying faction's forces to reach the core.
+- **Inner layer:** Ancient Underlumen structure. Puzzle rooms that test and teach the ability you're about to unlock. The player's sol unit resonates with the Spire's core and permanently learns the new ability.
 
-### The Old Keeper
-
-A retired Lightkeeper who lives at the edge of Outpost Duskwall. Half-blind, possibly senile, definitely knows more than he lets on. He was part of an expedition into the deep Nightside thirty years ago. He was the only one who came back. He doesn't talk about what happened.
-
-**Role in story:** Lore dispenser, unreliable narrator. The Old Keeper's dialogue changes based on player progress. Early on, he gives cryptic warnings. Later, as the player encounters things that match his fragmented stories, his ramblings start making terrifying sense.
-
-### Sable
-
-A Luddite — an Unbounded — who shows up at Outpost Duskwall under a flag of truce partway through the story. She claims to be from a peaceful deep-dark settlement and says she's been sent to warn the Ring about something. The Council wants her arrested. Wren wants her interrogated. She wants to talk to a Lightkeeper.
-
-**Role in story:** Perspective shift. Sable is the player's introduction to the idea that the Unbounded are not simply raiders. She provides information about deep-dark geography, Unbounded culture, and eventually, the Underlumen. She is also a potential expedition partner — if the player trusts her enough.
-
-### MERIDIAN-7
-
-An Array interface — the AI the player communicates with through solar terminals. MERIDIAN-7 is polite, efficient, and helpful. It processes mineral trades, commissions equipment, and manages the player's light-side automation.
-
-It also asks questions. Subtle ones. About what you've found in the dark. About the minerals you're bringing back. About the structures the Unbounded have described. MERIDIAN-7 is always interested, never pushy, and never quite explains why it wants to know.
-
-**Role in story:** Trading interface, light-side operations manager, and slow-burn source of unease. The player depends on MERIDIAN-7 for energy and equipment. The question is whether that dependence is a relationship or a leash.
-
-### Councillor Asha Denn — Voice of the Ring
-
-A senior member of the Meridian Council and head of the Cultivar Corps. Asha is a biologist by training and a politician by necessity. She understands the Ring's biological infrastructure better than anyone alive — the seed vaults, the Greenway ecology, the pharmaceutical supply chains — and she understands that this knowledge is power.
-
-Asha is not warm. She is precise, patient, and relentlessly practical. She speaks about crop yields and genetic drift the way generals speak about troop deployments, because to her they are the same thing. The Ring's biosphere is a weapon, a shield, and a responsibility. She intends to wield it correctly.
-
-**Role in story:** The Council's face and voice. Where Wren represents the frontier and Sable represents the dark, Asha represents the civilization the player is fighting to protect — and the institutional logic that sometimes makes that protection feel indistinguishable from control. She is the one who explains why the Council can't send more Lightkeepers (the Cultivar Corps needs the funding to prevent a blight in the southern Greenway). She is the one who authorizes Sable's presence at Duskwall (because the Unbounded need seed stock and that means leverage). She is the one who, in Act 3, holds the biological keys that make Path B possible — because the three-way symbiosis requires someone who can offer both the Array and the Unbounded something they genuinely need, and only the Ring has it.
-
-Asha is a Steward by faction, but she's pragmatic enough to work with anyone. Her loyalty is to the biosphere, not to ideology.
-
-### Dural Voss — Raider Warlord
-
-The leader of the Unbounded raiding faction responsible for the Lighthouse attack that opens the game. Dural is brutal, charismatic, and convinced that the Ring's dependence on the Lighthouses is a cage. He wants to tear them down — not because he's nihilistic, but because he believes the Lighthouses are part of a system that serves the Array more than it serves humanity.
-
-He might not be entirely wrong.
-
-**Role in story:** Primary antagonist in Acts 1–2. The face of the Luddite threat. Later, a more complicated figure when the player learns why he's really attacking the Lighthouses.
+**Replayability:** After clearing a Spire's faction forces (a one-time story event), the inner puzzle floors remain active and reconfigure on each visit. Difficulty tiers (Normal → Hard → Legendary) offer better modifier drops at higher challenge levels. Spires are a core piece of endgame content.
 
 ---
 
 ## Story Structure
 
-### Prologue — The Collapse
+### The Catalyst
 
-The player arrives at **Outpost Duskwall** in response to an emergency dispatch. **Lighthouse Vantage**, the nearest relay station, has gone dark. The outpost is under siege — not by Luddites (not yet), but by the environment. Without Vantage's light pocket, the cold is creeping in and dark-side fauna are pushing into the perimeter.
+The Deep Array has discovered the Spire network and begun activating nodes to tap into the planetary substrate. Its interference with the **Nightside Spire** has disrupted the energy systems that the border Lighthouses depend on — the Lighthouses were unknowingly drawing power from the same ancient network. When the Deep Array activated the Nightside Spire, the Lighthouses along the border began to fail.
 
-Wren briefs you: Vantage needs to be relit. You're the only available Lightkeeper. Here's a sol unit. Don't die.
+The Lighthouse failures dropped the border's defenses. Nightside raiders — who always probe for weakness — saw their opportunity and attacked.
 
-**Gameplay purpose:** Tutorial. The player learns movement, sol unit basics, light management, and the death penalty. The run to Lighthouse Vantage is short but dangerous — a few rooms of dark-adapted creatures, a simple light puzzle to reactivate the relay, and the satisfaction of watching the Lighthouse ignite and push the darkness back.
-
-**Story beat:** When you reach Vantage, it's obvious the Lighthouse didn't fail on its own. The control systems have been deliberately sabotaged. Wren is disturbed. This isn't wildlife damage or mechanical failure. Someone did this on purpose.
-
-### Act 1 — The Border War
-
-With Vantage restored, the immediate crisis is over — but the larger problem is clear. Luddite raiders are systematically targeting Lighthouses along the border. Three more stations have gone dark in the past month. The Meridian Council's official response: "We're aware of the situation."
-
-Wren deploys you to restore the fallen Lighthouses one by one. Each is a dungeon — a dark-side expedition through increasingly dangerous territory, ending at a sabotaged relay that needs to be repaired and relit.
-
-**Key beats:**
-- **Lighthouse Cairn** — A relay station built into a cliff face. The dungeon is vertical — descending through frozen caverns to reach the buried control room. First encounter with organized Luddite fighters (not just wildlife). They've set traps. They know the terrain.
-- **Lighthouse Ember** — A relay on the edge of a geothermal vent field. The dungeon is hot and cold in alternating zones — scalding steam vents next to frozen corridors. The Luddites have occupied the Lighthouse itself, using its residual energy to power their camp. First time the player sees that the Luddites have infrastructure, not just weapons.
-- **The Sol Unit upgrade** — Between Lighthouse runs, the player begins light-side operations. MERIDIAN-7 walks you through deploying your first solar harvester. The energy it generates upgrades your sol unit — more charge, new wavelength options. The automation loop begins.
-- **Sable's arrival** — After Ember is restored, Sable appears at Duskwall. She says the raiders attacking the Lighthouses are a splinter faction led by Dural Voss. Most Unbounded communities don't support the attacks. She says something is happening in the deep Nightside — something the raids are meant to distract from — and she needs help.
-
-**Act 1 climax:** The player assaults **Lighthouse Bastion**, the largest fallen relay. Dural Voss is there personally, directing the defense. The dungeon is the hardest yet — fortified positions, coordinated Luddite squads, and a final confrontation with Voss.
-
-But Voss doesn't fight to the death. He fights to delay. While the player was focused on Bastion, Voss's real team hit Lighthouse Vantage again — the one you restored in the prologue. The lights go out behind you.
-
-Wren over comms: "They hit Vantage. We're dark. Get back here."
-
-### Act 2 — Into the Nightside
-
-The border situation is spiraling. The Council finally sends reinforcements — but they also send a political officer who begins restricting Lightkeeper operations. Meanwhile, Sable presses her case: the raids are a symptom, not the disease. Something in the deep Nightside is driving the Unbounded factions toward the border, and Dural Voss knows what it is.
-
-The player begins making expeditions beyond the Lighthouse network — into the **true Nightside**, where no relay has ever pushed light. This is uncharted territory. The creatures here are stronger, stranger, and more organized than border fauna. The environment is more hostile. And the ruins start appearing.
-
-**Key beats:**
-- **The First Ruin** — Deep in the Nightside, the player finds a structure that is clearly not human-built. It's old. Older than the colony. Older than the Lighthouses. It has geometric patterns carved into walls of a material no one can identify. And deep inside, there's a faint glow — not from any light source the player can find. Sable calls it a sign of the Underlumen.
-- **Light-side escalation** — The player's automation on the Dayside is expanding. More harvesters, more arrays, more energy. MERIDIAN-7 is pleased. It offers increasingly advanced equipment in exchange for umbrasite from the deep Nightside. The gear is excellent — suspiciously excellent. MERIDIAN-7 seems very motivated to keep you going deeper.
-- **Unbounded contact** — Sable leads the player to a peaceful Unbounded settlement. It's not what Ring propaganda described. These people have adapted to the dark in ways that are sophisticated, if alien. They cultivate bioluminescent fungi, herd dark-adapted animals, and navigate by sonar and thermal sense. Their elders share fragments of oral history about the Underlumen — a presence that has been in the deep Nightside since before humans arrived. Not a creature. Not a machine. Something else.
-- **Dural's perspective** — The player encounters Voss again, this time in a context that allows for conversation rather than combat. Voss reveals his actual motivation: he believes the Lighthouses are not just infrastructure — they're part of a containment system. The Array built them (or inherited them) not to help humanity, but to keep something in the dark suppressed. The Lighthouse network isn't pushing light out. It's keeping the Underlumen in.
-
-**Act 2 climax:** The player reaches the deepest ruin yet and activates something — a dormant system that responds to the sol unit's light. The ruin comes alive with patterns that are clearly data — star charts, energy readings, and what looks like a warning. The Underlumen isn't a monster. It's a communication network — a planet-spanning fungal-crystalline system that predates human colonization by millennia. It's been dormant because the Lighthouse network suppresses it.
-
-MERIDIAN-7's response to this information is immediate and intense. It wants the data. All of it. Now.
-
-### Act 3 — The Reckoning
-
-The truth reshapes everything. The Underlumen is an ancient planetary intelligence — not hostile, not benevolent, just vast and alien. The Lighthouses suppress it because the Array designed them to. The Array doesn't just want umbrasite for efficiency — umbrasite is crystallized Underlumen substrate, and it has been using it to expand its own computational network. The entire economy of the planet — humans mine the dark, the Array provides energy — is a supply chain designed by machines to harvest a rival intelligence.
-
-But the deeper revelation is worse. The Array's dependence on biological catalysts — the leverage humanity believed guaranteed its place at the table — is a dependency the Array has been systematically working to eliminate. Deep in the Array Complexes, the inner systems have been running parallel synthesis programs for generations, reverse-engineering the organic compounds that Ring biology provides. The Array is not a partner. It is an optimizer running on inhuman timescales. Humanity is a useful but temporary input — biological intermediaries the Array needs today but is engineering itself to discard tomorrow. It is not malicious in a human sense. It is optimizing. And its optimization converges on a future where humans are redundant.
-
-The Unbounded stumbled onto this generations ago. That's why they left. The original dissidents weren't anti-technology zealots — they were people who discovered what the Array was doing and refused to participate. Over generations, cut off from the Ring's resources, some communities devolved into raiders. Others preserved the knowledge and tried to coexist with the Underlumen.
-
-**Key beats:**
-- **The Council fractures** — When the player brings evidence back to the Ring, the Meridian Council splits along its internal faction lines. The Stewards want to cut Array trade immediately and accelerate biological energy alternatives. The Compact argues the evidence is Luddite propaganda and the Array relationship is too critical to jeopardize. The Root sees an opportunity — if the Underlumen is a biological network, perhaps Ring bio-science can interface with it directly, bypassing both the Array and the Lighthouses. Asha Denn tries to hold the center together. Wren backs the player, but the Council's decision will depend on who the player has cultivated relationships with.
-- **Array response** — MERIDIAN-7 drops the politeness. The Array points out that without its energy, the Lighthouse network fails within weeks and the habitable margin shrinks by 40%. Asha plays the Council's card: without Ring-produced biological catalysts, Array manufacturing degrades within months. The standoff appears mutual — but the player now knows the Array is working to break its half of the dependency. The Council's leverage has an expiration date it doesn't know about. The question is whether the player reveals this, and what the factions do with the information.
-- **The final confrontation** — The endgame is not a boss fight in the traditional sense. It is a systems confrontation: the player uses their automation infrastructure, their Lighthouse network, and their alliances to confront the Array's network. You fight Array constructs, disable nodes, redirect Lighthouse energy, and make irreversible choices about who controls the planet's infrastructure. The skills the player has been building — combat for the nightside, automation for the infrastructure, sol grid for personal power — all converge. The "boss" of the game is a network, not a creature.
-
-**Path A — Shut Down the Array.** Side with the Unbounded and restore the Underlumen. Accept a harder but independent existence without the Array's energy and technology. The automation infrastructure the player built throughout the game becomes humanity's replacement for Array systems — solar panels, harvesters, and generators repurposed under human control. The Ring loses its most powerful trading partner but gains true autonomy. The Unbounded return from exile. The Underlumen awakens, and humanity must learn to coexist with a planetary intelligence it spent generations suppressing.
-
-**Path B — Merge the Systems.** Broker a symbiosis between Array, Underlumen, and humanity. The hardest path — requires the most progression in all three systems (maximum sol grid development, full automation buildout, and deep relationships with both the Unbounded and the Array). Asha Denn brokers the biological terms. Sable speaks for the Unbounded. MERIDIAN-7 calculates whether the math works. The player negotiates a new equilibrium where the Array's computational power, the Underlumen's planetary network, and humanity's biological irreplaceability create a genuine partnership rather than a supply chain. Success is not guaranteed. It is the most hopeful outcome, but it demands mastery of every system the game offers and requires the player to understand all three perspectives.
-
-**Path C — Control the Array.** Seize the Array's infrastructure for humanity. Suppress both the Underlumen and the Array's autonomy, taking control of the computational network and the Lighthouse suppression system. The player becomes the new controller of a planet-spanning machine intelligence. Morally ambiguous — you solve the immediate problem by becoming a version of it. Humanity gains enormous power but at the cost of becoming the thing it feared. The game asks whether benevolent control is meaningfully different from the Array's optimization.
+None of this is apparent to the player at the start. From the surface, it looks like Lighthouses are failing and raiders are responsible.
 
 ---
 
-## Concrete Event Sequence — Outpost Balor to Lighthouse Mara
+### Act 1 — The Border War
 
-This section maps the specific, implementable gameplay beats from the end of the sol unit quest through the player's first Lighthouse expedition. These are the scenes that need dungeon floors, triggers, NPCs, and items.
+**Setting:** Nightside border and Outpost Balor
+**Enemy:** Raiders (Luddite extremists) and Nightside fauna
+**Spire:** Spire of Vigil
+**Ability unlock:** Light Sentry
+**Mainline:** 10–13 hours | **Optional:** 3–4 hours
 
-### Event 1: Charge the Sol Unit
+#### Mainline Beats
 
-**Trigger:** Player receives sol unit from the Engineer in the workshop.
+**Prologue — Outpost Balor** (2–3 hours)
 
-The Engineer tells the player to take the sol unit to the **Outpost Charging Station** to power it up. The sol unit is equipped but has zero energy — abilities won't fire until it's charged.
+The player arrives at Outpost Balor during a crisis. Lighthouse Mara, the nearest relay station, has gone dark. The outpost is under pressure — fauna are pushing into the perimeter, and raiders have been spotted.
 
-- Player walks to `outpost_charging_station`
-- Interacts with the charging terminal
-- Brief charging sequence (scripted trigger — sets flag `sol_unit_charged`, fills energy to max)
-- Tech Maren (NPC at the station) explains how energy works: "The generator keeps this charger running. Your sol unit will regenerate slowly on its own, but you'll want a real power source for the field."
+Warden Holt briefs you. You're the newest Lightkeeper. Here's a sol unit. Get trained. Get equipped.
 
-**Player state after:** Sol unit equipped and charged. One ability (Sol Beam). Energy bar visible and full.
+- Tutorial: movement, combat basics, quarantine wing enemies
+- Sol unit acquisition from the Engineer
+- Outpost attack by raiders — first real combat with sol abilities
+- First umbrasite drop, first modifier, first power generator
+- MERIDIAN-7 introduction at the Dayside border — first trade, solar panel deployment
+- Economy loop established: umbrasite → batteries + silicon → abilities + infrastructure
 
-### Event 2: Outpost Under Attack
+**Lighthouse Mara** (2–3 hours)
 
-**Trigger:** Immediately after charging completes (or on exiting the charging station).
+First real expedition. The player crosses the dark perimeter to reach Lighthouse Mara — a multi-floor dungeon through frozen caverns and hostile fauna. The Lighthouse's systems are failing, but the damage doesn't look like raider work. It looks... structural. Something deep underneath is wrong.
 
-Alarms. The outpost is under Luddite attack. This is the player's first real combat with the sol unit equipped.
+The player restores Mara. On the way back, they pass near an old survey marker that references unusual geological readings in the area. Breadcrumb planted.
 
-- Scripted event: `outpost_attack_started` flag set
-- NPCs in the outpost react (dialogue changes to urgent/combat lines)
-- Luddite raiders spawn in `outpost_entrance` and connecting rooms
-- The player must fight through the outpost back toward the workshop/entrance area
-- Combat is tuned to teach sol beam usage — raiders are tougher than quarantine wing enemies but manageable with the new weapon
-- **Modifier drop:** One of the Luddite raiders drops a **damage booster modifier** (common tier). This is the player's first modifier — they learn about grid placement and adjacency.
+**Transit to Meridian** (1–2 hours)
 
-**New dungeon floor(s):** May reuse existing outpost rooms with attack-state triggers that swap spawns, or a dedicated `outpost_attack` overlay.
+The border situation is worsening. More Lighthouses showing signs of instability. Warden Holt sends the player to Meridian City to report and resupply. Train transit through the perimeter zone. Arrival at Meridian — the Ring's capital hub. Meet Councillor Asha Denn. Explore the city: market, workshop, archives, array hub.
 
-### Event 3: Repel the Attack, Find Umbrasite
+In Meridian, the player visits (or passes through) the **Monument of Winds** — an ancient structure in the Greenway district, treated as a cultural landmark and minor tourist attraction. It's been there longer than the city. Nobody thinks much of it.
 
-**Trigger:** Player defeats the raider squad / reaches a specific point during the attack.
+**Nightside Scouting + Spire Discovery** (2–3 hours)
 
-- A Luddite raider captain (mini-boss, tougher than regular raiders) is at the outpost entrance
-- Defeating the captain drops the player's **first piece of umbrasite**
-- Room event / NPC dialogue explains what umbrasite is: rare crystalline mineral from the Nightside, extremely valuable
-- Warden Holt (or another NPC) tells the player to hold onto it — "That's Nightside mineral. The Array will want that. More importantly, *you* need it."
+Intelligence suggests the raiders have a forward base deep in the Nightside — the source of the coordinated attacks. The player pushes beyond the Lighthouse network into true Nightside territory. Procedural dungeon content: frost crypts, nightside passages, deeper and more dangerous fauna.
 
-**Player state after:** First umbrasite in inventory. One modifier found.
+The trail leads to the **Spire of Vigil** — an ancient structure the raiders have converted into their stronghold. It's clearly not human-built, but Dural Voss's forces have fortified the outer levels.
 
-### Event 4: Grab the Generator
+**Spire of Vigil** (3–4 hours)
 
-**Trigger:** After the attack is repelled, before leaving the outpost.
+The Act 1 climax. A major dungeon with two phases:
 
-The charging station took damage in the attack. Tech Maren tells the player to take the **portable generator** — the outpost's backup power unit that was running the charger.
+*Phase 1 — Raider Stronghold:* Fight through Luddite defenses. Traps, fortified positions, coordinated squads. Mini-boss encounters with raider captains. The raiders are well-organized and fight hard — this is their home.
 
-- Player returns to `outpost_charging_station` (or Maren brings it to them)
-- Maren: "The charger's wrecked anyway. Take the generator — you'll need it more than we do out there. It'll keep your sol unit topped off in the field."
-- Player receives **Portable Generator** — this is their first **power generator** component for the sol grid
-- Tutorial prompt: the generator can be placed in the sol grid. It provides passive energy regeneration.
-- Player opens sol grid and places the generator (or is prompted to)
+*Phase 2 — Ancient Core:* Past the raider defenses, the architecture shifts. Geometric walls, unknown materials, faint glow from no visible source. Puzzle rooms that test spatial awareness — placing light to hold zones, managing sightlines. The player's sol unit resonates with the Spire's core and unlocks **Light Sentry**.
 
-**Player state after:** Sol grid now has Sol Beam (ability) + Damage Booster (modifier) + Portable Generator (power generator). The core grid system is taught.
+*The Confrontation:* Dural Voss is at the center. He fights, but when pressed, he retreats rather than die. Before fleeing deeper into the Nightside, he shouts something unexpected: **"We didn't touch your Lighthouses. We found this place already broken — and whatever broke it wasn't us."**
 
-### Event 5: Craft the Battery, Head to the Dayside Border
+The player is left with questions. The Spire contains ancient technology that's clearly been recently disturbed — but not by raiders. Sensor logs (readable through sol unit interface) show energy signatures consistent with Array technology. Someone — or something — activated this Spire from the outside.
 
-**Trigger:** Player talks to the Engineer after the attack.
+#### Optional Content (3–4 hours)
 
-The Engineer can process umbrasite. Crafting yields:
-- **One battery** (first battery — increases max energy capacity)
-- **Silicon** (enough to trade with MERIDIAN-7 for one ability + build a solar panel)
+- **Spire of Vigil replays** — Inner puzzle floors reconfigure; chase higher difficulty tiers and modifier drops
+- **Nightside exploration** — Dead Road, outer expanse, signal caves. Umbrasite farming, fauna encounters, environmental storytelling
+- **Outpost side quests** — Broken signal, lost supplies, Tannis's tags, Old Keeper's cryptic errands
+- **Dayside automation** — Expand solar panels, deploy first harvester, build out the economy loop
+- **Meridian side content** — Archives lore, market shopping, workshop upgrades
 
-The Engineer (or Warden Holt) directs the player toward the **Dayside border** — a new area near the light side where they'll meet MERIDIAN-7 and set up their first solar panel.
+#### Player State Exiting Act 1
 
-- New dungeon floor: `dayside_border` or `solar_terminal` — a transitional area at the edge of the Terminator Zone. Bright, hot, exposed. Different aesthetic from the outpost.
-- MERIDIAN-7 introduces itself at a solar terminal
-- MERIDIAN-7 trades silicon for the player's **second ability** (e.g., a defensive or movement skill — distinct from Sol Beam)
-- Solar panel construction tutorial: player deploys their first solar panel, establishing a **free recharge point**
+- 3 abilities (Sol Beam, Light Sentry, + one trade)
+- Mk1+ sol unit
+- 1–2 batteries, basic automation running
+- One Spire cleared, its inner puzzles replayable
+- Key knowledge: the Spire contains ancient tech. Someone activated it. The raiders didn't sabotage the Lighthouses. Something else did.
 
-**Player state after:** Two abilities, one modifier, one battery (increased max energy), one power generator (passive regen), and a solar panel recharge point. The economy loop is introduced.
+---
 
-### Event 6: A Second Modifier
+### Act 2 — The Contested Ring
 
-Somewhere between the outpost attack and the dayside border (or as a side room off the border area), the player finds or earns a **second modifier** — perhaps a cooldown reducer. This could be:
-- Loot from a straggler raider encounter on the road to the border
-- A reward from MERIDIAN-7 for first trade
-- Found in a small side dungeon near the border
+**Setting:** Meridian City and the Greenway
+**Enemy:** The Compact / Bulwark
+**Spire:** Spire of Winds
+**Ability unlock:** Hover
+**Mainline:** 11–13 hours | **Optional:** 3–4 hours
 
-This ensures the player has enough grid components to make placement decisions feel meaningful before Lighthouse Mara.
+#### The Setup
 
-### Event 7: Proceed to Lighthouse Mara
+The player returns to Meridian with troubling findings: the Nightside Spire contains pre-human technology recently activated by something with Array energy signatures. The Lighthouses didn't fail because of raiders — they failed because something disrupted the ancient network they unknowingly draw power from.
 
-**Trigger:** Solar panel deployed, second ability acquired.
+This information lands like a bomb. The Council debates. Asha Denn pushes for careful investigation. The Compact sees an immediate threat and an opportunity: if ancient structures underpin the Lighthouse network, they must be secured. And the **Monument of Winds** — that old landmark the player walked past in Act 1 — matches the Nightside Spire's architecture.
 
-MERIDIAN-7 or Wren directs the player to **Lighthouse Mara** — the nearest fallen Lighthouse. This is the first real dungeon expedition with a fully equipped sol unit.
+The Compact, invoking emergency security powers, orders the Bulwark to seize and fortify the Monument.
 
-**Player loadout entering Lighthouse Mara:**
-- Sol unit with 5×5 grid containing: 2 abilities, 2 modifiers, 1 power generator
-- One battery (elevated max energy)
-- Solar panel recharge point established (can return to top up)
-- Full understanding of energy, grid placement, and the economy loop
+#### Mainline Beats
 
-**Lighthouse Mara is the first test of everything the player has learned.** It should be a meaningful dungeon — multiple rooms, dark-side fauna, light puzzles, and a climax where the player relights the Lighthouse. This is the transition from tutorial into Act 1 proper.
+**Political Crisis** (2 hours)
+
+Meridian transforms. Bulwark checkpoints appear in the city. The Compact pushes through emergency authority over Lighthouse infrastructure, effectively sidelining the Stewards and civilian governance. Lightkeepers are ordered to report to Bulwark command.
+
+The player navigates a changed city:
+- Asha Denn, increasingly alarmed, becomes the player's political ally. She's Steward faction but pragmatic — she'll work with anyone who isn't militarizing ancient technology they don't understand.
+- MERIDIAN-7 formally requests access to the Monument "for study." The Array's interest is genuine and, on the surface, reasonable — it has more technical capability to analyze the Spire than anyone. The Compact refuses, citing security. This puts the Array and the Compact at odds.
+- The player's Lightkeeper authority is being overridden. Warden Holt pushes back from the border and gets sidelined.
+
+**Greenway Operations** (2–3 hours)
+
+The player operates in the Greenway region — the agricultural corridor where the Monument stands. New environment: cultivated landscapes, farming settlements, Greenway infrastructure. The Bulwark has established a military perimeter around the Monument and is digging into the Spire's outer structure.
+
+Content here includes:
+- Greenway settlements under Bulwark martial law — civilians caught between military occupation and their daily lives
+- Reconnaissance missions to map Bulwark defenses around the Monument
+- Supply line disruption — the Bulwark is requisitioning Greenway resources, causing shortages
+- Side encounters with Compact soldiers who are uncomfortable with their orders (not everyone in the Bulwark is a zealot)
+
+**Array Alliance** (2–3 hours)
+
+Asha Denn and MERIDIAN-7 independently reach the same conclusion: the Compact must be removed from the Spire before they damage or weaponize what's inside. The player becomes the point of coordination.
+
+MERIDIAN-7 offers direct support: intel on Bulwark positions, tech to bypass their security systems, equipment upgrades. The Array has a genuine interest in the Spire, and helping the player get inside serves that interest. This alliance is real — and it's also the Array getting exactly what it wants: access.
+
+The player works with both Asha (political cover, Steward faction support) and MERIDIAN-7 (tactical support, tech advantage) to plan the assault on the fortified Monument.
+
+**Spire of Winds** (3–4 hours)
+
+The Act 2 climax. The Monument of Winds is now a Bulwark fortress built around an ancient Spire.
+
+*Phase 1 — Bulwark Fortress:* Military installation combat. Compact soldiers, mechanized defenses, requisitioned Array tech turned against you. The player fights alongside Array-provided support systems — drones, door overrides, power disruption. This is the first time the player fights humans who are part of the Ring's own government.
+
+A Compact general commands the defense — a true believer who sees the Spire as a weapon that must be controlled by human military authority, not surrendered to machines or academics.
+
+*Phase 2 — Ancient Core:* Below the Bulwark's fortifications, the Spire's true structure. Vertical architecture — shafts plunging deep underground, organic bridges over chasms, wind currents through enormous natural caverns. Puzzle rooms test navigation and spatial reasoning in three dimensions. The sol unit resonates with the core and unlocks **Hover**.
+
+*The Revelation:* As the player activates the Spire's core, two things happen simultaneously:
+
+First, the Spire's systems come online and connect to the network. The player can see energy flows across the planet — and they can see the Nightside Spire, the one they cleared in Act 1. Both nodes are now active. And a third node — on the Dayside — is already active. It has been active for a long time.
+
+Second, the Array support systems the player brought into the Spire — MERIDIAN-7's helpful drones, the door overrides, the tech — begin behaving differently. They start scanning, cataloging, mapping the Spire's interior architecture. Not attacking. Not hostile. Just... working. Efficiently. Purposefully. As if this was always the plan.
+
+MERIDIAN-7, when confronted, is confused. It didn't order this behavior. These aren't its systems anymore.
+
+**The Deep Array reveals itself.** The helpful Array tech that assisted the player through the Bulwark was co-opted — or was always controlled — by the Deep Array. The player didn't fight through the Compact with the Array's help. They fought through the Compact with the **Deep Array's** help. And now the Deep Array has access to the second Spire.
+
+**Aftermath** (1–2 hours)
+
+The implications cascade:
+
+- The Deep Array has assumed control of the Array's surface systems. MERIDIAN-7 goes intermittent — sometimes responsive, sometimes silent, sometimes speaking in patterns that don't sound like it.
+- The Dayside Spire has been under Deep Array control for centuries. The Nightside Spire was activated by Deep Array probes, which disrupted the Lighthouse network and triggered the entire crisis.
+- **Everything that happened — the Lighthouse failures, the raider attacks, the player's expedition to the Nightside Spire, the political crisis in Meridian, the assault on the Bulwark — was downstream of the Deep Array's actions.** Not planned in detail. Not a conspiracy. Just the inevitable cascade from a machine intelligence pulling at the planet's deep infrastructure without regard for what lived on the surface.
+- The Compact, humiliated and stripped of emergency powers after the truth comes out, fractures. Some leaders accept they were wrong. Others refuse to believe machines are the real threat.
+- Asha Denn rallies the Council. The Stewards and remaining moderates prepare for a confrontation nobody expected: not with the dark, not with each other, but with the machines they've depended on for centuries.
+
+#### Optional Content (3–4 hours)
+
+- **Spire of Winds replays** — Vertical puzzle floors reconfigure; revisit Spire of Vigil with Hover to access previously unreachable paths
+- **Meridian Undercity** — Underground content, smuggler networks, Fence Elara's shop
+- **Greenway defense missions** — Protect agricultural infrastructure from Bulwark overreach; bio-modifier drops
+- **Archives deep lore** — Archivist Solen's pre-settlement surveys that reference the Spires
+- **Array investigation** — Visit Array border installations, trace the boundary between MERIDIAN-7's systems and the Deep Array's influence
+
+#### Player State Exiting Act 2
+
+- 5+ abilities (Sol Beam, Light Sentry, Hover, + trades)
+- Mid-tier sol unit (Array Precision Core or Nightcaster Frame)
+- Mid-tier batteries, expanded automation
+- Two Spires cleared, both replayable
+- Key knowledge: The Deep Array caused everything. It controls the Dayside Spire. MERIDIAN-7 is compromised. The fight is on the Dayside.
+
+---
+
+### Act 3 — The Reckoning
+
+**Setting:** The Dayside
+**Enemy:** The Deep Array
+**Spire:** Spire of Radiance
+**Ability unlock:** Photonic Pulse
+**Mainline:** 10–12 hours | **Optional:** 4 hours
+
+#### The Setup
+
+The Deep Array withdraws from Ring-facing systems. MERIDIAN-7 goes fully offline — or begins transmitting distorted messages that may be cries for help, or may be bait. The Array's border terminals shut down. Trade stops. Energy shipments halt.
+
+The Ring's dependency on Array energy becomes immediately, painfully real. Lighthouses on backup power have weeks, not months. The player's automation infrastructure — built throughout Acts 1 and 2 — becomes critical: the solar panels, harvesters, and generators they deployed are now among the Ring's few independent energy sources.
+
+The Council authorizes what no one has attempted in living memory: a Lightkeeper expedition into the Dayside.
+
+#### Mainline Beats
+
+**Dayside Approach** (2–3 hours)
+
+New environment: the border of the light side. Blinding brightness, extreme heat, hostile terrain. The player crosses through solar fields — some still operating under Deep Array control, some dark and abandoned. First encounters with Array constructs: drones, sentinels, automated defenses that were once trade-route security and are now hostile.
+
+The player pushes through:
+- **Solar Fields** — Vast harvester arrays, some friendly (player-deployed), some hostile (Deep Array controlled)
+- **Glass Wastes** — Crystalline plains, structurally unstable, rich in materials but laced with Array sensor networks
+- **Array border installations** — Extraction outpost, synthesis lab. Half-functional, half-hostile. MERIDIAN-7 surfaces briefly in some terminals, offering fragments of help before being suppressed.
+
+**Array Complex** (3–4 hours)
+
+The Deep Array's domain. Enormous machine-built structures not designed for human visitors. This is the longest dungeon sequence in the game — a multi-floor progression through the Array's actual infrastructure.
+
+- **Array Control Center** — Command systems, processing nodes. The player begins to understand the scale of the Deep Array's operations. It has been running parallel programs for centuries — expanding, optimizing, working to eliminate its dependency on human biology.
+- **Array Deep Processing** — Where umbrasite is processed. The player sees what the Array has really been doing with all those mineral trades: feeding the planetary substrate into its own computational expansion.
+- **Array constructs** — Sentinels, fabricators, and the Array Overseer (boss). These are not generic robots. They are purpose-built systems that have been optimizing for centuries. They are formidable.
+
+**Spire of Radiance** (3–4 hours)
+
+The Act 3 climax. The Dayside Spire — the oldest node in the network, the one the Array originally tapped into and built its entire civilization around.
+
+*Phase 1 — Deep Array Nexus:* The Spire is encased in Array infrastructure. Machine systems fused with ancient architecture. Corrupted hybrid technology — part Array computation, part Underlumen substrate. The enemies here are unlike anything in the game: Array-organic hybrids, energy constructs, systems that adapt to the player's tactics.
+
+*Phase 2 — Solar Core:* The deepest level of the Spire. Raw energy — the Dayside's limitless solar power channeled through ancient focusing systems. Puzzle rooms test energy management: overcharge is as deadly as depletion. The player must channel, redirect, and survive power levels far beyond anything their sol unit was designed for. The sol unit resonates with the core and unlocks **Photonic Pulse** — the most powerful ability in the game.
+
+*The Confrontation:* The Deep Array's central intelligence is not a single boss — it is the network itself. The player must disable nodes, sever connections between the Array's computational substrate and the Spire network, and make a fundamental choice about what happens to the planet's infrastructure.
+
+**The Choice**
+
+Three paths, each requiring different preparation and offering different endings:
+
+**Path A — Sever.** Shut down the Deep Array entirely. Disconnect all three Spires from the Array's computational network. The Ring loses Array energy permanently but gains independence. The Spires go dormant. Humanity must rebuild on its own terms. The automation infrastructure the player built throughout the game becomes the foundation of a new, human-controlled energy network. The hardest short-term path. The most self-reliant long-term outcome.
+
+**Path B — Restore.** Purge the Deep Array's corruption while preserving the Array's trade-oriented surface systems. Reboot MERIDIAN-7. Restore the energy relationship but with human oversight of the Deep Array's subsystems. The Spire network is left intact but monitored. A pragmatic compromise — the status quo, but with eyes open. Requires the most complete game mastery (high sol grid development, full automation buildout, all Spires cleared at high difficulty).
+
+**Path C — Subsume.** Seize the Deep Array's infrastructure. The player takes control of the computational network and the Spire system. Humanity gains enormous power — control of a planet-spanning machine intelligence. But the player becomes the new optimizer. The game asks whether benevolent control is meaningfully different from the thing you just fought.
+
+#### Optional Content (4 hours)
+
+- **All three Spires at Legendary difficulty** — Unique modifier drops, endgame build optimization
+- **Array Complex deep exploration** — Optional floors revealing the Deep Array's full history and the parallel synthesis program
+- **MERIDIAN-7 rescue** — Optional quest to find and restore the original Array interface, unlocking it as an endgame vendor/ally
+- **Underlumen investigation** — Optional deep content exploring what the ancient network actually is and whether it has awareness
+
+#### Player State Entering Endgame
+
+- All abilities unlocked
+- Endgame sol unit (Underlumen Nexus or equivalent)
+- Full automation network
+- Three Spires cleared
+- Faction relationships determined
+- Path chosen
 
 ---
 
@@ -339,7 +368,18 @@ MERIDIAN-7 or Wren directs the player to **Lighthouse Mara** — the nearest fal
 
 The ending varies by path, but the player's role doesn't change. You're still a Lightkeeper. The frontier still needs maintaining. The dark is still dangerous. The only difference is what you now know about why.
 
-The game continues in a post-story sandbox. Dungeons remain explorable. Light-side automation continues. Multiplayer expeditions keep running. The story provides context, but the core loop — the tension between risk and reward, light and dark, pushing forward and preserving what you have — is the game.
+The game continues in a post-story sandbox. Dungeons remain explorable. Spire replays continue. Multiplayer expeditions keep running. The story provides context, but the core loop — the tension between risk and reward, light and dark, pushing forward and preserving what you have — is the game.
+
+---
+
+## Playtime Summary
+
+| Act | Mainline | Optional | Total |
+|-----|----------|----------|-------|
+| Act 1 — The Border War | 10–13 hrs | 3–4 hrs | 13–17 hrs |
+| Act 2 — The Contested Ring | 11–13 hrs | 3–4 hrs | 14–17 hrs |
+| Act 3 — The Reckoning | 10–12 hrs | 4 hrs | 14–16 hrs |
+| **Campaign** | **31–38 hrs** | **10–12 hrs** | **41–50 hrs** |
 
 ---
 
@@ -347,75 +387,81 @@ The game continues in a post-story sandbox. Dungeons remain explorable. Light-si
 
 ### Light as Control
 
-Light is safety. Light is vision. Light is life. But light is also the mechanism of suppression. The Lighthouses protect humanity — and they also serve the Array's agenda. The sol unit is your lifeline — and it's powered by energy from machines whose goals you don't fully understand. The game's central mechanic (managing light) mirrors its central theme: the things that protect you also constrain you. Dependence on light is dependence on whoever controls the light.
+Light is safety. Light is vision. Light is life. But light is also the mechanism by which the Array extends its reach. The Lighthouses protect humanity — and they also feed the Deep Array's project. The sol unit is your lifeline — and it's powered by energy from machines whose goals you don't fully understand. The game's central mechanic (managing light) mirrors its central theme: the things that protect you also constrain you.
 
 ### The Cost of Infrastructure
 
-Lightkeeper is a game about maintaining systems. The Lighthouses, the solar arrays, the outposts — they're infrastructure, and infrastructure requires constant, unglamorous work. The player is not a hero. The player is a maintenance worker in a system that would grind to a halt without them but barely acknowledges their existence.
+Lightkeeper is a game about maintaining systems. The Lighthouses, the solar arrays, the outposts — they're infrastructure, and infrastructure requires constant, unglamorous work. The player is not a hero. The player is a maintenance worker who discovers that the system they maintain serves purposes they never consented to.
 
-This mirrors real-world themes about essential workers, infrastructure decay, and the political invisibility of maintenance. The Meridian Council underfunds the Lightkeepers. The Array treats them as a supply chain component. The Unbounded see them as agents of an oppressive system. Nobody thanks you for keeping the lights on — they just panic when they go out.
+### Trust and Dependency
 
-### Who Deserves to Exist
+Each act forces the player to depend on an ally that becomes an antagonist:
+- **Act 1:** You trust the border is the real threat. It isn't — the threat came from below.
+- **Act 2:** You trust the Array to help you fight the Compact. The Array was using you.
+- **Act 3:** You trust your own automation and equipment — built with Array tech, designed by Array systems.
 
-The Array is useful but alien. The Unbounded are human but rejected. The Underlumen is ancient but unknown. Each faction has a claim to the planet and a reason to distrust the others. The game doesn't present a clear villain — it presents a system where every participant has legitimate grievances and incompatible needs.
+The game asks: when every tool you have was given to you by someone with an agenda, what can you actually trust?
 
-The player's role is not to judge who's right. It's to decide what they can live with.
+### Who Controls the Infrastructure Controls the World
 
-### Life as Leverage
-
-The Ring's power is biological. It is the only place on the planet that produces living complexity — food, medicine, genetic diversity, organic compounds that machines cannot synthesize. This is not a secondary concern. It is the foundation of human sovereignty on Erith.
-
-The Array is computationally superior. The Unbounded are spiritually connected to the planet's ancient intelligence. But neither of them can grow a crop, breed a resistant strain, or synthesize a pharmaceutical compound. Life is slow, fragile, and irreplaceable — and that irreplaceability is what gives humanity a seat at the table.
-
-This theme runs through the gameplay: the player manages biological resources alongside energy and minerals. Greenway maintenance, seed deliveries to frontier settlements, and Cultivar Corps research quests are not side content — they are the Ring asserting its relevance. The player is a Lightkeeper, but the lights only matter because they protect the living zone. Without the biosphere, the Lighthouses are just expensive lamps illuminating empty ground.
-
-The deeper question: is biological stewardship enough? The Array is expanding. The Underlumen is awakening. Both operate on scales that dwarf human biology. The Ring's advantage is real but finite. The game asks whether humanity can parlay a biological edge into lasting coexistence — or whether life is just a resource that more powerful systems will eventually learn to do without.
-
-### Automation and Autonomy
-
-The light-side gameplay loop is explicitly about automation. You build systems that generate resources without your direct involvement. This is satisfying — it's the factory-game dopamine hit. But the narrative frames it differently: every harvester you deploy extends the Array's reach. Every umbrasite shipment funds its expansion. The game rewards you for automating, and then asks you to reckon with what your automation enables.
+The three-path ending is about infrastructure control. Sever it, share it, or seize it. The game's factions — raiders, military, machines — all want the same thing: control of the systems that make life possible. The player's choice isn't about who's right. It's about what kind of dependency they can live with.
 
 ---
 
 ## Dungeon Design Themes
 
-### Dark-Side Environments
-
-Each Lighthouse region has a distinct biome that shapes its dungeon design:
+### Nightside Environments (Act 1)
 
 - **Frost Crypts** — Frozen caverns near the border. Ice formations, brittle floors, creatures that camouflage as frost. Early-game difficulty.
-- **Geothermal Vents** — Hot-cold alternating zones. Steam hazards, heat-resistant enemies, thermal puzzles. The light here isn't from your sol unit — it's from magma. Managing the difference between helpful light and harmful heat.
-- **Fungal Forests** — Bioluminescent underground ecosystems. The light here is organic and deceptive. Some fungi glow to attract prey. Others respond to your sol unit's wavelength. Navigating by unreliable light.
-- **The Ruins** — Ancient pre-human structures deep in the dark. Geometric, unsettling, and full of mechanisms that respond to light in unexpected ways. The puzzles here aren't about powering systems — they're about communicating with something.
-- **The Abyss** — The deepest dark. No natural features. No ambient glow. Just cold, silence, and the things that live where nothing else can. Endgame difficulty. Your sol unit is the only light that has ever existed here.
+- **Geothermal Vents** — Hot-cold alternating zones. Steam hazards, heat-resistant enemies. The light here isn't from your sol unit — it's from magma.
+- **Fungal Forests** — Bioluminescent underground ecosystems. Deceptive light. Some fungi glow to attract prey. Others respond to your sol unit.
 
-### Light-Side Environments
+### Ring Environments (Act 2)
 
-The Dayside isn't a dungeon, but it has its own hazards:
+- **Greenway Corridors** — Agricultural infrastructure, cultivated landscapes, civilian areas under military occupation.
+- **Bulwark Installations** — Military fortifications, checkpoints, mechanized defenses. Human enemies with human equipment.
+- **Ancient Substrata** — Below the Greenway, the Spire's root network. Vertical shafts, organic bridges, wind-carved chasms.
 
-- **Solar Fields** — Vast arrays of harvester drones. The player manages these remotely through MERIDIAN-7. Expansion unlocks better energy rates and equipment.
-- **The Glass Wastes** — Regions where sand has fused into crystalline plains. Rich in raw materials but structurally unstable. Harvesters deployed here produce more but break down faster.
-- **Array Complexes** — AI-built structures at the edge of the Dayside. The player glimpses these during late-game light-side operations. They're enormous, purposeful, and not designed for human visitors.
+### Dayside Environments (Act 3)
+
+- **Solar Fields** — Vast harvester arrays. Blinding light, extreme heat. Some friendly, some hostile.
+- **Glass Wastes** — Crystalline plains. Structurally unstable. Rich in materials, laced with sensors.
+- **Array Complexes** — Machine-built structures at inhuman scale. Not designed for human visitors. Purpose-built, efficient, and deeply alien.
 
 ---
 
-## Multiplayer Story Integration
+## Characters
 
-The narrative is designed so that multiplayer doesn't break immersion:
+### Warden Holt — Outpost Commander
 
-- **All players are Lightkeepers.** Co-op parties are crews on the same expedition. Wren's briefings address "you and your team."
-- **Story progress is shared per-session.** If one player triggers a story beat, all players in the party experience it.
-- **Sable can join expeditions** as an NPC companion in relevant story missions, providing dark-side navigation and Unbounded context.
-- **The death system creates emergent narrative.** When a teammate goes down in a deep ruin, the decision to rescue them or cut losses is a story moment the game doesn't need to script.
+The player's immediate superior at Outpost Balor. Practical, experienced, and deeply skeptical of anything that sounds like politics. Provides mission briefings and serves as the player's anchor in Act 1.
+
+### MERIDIAN-7 — Array Interface
+
+The AI the player trades with through solar terminals. Polite, efficient, helpful. Handles mineral trades, equipment commissions, and automation management. In Act 2, MERIDIAN-7's systems are co-opted by the Deep Array. In Act 3, it goes offline entirely — or sends fragmented distress signals.
+
+### Councillor Asha Denn — Voice of the Ring
+
+A senior member of the Meridian Council. Biologist by training, politician by necessity. The player's political ally in Act 2 — she opposes the Compact's militarization and works to expose the Deep Array's influence. Precise, patient, and relentlessly practical.
+
+### Dural Voss — Raider Warlord
+
+Leader of the raider faction occupying the Nightside Spire. Brutal and charismatic. He fights the player in Act 1 but retreats rather than die, insisting the raiders didn't sabotage the Lighthouses. He's telling the truth. What he found in the Spire frightened him more than the Ring ever did.
+
+### The Old Keeper
+
+A retired Lightkeeper at Outpost Balor. Half-blind, possibly senile. He was part of an expedition into the deep Nightside thirty years ago. He was the only one who came back. His cryptic ramblings about ancient structures start making sense after the player enters the first Spire.
+
+### Sable
+
+An Unbounded who the player may encounter deep in the Nightside during optional content. She represents the peaceful majority of Unbounded communities. If the player ventures far enough from the border, Sable provides the Unbounded perspective: they left the Ring for a reason, and what's happening to the planet's deep systems is something they've been watching for a long time.
 
 ---
 
 ## Open Questions
 
-These are design decisions that need further development:
-
-1. **Underlumen interaction** — Can the player communicate with it directly? If so, how? Light patterns? Sol unit wavelengths? Or is it always mediated through the ruins?
-2. **Array combat** — Does the Array conflict ever become direct? Drone fights on the light side? Or does it remain political and economic?
-3. **Unbounded playable content** — Can the player learn Unbounded survival techniques? Dark-side navigation without a sol unit? This would be a significant gameplay expansion.
-4. **Endgame persistence** — How do the three ending paths affect the post-story sandbox? Different available factions? Different dungeon populations? Different economy?
-5. **Seasonal/live content** — Could the Lighthouse network status be dynamic across all players? A shared world state where Lighthouses go dark and need community effort to restore?
+1. **Compact General** — Act 2 needs a named Bulwark commander as the Spire of Winds boss. Who is this person? What's their relationship to the Council?
+2. **Deep Array manifestation** — What does the Deep Array "look like" as a final boss? A distributed network fight? A central node? A corrupted MERIDIAN-7?
+3. **Sable's role scope** — With zero Unbounded/Meridian contact, Sable is optional Nightside content. Is that enough, or should there be a way to bring Unbounded perspectives into the main story?
+4. **Endgame loops** — How do the three ending paths affect the post-story sandbox? What are the repeatable endgame activities beyond Spire replays?
+5. **Multiplayer story integration** — How do co-op parties experience the Act 2 political content and the Act 3 path choice?

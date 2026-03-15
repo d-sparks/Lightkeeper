@@ -1,19 +1,18 @@
 {
   "array_sentinel": {
-    "dropChance": 0.4,
+    "dropChance": 0.3,
     "rolls": [
-      { "item": "health_potion", "weight": 8 },
       { "item": "silicon", "weight": 5 },
+      { "item": "field_medkit", "weight": 3 },
       { "item": "emp_charge", "weight": 3 },
       { "item": "photon_regulator_chip", "weight": 2 },
       { "item": "efficiency_core_chip", "weight": 1 }
     ]
   },
   "array_fabricator": {
-    "dropChance": 0.5,
+    "dropChance": 0.4,
     "rolls": [
-      { "item": "health_potion", "weight": 6 },
-      { "item": "field_medkit", "weight": 3 },
+      { "item": "field_medkit", "weight": 1 },
       { "item": "silicon", "weight": 5 },
       { "item": "circuit_board", "weight": 3 },
       { "item": "copper_coil", "weight": 2 },
@@ -33,7 +32,8 @@
       { "item": "efficiency_core_chip", "weight": 2 },
       { "item": "photon_regulator_chip", "weight": 2 },
       { "item": "improved_generator_chip", "weight": 2 },
-      { "item": "rechargeable_battery_chip", "weight": 2 }
+      { "item": "rechargeable_battery_chip", "weight": 2 },
+      { "item": "architects_aegis", "weight": 1 }
     ]
   }
 }

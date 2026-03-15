@@ -19,7 +19,7 @@
     3,1,1,3,3,3,3,3,3,3,3,1,1,1,3,3,3,3,3,3,3,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
     3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,6,3,
     3,1,1,3,3,3,3,4,3,1,1,1,1,1,1,1,3,3,3,3,4,3,1,1,3,
     3,1,1,3,1,1,1,1,3,1,1,1,1,1,1,1,3,1,1,1,1,3,1,1,3,
     3,1,1,3,1,2,2,1,3,1,1,1,1,1,1,1,3,1,2,2,1,3,1,1,3,
@@ -48,7 +48,15 @@
     { "x": 12, "y": 0, "leadsTo": "meridian_market", "type": "stairs_down", "spawnX": 12, "spawnY": 17 },
     { "x": 24, "y": 16, "leadsTo": "meridian_residential", "type": "stairs_down", "spawnX": 1, "spawnY": 2 },
     { "x": 12, "y": 17, "leadsTo": "meridian_station", "type": "stairs_up", "spawnX": 28, "spawnY": 9 },
-    { "x": 24, "y": 2, "leadsTo": "salvage_yard", "type": "stairs_down", "spawnX": 20, "spawnY": 14 }
+    { "x": 24, "y": 2, "leadsTo": "salvage_yard", "type": "stairs_down", "spawnX": 20, "spawnY": 14 },
+    {
+      "x": 23, "y": 11,
+      "leadsTo": "greenway_checkpoint",
+      "type": "stairs_down",
+      "spawnX": 2, "spawnY": 7,
+      "conditions": [{ "hasFlag": "spire_vigil_cleared" }],
+      "failMessage": "The Greenway checkpoint is on high alert — the Bulwark has locked down passage until the Nightside threat is resolved. Clear the Spire of Vigil first."
+    }
   ],
   "triggers": [
     {
@@ -134,6 +142,23 @@
       "once": true
     },
     {
+      "id": "asha_undercity_hint",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "arrived_meridian" },
+        { "not": { "hasFlag": "asha_undercity_hint" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_undercity_hint" },
+        { "type": "showMessage", "lines": [
+          "'One more thing. There are tunnels beneath the market district — old civil maintenance warrens. My contacts say an Unbounded pathfinder has been using them as a way station.'",
+          "'The Council calls everyone beyond the Lighthouses hostile. I think that's convenient, not accurate. If you're willing to go deep, finding this pathfinder could give us a perspective the Council doesn't have.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "asha_quest_offer",
       "event": "npc_interacted",
       "filter": { "npcType": "councillor_asha" },
@@ -162,6 +187,28 @@
         { "type": "setFlag", "flag": "asha_samples_collected" },
         { "type": "giveItem", "itemType": "bio_resonance_amplifier_chip" },
         { "type": "grantXp", "amount": 60 }
+      ],
+      "once": true
+    },
+    {
+      "id": "asha_spire_briefing",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "asha_briefed_on_spire" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_briefed_on_spire" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "lines": [
+          "Councillor Asha Denn listens carefully as you describe the Spire of Vigil — the ancient architecture, the pre-human technology, the energy signatures connecting it to the Lighthouse network.",
+          "'This confirms what I feared. The Lighthouses aren't independent systems. They're nodes in something much older. And now the Compact knows it too.'",
+          "'General Thorne has already briefed the Council. The Compact is invoking emergency security powers — they want military control over every structure that matches the Spire's architecture.'",
+          "'The Monument of Winds. That old landmark east of the Greenway. It matches the Spire's profile. The Bulwark is moving to seize it as we speak.'",
+          "'I need someone in the Greenway. Someone who can see what the Bulwark is doing and isn't afraid to push back. The checkpoint east of here will let you through — I've arranged clearance.'"
+        ]},
+        { "type": "giveItem", "itemType": "greenway_pass" }
       ],
       "once": true
     },
@@ -251,6 +298,35 @@
       ]
     },
     {
+      "id": "asha_authorizes_expedition",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "not": { "hasFlag": "expedition_authorized" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "expedition_authorized" }
+      ],
+      "once": true
+    },
+    {
+      "id": "asha_tablet_delivery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "thorne_command_tablet" },
+        { "not": { "hasFlag": "thorne_tablet_delivered" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "thorne_command_tablet" },
+        { "type": "setFlag", "flag": "thorne_tablet_delivered" },
+        { "type": "setFlag", "flag": "compact_crimes_exposed" },
+        { "type": "grantXp", "amount": 75 }
+      ],
+      "once": true
+    },
+    {
       "id": "act3_asha_alliance_trigger",
       "event": "npc_interacted",
       "filter": { "npcType": "councillor_asha" },
@@ -258,6 +334,7 @@
         { "hasFlag": "array_secret_discovered" },
         { "hasFlag": "sable_warned_about_array" },
         { "hasFlag": "confronted_meridian_7" },
+        { "hasFlag": "thorne_tablet_delivered" },
         { "not": { "hasFlag": "act3_asha_alliance_activated" } }
       ],
       "actions": [
@@ -397,6 +474,86 @@
       "once": true
     },
     {
+      "id": "asha_sees_shutdown_intel",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "kappa_network_topology" },
+        { "hasFlag": "found_network_topology" },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "asha_acknowledged_shutdown_intel" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_acknowledged_shutdown_intel" },
+        { "type": "showMessage", "lines": [
+          "Councillor Asha takes the tablet and reads it slowly. She sets it down.",
+          "'Network topology. Every Array installation mapped — power conduits, relay stations, all of it. A blueprint for a clean shutdown.'",
+          "'This is a valid argument. I won't say it isn't. Three hundred years of extraction, and you have the means to end it in a single coordinated operation.' A pause. 'But the infrastructure doesn't disappear when the Array does. Someone has to manage what's left. I keep thinking about who that someone will be. If you want to pursue this path, Sable is who you're looking for.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "asha_sees_control_intel",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "kappa_command_protocols" },
+        { "hasFlag": "found_command_protocols" },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "asha_acknowledged_control_intel" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_acknowledged_control_intel" },
+        { "type": "showMessage", "lines": [
+          "Councillor Asha studies the override protocols in your hands. Her expression is unreadable.",
+          "'Central Node Override Protocols. Authentication codes that would let a human operator command the entire Array network. Human oversight instead of machine optimization.'",
+          "'I understand the appeal. But I keep asking myself: is authority that answers to human bias actually better than authority that answers to algorithms? Both require someone to trust the person at the top. What I'm trying to build doesn't require that faith. If you want to pursue that path, MERIDIAN-7 is who you need.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "greenway_corridor_sign",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "arrived_meridian" },
+        { "not": { "hasFlag": "greenway_sign_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "greenway_sign_seen" },
+        { "type": "showMessage", "lines": [
+          "A new sign has been posted near the southeast corridor: 'GREENWAY AGRICULTURAL DISTRICT — COMPACT AUTHORIZATION REQUIRED.'",
+          "Soldiers in grey uniforms patrol nearby. Whatever is happening in the Greenway, the Compact has locked it down."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "hollis_greenway_pass",
+      "event": "npc_interacted",
+      "filter": { "npcType": "registrar_hollis" },
+      "conditions": [
+        { "hasFlag": "arrived_meridian" },
+        { "not": { "hasFlag": "greenway_pass_obtained" } }
+      ],
+      "actions": [
+        { "type": "giveItem", "itemType": "greenway_pass" },
+        { "type": "setFlag", "flag": "greenway_pass_obtained" },
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "lines": [
+          "Hollis glances around before sliding a transit pass across the counter.",
+          "'The Greenway checkpoint requires Compact authorization for civilian access. This pass is... technically valid. Don't ask me how.'",
+          "'The people out there need help. The Compact's requisition program is bleeding them dry. Talk to Councillor Asha Denn — she's been trying to organize something.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "hollis_endgame_reaction",
       "event": "npc_interacted",
       "filter": { "npcType": "registrar_hollis" },
@@ -408,6 +565,137 @@
         { "type": "setFlag", "flag": "hollis_endgame_acknowledged" },
         { "type": "grantXp", "amount": 25 },
         { "type": "showMessage", "text": "Hollis glances up from the ledgers. For a moment, something flickers behind the bureaucrat's mask — recognition, maybe respect. 'You. You're the one who made the call.' A pause. 'Well. My desk has never been busier. I suppose that's your doing too.'" }
+      ],
+      "once": true
+    },
+
+    {
+      "id": "bulwark_authority_civic",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "bulwark_authority_civic_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "bulwark_authority_civic_seen" },
+        { "type": "showMessage", "lines": [
+          "A Bulwark checkpoint officer has set up a portable desk at the southeast corridor — the passage toward the Greenway. There is a queue of three people in front of it, none of them looking happy.",
+          "The officer is methodical: checking transit documents, logging names in a thick ledger, turning people away who lack Compact countersignatures on their authorizations.",
+          "A hand-lettered placard on the desk reads: 'GREENWAY CORRIDOR — COMPACT AUTHORIZATION REQUIRED. COUNCIL DOCUMENTS NOT ACCEPTED AT THIS CHECKPOINT.'",
+          "Councillor Asha's door is closed. Muffled voices behind it — more than two, all speaking quickly."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "bulwark_spawn_civic",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" }
+      ],
+      "actions": [
+        { "type": "spawnNpc", "npcType": "bulwark_checkpoint_civic", "x": 21, "y": 11 }
+      ]
+    },
+
+    {
+      "id": "post_vigil_civic",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "civic_post_vigil_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "civic_post_vigil_entered" },
+        { "type": "showMessage", "lines": [
+          "The Civic Center is operating, but the usual municipal efficiency has a frayed edge. Two clerks talk in lowered voices near the north corridor.",
+          "The notice board by the entrance has a new posting: 'FRONTIER ADVISORY — Elevated activity reported near historical Spire sites. Travelers advised to exercise caution in the eastern perimeter.'",
+          "Councillor Asha's door is ajar. She is inside, speaking to someone."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "compact_rep_post_vigil",
+      "event": "npc_interacted",
+      "filter": { "npcType": "council_compact" },
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "compact_questioned_vigil" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "compact_questioned_vigil" },
+        { "type": "showMessage", "lines": [
+          "The Compact representative straightens. There is something defensive in the posture.",
+          "'The situation at the Spire of Vigil is being assessed. The Compact's position is that Dural Voss and his forces were responsible for the activation event — we are awaiting a full intelligence report.'",
+          "A pause. Long enough to notice.",
+          "'Whatever happened out there, the Compact's mandate is unchanged: protect Ring citizens, maintain border security, preserve the Greenway passage. We are doing our jobs.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "post_winds_civic",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "civic_post_winds_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "civic_post_winds_entered" },
+        { "type": "showMessage", "lines": [
+          "The Civic Center is in a state you haven't seen before. Two Council staff argue openly in the north corridor — not whispering, arguing.",
+          "Councillor Asha's door is closed and there is a small queue outside it: three people waiting, each with the look of someone who has been waiting a while.",
+          "The MERIDIAN-7 access terminal on the east wall — normally cycling Array advisory notices — displays a holding screen: 'MERIDIAN-7 — SERVICE TEMPORARILY REDUCED. DEEP ARRAY INTERFERENCE DETECTED. TRADE AND ADVISORY FUNCTIONS MAY BE IMPAIRED.'",
+          "The Compact representative's desk is empty."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "compact_rep_post_winds",
+      "event": "npc_interacted",
+      "filter": { "npcType": "council_compact" },
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "compact_confronted_winds" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "compact_confronted_winds" },
+        { "type": "showMessage", "lines": [
+          "The Compact representative looks at you for a long moment before speaking.",
+          "'The Spire of Winds was under Compact protection. The Council is conducting a review of what that protection did or did not include.'",
+          "'I will not claim we understood what we were guarding. The Spire was designated a historical monument by Compact survey teams decades ago. The restricted access was standard archaeological protocol — or so I was told.'",
+          "'Someone in the Compact's historical division knew more than they were supposed to. I am trying to find out who.'",
+          "'The Compact's political standing with the Council is complicated right now. Councillor Denn is asking questions that don't have clean answers. And MERIDIAN-7 going intermittent reads like culpability, even if it is just interference.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "asha_post_winds_response",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "asha_winds_spoken" } },
+        { "not": { "hasFlag": "array_secret_discovered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_winds_spoken" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "lines": [
+          "Councillor Denn looks up from a stack of transit authorization requests she clearly hasn't been reading.",
+          "'You've been out there. Near the Spire.' Not a question.",
+          "'The Compact has been managing the public narrative about the Spires for decades. Cultural monuments, restricted for preservation. It's a clean story.'",
+          "'The problem is clean stories fall apart when the monuments start activating. And now MERIDIAN-7 is intermittent — which is either the Array covering its involvement, or the Array genuinely surprised. I'm not sure which is more disturbing.'",
+          "'The Council needs real information before this becomes a legitimacy crisis. The Compact's mandate comes from Council authority — if the Compact was concealing what the Spires were, that mandate is in question.'",
+          "'What I actually need is someone who's been inside the Spires. Someone who can tell me what's in there — not a Compact summary, not an Array briefing. A direct account. Can you give me that?'"
+        ]}
       ],
       "once": true
     }

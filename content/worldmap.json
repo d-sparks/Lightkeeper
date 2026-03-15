@@ -44,7 +44,7 @@
       "y": 0.60,
       "icon": "outpost",
       "description": "A covert Array facility beneath the solar fields. Extraction operations and cross-system research.",
-      "rooms": ["array_extraction_outpost"]
+      "rooms": ["array_extraction_outpost", "array_synthesis_lab", "array_deep_processing", "array_control_center", "array_command_throne"]
     },
     {
       "id": "meridian_city",
@@ -104,7 +104,7 @@
       "y": 0.40,
       "icon": "lighthouse",
       "description": "The nearest fallen Lighthouse. First expedition into the true Nightside.",
-      "rooms": ["relay_station"]
+      "rooms": ["relay_station", "lighthouse_mara_caverns", "lighthouse_mara_core"]
     },
     {
       "id": "old_watchtower",

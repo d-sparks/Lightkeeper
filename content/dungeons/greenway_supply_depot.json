@@ -1,0 +1,154 @@
+{
+  "id": "greenway_supply_depot",
+  "name": "Greenway Supply Depot",
+  "depth": 2,
+  "tileset": "greenway",
+  "theme": "greenway_corridor",
+  "tileSize": 32,
+  "width": 25,
+  "height": 18,
+  "data": [
+    16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,
+    16, 1, 1, 1, 1, 1, 1,16,16, 1, 1, 1, 1, 1, 1, 1, 1,16, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1,10, 1, 1,16,16, 1,24,24, 1,24,24, 1, 1,16, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1,16,16, 1, 1, 1, 1, 1, 1, 1, 1,16, 1,12,12, 1,23,23,16,
+    16, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1,16,16, 1, 1, 1, 1, 1, 1, 1, 1,16, 1,12,12, 1,23,23,16,
+    16, 1, 1, 1,10, 1, 1,16,16, 1,24,24, 1,24,24, 1, 1,16, 1, 1, 1, 1, 1, 1,16,
+     8, 1, 1, 1, 1, 1, 1,16,16, 1, 1, 1, 1, 1, 1, 1, 1,16, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1,16,16,16,16,16, 4,16,16,16,16,16,16,16, 4,16,16,16,16,
+    16,16,16,16, 4,16,16,16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16,16,16,16, 4,16,16,16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1,16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,
+    16, 1, 1, 1,10, 1, 1,16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    16,16,16,16,16,16,16,16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  ],
+  "spawns": [
+    { "x": 1, "y": 7, "type": "player_start" },
+    { "x": 2, "y": 7, "type": "player_start" },
+    { "x": 1, "y": 8, "type": "player_start" },
+    { "x": 2, "y": 8, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "bulwark_conscript", "x": 12, "y": 4, "count": 2, "patrol": "wander" },
+    { "type": "bulwark_engineer", "x": 21, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_sergeant", "x": 14, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_conscript", "x": 18, "y": 10, "count": 2, "patrol": "patrol", "patrolPath": [{ "x": 12, "y": 10 }, { "x": 22, "y": 10 }] },
+    { "type": "bulwark_rifleman", "x": 10, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_shieldwall", "x": 4, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_patrol_drone", "x": 15, "y": 9, "count": 1, "patrol": "patrol", "patrolPath": [{ "x": 9, "y": 9 }, { "x": 22, "y": 9 }] }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "depot_access_key", "x": 5, "y": 14 },
+    { "type": "compact_orders", "x": 4, "y": 2 },
+    { "type": "bulwark_requisition_key", "x": 22, "y": 3 }
+  ],
+  "exits": [
+    { "x": 0, "y": 7, "leadsTo": "greenway_farmstead", "type": "stairs_up", "spawnX": 28, "spawnY": 7 },
+    { "x": 22, "y": 11, "leadsTo": "spire_winds_approach", "type": "stairs_down", "spawnX": 1, "spawnY": 1, "conditions": { "hasFlag": "supply_sabotage_complete" }, "failMessage": "The route to the Spire of Winds is too dangerous. You should finish what you came here to do first." }
+  ],
+  "triggers": [
+    {
+      "id": "arrive_depot",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "visited_supply_depot" } },
+        { "noHostilesInRoom": true }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The old grain exchange has been converted into a military supply depot. Hay bales and crates fill the main hall, stamped with Compact requisition marks.",
+          "Bulwark soldiers move between storage rooms, cataloging confiscated goods. The air smells of grain and machine oil.",
+          "This is where the Greenway's food supply ends up. If you can get the confiscated crates back to the settlement, it would make a real difference."
+        ]},
+        { "type": "setFlag", "flag": "visited_supply_depot" }
+      ],
+      "once": true
+    },
+    {
+      "id": "arrive_depot_cleared",
+      "event": "room_cleared",
+      "conditions": [{ "not": { "hasFlag": "visited_supply_depot" } }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The old grain exchange has been converted into a military supply depot. Hay bales and crates fill the main hall, stamped with Compact requisition marks.",
+          "Bulwark soldiers move between storage rooms, cataloging confiscated goods. The air smells of grain and machine oil.",
+          "This is where the Greenway's food supply ends up. If you can get the confiscated crates back to the settlement, it would make a real difference."
+        ]},
+        { "type": "setFlag", "flag": "visited_supply_depot" }
+      ],
+      "once": true
+    },
+    {
+      "id": "confiscated_supplies_pickup",
+      "event": "door_interacted",
+      "filter": { "tileX": 19, "tileY": 3 },
+      "conditions": [{ "hasFlag": "supply_sabotage_started" }],
+      "actions": [
+        { "type": "giveItem", "itemType": "confiscated_supplies" },
+        { "type": "showMessage", "lines": [
+          "You pry open the confiscated crate. Inside: preserved food, medicine, seed stock \u2014 everything the settlement needs to survive the winter.",
+          "OBJECTIVE UPDATED: Return the confiscated supplies to Councillor Asha Denn at the Greenway Settlement."
+        ]},
+        { "type": "grantXp", "amount": 25 }
+      ],
+      "once": true
+    },
+    {
+      "id": "confiscated_supplies_2",
+      "event": "door_interacted",
+      "filter": { "tileX": 19, "tileY": 5 },
+      "conditions": [{ "hasFlag": "supply_sabotage_started" }],
+      "actions": [
+        { "type": "spawnItem", "itemType": "bio_graft", "x": 20, "y": 5 },
+        { "type": "showMessage", "text": "This crate contains Greenway bio-tech components. The soldiers clearly didn't know what they had." }
+      ],
+      "once": true
+    },
+    {
+      "id": "orders_found",
+      "event": "door_interacted",
+      "filter": { "tileX": 4, "tileY": 2 },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The supply crate contains a packet of sealed orders alongside standard rations.",
+          "The orders detail troop deployments around the Monument of Winds. The scale is far beyond what a food requisition operation would need. General Thorne is preparing for something much larger."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "depot_key_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "depot_access_key" },
+      "actions": [
+        { "type": "showMessage", "text": "A depot access key, exactly where Lissa said it would be. The engineer's toolbox, south fence, every shift." }
+      ],
+      "once": true
+    },
+    {
+      "id": "requisition_key_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "bulwark_requisition_key" },
+      "actions": [
+        { "type": "showMessage", "text": "A Bulwark requisition key. This should open the locked military supply crates." }
+      ],
+      "once": true
+    },
+    {
+      "id": "storage_crate_south",
+      "event": "door_interacted",
+      "filter": { "tileX": 4, "tileY": 16 },
+      "actions": [
+        { "type": "spawnItem", "itemType": "bio_leech_node_chip", "x": 3, "y": 16 },
+        { "type": "showMessage", "text": "Hidden among standard military supplies: a Greenway bio-tech component. Someone was keeping this off the books." }
+      ],
+      "once": true
+    }
+  ]
+}

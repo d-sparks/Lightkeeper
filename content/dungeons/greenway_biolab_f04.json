@@ -1,0 +1,118 @@
+{
+  "id": "greenway_biolab_f04",
+  "name": "Bio-Lab: Core Laboratory",
+  "depth": 4,
+  "tileset": "biolab",
+  "theme": "biolab",
+  "tileSize": 32,
+  "width": 22,
+  "height": 18,
+  "ambientLight": 0.25,
+  "data": [
+    16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3,16,
+    16, 1, 1, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 2,12,12,12,12,12,12, 2, 1, 1, 1, 1, 1, 1,16,
+    16,10,10, 1, 1, 1, 2,12,12, 7,12,12, 7,12,12, 2, 1, 1, 1,10,10,16,
+    16,10,10, 1, 1, 1, 2,12,12,12,12,12,12,12,12, 2, 1, 1, 1,10,10,16,
+    16, 1, 1, 1, 1, 1, 1, 2,12,12,12,12,12,12, 2, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 1, 1, 1,16,
+    16, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1,11, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,11, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16
+  ],
+  "spawns": [
+    { "x": 10, "y": 2, "type": "player_start" },
+    { "x": 11, "y": 2, "type": "player_start" },
+    { "x": 10, "y": 3, "type": "player_start" },
+    { "x": 11, "y": 3, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "biolab_guardian", "x": 3, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "biolab_guardian", "x": 18, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "biolab_construct", "x": 5, "y": 9, "count": 1, "patrol": "wander" },
+    { "type": "biolab_construct", "x": 16, "y": 9, "count": 1, "patrol": "wander" },
+    { "type": "biolab_spitter", "x": 3, "y": 15, "count": 1, "patrol": "guard" },
+    { "type": "biolab_spitter", "x": 18, "y": 15, "count": 1, "patrol": "guard" },
+    { "type": "biolab_alpha", "x": 10, "y": 9, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "bio_graft", "x": 3, "y": 1 },
+    { "type": "bio_graft", "x": 18, "y": 1 }
+  ],
+  "exits": [
+    { "x": 10, "y": 2, "leadsTo": "greenway_biolab_f03", "type": "stairs_up", "spawnX": 10, "spawnY": 12 }
+  ],
+  "triggers": [
+    {
+      "id": "core_lab_enter",
+      "event": "room_entered",
+      "conditions": [{ "not": { "hasFlag": "visited_biolab_f04" } }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The core laboratory is barely recognizable as a man-made space. The walls are alive — root networks thick as cables form a lattice over every surface, pulsing with green bioluminescence. The air is heavy with warmth rising from geothermal vents below.",
+          "At the center of the chamber, a massive growth pod dominates the room. It towers over the surrounding equipment, its trunk a fusion of engineered plant tissue and consumed lab machinery. Sol-reactive veins glow along its surface.",
+          "This is the Apex specimen — Batch 7's alpha organism. Everything else in the bio-labs grew from this. It senses your approach, and the roots along the floor begin to shift."
+        ]},
+        { "type": "setFlag", "flag": "visited_biolab_f04" }
+      ],
+      "once": true
+    },
+    {
+      "id": "apex_defeated",
+      "event": "monster_killed",
+      "filter": { "monsterType": "biolab_alpha" },
+      "actions": [
+        { "type": "setFlag", "flag": "biolab_alpha_defeated" },
+        { "type": "showMessage", "lines": [
+          "The Apex Overgrowth shudders and collapses inward, its massive trunk splitting open. Instead of sap, light pours from the wound — concentrated sol energy stored in the organism's vascular system.",
+          "Throughout the lab, you can feel the secondary growth systems faltering. Without the alpha's root network sustaining them, the rogue specimens will wither within weeks.",
+          "Among the remains, intact tissue samples glow with stable bio-circuitry — the technology Project Verdant was meant to create, perfected by years of autonomous evolution."
+        ]},
+        { "type": "spawnItem", "itemType": "adaptive_tissue_chip", "x": 10, "y": 9 },
+        { "type": "grantXp", "amount": 75 }
+      ],
+      "once": true
+    },
+    {
+      "id": "terminal_left_f04",
+      "event": "door_interacted",
+      "filter": { "tileX": 3, "tileY": 15 },
+      "conditions": [{ "not": { "hasFlag": "biolab_terminal_5_read" } }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "GREENWAY AGRICULTURAL SCIENCES — DR. TOVA AREN, PERSONAL LOG",
+          "'I came back. The Council doesn't know. The growth hasn't stopped — it's accelerated. The alpha specimen has consumed the entire core lab infrastructure.'",
+          "'But the tissue samples... they're perfect. Stable bio-circuitry grown from living plant matter. Sol components that breathe, that heal, that grow stronger over time.'",
+          "'This is what the Greenway was supposed to give the Ring. Not just food. Living technology. I just need more time to understand it.'"
+        ]},
+        { "type": "setFlag", "flag": "biolab_terminal_5_read" }
+      ],
+      "once": true
+    },
+    {
+      "id": "terminal_right_f04",
+      "event": "door_interacted",
+      "filter": { "tileX": 18, "tileY": 15 },
+      "conditions": [{ "not": { "hasFlag": "biolab_terminal_6_read" } }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "GREENWAY AGRICULTURAL SCIENCES — AUTOMATED GROWTH LOG",
+          "'Year 1: Root network extends through 60% of facility. Growth rate: 2.3 cm/day.'",
+          "'Year 2: Root network reaches geothermal tap. Growth rate increases to 8.7 cm/day. Alpha specimen mass: 400 kg. New specimens budding from secondary root nodes.'",
+          "'Year 3: Facility saturation at 94%. Alpha specimen mass: estimated 2,200 kg. Automated systems failing as root infiltration shorts power conduits. This will be the final automated entry.'"
+        ]},
+        { "type": "setFlag", "flag": "biolab_terminal_6_read" }
+      ],
+      "once": true
+    }
+  ]
+}

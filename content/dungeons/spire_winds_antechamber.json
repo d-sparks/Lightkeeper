@@ -1,0 +1,252 @@
+{
+  "id": "spire_winds_antechamber",
+  "name": "Spire of Winds — Wind Antechamber",
+  "depth": 11,
+  "tileset": "spire_winds",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.05,
+  "width": 18,
+  "height": 18,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,
+    13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
+    13,12,12,26,12,12, 7, 7, 7, 7, 7, 7,12,12,26,12,12,13,
+    13,12,12,12,12,18, 7, 7, 7, 7, 7, 7,18,12,12,12,12,13,
+    13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
+    13,12, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12, 7, 7, 7, 7, 7,12,12, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12, 7, 7, 7, 7, 7,12,12, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12, 7, 7, 7, 7, 7,12,12, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12, 7, 7, 7, 7, 7,12,12, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
+    13,12,12,12,12,18, 7, 7, 7, 7, 7, 7,18,12,12,12,12,13,
+    13,12,12,26,12,12, 7, 7, 7, 7, 7, 7,12,12,26,12,12,13,
+    13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
+    13,12,12,12,12,12,12, 6,12,12,12,12,12,12,12,12,12,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_sentinel", "x": 14, "y": 1, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_warden", "x": 3, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 14, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 3, "y": 12, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 14, "y": 12, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "bandage", "x": 8, "y": 1 },
+    { "type": "bandage", "x": 14, "y": 1 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_underlumen", "type": "stairs_up", "spawnX": 20, "spawnY": 20 },
+    { "x": 7, "y": 16, "leadsTo": "spire_winds_core", "type": "stairs_down", "spawnX": 6, "spawnY": 1 }
+  ],
+  "triggers": [
+      {
+        "id": "antechamber_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "A vast circular chamber opens before you, dominated by a central platform suspended over a swirling void. Wind currents spiral upward in visible patterns, carrying motes of luminescent dust.",
+              "Four resonance pedestals are set into the chamber at cardinal positions, each carved with wind-current glyphs. The pedestals must be attuned in the order the wind remembers \u2014 or the currents will scatter your progress.",
+              "An inscription on the floor reads: 'Born where light first touches stone, spiraling through the high places, descending through shadow, coming to rest in the deep below.'"
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "antechamber_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "A vast circular chamber opens before you, dominated by a central platform suspended over a swirling void. Wind currents spiral upward in visible patterns, carrying motes of luminescent dust.",
+              "Four resonance pedestals are set into the chamber at cardinal positions, each carved with wind-current glyphs. The pedestals must be attuned in the order the wind remembers \u2014 or the currents will scatter your progress.",
+              "An inscription on the floor reads: 'Born where light first touches stone, spiraling through the high places, descending through shadow, coming to rest in the deep below.'"
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "attune_east_correct",
+        "event": "door_interacted",
+        "filter": { "tileX": 14, "tileY": 3 },
+        "conditions": [
+          { "not": { "hasFlag": "wind_attune_1" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "wind_attune_1" },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The eastern pedestal responds to your touch. Wind currents swirl around it, rising in a gentle spiral. The glyph of dawn glows steadily \u2014 where light first touches stone.",
+              "The wind whispers upward, toward the high places. Three pedestals remain."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "attune_north_correct",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 3 },
+        "conditions": [
+          { "hasFlag": "wind_attune_1" },
+          { "not": { "hasFlag": "wind_attune_2" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "wind_attune_2" },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The northern pedestal ignites. Wind rushes upward through carved channels, carrying motes of light to the ceiling. The glyph of ascent blazes \u2014 spiraling through the high places.",
+              "The currents shift westward, descending through shadow. Two pedestals remain."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "attune_north_wrong",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 3 },
+        "conditions": [
+          { "not": { "hasFlag": "wind_attune_1" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          { "type": "removeFlag", "flag": "wind_attune_1" },
+          { "type": "removeFlag", "flag": "wind_attune_2" },
+          { "type": "removeFlag", "flag": "wind_attune_3" },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The pedestal rejects your touch. A violent gust erupts from the void below, scattering the resonance you've built. The wind currents reset to their chaotic spiral.",
+              "The sequence is wrong. The wind remembers its path \u2014 you must follow it from the beginning."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "attune_west_correct",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 14 },
+        "conditions": [
+          { "hasFlag": "wind_attune_2" },
+          { "not": { "hasFlag": "wind_attune_3" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "wind_attune_3" },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The western pedestal awakens. Wind descends through the chamber in cooling waves, carrying the scent of deep stone. The glyph of twilight pulses \u2014 descending through shadow.",
+              "The currents pull downward now, toward the final pedestal. One remains."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "attune_west_wrong",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 14 },
+        "conditions": [
+          { "not": { "hasFlag": "wind_attune_2" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          { "type": "removeFlag", "flag": "wind_attune_1" },
+          { "type": "removeFlag", "flag": "wind_attune_2" },
+          { "type": "removeFlag", "flag": "wind_attune_3" },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The pedestal rejects your touch. A violent gust erupts from the void below, scattering the resonance you've built. The wind currents reset to their chaotic spiral.",
+              "The sequence is wrong. The wind remembers its path \u2014 you must follow it from the beginning."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "attune_south_correct",
+        "event": "door_interacted",
+        "filter": { "tileX": 14, "tileY": 14 },
+        "conditions": [
+          { "hasFlag": "wind_attune_3" },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "antechamber_puzzle_complete" },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The southern pedestal blazes with light. All four glyphs ignite in sequence \u2014 dawn, ascent, twilight, deep \u2014 and the wind barrier dissolves in a cascading wave of released energy.",
+              "The chamber transforms. The swirling void below the central platform calms to a gentle updraft. The passage to the resonance core opens with a deep, resonant tone that echoes through the entire Monument.",
+              "The Spire of Winds recognizes the ancient pattern. The way to the core is open."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 50
+          }
+        ]
+      },
+      {
+        "id": "attune_south_wrong",
+        "event": "door_interacted",
+        "filter": { "tileX": 14, "tileY": 14 },
+        "conditions": [
+          { "not": { "hasFlag": "wind_attune_3" } },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          { "type": "removeFlag", "flag": "wind_attune_1" },
+          { "type": "removeFlag", "flag": "wind_attune_2" },
+          { "type": "removeFlag", "flag": "wind_attune_3" },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The pedestal rejects your touch. A violent gust erupts from the void below, scattering the resonance you've built. The wind currents reset to their chaotic spiral.",
+              "The sequence is wrong. The wind remembers its path \u2014 you must follow it from the beginning."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "attune_east_already",
+        "event": "door_interacted",
+        "filter": { "tileX": 14, "tileY": 3 },
+        "conditions": [
+          { "hasFlag": "wind_attune_1" },
+          { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The eastern pedestal hums steadily. Its glyph of dawn already glows \u2014 this node is attuned. The wind guides you onward."
+          }
+        ]
+      }
+    ]
+}

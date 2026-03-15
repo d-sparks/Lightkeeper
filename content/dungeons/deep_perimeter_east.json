@@ -81,7 +81,9 @@
       {"x": 18, "y": 15}, {"x": 25, "y": 15}, {"x": 25, "y": 18}, {"x": 18, "y": 18}
     ] }
   ],
-  "npcSpawns": [],
+  "npcSpawns": [
+    { "type": "perimeter_lookout", "x": 3, "y": 17 }
+  ],
   "itemSpawns": [
     { "type": "umbracite", "x": 10, "y": 10 },
     { "type": "umbracite", "x": 16, "y": 10 },
@@ -119,7 +121,8 @@
         { "type": "setFlag", "flag": "found_deep_umbracite" },
         { "type": "showMessage", "lines": [
           "Umbracite deposits — clusters of dark crystal embedded in the rock, larger and more pure than anything near the outpost.",
-          "This is the primary source. The Array wants this material desperately. You're starting to understand why."
+          "This is the primary source. The Array wants this material desperately. You're starting to understand why.",
+          "MERIDIAN-7 at the Array Hub in Meridian City trades for umbracite. Councillor Asha Denn would also want to know about these deposits."
         ]}
       ],
       "once": true
@@ -150,6 +153,49 @@
       ],
       "actions": [
         { "type": "showMessage", "text": "According to Fen's description, the squad's supply cache should be through a collapsed passage to the northeast." }
+      ],
+      "once": true
+    },
+    {
+      "id": "nightside_entrance_waypoint",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "visited_nightside_caverns" } }
+      ],
+      "actions": [
+        {
+          "type": "setQuestObjective",
+          "label": "Nightside Caverns Entrance",
+          "roomId": "deep_perimeter_east",
+          "tileX": 3,
+          "tileY": 19
+        }
+      ]
+    },
+    {
+      "id": "nightside_cold_air_hint",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "visited_nightside_caverns" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "A current of freezing air rises from the southern end of the perimeter. Something below the surface is much colder than this region has any right to be." }
+      ],
+      "once": true
+    },
+    {
+      "id": "outer_expanse_breadcrumb",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "outer_expanse_breadcrumb_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "outer_expanse_breadcrumb_seen" },
+        { "type": "showMessage", "lines": [
+          "To the east, the perimeter boundary falls away entirely. No markers, no wire, no infrastructure — just open terrain stretching to the horizon.",
+          "Pre-Collapse survey data marks this zone as 'uninhabited.' Whatever was here before has been gone for a long time.",
+          "There may be ruins worth investigating — if you can survive the cold."
+        ]}
       ],
       "once": true
     }

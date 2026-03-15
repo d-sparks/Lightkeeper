@@ -682,6 +682,11 @@
       "type": "sol_engineer_1",
       "x": 23,
       "y": 7
+    },
+    {
+      "type": "workshop_medic_renna",
+      "x": 21,
+      "y": 7
     }
   ],
   "itemSpawns": [
@@ -960,6 +965,18 @@
           "type": "toggleTile",
           "x": 10,
           "y": 9
+        }
+      ]
+    },
+    {
+      "id": "medic_renna_heal",
+      "event": "npc_interacted",
+      "filter": {
+        "npcType": "workshop_medic_renna"
+      },
+      "actions": [
+        {
+          "type": "healPlayer"
         }
       ]
     },

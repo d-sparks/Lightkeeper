@@ -1,0 +1,214 @@
+{
+  "id": "spire_winds_fortress",
+  "name": "Monument of Winds — Bulwark Command",
+  "depth": 4,
+  "tileset": "spire_winds",
+  "theme": "greenway_corridor",
+  "tileSize": 32,
+  "width": 26,
+  "height": 20,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,8,1,1,1,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,3,
+    3,1,1,1,1,16,1,1,1,1,16,1,1,1,1,1,16,1,1,1,1,1,1,1,16,3,
+    3,1,1,2,1,4,1,1,27,1,16,1,1,2,1,1,16,1,1,27,1,1,1,1,16,3,
+    3,1,1,1,1,16,1,1,1,1,4,1,1,1,1,1,4,1,1,1,1,1,1,1,16,3,
+    3,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,4,16,16,16,16,16,3,
+    3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,1,1,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,1,1,2,1,1,3,3,3,1,1,3,3,3,3,3,
+    3,16,16,16,16,16,16,16,16,16,16,1,1,1,1,1,16,16,16,1,1,16,16,16,16,3,
+    3,16,1,1,1,1,1,1,1,1,16,1,1,1,1,1,16,1,1,1,1,1,1,1,16,3,
+    3,16,1,1,1,1,1,1,1,1,4,1,1,1,1,1,4,1,1,1,1,1,2,1,16,3,
+    3,16,1,1,17,1,1,2,1,1,16,1,1,2,1,1,16,1,1,1,1,1,1,1,16,3,
+    3,16,1,1,1,1,1,1,1,1,16,1,1,1,1,1,16,1,1,1,10,1,1,1,16,3,
+    3,16,16,16,9,16,16,16,16,16,16,16,4,16,16,16,16,16,16,16,16,16,16,16,16,3,
+    3,3,3,3,1,1,3,3,3,3,3,3,1,1,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,1,1,3,3,3,3,3,3,1,1,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,16,16,16,1,1,16,16,16,16,16,16,1,1,16,16,16,16,16,16,16,16,16,16,16,3,
+    3,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,16,3,
+    3,16,1,1,1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,1,30,1,6,16,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "bulwark_rifleman", "x": 7, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_conscript", "x": 13, "y": 3, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 11, "y": 2}, {"x": 15, "y": 2}, {"x": 15, "y": 4}, {"x": 11, "y": 4}] },
+    { "type": "bulwark_engineer", "x": 20, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_shieldwall", "x": 13, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_rifleman", "x": 20, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_sergeant", "x": 4, "y": 10, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 2, "y": 9}, {"x": 9, "y": 9}, {"x": 9, "y": 12}, {"x": 2, "y": 12}] },
+    { "type": "bulwark_patrol_drone", "x": 14, "y": 10, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 11, "y": 9}, {"x": 15, "y": 9}, {"x": 15, "y": 12}, {"x": 11, "y": 12}] },
+    { "type": "bulwark_shieldwall", "x": 21, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_captain", "x": 20, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_general_thorne", "x": 9, "y": 18, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_rifleman", "x": 6, "y": 17, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_shieldwall", "x": 14, "y": 17, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "medical_supplies", "x": 7, "y": 11 },
+    { "type": "bandage", "x": 13, "y": 7 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_laboratory", "type": "stairs_up", "spawnX": 13, "spawnY": 16 },
+    {
+      "x": 23, "y": 18,
+      "leadsTo": "spire_winds_excavation",
+      "type": "stairs_down",
+      "spawnX": 1, "spawnY": 1,
+      "conditions": [
+        {
+          "or": [
+            { "hasItem": "array_door_override" },
+            { "hasFlag": "general_thorne_defeated" }
+          ]
+        }
+      ],
+      "failMessage": "Reinforced blast doors, sealed by General Thorne's command. The lock panel reads: ARRAY SECURITY PROTOCOL — COMMAND AUTHORIZATION REQUIRED. Defeat Thorne to unlock this, or use a device that bypasses Array relay locks."
+    }
+  ],
+  "triggers": [
+      {
+        "id": "fortress_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Inside the Monument's outer shell, the Bulwark has built a full military installation. Prefab walls divide the ancient stone corridors into barracks, armories, and command posts.",
+              "The architecture fights itself \u2014 ancient curves forced into military right angles. Cables snake over carved geometric patterns older than human civilization.",
+              "Somewhere in this fortress, the Bulwark commander has established a command post. Beyond that \u2014 the way down into the Monument's true structure."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "fortress_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Inside the Monument's outer shell, the Bulwark has built a full military installation. Prefab walls divide the ancient stone corridors into barracks, armories, and command posts.",
+              "The architecture fights itself \u2014 ancient curves forced into military right angles. Cables snake over carved geometric patterns older than human civilization.",
+              "Somewhere in this fortress, the Bulwark commander has established a command post. Beyond that \u2014 the way down into the Monument's true structure."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "thorne_defeated",
+        "event": "monster_killed",
+        "filter": {
+          "monsterType": "bulwark_general_thorne"
+        },
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "general_thorne_defeated"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "General Thorne falls. His final words are not a curse but a warning: 'You don't understand what's down there. We were trying to contain it \u2014 not control it.'",
+              "His command tablet clatters to the floor. The blast doors deeper in the fortress lose their security lock.",
+              "Whatever the Bulwark found beneath the Monument, it frightened even a Compact general."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 100
+          },
+          {
+            "type": "giveItem",
+            "itemType": "thorne_command_tablet"
+          },
+          {
+            "type": "setQuestObjective",
+            "text": "Descend into the Spire's ancient structure"
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "command_panel",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "control_panel"
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "fortress_intel_gathered"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "fortress_intel_gathered"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Bulwark command terminal is still active. Scrolling through the logs reveals weeks of escalating reports:",
+              "'Excavation Level 3 \u2014 structural anomaly. Vertical shaft, apparently natural. Wind readings inconsistent with surface conditions.'",
+              "'Level 5 \u2014 team reports geometric patterns on walls. Similar to those documented at the Nightside site. Requesting specialist support.'",
+              "'Level 7 \u2014 General Thorne has ordered the shaft sealed. Something is resonating down there. The engineers' equipment keeps recalibrating itself.'"
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 25
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "armory_chest",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "bulwark_common"
+          },
+          {
+            "type": "showMessage",
+            "text": "Bulwark armory equipment. Military-grade supplies."
+          }
+        ]
+      },
+      {
+        "id": "supply_crate_loot",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "supply_crate_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "bulwark_common"
+          },
+          {
+            "type": "showMessage",
+            "text": "Requisitioned supplies. Stamped with Compact military insignia."
+          }
+        ]
+      }
+    ]
+}

@@ -72,9 +72,9 @@
 
   "items": {
     "pool": [
-      { "type": "medical_supplies", "weight": 5, "max": 4 }
+      { "type": "medical_supplies", "weight": 5, "max": 2 }
     ],
-    "countRange": { "min": 1, "max": 4 }
+    "countRange": { "min": 0, "max": 2 }
   },
 
   "triggers": [

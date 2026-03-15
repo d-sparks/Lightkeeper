@@ -1,0 +1,94 @@
+{
+  "id": "greenway_biolab_f02",
+  "name": "Bio-Lab: Growth Chambers",
+  "depth": 2,
+  "tileset": "biolab",
+  "theme": "biolab",
+  "tileSize": 32,
+  "width": 22,
+  "height": 16,
+  "ambientLight": 0.5,
+  "data": [
+    16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,
+    16, 1, 1, 1, 1, 3,12,12,12,12, 3, 3,12,12,12,12, 3, 1, 1, 1, 1,16,
+     8, 1, 1, 1, 1, 3,12, 7,12, 7, 3, 3, 7,12, 7,12, 3, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 4,12,12,12,12, 4, 4,12,12,12,12, 4, 1, 1, 1, 1,16,
+    16, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1,17, 1, 1, 2,12,12,18,12,12, 2, 1, 1,17, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 2,12,18,12,18,12, 2, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1,16,
+    16, 3, 3, 3, 4, 3, 3, 1, 1, 1, 1, 1, 1, 1, 3, 3, 4, 3, 3, 3, 3,16,
+    16, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1,16,16,
+    16, 1, 1, 7, 1, 1, 3, 1, 1,13,13,13, 1, 1, 3, 1, 1, 7, 1, 1,16,16,
+    16, 1, 1, 1, 1, 1, 3, 1,13, 1, 6, 1,13, 1, 3, 1, 1, 1, 1, 1,16,16,
+    16, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1,16,16,
+    16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16
+  ],
+  "spawns": [
+    { "x": 2, "y": 2, "type": "player_start" },
+    { "x": 3, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 3, "type": "player_start" },
+    { "x": 3, "y": 3, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "biolab_tendril", "x": 8, "y": 2, "count": 2, "patrol": "wander" },
+    { "type": "biolab_tendril", "x": 14, "y": 2, "count": 1, "patrol": "wander" },
+    { "type": "biolab_spitter", "x": 10, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "biolab_construct", "x": 18, "y": 6, "count": 1, "patrol": "wander" },
+    { "type": "biolab_tendril", "x": 3, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "biolab_spitter", "x": 18, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "biolab_construct", "x": 10, "y": 13, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "biolab_keycard", "x": 3, "y": 12 },
+    { "type": "growth_serum", "x": 18, "y": 1 },
+    { "type": "biolab_specimen_notes", "x": 7, "y": 2 }
+  ],
+  "exits": [
+    { "x": 0, "y": 2, "leadsTo": "greenway_biolab_f01", "type": "stairs_up", "spawnX": 9, "spawnY": 11 },
+    { "x": 10, "y": 13, "leadsTo": "greenway_biolab_f03", "type": "stairs_down", "spawnX": 2, "spawnY": 2 }
+  ],
+  "triggers": [
+    {
+      "id": "growth_chambers_enter",
+      "event": "room_entered",
+      "conditions": [{ "not": { "hasFlag": "visited_biolab_f02" } }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The growth chambers stretch ahead — rows of cylindrical tanks lining both walls, most shattered or overgrown. Bioluminescent moss coats every surface, pulsing in slow rhythms like breathing.",
+          "Thick root networks snake across the floor, some as wide as your arm. They converge toward the center of the room, where a mass of engineered plant tissue has consumed an entire bank of equipment.",
+          "Something moves in the foliage. The growth here isn't passive."
+        ]},
+        { "type": "setFlag", "flag": "visited_biolab_f02" }
+      ],
+      "once": true
+    },
+    {
+      "id": "keycard_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "biolab_keycard" },
+      "conditions": [{ "not": { "hasFlag": "biolab_found_keycard" } }],
+      "actions": [
+        { "type": "showMessage", "text": "A bio-lab access keycard, half-buried in root matter. The magnetic strip is still intact. This should open the sealed containment doors deeper in the facility." },
+        { "type": "setFlag", "flag": "biolab_found_keycard" }
+      ],
+      "once": true
+    },
+    {
+      "id": "specimen_notes_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "biolab_specimen_notes" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The notes are written in hurried, precise handwriting:",
+          "'Specimen exhibits phototropic response to sol energy. Tissue conductivity 300% above synthetic baselines. If we stabilize the growth cycle, living technology becomes reality.'",
+          "'Margin note: Growth rate accelerating. Batch 7 root system has reached the geothermal junction. This wasn't in the models.'"
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

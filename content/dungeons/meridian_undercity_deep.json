@@ -1,0 +1,255 @@
+{
+  "id": "meridian_undercity_deep",
+  "name": "Deep Warrens",
+  "depth": 1,
+  "tileset": "dark_city",
+  "theme": "undercity",
+  "tileSize": 32,
+  "width": 30,
+  "height": 22,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,2,1,2,1,1,1,1,1,3,
+    3,1,1,1,1,1,3,1,1,2,2,1,1,1,3,1,1,1,1,2,2,2,2,2,2,1,1,1,1,3,
+    3,1,1,1,1,1,3,1,1,2,2,1,1,1,3,1,1,1,1,1,1,2,1,2,1,1,1,1,1,3,
+    3,1,1,1,1,1,4,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,7,7,7,7,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,3,1,1,3,
+    3,7,7,7,7,1,1,1,2,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,3,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,9,3,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,3,
+    3,7,7,7,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,
+    3,7,7,7,7,1,1,1,1,2,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,2,2,1,1,1,2,2,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 13, "y": 20, "type": "player_start" },
+    { "x": 14, "y": 20, "type": "player_start" },
+    { "x": 15, "y": 20, "type": "player_start" },
+    { "x": 14, "y": 19, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "shade_stalker", "x": 22, "y": 2 },
+    { "type": "shade_stalker", "x": 18, "y": 4 },
+    { "type": "gloom_wraith", "x": 22, "y": 13 },
+    { "type": "shadow_ambusher", "x": 5, "y": 8 },
+    { "type": "shadow_ambusher", "x": 8, "y": 11 },
+    { "type": "skeleton", "x": 5, "y": 14 }
+  ],
+  "npcSpawns": [
+    { "type": "pathfinder_ren", "x": 3, "y": 2 }
+  ],
+  "itemSpawns": [
+    { "type": "iron_key", "x": 10, "y": 9 },
+    { "type": "bandage", "x": 3, "y": 13 }
+  ],
+  "exits": [
+    { "x": 14, "y": 21, "leadsTo": "meridian_undercity", "type": "stairs_up", "spawnX": 14, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_deep_warrens",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The stairs descend into older stone — rougher, unfinished. The Deep Warrens. These tunnels predate Meridian itself.",
+          "Water seeps through collapsed walls to the west. The air carries a mineral tang and something else — the faint scent of bioluminescent growth. Nightside organisms, finding cracks in the boundary.",
+          "Somewhere ahead, a faint scratching echoes off the walls. You're not alone down here."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "ren_first_meet",
+      "event": "npc_interacted",
+      "filter": { "npcType": "pathfinder_ren" },
+      "conditions": [{ "not": { "hasFlag": "met_pathfinder_ren" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "met_pathfinder_ren" },
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showChoice", "choiceId": "ren_questions", "prompt": "A figure crouches near a low fire — bioluminescent embers, not flame. Dark-adapted eyes study you without hostility. 'Lightkeeper. Interesting. Sit if you want. Talk if you need.'", "options": [
+          { "label": "Who are you?", "description": "An Unbounded, this far into Ring territory.", "value": "ask_identity" },
+          { "label": "What's down here?", "description": "What lives in these deep tunnels.", "value": "ask_tunnels" },
+          { "label": "The locked room to the east?", "description": "The sealed maintenance depot.", "value": "ask_locked" },
+          { "label": "Nothing. Just passing through.", "description": "Move on.", "value": "nothing" }
+        ]}
+      ]
+    },
+    {
+      "id": "ren_answer_identity",
+      "event": "choice_made",
+      "filter": { "choiceId": "ren_questions", "value": "ask_identity" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "'Ren. Pathfinder for the Underlumen network — the deep routes between Nightside settlements. We use these old maintenance tunnels as way stations.'",
+          "'Before you ask: no, I'm not a raider. The warlords and their Luddite cells have nothing to do with us. We walk the deep routes because we know them — and because the surface paths are watched by people who shoot first.'",
+          "'Your Meridian Council calls everyone beyond the Lighthouses the same thing. They're wrong. But I'm not here to argue politics.'"
+        ]}
+      ]
+    },
+    {
+      "id": "ren_answer_tunnels",
+      "event": "choice_made",
+      "filter": { "choiceId": "ren_questions", "value": "ask_tunnels" },
+      "actions": [
+        { "type": "setFlag", "flag": "ren_warned_creatures" },
+        { "type": "showMessage", "lines": [
+          "'Shade stalkers — Nightside predators. They followed the water seepage through the collapsed sections and established territory in the east corridors. Fast, aggressive, hunt in pairs.'",
+          "'The flooded passages on the west side have shadow ambushers. They sit motionless until you're close, then strike. Watch the water — if the surface ripples when nothing's moving, something's watching you.'",
+          "'And deeper in — I've heard something that fires at range. A wraith, maybe. The Nightside breeds strange things where the dark is absolute.'"
+        ]}
+      ]
+    },
+    {
+      "id": "ren_answer_locked",
+      "event": "choice_made",
+      "filter": { "choiceId": "ren_questions", "value": "ask_locked" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "'Old maintenance depot from when these tunnels were active civil infrastructure. Sealed with a standard iron lock — the key is somewhere in the central corridors, dropped by whoever sealed it last.'",
+          "'I looked through the grating. Medical supplies, some kind of technical component. Ring-manufacture. Worth the trip if you can find the key.'"
+        ]}
+      ]
+    },
+
+    {
+      "id": "ren_return",
+      "event": "npc_interacted",
+      "filter": { "npcType": "pathfinder_ren" },
+      "conditions": [{ "hasFlag": "met_pathfinder_ren" }],
+      "actions": [
+        { "type": "showChoice", "choiceId": "ren_return_chat", "prompt": "Ren glances up from the bioluminescent embers. 'Still here? Must like the dark.'", "options": [
+          { "label": "Tell me about the Unbounded.", "description": "The people beyond the Lighthouses.", "value": "ask_unbounded" },
+          { "label": "Any advice for the east corridors?", "description": "Combat tips for the shade stalkers.", "value": "ask_combat" },
+          { "label": "Nothing right now.", "description": "Move on.", "value": "nothing" }
+        ]}
+      ]
+    },
+    {
+      "id": "ren_return_unbounded",
+      "event": "choice_made",
+      "filter": { "choiceId": "ren_return_chat", "value": "ask_unbounded" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "'We're not one thing. Dozens of settlements scattered across the Nightside — each one adapted differently. Geothermal vents, fungal cultivation, bioluminescent farming.'",
+          "'The raiders the Ring fears are a splinter faction. Desperate people led by warlords who think violence is the only language Meridian understands. They might not be wrong, but it's not the path we chose.'",
+          "'The Underlumen network connects the settlements that chose differently. We trade, we share techniques, we keep the routes open. That's what pathfinders do.'"
+        ]}
+      ]
+    },
+    {
+      "id": "ren_return_combat",
+      "event": "choice_made",
+      "filter": { "choiceId": "ren_return_chat", "value": "ask_combat" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "'Shade stalkers lunge. They close distance fast and hit hard — but after the lunge they're committed. Sidestep and counter.'",
+          "'The ambushers in the flooded corridors are patient. If you see cracked floor tiles disturbed in a pattern, something's been there recently. Approach with your weapon ready.'",
+          "'And keep moving. Nothing down here chases you forever. They're territorial, not vengeful.'"
+        ]}
+      ]
+    },
+
+    {
+      "id": "deep_iron_key_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "iron_key" },
+      "actions": [
+        { "type": "showMessage", "text": "A heavy iron key on a corroded chain. It matches the lock on the maintenance depot to the northeast — the sealed room Ren mentioned." }
+      ],
+      "once": true
+    },
+
+    {
+      "id": "deep_depot_opened",
+      "event": "door_interacted",
+      "filter": { "tileX": 25, "tileY": 8 },
+      "actions": [
+        { "type": "spawnItem", "itemType": "field_medkit", "x": 27, "y": 7 },
+        { "type": "spawnItem", "itemType": "shadow_conduit_chip", "x": 28, "y": 8 },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "setFlag", "flag": "deep_depot_looted" },
+        { "type": "showMessage", "lines": [
+          "The lock grinds open. Inside the maintenance depot: sealed containers still intact after years of neglect.",
+          "A field medkit in working condition, and something unexpected — a shadow conduit chip, dark-tuned for Nightside energy frequencies. Somebody stashed this here deliberately."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "deep_warrens_track_kills",
+      "event": "monster_killed",
+      "conditions": [
+        { "not": { "hasFlag": "deep_warrens_cleared" } }
+      ],
+      "actions": [
+        { "type": "incrementFlag", "flag": "deep_warrens_kills", "scope": "player" }
+      ]
+    },
+    {
+      "id": "deep_warrens_clear_reward",
+      "event": "monster_killed",
+      "conditions": [
+        { "flagGreaterThan": { "flag": "deep_warrens_kills", "value": 5 } },
+        { "not": { "hasFlag": "deep_warrens_cleared" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "deep_warrens_cleared", "scope": "player" },
+        { "type": "grantXp", "amount": 40 },
+        { "type": "showMessage", "lines": [
+          "The last creature falls. The Deep Warrens go quiet — a heavy, mineral silence broken only by the slow drip of water through old stone.",
+          "The tunnels are clear, for now. The Nightside creatures will drift back eventually, but for the moment the way stations are safe."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "post_shutdown_deep_warrens",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_shutdown_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Deep Warrens feel different with the Array offline. The Underlumen network has expanded — Ren's people are using these tunnels openly now, pathfinder markers glowing along the walls.",
+          "The boundary between Ring and Nightside is blurring, one tunnel at a time."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_merge_deep_warrens",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_merge_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The merger protocols have reached even here. Bioluminescent markers line the tunnel walls — Underlumen pathfinder signs alongside Meridian civil engineering stamps.",
+          "The Deep Warrens have become an official transit corridor. What was hidden is now infrastructure."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_control_deep_warrens",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_control_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Ring Authority sensors have been installed at the tunnel junctions. The Deep Warrens are monitored now — every movement logged, every passage mapped.",
+          "Ren's campsite is empty. The bioluminescent embers are cold. The Underlumen network has retreated deeper, beyond the reach of Council surveillance."
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

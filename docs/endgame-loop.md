@@ -430,16 +430,16 @@ The `endgame_active` flag gates all endgame content — expeditions, extended au
 
 ## Implementation Priority
 
-1. **Post-ending world state** — Flag-based NPC/environment shifts. Pure content (JSON triggers + dialogue). No engine changes.
-2. **Expedition Tier 1-3** — Procedural dungeon scaling. Small engine addition (stat multipliers at spawn). New content (expedition configs, loot tables).
-3. **Modifier crafting** — Reforge/fuse system at MERIDIAN-7. Small engine addition (craft action). New content (crafting recipes).
-4. **Automation levels 6-10** — New structures and milestones. Content + small engine addition (new structure effects).
-5. **Expedition Tier 4-5 + boss affixes** — Affix system. Moderate engine addition (buff application on bosses).
-6. **Cooperative challenges** — Lighthouse Siege, Deep Expedition. Moderate engine addition (shared objectives, wave spawning, player-count gating).
-7. **Raid events** — Automation defense. Moderate engine addition (timed event system, structure HP).
+1. ~~**Post-ending world state**~~ ✓ Done — Flag-based NPC/environment shifts via TCA triggers.
+2. ~~**Expedition Tier 1-3**~~ ✓ Done — Multi-floor procedural dungeons with boss spawning, stat scaling, silicon costs, death penalty, mid-run checkpoints.
+3. ~~**Modifier crafting**~~ ✓ Done — Reforge/fuse/attune at MERIDIAN-7 gated on endgame_active flag.
+4. ~~**Automation levels 6-10**~~ ✓ Done — 4 new structures (silicon_refinery, auto_turret, fabricator, expedition_beacon), grid expansion, adjacency bonuses, path-specific variants.
+5. ~~**Expedition Tier 4-5 + boss affixes**~~ ✓ Done — 8 boss affixes, cooperative gating (2+ players), path-specific loot tables with unlockFlag filtering.
+6. **Cooperative challenges** — Lighthouse Siege engine implemented (wave defense, communal energy, siege_legendary rewards). Remaining: NPC start trigger, lighthouse repair interaction, siege visual feedback, Deep Expedition (Tier 6).
+7. ~~**Raid events**~~ ✓ Done — Timed raids, structure HP/repair, turret defense, drone bay auto-repair.
 8. **Faction Rally** — Server-wide goals. Small engine addition (server-wide flag aggregation).
 9. **Automation levels 11-20** — Extended milestone content. Pure content.
-10. **Path-specific legendaries** — Ending-gated loot pools. Pure content.
+10. ~~**Path-specific legendaries**~~ ✓ Done — Ending-gated loot pools wired to expedition boss tables.
 
 ## Open Questions
 

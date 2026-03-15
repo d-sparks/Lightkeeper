@@ -1817,6 +1817,11 @@
       "type": "outpost_sgt_ellers",
       "x": 42,
       "y": 16
+    },
+    {
+      "type": "waypoint_beacon",
+      "x": 8,
+      "y": 15
     }
   ],
   "itemSpawns": [],
@@ -2101,6 +2106,36 @@
         {
           "type": "grantXp",
           "amount": 30
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "seismic_survey_turnin",
+      "event": "npc_interacted",
+      "filter": {
+        "npcType": "outpost_warden"
+      },
+      "conditions": [
+        {
+          "hasItem": "seismic_survey_data"
+        },
+        {
+          "hasFlag": "lighthouse_mara_restored"
+        }
+      ],
+      "actions": [
+        {
+          "type": "removeItem",
+          "itemType": "seismic_survey_data"
+        },
+        {
+          "type": "setFlag",
+          "flag": "seismic_survey_delivered"
+        },
+        {
+          "type": "grantXp",
+          "amount": 40
         }
       ],
       "once": true

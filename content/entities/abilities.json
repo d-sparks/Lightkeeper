@@ -76,8 +76,8 @@
   "sol_shield": {
     "name": "Sol Shield",
     "type": "heal",
-    "heal": 35,
-    "cooldown": 10.0,
+    "heal": 15,
+    "cooldown": 12.0,
     "energyCost": 20,
     "defaultSlot": 3
   },

@@ -8,7 +8,7 @@ const CONSTANTS = require('../../shared/constants');
 // Minimal content mock
 function makeContent() {
   const items = {
-    health_potion: { name: 'Health Potion', type: 'consumable', rarity: 'common' },
+    bandage: { name: 'Bandage', type: 'consumable', rarity: 'common' },
     iron_key: { name: 'Iron Key', type: 'key', rarity: 'common' },
     sol_blade: { name: 'Sol Blade', type: 'weapon', slot: 'arms', rarity: 'rare', stats: { damage: 10 } },
     medical_supplies: { name: 'Medical Supplies', type: 'consumable', rarity: 'common' },
@@ -30,7 +30,7 @@ function makeContent() {
   const lootTables = {
     test_table: {
       rolls: [
-        { item: 'health_potion', weight: 1 },
+        { item: 'bandage', weight: 1 },
       ],
     },
   };
@@ -235,15 +235,15 @@ describe('ActionExecutor', () => {
 
     it('removes item by entityId', () => {
       const room = makeRoom();
-      room.items.set('item_0', { type: 'health_potion' });
+      room.items.set('item_0', { type: 'bandage' });
       executor.execute({ type: 'removeEntity', entityType: 'item', entityId: 'item_0' }, makeContext(room));
       assert.equal(room.items.size, 0);
     });
 
     it('removes item by itemType', () => {
       const room = makeRoom();
-      room.items.set('item_0', { type: 'health_potion' });
-      executor.execute({ type: 'removeEntity', entityType: 'item', itemType: 'health_potion' }, makeContext(room));
+      room.items.set('item_0', { type: 'bandage' });
+      executor.execute({ type: 'removeEntity', entityType: 'item', itemType: 'bandage' }, makeContext(room));
       assert.equal(room.items.size, 0);
     });
   });
@@ -251,10 +251,10 @@ describe('ActionExecutor', () => {
   describe('spawnItem', () => {
     it('spawns item at explicit tile coords', () => {
       const room = makeRoom();
-      executor.execute({ type: 'spawnItem', itemType: 'health_potion', x: 2, y: 3 }, makeContext(room));
+      executor.execute({ type: 'spawnItem', itemType: 'bandage', x: 2, y: 3 }, makeContext(room));
       assert.equal(room.items.size, 1);
       const item = room.items.get('item_1');
-      assert.equal(item.type, 'health_potion');
+      assert.equal(item.type, 'bandage');
       assert.equal(item.x, (2 + 0.5) * CONSTANTS.TILE_SIZE);
       assert.equal(item.y, (3 + 0.5) * CONSTANTS.TILE_SIZE);
     });
@@ -262,7 +262,7 @@ describe('ActionExecutor', () => {
     it('spawns item at monster death position from eventPayload', () => {
       const room = makeRoom();
       const ctx = { ...makeContext(room), eventPayload: { monsterX: 100, monsterY: 200 } };
-      executor.execute({ type: 'spawnItem', itemType: 'health_potion' }, ctx);
+      executor.execute({ type: 'spawnItem', itemType: 'bandage' }, ctx);
       const item = room.items.get('item_1');
       assert.equal(item.x, 100);
       assert.equal(item.y, 200);
@@ -273,7 +273,7 @@ describe('ActionExecutor', () => {
       const player = makePlayer();
       player.x = 150;
       player.y = 250;
-      executor.execute({ type: 'spawnItem', itemType: 'health_potion' }, makeContext(room, player));
+      executor.execute({ type: 'spawnItem', itemType: 'bandage' }, makeContext(room, player));
       const item = room.items.get('item_1');
       assert.equal(item.x, 150);
       assert.equal(item.y, 250);
@@ -287,7 +287,7 @@ describe('ActionExecutor', () => {
 
     it('increments nextItemId', () => {
       const room = makeRoom();
-      executor.execute({ type: 'spawnItem', itemType: 'health_potion', x: 0, y: 0 }, makeContext(room));
+      executor.execute({ type: 'spawnItem', itemType: 'bandage', x: 0, y: 0 }, makeContext(room));
       executor.execute({ type: 'spawnItem', itemType: 'iron_key', x: 1, y: 1 }, makeContext(room));
       assert.equal(room.items.size, 2);
       assert.equal(room.nextItemId, 3);
@@ -305,7 +305,7 @@ describe('ActionExecutor', () => {
 
     it('gives multiple items with count', () => {
       const player = makePlayer();
-      executor.execute({ type: 'giveItem', itemType: 'health_potion', count: 3 }, makeContext(undefined, player));
+      executor.execute({ type: 'giveItem', itemType: 'bandage', count: 3 }, makeContext(undefined, player));
       assert.equal(player.inventory.length, 3);
     });
 
@@ -342,8 +342,8 @@ describe('ActionExecutor', () => {
 
     it('removes only first matching item', () => {
       const player = makePlayer();
-      player.inventory.push({ type: 'health_potion' }, { type: 'health_potion' });
-      executor.execute({ type: 'removeItem', itemType: 'health_potion' }, makeContext(undefined, player));
+      player.inventory.push({ type: 'bandage' }, { type: 'bandage' });
+      executor.execute({ type: 'removeItem', itemType: 'bandage' }, makeContext(undefined, player));
       assert.equal(player.inventory.length, 1);
     });
 
@@ -550,7 +550,7 @@ describe('ActionExecutor', () => {
       executor.execute({ type: 'rollLootTable', lootTable: 'test_table', x: 1, y: 1 }, makeContext(room));
       assert.equal(room.items.size, 1);
       const item = [...room.items.values()][0];
-      assert.equal(item.type, 'health_potion');
+      assert.equal(item.type, 'bandage');
     });
 
     it('does nothing for unknown loot table', () => {

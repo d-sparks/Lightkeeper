@@ -1,0 +1,135 @@
+{
+  "underlumen_warden": {
+    "dropChance": 0.4,
+    "rolls": [
+      { "item": "bandage", "weight": 10 },
+      { "item": "frost_salve", "weight": 6 },
+      { "item": "damage_booster_chip", "weight": 4 },
+      { "item": "reinforced_battery_chip", "weight": 3 }
+    ]
+  },
+  "spire_replay_boss": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "signal_booster_chip", "weight": 10 },
+      { "item": "rechargeable_battery_chip", "weight": 8 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 5 },
+      { "item": "void_resonator_chip", "weight": 3 }
+    ]
+  },
+
+  "spire_vigil_replay_normal": {
+    "dropChance": 1.0,
+    "note": "Spire of Vigil replay chest — Normal tier. Common/uncommon modifiers.",
+    "rolls": [
+      { "item": "field_medkit", "weight": 5 },
+      { "item": "shadow_conduit_chip", "weight": 4 },
+      { "item": "damage_booster_chip", "weight": 4 },
+      { "item": "reinforced_battery_chip", "weight": 4 },
+      { "item": "signal_booster_chip", "weight": 3 },
+      { "item": "power_tap_chip", "weight": 2 },
+      { "item": "rechargeable_battery_chip", "weight": 1 }
+    ]
+  },
+  "spire_vigil_replay_hard": {
+    "dropChance": 1.0,
+    "note": "Spire of Vigil replay chest — Hard tier. Uncommon/rare modifiers, better weights.",
+    "rolls": [
+      { "item": "signal_booster_chip", "weight": 5 },
+      { "item": "power_tap_chip", "weight": 4 },
+      { "item": "umbral_amplifier_chip", "weight": 4 },
+      { "item": "rechargeable_battery_chip", "weight": 4 },
+      { "item": "void_resonator_chip", "weight": 3 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 2 },
+      { "item": "guardian_core_chip", "weight": 1 }
+    ]
+  },
+  "spire_vigil_replay_legendary": {
+    "dropChance": 1.0,
+    "note": "Spire of Vigil replay chest — Legendary tier. Rare/epic modifiers, legendary possible.",
+    "rolls": [
+      { "item": "void_resonator_chip", "weight": 5 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 5 },
+      { "item": "guardian_core_chip", "weight": 4 },
+      { "item": "rechargeable_battery_l2", "weight": 3 },
+      { "item": "array_harmonic_stabilizer_chip", "weight": 3 },
+      { "item": "uranium_generator_chip", "weight": 2 },
+      { "item": "resonance_fragment", "weight": 2 }
+    ]
+  },
+
+  "spire_winds_replay_normal": {
+    "dropChance": 1.0,
+    "note": "Spire of Winds replay chest — Normal tier.",
+    "rolls": [
+      { "item": "field_medkit", "weight": 5 },
+      { "item": "damage_booster_chip", "weight": 4 },
+      { "item": "reinforced_battery_chip", "weight": 4 },
+      { "item": "signal_booster_chip", "weight": 3 },
+      { "item": "rechargeable_battery_chip", "weight": 2 },
+      { "item": "single_use_battery_chip", "weight": 2 }
+    ]
+  },
+  "spire_winds_replay_hard": {
+    "dropChance": 1.0,
+    "note": "Spire of Winds replay chest — Hard tier.",
+    "rolls": [
+      { "item": "signal_booster_chip", "weight": 5 },
+      { "item": "rechargeable_battery_chip", "weight": 4 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 3 },
+      { "item": "void_resonator_chip", "weight": 3 },
+      { "item": "guardian_core_chip", "weight": 2 },
+      { "item": "array_harmonic_stabilizer_chip", "weight": 1 }
+    ]
+  },
+  "spire_winds_replay_legendary": {
+    "dropChance": 1.0,
+    "note": "Spire of Winds replay chest — Legendary tier.",
+    "rolls": [
+      { "item": "advanced_rechargeable_battery_chip", "weight": 5 },
+      { "item": "guardian_core_chip", "weight": 4 },
+      { "item": "rechargeable_battery_l2", "weight": 4 },
+      { "item": "array_harmonic_stabilizer_chip", "weight": 3 },
+      { "item": "uranium_generator_chip", "weight": 3 },
+      { "item": "resonance_fragment", "weight": 2 }
+    ]
+  },
+
+  "spire_radiance_replay_normal": {
+    "dropChance": 1.0,
+    "note": "Spire of Radiance replay chest — Normal tier.",
+    "rolls": [
+      { "item": "field_medkit", "weight": 5 },
+      { "item": "damage_booster_chip", "weight": 4 },
+      { "item": "reinforced_battery_chip", "weight": 4 },
+      { "item": "signal_booster_chip", "weight": 3 },
+      { "item": "rechargeable_battery_chip", "weight": 2 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 1 }
+    ]
+  },
+  "spire_radiance_replay_hard": {
+    "dropChance": 1.0,
+    "note": "Spire of Radiance replay chest — Hard tier.",
+    "rolls": [
+      { "item": "signal_booster_chip", "weight": 4 },
+      { "item": "rechargeable_battery_chip", "weight": 4 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 4 },
+      { "item": "guardian_core_chip", "weight": 3 },
+      { "item": "array_harmonic_stabilizer_chip", "weight": 2 },
+      { "item": "uranium_generator_chip", "weight": 1 }
+    ]
+  },
+  "spire_radiance_replay_legendary": {
+    "dropChance": 1.0,
+    "note": "Spire of Radiance replay chest — Legendary tier.",
+    "rolls": [
+      { "item": "guardian_core_chip", "weight": 4 },
+      { "item": "rechargeable_battery_l2", "weight": 4 },
+      { "item": "array_harmonic_stabilizer_chip", "weight": 4 },
+      { "item": "uranium_generator_chip", "weight": 3 },
+      { "item": "resonance_fragment", "weight": 3 },
+      { "item": "underlumen_nexus", "weight": 1 },
+      { "item": "architects_aegis", "weight": 1 }
+    ]
+  }
+}

@@ -67,7 +67,7 @@
       "width": { "min": 7, "max": 10 },
       "height": { "min": 7, "max": 9 },
       "monsterSpawns": [
-        { "type": "luddite_warlord", "position": "center" }
+        { "type": "quarantine_warlord", "position": "center" }
       ]
     }
   ],
@@ -81,7 +81,8 @@
     "budget": { "base": 4, "perDepth": 2 },
     "pool": [
       { "type": "luddite_brawler", "weight": 3, "cost": 1, "minDepth": 0 },
-      { "type": "luddite_scrapper", "weight": 2, "cost": 2, "minDepth": 2 }
+      { "type": "luddite_scrapper", "weight": 2, "cost": 2, "minDepth": 2 },
+      { "type": "luddite_crossbowman", "weight": 1, "cost": 2, "minDepth": 2 }
     ],
     "maxPerRoom": 3,
     "avoidEntranceRoom": true
@@ -89,9 +90,9 @@
 
   "items": {
     "pool": [
-      { "type": "medical_supplies", "weight": 5, "max": 3 }
+      { "type": "medical_supplies", "weight": 5, "max": 2 }
     ],
-    "countRange": { "min": 1, "max": 3 }
+    "countRange": { "min": 1, "max": 2 }
   },
 
   "triggers": [
@@ -129,11 +130,11 @@
       "id": "warlord_killed_{instanceId}",
       "event": "monster_killed",
       "depth": 3,
-      "filter": { "monsterType": "luddite_warlord" },
+      "filter": { "monsterType": "quarantine_warlord" },
       "actions": [
         { "type": "setFlag", "flag": "warlord_defeated" },
-        { "type": "spawnItem", "itemType": "supply_crate_key" },
-        { "type": "showMessage", "text": "The warlord falls. A key clatters to the ground." }
+        { "type": "giveItem", "itemType": "supply_crate_key" },
+        { "type": "showMessage", "text": "The warlord falls. You find a key on the body." }
       ],
       "once": true
     },

@@ -1,0 +1,173 @@
+{
+  "id": "spire_radiance_forge",
+  "name": "Spire of Radiance — Solar Forge",
+  "depth": 7,
+  "tileset": "spire_radiance",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.1,
+  "environmentalHazard": { "type": "heat", "damage": 6, "interval": 1.8 },
+  "width": 22,
+  "height": 20,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12, 2,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,25,25,12,12,12,13,13,13,13,12,12,12,13,13,13,13,13,
+    13,13,12,12,25,25,25,25,12,12,12,12,12,12,12,12,12,12,13,13,13,13,
+    13,13,13,12,25,12,12,25,12,12,12,12,12,12,12, 2,12,12,12,13,13,13,
+    13,13,13,12,25,12,12,25,18,12,12,12,12,12,12,12,12,12,12,12,13,13,
+    13,13,13,12,25,25,25,25,12,12,13,13,13,12,12,12,12,12,12,12,13,13,
+    13,13,12,12,12,25,25,12,12,13,13,13,13,13,12,12,25,25,12,12,13,13,
+    13,13,12,12,12,12,12,12,13,13,13,13,13,13,12,25,25,25,25,12,13,13,
+    13,12,12, 2,12,12,12,13,13,13,13,13,13,13,12,25,12,12,25,12,13,13,
+    13,12,12,12,12,12,12,12,12,13,13,13,13,12,12,25,12,12,25,12,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,18,12,12,12,25,25,25,25,12,13,13,
+    13,13,12,12,12,12,12,12, 2,12,12,12,12,12,12,12,25,25,12,13,13,13,
+    13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,
+    13,13,13,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,13,13,13,13,
+    13,13,13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,
+    13,13,13,13,12,12,12,12, 6,12,12,12,12,12,12,12,13,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "radiance_construct", "x": 6, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "radiance_construct", "x": 15, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "radiance_construct", "x": 16, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "radiance_construct", "x": 5, "y": 12, "count": 1, "patrol": "wander" },
+    { "type": "radiance_construct", "x": 10, "y": 15, "count": 1, "patrol": "wander" },
+    { "type": "radiance_construct", "x": 12, "y": 17, "count": 1, "patrol": "guard" }
+  ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_sentinel", "x": 15, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 17, "y": 7, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 5, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 16, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 10, "y": 15, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 5, "y": 17, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "solar_focusing_crystal", "x": 6, "y": 6 },
+    { "type": "light_sentry_chip", "x": 3, "y": 11 },
+    { "type": "field_medkit", "x": 16, "y": 7 },
+    { "type": "umbracite", "x": 16, "y": 12 },
+    { "type": "bandage", "x": 11, "y": 17 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_radiance_conduit", "type": "stairs_up", "spawnX": 8, "spawnY": 20 },
+    { "x": 8, "y": 18, "leadsTo": "spire_radiance_observatory", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+      {
+        "id": "forge_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The ancient forge chambers open before you \u2014 vast crucibles of crystal and stone where the Underlumen builders once shaped raw solar energy into something more.",
+              "The forges still glow with residual heat, their crystal walls etched with geometric patterns that pulse faintly in the darkness. Whatever was made here was not metal or glass \u2014 it was light itself, given form and purpose.",
+              "The Array never reached this deep. These chambers belong to an older intelligence."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "forge_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The ancient forge chambers open before you \u2014 vast crucibles of crystal and stone where the Underlumen builders once shaped raw solar energy into something more.",
+              "The forges still glow with residual heat, their crystal walls etched with geometric patterns that pulse faintly in the darkness. Whatever was made here was not metal or glass \u2014 it was light itself, given form and purpose.",
+              "The Array never reached this deep. These chambers belong to an older intelligence."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "forge_pedestal_left",
+        "event": "tile_interact",
+        "filter": {
+          "tileX": 6,
+          "tileY": 6
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "forge_pedestal_left_read"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "forge_pedestal_left_read"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The forge pedestal bears inscriptions in a language older than any human script. Your sol unit translates fragments:",
+              "\"...channel the star's breath through crystalline lattice... shape without destroying... the light remembers what it was before it became heat...\"",
+              "The Underlumen didn't just harness solar energy. They communicated with it."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 20
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "forge_pedestal_right",
+        "event": "tile_interact",
+        "filter": {
+          "tileX": 16,
+          "tileY": 11
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "forge_pedestal_right_read"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "forge_pedestal_right_read"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "This pedestal's inscriptions are more technical \u2014 engineering diagrams etched in crystal, showing the flow of energy through the Spire's architecture.",
+              "\"...the core is not a reactor. It is a seed. What grows from it was never meant for us \u2014 but we can tend it, guide it, ensure it reaches what it was always becoming...\"",
+              "The Underlumen built the Spire not to contain solar power, but to cultivate something within it."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 20
+          }
+        ],
+        "once": true
+      }
+    ]
+}

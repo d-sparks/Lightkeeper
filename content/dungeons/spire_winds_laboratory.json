@@ -1,0 +1,177 @@
+{
+  "id": "spire_winds_laboratory",
+  "name": "Spire of Winds — Research Laboratory",
+  "depth": 3,
+  "tileset": "spire_winds",
+  "theme": "greenway_corridor",
+  "tileSize": 32,
+  "width": 22,
+  "height": 18,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,
+    13,12,12,12,12,12,13,13,12,12,12,12,12,12,12,12,12,12,12,12,13,13,
+    13,13,12,12,12,12,13,13,12,12,25,12,25,12,12,12,12,12, 2,12,12,13,
+    13,13,13,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,12,12,12,13,
+    13,13,13,12,12,12,12,12,12,12,25,12,25,12,12,13,13,13,12,12,12,13,
+    13,13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,
+    13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,13,
+    13,12,12,12,12,12,13,13,12,12,25,12,25,12,12,13,13,12,12,12,12,13,
+    13,12,12,12,12,12,13,13,12,12,12,12,12,12,12,13,13,12,12,12,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12, 2,12,12,12,12,12,12,12,13,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,
+    13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,
+    13,13,13,12,12,12,12,12, 2,12,12,12,12,12,12,12,13,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,12,12, 6,13,13,13,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "bulwark_conscript", "x": 8, "y": 3, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 6, "y": 2}, {"x": 12, "y": 2}, {"x": 12, "y": 5}, {"x": 6, "y": 5}] },
+    { "type": "bulwark_rifleman", "x": 16, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_conscript", "x": 4, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "bulwark_rifleman", "x": 19, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_sergeant", "x": 10, "y": 9, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 8, "y": 8}, {"x": 14, "y": 8}, {"x": 14, "y": 11}, {"x": 8, "y": 11}] },
+    { "type": "bulwark_conscript", "x": 4, "y": 12, "count": 1, "patrol": "wander" },
+    { "type": "bulwark_rifleman", "x": 14, "y": 13, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "battery_chip", "x": 10, "y": 5 },
+    { "type": "bandage", "x": 19, "y": 5 },
+    { "type": "salvage", "x": 12, "y": 12 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_guardpost", "type": "stairs_up", "spawnX": 18, "spawnY": 16 },
+    { "x": 13, "y": 16, "leadsTo": "spire_winds_fortress", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+      {
+        "id": "laboratory_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Banks of monitoring equipment line the ancient walls, their cables snaking into drill holes bored through carved stone. The Bulwark has turned this section of the Monument into a research facility.",
+              "Screens display wind pattern analyses, atmospheric pressure readings, and spectral data from deep below. Whatever the Monument generates, the Bulwark is trying to understand it \u2014 and weaponize it.",
+              "Research terminals glow with data. The scientists may have fled, but their findings remain."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "laboratory_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Banks of monitoring equipment line the ancient walls, their cables snaking into drill holes bored through carved stone. The Bulwark has turned this section of the Monument into a research facility.",
+              "Screens display wind pattern analyses, atmospheric pressure readings, and spectral data from deep below. Whatever the Monument generates, the Bulwark is trying to understand it \u2014 and weaponize it.",
+              "Research terminals glow with data. The scientists may have fled, but their findings remain."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "wind_pattern_lore",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "lab_wind_data_read"
+            }
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "lab_wind_data_read"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "A monitor displays a three-dimensional model of wind currents flowing through the Monument. The patterns are impossibly complex \u2014 no natural formation could produce them.",
+              "The wind doesn't just flow through the structure. The structure generates the wind, using geometry alone. The Bulwark researchers have annotated the model with a single word: 'Engineered.'"
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "wind_pattern_lore_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "lab_wind_data_read"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "lab_wind_data_read"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "A monitor displays a three-dimensional model of wind currents flowing through the Monument. The patterns are impossibly complex \u2014 no natural formation could produce them.",
+              "The wind doesn't just flow through the structure. The structure generates the wind, using geometry alone. The Bulwark researchers have annotated the model with a single word: 'Engineered.'"
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "control_panel_xp",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "energy_conduit"
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "lab_panel_accessed"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "lab_panel_accessed"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The energy conduit terminal responds to your sol unit. Data streams across the screen \u2014 the Bulwark's research notes on the Monument's wind generation systems.",
+              "The findings are remarkable: the Monument's wind currents carry information, encoded in pressure differentials. The Bulwark couldn't decode it, but your sol unit recognizes fragments of the pattern."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 25
+          }
+        ],
+        "once": true
+      }
+    ]
+}

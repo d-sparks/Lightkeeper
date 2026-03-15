@@ -1,0 +1,42 @@
+{
+  "id": "sol_unit_training",
+  "name": "Applied Sol Theory",
+  "description": "The outpost engineers built training simulators in the basement before the luddite attacks. Each one is calibrated for a different Sol ability. Now that you have a Sol Unit, it's worth running through them.",
+  "startConditions": [{ "hasFlag": "received_sol_unit" }],
+  "steps": {
+    "test_elevation": {
+      "label": "Test the Elevation Chamber",
+      "description": "The first simulator tests elevation mechanics and the Hover Chip ability. Enter the chamber via the lower level of the outpost basement.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "elevation_demo" },
+      "completionConditions": [{ "hasFlag": "elevation_demo_intro" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "text": "Elevation mechanics checked. The Hover Chip opens new routes — vertical traversal is now available." }
+      ]
+    },
+    "test_light_sentry": {
+      "label": "Test the Light Sentry Lab",
+      "description": "The second simulator is calibrated for the Light Sentry Emitter — a deployable beam weapon that can reflect off mirrors and activate sensors.",
+      "prerequisiteSteps": ["test_elevation"],
+      "objective": { "roomId": "light_sentry_demo" },
+      "completionConditions": [{ "hasFlag": "sentry_lab_intro" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "text": "Light Sentry confirmed. Photosensor puzzles and beam mechanics are live." }
+      ]
+    },
+    "test_pulse_cannon": {
+      "label": "Test the Demolition Range",
+      "description": "The third simulator is the Demolition Range — built for the Photonic Pulse Emitter. It charges and fires a massive area blast capable of destroying cracked walls.",
+      "prerequisiteSteps": ["test_light_sentry"],
+      "objective": { "roomId": "pulse_cannon_demo" },
+      "completionConditions": [{ "hasFlag": "pulse_cannon_intro" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 20 },
+        { "type": "showMessage", "text": "Quest complete: Applied Sol Theory. All three training simulators cleared. Your Sol Unit knowledge is field-ready." }
+      ]
+    }
+  },
+  "startStep": "test_elevation"
+}

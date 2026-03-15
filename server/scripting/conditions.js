@@ -9,6 +9,7 @@
 //   { "flagGreaterThan": { "flag": "name", "value": 3 } }
 //   { "flagLessThan": { "flag": "name", "value": 3 } }
 //   { "hasItem": "item_type" }                          - player has item in inventory
+//   { "singleUseEnergyBelow": 15 }                       - single-use battery energy below threshold
 //   { "not": <condition> }
 //   { "and": [<condition>, ...] }
 //   { "or": [<condition>, ...] }
@@ -62,6 +63,13 @@ class ConditionEvaluator {
       return (actual || 0) < value;
     }
 
+    // --- Sol grid energy checks ---
+    if (condition.singleUseEnergyBelow !== undefined) {
+      const player = context.player;
+      if (!player) return true; // No player = no battery = below threshold
+      return (player.singleUseEnergy || 0) < condition.singleUseEnergyBelow;
+    }
+
     // --- Inventory checks ---
     if (condition.hasItem !== undefined) {
       const player = context.player;
@@ -71,6 +79,14 @@ class ConditionEvaluator {
         return (player.medipacCharges || 0) > 0;
       }
       return player.inventory.some(item => item.type === condition.hasItem);
+    }
+
+    // --- Room state checks ---
+    if (condition.noHostilesInRoom !== undefined) {
+      const room = context.room;
+      if (!room) return !condition.noHostilesInRoom;
+      const hasHostiles = room.monsters.size > 0;
+      return condition.noHostilesInRoom ? !hasHostiles : hasHostiles;
     }
 
     // Unknown condition type — treat as passing (don't block on bad data)

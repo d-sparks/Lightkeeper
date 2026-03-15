@@ -46,6 +46,21 @@ any public release:
 - `content/sprites/threshold_watcher.png`
 - `content/sprites/abyssal_tendril.png`
 - `content/sprites/threshold_keeper.png`
+- `content/sprites/biolab_tendril.png`
+- `content/sprites/biolab_spitter.png`
+- `content/sprites/biolab_construct.png`
+- `content/sprites/biolab_guardian.png`
+- `content/sprites/biolab_alpha.png`
+- `content/sprites/hybrid_drone.png`
+- `content/sprites/hybrid_stalker.png`
+- `content/sprites/radiance_construct.png`
+- `content/sprites/nexus_guardian.png`
+- `content/sprites/solar_core_warden.png`
+- `content/sprites/general_thorne.png`
+- `content/sprites/underlumen_warden.png`
+- `content/sprites/underlumen_channeler.png`
+- `content/sprites/underlumen_sentinel.png`
+- `content/sprites/underlumen_shade.png`
 
 ### Player Sprites (16x16 each, 4 color variants)
 - `content/sprites/player_blue.png`
@@ -59,6 +74,14 @@ any public release:
 - `content/sprites/sable_threshold.png`
 - `content/sprites/unbounded_elder.png`
 - `content/sprites/wren_alcott.png`
+- `content/sprites/councillor_asha.png`
+- `content/sprites/councillor_asha_denn.png`
+- `content/sprites/outpost_warden.png`
+- `content/sprites/meridian_7.png`
+- `content/sprites/sol_engineer_1.png`
+- `content/sprites/corporal_venn.png`
+- `content/sprites/bulwark_patrol_meridian.png`
+- `content/sprites/greenway_npc.png`
 
 ### Item Sprites (16x16 each)
 - `content/sprites/health_potion.png`

@@ -5,7 +5,7 @@
     "size": [16, 16],
     "health": 55,
     "speed": 1.2,
-    "damage": 8,
+    "damage": 7,
     "attackRange": 1,
     "attackSpeed": 1.0,
     "ai": "melee_chase",
@@ -21,7 +21,7 @@
     "size": [16, 16],
     "health": 40,
     "speed": 0.8,
-    "damage": 12,
+    "damage": 10,
     "attackRange": 8,
     "attackSpeed": 0.7,
     "projectile": "arrow_bone",
@@ -35,7 +35,7 @@
     "size": [16, 16],
     "health": 70,
     "speed": 1.5,
-    "damage": 9,
+    "damage": 14,
     "attackRange": 1,
     "attackSpeed": 1.2,
     "ai": "melee_chase",
@@ -43,7 +43,7 @@
     "xp": 8,
     "specialAttacks": [
       { "type": "lunge", "cooldown": 6, "range": 3.5, "damage": 1.5, "speed": 8, "duration": 0.2 },
-      { "type": "ground_slam", "cooldown": 9, "range": 1.8, "damage": 1.2, "knockback": 80 }
+      { "type": "ground_slam", "cooldown": 9, "range": 1.8, "damage": 1.3, "knockback": 80 }
     ]
   },
   "luddite_scrapper": {
@@ -52,28 +52,146 @@
     "size": [16, 16],
     "health": 75,
     "speed": 1.0,
-    "damage": 12,
+    "damage": 16,
     "attackRange": 6,
     "attackSpeed": 0.8,
     "ai": "ranged_kite",
     "lootTable": "luddite_common",
     "xp": 12
   },
+  "luddite_crossbowman": {
+    "name": "Luddite Crossbowman",
+    "sprite": "sprites/luddite_scrapper.png",
+    "size": [16, 16],
+    "health": 55,
+    "speed": 0.9,
+    "damage": 15,
+    "attackRange": 8,
+    "attackSpeed": 0.6,
+    "projectile": "arrow_bone",
+    "ai": "ranged_kite",
+    "lootTable": "luddite_common",
+    "xp": 14
+  },
+  "luddite_shieldbearer": {
+    "name": "Luddite Shieldbearer",
+    "sprite": "sprites/luddite_brawler.png",
+    "size": [16, 16],
+    "health": 140,
+    "speed": 0.8,
+    "damage": 10,
+    "attackRange": 1.5,
+    "attackSpeed": 0.7,
+    "ai": "pack_leader",
+    "aura": { "range": 4, "damageMult": 1.2, "speedMult": 1.1 },
+    "lootTable": "luddite_common",
+    "xp": 18,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 10, "range": 2, "damage": 1.4, "knockback": 100 }
+    ]
+  },
+  "luddite_captain": {
+    "name": "Raider Captain",
+    "sprite": "sprites/luddite_warlord.png",
+    "size": [16, 16],
+    "health": 300,
+    "speed": 1.1,
+    "damage": 16,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "boss": true,
+    "bossTitle": "Spire Garrison Commander",
+    "lootTable": "luddite_captain",
+    "xp": 60,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 6, "range": 4, "damage": 1.6, "speed": 8, "duration": 0.25 },
+      { "type": "ground_slam", "cooldown": 9, "range": 2.5, "damage": 1.5, "knockback": 140 },
+      { "type": "stun", "cooldown": 12, "damage": 0.5, "duration": 1.0 }
+    ]
+  },
+  "spire_garrison_warlord": {
+    "name": "Garrison Warlord",
+    "sprite": "sprites/luddite_warlord.png",
+    "size": [16, 16],
+    "health": 280,
+    "speed": 1.0,
+    "damage": 16,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "boss": true,
+    "bossTitle": "Garrison Warlord",
+    "lootTable": "luddite_warlord",
+    "xp": 45,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 5, "range": 5, "damage": 1.3, "speed": 9 },
+      { "type": "ground_slam", "cooldown": 9, "range": 2.5, "damage": 1.5, "knockback": 130 },
+      { "type": "stun", "cooldown": 14, "damage": 0.5, "duration": 1.0 }
+    ]
+  },
+  "quarantine_warlord": {
+    "name": "Luddite Warlord",
+    "sprite": "sprites/luddite_warlord.png",
+    "size": [16, 16],
+    "health": 120,
+    "speed": 1.0,
+    "damage": 18,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "boss": true,
+    "bossTitle": "Luddite Warlord",
+    "lootTable": "luddite_warlord",
+    "xp": 40,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 5, "range": 5, "damage": 1.3, "speed": 10 },
+      { "type": "ground_slam", "cooldown": 10, "range": 2.5, "damage": 1.5, "knockback": 140 }
+    ]
+  },
   "luddite_warlord": {
     "name": "Luddite Warlord",
     "sprite": "sprites/luddite_warlord.png",
     "size": [16, 16],
-    "health": 350,
-    "speed": 0.8,
-    "damage": 15,
+    "health": 480,
+    "speed": 1.15,
+    "damage": 28,
     "attackRange": 1.5,
-    "attackSpeed": 0.8,
+    "attackSpeed": 0.75,
     "ai": "melee_chase",
+    "boss": true,
+    "bossTitle": "Luddite Warlord",
     "lootTable": "luddite_warlord",
-    "xp": 50,
+    "xp": 65,
     "specialAttacks": [
-      { "type": "ground_slam", "cooldown": 8, "range": 2.5, "damage": 1.3, "knockback": 160 },
+      { "type": "lunge", "cooldown": 3.5, "range": 7, "damage": 1.4, "speed": 12 },
+      { "type": "thrown_projectile", "cooldown": 4, "range": 10, "damage": 0.8, "speed": 0.8 },
+      { "type": "ground_slam", "cooldown": 8, "range": 2.5, "damage": 1.8, "knockback": 160 },
+      { "type": "wound", "cooldown": 10, "damage": 0.5, "duration": 6.0, "healReduction": 0.5 },
       { "type": "stun", "cooldown": 12, "damage": 0.6, "duration": 1.2 }
+    ]
+  },
+  "dural_voss": {
+    "name": "Dural Voss",
+    "bossTitle": "Warlord of the Unbounded",
+    "bossMusic": "boss_crystal",
+    "sprite": "sprites/dural_voss.png",
+    "size": [16, 16],
+    "health": 600,
+    "speed": 1.2,
+    "damage": 26,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "boss_retreat",
+    "boss": true,
+    "retreatThreshold": 0.2,
+    "lootTable": "luddite_warlord",
+    "xp": 120,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 7, "range": 4, "damage": 1.6, "speed": 9, "duration": 0.25 },
+      { "type": "ground_slam", "cooldown": 10, "range": 2.5, "damage": 1.8, "knockback": 180 },
+      { "type": "wound", "cooldown": 11, "damage": 0.5, "duration": 6.0, "healReduction": 0.5 },
+      { "type": "stun", "cooldown": 14, "damage": 0.5, "duration": 1.0 }
     ]
   },
   "training_target": {
@@ -94,7 +212,7 @@
     "size": [16, 16],
     "health": 28,
     "speed": 2.2,
-    "damage": 4,
+    "damage": 9,
     "attackRange": 1,
     "attackSpeed": 1.2,
     "ai": "melee_chase",
@@ -110,7 +228,7 @@
     "size": [16, 16],
     "health": 85,
     "speed": 1.8,
-    "damage": 10,
+    "damage": 16,
     "attackRange": 1.5,
     "attackSpeed": 1.0,
     "ai": "melee_chase",
@@ -118,6 +236,7 @@
     "xp": 18,
     "specialAttacks": [
       { "type": "lunge", "cooldown": 6, "range": 4.5, "damage": 1.5, "speed": 8, "duration": 0.25 },
+      { "type": "poison", "cooldown": 9, "damage": 0.3, "dps": 4, "duration": 5.0 },
       { "type": "stun", "cooldown": 10, "damage": 0.4, "duration": 0.8 }
     ]
   },
@@ -127,14 +246,14 @@
     "size": [16, 16],
     "health": 300,
     "speed": 1.1,
-    "damage": 14,
+    "damage": 12,
     "attackRange": 1.5,
     "attackSpeed": 0.8,
     "ai": "melee_chase",
     "lootTable": "nest_mother",
     "xp": 50,
     "specialAttacks": [
-      { "type": "ground_slam", "cooldown": 8, "range": 3, "damage": 1.2, "knockback": 128 },
+      { "type": "ground_slam", "cooldown": 8, "range": 3, "damage": 1.5, "knockback": 128 },
       { "type": "stun", "cooldown": 14, "damage": 0.5, "duration": 1.0 }
     ]
   },
@@ -142,7 +261,7 @@
     "name": "Shade Stalker Alpha",
     "sprite": "sprites/shade_stalker_alpha.png",
     "size": [16, 16],
-    "health": 110,
+    "health": 80,
     "speed": 2.0,
     "damage": 14,
     "attackRange": 1.5,
@@ -151,8 +270,8 @@
     "lootTable": "shade_stalker",
     "xp": 30,
     "specialAttacks": [
-      { "type": "lunge", "cooldown": 5, "range": 5, "damage": 1.6, "speed": 9, "duration": 0.25 },
-      { "type": "stun", "cooldown": 8, "damage": 0.5, "duration": 1.0 }
+      { "type": "lunge", "cooldown": 5, "range": 5, "damage": 1.4, "speed": 9, "duration": 0.25 },
+      { "type": "stun", "cooldown": 8, "damage": 0.5, "duration": 0.8 }
     ]
   },
   "scrap_drone": {
@@ -174,7 +293,7 @@
     "size": [16, 16],
     "health": 100,
     "speed": 1.5,
-    "damage": 12,
+    "damage": 16,
     "attackRange": 6,
     "attackSpeed": 0.8,
     "projectile": "shadow_bolt",
@@ -207,18 +326,19 @@
     "size": [16, 16],
     "health": 700,
     "speed": 1.0,
-    "damage": 18,
+    "damage": 22,
     "attackRange": 2,
     "attackSpeed": 0.7,
     "ai": "boss_crystal",
     "boss": true,
     "phases": [
-      { "threshold": 1.0, "mode": "melee", "speed": 1.0, "damage": 18 },
-      { "threshold": 0.6, "mode": "ranged", "speed": 1.2, "damage": 14, "projectile": "crystal_shard_bolt", "projectileInterval": 1.2 },
-      { "threshold": 0.3, "mode": "summon", "speed": 1.5, "damage": 18, "projectile": "crystal_shard_bolt", "projectileInterval": 1.0, "summonType": "crystal_shard_minion", "summonCount": 3, "summonInterval": 10.0 }
+      { "threshold": 1.0, "mode": "melee", "speed": 1.0, "damage": 22 },
+      { "threshold": 0.6, "mode": "ranged", "speed": 1.2, "damage": 17, "projectile": "crystal_shard_bolt", "projectileInterval": 1.2 },
+      { "threshold": 0.3, "mode": "summon", "speed": 1.5, "damage": 22, "projectile": "crystal_shard_bolt", "projectileInterval": 1.0, "summonType": "crystal_shard_minion", "summonCount": 3, "summonInterval": 10.0 }
     ],
     "specialAttacks": [
-      { "type": "ground_slam", "cooldown": 10, "range": 3, "damage": 1.4, "knockback": 160 },
+      { "type": "ground_slam", "cooldown": 10, "range": 3, "damage": 1.7, "knockback": 160 },
+      { "type": "wound", "cooldown": 12, "damage": 0.4, "duration": 5.0, "healReduction": 0.5 },
       { "type": "stun", "cooldown": 14, "damage": 0.5, "duration": 1.2 }
     ],
     "lootTable": "crystal_guardian",
@@ -245,7 +365,7 @@
     "size": [16, 16],
     "health": 65,
     "speed": 2.2,
-    "damage": 8,
+    "damage": 10,
     "attackRange": 1.5,
     "attackSpeed": 1.0,
     "ai": "ambush",
@@ -261,7 +381,7 @@
     "size": [16, 16],
     "health": 45,
     "speed": 0.9,
-    "damage": 5,
+    "damage": 10,
     "attackRange": 1,
     "attackSpeed": 1.0,
     "ai": "patrol",
@@ -274,7 +394,7 @@
     "size": [16, 16],
     "health": 35,
     "speed": 2.0,
-    "damage": 6,
+    "damage": 8,
     "attackRange": 1,
     "attackSpeed": 1.2,
     "ai": "pack",
@@ -290,7 +410,7 @@
     "size": [16, 16],
     "health": 65,
     "speed": 1.8,
-    "damage": 8,
+    "damage": 10,
     "attackRange": 1,
     "attackSpeed": 1.0,
     "ai": "pack_leader",
@@ -307,7 +427,7 @@
     "size": [16, 16],
     "health": 85,
     "speed": 2.0,
-    "damage": 12,
+    "damage": 20,
     "attackRange": 1.5,
     "attackSpeed": 1.0,
     "ai": "ambush",
@@ -323,7 +443,7 @@
     "size": [16, 16],
     "health": 55,
     "speed": 1.9,
-    "damage": 8,
+    "damage": 15,
     "attackRange": 1,
     "attackSpeed": 1.3,
     "ai": "pack",
@@ -339,7 +459,7 @@
     "size": [16, 16],
     "health": 90,
     "speed": 1.7,
-    "damage": 10,
+    "damage": 14,
     "attackRange": 1.5,
     "attackSpeed": 1.0,
     "ai": "pack_leader",
@@ -378,8 +498,8 @@
     "lootTable": "magma_brute",
     "xp": 170,
     "specialAttacks": [
-      { "type": "ground_slam", "cooldown": 8, "range": 2.5, "damage": 1.4, "knockback": 160 },
-      { "type": "lunge", "cooldown": 10, "range": 4, "damage": 1.8, "speed": 6, "duration": 0.35 }
+      { "type": "ground_slam", "cooldown": 8, "range": 2.5, "damage": 1.7, "knockback": 160 },
+      { "type": "lunge", "cooldown": 10, "range": 4, "damage": 2.2, "speed": 6, "duration": 0.35 }
     ]
   },
   "frost_warden": {
@@ -396,7 +516,7 @@
     "xp": 190,
     "specialAttacks": [
       { "type": "stun", "cooldown": 10, "damage": 0.6, "duration": 1.5 },
-      { "type": "ground_slam", "cooldown": 12, "range": 3, "damage": 1.2, "knockback": 128 }
+      { "type": "ground_slam", "cooldown": 12, "range": 3, "damage": 1.5, "knockback": 128 }
     ]
   },
   "sporecap_shambler": {
@@ -412,6 +532,7 @@
     "lootTable": "sporecap_shambler",
     "xp": 12,
     "specialAttacks": [
+      { "type": "poison", "cooldown": 8, "damage": 0.3, "dps": 4, "duration": 5.0 },
       { "type": "stun", "cooldown": 9, "damage": 0.4, "duration": 1.0 }
     ]
   },
@@ -428,6 +549,7 @@
     "lootTable": "mycelium_lurker",
     "xp": 18,
     "specialAttacks": [
+      { "type": "poison", "cooldown": 7, "damage": 0.3, "dps": 5, "duration": 6.0 },
       { "type": "stun", "cooldown": 8, "damage": 0.5, "duration": 0.8 }
     ]
   },
@@ -458,7 +580,8 @@
     "lootTable": "elder_sporecap",
     "xp": 220,
     "specialAttacks": [
-      { "type": "ground_slam", "cooldown": 10, "range": 3, "damage": 1.3, "knockback": 128 },
+      { "type": "poison", "cooldown": 6, "damage": 0.3, "dps": 6, "duration": 7.0 },
+      { "type": "ground_slam", "cooldown": 10, "range": 3, "damage": 1.6, "knockback": 128 },
       { "type": "stun", "cooldown": 12, "damage": 0.5, "duration": 1.2 }
     ]
   },
@@ -506,9 +629,9 @@
     "ai": "boss_crystal",
     "boss": true,
     "phases": [
-      { "threshold": 1.0, "mode": "ranged", "speed": 1.5, "damage": 16, "projectile": "energy_bolt", "projectileInterval": 1.4 },
-      { "threshold": 0.5, "mode": "ranged", "speed": 1.8, "damage": 18, "projectile": "energy_bolt", "projectileInterval": 1.0 },
-      { "threshold": 0.25, "mode": "summon", "speed": 2.0, "damage": 20, "projectile": "energy_bolt", "projectileInterval": 0.8, "summonType": "array_sentinel", "summonCount": 2, "summonInterval": 12.0 }
+      { "threshold": 1.0, "mode": "ranged", "speed": 1.5, "damage": 22, "projectile": "energy_bolt", "projectileInterval": 1.4 },
+      { "threshold": 0.5, "mode": "ranged", "speed": 1.8, "damage": 25, "projectile": "energy_bolt", "projectileInterval": 1.0 },
+      { "threshold": 0.25, "mode": "summon", "speed": 2.0, "damage": 27, "projectile": "energy_bolt", "projectileInterval": 0.8, "summonType": "array_sentinel", "summonCount": 2, "summonInterval": 12.0 }
     ],
     "lootTable": "array_overseer",
     "xp": 95
@@ -550,17 +673,594 @@
     "size": [16, 16],
     "health": 750,
     "speed": 1.8,
-    "damage": 20,
+    "damage": 24,
     "attackRange": 3,
     "attackSpeed": 0.7,
     "ai": "boss_crystal",
     "boss": true,
     "phases": [
-      { "threshold": 1.0, "mode": "melee", "speed": 1.5, "damage": 20 },
-      { "threshold": 0.6, "mode": "ranged", "speed": 1.8, "damage": 16, "projectile": "crystal_shard_bolt", "projectileInterval": 1.0 },
-      { "threshold": 0.3, "mode": "summon", "speed": 2.0, "damage": 22, "projectile": "crystal_shard_bolt", "projectileInterval": 0.8, "summonType": "abyssal_tendril", "summonCount": 2, "summonInterval": 12.0 }
+      { "threshold": 1.0, "mode": "melee", "speed": 1.5, "damage": 24 },
+      { "threshold": 0.6, "mode": "ranged", "speed": 1.8, "damage": 20, "projectile": "crystal_shard_bolt", "projectileInterval": 1.0 },
+      { "threshold": 0.3, "mode": "summon", "speed": 2.0, "damage": 26, "projectile": "crystal_shard_bolt", "projectileInterval": 0.8, "summonType": "abyssal_tendril", "summonCount": 2, "summonInterval": 12.0 }
     ],
     "lootTable": "threshold_keeper",
     "xp": 130
+  },
+
+  "bulwark_conscript": {
+    "name": "Bulwark Conscript",
+    "sprite": "sprites/bulwark_conscript.png",
+    "size": [16, 16],
+    "health": 80,
+    "speed": 1.3,
+    "damage": 12,
+    "attackRange": 1,
+    "attackSpeed": 1.0,
+    "ai": "melee_chase",
+    "lootTable": "bulwark_common",
+    "xp": 18,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 7, "range": 3.5, "damage": 1.4, "speed": 7, "duration": 0.25 }
+    ]
+  },
+  "bulwark_rifleman": {
+    "name": "Bulwark Rifleman",
+    "sprite": "sprites/bulwark_rifleman.png",
+    "size": [16, 16],
+    "health": 65,
+    "speed": 1.0,
+    "damage": 16,
+    "attackRange": 8,
+    "attackSpeed": 0.7,
+    "projectile": "energy_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "bulwark_common",
+    "xp": 22
+  },
+  "bulwark_sergeant": {
+    "name": "Bulwark Sergeant",
+    "sprite": "sprites/bulwark_sergeant.png",
+    "size": [16, 16],
+    "health": 160,
+    "speed": 1.1,
+    "damage": 16,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "pack_leader",
+    "aura": { "range": 5, "damageMult": 1.2, "speedMult": 1.1 },
+    "lootTable": "bulwark_sergeant",
+    "xp": 30,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 9, "range": 2, "damage": 1.4, "knockback": 120 },
+      { "type": "stun", "cooldown": 12, "damage": 0.5, "duration": 1.0 }
+    ]
+  },
+  "bulwark_engineer": {
+    "name": "Bulwark Engineer",
+    "sprite": "sprites/bulwark_engineer.png",
+    "size": [16, 16],
+    "health": 100,
+    "speed": 0.9,
+    "damage": 12,
+    "attackRange": 6,
+    "attackSpeed": 0.8,
+    "projectile": "energy_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "bulwark_common",
+    "xp": 25,
+    "specialAttacks": [
+      { "type": "thrown_projectile", "cooldown": 10, "projectileType": "energy_bolt", "damage": 0.8, "range": 6, "speed": 0.7 }
+    ]
+  },
+  "bulwark_shieldwall": {
+    "name": "Bulwark Shieldwall",
+    "sprite": "sprites/bulwark_shieldwall.png",
+    "size": [16, 16],
+    "health": 200,
+    "speed": 0.7,
+    "damage": 12,
+    "attackRange": 1.5,
+    "attackSpeed": 0.6,
+    "ai": "guard",
+    "lootTable": "bulwark_common",
+    "xp": 28,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 10, "range": 2.5, "damage": 1.5, "knockback": 140 }
+    ]
+  },
+  "bulwark_captain": {
+    "name": "Bulwark Captain",
+    "sprite": "sprites/bulwark_captain.png",
+    "size": [16, 16],
+    "health": 400,
+    "speed": 1.2,
+    "damage": 24,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "boss": true,
+    "bossTitle": "Greenway Garrison Commander",
+    "lootTable": "bulwark_captain",
+    "xp": 80,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 6, "range": 4, "damage": 1.6, "speed": 8, "duration": 0.25 },
+      { "type": "ground_slam", "cooldown": 9, "range": 2.5, "damage": 1.6, "knockback": 160 },
+      { "type": "stun", "cooldown": 12, "damage": 0.5, "duration": 1.2 }
+    ]
+  },
+  "bulwark_patrol_drone": {
+    "name": "Bulwark Patrol Drone",
+    "sprite": "sprites/bulwark_drone.png",
+    "size": [16, 16],
+    "health": 40,
+    "speed": 2.0,
+    "damage": 9,
+    "attackRange": 5,
+    "attackSpeed": 1.0,
+    "projectile": "energy_bolt",
+    "ai": "patrol",
+    "lootTable": "bulwark_drone",
+    "xp": 15
+  },
+  "bulwark_general_thorne": {
+    "name": "General Thorne",
+    "bossTitle": "Commander of the Monument Garrison",
+    "bossMusic": "boss_crystal",
+    "sprite": "sprites/general_thorne.png",
+    "size": [16, 16],
+    "health": 650,
+    "speed": 1.1,
+    "damage": 26,
+    "attackRange": 1.5,
+    "attackSpeed": 0.8,
+    "ai": "boss_crystal",
+    "boss": true,
+    "phases": [
+      { "threshold": 1.0, "mode": "melee", "speed": 1.1, "damage": 26 },
+      { "threshold": 0.6, "mode": "ranged", "speed": 1.3, "damage": 20, "projectile": "energy_bolt", "projectileInterval": 1.1 },
+      { "threshold": 0.3, "mode": "summon", "speed": 1.4, "damage": 28, "projectile": "energy_bolt", "projectileInterval": 0.9, "summonType": "bulwark_conscript", "summonCount": 2, "summonInterval": 12.0 }
+    ],
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 7, "range": 4, "damage": 1.7, "speed": 8, "duration": 0.3 },
+      { "type": "ground_slam", "cooldown": 10, "range": 3, "damage": 1.8, "knockback": 170 },
+      { "type": "wound", "cooldown": 11, "damage": 0.5, "duration": 6.0, "healReduction": 0.5 },
+      { "type": "stun", "cooldown": 14, "damage": 0.6, "duration": 1.3 }
+    ],
+    "lootTable": "bulwark_captain",
+    "xp": 130
+  },
+
+  "hybrid_drone": {
+    "name": "Hybrid Drone",
+    "sprite": "sprites/hybrid_drone.png",
+    "size": [16, 16],
+    "health": 110,
+    "speed": 1.8,
+    "damage": 14,
+    "attackRange": 7,
+    "attackSpeed": 0.9,
+    "projectile": "energy_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "array_sentinel",
+    "xp": 28,
+    "specialAttacks": [
+      { "type": "thrown_projectile", "cooldown": 10, "projectileType": "energy_bolt", "damage": 0.9, "range": 7, "speed": 0.7 }
+    ]
+  },
+  "hybrid_stalker": {
+    "name": "Hybrid Stalker",
+    "sprite": "sprites/hybrid_stalker.png",
+    "size": [16, 16],
+    "health": 160,
+    "speed": 1.4,
+    "damage": 18,
+    "attackRange": 2,
+    "attackSpeed": 1.0,
+    "ai": "ambush",
+    "lootTable": "array_fabricator",
+    "xp": 32,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 6, "range": 4.5, "damage": 1.5, "speed": 8, "duration": 0.25 },
+      { "type": "stun", "cooldown": 10, "damage": 0.6, "duration": 1.2 }
+    ]
+  },
+  "radiance_construct": {
+    "name": "Radiance Construct",
+    "sprite": "sprites/radiance_construct.png",
+    "size": [16, 16],
+    "health": 200,
+    "speed": 1.0,
+    "damage": 16,
+    "attackRange": 6,
+    "attackSpeed": 0.8,
+    "projectile": "energy_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "array_sentinel",
+    "xp": 35,
+    "specialAttacks": [
+      { "type": "thrown_projectile", "cooldown": 8, "projectileType": "energy_bolt", "damage": 1.0, "range": 7, "speed": 0.8 },
+      { "type": "ground_slam", "cooldown": 12, "range": 2.5, "damage": 1.3, "knockback": 100 }
+    ]
+  },
+  "nexus_guardian": {
+    "name": "Nexus Guardian",
+    "bossTitle": "Array-Underlumen Hybrid Commander",
+    "bossMusic": "boss_crystal",
+    "sprite": "sprites/nexus_guardian.png",
+    "size": [16, 16],
+    "health": 800,
+    "speed": 1.3,
+    "damage": 24,
+    "attackRange": 7,
+    "attackSpeed": 0.7,
+    "ai": "boss_crystal",
+    "boss": true,
+    "phases": [
+      { "threshold": 1.0, "mode": "ranged", "speed": 1.3, "damage": 24, "projectile": "energy_bolt", "projectileInterval": 1.2 },
+      { "threshold": 0.6, "mode": "melee", "speed": 1.8, "damage": 28 },
+      { "threshold": 0.3, "mode": "summon", "speed": 2.0, "damage": 30, "projectile": "energy_bolt", "projectileInterval": 0.7, "summonType": "hybrid_drone", "summonCount": 2, "summonInterval": 10.0 }
+    ],
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 7, "range": 5, "damage": 1.6, "speed": 9, "duration": 0.3 },
+      { "type": "ground_slam", "cooldown": 9, "range": 3, "damage": 1.8, "knockback": 180 },
+      { "type": "wound", "cooldown": 10, "damage": 0.5, "duration": 7.0, "healReduction": 0.6 },
+      { "type": "stun", "cooldown": 14, "damage": 0.7, "duration": 1.5 }
+    ],
+    "lootTable": "array_overseer",
+    "xp": 150
+  },
+  "solar_core_warden": {
+    "name": "Solar Core Warden",
+    "bossTitle": "Ancient Light Construct",
+    "bossMusic": "boss_crystal",
+    "sprite": "sprites/solar_core_warden.png",
+    "size": [16, 16],
+    "health": 900,
+    "speed": 1.5,
+    "damage": 26,
+    "attackRange": 8,
+    "attackSpeed": 0.7,
+    "ai": "boss_crystal",
+    "boss": true,
+    "phases": [
+      { "threshold": 1.0, "mode": "ranged", "speed": 1.2, "damage": 26, "projectile": "energy_bolt", "projectileInterval": 1.0 },
+      { "threshold": 0.5, "mode": "summon", "speed": 1.6, "damage": 30, "projectile": "energy_bolt", "projectileInterval": 0.8, "summonType": "radiance_construct", "summonCount": 2, "summonInterval": 10.0 },
+      { "threshold": 0.25, "mode": "ranged", "speed": 2.0, "damage": 28, "projectile": "energy_bolt", "projectileInterval": 0.9 }
+    ],
+    "specialAttacks": [
+      { "type": "thrown_projectile", "cooldown": 8, "projectileType": "energy_bolt", "damage": 1.2, "range": 8, "speed": 0.9 },
+      { "type": "ground_slam", "cooldown": 10, "range": 3.5, "damage": 1.6, "knockback": 200 },
+      { "type": "wound", "cooldown": 12, "damage": 0.5, "range": 3.5, "duration": 6.0, "healReduction": 0.5 }
+    ],
+    "lootTable": "threshold_keeper",
+    "xp": 180
+  },
+  "ice_borer": {
+    "name": "Ice Borer",
+    "sprite": "sprites/ice_borer.png",
+    "size": [16, 16],
+    "health": 35,
+    "speed": 2.3,
+    "damage": 8,
+    "attackRange": 1,
+    "attackSpeed": 1.3,
+    "ai": "pack",
+    "lootTable": "ice_borer",
+    "xp": 7,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 5, "range": 3, "damage": 1.3, "speed": 10, "duration": 0.15 }
+    ]
+  },
+  "ice_borer_queen": {
+    "name": "Ice Borer Queen",
+    "sprite": "sprites/ice_borer.png",
+    "size": [16, 16],
+    "health": 70,
+    "speed": 1.8,
+    "damage": 10,
+    "attackRange": 1,
+    "attackSpeed": 1.0,
+    "ai": "pack_leader",
+    "aura": { "range": 5, "damageMult": 1.2, "speedMult": 1.15 },
+    "lootTable": "ice_borer",
+    "xp": 18,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 6, "range": 4, "damage": 1.4, "speed": 8, "duration": 0.2 },
+      { "type": "stun", "cooldown": 10, "damage": 0.4, "duration": 0.8 }
+    ]
+  },
+  "glacial_maw": {
+    "name": "Glacial Maw",
+    "sprite": "sprites/glacial_maw.png",
+    "size": [16, 16],
+    "health": 180,
+    "speed": 0.7,
+    "damage": 22,
+    "attackRange": 1.5,
+    "attackSpeed": 0.6,
+    "ai": "melee_chase",
+    "lootTable": "glacial_maw",
+    "xp": 40,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 8, "range": 2.5, "damage": 1.6, "knockback": 140 },
+      { "type": "stun", "cooldown": 12, "damage": 0.5, "duration": 1.2 }
+    ]
+  },
+  "frost_revenant": {
+    "name": "Frost Revenant",
+    "sprite": "sprites/frost_revenant.png",
+    "size": [16, 16],
+    "health": 120,
+    "speed": 1.6,
+    "damage": 14,
+    "attackRange": 6,
+    "attackSpeed": 0.8,
+    "projectile": "frost_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "frost_revenant",
+    "xp": 30,
+    "specialAttacks": [
+      { "type": "stun", "cooldown": 10, "damage": 0.5, "duration": 1.0 }
+    ]
+  },
+  "permafrost_hulk": {
+    "name": "Permafrost Hulk",
+    "sprite": "sprites/glacial_maw.png",
+    "size": [16, 16],
+    "health": 200,
+    "speed": 0.6,
+    "damage": 20,
+    "attackRange": 2,
+    "attackSpeed": 0.6,
+    "ai": "melee_chase",
+    "lootTable": "glacial_maw",
+    "xp": 35,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 7, "range": 3, "damage": 1.7, "knockback": 150 },
+      { "type": "stun", "cooldown": 11, "damage": 0.6, "duration": 1.3 }
+    ]
+  },
+  "cave_borer_drone": {
+    "name": "Cave Borer Drone",
+    "sprite": "sprites/tunnel_creeper.png",
+    "size": [16, 16],
+    "health": 40,
+    "speed": 2.5,
+    "damage": 10,
+    "attackRange": 1,
+    "attackSpeed": 1.4,
+    "ai": "pack",
+    "lootTable": "tunnel_creeper",
+    "xp": 8,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 4, "range": 3.5, "damage": 1.4, "speed": 10, "duration": 0.15 }
+    ]
+  },
+  "seismic_leech": {
+    "name": "Seismic Leech",
+    "sprite": "sprites/rime_stalker.png",
+    "size": [16, 16],
+    "health": 95,
+    "speed": 1.6,
+    "damage": 18,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "ambush",
+    "lootTable": "rime_stalker",
+    "xp": 25,
+    "specialAttacks": [
+      { "type": "stun", "cooldown": 7, "damage": 0.6, "duration": 1.4 },
+      { "type": "lunge", "cooldown": 8, "range": 5, "damage": 1.5, "speed": 9, "duration": 0.2 }
+    ]
+  },
+  "underlumen_emergence": {
+    "name": "Underlumen Emergence",
+    "bossTitle": "That Which Broke Through",
+    "bossMusic": "boss_underlumen",
+    "sprite": "sprites/underlumen_emergence.png",
+    "size": [16, 16],
+    "health": 500,
+    "speed": 1.2,
+    "damage": 24,
+    "attackRange": 2,
+    "attackSpeed": 0.7,
+    "ai": "boss_retreat",
+    "bossRetreatThreshold": 0.2,
+    "phases": [
+      { "threshold": 1.0, "mode": "melee", "speed": 1.2, "damage": 24 },
+      { "threshold": 0.6, "mode": "ranged", "speed": 1.5, "damage": 22, "projectile": "frost_bolt", "projectileInterval": 1.2 },
+      { "threshold": 0.3, "mode": "melee", "speed": 1.8, "damage": 30 }
+    ],
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 8, "range": 3, "damage": 1.8, "knockback": 160 },
+      { "type": "wound", "cooldown": 10, "damage": 0.5, "duration": 6.0, "healReduction": 0.5 },
+      { "type": "stun", "cooldown": 12, "damage": 0.6, "duration": 1.5 },
+      { "type": "thrown_projectile", "cooldown": 15, "projectileType": "frost_bolt", "damage": 1.0, "range": 7, "speed": 0.7 }
+    ],
+    "lootTable": "underlumen_emergence",
+    "xp": 120
+  },
+
+  "underlumen_warden": {
+    "name": "Underlumen Warden",
+    "sprite": "sprites/underlumen_warden.png",
+    "size": [16, 16],
+    "health": 120,
+    "speed": 1.3,
+    "damage": 16,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "lootTable": "underlumen_warden",
+    "xp": 28,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 9, "range": 2, "damage": 1.4, "knockback": 110 },
+      { "type": "stun", "cooldown": 12, "damage": 0.5, "duration": 1.0 }
+    ]
+  },
+  "underlumen_channeler": {
+    "name": "Underlumen Channeler",
+    "sprite": "sprites/underlumen_channeler.png",
+    "size": [16, 16],
+    "health": 80,
+    "speed": 1.0,
+    "damage": 14,
+    "attackRange": 7,
+    "attackSpeed": 0.7,
+    "projectile": "crystal_shard_bolt",
+    "ai": "ranged_kite",
+    "lootTable": "underlumen_warden",
+    "xp": 24
+  },
+  "underlumen_sentinel": {
+    "name": "Underlumen Sentinel",
+    "sprite": "sprites/underlumen_sentinel.png",
+    "size": [16, 16],
+    "health": 180,
+    "speed": 1.0,
+    "damage": 14,
+    "attackRange": 2,
+    "attackSpeed": 0.8,
+    "ai": "pack_leader",
+    "aura": { "range": 4, "damageMult": 1.2, "speedMult": 1.1 },
+    "lootTable": "underlumen_warden",
+    "xp": 35,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 10, "range": 2.5, "damage": 1.5, "knockback": 130 },
+      { "type": "stun", "cooldown": 14, "damage": 0.5, "duration": 1.2 }
+    ]
+  },
+  "underlumen_shade": {
+    "name": "Underlumen Shade",
+    "sprite": "sprites/underlumen_shade.png",
+    "size": [16, 16],
+    "health": 70,
+    "speed": 2.0,
+    "damage": 12,
+    "attackRange": 1.5,
+    "attackSpeed": 1.1,
+    "ai": "ambush",
+    "lootTable": "underlumen_warden",
+    "xp": 20,
+    "specialAttacks": [
+      { "type": "stun", "cooldown": 8, "damage": 0.5, "duration": 0.8 },
+      { "type": "lunge", "cooldown": 6, "range": 4, "damage": 1.4, "speed": 8, "duration": 0.2 }
+    ]
+  },
+  "spire_resonance_boss": {
+    "name": "Resonance Warden",
+    "bossTitle": "Guardian of the Reconfigured Core",
+    "bossMusic": "boss_crystal",
+    "sprite": "sprites/crystal_guardian.png",
+    "size": [16, 16],
+    "health": 600,
+    "speed": 1.2,
+    "damage": 22,
+    "attackRange": 2,
+    "attackSpeed": 0.7,
+    "ai": "boss_crystal",
+    "boss": true,
+    "phases": [
+      { "threshold": 1.0, "mode": "melee", "speed": 1.2, "damage": 22 },
+      { "threshold": 0.6, "mode": "ranged", "speed": 1.4, "damage": 18, "projectile": "crystal_shard_bolt", "projectileInterval": 1.1 },
+      { "threshold": 0.3, "mode": "summon", "speed": 1.6, "damage": 24, "projectile": "crystal_shard_bolt", "projectileInterval": 0.9, "summonType": "underlumen_shade", "summonCount": 2, "summonInterval": 10.0 }
+    ],
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 9, "range": 3, "damage": 1.7, "knockback": 160 },
+      { "type": "wound", "cooldown": 11, "damage": 0.4, "duration": 5.0, "healReduction": 0.5 },
+      { "type": "stun", "cooldown": 13, "damage": 0.6, "duration": 1.2 }
+    ],
+    "lootTable": "spire_replay_boss",
+    "xp": 100
+  },
+  "biolab_tendril": {
+    "name": "Rogue Tendril",
+    "sprite": "sprites/biolab_tendril.png",
+    "size": [16, 16],
+    "health": 60,
+    "speed": 1.6,
+    "damage": 12,
+    "attackRange": 1.5,
+    "attackSpeed": 1.3,
+    "ai": "melee_chase",
+    "lootTable": "biolab_common",
+    "xp": 8,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 6, "range": 3, "damage": 1.3, "speed": 7, "duration": 0.2 }
+    ]
+  },
+  "biolab_spitter": {
+    "name": "Sap Spitter",
+    "sprite": "sprites/biolab_spitter.png",
+    "size": [16, 16],
+    "health": 70,
+    "speed": 0.9,
+    "damage": 14,
+    "attackRange": 7,
+    "attackSpeed": 0.8,
+    "projectile": "spore_cloud",
+    "ai": "ranged_kite",
+    "lootTable": "biolab_common",
+    "xp": 10
+  },
+  "biolab_construct": {
+    "name": "Bio-Construct",
+    "sprite": "sprites/biolab_construct.png",
+    "size": [16, 16],
+    "health": 100,
+    "speed": 1.0,
+    "damage": 14,
+    "attackRange": 1.5,
+    "attackSpeed": 0.9,
+    "ai": "melee_chase",
+    "lootTable": "biolab_uncommon",
+    "xp": 16,
+    "specialAttacks": [
+      { "type": "lunge", "cooldown": 7, "range": 4, "damage": 1.4, "speed": 7, "duration": 0.25 },
+      { "type": "poison", "cooldown": 10, "damage": 0.3, "dps": 3, "duration": 4.0 }
+    ]
+  },
+  "biolab_guardian": {
+    "name": "Feral Cultivar",
+    "sprite": "sprites/biolab_guardian.png",
+    "size": [16, 16],
+    "health": 130,
+    "speed": 1.2,
+    "damage": 16,
+    "attackRange": 1.5,
+    "attackSpeed": 1.0,
+    "ai": "pack_leader",
+    "aura": { "range": 4, "damageMult": 1.15, "speedMult": 1.1 },
+    "lootTable": "biolab_rare",
+    "xp": 22,
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 9, "range": 2, "damage": 1.4, "knockback": 90 },
+      { "type": "poison", "cooldown": 8, "damage": 0.3, "dps": 4, "duration": 5.0 }
+    ]
+  },
+  "biolab_alpha": {
+    "name": "Apex Overgrowth",
+    "bossTitle": "The Greenway's Failed Experiment",
+    "sprite": "sprites/biolab_alpha.png",
+    "size": [16, 16],
+    "health": 450,
+    "speed": 1.1,
+    "damage": 20,
+    "attackRange": 2,
+    "attackSpeed": 0.8,
+    "ai": "boss_crystal",
+    "boss": true,
+    "phases": [
+      { "threshold": 1.0, "mode": "melee", "speed": 1.1, "damage": 20 },
+      { "threshold": 0.5, "mode": "ranged", "speed": 1.3, "damage": 16, "projectile": "spore_cloud", "projectileInterval": 1.2 },
+      { "threshold": 0.25, "mode": "summon", "speed": 1.5, "damage": 22, "projectile": "spore_cloud", "projectileInterval": 0.9, "summonType": "biolab_tendril", "summonCount": 2, "summonInterval": 10.0 }
+    ],
+    "specialAttacks": [
+      { "type": "ground_slam", "cooldown": 8, "range": 2.5, "damage": 1.6, "knockback": 140 },
+      { "type": "poison", "cooldown": 7, "damage": 0.4, "dps": 5, "duration": 5.0 },
+      { "type": "wound", "cooldown": 12, "damage": 0.4, "duration": 5.0, "healReduction": 0.5 }
+    ],
+    "lootTable": "biolab_boss",
+    "xp": 75
   }
 }

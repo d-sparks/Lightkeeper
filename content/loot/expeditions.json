@@ -2,7 +2,6 @@
   "expedition_tier_1": {
     "dropChance": 1.0,
     "rolls": [
-      { "item": "health_potion", "weight": 20 },
       { "item": "ration_pack", "weight": 15 },
       { "item": "bandage", "weight": 15 },
       { "item": "damage_booster_chip", "weight": 10 },
@@ -16,7 +15,6 @@
   "expedition_tier_1_boss": {
     "dropChance": 1.0,
     "rolls": [
-      { "item": "health_potion", "weight": 10 },
       { "item": "damage_booster_chip", "weight": 15 },
       { "item": "reinforced_battery_chip", "weight": 15 },
       { "item": "signal_booster_chip", "weight": 12 },
@@ -27,7 +25,6 @@
   "expedition_tier_2": {
     "dropChance": 1.0,
     "rolls": [
-      { "item": "health_potion", "weight": 15 },
       { "item": "damage_booster_chip", "weight": 12 },
       { "item": "reinforced_battery_chip", "weight": 12 },
       { "item": "signal_booster_chip", "weight": 10 },
@@ -49,7 +46,6 @@
   "expedition_tier_3": {
     "dropChance": 1.0,
     "rolls": [
-      { "item": "health_potion", "weight": 10 },
       { "item": "damage_booster_chip", "weight": 10 },
       { "item": "reinforced_battery_chip", "weight": 10 },
       { "item": "signal_booster_chip", "weight": 10 },
@@ -104,7 +100,6 @@
     "dropChance": 1.0,
     "note": "Tier 4 floor monster loot. Epic items become common; legendary items start appearing.",
     "rolls": [
-      { "item": "health_potion", "weight": 5 },
       { "item": "signal_booster_chip", "weight": 8 },
       { "item": "rechargeable_battery_chip", "weight": 8 },
       { "item": "advanced_rechargeable_battery_chip", "weight": 15 },

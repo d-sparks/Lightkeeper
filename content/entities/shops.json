@@ -1,4 +1,31 @@
 {
+  "elara_fence_shop": {
+    "name": "Elara's Stock",
+    "speaker": "Fence Elara",
+    "sells": [
+      { "item": "bandage", "creditsCost": 6, "label": "Bandage (6 cr)" },
+      { "item": "ration_pack", "creditsCost": 4, "label": "Ration Pack (4 cr)" },
+      { "item": "medical_supplies", "creditsCost": 8, "label": "Medical Supplies (8 cr)" },
+      { "item": "flare", "creditsCost": 20, "label": "Flare (20 cr)" }
+    ],
+    "buys": [
+      { "item": "salvage", "creditsReward": 4, "label": "Sell Salvage (4 cr each)", "sellAll": true }
+    ]
+  },
+  "mara_supply_depot": {
+    "name": "Dasha's Cache",
+    "speaker": "Dasha",
+    "sells": [
+      { "item": "frost_salve", "creditsCost": 8, "label": "Frost Salve (8 cr)" },
+      { "item": "bandage", "creditsCost": 5, "label": "Bandage (5 cr)" },
+      { "item": "field_medkit", "creditsCost": 35, "label": "Field Medkit (35 cr)" },
+      { "item": "flare", "creditsCost": 18, "label": "Flare (18 cr)" }
+    ],
+    "buys": [
+      { "item": "salvage", "creditsReward": 4, "label": "Sell Salvage (4 cr each)", "sellAll": true },
+      { "item": "umbracite_shard", "creditsReward": 12, "label": "Sell Umbracite (12 cr each)", "sellAll": true }
+    ]
+  },
   "meridian_7_shop": {
     "name": "MERIDIAN-7 Exchange",
     "speaker": "MERIDIAN-7",
@@ -6,7 +33,6 @@
       { "item": "single_use_battery_chip", "creditsCost": 15, "label": "Single-Use Battery (15 cr)" },
       { "item": "battery_chip", "creditsCost": 30, "label": "Battery Chip (30 cr)" },
       { "item": "medical_supplies", "creditsCost": 10, "label": "Medical Supplies (10 cr)" },
-      { "item": "health_potion", "creditsCost": 20, "label": "Health Potion (20 cr)" },
       { "item": "field_medkit", "creditsCost": 40, "label": "Field Medkit (40 cr)" },
       { "item": "flare", "creditsCost": 25, "label": "Flare (25 cr)" }
     ],

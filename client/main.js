@@ -28,6 +28,12 @@
   const questToast = document.getElementById('quest-toast');
   const milestonToast = document.getElementById('automation-milestone-toast');
   const milestoneText = document.getElementById('automation-milestone-text');
+  const raidToast = document.getElementById('raid-alert-toast');
+  const raidAlertText = document.getElementById('raid-alert-text');
+  const raidIncomingToast = document.getElementById('raid-incoming-toast');
+  const raidIncomingText = document.getElementById('raid-incoming-text');
+  const raidCountdownTimer = document.getElementById('raid-countdown-timer');
+  const raidDefendBtn = document.getElementById('raid-defend-btn');
   const questPanelContent = document.getElementById('quest-panel-content');
   const solGridContainer = document.getElementById('sol-grid-container');
   const solGridInfo = document.getElementById('sol-grid-info');
@@ -50,8 +56,21 @@
   const bossBarText = document.getElementById('boss-bar-text');
   const bossBarPhase = document.getElementById('boss-bar-phase');
   const partyFrames = document.getElementById('party-frames');
+  const siegeHud = document.getElementById('siege-hud');
+  const siegeTitle = document.getElementById('siege-title');
+  const siegeWave = document.getElementById('siege-wave');
+  const siegePhase = document.getElementById('siege-phase');
+  const siegeLhFill = document.getElementById('siege-lh-fill');
+  const siegeLhText = document.getElementById('siege-lh-text');
+  const siegeEnergyFill = document.getElementById('siege-energy-fill');
+  const siegeEnergyText = document.getElementById('siege-energy-text');
+  const siegeMonsters = document.getElementById('siege-monsters');
+  const siegeRepairBtn = document.getElementById('siege-repair-btn');
   const deathOverlay = document.getElementById('death-overlay');
   const deathDetails = document.getElementById('death-details');
+  const siegeOverlay = document.getElementById('siege-overlay');
+  const siegeOverlayTitle = document.getElementById('siege-overlay-title');
+  const siegeOverlayDetails = document.getElementById('siege-overlay-details');
   const PARTY_COLORS = ['#4fc3f7', '#ef5350', '#66bb6a', '#ffa726'];
 
   // --- Instances ---
@@ -270,6 +289,8 @@
   // --- Inventory & equipment state ---
   let itemCatalog = {}; // item type -> full definition from server
   let inventoryItems = [];
+  let bankedItems = []; // items cached at expedition checkpoints
+  let inExpedition = false;
   let equipmentState = { arms: null, sol_unit: null, medipac: null, accessory: null };
   let abilityState = [null, null, null, null, null, null];
   let cooldownState = [0, 0, 0, 0, 0, 0];
@@ -278,15 +299,24 @@
   let slot1InteractMode = null; // null or interact label string when slot 1 is overridden
   const SLOT_DISPLAY_NAMES = { arms: 'Arms', sol_unit: 'Sol Unit', medipac: 'Medipac', accessory: 'Accessory' };
 
+  // Player stats (cached from state messages for stats panel)
+  let playerStats = null;
+
   // Sol grid state
   let solGridState = null;
   let solGridSelectedComponent = null; // inventory index of selected component for placement
+  let weaponUpgradeState = null; // server-sent weapon upgrade grid state
+  let weaponUpgradeSelectedMaterial = null; // inventory index of selected crafting material
 
   // Quest state
   let questState = [];
   let partyQuestsState = [];
+  const expandedQuests = new Set(); // track which quests have their completed steps expanded
   let questToastTimeout = null;
   let milestoneToastTimeout = null;
+  let raidToastTimeout = null;
+  let raidIncomingInterval = null;
+  let raidIncomingCountdown = 0;
 
   // Tutorial arrow state (driven by quest uiHint)
   let tutorialPhase = null;  // null | 'open_menu' | 'click_sol_tab' | 'select_component' | 'place_component'
@@ -867,8 +897,8 @@
   // --- Unified character menu state ---
   let menuOpen = false;
   let menuTab = 'equipment';
-  const MENU_TABS = ['equipment', 'inventory', 'solgrid', 'quests'];
-  const ALL_CONTENT_TABS = ['equipment', 'inventory', 'solgrid', 'quests'];
+  const MENU_TABS = ['equipment', 'stats', 'inventory', 'solgrid', 'weapon', 'quests', 'cached'];
+  const ALL_CONTENT_TABS = ['equipment', 'stats', 'inventory', 'solgrid', 'weapon', 'quests', 'cached'];
   let cursorIndex = 0;
 
   function openMenu(tab) {
@@ -907,6 +937,10 @@
   function switchTab(tab) {
     // Skip disabled solgrid tab
     if (tab === 'solgrid' && !solGridState) return;
+    // Skip disabled weapon tab
+    if (tab === 'weapon' && !weaponUpgradeState) return;
+    // Skip cached tab when not in an expedition
+    if (tab === 'cached' && !inExpedition) return;
 
     if (menuOpen) audio.play('menu_navigate');
     menuTab = tab;
@@ -922,13 +956,19 @@
     // Update sol grid tab disabled state
     const solTab = document.querySelector('#character-menu .inv-tab[data-tab="solgrid"]');
     if (solTab) solTab.classList.toggle('disabled', !solGridState);
+    // Update weapon tab disabled state
+    const weaponTab = document.querySelector('#character-menu .inv-tab[data-tab="weapon"]');
+    if (weaponTab) weaponTab.classList.toggle('disabled', !weaponUpgradeState);
 
     // Render the active tab content
     if (tab === 'equipment') renderEquipmentSlots();
+    if (tab === 'stats') renderStatsPanel();
     if (tab === 'inventory') renderInventoryGrid();
     if (tab === 'solgrid') renderSolGrid();
+    if (tab === 'weapon') renderWeaponUpgradePanel();
     if (tab === 'auto') return; // auto tab replaced by full-screen automation overlay
     if (tab === 'quests') renderQuestPanel();
+    if (tab === 'cached') renderCachedItems();
 
     // Advance tutorial: menu opened → show SOL tab arrow; SOL tab clicked → show component arrow
     if (tutorialPhase === 'open_menu') {
@@ -948,6 +988,10 @@
       const candidate = MENU_TABS[idx];
       // Skip disabled solgrid tab
       if (candidate === 'solgrid' && !solGridState) continue;
+      // Skip disabled weapon tab
+      if (candidate === 'weapon' && !weaponUpgradeState) continue;
+      // Skip cached tab when not in an expedition
+      if (candidate === 'cached' && !inExpedition) continue;
       switchTab(candidate);
       return;
     }
@@ -963,6 +1007,7 @@
     if (menuTab === 'equipment') return characterMenu.querySelectorAll('.equip-slot-box');
     if (menuTab === 'inventory') return characterMenu.querySelectorAll('.inv-grid-cell');
     if (menuTab === 'solgrid') return characterMenu.querySelectorAll('.sol-cell');
+    if (menuTab === 'weapon') return characterMenu.querySelectorAll('.wu-cell, .wu-inv-cell');
     if (menuTab === 'quests') return characterMenu.querySelectorAll('.quest-track-btn, .quest-step');
     return [];
   }
@@ -971,6 +1016,7 @@
     if (menuTab === 'equipment') return 1;
     if (menuTab === 'inventory') return 5;
     if (menuTab === 'solgrid') return solGridState ? solGridState.size || 5 : 5;
+    if (menuTab === 'weapon') return weaponUpgradeState ? weaponUpgradeState.size || 3 : 3;
     if (menuTab === 'quests') return 1;
     return 1;
   }
@@ -1170,6 +1216,12 @@
         structDefs[s.id] = s;
       }
 
+      // HP lookup by grid position
+      const hpMap = new Map();
+      for (const h of (autoState.structureHp || [])) {
+        hpMap.set(h.x + ':' + h.y, h);
+      }
+
       for (let cy = 0; cy < autoState.grid.height; cy++) {
         for (let cx = 0; cx < autoState.grid.width; cx++) {
           const idx = cy * autoState.grid.width + cx;
@@ -1187,15 +1239,27 @@
             cell.classList.add('placed');
             const def = structDefs[placement.structureId];
             if (def) {
-              cell.textContent = def.gridIcon || '?';
+              const iconSpan = document.createElement('span');
+              iconSpan.textContent = def.gridIcon || '?';
+              cell.appendChild(iconSpan);
               cell.style.color = def.gridColor || '#888';
-              cell.style.background = 'rgba(255, 167, 38, 0.08)';
+
+              // Apply background; red tinge if damaged
+              const hpInfo = hpMap.get(cx + ':' + cy);
+              if (hpInfo && hpInfo.hp < hpInfo.maxHp) {
+                cell.classList.add('damaged');
+              } else {
+                cell.style.background = 'rgba(255, 167, 38, 0.08)';
+              }
 
               // Build tooltip content
               const tipLines = [
                 '<strong style="color:' + (def.gridColor || '#ffa726') + '">' + def.name + '</strong>',
                 def.description ? '<span class="auto-tip-desc">' + def.description + '</span>' : null,
               ].filter(Boolean);
+              if (hpInfo && hpInfo.hp < hpInfo.maxHp) {
+                tipLines.push('<span class="auto-tip-desc" style="color:#ef9a9a">HP: ' + hpInfo.hp + ' / ' + hpInfo.maxHp + '</span>');
+              }
 
               let pinned = false;
               const tip = document.createElement('div');
@@ -1223,6 +1287,20 @@
                 e.preventDefault();
                 togglePin();
               }, { passive: false });
+
+              // HP bar at bottom of cell if structure is damaged
+              if (hpInfo && hpInfo.hp < hpInfo.maxHp) {
+                const hpBar = document.createElement('div');
+                hpBar.className = 'auto-cell-hp-bar';
+                const hpFill = document.createElement('div');
+                hpFill.className = 'auto-cell-hp-fill';
+                const pct = Math.max(0, (hpInfo.hp / hpInfo.maxHp) * 100);
+                hpFill.style.width = pct + '%';
+                if (pct < 25) hpFill.classList.add('critical');
+                else if (pct < 50) hpFill.classList.add('low');
+                hpBar.appendChild(hpFill);
+                cell.appendChild(hpBar);
+              }
             }
           } else if (preBuilt) {
             // Array infrastructure
@@ -1551,12 +1629,51 @@
       descDiv.textContent = quest.description;
       questPanelContent.appendChild(descDiv);
 
-      for (const step of quest.steps) {
+      // Separate steps by status
+      const completedSteps = quest.steps.filter(s => s.status === 'completed');
+      const activeSteps = quest.steps.filter(s => s.status === 'active');
+      const isExpanded = expandedQuests.has(quest.id);
+
+      // Collapsed view: "..." + last completed + first active
+      // Expanded view: all completed + all active (no locked)
+      if (completedSteps.length > 1 && !isExpanded) {
+        // "..." row to expand older completed steps
+        const ellipsisDiv = document.createElement('div');
+        ellipsisDiv.className = 'quest-step-ellipsis';
+        ellipsisDiv.textContent = '... ' + (completedSteps.length - 1) + ' completed';
+        ellipsisDiv.addEventListener('click', () => {
+          expandedQuests.add(quest.id);
+          renderQuestPanel();
+        });
+        questPanelContent.appendChild(ellipsisDiv);
+      }
+
+      const stepsToShow = isExpanded ? completedSteps : (completedSteps.length > 0 ? [completedSteps[completedSteps.length - 1]] : []);
+      for (const step of stepsToShow) {
         const stepDiv = document.createElement('div');
-        stepDiv.className = 'quest-step ' + step.status;
+        stepDiv.className = 'quest-step completed';
+        stepDiv.textContent = step.label;
+        questPanelContent.appendChild(stepDiv);
+      }
+
+      // If expanded and there are older completed steps, show a collapse button
+      if (isExpanded && completedSteps.length > 1) {
+        const collapseDiv = document.createElement('div');
+        collapseDiv.className = 'quest-step-ellipsis';
+        collapseDiv.textContent = '... collapse';
+        collapseDiv.addEventListener('click', () => {
+          expandedQuests.delete(quest.id);
+          renderQuestPanel();
+        });
+        questPanelContent.appendChild(collapseDiv);
+      }
+
+      for (const step of activeSteps) {
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'quest-step active';
         stepDiv.textContent = step.label;
 
-        if (step.description && step.status !== 'locked') {
+        if (step.description) {
           const descSpan = document.createElement('div');
           descSpan.className = 'step-desc';
           descSpan.textContent = step.description;
@@ -1615,6 +1732,101 @@
       milestonToast.style.display = 'none';
     }, 4000);
   }
+
+  function showRaidToast(raid) {
+    if (!raid || !raid.occurred) return;
+
+    const lines = [];
+
+    if (raid.defended) {
+      lines.push('<span style="color:#81c784">Raid defended!</span>');
+      lines.push(raid.monsterCount + ' ' + (raid.monsterCount === 1 ? 'creature' : 'creatures') + ' eliminated');
+      lines.push('<span style="color:#81c784">All structures safe</span>');
+    } else {
+      const count = raid.monsterCount || 0;
+      lines.push(count + ' ' + (count === 1 ? 'creature' : 'creatures') + ' attacked');
+
+      if (raid.defenseRating > 0) {
+        const turrets = Math.round(raid.defenseRating / 50);
+        lines.push(turrets + ' turret' + (turrets !== 1 ? 's' : '') + ' active \u2014 ' + raid.defenseRating + ' defense');
+      }
+
+      if (raid.destroyed && raid.destroyed.length > 0) {
+        lines.push('<span style="color:#ef5350">' + raid.destroyed.length + ' structure' + (raid.destroyed.length !== 1 ? 's' : '') + ' destroyed</span>');
+      }
+
+      if (raid.damaged && raid.damaged.length > 0) {
+        lines.push(raid.damaged.length + ' structure' + (raid.damaged.length !== 1 ? 's' : '') + ' damaged');
+      }
+
+      if ((!raid.damaged || raid.damaged.length === 0) && (!raid.destroyed || raid.destroyed.length === 0)) {
+        lines.push('<span style="color:#81c784">All structures held</span>');
+      }
+    }
+
+    raidAlertText.innerHTML = lines.join('<br>');
+    raidToast.style.display = 'block';
+    raidToast.style.animation = 'none';
+    void raidToast.offsetWidth;
+    raidToast.style.animation = '';
+    if (raidToastTimeout) clearTimeout(raidToastTimeout);
+    raidToastTimeout = setTimeout(() => {
+      raidToast.style.display = 'none';
+    }, 6000);
+  }
+
+  function showRaidIncoming(raid) {
+    if (!raid || !raid.pending) return;
+    // Hide any existing raid alert
+    raidToast.style.display = 'none';
+
+    const count = raid.monsterCount || 0;
+    const lines = [];
+    lines.push(count + ' ' + (count === 1 ? 'creature' : 'creatures') + ' approaching');
+    if (raid.defenseRating > 0) {
+      lines.push('Turret defense: ' + raid.defenseRating);
+    }
+    lines.push('Estimated damage: ' + Math.max(0, raid.totalRaidDamage - (raid.defenseRating || 0)));
+
+    raidIncomingText.innerHTML = lines.join('<br>');
+    raidIncomingCountdown = raid.countdown || 30;
+    raidCountdownTimer.textContent = Math.ceil(raidIncomingCountdown);
+    raidIncomingToast.style.display = 'block';
+    raidIncomingToast.style.animation = 'none';
+    void raidIncomingToast.offsetWidth;
+    raidIncomingToast.style.animation = '';
+
+    // Start countdown
+    if (raidIncomingInterval) clearInterval(raidIncomingInterval);
+    raidIncomingInterval = setInterval(() => {
+      raidIncomingCountdown--;
+      raidCountdownTimer.textContent = Math.max(0, Math.ceil(raidIncomingCountdown));
+      if (raidIncomingCountdown <= 0) {
+        clearInterval(raidIncomingInterval);
+        raidIncomingInterval = null;
+        raidIncomingToast.style.display = 'none';
+      }
+    }, 1000);
+  }
+
+  function hideRaidIncoming() {
+    raidIncomingToast.style.display = 'none';
+    if (raidIncomingInterval) {
+      clearInterval(raidIncomingInterval);
+      raidIncomingInterval = null;
+    }
+  }
+
+  // Defend button sends RAID_DEFEND to server
+  raidDefendBtn.addEventListener('click', () => {
+    net.send({ type: CONSTANTS.MSG.RAID_DEFEND });
+    hideRaidIncoming();
+  });
+
+  // Siege repair button sends SIEGE_REPAIR to server
+  siegeRepairBtn.addEventListener('click', () => {
+    net.send({ type: CONSTANTS.MSG.SIEGE_REPAIR });
+  });
 
   // --- Tab click handlers ---
   document.querySelectorAll('#character-menu .inv-tab').forEach(tab => {
@@ -1744,6 +1956,77 @@
     return parts;
   }
 
+  function renderStatsPanel() {
+    const panel = document.getElementById('stats-panel');
+    if (!panel || !playerStats) return;
+
+    const s = playerStats;
+    const baseHP = CONSTANTS.PLAYER_MAX_HEALTH;
+    const bonusHP = s.maxHealth - baseHP;
+    const baseDmg = CONSTANTS.PLAYER_ATTACK_DAMAGE;
+    const bonusDmg = s.attackDamage - baseDmg;
+
+    let html = '';
+
+    // Level & XP section
+    html += '<div class="stats-section">';
+    html += '<div class="stats-section-title">LEVEL</div>';
+    html += '<div class="stat-bar-row">';
+    html += '<div class="stat-bar-header"><span class="stat-label">Level ' + s.level + '</span>';
+    if (s.xpToNextLevel > 0) {
+      html += '<span class="stat-value">' + s.xp + ' / ' + s.xpToNextLevel + ' XP</span>';
+    } else {
+      html += '<span class="stat-value">MAX</span>';
+    }
+    html += '</div>';
+    if (s.xpToNextLevel > 0) {
+      const xpPct = (s.xp / s.xpToNextLevel) * 100;
+      html += '<div class="stat-bar-track"><div class="stat-bar-fill" style="width:' + xpPct + '%;background:#ffa726"></div></div>';
+    } else {
+      html += '<div class="stat-bar-track"><div class="stat-bar-fill" style="width:100%;background:#ffa726"></div></div>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    // Combat stats
+    html += '<div class="stats-section">';
+    html += '<div class="stats-section-title">COMBAT</div>';
+
+    // HP
+    html += '<div class="stat-row"><span class="stat-label">Max HP</span><span class="stat-value">' + s.maxHealth;
+    if (bonusHP > 0) html += '<span class="stat-bonus">+' + bonusHP + '</span>';
+    html += '</span></div>';
+
+    // Current HP
+    const hpPct = Math.round((s.health / s.maxHealth) * 100);
+    html += '<div class="stat-bar-row">';
+    html += '<div class="stat-bar-header"><span class="stat-label">Health</span><span class="stat-value">' + Math.round(s.health) + ' / ' + s.maxHealth + '</span></div>';
+    const hpColor = hpPct > 50 ? '#4caf50' : hpPct > 25 ? '#ff9800' : '#e53935';
+    html += '<div class="stat-bar-track"><div class="stat-bar-fill" style="width:' + hpPct + '%;background:' + hpColor + '"></div></div>';
+    html += '</div>';
+
+    // Attack damage
+    html += '<div class="stat-row"><span class="stat-label">Attack Damage</span><span class="stat-value">' + s.attackDamage;
+    if (bonusDmg > 0) html += '<span class="stat-bonus">+' + bonusDmg + ' from gear</span>';
+    html += '</span></div>';
+
+    html += '</div>';
+
+    // Energy section (only if player has energy)
+    if (s.maxEnergy > 0) {
+      html += '<div class="stats-section">';
+      html += '<div class="stats-section-title">ENERGY</div>';
+      const ePct = s.maxEnergy > 0 ? Math.round((s.energy / s.maxEnergy) * 100) : 0;
+      html += '<div class="stat-bar-row">';
+      html += '<div class="stat-bar-header"><span class="stat-label">Sol Energy</span><span class="stat-value">' + s.energy + ' / ' + s.maxEnergy + '</span></div>';
+      html += '<div class="stat-bar-track"><div class="stat-bar-fill" style="width:' + ePct + '%;background:#4fc3f7"></div></div>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    panel.innerHTML = html;
+  }
+
   function renderEquipmentSlots() {
     // Clear existing slot elements (keep the label)
     const label = equipmentSlots.querySelector('.equip-label');
@@ -1816,8 +2099,22 @@
     const detailPanel = document.createElement('div');
     detailPanel.className = 'inv-detail-panel';
 
+    // Group identical items into stacks; use firstIndex for server messages
+    // Items with different durability values don't stack together
+    const stacks = [];
+    const seenTypes = new Map(); // stackKey -> stacks index
     for (let i = 0; i < inventoryItems.length; i++) {
       const item = inventoryItems[i];
+      const stackKey = item.durability !== undefined ? item.type + ':dur' + item.durability : item.type;
+      if (seenTypes.has(stackKey)) {
+        stacks[seenTypes.get(stackKey)].count++;
+      } else {
+        seenTypes.set(stackKey, stacks.length);
+        stacks.push({ item, firstIndex: i, count: 1 });
+      }
+    }
+
+    for (const { item, firstIndex, count } of stacks) {
       const cell = document.createElement('div');
       cell.className = 'inv-grid-cell rarity-' + (item.rarity || 'common');
       const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
@@ -1825,15 +2122,22 @@
       let html = '<span class="cell-dot" style="background:' + rarityColor + '"></span>' +
         '<span class="cell-name" style="color:' + rarityColor + '">' + item.name + '</span>';
 
+      if (count > 1) {
+        html += '<span class="inv-stack-count">x' + count + '</span>';
+      }
       if (item.category === 'weapon' || item.category === 'equipment' || item.slot) {
         html += '<span class="inv-slot-tag">equip</span>';
       }
       if (item.category === 'consumable') {
         html += '<span class="inv-use-tag">use</span>';
       }
+      if (item.durability !== undefined) {
+        const durColor = item.durability <= 1 ? '#ff5252' : item.durability <= 2 ? '#ffab40' : '#aaa';
+        html += '<span class="inv-dur-tag" style="color:' + durColor + '">DUR ' + item.durability + '/3</span>';
+      }
       cell.innerHTML = html;
 
-      const idx = i;
+      const idx = firstIndex;
       if (item.category === 'consumable') {
         cell.addEventListener('click', () => {
           net.send({ type: CONSTANTS.MSG.USE_ITEM, index: idx });
@@ -1855,6 +2159,35 @@
     inventoryList.appendChild(detailPanel);
 
     updateCursorHighlight();
+  }
+
+  function renderCachedItems() {
+    const cachedList = document.getElementById('cached-list');
+    if (!cachedList) return;
+    cachedList.innerHTML = '';
+    const header = document.createElement('div');
+    header.className = 'cached-header';
+    header.textContent = bankedItems.length > 0
+      ? bankedItems.length + ' item(s) secured — returned at expedition end'
+      : 'No items cached yet';
+    cachedList.appendChild(header);
+    if (bankedItems.length === 0) return;
+    const grid = document.createElement('div');
+    grid.className = 'inv-grid';
+    const detailPanel = document.createElement('div');
+    detailPanel.className = 'inv-detail-panel';
+    for (const item of bankedItems) {
+      const cell = document.createElement('div');
+      const rarityColor = CONSTANTS.RARITY_COLORS[item.rarity] || CONSTANTS.RARITY_COLORS.common;
+      cell.className = 'inv-grid-cell rarity-' + (item.rarity || 'common') + ' cached-item';
+      cell.innerHTML = '<span class="cell-dot" style="background:' + rarityColor + '"></span>' +
+        '<span class="cell-name" style="color:' + rarityColor + '">' + item.name + '</span>';
+      cell.addEventListener('mouseenter', () => showItemDetail(item, detailPanel));
+      cell.addEventListener('mouseleave', () => { detailPanel.innerHTML = ''; });
+      grid.appendChild(cell);
+    }
+    cachedList.appendChild(grid);
+    cachedList.appendChild(detailPanel);
   }
 
   function showItemDetail(item, panel) {
@@ -1976,6 +2309,12 @@
               if (comp.bonus.cooldownReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.cooldownReduction * 100) + '% cd</div>';
               if (comp.bonus.healOnHit) html += '<div class="sol-mod-tag">+' + comp.bonus.healOnHit + ' heal</div>';
               if (comp.bonus.energyCostReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.energyCostReduction * 100) + '% cost</div>';
+            }
+            // Show durability indicator
+            if (comp.durability !== undefined) {
+              const maxDur = comp.maxDurability || 3;
+              const durColor = comp.durability <= 1 ? '#ff5252' : comp.durability <= 2 ? '#ffab40' : '#aaa';
+              html += '<div class="sol-mod-tag" style="color:' + durColor + '">DUR ' + comp.durability + '/' + maxDur + '</div>';
             }
             cell.innerHTML = html;
           }
@@ -2207,6 +2546,181 @@
     if (tutorialPhase === 'select_component' || tutorialPhase === 'place_component') {
       setTimeout(updateTutorialArrow, 0);
     }
+  }
+
+  // --- Weapon Upgrade Panel ---
+  function renderWeaponUpgradePanel() {
+    const container = document.getElementById('weapon-upgrade-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!weaponUpgradeState) {
+      const empty = document.createElement('div');
+      empty.className = 'wu-empty';
+      empty.textContent = 'No weapon equipped. Equip a weapon to upgrade it.';
+      container.appendChild(empty);
+      return;
+    }
+
+    const wu = weaponUpgradeState;
+    const rarityColors = CONSTANTS.RARITY_COLORS || {};
+
+    // Header: weapon name
+    const header = document.createElement('div');
+    header.className = 'wu-header';
+    const nameEl = document.createElement('div');
+    nameEl.className = 'wu-weapon-name';
+    nameEl.textContent = wu.weaponName;
+    nameEl.style.color = rarityColors[wu.weaponRarity] || '#fff';
+    header.appendChild(nameEl);
+    const subtitle = document.createElement('div');
+    subtitle.className = 'wu-weapon-subtitle';
+    subtitle.textContent = wu.size + 'x' + wu.size + ' upgrade grid';
+    header.appendChild(subtitle);
+    container.appendChild(header);
+
+    // Total bonuses banner
+    const tb = wu.totalBonuses;
+    const hasBonuses = tb && (tb.flatDamage || tb.damageMultiplier || tb.cooldownReduction || tb.energyCostReduction);
+    if (hasBonuses) {
+      const bonusDiv = document.createElement('div');
+      bonusDiv.className = 'wu-bonuses';
+      const title = document.createElement('div');
+      title.className = 'wu-bonuses-title';
+      title.textContent = 'Upgrade Bonuses';
+      bonusDiv.appendChild(title);
+      const perks = document.createElement('div');
+      if (tb.flatDamage) {
+        const tag = document.createElement('span');
+        tag.className = 'wu-bonus-tag';
+        tag.textContent = '+' + tb.flatDamage + ' DMG';
+        perks.appendChild(tag);
+      }
+      if (tb.damageMultiplier) {
+        const tag = document.createElement('span');
+        tag.className = 'wu-bonus-tag';
+        tag.textContent = '+' + Math.round(tb.damageMultiplier * 100) + '% DMG';
+        perks.appendChild(tag);
+      }
+      if (tb.cooldownReduction) {
+        const tag = document.createElement('span');
+        tag.className = 'wu-bonus-tag';
+        tag.textContent = '-' + Math.round(tb.cooldownReduction * 100) + '% CD';
+        perks.appendChild(tag);
+      }
+      if (tb.energyCostReduction) {
+        const tag = document.createElement('span');
+        tag.className = 'wu-bonus-tag';
+        tag.textContent = '-' + Math.round(tb.energyCostReduction * 100) + '% Cost';
+        perks.appendChild(tag);
+      }
+      bonusDiv.appendChild(perks);
+      container.appendChild(bonusDiv);
+    }
+
+    // Upgrade grid
+    const grid = document.createElement('div');
+    grid.className = 'wu-grid';
+    grid.style.gridTemplateColumns = 'repeat(' + wu.size + ', 80px)';
+    for (let i = 0; i < wu.slots.length; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'wu-cell';
+      const slotData = wu.slots[i];
+      if (slotData) {
+        cell.classList.add('has-material');
+        const name = document.createElement('div');
+        name.className = 'wu-cell-name';
+        name.textContent = slotData.name;
+        name.style.color = rarityColors[slotData.rarity] || '#aaa';
+        cell.appendChild(name);
+        // Show bonus
+        const bonus = slotData.bonus;
+        if (bonus) {
+          const bonusEl = document.createElement('div');
+          bonusEl.className = 'wu-cell-bonus';
+          const parts = [];
+          if (bonus.damage) parts.push('+' + bonus.damage + ' DMG');
+          if (bonus.damageMultiplier) parts.push('+' + Math.round(bonus.damageMultiplier * 100) + '%');
+          if (bonus.cooldownReduction) parts.push('-' + Math.round(bonus.cooldownReduction * 100) + '% CD');
+          if (bonus.energyCostReduction) parts.push('-' + Math.round(bonus.energyCostReduction * 100) + '% Cost');
+          bonusEl.textContent = parts.join(' ');
+          cell.appendChild(bonusEl);
+        }
+        // Click to remove
+        cell.addEventListener('click', () => {
+          net.send({ type: CONSTANTS.MSG.WEAPON_UPGRADE_REMOVE, gridIndex: i });
+        });
+      } else {
+        // Empty cell - click to place selected material
+        cell.addEventListener('click', () => {
+          if (weaponUpgradeSelectedMaterial !== null) {
+            net.send({
+              type: CONSTANTS.MSG.WEAPON_UPGRADE_PLACE,
+              inventoryIndex: weaponUpgradeSelectedMaterial,
+              gridIndex: i,
+            });
+            weaponUpgradeSelectedMaterial = null;
+          }
+        });
+      }
+      grid.appendChild(cell);
+    }
+    container.appendChild(grid);
+
+    // Crafting materials in inventory
+    const craftingMats = [];
+    for (let i = 0; i < inventoryItems.length; i++) {
+      if (inventoryItems[i].category === 'crafting') {
+        craftingMats.push({ item: inventoryItems[i], index: i });
+      }
+    }
+
+    if (craftingMats.length > 0) {
+      const label = document.createElement('div');
+      label.className = 'wu-materials-label';
+      label.textContent = 'Crafting Materials';
+      container.appendChild(label);
+
+      const invGrid = document.createElement('div');
+      invGrid.className = 'wu-inv-grid';
+      for (const { item, index } of craftingMats) {
+        const cell = document.createElement('div');
+        cell.className = 'wu-inv-cell';
+        if (weaponUpgradeSelectedMaterial === index) cell.classList.add('selected');
+        const name = document.createElement('div');
+        name.textContent = item.name;
+        name.style.color = rarityColors[item.rarity] || '#aaa';
+        name.style.fontSize = '11px';
+        cell.appendChild(name);
+        cell.addEventListener('click', () => {
+          weaponUpgradeSelectedMaterial = (weaponUpgradeSelectedMaterial === index) ? null : index;
+          renderWeaponUpgradePanel();
+        });
+        invGrid.appendChild(cell);
+      }
+      container.appendChild(invGrid);
+    }
+
+    // Info text
+    const info = document.createElement('div');
+    info.className = 'wu-info';
+    if (weaponUpgradeSelectedMaterial !== null) {
+      info.textContent = 'Click an empty grid cell to place material';
+    } else {
+      info.textContent = 'Click a material below to select, or click placed to remove';
+    }
+    container.appendChild(info);
+
+    // Disassemble button
+    const disBtn = document.createElement('button');
+    disBtn.className = 'wu-disassemble-btn';
+    disBtn.textContent = 'Disassemble Weapon';
+    disBtn.addEventListener('click', () => {
+      net.send({ type: CONSTANTS.MSG.WEAPON_DISASSEMBLE });
+    });
+    container.appendChild(disBtn);
+
+    updateCursorHighlight();
   }
 
   // --- Dynamic interact button label ---
@@ -2691,6 +3205,30 @@
         } else if (ev.type === 'boss_intro' && ev.playerId === renderer.myId) {
           audio.play('boss_intro');
           audio.playMusic(ev.bossMusic || 'boss_combat');
+        } else if (ev.type === 'wave_start') {
+          audio.play('ambush_reveal');
+        } else if (ev.type === 'wave_clear') {
+          audio.play('level_up');
+        } else if (ev.type === 'lighthouse_hit') {
+          audio.play('hit_take');
+        } else if (ev.type === 'lighthouse_repair') {
+          audio.play('item_pickup');
+        } else if (ev.type === 'siege_victory') {
+          siegeOverlay.className = '';
+          void siegeOverlay.offsetWidth;
+          siegeOverlay.classList.add('victory');
+          siegeOverlayTitle.textContent = 'SIEGE VICTORY';
+          siegeOverlayDetails.textContent = 'The lighthouse stands. Rewards granted.';
+          audio.play('level_up');
+          setTimeout(() => { siegeOverlay.className = ''; }, 6000);
+        } else if (ev.type === 'siege_defeat') {
+          siegeOverlay.className = '';
+          void siegeOverlay.offsetWidth;
+          siegeOverlay.classList.add('defeat');
+          siegeOverlayTitle.textContent = 'SIEGE FAILED';
+          siegeOverlayDetails.textContent = `The lighthouse fell. Waves survived: ${ev.wavesCompleted || 0}`;
+          audio.play('death_player');
+          setTimeout(() => { siegeOverlay.className = ''; }, 5000);
         }
       }
     }
@@ -2727,6 +3265,18 @@
         }
         hudName.textContent = me.name;
         if (me.facing !== undefined) lastFacing = me.facing;
+        // Cache player stats for the stats panel
+        playerStats = {
+          level: me.level,
+          health: me.health,
+          maxHealth: me.maxHealth,
+          xp: me.xp,
+          xpToNextLevel: me.xpToNextLevel,
+          attackDamage: me.attackDamage || CONSTANTS.PLAYER_ATTACK_DAMAGE,
+          energy: Math.round(me.energy || 0),
+          maxEnergy: me.maxEnergy || 0,
+        };
+        if (menuOpen && menuTab === 'stats') renderStatsPanel();
       }
 
       // Update party member health frames
@@ -2803,8 +3353,74 @@
       } else {
         expeditionParty.style.display = 'none';
       }
+      if (!inExpedition) {
+        inExpedition = true;
+        const cachedTab = document.querySelector('#character-menu .inv-tab[data-tab="cached"]');
+        if (cachedTab) cachedTab.style.display = '';
+      }
     } else {
       expeditionHud.style.display = 'none';
+      if (inExpedition) {
+        inExpedition = false;
+        bankedItems = [];
+        const cachedTab = document.querySelector('#character-menu .inv-tab[data-tab="cached"]');
+        if (cachedTab) cachedTab.style.display = 'none';
+        if (menuOpen && menuTab === 'cached') switchTab('equipment');
+      }
+    }
+
+    // Update siege HUD
+    if (msg.siege && msg.siege.phase) {
+      siegeHud.style.display = '';
+      siegeTitle.textContent = msg.siege.displayName || 'SIEGE';
+      if (msg.siege.wave > 0) {
+        siegeWave.textContent = `Wave ${msg.siege.wave} / ${msg.siege.maxWaves}`;
+      } else {
+        siegeWave.textContent = 'Preparing...';
+      }
+      // Phase indicator
+      if (msg.siege.phase === 'preparing' || msg.siege.phase === 'inter_wave') {
+        siegePhase.textContent = `Next wave in ${msg.siege.phaseTimer}s`;
+      } else if (msg.siege.phase === 'active') {
+        siegePhase.textContent = 'WAVE ACTIVE';
+        siegePhase.style.color = '#e53935';
+      } else if (msg.siege.phase === 'victory') {
+        siegePhase.textContent = 'VICTORY!';
+        siegePhase.style.color = '#66bb6a';
+      } else if (msg.siege.phase === 'defeat') {
+        siegePhase.textContent = 'DEFEATED';
+        siegePhase.style.color = '#e53935';
+      }
+      if (msg.siege.phase !== 'active') {
+        siegePhase.style.color = '#aaa';
+      }
+      // Lighthouse HP bar
+      const lhPct = msg.siege.lighthouseMaxHp > 0 ? (msg.siege.lighthouseHp / msg.siege.lighthouseMaxHp) * 100 : 0;
+      siegeLhFill.style.width = lhPct + '%';
+      siegeLhText.textContent = `${msg.siege.lighthouseHp} / ${msg.siege.lighthouseMaxHp}`;
+      // Communal energy bar
+      const enPct = msg.siege.communalEnergyMax > 0 ? (msg.siege.communalEnergy / msg.siege.communalEnergyMax) * 100 : 0;
+      siegeEnergyFill.style.width = enPct + '%';
+      siegeEnergyText.textContent = `${msg.siege.communalEnergy} / ${msg.siege.communalEnergyMax}`;
+      // Monsters remaining
+      if (msg.siege.phase === 'active') {
+        siegeMonsters.textContent = `Enemies: ${msg.siege.monstersRemaining}`;
+        siegeMonsters.style.display = '';
+      } else {
+        siegeMonsters.style.display = 'none';
+      }
+      // Show repair button during inter-wave/preparing if lighthouse is damaged
+      const canRepair = (msg.siege.phase === 'inter_wave' || msg.siege.phase === 'preparing')
+        && msg.siege.lighthouseHp < msg.siege.lighthouseMaxHp;
+      if (canRepair) {
+        siegeRepairBtn.style.display = '';
+        siegeRepairBtn.textContent = `Repair Lighthouse (${msg.siege.repairCost} silicon, +${msg.siege.repairAmount} HP)`;
+      } else {
+        siegeRepairBtn.style.display = 'none';
+      }
+    } else {
+      siegeHud.style.display = 'none';
+      siegeRepairBtn.style.display = 'none';
     }
 
     // Update click-to-move direction based on current position
@@ -2840,8 +3456,10 @@
     closeChoiceMenu();
     closeAutomationScreen();
     closeWorldmap();
-    // Hide boss bar when changing floors
+    hideRaidIncoming();
+    // Hide boss bar and siege overlay when changing floors
     bossBar.style.display = 'none';
+    siegeOverlay.className = '';
     // Play floor change SFX and switch music based on room name/tileset biome
     audio.play('floor_change');
     const roomName = (msg.map.name || '').toLowerCase();
@@ -2865,6 +3483,11 @@
   });
 
   net.on(CONSTANTS.MSG.LOOT_BANKED, (msg) => {
+    // Update banked items state
+    if (msg.bankedItems) {
+      bankedItems = msg.bankedItems;
+      if (menuOpen && menuTab === 'cached') renderCachedItems();
+    }
     // Show banking confirmation via milestone toast pattern
     milestoneText.textContent = '\u{1F4E6} ' + msg.bankedCount + ' item(s) banked — ' + msg.totalBanked + ' total cached';
     milestonToast.style.display = 'block';
@@ -2945,6 +3568,23 @@
         clearTutorialArrow();
       }
     }
+  });
+
+  net.on(CONSTANTS.MSG.WEAPON_UPGRADE_STATE, (msg) => {
+    weaponUpgradeState = msg.state || null;
+    weaponUpgradeSelectedMaterial = null;
+    // Update weapon tab disabled state
+    const wTab = document.querySelector('#character-menu .inv-tab[data-tab="weapon"]');
+    if (wTab) wTab.classList.toggle('disabled', !weaponUpgradeState);
+    // If weapon tab became unavailable while viewing it, switch away
+    if (menuOpen && menuTab === 'weapon' && !weaponUpgradeState) {
+      switchTab('equipment');
+    }
+    if (menuOpen && menuTab === 'weapon' && weaponUpgradeState) {
+      renderWeaponUpgradePanel();
+    }
+    // Re-render equipment slots
+    if (menuOpen && menuTab === 'equipment') renderEquipmentSlots();
   });
 
   net.on(CONSTANTS.MSG.ABILITY_STATE, (msg) => {
@@ -3033,6 +3673,16 @@
     showMilestoneToast(msg.milestoneIcon || '★', msg.milestoneName || 'Milestone', msg.milestoneThreshold || 0);
   });
 
+  net.on(CONSTANTS.MSG.RAID_ALERT, (msg) => {
+    hideRaidIncoming();
+    showRaidToast(msg.raid);
+    if (automationScreenOpen) renderAutomationScreen();
+  });
+
+  net.on(CONSTANTS.MSG.RAID_INCOMING, (msg) => {
+    showRaidIncoming(msg.raid);
+  });
+
   net.on(CONSTANTS.MSG.INVENTORY, (msg) => {
     inventoryItems = msg.items || [];
     if (msg.equipment) {
@@ -3044,6 +3694,9 @@
     if (msg.credits !== undefined) {
       playerCredits = msg.credits;
     }
+    if (msg.bankedItems !== undefined) {
+      bankedItems = msg.bankedItems;
+    }
     updateActionBar();
     if (menuOpen && (menuTab === 'equipment' || menuTab === 'inventory')) {
       if (menuTab === 'equipment') renderEquipmentSlots();
@@ -3053,6 +3706,12 @@
     if (menuOpen && menuTab === 'solgrid' && solGridState) {
       solGridSelectedComponent = null;
       renderSolGrid();
+    }
+    if (menuOpen && menuTab === 'cached') renderCachedItems();
+    // Re-render weapon upgrade panel when inventory changes so crafting materials list stays in sync
+    if (menuOpen && menuTab === 'weapon' && weaponUpgradeState) {
+      weaponUpgradeSelectedMaterial = null;
+      renderWeaponUpgradePanel();
     }
   });
 
@@ -3071,8 +3730,6 @@
   const chatInputRow = document.getElementById('chat-input-row');
   const chatInput = document.getElementById('chat-input');
   const voiceIndicator = document.getElementById('voice-indicator');
-  const CHAT_FADE_MS = 8000;
-
   function addChatLine(text, isSystem) {
     const el = document.createElement('div');
     el.className = 'chat-line' + (isSystem ? ' system' : '');
@@ -3080,8 +3737,6 @@
     chatLog.appendChild(el);
     // Keep max 50 lines
     while (chatLog.children.length > 50) chatLog.removeChild(chatLog.firstChild);
-    // Auto-fade after delay
-    setTimeout(() => { el.classList.add('faded'); }, CHAT_FADE_MS);
   }
 
   net.on(CONSTANTS.MSG.CHAT_BROADCAST, (msg) => {
@@ -3094,7 +3749,6 @@
     el.appendChild(document.createTextNode(msg.text));
     chatLog.appendChild(el);
     while (chatLog.children.length > 50) chatLog.removeChild(chatLog.firstChild);
-    setTimeout(() => { el.classList.add('faded'); }, CHAT_FADE_MS);
   });
 
   function openChat() {
@@ -3102,8 +3756,6 @@
     chatInputRow.classList.add('active');
     chatInput.value = '';
     chatInput.focus();
-    // Unfade recent messages while chat is open
-    for (const line of chatLog.children) line.classList.remove('faded');
   }
 
   function closeChat() {
@@ -3136,6 +3788,46 @@
 
   input.onChatOpen = openChat;
   input.onChatClose = closeChat;
+
+  // --- Player note (Ctrl+Enter to jot a note to the activity log) ---
+  const noteInputRow = document.getElementById('note-input-row');
+  const noteInput = document.getElementById('note-input');
+
+  function openNote() {
+    input.noteActive = true;
+    noteInputRow.classList.add('active');
+    noteInput.value = '';
+    noteInput.focus();
+  }
+
+  function closeNote() {
+    input.noteActive = false;
+    noteInputRow.classList.remove('active');
+    noteInput.blur();
+  }
+
+  function sendNote() {
+    const text = noteInput.value.trim();
+    if (text) {
+      net.send({ type: CONSTANTS.MSG.PLAYER_NOTE, text });
+    }
+    closeNote();
+  }
+
+  noteInput.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendNote();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      closeNote();
+    }
+  });
+  noteInput.addEventListener('keyup', (e) => { e.stopPropagation(); });
+
+  input.onNoteOpen = openNote;
+  input.onNoteClose = closeNote;
 
   // --- Voice chat (hold V to speak) ---
   let voiceRecognition = null;

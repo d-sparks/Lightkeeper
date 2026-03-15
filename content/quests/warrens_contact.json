@@ -1,0 +1,20 @@
+{
+  "id": "warrens_contact",
+  "name": "The Deep Warrens",
+  "description": "Councillor Asha mentioned Unbounded pathfinders using old maintenance tunnels beneath Meridian. If there's a peaceful faction beyond the Lighthouses, making contact could change the political calculus entirely.",
+  "startConditions": [{ "hasFlag": "asha_undercity_hint" }],
+  "steps": {
+    "descend_to_warrens": {
+      "label": "Find the Unbounded Contact",
+      "description": "Descend through the Meridian Undercity to the Deep Warrens. The Unbounded pathfinder is said to camp somewhere in the lower tunnels.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "meridian_undercity_deep" },
+      "completionConditions": [{ "hasFlag": "met_pathfinder_ren" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "text": "Quest complete: The Deep Warrens. Pathfinder Ren is a contact worth keeping — the Unbounded are not the enemy the Council assumes." }
+      ]
+    }
+  },
+  "startStep": "descend_to_warrens"
+}

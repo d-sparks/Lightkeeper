@@ -186,17 +186,82 @@ function applyTopLeftLighting(png) {
   }
 }
 
+// Clone a PNG so we can modify it without affecting the original
+function clonePNG(src) {
+  const dst = createPNG(src.width, src.height);
+  src.data.copy(dst.data);
+  return dst;
+}
+
+// Create a copy of a 16x16 sprite shifted by (dx, dy) pixels
+function createShiftedFrame(src, dx, dy) {
+  const frame = createPNG(16, 16);
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      const srcX = x - dx;
+      const srcY = y - dy;
+      if (srcX >= 0 && srcX < 16 && srcY >= 0 && srcY < 16) {
+        const srcIdx = (srcY * 16 + srcX) * 4;
+        const dstIdx = (y * 16 + x) * 4;
+        frame.data[dstIdx]     = src.data[srcIdx];
+        frame.data[dstIdx + 1] = src.data[srcIdx + 1];
+        frame.data[dstIdx + 2] = src.data[srcIdx + 2];
+        frame.data[dstIdx + 3] = src.data[srcIdx + 3];
+      }
+    }
+  }
+  return frame;
+}
+
+// Copy a processed 16x16 frame into a horizontal strip at the given frame index
+function copyFrameToStrip(frame, strip, frameIndex) {
+  const stripW = strip.width;
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      const srcIdx = (y * 16 + x) * 4;
+      const dstIdx = (y * stripW + (frameIndex * 16 + x)) * 4;
+      strip.data[dstIdx]     = frame.data[srcIdx];
+      strip.data[dstIdx + 1] = frame.data[srcIdx + 1];
+      strip.data[dstIdx + 2] = frame.data[srcIdx + 2];
+      strip.data[dstIdx + 3] = frame.data[srcIdx + 3];
+    }
+  }
+}
+
 function savePNG(png, filePath) {
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  // Apply art-style post-processing for entity sprites (not tilesets)
-  if (filePath.includes(`${path.sep}sprites${path.sep}`) || filePath.includes('/sprites/')) {
-    applyTopLeftLighting(png);
-    addOutline(png);
+  const isEntity = filePath.includes(`${path.sep}sprites${path.sep}`) || filePath.includes('/sprites/');
+  if (isEntity) {
+    // Generate 4-frame animation strip:
+    //   Frame 0: idle pose 1 (base)
+    //   Frame 1: idle pose 2 (bob — shift up 1px)
+    //   Frame 2: attack (lunge — shift right 2px, up 1px)
+    //   Frame 3: hit (recoil — shift left 1px)
+    const frames = [
+      clonePNG(png),                     // idle 1
+      createShiftedFrame(png, 0, -1),    // idle 2 (bob up)
+      createShiftedFrame(png, 2, -1),    // attack (lunge right + up)
+      createShiftedFrame(png, -1, 0),    // hit (recoil left)
+    ];
+    // Apply art-style post-processing to each frame individually
+    for (const f of frames) {
+      applyTopLeftLighting(f);
+      addOutline(f);
+    }
+    // Assemble into horizontal strip (64x16)
+    const strip = createPNG(64, 16);
+    for (let i = 0; i < 4; i++) {
+      copyFrameToStrip(frames[i], strip, i);
+    }
+    const buffer = PNG.sync.write(strip);
+    fs.writeFileSync(filePath, buffer);
+    console.log(`  wrote ${filePath} (4-frame strip)`);
+  } else {
+    const buffer = PNG.sync.write(png);
+    fs.writeFileSync(filePath, buffer);
+    console.log(`  wrote ${filePath}`);
   }
-  const buffer = PNG.sync.write(png);
-  fs.writeFileSync(filePath, buffer);
-  console.log(`  wrote ${filePath}`);
 }
 
 // ---- Shorthand aliases for pixel art ----
@@ -231,38 +296,35 @@ const Hl = C.lightGray;  // helmet highlight
 // ============================================================================
 
 function generateCryptTileset() {
-  const png = createPNG(160, 16);
+  const png = createPNG(640, 16); // 40 tiles × 16px
 
   // --- Tile 0: Void (cold blue-black, oppressive ancient dark) ---
   for (let y = 0; y < 16; y++) {
     for (let x = 0; x < 16; x++) {
       const v = 8 + ((x * 7 + y * 13) % 5);
-      setPixel(png, x, y, rgba(Math.floor(v * 0.7), Math.floor(v * 0.75), v)); // slate-blue cold tint
+      setPixel(png, x, y, rgba(Math.floor(v * 0.7), Math.floor(v * 0.75), v));
     }
   }
 
   // --- Tile 1: Stone Floor (dark flagstones with mortar lines) ---
   const ox1 = 16;
   fillRect(png, ox1, 0, 16, 16, C.floorMid);
-  // Mortar lines (horizontal at y=7, vertical at x=7)
   for (let i = 0; i < 16; i++) {
     setPixel(png, ox1 + i, 7, C.floorDark);
     setPixel(png, ox1 + 7, i, C.floorDark);
   }
-  // Highlight edges
   for (let i = 0; i < 7; i++) {
     setPixel(png, ox1 + i, 0, C.floorLight);
     setPixel(png, ox1, i, C.floorLight);
     setPixel(png, ox1 + 8 + i, 8, C.floorLight);
     setPixel(png, ox1 + 8, 8 + i, C.floorLight);
   }
-  // Scattered detail pixels
   setPixel(png, ox1 + 3, 3, C.floorLight);
   setPixel(png, ox1 + 11, 12, C.floorLight);
   setPixel(png, ox1 + 5, 10, C.floorDark);
   setPixel(png, ox1 + 13, 4, C.floorDark);
 
-  // --- Tile 2: Cracked Floor (similar to stone but with crack line) ---
+  // --- Tile 2: Cracked Floor (stone floor with diagonal crack) ---
   const ox2 = 32;
   fillRect(png, ox2, 0, 16, 16, C.floorMid);
   for (let i = 0; i < 16; i++) {
@@ -273,107 +335,75 @@ function generateCryptTileset() {
     setPixel(png, ox2 + i, 0, C.floorLight);
     setPixel(png, ox2, i, C.floorLight);
   }
-  // Crack: diagonal line
   const crackPixels = [[3,2],[4,3],[4,4],[5,5],[6,6],[5,7],[6,8],[7,9],[8,10],[9,11],[10,11],[11,12],[12,13]];
-  for (const [cx, cy] of crackPixels) {
-    setPixel(png, ox2 + cx, cy, C.darkGray);
-  }
+  for (const [cx, cy] of crackPixels) setPixel(png, ox2 + cx, cy, C.darkGray);
 
-  // --- Tile 3: Stone Wall (ancient burial chamber stone, cold crypt aesthetic) ---
+  // --- Tile 3: Stone Wall (ancient burial chamber, cold crypt aesthetic) ---
   const ox3 = 48;
-  // Solid base
   fillRect(png, ox3, 0, 16, 16, C.wallMid);
-  // Top edge highlight
   for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, C.wallTop);
-  // Bottom and right edge shadow for depth
   for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 15, C.wallDark);
   for (let i = 0; i < 16; i++) setPixel(png, ox3 + 15, i, C.wallDark);
-  // Subtle stone grain: scattered light/dark pixels (organic, not grid-aligned)
   const stoneLight = [[2,2],[3,4],[7,2],[10,3],[13,5],[5,7],[9,6],[1,9],[6,11],[11,8],[3,13],[8,13]];
   const stoneDark  = [[5,3],[1,5],[8,4],[11,6],[4,8],[7,10],[2,11],[10,9],[13,12],[6,14],[9,12],[12,2]];
   for (const [sx, sy] of stoneLight) setPixel(png, ox3 + sx, sy, C.wallLight);
   for (const [sx, sy] of stoneDark)  setPixel(png, ox3 + sx, sy, C.wallDark);
-  // Bone fragments embedded in crypt wall (ancient burial aesthetic)
   const boneSpecks = [[4,6],[11,4],[2,13],[9,10]];
   for (const [bx, by] of boneSpecks) setPixel(png, ox3 + bx, by, C.bone);
-  // Faint slate-blue tint to a few pixels (cold ancient stone)
   setPixel(png, ox3 + 7, 5, C.lightGray);
 
-  // --- Tile 4: Door Closed (iron-banded stone, cold crypt aesthetic) ---
+  // --- Tile 4: Door Closed (iron-banded stone, teal ring) ---
   const ox4 = 64;
-  fillRect(png, ox4, 0, 16, 16, C.midGray);           // iron-stone base
-  // Dark edges
+  fillRect(png, ox4, 0, 16, 16, C.midGray);
   fillRect(png, ox4, 0, 1, 16, C.darkGray);
   fillRect(png, ox4 + 15, 0, 1, 16, C.darkGray);
   fillRect(png, ox4 + 1, 0, 14, 1, C.darkGray);
   fillRect(png, ox4 + 1, 15, 14, 1, C.darkGray);
-  // Iron reinforcing bands (horizontal)
   fillRect(png, ox4 + 1, 3, 14, 2, C.gray);
   fillRect(png, ox4 + 1, 11, 14, 2, C.gray);
-  // Vertical center seam
   for (let vy = 0; vy < 16; vy++) setPixel(png, ox4 + 7, vy, C.darkGray);
-  // Rivet highlights at band corners
-  setPixel(png, ox4 + 3, 4, C.lightGray);
-  setPixel(png, ox4 + 12, 4, C.lightGray);
-  setPixel(png, ox4 + 3, 12, C.lightGray);
-  setPixel(png, ox4 + 12, 12, C.lightGray);
-  // Door ring: cold teal (phosphorescent glow — only interactive element)
-  setPixel(png, ox4 + 12, 7, C.teal);
-  setPixel(png, ox4 + 12, 8, C.teal);
+  setPixel(png, ox4 + 3, 4, C.lightGray); setPixel(png, ox4 + 12, 4, C.lightGray);
+  setPixel(png, ox4 + 3, 12, C.lightGray); setPixel(png, ox4 + 12, 12, C.lightGray);
+  setPixel(png, ox4 + 12, 7, C.teal); setPixel(png, ox4 + 12, 8, C.teal);
 
   // --- Tile 5: Door Open (recessed dark opening with frame) ---
   const ox5 = 80;
   fillRect(png, ox5, 0, 16, 16, C.floorDark);
-  // Frame on left and right
   fillRect(png, ox5, 0, 2, 16, C.darkBrown);
   fillRect(png, ox5 + 14, 0, 2, 16, C.darkBrown);
-  // Slightly lighter center
   fillRect(png, ox5 + 4, 2, 8, 12, rgba(25, 25, 40));
 
-  // --- Tile 6: Stairs Down (floor with descending steps pattern) ---
+  // --- Tile 6: Stairs Down (descending steps, teal glow arrow) ---
   const ox6 = 96;
   fillRect(png, ox6, 0, 16, 16, C.floorMid);
-  // Steps getting darker toward bottom
   fillRect(png, ox6 + 2, 2, 12, 3, C.floorLight);
   fillRect(png, ox6 + 3, 5, 10, 3, C.floorMid);
   fillRect(png, ox6 + 4, 8, 8, 3, C.floorDark);
   fillRect(png, ox6 + 5, 11, 6, 3, rgba(15, 18, 30));
-  // Down arrow: cold teal (phosphorescent glow — ancient eerie light)
-  setPixel(png, ox6 + 7, 13, C.lightTeal);
-  setPixel(png, ox6 + 8, 13, C.lightTeal);
-  setPixel(png, ox6 + 6, 12, C.lightTeal);
-  setPixel(png, ox6 + 9, 12, C.lightTeal);
+  setPixel(png, ox6 + 7, 13, C.lightTeal); setPixel(png, ox6 + 8, 13, C.lightTeal);
+  setPixel(png, ox6 + 6, 12, C.lightTeal); setPixel(png, ox6 + 9, 12, C.lightTeal);
 
-  // --- Tile 7: Water (dark blue with wavey highlights) ---
+  // --- Tile 7: Water (dark blue with wave highlights) ---
   const ox7 = 112;
   fillRect(png, ox7, 0, 16, 16, C.water1);
-  // Wave highlights
   const wavePixels = [[2,3],[3,3],[4,3],[8,5],[9,5],[10,5],[1,9],[2,9],[3,9],[7,11],[8,11],[9,11],[12,7],[13,7],[4,14],[5,14]];
-  for (const [wx, wy] of wavePixels) {
-    setPixel(png, ox7 + wx, wy, C.water2);
-  }
+  for (const [wx, wy] of wavePixels) setPixel(png, ox7 + wx, wy, C.water2);
   const waveHighPixels = [[3,2],[9,4],[2,8],[8,10],[13,6],[5,13]];
-  for (const [wx, wy] of waveHighPixels) {
-    setPixel(png, ox7 + wx, wy, C.water3);
-  }
+  for (const [wx, wy] of waveHighPixels) setPixel(png, ox7 + wx, wy, C.water3);
 
-  // --- Tile 8: Stairs Up (floor with ascending steps pattern) ---
+  // --- Tile 8: Stairs Up (ascending steps, bone-white arrow) ---
   const ox8 = 128;
   fillRect(png, ox8, 0, 16, 16, C.floorMid);
-  // Steps getting lighter toward top
   fillRect(png, ox8 + 5, 2, 6, 3, rgba(15, 18, 30));
   fillRect(png, ox8 + 4, 5, 8, 3, C.floorDark);
   fillRect(png, ox8 + 3, 8, 10, 3, C.floorMid);
   fillRect(png, ox8 + 2, 11, 12, 3, C.floorLight);
-  // Up arrow: bone-white (ascending toward light, ancient burial feel)
-  setPixel(png, ox8 + 7, 1, C.bone);
-  setPixel(png, ox8 + 8, 1, C.bone);
-  setPixel(png, ox8 + 6, 2, C.bone);
-  setPixel(png, ox8 + 9, 2, C.bone);
+  setPixel(png, ox8 + 7, 1, C.bone); setPixel(png, ox8 + 8, 1, C.bone);
+  setPixel(png, ox8 + 6, 2, C.bone); setPixel(png, ox8 + 9, 2, C.bone);
 
-  // --- Tile 9: Locked Door (iron-banded stone with Sol Gold lock symbol) ---
+  // --- Tile 9: Locked Door (iron-banded stone with Sol Gold lock) ---
   const ox9 = 144;
-  fillRect(png, ox9, 0, 16, 16, C.midGray);           // iron-stone base
+  fillRect(png, ox9, 0, 16, 16, C.midGray);
   fillRect(png, ox9, 0, 1, 16, C.darkGray);
   fillRect(png, ox9 + 15, 0, 1, 16, C.darkGray);
   fillRect(png, ox9 + 1, 0, 14, 1, C.darkGray);
@@ -381,15 +411,351 @@ function generateCryptTileset() {
   fillRect(png, ox9 + 1, 3, 14, 2, C.gray);
   fillRect(png, ox9 + 1, 11, 14, 2, C.gray);
   for (let vy = 0; vy < 16; vy++) setPixel(png, ox9 + 7, vy, C.darkGray);
-  setPixel(png, ox9 + 3, 4, C.lightGray);
-  setPixel(png, ox9 + 12, 4, C.lightGray);
-  setPixel(png, ox9 + 3, 12, C.lightGray);
-  setPixel(png, ox9 + 12, 12, C.lightGray);
-  // Lock symbol: Sol Gold (interactive marker per art-style-guide)
+  setPixel(png, ox9 + 3, 4, C.lightGray); setPixel(png, ox9 + 12, 4, C.lightGray);
+  setPixel(png, ox9 + 3, 12, C.lightGray); setPixel(png, ox9 + 12, 12, C.lightGray);
   fillRect(png, ox9 + 6, 6, 4, 4, C.solGold);
-  setPixel(png, ox9 + 7, 7, C.darkGray);
-  setPixel(png, ox9 + 8, 7, C.darkGray);
+  setPixel(png, ox9 + 7, 7, C.darkGray); setPixel(png, ox9 + 8, 7, C.darkGray);
   setPixel(png, ox9 + 7, 8, C.darkGray);
+
+  // --- Tile 10: Chest Closed (stone chest, bone corner studs, Sol Gold lock) ---
+  const ox10 = 160;
+  fillRect(png, ox10, 0, 1, 16, C.wallDark);
+  fillRect(png, ox10 + 15, 0, 1, 16, C.wallDark);
+  fillRect(png, ox10 + 1, 0, 14, 16, C.midGray);
+  fillRect(png, ox10 + 1, 0, 14, 5, C.wallMid);       // lid
+  fillRect(png, ox10 + 1, 5, 14, 1, C.darkGray);       // lid seam
+  fillRect(png, ox10 + 1, 14, 14, 2, C.wallDark);      // bottom shadow
+  for (let i = 2; i < 14; i++) setPixel(png, ox10 + i, 1, C.wallLight); // lid highlight
+  setPixel(png, ox10 + 2, 1, C.bone); setPixel(png, ox10 + 13, 1, C.bone); // corner studs
+  setPixel(png, ox10 + 2, 13, C.bone); setPixel(png, ox10 + 13, 13, C.bone);
+  fillRect(png, ox10 + 6, 7, 4, 4, C.solGold);         // Sol Gold lock
+  setPixel(png, ox10 + 7, 8, C.darkGray); setPixel(png, ox10 + 8, 8, C.darkGray);
+
+  // --- Tile 11: Chest Opened (dark interior, bone corner studs, open rim) ---
+  const ox11 = 176;
+  fillRect(png, ox11, 0, 1, 16, C.wallDark);
+  fillRect(png, ox11 + 15, 0, 1, 16, C.wallDark);
+  fillRect(png, ox11 + 1, 0, 14, 16, C.midGray);
+  fillRect(png, ox11 + 1, 14, 14, 2, C.wallDark);
+  fillRect(png, ox11 + 2, 1, 12, 10, C.darkGray);      // open interior
+  fillRect(png, ox11 + 3, 2, 10, 8, rgba(18, 18, 28));
+  setPixel(png, ox11 + 2, 12, C.bone); setPixel(png, ox11 + 13, 12, C.bone);
+  for (let i = 2; i < 14; i++) setPixel(png, ox11 + i, 0, C.bone); // open rim
+
+  // --- Tile 12: Sealed Gate (iron bars, teal phosphorescent seal) ---
+  const ox12 = 192;
+  fillRect(png, ox12, 0, 16, 16, C.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox12 + bar, 0, 2, 16, C.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox12 + bar, i, C.wallDark);
+  }
+  fillRect(png, ox12, 7, 16, 2, C.wallMid);
+  setPixel(png, ox12 + 7, 8, C.teal); setPixel(png, ox12 + 8, 8, C.teal);
+
+  // --- Tile 13: Sealed Gate Workshop (Sol Gold indicator — weapon required) ---
+  const ox13 = 208;
+  fillRect(png, ox13, 0, 16, 16, C.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox13 + bar, 0, 2, 16, C.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox13 + bar, i, C.wallDark);
+  }
+  fillRect(png, ox13, 7, 16, 2, C.wallMid);
+  setPixel(png, ox13 + 7, 8, C.solGold); setPixel(png, ox13 + 8, 8, C.solGold);
+
+  // --- Tile 14: Sealed Gate Charger (light teal — Sol unit required) ---
+  const ox14 = 224;
+  fillRect(png, ox14, 0, 16, 16, C.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox14 + bar, 0, 2, 16, C.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox14 + bar, i, C.wallDark);
+  }
+  fillRect(png, ox14, 7, 16, 2, C.wallMid);
+  setPixel(png, ox14 + 7, 8, C.lightTeal); setPixel(png, ox14 + 8, 8, C.lightTeal);
+
+  // --- Tile 15: Hidden Passage (looks like wall, faint vertical seam) ---
+  const ox15 = 240;
+  fillRect(png, ox15, 0, 16, 16, C.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox15 + i, 0, C.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox15 + i, 15, C.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox15 + 15, i, C.wallDark);
+  for (let i = 1; i < 15; i++) setPixel(png, ox15 + 8, i, C.wallLight); // subtle seam
+  const hp15L = [[2,3],[6,2],[10,4],[4,9],[1,11]];
+  const hp15D = [[5,4],[1,6],[9,3],[3,10],[11,8]];
+  for (const [sx, sy] of hp15L) setPixel(png, ox15 + sx, sy, C.wallLight);
+  for (const [sx, sy] of hp15D) setPixel(png, ox15 + sx, sy, C.wallDark);
+
+  // --- Tile 16: Blast Door (heavy reinforced, near-black, thick bands) ---
+  const ox16 = 256;
+  fillRect(png, ox16, 0, 16, 16, C.darkGray);
+  fillRect(png, ox16 + 1, 1, 14, 14, C.midGray);
+  fillRect(png, ox16 + 1, 1, 14, 2, C.gray);   // top band
+  fillRect(png, ox16 + 1, 6, 14, 2, C.gray);   // mid band
+  fillRect(png, ox16 + 1, 11, 14, 2, C.gray);  // lower band
+  fillRect(png, ox16 + 7, 1, 2, 14, C.darkGray); // bold center seam
+  setPixel(png, ox16 + 2, 2, C.lightGray); setPixel(png, ox16 + 13, 2, C.lightGray);
+  setPixel(png, ox16 + 2, 13, C.lightGray); setPixel(png, ox16 + 13, 13, C.lightGray);
+
+  // --- Tile 17: Junction Box B (wall panel with status indicators) ---
+  const ox17 = 272;
+  fillRect(png, ox17, 0, 16, 16, C.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox17 + i, 0, C.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox17 + i, 15, C.wallDark);
+  fillRect(png, ox17 + 3, 4, 10, 8, C.darkGray);   // panel inset
+  fillRect(png, ox17 + 4, 5, 8, 6, C.midGray);
+  setPixel(png, ox17 + 5, 7, C.teal);     // active indicator
+  setPixel(png, ox17 + 7, 7, C.solGold);  // power indicator
+  setPixel(png, ox17 + 9, 7, C.lightGray); // neutral indicator
+
+  // --- Tile 18: Maintenance Hatch (floor with hatch outline, teal handle) ---
+  const ox18 = 288;
+  fillRect(png, ox18, 0, 16, 16, C.floorMid);
+  fillRect(png, ox18 + 2, 2, 12, 1, C.wallMid); fillRect(png, ox18 + 2, 13, 12, 1, C.wallMid);
+  fillRect(png, ox18 + 2, 2, 1, 12, C.wallMid); fillRect(png, ox18 + 13, 2, 1, 12, C.wallMid);
+  fillRect(png, ox18 + 3, 3, 10, 10, C.floorDark);
+  setPixel(png, ox18 + 7, 7, C.teal); setPixel(png, ox18 + 8, 7, C.teal);
+  setPixel(png, ox18 + 7, 8, C.teal); setPixel(png, ox18 + 8, 8, C.teal);
+
+  // --- Tile 19: Transit Gate (framed turnstile, blue indicator) ---
+  const ox19 = 304;
+  fillRect(png, ox19, 0, 16, 16, C.floorDark);
+  fillRect(png, ox19, 0, 2, 16, C.wallMid);
+  fillRect(png, ox19 + 14, 0, 2, 16, C.wallMid);
+  fillRect(png, ox19 + 2, 0, 12, 2, C.wallMid);
+  fillRect(png, ox19 + 2, 14, 12, 2, C.wallMid);
+  fillRect(png, ox19 + 7, 2, 2, 12, C.gray);    // vertical bar
+  fillRect(png, ox19 + 2, 7, 12, 2, C.gray);    // horizontal bar
+  setPixel(png, ox19 + 12, 3, C.blue); setPixel(png, ox19 + 12, 4, C.blue);
+
+  // --- Tile 20: Garden Plot (dark soil with green growth hints) ---
+  const ox20 = 320;
+  fillRect(png, ox20, 0, 16, 16, hex('#1a1a12'));
+  const soilL = [[2,2],[5,1],[9,3],[12,2],[1,6],[7,5],[14,4],[3,8],[10,7],[6,10],[13,9],[2,13],[11,12]];
+  const soilD = [[4,3],[8,2],[11,4],[3,6],[6,7],[9,9],[1,11],[7,12],[12,11],[5,14]];
+  for (const [sx, sy] of soilL) setPixel(png, ox20 + sx, sy, C.darkBrown);
+  for (const [sx, sy] of soilD) setPixel(png, ox20 + sx, sy, C.darkGray);
+  const sprouts = [[3,1],[8,0],[12,1],[5,3],[10,4],[1,7],[13,6]];
+  for (const [gx, gy] of sprouts) setPixel(png, ox20 + gx, gy, C.darkGreen);
+
+  // --- Tile 21: Notice Board (dark frame, parchment face with text lines) ---
+  const ox21 = 336;
+  fillRect(png, ox21, 0, 16, 16, C.wallMid);
+  fillRect(png, ox21 + 2, 1, 12, 13, C.darkBrown);
+  fillRect(png, ox21 + 3, 2, 10, 11, C.tan);
+  fillRect(png, ox21 + 4, 4, 8, 1, C.bone);
+  fillRect(png, ox21 + 4, 6, 8, 1, C.bone);
+  fillRect(png, ox21 + 4, 8, 6, 1, C.bone);
+  fillRect(png, ox21 + 4, 10, 7, 1, C.bone);
+
+  // --- Tile 22: Seed Pot (clay pot on floor, green sprout) ---
+  const ox22 = 352;
+  fillRect(png, ox22, 0, 16, 16, C.floorMid);
+  fillRect(png, ox22 + 3, 10, 10, 5, C.brown);
+  fillRect(png, ox22 + 4, 9, 8, 2, hex('#1a1a12'));  // soil
+  fillRect(png, ox22 + 3, 10, 10, 1, C.tan);          // rim highlight
+  fillRect(png, ox22 + 4, 14, 8, 1, C.darkBrown);     // base shadow
+  setPixel(png, ox22 + 8, 8, C.darkGreen); setPixel(png, ox22 + 7, 7, C.darkGreen);
+  setPixel(png, ox22 + 9, 7, C.green); setPixel(png, ox22 + 7, 6, C.green);
+
+  // --- Tile 23: Personal Log (book with parchment pages) ---
+  const ox23 = 368;
+  fillRect(png, ox23, 0, 16, 16, C.floorMid);
+  fillRect(png, ox23 + 3, 2, 10, 12, C.darkBrown);    // cover
+  fillRect(png, ox23 + 3, 2, 2, 12, C.brown);          // spine
+  fillRect(png, ox23 + 5, 2, 8, 12, hex('#d0c8b0'));   // parchment pages
+  fillRect(png, ox23 + 6, 4, 6, 1, C.darkBrown);
+  fillRect(png, ox23 + 6, 6, 6, 1, C.darkBrown);
+  fillRect(png, ox23 + 6, 8, 5, 1, C.darkBrown);
+  fillRect(png, ox23 + 6, 10, 6, 1, C.darkBrown);
+  setPixel(png, ox23 + 3, 2, C.tan); setPixel(png, ox23 + 3, 3, C.tan);
+
+  // --- Tile 24: Homestead Gate (thin iron bars, teal accent tips) ---
+  const ox24 = 384;
+  fillRect(png, ox24, 0, 16, 16, C.floorDark);
+  for (let bar = 2; bar <= 14; bar += 3) fillRect(png, ox24 + bar, 0, 1, 16, C.gray);
+  fillRect(png, ox24 + 1, 2, 14, 2, C.gray);    // top rail
+  fillRect(png, ox24 + 1, 12, 14, 2, C.gray);   // bottom rail
+  for (let bar = 2; bar <= 14; bar += 3) setPixel(png, ox24 + bar, 0, C.teal); // teal tips
+
+  // --- Tile 25: Cache Entrance (collapsed rubble, dark recess) ---
+  const ox25 = 400;
+  fillRect(png, ox25, 0, 16, 16, C.wallMid);
+  fillRect(png, ox25 + 5, 5, 6, 6, C.darkGray);  // collapsed gap
+  fillRect(png, ox25 + 6, 6, 4, 4, rgba(15, 15, 25));
+  const rubble = [[1,14],[2,13],[3,14],[4,15],[5,13],[6,14],[7,12],[8,13],[9,14],[10,12],[11,13],[12,14],[13,15],[14,13]];
+  for (const [rx, ry] of rubble) setPixel(png, ox25 + rx, ry, C.wallDark);
+  setPixel(png, ox25 + 5, 5, C.wallLight); setPixel(png, ox25 + 10, 5, C.wallLight);
+  setPixel(png, ox25 + 5, 10, C.bone); // bone fragment visible in rubble
+
+  // --- Tile 26: Resonance Point (Sol Gold/teal radiant glow on floor) ---
+  const ox26 = 416;
+  fillRect(png, ox26, 0, 16, 16, C.floorMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox26 + i, 7, C.floorDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox26 + 7, i, C.floorDark);
+  setPixel(png, ox26 + 8, 8, C.solGold); // bright center
+  setPixel(png, ox26 + 7, 8, C.teal); setPixel(png, ox26 + 9, 8, C.teal);
+  setPixel(png, ox26 + 8, 7, C.teal); setPixel(png, ox26 + 8, 9, C.teal);
+  setPixel(png, ox26 + 6, 8, C.darkTeal); setPixel(png, ox26 + 10, 8, C.darkTeal);
+  setPixel(png, ox26 + 8, 6, C.darkTeal); setPixel(png, ox26 + 8, 10, C.darkTeal);
+
+  // --- Tile 27: Survey Marker (floor with bone-white post/stake) ---
+  const ox27 = 432;
+  fillRect(png, ox27, 0, 16, 16, C.floorMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox27 + i, 7, C.floorDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox27 + 7, i, C.floorDark);
+  fillRect(png, ox27 + 7, 3, 2, 9, C.bone);    // post
+  fillRect(png, ox27 + 6, 3, 4, 2, C.bone);    // top cap
+  setPixel(png, ox27 + 7, 2, C.lightGray);      // tip highlight
+  fillRect(png, ox27 + 5, 11, 6, 2, C.darkBone); // base anchor
+
+  // --- Tile 28: Sealed Gate Briefing (Sol Gold pair indicator) ---
+  const ox28 = 448;
+  fillRect(png, ox28, 0, 16, 16, C.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox28 + bar, 0, 2, 16, C.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox28 + bar, i, C.wallDark);
+  }
+  fillRect(png, ox28, 7, 16, 2, C.wallMid);
+  setPixel(png, ox28 + 6, 8, C.solGold); setPixel(png, ox28 + 9, 8, C.solGold);
+
+  // --- Tile 29: Sealed Gate Training (teal pair indicator) ---
+  const ox29 = 464;
+  fillRect(png, ox29, 0, 16, 16, C.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox29 + bar, 0, 2, 16, C.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox29 + bar, i, C.wallDark);
+  }
+  fillRect(png, ox29, 7, 16, 2, C.wallMid);
+  setPixel(png, ox29 + 6, 8, C.teal); setPixel(png, ox29 + 9, 8, C.teal);
+
+  // --- Tile 30: Crate Closed (wooden supply crate with stamp marking) ---
+  const ox30 = 480;
+  fillRect(png, ox30, 0, 16, 1, C.darkGray);
+  fillRect(png, ox30, 0, 1, 16, C.darkGray);
+  fillRect(png, ox30 + 15, 0, 1, 16, C.darkGray);
+  fillRect(png, ox30, 15, 16, 1, C.darkGray);
+  fillRect(png, ox30 + 1, 1, 14, 14, C.brown);
+  fillRect(png, ox30 + 1, 5, 14, 1, C.darkBrown);  // horizontal slat
+  fillRect(png, ox30 + 1, 10, 14, 1, C.darkBrown);
+  fillRect(png, ox30 + 7, 1, 1, 14, C.darkBrown);  // vertical slat
+  for (let i = 2; i < 14; i++) setPixel(png, ox30 + i, 1, C.tan); // lid highlight
+  fillRect(png, ox30 + 9, 6, 3, 3, C.tan); // stamp marking
+
+  // --- Tile 31: Crate Opened (open supply crate, dark interior) ---
+  const ox31 = 496;
+  fillRect(png, ox31, 0, 16, 1, C.darkGray);
+  fillRect(png, ox31, 0, 1, 16, C.darkGray);
+  fillRect(png, ox31 + 15, 0, 1, 16, C.darkGray);
+  fillRect(png, ox31, 15, 16, 1, C.darkGray);
+  fillRect(png, ox31 + 1, 1, 14, 14, C.brown);
+  fillRect(png, ox31 + 1, 5, 14, 1, C.darkBrown);
+  fillRect(png, ox31 + 7, 1, 1, 14, C.darkBrown);
+  fillRect(png, ox31 + 2, 2, 12, 8, C.darkGray);   // open interior
+  fillRect(png, ox31 + 3, 3, 10, 6, rgba(15, 12, 10));
+  for (let i = 2; i < 14; i++) setPixel(png, ox31 + i, 1, C.tan);
+
+  // --- Tile 32: Elevated Floor (slightly lighter stone floor variant) ---
+  const ox32 = 512;
+  fillRect(png, ox32, 0, 16, 16, C.floorLight);
+  for (let i = 0; i < 16; i++) {
+    setPixel(png, ox32 + i, 7, C.floorMid);
+    setPixel(png, ox32 + 7, i, C.floorMid);
+  }
+  for (let i = 0; i < 7; i++) {
+    setPixel(png, ox32 + i, 0, C.wallDark);
+    setPixel(png, ox32, i, C.wallDark);
+  }
+  setPixel(png, ox32 + 4, 4, C.wallDark);
+  setPixel(png, ox32 + 11, 11, C.floorLight);
+
+  // --- Tile 33: Ramp North (bright at bottom, dark at top) ---
+  const ox33 = 528;
+  for (let y = 0; y < 16; y++) {
+    const t = y / 15;
+    const r = Math.round(C.floorLight.r * t + C.floorDark.r * (1 - t));
+    const g = Math.round(C.floorLight.g * t + C.floorDark.g * (1 - t));
+    const b = Math.round(C.floorLight.b * t + C.floorDark.b * (1 - t));
+    for (let x = 0; x < 16; x++) setPixel(png, ox33 + x, y, rgba(r, g, b));
+  }
+  setPixel(png, ox33 + 8, 3, C.wallLight); setPixel(png, ox33 + 7, 4, C.wallLight);
+  setPixel(png, ox33 + 8, 4, C.wallLight); setPixel(png, ox33 + 9, 4, C.wallLight);
+  setPixel(png, ox33 + 8, 5, C.wallLight); setPixel(png, ox33 + 8, 6, C.wallLight);
+
+  // --- Tile 34: Ramp South (dark at bottom, bright at top) ---
+  const ox34 = 544;
+  for (let y = 0; y < 16; y++) {
+    const t = (15 - y) / 15;
+    const r = Math.round(C.floorLight.r * t + C.floorDark.r * (1 - t));
+    const g = Math.round(C.floorLight.g * t + C.floorDark.g * (1 - t));
+    const b = Math.round(C.floorLight.b * t + C.floorDark.b * (1 - t));
+    for (let x = 0; x < 16; x++) setPixel(png, ox34 + x, y, rgba(r, g, b));
+  }
+  setPixel(png, ox34 + 8, 13, C.wallLight); setPixel(png, ox34 + 7, 12, C.wallLight);
+  setPixel(png, ox34 + 8, 12, C.wallLight); setPixel(png, ox34 + 9, 12, C.wallLight);
+  setPixel(png, ox34 + 8, 11, C.wallLight); setPixel(png, ox34 + 8, 10, C.wallLight);
+
+  // --- Tile 35: Ramp East (bright at left, dark at right) ---
+  const ox35 = 560;
+  for (let x = 0; x < 16; x++) {
+    const t = x / 15;
+    const r = Math.round(C.floorDark.r * t + C.floorLight.r * (1 - t));
+    const g = Math.round(C.floorDark.g * t + C.floorLight.g * (1 - t));
+    const b = Math.round(C.floorDark.b * t + C.floorLight.b * (1 - t));
+    for (let y = 0; y < 16; y++) setPixel(png, ox35 + x, y, rgba(r, g, b));
+  }
+  setPixel(png, ox35 + 13, 8, C.wallLight); setPixel(png, ox35 + 12, 7, C.wallLight);
+  setPixel(png, ox35 + 12, 8, C.wallLight); setPixel(png, ox35 + 12, 9, C.wallLight);
+  setPixel(png, ox35 + 11, 8, C.wallLight); setPixel(png, ox35 + 10, 8, C.wallLight);
+
+  // --- Tile 36: Ramp West (dark at left, bright at right) ---
+  const ox36 = 576;
+  for (let x = 0; x < 16; x++) {
+    const t = (15 - x) / 15;
+    const r = Math.round(C.floorDark.r * t + C.floorLight.r * (1 - t));
+    const g = Math.round(C.floorDark.g * t + C.floorLight.g * (1 - t));
+    const b = Math.round(C.floorDark.b * t + C.floorLight.b * (1 - t));
+    for (let y = 0; y < 16; y++) setPixel(png, ox36 + x, y, rgba(r, g, b));
+  }
+  setPixel(png, ox36 + 3, 8, C.wallLight); setPixel(png, ox36 + 4, 7, C.wallLight);
+  setPixel(png, ox36 + 4, 8, C.wallLight); setPixel(png, ox36 + 4, 9, C.wallLight);
+  setPixel(png, ox36 + 5, 8, C.wallLight); setPixel(png, ox36 + 6, 8, C.wallLight);
+
+  // --- Tile 37: Full Wall (same look as stone_wall, full-height variant) ---
+  const ox37 = 592;
+  fillRect(png, ox37, 0, 16, 16, C.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox37 + i, 0, C.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox37 + i, 15, C.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox37 + 15, i, C.wallDark);
+  const fw37L = [[1,3],[4,1],[8,3],[12,2],[6,6],[2,8],[10,7],[3,11],[9,10],[13,8],[5,13],[11,12]];
+  const fw37D = [[6,2],[2,5],[9,4],[13,6],[4,9],[8,11],[1,12],[10,13],[12,10],[7,14]];
+  for (const [sx, sy] of fw37L) setPixel(png, ox37 + sx, sy, C.wallLight);
+  for (const [sx, sy] of fw37D) setPixel(png, ox37 + sx, sy, C.wallDark);
+  setPixel(png, ox37 + 7, 6, C.bone); // embedded bone fragment
+
+  // --- Tile 38: Elevated Wall (darker base, raised platform edge) ---
+  const ox38 = 608;
+  fillRect(png, ox38, 0, 16, 16, C.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox38 + i, 0, C.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox38 + i, 15, C.darkGray);
+  for (let i = 0; i < 16; i++) setPixel(png, ox38 + 15, i, C.darkGray);
+  const ew38L = [[3,3],[7,2],[11,4],[2,7],[8,6],[5,10],[12,8],[4,13],[9,11]];
+  const ew38D = [[5,4],[1,6],[10,3],[13,7],[3,9],[7,11],[11,10],[2,13]];
+  for (const [sx, sy] of ew38L) setPixel(png, ox38 + sx, sy, C.wallMid);
+  for (const [sx, sy] of ew38D) setPixel(png, ox38 + sx, sy, C.darkGray);
+
+  // --- Tile 39: Cracked Wall (stone wall with diagonal fracture lines) ---
+  const ox39 = 624;
+  fillRect(png, ox39, 0, 16, 16, C.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox39 + i, 0, C.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox39 + i, 15, C.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox39 + 15, i, C.wallDark);
+  const cw39L = [[2,2],[10,3],[5,7],[13,5],[1,9],[8,13]];
+  const cw39D = [[5,3],[1,5],[8,4],[4,8],[11,6],[3,13]];
+  for (const [sx, sy] of cw39L) setPixel(png, ox39 + sx, sy, C.wallLight);
+  for (const [sx, sy] of cw39D) setPixel(png, ox39 + sx, sy, C.wallDark);
+  const crack39 = [[4,1],[4,2],[5,3],[5,4],[6,5],[7,5],[8,6],[8,7],[9,8],[9,9],[10,10],[10,11],[11,12],[11,13]];
+  for (const [cx, cy] of crack39) setPixel(png, ox39 + cx, cy, C.darkGray);
+  const crack39b = [[6,6],[7,7],[6,8],[7,9]]; // secondary branch
+  for (const [cx, cy] of crack39b) setPixel(png, ox39 + cx, cy, C.darkGray);
 
   savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'crypt.png'));
 }
@@ -786,26 +1152,26 @@ function generateMonsterSprites() {
   const Tg = C.teal;
   drawPixelArt(dcrawl, 0, 0, [
     //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
-    [_, _, _, Dp, _, _, _, _, _, _, _, _, Dp, _, _, _],  // antenna tips
-    [_, _, Dp, Pp, Dp, _, _, _, _, _, Dp, Pp, Dp, _, _, _],  // antennae
-    [_, _, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _, _],  // head
-    [_, _, _, Dp, Pp,Oe, Pp, Pp, Pp,Oe, Pp, Dp, _, _, _, _],  // orange hostile eyes
-    [_, _, _, _, Dp, Dp, Lp, Pp, Lp, Dp, Dp, _, _, _, _, _],  // jaw/neck taper
-    [_, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _],  // upper body
-    [Dp, Pp, Pp, Pp, Lp, Pp, Pp, Pp, Pp, Pp, Lp, Pp, Pp, Dp, _, _],  // widest body
-    [Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _],  // body center
-    [_, Dp, Pp, Pp, Tg, Pp, Pp, Pp, Pp, Pp, Tg, Pp, Dp, _, _, _],  // teal bioluminescent accents
-    [_, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _, _],  // lower body
-    [_, Dp, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, Dp, _, _, _],  // rear leg joints
-    [Dp, _, _, _, Dp, Pp, Pp, Pp, Pp, Dp, _, _, _, Dp, _, _],  // rear leg tips
-    [_, _, _, _, _, Dp, Dp, Pp, Dp, Dp, _, _, _, _, _, _],  // tail taper
-    [_, _, _, _, _, _, Dp, Dp, Dp, _, _, _, _, _, _, _],  // tail tip
+    [_, _, Dp, _, _, _, _, _, _, _, _, _, _, Dp, _, _],  // antenna tips (asymmetric)
+    [_, _, _, Dp, _, _, _, _, _, _, _, _, Dp, _, _, _],  // antennae
+    [_, _, _, Dp, Dp, Pp, Pp, Pp, Pp, Pp, Dp, Dp, _, _, _, _],  // head carapace
+    [_, _, _, Dp, Pp,Oe, Pp, Lp, Pp,Oe, Pp, Dp, _, _, _, _],  // orange hostile eyes, light mandible
+    [_, _, _, _, Dp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _, _, _],  // jaw taper
+    [_, Dp, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, Dp, _, _],  // upper body + front legs
+    [Dp, _, Dp, Pp, Lp, Pp, Pp, Pp, Pp, Lp, Pp, Pp, Dp, _, Dp, _],  // widest body (legs spread)
+    [_, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _],  // body center
+    [_, Dp, _, Dp, Pp, Tg, Pp, Pp, Pp, Tg, Pp, Dp, _, Dp, _, _],  // teal glow + mid legs
+    [Dp, _, _, Dp, Pp, Pp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, Dp, _],  // lower body + rear legs
+    [_, _, _, _, Dp, Pp, Pp, Pp, Pp, Pp, Dp, _, _, _, _, _],  // abdomen
+    [_, _, _, _, _, Dp, Tg, Pp, Tg, Dp, _, _, _, _, _, _],  // abdomen glow accents
+    [_, _, _, _, _, _, Dp, Pp, Dp, _, _, _, _, _, _, _],  // tail taper
+    [_, _, _, _, _, _, _, Dp, _, _, _, _, _, _, _, _],  // tail tip
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
   ]);
   savePNG(dcrawl, path.join(CONTENT_DIR, 'sprites', 'dusk_crawler.png'));
 
-  // --- Crystal Guardian: geometric crystalline boss, faceted body, orange eyes ---
+  // --- Crystal Guardian: geometric crystalline boss, faceted body, orange eyes, fills full sprite ---
   const cguard = createPNG(16, 16);
   const Cb = C.lightBlue;
   const Cm = C.blue;
@@ -814,22 +1180,22 @@ function generateMonsterSprites() {
   const Cpg = C.paleGray;
   drawPixelArt(cguard, 0, 0, [
     //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
-    [_, _, _, _,Cw, _,Cb, _,Cb, _,Cw, _, _, _, _, _],  // crystal crown spires
-    [_, _, _, _,Cb,Cw,Cm,Cm,Cm,Cw,Cb, _, _, _, _, _],  // crown base with white facets
-    [_, _, _, _,Cm,Cb,Cm,Cm,Cm,Cb,Cm, _, _, _, _, _],  // head faceted
-    [_, _, _, _,Cm,Oe,Cm,Cm,Cm,Oe,Cm, _, _, _, _, _],  // orange hostile eyes
-    [_, _, _, _,Cd2,Cm,Cb,Cd2,Cd2,Cb,Cm,Cd2, _, _, _, _],  // lower face crystal facets
+    [_, _, _,Cw, _, _,Cb,Cw,Cw,Cb, _, _,Cw, _, _, _],  // crown spires (3 points)
+    [_, _, _,Cb,Cw,Cb,Cm,Cm,Cm,Cm,Cb,Cw,Cb, _, _, _],  // crown base + outer spire tips
+    [_, _, _, _,Cb,Cm,Cb,Cm,Cm,Cb,Cm,Cb, _, _, _, _],  // head faceted
+    [_, _, _, _,Cm,Oe,Cm,Cpg,Cpg,Cm,Oe,Cm, _, _, _, _],  // orange eyes + pale face plate
+    [_, _, _, _,Cd2,Cm,Cm,Cd2,Cd2,Cm,Cm,Cd2, _, _, _, _],  // lower face crystal facets
     [_, _, _, _, _,Cd2,Cm,Cm,Cm,Cm,Cd2, _, _, _, _, _],  // neck
-    [_, _, _, _, _, _,Cd2,Cm,Cm,Cd2, _, _, _, _, _, _],  // neck taper
-    [_, _,Cw,Cb,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cb,Cw, _, _],  // crystal shard shoulders
-    [_, _,Cpg,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cpg, _, _],  // wide chest
+    [_,Cw,Cb,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cb,Cw, _],  // crystal shard shoulders (wide)
+    [_, _,Cpg,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cm,Cpg, _, _],  // broad chest
     [_, _, _,Cd2,Cb,Cm,Cw,Cm,Cm,Cw,Cm,Cb,Cd2, _, _, _],  // chest facet shine
     [_, _, _, _,Cd2,Cm,Cb,Cm,Cm,Cb,Cm,Cd2, _, _, _, _],  // lower torso
     [_, _, _, _, _,Cd2,Cm,Cw,Cw,Cm,Cd2, _, _, _, _, _],  // crystal core glow
-    [_, _, _, _, _,Cd2,Cd2,Cd2,Cd2,Cd2,Cd2, _, _, _, _, _],  // hips
-    [_, _, _, _, _,Cd2, _, _, _, _,Cd2, _, _, _, _, _],  // legs
-    [_, _, _, _, _,Cd2, _, _, _, _,Cd2, _, _, _, _, _],  // legs
-    [_, _, _, _,Cd2,Cd2, _, _, _, _,Cd2,Cd2, _, _, _, _],  // feet
+    [_, _, _, _, _,Cd2,Cd2,Cm,Cm,Cd2,Cd2, _, _, _, _, _],  // hips
+    [_, _, _, _, _,Cd2,Cm, _,  _,Cm,Cd2, _, _, _, _, _],  // legs (blue accents)
+    [_, _, _, _, _,Cd2,Cm, _,  _,Cm,Cd2, _, _, _, _, _],  // legs
+    [_, _, _, _,Cd2,Cd2,Cd2, _, _,Cd2,Cd2,Cd2, _, _, _, _],  // wide crystalline feet
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
   ]);
   savePNG(cguard, path.join(CONTENT_DIR, 'sprites', 'crystal_guardian.png'));
 
@@ -893,21 +1259,21 @@ function generateMonsterSprites() {
   drawPixelArt(sstalker, 0, 0, [
     //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],  // head
+    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],  // head (hunched forward)
     [_, _, _, _, _, Ss, Sm, Sm, Sm, Sm, Ss, _, _, _, _, _],  // head body
     [_, _, _, _, _, Ss,Oe, Ss, Ss,Oe, Ss, _, _, _, _, _],  // orange hostile eyes
-    [_, _, _, _, _, _, Ss, Sm, Sm, Ss, _, _, _, _, _, _],  // jaw
-    [_, _, _, _, _, _, _, Ss, Ss, _, _, _, _, _, _, _],  // neck
-    [_, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, _],  // wide hunched shoulders
-    [_, Ss, Sm, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Sm, Ss, _, _],  // shoulder highlight detail
-    [_, _, Ss, Sm, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Sm, Ss, _, _, _],  // arms taper inward
-    [_, _, Ss, _, Sm, Ss, Ss, Ss, Ss, Ss, Sm, _, Ss, _, _, _],  // arms reaching out
-    [_, Ss, _, _, _, Ss, Sm, Ss, Ss, Sm, Ss, _, _, _, Ss, _],  // long claw reach
-    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],  // lower torso
+    [_, _, _, _, _, _, Ss, Sm, Sm, Ss, _, _, _, _, _, _],  // jaw (slightly open)
+    [_, Ss, Ss, _, _, _, _, Ss, Ss, _, _, _, _, Ss, Ss, _],  // neck + outer arm start
+    [_, _, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, Ss, _, _],  // hunched shoulders (wide)
+    [_, _, _, Ss, Sm, Ss, Ss, Ss, Ss, Ss, Ss, Sm, Ss, _, _, _],  // shoulder mass
+    [_, _, Ss, _, Sm, Ss, Ss, Ss, Ss, Ss, Sm, _, _, Ss, _, _],  // arms taper + reach
+    [_, Ss, _, _, _, Ss, Sm, Ss, Ss, Sm, Ss, _, _, _, Ss, _],  // long arms reaching
+    [Ss, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, Ss],  // claw tips (full width!)
+    [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],  // narrow torso
     [_, _, _, _, _, _, Ss, Ss, Ss, Ss, _, _, _, _, _, _],  // hips
-    [_, _, _, _, _, _, Ss, _, _, Ss, _, _, _, _, _, _],  // legs
-    [_, _, _, _, _, _, Ss, _, _, Ss, _, _, _, _, _, _],  // legs
-    [_, _, _, _, _, Ss, Ss, _, _, Ss, Ss, _, _, _, _, _],  // feet
+    [_, _, _, _, _, Ss, Ss, _, _, Ss, Ss, _, _, _, _, _],  // legs (wider stance)
+    [_, _, _, _, _, Ss, Ss, _, _, Ss, Ss, _, _, _, _, _],  // legs
+    [_, _, _, _, Ss, Ss, _, _, _, _, Ss, Ss, _, _, _, _],  // splayed feet
   ]);
   savePNG(sstalker, path.join(CONTENT_DIR, 'sprites', 'shade_stalker.png'));
 
@@ -1030,18 +1396,18 @@ function generateMonsterSprites() {
     //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
-    [_, _,Fd,Fm, _, _, _, _, _, _, _, _, _, _, _, _],  // ear tips
+    [_, _,Fd,Fm, _, _, _, _, _, _, _, _, _, _, _, _],  // pointed ear tips
     [_, _,Fm,Fi,Fi,Fm, _, _, _, _, _, _, _, _, _, _],  // wolf head
     [_, _,Fm,Oe,Fi,Oe,Fm, _, _, _, _, _, _, _, _, _],  // orange hostile eyes
-    [_, _,Fm,Fw,Fw,Fm,Fm,Fd, _, _, _, _, _, _, _, _],  // snarling teeth
-    [_, _, _,Fm,Fm,Fm,Fm,Fm,Fm, _, _, _, _, _, _, _],  // neck/jaw
-    [_, _, _, _,Fm,Fi,Fi,Fi,Fm,Fm,Fm,Fm, _, _, _, _],  // body front
-    [_, _, _, _,Fm,Fi,Fi,Fi,Fi,Fi,Fi,Fm, _, _, _, _],  // body main
-    [_, _, _, _, _,Fm,Fi,Fw,Fw,Fi,Fm,Fd,Fd, _, _, _],  // body rear + tail base
-    [_, _, _, _, _,Fd,Fm,Fm,Fm,Fm,Fd, _,Fd, _, _, _],  // rear legs + tail
-    [_, _, _, _,Fd, _,Fd,Fm,Fm,Fd, _, _,Fd, _, _, _],  // front/rear paws
-    [_, _, _,Fd, _, _,Fd, _, _,Fd, _, _, _, _, _, _],  // paw tips
+    [_, _,Fd,Fw,Fw,Fm,Fm,Fd, _, _, _, _, _, _, _, _],  // snarling fangs + jaw
+    [_, _, _,Fm,Fm,Fi,Fm,Fm,Fm, _, _, _, _, _, _, _],  // neck (thicker)
+    [_, _, _, _,Fm,Fi,Fi,Fi,Fm,Fm,Fm, _, _, _, _, _],  // body front (leaner)
+    [_, _, _, _,Fd,Fi,Fi,Fi,Fi,Fi,Fi,Fm, _, _, _, _],  // body main (frost-furred)
+    [_, _, _, _, _,Fm,Fi,Fw,Fw,Fi,Fi,Fm,Fd, _, _, _],  // underbelly white + tail base
+    [_, _, _, _, _,Fd,Fm,Fm,Fm,Fm,Fd, _,Fd,Fd, _, _],  // rear legs + tail (longer)
+    [_, _, _, _,Fd, _,Fd,Fm,Fm,Fd, _, _, _,Fd, _, _],  // tail tip + paws
+    [_, _, _, Fd, _, _, Fd, _, _, Fd, _, _, _, _, _, _],  // front/rear paw tips
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
     [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
   ]);
@@ -1266,6 +1632,298 @@ function generateMonsterSprites() {
     [_, _, _, _, Kk, Kk, _, _, _, _, Kk, Kk, _, _, _, _],  // feet
   ]);
   savePNG(tkeeper, path.join(CONTENT_DIR, 'sprites', 'threshold_keeper.png'));
+
+  // ============================================================
+  // BULWARK FACTION SPRITES (Compact military, blue-gray armor)
+  // ============================================================
+  const BuDk = C.darkBlue;    // Bulwark armor dark
+  const BuMd = C.blue;        // Bulwark armor mid
+  const BuLt = C.lightBlue;   // Bulwark armor highlight
+  const BuY  = C.yellow;      // engineer tool glow
+
+  // --- Bulwark Conscript: standard Compact foot soldier, blue combat helmet ---
+  const bCons = createPNG(16, 16);
+  drawPixelArt(bCons, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuDk,BuDk,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,BuLt,BuLt,BuLt,BuLt,BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,Oe,  BuDk,BuDk,Oe,  BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, _, BuDk,BuMd,BuMd,BuDk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, BuMd,BuMd, _, _, _, _, _, _, _],
+    [_, _, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, _, _],
+    [_, _, _, BuMd,BuMd,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuMd,BuMd, _, _, _],
+    [_, _, _, BuDk, _, BuMd,BuMd,BuMd,BuMd,BuMd,BuMd, _, BuDk, _, _, _],
+    [_, _, _, BuDk, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuDk, _, BuDk, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bCons, path.join(CONTENT_DIR, 'sprites', 'bulwark_conscript.png'));
+
+  // --- Bulwark Rifleman: ranged soldier, rifle barrel extends left ---
+  const bRifl = createPNG(16, 16);
+  drawPixelArt(bRifl, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuDk,BuDk,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,BuLt,BuLt,BuLt,BuLt,BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,Oe,  BuDk,BuDk,Oe,  BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, _, BuDk,BuMd,BuMd,BuDk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, BuMd,BuMd, _, _, _, _, _, _, _],
+    [BuDk,BuDk,BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, _, _],
+    [_, _, _, BuMd,BuMd,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuMd,BuMd, _, _, _],
+    [_, _, _, BuDk, _, BuMd,BuMd,BuMd,BuMd,BuMd,BuMd, _, BuDk, _, _, _],
+    [_, _, _, BuDk, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuDk, _, BuDk, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bRifl, path.join(CONTENT_DIR, 'sprites', 'bulwark_rifleman.png'));
+
+  // --- Bulwark Sergeant: pack leader, wider shoulders, command insignia stripe ---
+  const bSgtS = createPNG(16, 16);
+  drawPixelArt(bSgtS, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,Oe,  BuMd,BuMd,Oe,  BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, _, _, BuMd,BuMd, _, _, _, _, _, _, _],
+    [_, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, _],
+    [_, _, BuMd,BuMd,BuMd,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuMd,BuMd,BuMd, _, _],
+    [_, _, BuDk, _, BuMd,BuMd,BuLt,BuMd,BuMd,BuLt,BuMd,BuMd, _, BuDk, _, _],
+    [_, _, BuDk, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, BuDk, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bSgtS, path.join(CONTENT_DIR, 'sprites', 'bulwark_sergeant.png'));
+
+  // --- Bulwark Engineer: tech specialist, gray helmet, yellow tool glow left ---
+  const bEngr = createPNG(16, 16);
+  drawPixelArt(bEngr, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, Hd, Hd, Hd, Hd, Hd, Hd, _, _, _, _, _],
+    [_, _, _, _, Hd, Hl, Hl, Hl, Hl, Hl, Hl, Hd, _, _, _, _],
+    [_, _, _, _, Hd, Hl, Oe, Hd, Hd, Oe, Hl, Hd, _, _, _, _],
+    [_, _, _, _, Hd, Hd, Hl, Hl, Hl, Hl, Hd, Hd, _, _, _, _],
+    [_, _, _, _, _, _, Hd, Hl, Hl, Hd, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, BuMd,BuMd, _, _, _, _, _, _, _],
+    [_,BuY,BuY, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, _, _],
+    [_, _, _, BuMd,BuMd,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuMd,BuMd, _, _, _],
+    [_, _, _, BuDk, _, BuMd,BuMd,BuMd,BuMd,BuMd,BuMd, _, BuDk, _, _, _],
+    [_, _, _, BuDk, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuDk, _, BuDk, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bEngr, path.join(CONTENT_DIR, 'sprites', 'bulwark_engineer.png'));
+
+  // --- Bulwark Shieldwall: heavy defender, extra-wide body with shield plates ---
+  const bShld = createPNG(16, 16);
+  drawPixelArt(bShld, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk, _, _, _, _],
+    [_, _, _, BuDk,BuMd,BuMd,BuLt,BuLt,BuLt,BuLt,BuMd,BuMd,BuDk, _, _, _],
+    [_, _, _, BuDk,BuMd,Oe,  BuMd,BuMd,BuMd,BuMd,Oe,  BuMd,BuDk, _, _, _],
+    [_, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, _, BuMd,BuMd,BuMd,BuMd, _, _, _, _, _, _],
+    [_, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _],
+    [_, BuDk,BuMd,BuLt,BuLt,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuLt,BuLt,BuMd,BuDk, _],
+    [_, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _],
+    [_, _, BuDk,BuDk,BuMd,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuMd,BuDk,BuDk, _, _],
+    [_, _, _, BuDk,BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk,BuDk, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bShld, path.join(CONTENT_DIR, 'sprites', 'bulwark_shieldwall.png'));
+
+  // --- Bulwark Captain: boss-tier commander, crest spikes, wide armor ---
+  const bCapt = createPNG(16, 16);
+  drawPixelArt(bCapt, 0, 0, [
+    [_, _, _, _, BuLt, _, _, _, _, _, _, BuLt, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk, _, _, _, _],
+    [_, _, _, BuDk,BuMd,BuMd,BuLt,BuLt,BuLt,BuLt,BuMd,BuMd,BuDk, _, _, _],
+    [_, _, _, BuDk,BuMd,Oe,  BuMd,BuMd,BuMd,BuMd,Oe,  BuMd,BuDk, _, _, _],
+    [_, _, _, BuDk,BuDk,BuMd,BuLt,BuMd,BuMd,BuLt,BuMd,BuDk,BuDk, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, _, BuMd,BuMd,BuMd,BuMd, _, _, _, _, _, _],
+    [_, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, _],
+    [_, _, BuMd,BuMd,BuMd,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuMd,BuMd,BuMd, _, _],
+    [_, _, BuDk, _, BuMd,BuLt,BuMd,BuMd,BuMd,BuMd,BuLt,BuMd, _, BuDk, _, _],
+    [_, _, BuDk, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, BuDk, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk,BuMd,BuMd,BuDk,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bCapt, path.join(CONTENT_DIR, 'sprites', 'bulwark_captain.png'));
+
+  // --- Bulwark Patrol Drone: floating mechanical, yellow scanner eye, antenna ---
+  const bDrn = createPNG(16, 16);
+  const DrGr = C.midGray;    // drone body
+  const DrDk = C.darkSlate;  // drone dark
+  const DrEy = C.yellow;     // drone scanner
+  drawPixelArt(bDrn, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, DrDk,DrDk,DrDk,DrDk,DrDk,DrDk, _, _, _, _, _],
+    [_, _, _, _, DrDk,DrGr,DrGr,DrGr,DrGr,DrGr,DrGr,DrDk, _, _, _, _],
+    [_, _, _, _, DrDk,DrGr,DrEy,DrEy,DrEy,DrEy,DrGr,DrDk, _, _, _, _],
+    [_, _, _, _, DrDk,DrGr,DrEy,DrDk,DrDk,DrEy,DrGr,DrDk, _, _, _, _],
+    [_, _, _, _, DrDk,DrGr,DrGr,DrGr,DrGr,DrGr,DrGr,DrDk, _, _, _, _],
+    [_, _, _, _, _, DrDk,DrDk,DrDk,DrDk,DrDk,DrDk, _, _, _, _, _],
+    [_, _, _, _, _, _, DrDk,DrDk,DrDk,DrDk, _, _, _, _, _, _],
+    [_, DrDk, _, _, _, _, DrGr,DrGr,DrGr,DrGr, _, _, _, _, DrDk, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(bDrn, path.join(CONTENT_DIR, 'sprites', 'bulwark_drone.png'));
+
+  // ============================================================
+  // LIGHTHOUSE MARA / ICE REGION SPRITES
+  // ============================================================
+  const IcLt = C.lightBlue;  // ice frost / light
+  const IcMd = C.blue;       // ice mid
+  const IcDk = C.darkBlue;   // ice dark
+  const IcWh = C.white;      // ice crystal white
+
+  // --- Ice Borer: fast pack insect, icy blue carapace, orange hostile eyes ---
+  const iceBor = createPNG(16, 16);
+  drawPixelArt(iceBor, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, IcWh,IcMd, _, _, IcMd,IcWh, _, _, _, _, _],
+    [_, _, _, _, IcWh,IcMd,IcLt,IcLt,IcLt,IcLt,IcMd,IcWh, _, _, _, _],
+    [_, _, _, _, IcDk,IcMd,Oe,  IcMd,IcMd,Oe,  IcMd,IcDk, _, _, _, _],
+    [_, _, _, _, _, IcDk,IcMd,IcLt,IcLt,IcMd,IcDk, _, _, _, _, _],
+    [_, _, _, _, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcDk, _, _, _, _, _],
+    [_, IcLt, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, IcLt, _, _, _],
+    [IcLt, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, IcLt, _, _],
+    [_, IcLt, _, IcDk,IcMd,IcDk, _, _, _, _, IcDk,IcMd,IcDk, _, _, _],
+    [_, _, IcMd, _, IcDk, _, _, _, _, _, _, IcDk, _, IcMd, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(iceBor, path.join(CONTENT_DIR, 'sprites', 'ice_borer.png'));
+
+  // --- Glacial Maw: heavy predator, crystal jaw/teeth, massive form ---
+  const glcMaw = createPNG(16, 16);
+  drawPixelArt(glcMaw, 0, 0, [
+    [_, _, _, _, IcWh,IcDk,IcDk,IcDk,IcDk,IcDk,IcDk,IcWh, _, _, _, _],
+    [_, _, _, IcDk,IcLt,IcMd,IcLt,IcLt,IcLt,IcLt,IcMd,IcLt,IcDk, _, _, _],
+    [_, _, _, IcDk,IcMd,IcMd,Oe,  IcMd,IcMd,Oe,  IcMd,IcMd,IcDk, _, _, _],
+    [_, _, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, _, _],
+    [_, _, _, IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk, _, _, _],
+    [_, _, _, IcDk,IcWh,IcMd,IcWh,IcMd,IcMd,IcWh,IcMd,IcWh,IcDk, _, _, _],
+    [_, _, _, _, IcDk,IcDk,IcDk,IcDk,IcDk,IcDk,IcDk,IcDk, _, _, _, _],
+    [_, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, _],
+    [_, _, IcDk,IcMd,IcDk,IcMd,IcMd,IcWh,IcWh,IcMd,IcMd,IcDk,IcMd,IcDk, _, _],
+    [_, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, _],
+    [_, _, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, _, _],
+    [_, _, _, _, IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk, _, _, _, _],
+    [_, _, _, _, _, IcDk,IcDk,IcMd,IcMd,IcDk,IcDk, _, _, _, _, _],
+    [_, _, _, _, _, IcDk,IcDk, _, _, IcDk,IcDk, _, _, _, _, _],
+    [_, _, _, _, _, IcDk,IcDk, _, _, IcDk,IcDk, _, _, _, _, _],
+    [_, _, _, _, IcDk,IcDk,IcDk, _, _, IcDk,IcDk,IcDk, _, _, _, _],
+  ]);
+  savePNG(glcMaw, path.join(CONTENT_DIR, 'sprites', 'glacial_maw.png'));
+
+  // --- Frost Revenant: ghostly floating form, icy blue wisps, orange eyes ---
+  const fstRev = createPNG(16, 16);
+  drawPixelArt(fstRev, 0, 0, [
+    [_, _, IcWh,IcLt, _, _, _, _, _, _, _, _, IcLt,IcWh, _, _],
+    [_, _, IcLt,IcMd,IcLt, _, _, _, _, _, IcLt,IcMd,IcLt, _, _, _],
+    [_, _, _, IcMd,IcDk,IcDk,IcLt,IcLt,IcLt,IcLt,IcDk,IcDk,IcMd, _, _, _],
+    [_, _, _, IcDk,IcMd,IcMd,IcWh,IcWh,IcWh,IcWh,IcMd,IcMd,IcDk, _, _, _],
+    [_, _, _, IcDk,IcMd,Oe,  IcLt,IcMd,IcMd,IcLt,Oe,  IcMd,IcDk, _, _, _],
+    [_, _, _, IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk, _, _, _],
+    [_, _, _, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, _, _, _],
+    [_, _, _, IcLt,IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk,IcLt, _, _, _],
+    [_, _, _, IcDk,IcMd,IcMd,IcWh,IcMd,IcMd,IcWh,IcMd,IcMd,IcDk, _, _, _],
+    [_, _, _, IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk, _, _, _],
+    [_, _, _, _, IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk, _, _, _, _],
+    [_, IcLt, _, IcDk,IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk,IcDk, _, IcLt, _],
+    [IcLt, _, _, _, IcDk,IcMd, _, _, _, _, IcMd,IcDk, _, _, _, IcLt],
+    [_, _, _, _, _, IcLt, _, _, _, _, IcLt, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(fstRev, path.join(CONTENT_DIR, 'sprites', 'frost_revenant.png'));
+
+  // --- Underlumen Emergence: void-entity boss, teal/purple horror, wide form ---
+  const ulEmer = createPNG(16, 16);
+  const UlDk = C.darkPurple;
+  const UlMd = C.purple;
+  const UlLt = C.lightPurple;
+  const UlTl = C.teal;
+  const UlRd = C.red;
+  drawPixelArt(ulEmer, 0, 0, [
+    [_, UlDk,UlMd, _, _, UlLt, _, _, _, UlLt, _, _, UlMd,UlDk, _, _],
+    [_, _, UlDk,UlMd,UlDk, _, UlMd,UlMd,UlMd, _, UlDk,UlMd, _, _, _, _],
+    [_, _, UlDk,UlMd,UlMd,UlMd,UlMd,UlLt,UlLt,UlMd,UlMd,UlMd,UlDk, _, _, _],
+    [_, _, UlDk,UlMd,UlRd, UlMd,UlMd,UlMd,UlMd,UlMd,UlRd, UlMd,UlDk, _, _, _],
+    [_, _, UlDk,UlMd,UlMd,UlTl,UlMd,UlMd,UlMd,UlMd,UlTl,UlMd,UlDk, _, _, _],
+    [_, _, _, UlDk,UlDk,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlDk,UlDk, _, _, _],
+    [_, _, _, _, _, UlMd,UlMd,UlMd,UlMd,UlMd, _, _, _, _, _, _],
+    [_, UlDk,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlDk, _],
+    [_, UlMd,UlMd,UlMd,UlMd,UlLt,UlMd,UlMd,UlMd,UlMd,UlLt,UlMd,UlMd,UlMd,UlMd, _],
+    [_, UlDk,UlMd,UlTl,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlTl,UlMd,UlDk, _],
+    [_, _, _, UlDk,UlDk,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlDk,UlDk, _, _, _],
+    [_, _, UlDk,UlMd,UlDk,UlDk,UlMd,UlMd,UlMd,UlMd,UlDk,UlDk,UlMd,UlDk, _, _],
+    [_, _, UlDk,UlDk,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlDk,UlDk, _, _],
+    [_, _, UlDk,UlMd, _, UlDk,UlMd,UlMd,UlMd,UlMd,UlDk, _, UlMd,UlDk, _, _],
+    [_, UlDk,UlMd, _, _, _, UlDk,UlDk,UlDk,UlDk, _, _, _, UlMd,UlDk, _],
+    [UlDk, _, _, _, _, _, _, _, _, _, _, _, _, _, _, UlDk],
+  ]);
+  savePNG(ulEmer, path.join(CONTENT_DIR, 'sprites', 'underlumen_emergence.png'));
+
+  // --- Dural Voss: Warlord of the Unbounded — raider armor with teal void taint ---
+  const dvoss = createPNG(16, 16);
+  const DvAr = C.gray;      // raider armor (gray, different from Bulwark blue)
+  const DvAd = C.midGray;   // armor shadow
+  const DvRd = C.red;       // red accent
+  const DvTl = C.teal;      // underlumen corruption teal
+  drawPixelArt(dvoss, 0, 0, [
+    [_, _, _, _, _, DvRd,DvAr,DvAr,DvAr,DvAr,DvRd, _, _, _, _, _],
+    [_, _, _, _, DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr, _, _, _, _],
+    [_, _, _, _, DvAr,DvTl,DvAr,DvAr,DvAr,DvAr,DvTl,DvAr, _, _, _, _],
+    [_, _, _, _, DvAr,DvAr,Oe,  DvAr,DvAr,Oe,  DvAr,DvAr, _, _, _, _],
+    [_, _, _, _, DvAr,DvRd,DvAd,DvAd,DvAd,DvAd,DvRd,DvAr, _, _, _, _],
+    [_, _, _, _, _, _, DvAr,DvAr,DvAr,DvAr, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, DvAr,DvAr, _, _, _, _, _, _, _],
+    [_, _, DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr, _, _],
+    [_, _, DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr, _, _],
+    [_, _, S,   DvAd, _, DvAr,DvTl,DvAr,DvAr,DvTl,DvAr, _, DvAd, S,   _, _],
+    [_, _, S,   _, _, DvAd,DvAr,DvAr,DvAr,DvAr,DvAd, _, _, S,   _, _],
+    [_, _, _, _, _, DvAd,DvAd,DvAr,DvAr,DvAd,DvAd, _, _, _, _, _],
+    [_, _, _, _, _, DvAd,DvAd,DvAr,DvAr,DvAd,DvAd, _, _, _, _, _],
+    [_, _, _, _, _, DvAd, _, _, _, _, DvAd, _, _, _, _, _],
+    [_, _, _, _, _, DvAd, _, _, _, _, DvAd, _, _, _, _, _],
+    [_, _, _, _, DvAd,DvAd, _, _, _, _, DvAd,DvAd, _, _, _, _],
+  ]);
+  savePNG(dvoss, path.join(CONTENT_DIR, 'sprites', 'dural_voss.png'));
 }
 
 // ============================================================================
@@ -1287,22 +1945,22 @@ function generatePlayerSprites() {
     const m = pc.dark;   // dark accent
     drawPixelArt(png, 0, 0, [
       //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
-      [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],  // 0
-      [_, _, _, _, _, _,Hd,Hd,Hd,Hd, _, _, _, _, _, _],  // 1  helmet top
-      [_, _, _, _, _,Hd,Hl, H, H, H,Hd, _, _, _, _, _],  // 2  helmet (top-left highlight)
-      [_, _, _, _, _,Hd, M, M, M, M,Hd, _, _, _, _, _],  // 3  visor (accent color)
-      [_, _, _, _, _,Hd, H,Hd,Hd, H,Hd, _, _, _, _, _],  // 4  lower helmet / mouth guard
+      [_, _, _, _, _, _,Hd,Hd,Hd,Hd, _, _, _, _, _, _],  // 0  helmet crown
+      [_, _, _, _, _,Hd,Hl, H,Hl, H,Hd, _, _, _, _, _],  // 1  helmet top (highlight ridge)
+      [_, _, _, _, _,Hd, M, M, M, M,Hd, _, _, _, _, _],  // 2  visor (accent color)
+      [_, _, _, _, _,Hd, M, M, M, M,Hd, _, _, _, _, _],  // 3  visor lower
+      [_, _, _, _, _,Hd, H,Hd,Hd, H,Hd, _, _, _, _, _],  // 4  mouth guard / rebreather
       [_, _, _, _, _, _,Hd, H, H,Hd, _, _, _, _, _, _],  // 5  chin
       [_, _, _, _, _, _, _, M, M, _, _, _, _, _, _, _],  // 6  collar (accent)
-      [_, _, _, _,Hd, M, M, M, M, M, M,Hd, _, _, _, _],  // 7  shoulder pauldrons
-      [_, _, _, _, _, M, M,SG, M, M, M, _, _, _, _, _],  // 8  chest + sol unit glow
+      [_, _, _, _,Hd, M, M, M, M, M, M,Hd, _, _, _, _],  // 7  shoulder pauldrons (gray caps)
+      [_, _, _, _, m, M,SG,SG, M, M, M, m, _, _, _, _],  // 8  chest + sol unit glow (wider)
       [_, _, _, _, _, M, M, H, H, M, M, _, _, _, _, _],  // 9  torso (belt buckle gray)
-      [_, _, _, _, _, m, M, M, M, M, m, _, _, _, _, _],  // 10 waist (shadow on edges)
-      [_, _, _, _, _, _, m, M, M, m, _, _, _, _, _, _],  // 11 belt
+      [_, _, _, _, _, m, M, N, N, M, m, _, _, _, _, _],  // 10 utility belt (brown pouches)
+      [_, _, _, _, _, _, m, M, M, m, _, _, _, _, _, _],  // 11 lower belt
       [_, _, _, _, _, _, m, m, m, m, _, _, _, _, _, _],  // 12 hips
       [_, _, _, _, _, _, m, _, _, m, _, _, _, _, _, _],  // 13 legs
-      [_, _, _, _, _, _, m, _, _, m, _, _, _, _, _, _],  // 14 legs
-      [_, _, _, _, _, n, m, _, _, m, n, _, _, _, _, _],  // 15 boots
+      [_, _, _, _, _, n, m, _, _, m, n, _, _, _, _, _],  // 14 boots top
+      [_, _, _, _, _, n, n, _, _, n, n, _, _, _, _, _],  // 15 boots (brown, heavier)
     ]);
     savePNG(png, path.join(CONTENT_DIR, 'sprites', `player_${pc.name}.png`));
   }
@@ -1435,6 +2093,335 @@ function generateNPCSprites() {
     [_, _, _, _, n, dt, dt, _, _, dt, dt, n, _, _, _, _],
   ]);
   savePNG(wren, path.join(CONTENT_DIR, 'sprites', 'wren_alcott.png'));
+
+  // ============================================================
+  // GREENWAY NPCS (Compact military + Greenway civilians)
+  // ============================================================
+  const FaGn = C.darkGreen;  // farmer dark green
+  const FaMn = C.green;      // farmer mid green
+  const NpcRs = C.rust;      // rust for merchant/keeper
+  const KpTn = C.tan;        // keeper tan/weathered
+
+  // --- Checkpoint Officer Maren: Compact officer, blue uniform, gold rank insignia ---
+  const maren = createPNG(16, 16);
+  drawPixelArt(maren, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, bl,bl, _, _, _, _, _, _, _],
+    [_, _, _, bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,bl, _, _, _],
+    [_, _, _, Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl, _, _, _],
+    [_, _, _, bl, _, Bl,Bl,SG, SG,Bl,Bl, _, bl, _, _, _],
+    [_, _, _, bl, _, bl,Bl,Bl,Bl,Bl,bl, _, bl, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, n, bl,bl, _, _, bl,bl, n, _, _, _, _],
+  ]);
+  savePNG(maren, path.join(CONTENT_DIR, 'sprites', 'checkpoint_officer_maren.png'));
+
+  // --- Farmer Dael: working farmer, earthy green-brown clothes ---
+  const fDael = createPNG(16, 16);
+  drawPixelArt(fDael, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, N, N, N, N, _, _, _, _, _, _],
+    [_, _, _, _, _, N, S, S, S, S, N, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,FaMn,FaMn, _, _, _, _, _, _, _],
+    [_, _, _, n, FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn, n, _, _, _],
+    [_, _, _, FaGn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaGn, _, _, _],
+    [_, _, _, FaGn, _, FaMn,FaMn,FaMn,FaMn,FaMn,FaMn, _, FaGn, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn, _, _, FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn, _, _, FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, n, FaGn,FaGn, _, _, FaGn,FaGn, n, _, _, _, _],
+  ]);
+  savePNG(fDael, path.join(CONTENT_DIR, 'sprites', 'farmer_dael.png'));
+
+  // --- Farmer Lissa: farmer, same palette as Dael but with longer hair ---
+  const fLissa = createPNG(16, 16);
+  drawPixelArt(fLissa, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, N, N, N, N, N, N, _, _, _, _, _],
+    [_, _, _, _, N, N, S, S, S, S, N, N, _, _, _, _],
+    [_, _, _, _, _, N, S, W, S, W, S, N, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,FaMn,FaMn, _, _, _, _, _, _, _],
+    [_, _, _, n, N, FaMn,FaMn,FaMn,FaMn,FaMn,FaMn, N, n, _, _, _],
+    [_, _, _, FaGn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaGn, _, _, _],
+    [_, _, _, FaGn, _, FaMn,FaMn,FaMn,FaMn,FaMn,FaMn, _, FaGn, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn, _, _, FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn, _, _, FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, n, FaGn,FaGn, _, _, FaGn,FaGn, n, _, _, _, _],
+  ]);
+  savePNG(fLissa, path.join(CONTENT_DIR, 'sprites', 'farmer_lissa.png'));
+
+  // --- Merchant Orin: greenway merchant, orange-brown clothes, gold coin accent ---
+  const mOrin = createPNG(16, 16);
+  drawPixelArt(mOrin, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, n, N, N, n, _, _, _, _, _, _],
+    [_, _, _, _, _, N, S, S, S, S, N, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Og,Og, _, _, _, _, _, _, _],
+    [_, _, _, n, Og,Og,Og,Og,Og,Og,Og,Og, n, _, _, _],
+    [_, _, _, Og,Og,Og,Og,Og,Og,Og,Og,Og,Og, _, _, _],
+    [_, _, _, NpcRs, _, Og,Og,SG, SG,Og,Og, _, NpcRs, _, _, _],
+    [_, _, _, NpcRs, _, NpcRs,Og,Og,Og,Og,NpcRs, _, NpcRs, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs,Og,Og,NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs,Og,Og,NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs, _, _, NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs, _, _, NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, n, NpcRs,NpcRs, _, _, NpcRs,NpcRs, n, _, _, _, _],
+  ]);
+  savePNG(mOrin, path.join(CONTENT_DIR, 'sprites', 'greenway_merchant_orin.png'));
+
+  // --- Pvt. Yenn (bulwark_soldier_doubter): Bulwark private, visor up, worried face ---
+  const pvtYenn = createPNG(16, 16);
+  drawPixelArt(pvtYenn, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl,bl,bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, bl,Bl,Bl,Bl,Bl,Bl,Bl,bl, _, _, _, _],
+    [_, _, _, _, bl, S, S, S, S, S, S,bl, _, _, _, _],
+    [_, _, _, _, bl, S, W, S, S, W, S,bl, _, _, _, _],
+    [_, _, _, _, _, _, S, s, s, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, S, S, _, _, _, _, _, _, _],
+    [_, _, _, bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,bl, _, _, _],
+    [_, _, _, Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl, _, _, _],
+    [_, _, _, bl, _, Bl,Bl,Bl,Bl,Bl,Bl, _, bl, _, _, _],
+    [_, _, _, bl, _, bl,Bl,Bl,Bl,Bl,bl, _, bl, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, n, bl,bl, _, _, bl,bl, n, _, _, _, _],
+  ]);
+  savePNG(pvtYenn, path.join(CONTENT_DIR, 'sprites', 'bulwark_soldier_doubter.png'));
+
+  // --- Elder Moss (greenway_elder_moss): elderly civilian, gray robes, walking staff ---
+  const elderMoss = createPNG(16, 16);
+  drawPixelArt(elderMoss, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, G, G, G, G, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, S, S, S, S, G, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Hl,Hl, _, _, _, _, _, _, _],
+    [_, _, _, G, Hl, Hl, Hl, Hl, Hl, Hl, Hl, Hl, G, _, _, _],
+    [_, n, _, Hl,Hl,Hl, Hl, Hl, Hl, Hl, Hl,Hl, Hl, _, _, _],
+    [_, n, _, G, _, Hl, Hl, Hl, Hl, Hl, Hl, _, G, _, _, _],
+    [_, n, _, _, _, G, G, Hl, Hl, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, G, Hl, Hl, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, G, Hl, Hl, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, G, _, _, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, G, _, _, G, G, _, _, _, _, _],
+    [_, _, _, _, n, G, G, _, _, G, G, n, _, _, _, _],
+  ]);
+  savePNG(elderMoss, path.join(CONTENT_DIR, 'sprites', 'greenway_elder_moss.png'));
+
+  // --- Corporal Venn: Bulwark corporal, two gold rank stripes on chest ---
+  const corpVenn = createPNG(16, 16);
+  drawPixelArt(corpVenn, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl,bl,bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, bl,Bl,Bl,Bl,Bl,Bl,Bl,bl, _, _, _, _],
+    [_, _, _, _, bl,Bl,Oe, bl,bl,Oe, Bl,bl, _, _, _, _],
+    [_, _, _, _, bl,bl,Bl,Bl,Bl,Bl,bl,bl, _, _, _, _],
+    [_, _, _, _, _, _, bl,Bl,Bl,bl, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Bl,Bl, _, _, _, _, _, _, _],
+    [_, _, _, bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,bl, _, _, _],
+    [_, _, _, Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl, _, _, _],
+    [_, _, _, bl, _, Bl,SG, Bl,Bl,SG, Bl, _, bl, _, _, _],
+    [_, _, _, bl, _, bl,Bl,Bl,Bl,Bl,bl, _, bl, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, n, bl,bl, _, _, bl,bl, n, _, _, _, _],
+  ]);
+  savePNG(corpVenn, path.join(CONTENT_DIR, 'sprites', 'corporal_venn.png'));
+
+  // --- Old Keeper (Keeper Renn): lighthouse keeper, weathered tan uniform, gray hair ---
+  const oKeeper = createPNG(16, 16);
+  drawPixelArt(oKeeper, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, G, G, G, G, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, S, S, S, S, G, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,KpTn,KpTn, _, _, _, _, _, _, _],
+    [_, _, _, n, KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn, n, _, _, _],
+    [_, _, _, KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn, _, _, _],
+    [_, _, _, n, _, KpTn,KpTn,NpcRs,NpcRs,KpTn,KpTn, _, n, _, _, _],
+    [_, _, _, n, _, NpcRs,KpTn,KpTn,KpTn,KpTn,NpcRs, _, n, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs,KpTn,KpTn,NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs,KpTn,KpTn,NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs, _, _, NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs, _, _, NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, n, NpcRs,NpcRs, _, _, NpcRs,NpcRs, n, _, _, _, _],
+  ]);
+  savePNG(oKeeper, path.join(CONTENT_DIR, 'sprites', 'old_keeper.png'));
+
+  // --- Wounded Unbounded Scout (Kael): scout with bandaged left arm, teal clothing ---
+  const wndScout = createPNG(16, 16);
+  drawPixelArt(wndScout, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, n, n, S, S, n, n, _, _, _, _, _],
+    [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, dt,dt, _, _, _, _, _, _, _],
+    [_, _, _, n, dt, Te, Te, dt, dt, Te, Te, dt, n, _, _, _],
+    [_, _, _, Te, Te, Te, Te, Te, Te, Te, Te, Te, Te, _, _, _],
+    [_, _,W, dt, _, Te, Te, Te, Te, Te, Te, _, dt, _, _, _],
+    [_, _,W, dt, _, dt, Te, Te, Te, Te, dt, _, dt, _, _, _],
+    [_, _, _, _, _, dt, dt, Te, Te, dt, dt, _, _, _, _, _],
+    [_, _, _, _, _, dt, dt, Te, Te, dt, dt, _, _, _, _, _],
+    [_, _, _, _, _, dt, dt, _, _, dt, dt, _, _, _, _, _],
+    [_, _, _, _, _, dt, dt, _, _, dt, dt, _, _, _, _, _],
+    [_, _, _, _, n, dt, dt, _, _, dt, dt, n, _, _, _, _],
+  ]);
+  savePNG(wndScout, path.join(CONTENT_DIR, 'sprites', 'wounded_unbounded_scout.png'));
+
+  // --- Councillor Asha Denn (councillor_asha / councillor_asha_denn):
+  //     Cultivar Corps diplomat, deep crimson formal robe, gold insignia.
+  //     Distinct from farmers (green), military (teal/blue), nightside (purple). ---
+  const Dr = C.darkRed;   // dark crimson robe body
+  const Rd2 = C.red;      // crimson highlight on chest
+  const asha = createPNG(16, 16);
+  drawPixelArt(asha, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, n, N, N, n, _, _, _, _, _, _],  // short dark hair (formal cut)
+    [_, _, _, _, _, n, S, S, S, S, n, _, _, _, _, _],  // hair framing face
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],  // eyes
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],  // mouth
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],  // chin
+    [_, _, _, _,SG,SG,SG,SG,SG,SG,SG,SG, _, _, _, _],  // gold collar (wider, more prominent)
+    [_, _, _,Dr,Dr,Dr,Dr,Rd2,Rd2,Dr,Dr,Dr,Dr, _, _, _],  // formal robe (red chest highlight)
+    [_, _, _,Dr,Dr,Rd2,SG,Dr,Dr,SG,Rd2,Dr,Dr, _, _, _],  // gold insignia + red highlights
+    [_, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _],  // robe body
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],  // robe mid
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],  // robe lower (flows)
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, _,Dr,Dr, _, _,Dr,Dr, _, _, _, _, _],  // legs
+    [_, _, _, _, _,Dr,Dr, _, _,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, n,Dr,Dr, _, _,Dr,Dr, n, _, _, _, _],  // feet
+  ]);
+  savePNG(asha, path.join(CONTENT_DIR, 'sprites', 'councillor_asha.png'));
+
+  // councillor_asha_denn: same character, early encounter in Greenway (travel cloak variant)
+  const ashaDenn = createPNG(16, 16);
+  drawPixelArt(ashaDenn, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, n, N, N, n, _, _, _, _, _, _],  // short dark hair
+    [_, _, _, _, _, n, S, S, S, S, n, _, _, _, _, _],  // hair framing face
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],  // eyes
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],  // mouth
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],  // chin
+    [_, _, _, _, _, _,Dr,Dr,Dr,Dr, _, _, _, _, _, _],  // crimson collar (travel wear)
+    [_, _, _,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _],  // travel cloak (same crimson)
+    [_, _, _,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _],  // cloak body (no insignia — informal)
+    [_, _, _, _,Dr,Dr,Dr,SG,SG,Dr,Dr,Dr, _, _, _, _],  // small gold clasp at center
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, _,Dr,Dr,Dr,Dr,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, _,Dr,Dr, _, _,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, _,Dr,Dr, _, _,Dr,Dr, _, _, _, _, _],
+    [_, _, _, _, n,Dr,Dr, _, _,Dr,Dr, n, _, _, _, _],
+  ]);
+  savePNG(ashaDenn, path.join(CONTENT_DIR, 'sprites', 'councillor_asha_denn.png'));
+
+  // --- Warden Holt (outpost_warden): military commander, teal uniform, short gray-brown hair ---
+  const warden = createPNG(16, 16);
+  drawPixelArt(warden, 0, 0, [
+    //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, G, G, G, G, _, _, _, _, _, _],  // short cropped gray hair
+    [_, _, _, _, _, G, S, S, S, S, G, _, _, _, _, _],  // face
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],  // eyes (white, not hostile)
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],  // stern mouth
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],  // chin
+    [_, _, _, _, _, _,Lg,Lg,Lg,Lg, _, _, _, _, _, _],  // gray collar / rank insignia
+    [_, _, _, dt, Te, Te, Te, Te, Te, Te, Te, Te, dt, _, _, _],  // teal uniform (wide shoulders)
+    [_, _, _, dt, Te, Te, Te, Te, Te, Te, Te, Te, dt, _, _, _],  // chest
+    [_, _, _, _, dt, Te, Te,Lg, Te, Te, Te, dt, _, _, _, _],  // belt buckle (gray)
+    [_, _, _, _, _, dt, Te, Te, Te, Te, dt, _, _, _, _, _],  // waist
+    [_, _, _, _, _, dt, dt, Te, Te, dt, dt, _, _, _, _, _],  // belt
+    [_, _, _, _, _, dt, dt, dt, dt, dt, dt, _, _, _, _, _],  // hips
+    [_, _, _, _, _, dt, dt, _, _, dt, dt, _, _, _, _, _],  // legs
+    [_, _, _, _, _, dt, dt, _, _, dt, dt, _, _, _, _, _],  // legs
+    [_, _, _, _, n, dt, dt, _, _, dt, dt, n, _, _, _, _],  // boots
+  ]);
+  savePNG(warden, path.join(CONTENT_DIR, 'sprites', 'outpost_warden.png'));
+
+  // --- MERIDIAN-7 terminal: sleek vertical terminal/monolith, gold screen, teal data lines ---
+  const m7 = createPNG(16, 16);
+  const M7g = C.midGray;
+  const M7d = C.darkSlate;
+  const M7s = C.gray;
+  const M7t = C.lightTeal;
+  drawPixelArt(m7, 0, 0, [
+    //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    [_, _, _, _, _, _, _, Te, Te, _, _, _, _, _, _, _],  // antenna
+    [_, _, _, _, _, _, _, Te, Te, _, _, _, _, _, _, _],  // antenna stem
+    [_, _, _, _, _,M7d,M7d,M7d,M7d,M7d,M7d, _, _, _, _, _],  // top frame
+    [_, _, _, _,M7d,M7s,SG,SG,SG,SG,M7s,M7d, _, _, _, _],  // screen top (gold display)
+    [_, _, _, _,M7d,SG,SG,SG,SG,SG,SG,M7d, _, _, _, _],  // screen
+    [_, _, _, _,M7d,SG, Te,SG, Te,SG,SG,M7d, _, _, _, _],  // screen with teal data readouts
+    [_, _, _, _,M7d,SG,SG, Te,SG,SG,SG,M7d, _, _, _, _],  // screen
+    [_, _, _, _,M7d,SG, Te,SG,SG, Te,SG,M7d, _, _, _, _],  // screen with data
+    [_, _, _, _,M7d,M7s,SG,SG,SG,SG,M7s,M7d, _, _, _, _],  // screen bottom
+    [_, _, _, _,M7d,M7g,M7g,M7g,M7g,M7g,M7g,M7d, _, _, _, _],  // chassis
+    [_, _, _, _,M7d,M7g,M7t,M7g,M7g,M7t,M7g,M7d, _, _, _, _],  // teal status lights
+    [_, _, _, _,M7d,M7g,M7g,M7g,M7g,M7g,M7g,M7d, _, _, _, _],  // chassis body
+    [_, _, _, _,M7d,M7g,M7g,M7g,M7g,M7g,M7g,M7d, _, _, _, _],  // chassis lower
+    [_, _, _, _,M7d,M7d,M7g,M7g,M7g,M7g,M7d,M7d, _, _, _, _],  // base taper
+    [_, _, _,M7d,M7d,M7d,M7d,M7d,M7d,M7d,M7d,M7d,M7d, _, _, _],  // base plate
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(m7, path.join(CONTENT_DIR, 'sprites', 'meridian_7.png'));
+
+  // --- Apprentice Sol Engineer: orange coveralls, goggles on forehead, tool belt ---
+  const solEng = createPNG(16, 16);
+  const Ob = C.orange;
+  const Rs = C.rust;
+  drawPixelArt(solEng, 0, 0, [
+    //0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _,SG, N, N,SG, _, _, _, _, _, _],  // brown hair + gold goggles on forehead
+    [_, _, _, _, _, N, S, S, S, S, N, _, _, _, _, _],  // hair framing face
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],  // eyes
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],  // mouth
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],  // chin
+    [_, _, _, _, _, _, _,Ob,Ob, _, _, _, _, _, _, _],  // collar
+    [_, _, _, Rs, Ob, Ob, Ob, Ob, Ob, Ob, Ob, Ob, Rs, _, _, _],  // orange coveralls (shoulders)
+    [_, _, _, Ob, Ob, Ob, Ob, Ob, Ob, Ob, Ob, Ob, Ob, _, _, _],  // chest
+    [_, _, _, _, Ob, Ob,SG, Ob, Ob, Ob, Ob, Ob, _, _, _, _],  // sol gold tool on belt
+    [_, _, _, _, _, Rs, Ob, Ob, Ob, Ob, Rs, _, _, _, _, _],  // waist
+    [_, _, _, _, _, Rs, Rs, Ob, Ob, Rs, Rs, _, _, _, _, _],  // belt with tools
+    [_, _, _, _, _, Rs, Rs, Rs, Rs, Rs, Rs, _, _, _, _, _],  // hips
+    [_, _, _, _, _, Rs, Rs, _, _, Rs, Rs, _, _, _, _, _],  // legs
+    [_, _, _, _, _, Rs, Rs, _, _, Rs, Rs, _, _, _, _, _],  // legs
+    [_, _, _, _, n, Rs, Rs, _, _, Rs, Rs, n, _, _, _, _],  // boots
+  ]);
+  savePNG(solEng, path.join(CONTENT_DIR, 'sprites', 'sol_engineer_1.png'));
 }
 
 // ============================================================================
@@ -1617,7 +2604,7 @@ function generateItemSprites() {
 // ============================================================================
 
 function generateOutpostTileset() {
-  const png = createPNG(160, 16);
+  const png = createPNG(512, 16); // 32 tiles × 16px
 
   // Outpost palette — warm steel, worn concrete, orange torchlight
   const O = {
@@ -1628,15 +2615,15 @@ function generateOutpostTileset() {
     wallMid:    hex('#645f55'),
     wallLight:  hex('#736e64'),
     wallTop:    hex('#7d766c'),
-    doorMid:    hex('#6a6050'),   // warm steel (was blue-gray #6a7a8a)
-    doorDark:   hex('#4e4638'),   // darker warm steel (was #505f6e)
-    doorLight:  hex('#847264'),   // lighter warm steel (was #8291a0)
+    doorMid:    hex('#6a6050'),
+    doorDark:   hex('#4e4638'),
+    doorLight:  hex('#847264'),
     voidColor:  hex('#0f0e0c'),
     water1:     hex('#232a20'),
     water2:     hex('#303728'),
     water3:     hex('#3a4430'),
-    rust:       hex('#7a5030'),   // rust staining on worn surfaces
-    orange:     C.orange,        // torchlight accent (warm, lived-in)
+    rust:       hex('#7a5030'),
+    orange:     C.orange,
   };
 
   // --- Tile 0: Void (near-black warm) ---
@@ -1660,11 +2647,8 @@ function generateOutpostTileset() {
     setPixel(png, ox1 + 8 + i, 8, O.floorLight);
     setPixel(png, ox1 + 8, 8 + i, O.floorLight);
   }
-  // Rivet details
-  setPixel(png, ox1 + 2, 2, O.floorLight);
-  setPixel(png, ox1 + 13, 2, O.floorLight);
-  setPixel(png, ox1 + 2, 13, O.floorLight);
-  setPixel(png, ox1 + 13, 13, O.floorLight);
+  setPixel(png, ox1 + 2, 2, O.floorLight); setPixel(png, ox1 + 13, 2, O.floorLight);
+  setPixel(png, ox1 + 2, 13, O.floorLight); setPixel(png, ox1 + 13, 13, O.floorLight);
 
   // --- Tile 2: Worn Metal Floor (scuffed) ---
   const ox2 = 32;
@@ -1677,7 +2661,6 @@ function generateOutpostTileset() {
     setPixel(png, ox2 + i, 0, O.floorLight);
     setPixel(png, ox2, i, O.floorLight);
   }
-  // Scuff marks
   const scuffs = [[3,3],[4,4],[5,4],[8,6],[9,7],[10,8],[6,10],[7,11],[11,12],[12,13]];
   for (const [sx, sy] of scuffs) setPixel(png, ox2 + sx, sy, O.floorDark);
 
@@ -1691,23 +2674,18 @@ function generateOutpostTileset() {
   const concrDark  = [[5,2],[1,5],[9,3],[12,7],[3,9],[7,11],[2,12],[10,10],[14,13],[8,14]];
   for (const [sx, sy] of concrLight) setPixel(png, ox3 + sx, sy, O.wallLight);
   for (const [sx, sy] of concrDark)  setPixel(png, ox3 + sx, sy, O.wallDark);
-  // Rust streaks (worn frontier outpost — lived-in decay)
   const rustStreaks = [[4,5],[4,6],[4,7],[11,3],[11,4],[11,5],[7,9],[7,10]];
   for (const [rx, ry] of rustStreaks) setPixel(png, ox3 + rx, ry, O.rust);
 
-  // --- Tile 4: Steel Door Closed (warm steel, frontier outpost feel) ---
+  // --- Tile 4: Steel Door Closed (warm steel, orange handle) ---
   const ox4 = 64;
   fillRect(png, ox4, 0, 16, 16, O.doorMid);
   fillRect(png, ox4, 0, 1, 16, O.doorDark);
   fillRect(png, ox4 + 15, 0, 1, 16, O.doorDark);
-  // Reinforcing horizontal bands
   fillRect(png, ox4 + 1, 2, 14, 2, O.doorLight);
   fillRect(png, ox4 + 1, 12, 14, 2, O.doorLight);
-  // Vertical center seam
   for (let vy = 0; vy < 16; vy++) setPixel(png, ox4 + 8, vy, O.doorDark);
-  // Handle: orange torchlight accent (warm, lived-in)
-  setPixel(png, ox4 + 12, 7, O.orange);
-  setPixel(png, ox4 + 12, 8, O.orange);
+  setPixel(png, ox4 + 12, 7, O.orange); setPixel(png, ox4 + 12, 8, O.orange);
 
   // --- Tile 5: Door Open ---
   const ox5 = 80;
@@ -1716,18 +2694,15 @@ function generateOutpostTileset() {
   fillRect(png, ox5 + 14, 0, 2, 16, O.doorDark);
   fillRect(png, ox5 + 4, 2, 8, 12, rgba(30, 28, 25));
 
-  // --- Tile 6: Stairs Down ---
+  // --- Tile 6: Stairs Down (orange arrow) ---
   const ox6 = 96;
   fillRect(png, ox6, 0, 16, 16, O.floorMid);
   fillRect(png, ox6 + 2, 2, 12, 3, O.floorLight);
   fillRect(png, ox6 + 3, 5, 10, 3, O.floorMid);
   fillRect(png, ox6 + 4, 8, 8, 3, O.floorDark);
   fillRect(png, ox6 + 5, 11, 6, 3, rgba(25, 24, 20));
-  // Down arrow: orange torchlight (warm frontier aesthetic)
-  setPixel(png, ox6 + 7, 13, O.orange);
-  setPixel(png, ox6 + 8, 13, O.orange);
-  setPixel(png, ox6 + 6, 12, O.orange);
-  setPixel(png, ox6 + 9, 12, O.orange);
+  setPixel(png, ox6 + 7, 13, O.orange); setPixel(png, ox6 + 8, 13, O.orange);
+  setPixel(png, ox6 + 6, 12, O.orange); setPixel(png, ox6 + 9, 12, O.orange);
 
   // --- Tile 7: Drainage/Sludge ---
   const ox7 = 112;
@@ -1737,20 +2712,17 @@ function generateOutpostTileset() {
   const oWaveH = [[3,2],[9,4],[2,8],[8,10],[13,6],[5,13]];
   for (const [wx, wy] of oWaveH) setPixel(png, ox7 + wx, wy, O.water3);
 
-  // --- Tile 8: Stairs Up ---
+  // --- Tile 8: Stairs Up (orange arrow) ---
   const ox8 = 128;
   fillRect(png, ox8, 0, 16, 16, O.floorMid);
   fillRect(png, ox8 + 5, 2, 6, 3, rgba(25, 24, 20));
   fillRect(png, ox8 + 4, 5, 8, 3, O.floorDark);
   fillRect(png, ox8 + 3, 8, 10, 3, O.floorMid);
   fillRect(png, ox8 + 2, 11, 12, 3, O.floorLight);
-  // Up arrow: orange torchlight (warm frontier aesthetic)
-  setPixel(png, ox8 + 7, 1, O.orange);
-  setPixel(png, ox8 + 8, 1, O.orange);
-  setPixel(png, ox8 + 6, 2, O.orange);
-  setPixel(png, ox8 + 9, 2, O.orange);
+  setPixel(png, ox8 + 7, 1, O.orange); setPixel(png, ox8 + 8, 1, O.orange);
+  setPixel(png, ox8 + 6, 2, O.orange); setPixel(png, ox8 + 9, 2, O.orange);
 
-  // --- Tile 9: Locked Steel Door (warm steel with Sol Gold lock) ---
+  // --- Tile 9: Locked Steel Door (warm steel, Sol Gold lock) ---
   const ox9 = 144;
   fillRect(png, ox9, 0, 16, 16, O.doorMid);
   fillRect(png, ox9, 0, 1, 16, O.doorDark);
@@ -1758,11 +2730,245 @@ function generateOutpostTileset() {
   fillRect(png, ox9 + 1, 2, 14, 2, O.doorLight);
   fillRect(png, ox9 + 1, 12, 14, 2, O.doorLight);
   for (let vy = 0; vy < 16; vy++) setPixel(png, ox9 + 8, vy, O.doorDark);
-  // Lock: Sol Gold (interactive marker per art-style-guide)
   fillRect(png, ox9 + 6, 6, 4, 4, C.solGold);
-  setPixel(png, ox9 + 7, 7, C.darkGray);
-  setPixel(png, ox9 + 8, 7, C.darkGray);
+  setPixel(png, ox9 + 7, 7, C.darkGray); setPixel(png, ox9 + 8, 7, C.darkGray);
   setPixel(png, ox9 + 7, 8, C.darkGray);
+
+  // --- Tile 10: Chest Closed (metal crate, orange handle, Sol Gold lock) ---
+  const ox10 = 160;
+  fillRect(png, ox10, 0, 1, 16, O.doorDark);
+  fillRect(png, ox10 + 15, 0, 1, 16, O.doorDark);
+  fillRect(png, ox10 + 1, 0, 14, 16, O.doorMid);
+  fillRect(png, ox10 + 1, 0, 14, 5, O.doorLight);  // lid
+  fillRect(png, ox10 + 1, 5, 14, 1, O.doorDark);   // lid seam
+  fillRect(png, ox10 + 1, 14, 14, 2, O.doorDark);  // bottom shadow
+  for (let i = 2; i < 14; i++) setPixel(png, ox10 + i, 1, O.wallLight); // lid highlight
+  setPixel(png, ox10 + 2, 1, O.orange); setPixel(png, ox10 + 13, 1, O.orange); // corner rivets
+  setPixel(png, ox10 + 2, 13, O.orange); setPixel(png, ox10 + 13, 13, O.orange);
+  fillRect(png, ox10 + 6, 7, 4, 4, C.solGold);     // Sol Gold lock
+  setPixel(png, ox10 + 7, 8, O.doorDark); setPixel(png, ox10 + 8, 8, O.doorDark);
+
+  // --- Tile 11: Chest Opened (open metal crate, dark interior) ---
+  const ox11 = 176;
+  fillRect(png, ox11, 0, 1, 16, O.doorDark);
+  fillRect(png, ox11 + 15, 0, 1, 16, O.doorDark);
+  fillRect(png, ox11 + 1, 0, 14, 16, O.doorMid);
+  fillRect(png, ox11 + 1, 14, 14, 2, O.doorDark);
+  fillRect(png, ox11 + 2, 1, 12, 10, O.floorDark);   // interior
+  fillRect(png, ox11 + 3, 2, 10, 8, rgba(22, 20, 18));
+  setPixel(png, ox11 + 2, 12, O.orange); setPixel(png, ox11 + 13, 12, O.orange);
+  for (let i = 2; i < 14; i++) setPixel(png, ox11 + i, 0, O.doorLight); // open rim
+
+  // --- Tile 12: Sealed Gate (iron bars, orange seal indicator) ---
+  const ox12 = 192;
+  fillRect(png, ox12, 0, 16, 16, O.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox12 + bar, 0, 2, 16, O.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox12 + bar, i, O.wallDark);
+  }
+  fillRect(png, ox12, 7, 16, 2, O.wallMid);
+  setPixel(png, ox12 + 7, 8, O.orange); setPixel(png, ox12 + 8, 8, O.orange);
+
+  // --- Tile 13: Sealed Gate Workshop (Sol Gold indicator) ---
+  const ox13 = 208;
+  fillRect(png, ox13, 0, 16, 16, O.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox13 + bar, 0, 2, 16, O.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox13 + bar, i, O.wallDark);
+  }
+  fillRect(png, ox13, 7, 16, 2, O.wallMid);
+  setPixel(png, ox13 + 7, 8, C.solGold); setPixel(png, ox13 + 8, 8, C.solGold);
+
+  // --- Tile 14: Sealed Gate Charger (teal indicator) ---
+  const ox14 = 224;
+  fillRect(png, ox14, 0, 16, 16, O.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox14 + bar, 0, 2, 16, O.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox14 + bar, i, O.wallDark);
+  }
+  fillRect(png, ox14, 7, 16, 2, O.wallMid);
+  setPixel(png, ox14 + 7, 8, C.lightTeal); setPixel(png, ox14 + 8, 8, C.lightTeal);
+
+  // --- Tile 15: Hidden Passage (wall-look, faint seam) ---
+  const ox15 = 240;
+  fillRect(png, ox15, 0, 16, 16, O.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox15 + i, 0, O.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox15 + i, 15, O.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox15 + 15, i, O.wallDark);
+  for (let i = 1; i < 15; i++) setPixel(png, ox15 + 8, i, O.wallLight);
+  const hp15L = [[2,3],[6,2],[10,4],[4,9],[1,11]];
+  const hp15D = [[5,4],[1,6],[9,3],[3,10],[11,8]];
+  for (const [sx, sy] of hp15L) setPixel(png, ox15 + sx, sy, O.wallLight);
+  for (const [sx, sy] of hp15D) setPixel(png, ox15 + sx, sy, O.wallDark);
+
+  // --- Tile 16: Blast Door (heavy reinforced metal, thick bands) ---
+  const ox16 = 256;
+  fillRect(png, ox16, 0, 16, 16, O.doorDark);
+  fillRect(png, ox16 + 1, 1, 14, 14, O.doorMid);
+  fillRect(png, ox16 + 1, 1, 14, 2, O.doorLight);
+  fillRect(png, ox16 + 1, 6, 14, 2, O.doorLight);
+  fillRect(png, ox16 + 1, 11, 14, 2, O.doorLight);
+  fillRect(png, ox16 + 7, 1, 2, 14, O.doorDark);
+  setPixel(png, ox16 + 2, 2, O.wallLight); setPixel(png, ox16 + 13, 2, O.wallLight);
+  setPixel(png, ox16 + 2, 13, O.wallLight); setPixel(png, ox16 + 13, 13, O.wallLight);
+
+  // --- Tile 17: Junction Box B (wall panel with indicators) ---
+  const ox17 = 272;
+  fillRect(png, ox17, 0, 16, 16, O.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox17 + i, 0, O.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox17 + i, 15, O.wallDark);
+  fillRect(png, ox17 + 3, 4, 10, 8, O.floorDark);
+  fillRect(png, ox17 + 4, 5, 8, 6, O.floorMid);
+  setPixel(png, ox17 + 5, 7, O.orange);    // active
+  setPixel(png, ox17 + 7, 7, C.solGold);  // power
+  setPixel(png, ox17 + 9, 7, O.wallLight); // neutral
+
+  // --- Tile 18: Maintenance Hatch (floor with hatch, orange handle) ---
+  const ox18 = 288;
+  fillRect(png, ox18, 0, 16, 16, O.floorMid);
+  fillRect(png, ox18 + 2, 2, 12, 1, O.wallMid); fillRect(png, ox18 + 2, 13, 12, 1, O.wallMid);
+  fillRect(png, ox18 + 2, 2, 1, 12, O.wallMid); fillRect(png, ox18 + 13, 2, 1, 12, O.wallMid);
+  fillRect(png, ox18 + 3, 3, 10, 10, O.floorDark);
+  setPixel(png, ox18 + 7, 7, O.orange); setPixel(png, ox18 + 8, 7, O.orange);
+  setPixel(png, ox18 + 7, 8, O.orange); setPixel(png, ox18 + 8, 8, O.orange);
+
+  // --- Tile 19: Transit Gate (framed turnstile, blue indicator) ---
+  const ox19 = 304;
+  fillRect(png, ox19, 0, 16, 16, O.floorDark);
+  fillRect(png, ox19, 0, 2, 16, O.wallMid);
+  fillRect(png, ox19 + 14, 0, 2, 16, O.wallMid);
+  fillRect(png, ox19 + 2, 0, 12, 2, O.wallMid);
+  fillRect(png, ox19 + 2, 14, 12, 2, O.wallMid);
+  fillRect(png, ox19 + 7, 2, 2, 12, O.wallLight);
+  fillRect(png, ox19 + 2, 7, 12, 2, O.wallLight);
+  setPixel(png, ox19 + 12, 3, C.blue); setPixel(png, ox19 + 12, 4, C.blue);
+
+  // --- Tile 20: Garden Plot (dark soil with green growth) ---
+  const ox20 = 320;
+  fillRect(png, ox20, 0, 16, 16, hex('#1a1a12'));
+  const soilL = [[2,2],[5,1],[9,3],[12,2],[1,6],[7,5],[14,4],[3,8],[10,7],[6,10],[13,9],[2,13],[11,12]];
+  const soilD = [[4,3],[8,2],[11,4],[3,6],[6,7],[9,9],[1,11],[7,12],[12,11],[5,14]];
+  for (const [sx, sy] of soilL) setPixel(png, ox20 + sx, sy, C.darkBrown);
+  for (const [sx, sy] of soilD) setPixel(png, ox20 + sx, sy, C.darkGray);
+  const sprouts = [[3,1],[8,0],[12,1],[5,3],[10,4],[1,7],[13,6]];
+  for (const [gx, gy] of sprouts) setPixel(png, ox20 + gx, gy, C.darkGreen);
+
+  // --- Tile 21: Notice Board (dark frame, parchment with text lines) ---
+  const ox21 = 336;
+  fillRect(png, ox21, 0, 16, 16, O.wallMid);
+  fillRect(png, ox21 + 2, 1, 12, 13, C.darkBrown);
+  fillRect(png, ox21 + 3, 2, 10, 11, C.tan);
+  fillRect(png, ox21 + 4, 4, 8, 1, C.bone);
+  fillRect(png, ox21 + 4, 6, 8, 1, C.bone);
+  fillRect(png, ox21 + 4, 8, 6, 1, C.bone);
+  fillRect(png, ox21 + 4, 10, 7, 1, C.bone);
+
+  // --- Tile 22: Seed Pot (clay pot, green sprout) ---
+  const ox22 = 352;
+  fillRect(png, ox22, 0, 16, 16, O.floorMid);
+  fillRect(png, ox22 + 3, 10, 10, 5, C.brown);
+  fillRect(png, ox22 + 4, 9, 8, 2, hex('#1a1a12'));
+  fillRect(png, ox22 + 3, 10, 10, 1, C.tan);
+  fillRect(png, ox22 + 4, 14, 8, 1, C.darkBrown);
+  setPixel(png, ox22 + 8, 8, C.darkGreen); setPixel(png, ox22 + 7, 7, C.darkGreen);
+  setPixel(png, ox22 + 9, 7, C.green); setPixel(png, ox22 + 7, 6, C.green);
+
+  // --- Tile 23: Personal Log (book with parchment pages) ---
+  const ox23 = 368;
+  fillRect(png, ox23, 0, 16, 16, O.floorMid);
+  fillRect(png, ox23 + 3, 2, 10, 12, C.darkBrown);
+  fillRect(png, ox23 + 3, 2, 2, 12, C.brown);
+  fillRect(png, ox23 + 5, 2, 8, 12, hex('#d0c8b0'));
+  fillRect(png, ox23 + 6, 4, 6, 1, C.darkBrown);
+  fillRect(png, ox23 + 6, 6, 6, 1, C.darkBrown);
+  fillRect(png, ox23 + 6, 8, 5, 1, C.darkBrown);
+  fillRect(png, ox23 + 6, 10, 6, 1, C.darkBrown);
+  setPixel(png, ox23 + 3, 2, C.tan); setPixel(png, ox23 + 3, 3, C.tan);
+
+  // --- Tile 24: Homestead Gate (thin bars, orange accent tips) ---
+  const ox24 = 384;
+  fillRect(png, ox24, 0, 16, 16, O.floorDark);
+  for (let bar = 2; bar <= 14; bar += 3) fillRect(png, ox24 + bar, 0, 1, 16, O.wallLight);
+  fillRect(png, ox24 + 1, 2, 14, 2, O.wallLight);
+  fillRect(png, ox24 + 1, 12, 14, 2, O.wallLight);
+  for (let bar = 2; bar <= 14; bar += 3) setPixel(png, ox24 + bar, 0, O.orange);
+
+  // --- Tile 25: Cache Entrance (collapsed rubble, dark recess) ---
+  const ox25 = 400;
+  fillRect(png, ox25, 0, 16, 16, O.wallMid);
+  fillRect(png, ox25 + 5, 5, 6, 6, O.floorDark);
+  fillRect(png, ox25 + 6, 6, 4, 4, rgba(22, 20, 18));
+  const rubble = [[1,14],[2,13],[3,14],[4,15],[5,13],[6,14],[7,12],[8,13],[9,14],[10,12],[11,13],[12,14],[13,15],[14,13]];
+  for (const [rx, ry] of rubble) setPixel(png, ox25 + rx, ry, O.wallDark);
+  setPixel(png, ox25 + 5, 5, O.wallLight); setPixel(png, ox25 + 10, 5, O.wallLight);
+  setPixel(png, ox25 + 5, 10, O.rust); // rust staining on broken edge
+
+  // --- Tile 26: Resonance Point (Sol Gold/orange radiant glow on floor) ---
+  const ox26 = 416;
+  fillRect(png, ox26, 0, 16, 16, O.floorMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox26 + i, 7, O.floorDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox26 + 7, i, O.floorDark);
+  setPixel(png, ox26 + 8, 8, C.solGold);
+  setPixel(png, ox26 + 7, 8, O.orange); setPixel(png, ox26 + 9, 8, O.orange);
+  setPixel(png, ox26 + 8, 7, O.orange); setPixel(png, ox26 + 8, 9, O.orange);
+  setPixel(png, ox26 + 6, 8, O.rust); setPixel(png, ox26 + 10, 8, O.rust);
+  setPixel(png, ox26 + 8, 6, O.rust); setPixel(png, ox26 + 8, 10, O.rust);
+
+  // --- Tile 27: Survey Marker (floor with metal post/stake) ---
+  const ox27 = 432;
+  fillRect(png, ox27, 0, 16, 16, O.floorMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox27 + i, 7, O.floorDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox27 + 7, i, O.floorDark);
+  fillRect(png, ox27 + 7, 3, 2, 9, O.wallLight);  // metal post
+  fillRect(png, ox27 + 6, 3, 4, 2, O.wallLight);  // top cap
+  setPixel(png, ox27 + 7, 2, C.paleGray);           // tip highlight
+  fillRect(png, ox27 + 5, 11, 6, 2, O.wallDark);  // base anchor
+
+  // --- Tile 28: Sealed Gate Briefing (Sol Gold pair indicator) ---
+  const ox28 = 448;
+  fillRect(png, ox28, 0, 16, 16, O.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox28 + bar, 0, 2, 16, O.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox28 + bar, i, O.wallDark);
+  }
+  fillRect(png, ox28, 7, 16, 2, O.wallMid);
+  setPixel(png, ox28 + 6, 8, C.solGold); setPixel(png, ox28 + 9, 8, C.solGold);
+
+  // --- Tile 29: Sealed Gate Training (orange pair indicator) ---
+  const ox29 = 464;
+  fillRect(png, ox29, 0, 16, 16, O.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox29 + bar, 0, 2, 16, O.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox29 + bar, i, O.wallDark);
+  }
+  fillRect(png, ox29, 7, 16, 2, O.wallMid);
+  setPixel(png, ox29 + 6, 8, O.orange); setPixel(png, ox29 + 9, 8, O.orange);
+
+  // --- Tile 30: Crate Closed (wooden supply crate with tan stamp) ---
+  const ox30 = 480;
+  fillRect(png, ox30, 0, 16, 1, C.darkGray);
+  fillRect(png, ox30, 0, 1, 16, C.darkGray);
+  fillRect(png, ox30 + 15, 0, 1, 16, C.darkGray);
+  fillRect(png, ox30, 15, 16, 1, C.darkGray);
+  fillRect(png, ox30 + 1, 1, 14, 14, C.brown);
+  fillRect(png, ox30 + 1, 5, 14, 1, C.darkBrown);
+  fillRect(png, ox30 + 1, 10, 14, 1, C.darkBrown);
+  fillRect(png, ox30 + 7, 1, 1, 14, C.darkBrown);
+  for (let i = 2; i < 14; i++) setPixel(png, ox30 + i, 1, C.tan);
+  fillRect(png, ox30 + 9, 6, 3, 3, C.tan);
+
+  // --- Tile 31: Crate Opened (open supply crate, dark interior) ---
+  const ox31 = 496;
+  fillRect(png, ox31, 0, 16, 1, C.darkGray);
+  fillRect(png, ox31, 0, 1, 16, C.darkGray);
+  fillRect(png, ox31 + 15, 0, 1, 16, C.darkGray);
+  fillRect(png, ox31, 15, 16, 1, C.darkGray);
+  fillRect(png, ox31 + 1, 1, 14, 14, C.brown);
+  fillRect(png, ox31 + 1, 5, 14, 1, C.darkBrown);
+  fillRect(png, ox31 + 7, 1, 1, 14, C.darkBrown);
+  fillRect(png, ox31 + 2, 2, 12, 8, C.darkGray);
+  fillRect(png, ox31 + 3, 3, 10, 6, rgba(15, 12, 10));
+  for (let i = 2; i < 14; i++) setPixel(png, ox31 + i, 1, C.tan);
 
   savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'outpost.png'));
 }
@@ -1773,29 +2979,29 @@ function generateOutpostTileset() {
 // ============================================================================
 
 function generateQuarantineTileset() {
-  const png = createPNG(160, 16);
+  const png = createPNG(208, 16); // 13 tiles × 16px
 
   // Quarantine palette — gray-green contamination, rust decay, warning red
   const Q = {
-    floorDark:  hex('#1c261c'),
-    floorMid:   hex('#252e25'),
-    floorLight: hex('#303a2d'),
-    wallDark:   hex('#374632'),
-    wallMid:    hex('#4a5a45'),
-    wallLight:  hex('#586950'),
-    wallTop:    hex('#5f7058'),
-    doorMid:    hex('#8a6a30'),   // slightly more brown-rust (was too golden)
-    doorDark:   hex('#64481e'),   // darker rust-brown
-    doorLight:  hex('#a5843c'),   // lighter rust-brown
-    voidColor:  hex('#0a100a'),
-    water1:     hex('#142d12'),
-    water2:     hex('#23411c'),
-    water3:     hex('#325526'),
-    teal:       hex('#32aa64'),
-    contamGreen: hex('#50a03c'),  // contamination green
-    rust:       hex('#904020'),   // rust decay (key quarantine color)
-    rustLight:  hex('#b05030'),   // lighter rust highlight
-    warningRed: C.red,            // warning red (#c83232 — danger marker)
+    floorDark:   hex('#1c261c'),
+    floorMid:    hex('#252e25'),
+    floorLight:  hex('#303a2d'),
+    wallDark:    hex('#374632'),
+    wallMid:     hex('#4a5a45'),
+    wallLight:   hex('#586950'),
+    wallTop:     hex('#5f7058'),
+    doorMid:     hex('#8a6a30'),
+    doorDark:    hex('#64481e'),
+    doorLight:   hex('#a5843c'),
+    voidColor:   hex('#0a100a'),
+    water1:      hex('#142d12'),
+    water2:      hex('#23411c'),
+    water3:      hex('#325526'),
+    teal:        hex('#32aa64'),
+    contamGreen: hex('#50a03c'),
+    rust:        hex('#904020'),
+    rustLight:   hex('#b05030'),
+    warningRed:  C.red,
   };
 
   // --- Tile 0: Void (dark green-black) ---
@@ -1819,11 +3025,8 @@ function generateQuarantineTileset() {
     setPixel(png, ox1 + 8 + i, 8, Q.floorLight);
     setPixel(png, ox1 + 8, 8 + i, Q.floorLight);
   }
-  // Contamination: green spots and rust staining (decay + toxicity)
-  setPixel(png, ox1 + 4, 3, Q.contamGreen);
-  setPixel(png, ox1 + 11, 10, Q.contamGreen);
-  setPixel(png, ox1 + 9, 4, Q.rust);
-  setPixel(png, ox1 + 3, 11, Q.rust);
+  setPixel(png, ox1 + 4, 3, Q.contamGreen); setPixel(png, ox1 + 11, 10, Q.contamGreen);
+  setPixel(png, ox1 + 9, 4, Q.rust); setPixel(png, ox1 + 3, 11, Q.rust);
 
   // --- Tile 2: Cracked Contaminated Floor ---
   const ox2 = 32;
@@ -1836,13 +3039,12 @@ function generateQuarantineTileset() {
     setPixel(png, ox2 + i, 0, Q.floorLight);
     setPixel(png, ox2, i, Q.floorLight);
   }
-  // Cracks: mix of contamination green and rust (toxic + decayed)
   const qCracksGreen = [[3,2],[4,3],[5,5],[6,8],[8,10],[11,12]];
   const qCracksRust  = [[4,4],[6,6],[5,7],[7,9],[9,11],[10,11],[12,13]];
   for (const [cx, cy] of qCracksGreen) setPixel(png, ox2 + cx, cy, Q.contamGreen);
   for (const [cx, cy] of qCracksRust)  setPixel(png, ox2 + cx, cy, Q.rust);
 
-  // --- Tile 3: Quarantine Wall ---
+  // --- Tile 3: Quarantine Wall (gray-green, rust streaks) ---
   const ox3 = 48;
   fillRect(png, ox3, 0, 16, 16, Q.wallMid);
   for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, Q.wallTop);
@@ -1852,31 +3054,23 @@ function generateQuarantineTileset() {
   const qwDark  = [[5,3],[1,6],[9,4],[12,7],[3,9],[7,11],[2,12],[10,10],[14,13],[8,14]];
   for (const [sx, sy] of qwLight) setPixel(png, ox3 + sx, sy, Q.wallLight);
   for (const [sx, sy] of qwDark)  setPixel(png, ox3 + sx, sy, Q.wallDark);
-  // Rust streaks (abandoned, decaying quarantine zone)
   const qwRust = [[6,4],[6,5],[6,6],[12,8],[12,9],[3,11],[3,12]];
   for (const [rx, ry] of qwRust) setPixel(png, ox3 + rx, ry, Q.rust);
 
-  // --- Tile 4: Hazard Door Closed (warning red + rust-brown stripes) ---
+  // --- Tile 4: Hazard Door Closed (rust-brown stripes, red indicator, green pull) ---
   const ox4 = 64;
   fillRect(png, ox4, 0, 16, 16, Q.doorMid);
   fillRect(png, ox4, 0, 1, 16, Q.doorDark);
   fillRect(png, ox4 + 15, 0, 1, 16, Q.doorDark);
-  // Warning stripes: yellow-rust bands with red accent
   fillRect(png, ox4 + 1, 3, 14, 2, Q.doorLight);
   fillRect(png, ox4 + 1, 11, 14, 2, Q.doorLight);
-  // Warning red stripe across center (biohazard indicator)
   for (let vy = 0; vy < 16; vy++) {
     setPixel(png, ox4 + 5, vy, Q.doorDark);
     setPixel(png, ox4 + 10, vy, Q.doorDark);
   }
-  // Red warning indicator pixels (danger)
-  setPixel(png, ox4 + 7, 7, Q.warningRed);
-  setPixel(png, ox4 + 8, 7, Q.warningRed);
-  setPixel(png, ox4 + 7, 8, Q.warningRed);
-  setPixel(png, ox4 + 8, 8, Q.warningRed);
-  // Door pull: contamination green (interactive)
-  setPixel(png, ox4 + 12, 7, Q.contamGreen);
-  setPixel(png, ox4 + 12, 8, Q.contamGreen);
+  setPixel(png, ox4 + 7, 7, Q.warningRed); setPixel(png, ox4 + 8, 7, Q.warningRed);
+  setPixel(png, ox4 + 7, 8, Q.warningRed); setPixel(png, ox4 + 8, 8, Q.warningRed);
+  setPixel(png, ox4 + 12, 7, Q.contamGreen); setPixel(png, ox4 + 12, 8, Q.contamGreen);
 
   // --- Tile 5: Door Open ---
   const ox5 = 80;
@@ -1885,18 +3079,15 @@ function generateQuarantineTileset() {
   fillRect(png, ox5 + 14, 0, 2, 16, Q.doorDark);
   fillRect(png, ox5 + 4, 2, 8, 12, rgba(20, 28, 18));
 
-  // --- Tile 6: Stairs Down ---
+  // --- Tile 6: Stairs Down (warning red arrow) ---
   const ox6 = 96;
   fillRect(png, ox6, 0, 16, 16, Q.floorMid);
   fillRect(png, ox6 + 2, 2, 12, 3, Q.floorLight);
   fillRect(png, ox6 + 3, 5, 10, 3, Q.floorMid);
   fillRect(png, ox6 + 4, 8, 8, 3, Q.floorDark);
   fillRect(png, ox6 + 5, 11, 6, 3, rgba(18, 25, 16));
-  // Down arrow: warning red (descent into more dangerous contaminated zone)
-  setPixel(png, ox6 + 7, 13, Q.warningRed);
-  setPixel(png, ox6 + 8, 13, Q.warningRed);
-  setPixel(png, ox6 + 6, 12, Q.warningRed);
-  setPixel(png, ox6 + 9, 12, Q.warningRed);
+  setPixel(png, ox6 + 7, 13, Q.warningRed); setPixel(png, ox6 + 8, 13, Q.warningRed);
+  setPixel(png, ox6 + 6, 12, Q.warningRed); setPixel(png, ox6 + 9, 12, Q.warningRed);
 
   // --- Tile 7: Toxic Waste (contamination green murk with surface film) ---
   const ox7 = 112;
@@ -1905,22 +3096,19 @@ function generateQuarantineTileset() {
   for (const [wx, wy] of qWave) setPixel(png, ox7 + wx, wy, Q.water2);
   const qWaveH = [[3,2],[9,4],[2,8],[8,10],[13,6],[5,13]];
   for (const [wx, wy] of qWaveH) setPixel(png, ox7 + wx, wy, Q.water3);
-  // Surface contamination spots (bright toxic green)
   setPixel(png, ox7 + 5, 4, Q.contamGreen);
   setPixel(png, ox7 + 11, 8, Q.contamGreen);
   setPixel(png, ox7 + 3, 12, Q.contamGreen);
 
-  // --- Tile 8: Stairs Up ---
+  // --- Tile 8: Stairs Up (teal arrow — escape upward) ---
   const ox8 = 128;
   fillRect(png, ox8, 0, 16, 16, Q.floorMid);
   fillRect(png, ox8 + 5, 2, 6, 3, rgba(18, 25, 16));
   fillRect(png, ox8 + 4, 5, 8, 3, Q.floorDark);
   fillRect(png, ox8 + 3, 8, 10, 3, Q.floorMid);
   fillRect(png, ox8 + 2, 11, 12, 3, Q.floorLight);
-  setPixel(png, ox8 + 7, 1, Q.teal);
-  setPixel(png, ox8 + 8, 1, Q.teal);
-  setPixel(png, ox8 + 6, 2, Q.teal);
-  setPixel(png, ox8 + 9, 2, Q.teal);
+  setPixel(png, ox8 + 7, 1, Q.teal); setPixel(png, ox8 + 8, 1, Q.teal);
+  setPixel(png, ox8 + 6, 2, Q.teal); setPixel(png, ox8 + 9, 2, Q.teal);
 
   // --- Tile 9: Locked Hazard Door (warning red lock — biohazard sealed) ---
   const ox9 = 144;
@@ -1933,11 +3121,50 @@ function generateQuarantineTileset() {
     setPixel(png, ox9 + 5, vy, Q.doorDark);
     setPixel(png, ox9 + 10, vy, Q.doorDark);
   }
-  // Lock: warning red (quarantine sealed — danger, not just locked)
   fillRect(png, ox9 + 6, 6, 4, 4, Q.warningRed);
-  setPixel(png, ox9 + 7, 7, C.darkGray);
-  setPixel(png, ox9 + 8, 7, C.darkGray);
+  setPixel(png, ox9 + 7, 7, C.darkGray); setPixel(png, ox9 + 8, 7, C.darkGray);
   setPixel(png, ox9 + 7, 8, C.darkGray);
+
+  // --- Tile 10: Chest Closed (corroded container, rust trim, warning red lock) ---
+  const ox10 = 160;
+  fillRect(png, ox10, 0, 1, 16, Q.doorDark);
+  fillRect(png, ox10 + 15, 0, 1, 16, Q.doorDark);
+  fillRect(png, ox10 + 1, 0, 14, 16, Q.doorMid);
+  fillRect(png, ox10 + 1, 0, 14, 5, Q.doorLight);   // lid
+  fillRect(png, ox10 + 1, 5, 14, 1, Q.doorDark);    // seam
+  fillRect(png, ox10 + 1, 14, 14, 2, Q.doorDark);   // shadow
+  for (let i = 2; i < 14; i++) setPixel(png, ox10 + i, 1, Q.wallLight); // lid highlight
+  setPixel(png, ox10 + 2, 1, Q.rust); setPixel(png, ox10 + 13, 1, Q.rust); // rust corner rivets
+  setPixel(png, ox10 + 2, 13, Q.rust); setPixel(png, ox10 + 13, 13, Q.rust);
+  // rust stain streaks on lid
+  setPixel(png, ox10 + 5, 3, Q.rust); setPixel(png, ox10 + 5, 4, Q.rust);
+  setPixel(png, ox10 + 10, 2, Q.rustLight); setPixel(png, ox10 + 10, 3, Q.rust);
+  fillRect(png, ox10 + 6, 7, 4, 4, Q.warningRed);   // warning red lock
+  setPixel(png, ox10 + 7, 8, C.darkGray); setPixel(png, ox10 + 8, 8, C.darkGray);
+
+  // --- Tile 11: Chest Opened (open corroded container, dark interior) ---
+  const ox11 = 176;
+  fillRect(png, ox11, 0, 1, 16, Q.doorDark);
+  fillRect(png, ox11 + 15, 0, 1, 16, Q.doorDark);
+  fillRect(png, ox11 + 1, 0, 14, 16, Q.doorMid);
+  fillRect(png, ox11 + 1, 14, 14, 2, Q.doorDark);
+  fillRect(png, ox11 + 2, 1, 12, 10, Q.floorDark);  // interior
+  fillRect(png, ox11 + 3, 2, 10, 8, rgba(18, 24, 16));
+  setPixel(png, ox11 + 2, 12, Q.rust); setPixel(png, ox11 + 13, 12, Q.rust);
+  for (let i = 2; i < 14; i++) setPixel(png, ox11 + i, 0, Q.doorLight); // open rim
+  setPixel(png, ox11 + 6, 4, Q.contamGreen); // contamination stain inside
+
+  // --- Tile 12: Sealed Gate (bars, warning red seal indicator) ---
+  const ox12 = 192;
+  fillRect(png, ox12, 0, 16, 16, Q.floorDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox12 + bar, 0, 2, 16, Q.wallMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox12 + bar, i, Q.wallDark);
+  }
+  fillRect(png, ox12, 7, 16, 2, Q.wallMid);
+  setPixel(png, ox12 + 7, 8, Q.warningRed); setPixel(png, ox12 + 8, 8, Q.warningRed);
+  // rust spots on gate bars (abandoned, decayed)
+  setPixel(png, ox12 + 3, 3, Q.rust); setPixel(png, ox12 + 10, 11, Q.rust);
 
   savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'quarantine.png'));
 }
@@ -2115,6 +3342,444 @@ function generateDarkCityTileset() {
 }
 
 // ============================================================================
+// MISSING ENTITY SPRITES
+// Bio-lab enemies, hybrid/radiance monsters, underlumen replay variants,
+// General Thorne, and city patrol / researcher NPCs.
+// ============================================================================
+
+function generateMissingSprites() {
+  // ---- Bio-lab enemy palette ----
+  const BLd = C.darkGreen;   // dark carapace
+  const BLm = C.green;       // mid body
+  const BLl = C.lightGreen;  // highlight / bioluminescent
+
+  // --- Biolab Tendril: rogue worm-like creature, snapping jaws, spreading tendrils ---
+  const btendril = createPNG(16, 16);
+  drawPixelArt(btendril, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, BLd, BLd, BLd, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BLd, BLm, BLm, BLm, BLd, _, _, _, _, _, _],
+    [_, _, _, _, _, BLd, Oe,  BLm, BLm, Oe,  BLd, _, _, _, _, _],
+    [_, _, _, _, _, _, BLd, BLd, BLd, BLd, _, _, _, _, _, _],
+    [_, _, _, _, _, _, BLd, BLm, BLm, BLd, _, _, _, _, _, _],
+    [_, _, _, BLd, BLd, BLd, BLm, BLm, BLm, BLd, BLd, BLd, _, _, _, _],
+    [_, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _],
+    [_, BLd, BLm, BLm, BLd, BLm, BLl, BLl, BLl, BLm, BLd, BLm, BLm, BLd, _, _],
+    [_, _, BLd, BLm, BLm, BLd, BLm, BLm, BLm, BLm, BLd, BLm, BLd, _, _, _],
+    [_, BLd, _, BLd, BLm, BLm, BLd, BLd, BLd, BLm, BLm, BLd, _, BLd, _, _],
+    [BLd, _, _, _, BLd, BLm, BLm, _, _, BLm, BLm, BLd, _, _, BLd, _],
+    [_, _, _, _, _, BLd, BLd, _, _, BLd, BLd, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(btendril, path.join(CONTENT_DIR, 'sprites', 'biolab_tendril.png'));
+
+  // --- Biolab Spitter: squat toad-form, wide maw, venom sac belly ---
+  const bspitter = createPNG(16, 16);
+  drawPixelArt(bspitter, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BLd, BLd, BLd, BLd, BLd, BLd, _, _, _, _, _],
+    [_, _, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _, _],
+    [_, _, _, _, BLd, BLm, Oe,  BLl, BLl, Oe,  BLm, BLd, _, _, _, _],
+    [_, _, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _, _],
+    [_, _, _, _, _, BLd, BLm, BLl, BLl, BLm, BLd, _, _, _, _, _],
+    [_, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _],
+    [_, _, BLd, BLm, BLl, BLm, BLm, BLm, BLm, BLm, BLl, BLm, BLm, BLd, _, _],
+    [_, _, BLd, BLm, BLm, BLl, BLl, BLl, BLl, BLl, BLm, BLm, BLm, BLd, _, _],
+    [_, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _],
+    [_, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _, _],
+    [_, _, _, _, BLd, BLd, BLm, BLm, BLm, BLd, BLd, _, _, _, _, _],
+    [_, _, _, BLd, BLm, BLd, _, _, _, _, BLd, BLm, BLd, _, _, _],
+    [_, _, _, BLd, BLd, _, _, _, _, _, _, BLd, BLd, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(bspitter, path.join(CONTENT_DIR, 'sprites', 'biolab_spitter.png'));
+
+  // --- Biolab Construct: bio-mechanical frame with organic tendrils growing through ---
+  const BcMt = C.midGray;    // metal frame
+  const BcDk = C.darkSlate;  // dark metal
+  const bconstruct = createPNG(16, 16);
+  drawPixelArt(bconstruct, 0, 0, [
+    [_, _, _, _, _, BcDk, BcDk, BcDk, BcDk, BcDk, BcDk, _, _, _, _, _],
+    [_, _, _, _, BcDk, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcDk, _, _, _, _],
+    [_, _, _, _, BcDk, BcMt, Oe,   BcMt, BcMt, Oe,   BcMt, BcDk, _, _, _, _],
+    [_, _, _, _, BcDk, BcDk, BcMt, BcMt, BcMt, BcMt, BcDk, BcDk, _, _, _, _],
+    [_, _, _, _, _, BcDk, BcDk, BcMt, BcMt, BcDk, BcDk, _, _, _, _, _],
+    [_, _, _, _, _, _, BcDk, BLd, BLd, BcDk, _, _, _, _, _, _],
+    [_, BLd, BLd, BcDk, BcMt, BcMt, BLd, BLm, BLm, BLd, BcMt, BcMt, BcDk, BLd, _, _],
+    [_, BLd, BcDk, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcDk, BLd, _, _],
+    [_, _, BcDk, BcMt, BLd, BcMt, BLm, BLl, BLl, BLm, BcMt, BLd, BcDk, _, _, _],
+    [_, _, BcDk, BLd, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcDk, _, _, _, _],
+    [_, BLd, _, _, BcDk, BcMt, BcMt, BcMt, BcMt, BcMt, BcDk, _, _, BLd, _, _],
+    [BLd, _, _, _, BcDk, BcDk, BcMt, BcMt, BcMt, BcDk, BcDk, _, _, _, BLd, _],
+    [_, _, _, _, _, BcDk, BcDk, BLd, BLd, BcDk, BcDk, _, _, _, _, _],
+    [_, _, _, _, BcDk, BLd, BcDk, _, _, BcDk, BLd, BcDk, _, _, _, _],
+    [_, _, _, _, BcDk, BcDk, _, _, _, _, BcDk, BcDk, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(bconstruct, path.join(CONTENT_DIR, 'sprites', 'biolab_construct.png'));
+
+  // --- Biolab Guardian: armored insectoid, thick carapace plates, bone highlights ---
+  const BgLt = C.bone;   // carapace plates (pale)
+  const bguardian = createPNG(16, 16);
+  drawPixelArt(bguardian, 0, 0, [
+    [_, _, _, _, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, _, _, _, _],
+    [_, _, _, BLd, BLm, BLm, BgLt, BgLt, BgLt, BgLt, BLm, BLm, BLd, _, _, _],
+    [_, _, _, BLd, BLm, Oe,  BLm, BLm, BLm, BLm, Oe,  BLm, BLd, _, _, _],
+    [_, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _],
+    [_, _, _, _, BLd, BgLt, BLm, BLm, BLm, BLm, BgLt, BLd, _, _, _, _],
+    [_, _, _, _, _, BLd, BLm, BLm, BLm, BLm, BLd, _, _, _, _, _],
+    [_, BLd, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, BLd, _, _],
+    [_, BLd, BLm, BLm, BLm, BLm, BLm, BgLt, BgLt, BLm, BLm, BLm, BLm, BLd, _, _],
+    [_, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _],
+    [_, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _, _],
+    [_, _, BLd, BLm, BLd, BLm, BLm, BLm, BLm, BLm, BLd, BLm, BLd, _, _, _],
+    [_, _, BLd, BLm, BLm, BLd, BLd, BLm, BLm, BLd, BLd, BLm, BLd, _, _, _],
+    [_, _, _, _, BLd, BLm, BLd, _, _, BLd, BLm, BLd, _, _, _, _],
+    [_, _, _, _, BLd, BLd, _, _, _, _, BLd, BLd, _, _, _, _],
+    [_, _, _, BLd, BLd, _, _, _, _, _, _, BLd, BLd, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(bguardian, path.join(CONTENT_DIR, 'sprites', 'biolab_guardian.png'));
+
+  // --- Biolab Alpha: boss apex overgrowth, massive form, red pulsing veins ---
+  const BaRd = C.red;        // pulsing veins
+  const balpha = createPNG(16, 16);
+  drawPixelArt(balpha, 0, 0, [
+    [_, BLl, BLd, _, _, _, _, _, _, _, _, _, _, BLd, BLl, _],
+    [BLl, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLl, _],
+    [_, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _],
+    [_, BLd, BLm, BaRd, BLm, BLm, Oe,  BLm, BLm, Oe,  BLm, BLm, BaRd, BLd, _, _],
+    [_, BLd, BLm, BLm, BaRd, BLm, BLm, BLm, BLm, BLm, BLm, BaRd, BLm, BLd, _, _],
+    [_, _, BLd, BaRd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BaRd, BLd, _, _],
+    [_, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _],
+    [BLd, BLm, BLm, BLm, BLm, BLm, BLl, BLl, BLl, BLl, BLm, BLm, BLm, BLm, BLm, BLd],
+    [BLd, BLm, BaRd, BLm, BLm, BLl, BLl, BLm, BLm, BLl, BLl, BLm, BaRd, BLm, BLm, BLd],
+    [BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _],
+    [_, BLd, BLm, BLm, BaRd, BLm, BLm, BLm, BLm, BLm, BaRd, BLm, BLm, BLd, _, _],
+    [_, _, BLd, BLd, BLm, BLd, BLm, BLm, BLm, BLm, BLd, BLm, BLd, BLd, _, _],
+    [_, _, _, BLd, BLd, BLm, BLd, BLd, BLd, BLd, BLm, BLd, BLd, _, _, _],
+    [_, _, BLd, BLm, BLd, BLd, _, _, _, _, BLd, BLd, BLm, BLd, _, _],
+    [_, _, BLd, BLd, _, _, _, _, _, _, _, _, BLd, BLd, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(balpha, path.join(CONTENT_DIR, 'sprites', 'biolab_alpha.png'));
+
+  // ---- Hybrid sprites (Array-Organic mix: metal + green growth) ----
+  const HyGr = C.midGray;    // metal frame
+  const HyDk = C.darkSlate;  // dark metal
+  const HyGn = C.darkGreen;  // organic growth
+  const HyGl = C.green;      // organic glow
+
+  // --- Hybrid Drone: small flying scout, metal chassis, green organic tendrils ---
+  const hdrone = createPNG(16, 16);
+  drawPixelArt(hdrone, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, HyDk, HyDk, HyDk, HyDk, HyDk, HyDk, _, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, Oe,   HyGn, HyGn, Oe,   HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, HyGl, HyGr, HyGr, HyGl, HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, _, HyDk, HyGn, HyGn, HyGn, HyGn, HyDk, _, _, _, _, _],
+    [_, _, _, _, _, _, HyDk, HyDk, HyDk, HyDk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, HyGr, HyGr, HyGr, HyGr, _, _, _, _, _, _],
+    [_, HyDk, HyGr, _, _, HyDk, HyGr, HyGr, HyGr, HyGr, HyDk, _, _, HyGr, HyDk, _],
+    [HyGn, HyGl, _, _, _, _, _, _, _, _, _, _, _, _, HyGl, HyGn],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(hdrone, path.join(CONTENT_DIR, 'sprites', 'hybrid_drone.png'));
+
+  // --- Hybrid Stalker: humanoid hunter, gray armor with green organic tendrils ---
+  const hstalker = createPNG(16, 16);
+  drawPixelArt(hstalker, 0, 0, [
+    [_, _, _, _, _, HyDk, HyGn, HyGn, HyGn, HyGn, HyDk, _, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, Oe,   HyGr, HyGr, Oe,   HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyGn, HyGr, HyGr, HyGr, HyGr, HyGn, HyDk, _, _, _, _],
+    [_, _, _, _, _, HyDk, HyGr, HyGr, HyGr, HyGr, HyDk, _, _, _, _, _],
+    [_, _, _, _, _, _, HyDk, HyGr, HyGr, HyDk, _, _, _, _, _, _],
+    [_, HyGn, _, HyDk, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyDk, _, HyGn, _],
+    [_, HyGl, HyDk, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyDk, HyGl, _],
+    [_, _, HyDk, HyGr, HyGn, HyGr, HyGr, HyGr, HyGr, HyGr, HyGn, HyGr, HyDk, _, _, _],
+    [_, _, HyDk, HyGn, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGn, HyDk, _, _, _],
+    [_, HyGl, _, HyDk, HyGr, HyGr, HyDk, HyDk, HyDk, HyGr, HyGr, HyDk, _, HyGl, _, _],
+    [_, _, _, _, HyDk, HyDk, HyGn, HyDk, HyDk, HyGn, HyDk, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, HyDk, _, _, HyDk, HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyDk, _, _, _, _, HyDk, HyDk, _, _, _, _],
+    [_, _, _, _, HyGn, HyGl, _, _, _, _, HyGl, HyGn, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(hstalker, path.join(CONTENT_DIR, 'sprites', 'hybrid_stalker.png'));
+
+  // ---- Radiance / Solar sprites ----
+  const RcGd = C.solGold;    // Sol Gold
+  const RcWh = C.white;      // bright white
+  const RcLt = C.paleGray;   // chrome highlight
+  const RcGr = C.lightGray;  // mid chrome
+  const RcDk = C.midGray;    // dark chrome
+
+  // --- Radiance Construct: angular golden automaton, blazing core ---
+  const rconstruct = createPNG(16, 16);
+  drawPixelArt(rconstruct, 0, 0, [
+    [_, _, _, _, _, RcWh, RcGd, RcGd, RcGd, RcGd, RcWh, _, _, _, _, _],
+    [_, _, _, _, RcGd, RcGr, RcLt, RcLt, RcLt, RcLt, RcGr, RcGd, _, _, _, _],
+    [_, _, _, _, RcGd, RcLt, Oe,   RcWh, RcWh, Oe,   RcLt, RcGd, _, _, _, _],
+    [_, _, _, _, RcGd, RcGr, RcGd, RcGr, RcGr, RcGd, RcGr, RcGd, _, _, _, _],
+    [_, _, _, _, _, RcGd, RcGd, RcGr, RcGr, RcGd, RcGd, _, _, _, _, _],
+    [_, _, _, _, _, _, RcGd, RcWh, RcWh, RcGd, _, _, _, _, _, _],
+    [_, RcGd, RcWh, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcWh, RcGd, _, _],
+    [_, _, RcGd, RcLt, RcGr, RcGr, RcGr, RcGr, RcGr, RcGr, RcGr, RcLt, RcGd, _, _, _],
+    [_, _, RcGd, RcGr, RcGd, RcLt, RcGd, RcWh, RcWh, RcGd, RcLt, RcGr, RcGd, _, _, _],
+    [_, _, _, RcGd, RcGr, RcGr, RcGd, RcGd, RcGd, RcGd, RcGr, RcGd, _, _, _, _],
+    [_, _, RcWh, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcWh, _, _, _],
+    [_, _, _, RcGd, RcDk, RcDk, RcGd, RcGd, RcGd, RcGd, RcDk, RcDk, RcGd, _, _, _],
+    [_, _, _, _, RcGd, RcGd, RcGd, _, _, RcGd, RcGd, RcGd, _, _, _, _],
+    [_, _, _, _, _, RcGd, RcGd, _, _, RcGd, RcGd, _, _, _, _, _],
+    [_, _, _, _, _, RcGd, RcDk, _, _, RcDk, RcGd, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(rconstruct, path.join(CONTENT_DIR, 'sprites', 'radiance_construct.png'));
+
+  // --- Nexus Guardian: boss, Array-Underlumen hybrid commander, crystal + circuit blue ---
+  const NgBl = C.blue;
+  const NgDk = C.darkBlue;
+  const NgTl = C.teal;
+  const NgLt = C.lightTeal;
+  const NgCr = C.lightBlue;  // crystal shards
+  const nguard = createPNG(16, 16);
+  drawPixelArt(nguard, 0, 0, [
+    [_, NgLt, NgTl, _, _, _, NgDk, NgDk, NgDk, NgDk, _, _, _, NgTl, NgLt, _],
+    [NgLt, NgTl, NgDk, NgDk, NgDk, NgDk, NgBl, NgBl, NgBl, NgBl, NgDk, NgDk, NgDk, NgDk, NgTl, NgLt],
+    [_, NgTl, NgDk, NgBl, NgBl, NgBl, NgCr, NgCr, NgCr, NgCr, NgBl, NgBl, NgDk, NgTl, _, _],
+    [_, _, NgDk, NgBl, NgBl, Oe,  NgBl, NgBl, NgBl, Oe,  NgBl, NgBl, NgDk, _, _, _],
+    [_, _, NgDk, NgDk, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgDk, NgDk, _, _, _],
+    [_, _, _, NgDk, NgDk, NgTl, NgBl, NgBl, NgBl, NgTl, NgDk, NgDk, _, _, _, _],
+    [_, NgTl, NgDk, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgDk, NgTl, _, _],
+    [NgTl, NgDk, NgBl, NgBl, NgBl, NgCr, NgLt, NgLt, NgLt, NgCr, NgBl, NgBl, NgBl, NgDk, NgTl, _],
+    [_, NgDk, NgBl, NgCr, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgCr, NgBl, NgDk, _, _],
+    [_, _, NgDk, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgDk, _, _, _],
+    [_, NgTl, NgDk, NgBl, NgTl, NgBl, NgBl, NgBl, NgBl, NgBl, NgTl, NgBl, NgDk, NgTl, _, _],
+    [_, _, NgDk, NgDk, NgBl, NgDk, NgBl, NgBl, NgBl, NgBl, NgDk, NgBl, NgDk, NgDk, _, _],
+    [_, _, _, NgDk, NgDk, NgBl, NgDk, NgDk, NgDk, NgDk, NgBl, NgDk, NgDk, _, _, _],
+    [_, _, NgTl, NgDk, NgBl, NgDk, _, NgTl, NgTl, _, NgDk, NgBl, NgDk, NgTl, _, _],
+    [_, _, NgTl, NgDk, NgDk, _, _, _, _, _, _, NgDk, NgDk, NgTl, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(nguard, path.join(CONTENT_DIR, 'sprites', 'nexus_guardian.png'));
+
+  // --- Solar Core Warden: boss, ancient light construct, Sol Gold + blazing yellow ---
+  const ScGd = C.solGold;
+  const ScWh = C.white;
+  const ScYl = C.yellow;
+  const ScLt = C.paleGray;
+  const ScDk = C.orange;   // deep gold shadow
+  const scwarden = createPNG(16, 16);
+  drawPixelArt(scwarden, 0, 0, [
+    [_, _, _, ScWh, _, _, ScGd, ScGd, ScGd, ScGd, _, _, ScWh, _, _, _],
+    [_, _, ScWh, ScGd, ScGd, ScGd, ScYl, ScYl, ScYl, ScYl, ScGd, ScGd, ScWh, _, _, _],
+    [_, _, ScWh, ScGd, ScYl, ScWh, ScWh, ScWh, ScWh, ScWh, ScWh, ScGd, ScWh, _, _, _],
+    [_, _, _, ScGd, ScWh, ScGd, ScGd, Oe,  Oe,  ScGd, ScGd, ScWh, ScGd, _, _, _],
+    [_, _, _, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, _, _, _],
+    [_, _, _, _, ScGd, ScYl, ScGd, ScWh, ScWh, ScGd, ScYl, ScGd, _, _, _, _],
+    [_, ScWh, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScWh, _, _],
+    [ScWh, ScGd, ScYl, ScGd, ScGd, ScGd, ScWh, ScWh, ScWh, ScWh, ScGd, ScGd, ScYl, ScGd, ScWh, _],
+    [_, ScGd, ScGd, ScGd, ScGd, ScWh, ScGd, ScYl, ScYl, ScGd, ScWh, ScGd, ScGd, ScGd, ScGd, _],
+    [_, _, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, _, _, _],
+    [_, ScWh, ScGd, ScDk, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScDk, ScGd, ScWh, _, _],
+    [_, _, ScGd, ScDk, ScDk, ScGd, ScGd, ScGd, ScGd, ScGd, ScDk, ScDk, ScGd, _, _, _],
+    [_, _, _, ScGd, ScGd, ScDk, ScGd, ScGd, ScGd, ScGd, ScDk, ScGd, ScGd, _, _, _],
+    [_, _, _, _, ScDk, ScGd, ScDk, ScWh, ScWh, ScDk, ScGd, ScDk, _, _, _, _],
+    [_, _, _, _, ScDk, ScDk, _, _, _, _, ScDk, ScDk, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(scwarden, path.join(CONTENT_DIR, 'sprites', 'solar_core_warden.png'));
+
+  // ---- General Thorne: Bulwark general, heavier armor, Sol Gold command sigil ----
+  const ThBl = C.blue;
+  const ThDk = C.darkBlue;
+  const ThLt = C.lightBlue;
+  const ThGd = C.solGold;   // gold command insignia + epaulettes
+  const gthorne = createPNG(16, 16);
+  drawPixelArt(gthorne, 0, 0, [
+    [_, _, _, ThGd, ThGd, _, _, _, _, _, _, ThGd, ThGd, _, _, _],
+    [_, _, _, ThDk, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThDk, _, _, _, _],
+    [_, _, _, ThDk, ThBl, ThLt, ThLt, ThLt, ThLt, ThLt, ThBl, ThDk, _, _, _, _],
+    [_, _, _, ThDk, ThBl, ThBl, Oe,   ThBl, ThBl, Oe,   ThBl, ThDk, _, _, _, _],
+    [_, _, _, ThDk, ThDk, ThBl, ThBl, ThBl, ThBl, ThBl, ThDk, ThDk, _, _, _, _],
+    [_, _, _, _, _, ThDk, ThBl, ThBl, ThBl, ThBl, ThDk, _, _, _, _, _],
+    [_, ThGd, _, ThDk, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThDk, _, ThGd, _],
+    [_, ThGd, ThDk, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThDk, ThGd, _],
+    [_, _, ThDk, ThBl, ThDk, ThGd, ThBl, ThBl, ThBl, ThBl, ThGd, ThDk, ThBl, ThDk, _, _],
+    [_, _, ThDk, ThBl, ThBl, ThGd, ThGd, ThBl, ThBl, ThGd, ThGd, ThBl, ThBl, ThDk, _, _],
+    [_, _, ThDk, ThBl, ThBl, ThBl, ThGd, ThBl, ThBl, ThGd, ThBl, ThBl, ThBl, ThDk, _, _],
+    [_, _, _, ThDk, ThDk, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThDk, ThDk, _, _, _],
+    [_, _, _, _, ThDk, ThDk, ThBl, ThBl, ThBl, ThBl, ThDk, ThDk, _, _, _, _],
+    [_, _, _, _, _, ThDk, ThDk, _, _, ThDk, ThDk, _, _, _, _, _],
+    [_, _, _, _, _, ThDk, ThDk, _, _, ThDk, ThDk, _, _, _, _, _],
+    [_, _, _, _, ThDk, ThDk, ThDk, _, _, ThDk, ThDk, ThDk, _, _, _, _],
+  ]);
+  savePNG(gthorne, path.join(CONTENT_DIR, 'sprites', 'general_thorne.png'));
+
+  // ---- Underlumen Replay Monsters (unique variants, not reusing crystal_guardian) ----
+  const UlDk = C.darkBlue;
+  const UlMd = C.blue;
+  const UlTl = C.teal;
+  const UlLt = C.lightTeal;
+  const UlCr = C.white;      // crystal white highlight
+  const UlPl = C.paleGray;   // pale crystal surface
+
+  // --- Underlumen Warden: heavy crystalline soldier, imposing form ---
+  const ulwarden = createPNG(16, 16);
+  drawPixelArt(ulwarden, 0, 0, [
+    [_, _, UlTl, _, _, UlDk, UlDk, UlDk, UlDk, UlDk, UlDk, _, UlTl, _, _, _],
+    [_, _, _, UlDk, UlMd, UlMd, UlCr, UlCr, UlCr, UlCr, UlMd, UlMd, UlDk, _, _, _],
+    [_, _, _, UlDk, UlMd, UlTl, UlMd, UlMd, UlMd, UlMd, UlTl, UlMd, UlDk, _, _, _],
+    [_, _, _, UlDk, UlMd, UlMd, Oe,   UlMd, UlMd, Oe,   UlMd, UlMd, UlDk, _, _, _],
+    [_, _, _, _, UlDk, UlMd, UlMd, UlDk, UlDk, UlMd, UlMd, UlDk, _, _, _, _],
+    [_, _, _, _, _, UlDk, UlTl, UlMd, UlMd, UlTl, UlDk, _, _, _, _, _],
+    [_, UlTl, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, UlTl, _, _],
+    [_, _, UlPl, UlMd, UlMd, UlCr, UlMd, UlLt, UlLt, UlMd, UlCr, UlMd, UlPl, _, _, _],
+    [_, _, UlDk, UlMd, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, UlMd, UlDk, _, _],
+    [_, _, _, UlDk, UlMd, UlMd, UlTl, UlMd, UlMd, UlTl, UlMd, UlMd, UlDk, _, _, _],
+    [_, _, UlTl, _, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, _, UlTl, _, _],
+    [_, _, _, _, UlDk, UlDk, UlMd, UlMd, UlMd, UlMd, UlDk, UlDk, _, _, _, _],
+    [_, _, _, _, UlDk, UlMd, UlDk, _, _, UlDk, UlMd, UlDk, _, _, _, _],
+    [_, _, _, _, UlDk, UlDk, _, _, _, _, UlDk, UlDk, _, _, _, _],
+    [_, _, _, UlDk, UlDk, UlDk, _, _, _, _, UlDk, UlDk, UlDk, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(ulwarden, path.join(CONTENT_DIR, 'sprites', 'underlumen_warden.png'));
+
+  // --- Underlumen Channeler: robed crystalline caster, teal glow staff / orb ---
+  const ulchanneler = createPNG(16, 16);
+  drawPixelArt(ulchanneler, 0, 0, [
+    [_, _, _, _, _, _, UlTl, UlLt, UlTl, _, _, _, _, _, _, _],
+    [_, _, _, _, _, UlDk, UlMd, UlMd, UlMd, UlDk, _, _, _, _, _, _],
+    [_, _, _, _, _, UlDk, UlCr, UlMd, UlMd, UlCr, UlDk, _, _, _, _, _],
+    [_, _, _, _, _, UlDk, Oe,   UlMd, UlMd, Oe,   UlDk, _, _, _, _, _],
+    [_, _, _, _, _, _, UlDk, UlMd, UlMd, UlDk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, UlTl, UlTl, _, _, _, _, _, _, _],
+    [_, _, _, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, _, _, _, _],
+    [_, _, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, _, _, _],
+    [_, UlTl, UlDk, UlMd, UlTl, UlMd, UlLt, UlLt, UlLt, UlMd, UlTl, UlMd, UlDk, UlTl, _, _],
+    [_, UlLt, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, UlLt, _, _],
+    [_, _, UlDk, UlMd, UlTl, UlMd, UlMd, UlMd, UlMd, UlMd, UlTl, UlMd, UlDk, _, _, _],
+    [_, _, _, UlDk, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, UlDk, _, _, _, _],
+    [_, _, _, _, UlDk, UlMd, UlDk, UlMd, UlMd, UlDk, UlMd, UlDk, _, _, _, _],
+    [_, _, _, _, UlDk, UlDk, _, UlTl, UlTl, _, UlDk, UlDk, _, _, _, _],
+    [_, _, _, _, _, _, _, UlLt, UlLt, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(ulchanneler, path.join(CONTENT_DIR, 'sprites', 'underlumen_channeler.png'));
+
+  // --- Underlumen Sentinel: large pack leader, crystal spines, aura presence ---
+  const ulsentinel = createPNG(16, 16);
+  drawPixelArt(ulsentinel, 0, 0, [
+    [_, UlLt, _, _, UlCr, UlDk, UlDk, UlDk, UlDk, UlDk, UlDk, UlCr, _, UlLt, _, _],
+    [UlLt, UlDk, UlDk, UlDk, UlMd, UlMd, UlCr, UlCr, UlCr, UlCr, UlMd, UlMd, UlDk, UlDk, UlLt, _],
+    [_, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, _, _],
+    [_, UlDk, UlMd, UlCr, UlMd, Oe,   UlMd, UlMd, UlMd, Oe,   UlMd, UlCr, UlMd, UlDk, _, _],
+    [_, UlDk, UlMd, UlMd, UlMd, UlMd, UlTl, UlMd, UlMd, UlTl, UlMd, UlMd, UlMd, UlDk, _, _],
+    [_, _, UlDk, UlMd, UlMd, UlMd, UlMd, UlDk, UlDk, UlMd, UlMd, UlMd, UlDk, _, _, _],
+    [_, UlTl, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, UlTl, _, _],
+    [UlTl, UlDk, UlMd, UlMd, UlCr, UlMd, UlMd, UlLt, UlLt, UlMd, UlMd, UlCr, UlMd, UlDk, UlTl, _],
+    [_, UlDk, UlMd, UlMd, UlMd, UlTl, UlMd, UlMd, UlMd, UlMd, UlTl, UlMd, UlMd, UlDk, _, _],
+    [_, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, _, _],
+    [_, _, UlDk, UlCr, UlMd, UlMd, UlDk, UlMd, UlMd, UlDk, UlMd, UlMd, UlCr, UlDk, _, _],
+    [_, _, _, UlDk, UlDk, UlMd, UlMd, UlDk, UlDk, UlMd, UlMd, UlDk, UlDk, _, _, _],
+    [_, _, _, _, UlDk, UlDk, UlMd, _, _, UlMd, UlDk, UlDk, _, _, _, _],
+    [_, _, _, _, _, UlDk, UlDk, _, _, UlDk, UlDk, _, _, _, _, _],
+    [_, _, _, _, UlDk, UlDk, UlDk, _, _, UlDk, UlDk, UlDk, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(ulsentinel, path.join(CONTENT_DIR, 'sprites', 'underlumen_sentinel.png'));
+
+  // --- Underlumen Shade: fast ambusher, shadowy form, teal ghost-wisps ---
+  const UsDk = C.darkSlate;
+  const UsMd = C.midGray;
+  const ulshade = createPNG(16, 16);
+  drawPixelArt(ulshade, 0, 0, [
+    [_, UlLt, _, _, _, _, _, _, _, _, _, _, _, UlLt, _, _],
+    [_, _, UsDk, _, _, _, _, _, _, _, _, _, UsDk, _, _, _],
+    [_, _, _, UsDk, UsDk, UsDk, UsDk, UsDk, UsDk, UsDk, UsDk, UsDk, _, _, _, _],
+    [_, _, _, UsDk, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsDk, _, _, _, _],
+    [_, _, _, UsDk, UsMd, Oe,   UsMd, UsMd, UsMd, Oe,   UsMd, UsDk, _, _, _, _],
+    [_, _, _, _, UsDk, UsDk, UsMd, UsMd, UsMd, UsDk, UsDk, _, _, _, _, _],
+    [_, UlLt, UlLt, UsDk, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsDk, UsDk, UlLt, UlLt, _, _],
+    [UlLt, _, UsDk, UsMd, UsMd, UsMd, UlTl, UlTl, UlTl, UsMd, UsMd, UsMd, UsDk, _, UlLt, _],
+    [_, UlLt, UsDk, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsDk, UlLt, _, _, _],
+    [_, UlLt, UsDk, UsMd, UlTl, UsMd, UsMd, UsMd, UsMd, UsMd, UlTl, UsDk, UlLt, _, _, _],
+    [_, _, UlLt, UsDk, UsMd, UsMd, UsDk, UsDk, UsDk, UsMd, UsDk, UsDk, UlLt, _, _, _],
+    [_, UlLt, _, _, UsDk, UsDk, _, _, _, UsDk, UsDk, _, _, UlLt, _, _],
+    [UlLt, _, _, _, _, UsDk, UlTl, _, _, UlTl, UsDk, _, _, _, UlLt, _],
+    [_, UlLt, _, _, _, UsDk, UsDk, _, _, UsDk, UsDk, _, _, UlLt, _, _],
+    [_, _, UlLt, _, _, _, _, _, _, _, _, _, UlLt, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(ulshade, path.join(CONTENT_DIR, 'sprites', 'underlumen_shade.png'));
+
+  // ---- NPC Sprites ----
+
+  // --- Bulwark Patrol Meridian: armed soldier, blue-gray city patrol uniform ---
+  const BpBl = C.blue;
+  const BpDb = C.darkBlue;
+  const BpMd = C.gray;
+  const BpDk = C.midGray;
+  const bpatrol = createPNG(16, 16);
+  drawPixelArt(bpatrol, 0, 0, [
+    [_, _, _, _, _, BpDk, BpDk, BpDk, BpDk, BpDk, BpDk, _, _, _, _, _],
+    [_, _, _, _, BpDk, BpMd, BpMd, BpMd, BpMd, BpMd, BpMd, BpDk, _, _, _, _],
+    [_, _, _, _, BpDk, BpMd, S,    S,    S,    S,    BpMd, BpDk, _, _, _, _],
+    [_, _, _, _, BpDk, BpMd, S,    W,    W,    S,    BpMd, BpDk, _, _, _, _],
+    [_, _, _, _, BpDk, BpDk, S,    s,    s,    S,    BpDk, BpDk, _, _, _, _],
+    [_, _, _, _, _, _, S,    S,    S,    S,    _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, BpBl, BpBl, _, _, _, _, _, _, _],
+    [_, _, _, BpDb, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpDb, _, _, _],
+    [_, _, _, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, _, _, _],
+    [_, _, _, BpDb, _, BpBl, BpMd, BpBl, BpBl, BpMd, BpBl, _, BpDb, _, _, _],
+    [_, _, _, BpDb, _, BpDb, BpBl, BpBl, BpBl, BpBl, BpDb, _, BpDb, _, _, _],
+    [_, _, _, _, _, BpDb, BpDb, BpBl, BpBl, BpDb, BpDb, _, _, _, _, _],
+    [_, _, _, _, _, BpDb, BpDb, BpBl, BpBl, BpDb, BpDb, _, _, _, _, _],
+    [_, _, _, _, _, BpDb, BpDb, _, _, BpDb, BpDb, _, _, _, _, _],
+    [_, _, _, _, _, BpDb, BpDb, _, _, BpDb, BpDb, _, _, _, _, _],
+    [_, _, _, _, n,  BpDb, BpDb, _, _, BpDb, BpDb, n,  _, _, _, _],
+  ]);
+  savePNG(bpatrol, path.join(CONTENT_DIR, 'sprites', 'bulwark_patrol_meridian.png'));
+
+  // --- Greenway NPC (Researcher Tova): lab researcher, gray-green lab coat ---
+  const RsGn = C.darkGreen;   // lab coat dark
+  const RsMg = C.green;       // lab coat mid
+  const RsLg = C.lightGreen;  // lab coat light
+  const RsBr = C.darkBrown;   // hair
+  const gwNpc = createPNG(16, 16);
+  drawPixelArt(gwNpc, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, RsBr, RsBr, RsBr, RsBr, RsBr, RsBr, _, _, _, _, _],
+    [_, _, _, _, _, RsBr, S,    S,    S,    S,    RsBr, _, _, _, _, _],
+    [_, _, _, _, _, S,    W,    S,    S,    W,    S,    _, _, _, _, _],
+    [_, _, _, _, _, S,    S,    s,    s,    S,    S,    _, _, _, _, _],
+    [_, _, _, _, _, _, S,    S,    S,    S,    _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, RsMg, RsMg, _, _, _, _, _, _, _],
+    [_, _, _, n,  RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, n,  _, _, _],
+    [_, _, _, RsLg, RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, RsLg, _, _, _],
+    [_, _, _, n,  _, RsMg, RsGn, RsMg, RsMg, RsGn, RsMg, _, n,  _, _, _],
+    [_, _, _, n,  _, RsGn, RsMg, RsMg, RsMg, RsMg, RsGn, _, n,  _, _, _],
+    [_, _, _, _, _, RsGn, RsGn, RsMg, RsMg, RsGn, RsGn, _, _, _, _, _],
+    [_, _, _, _, _, RsGn, RsGn, RsMg, RsMg, RsGn, RsGn, _, _, _, _, _],
+    [_, _, _, _, _, RsGn, RsGn, _, _, RsGn, RsGn, _, _, _, _, _],
+    [_, _, _, _, _, RsGn, RsGn, _, _, RsGn, RsGn, _, _, _, _, _],
+    [_, _, _, _, n,  RsGn, RsGn, _, _, RsGn, RsGn, n,  _, _, _, _],
+  ]);
+  savePNG(gwNpc, path.join(CONTENT_DIR, 'sprites', 'greenway_npc.png'));
+}
+
+// ============================================================================
 // MAIN
 // ============================================================================
 
@@ -2127,4 +3792,5 @@ generateMonsterSprites();
 generatePlayerSprites();
 generateNPCSprites();
 generateItemSprites();
+generateMissingSprites();
 console.log('Done! All sprites generated.');

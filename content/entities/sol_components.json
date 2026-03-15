@@ -147,7 +147,7 @@
   "advanced_rechargeable_battery": {
     "type": "battery",
     "name": "Advanced Rechargeable Battery",
-    "energyCapacity": 150,
+    "energyCapacity": 300,
     "shape": [[1]]
   },
   "shadow_conduit": {
@@ -182,7 +182,7 @@
     "name": "Bio-Leech Node",
     "rarity": "uncommon",
     "faction": "greenway",
-    "bonus": { "healOnHit": 3 },
+    "bonus": { "healOnHit": 2 },
     "description": "Greenway bio-tech that siphons life force from struck targets.",
     "shape": [[1]]
   },
@@ -191,7 +191,7 @@
     "name": "Symbiotic Core",
     "rarity": "rare",
     "faction": "greenway",
-    "bonus": { "healOnHit": 5, "damageMultiplier": 0.15 },
+    "bonus": { "healOnHit": 3, "damageMultiplier": 0.15 },
     "description": "Living symbiote that feeds on combat energy, healing its host with each strike.",
     "shape": [[1, 1]]
   },
@@ -200,7 +200,7 @@
     "name": "Mycelial Matrix",
     "rarity": "epic",
     "faction": "greenway",
-    "bonus": { "healOnHit": 8, "damageMultiplier": 0.20 },
+    "bonus": { "healOnHit": 5, "damageMultiplier": 0.20 },
     "description": "Dense fungal network from the deep Greenway that rapidly regenerates tissue on contact damage.",
     "shape": [[1, 1]]
   },
@@ -231,6 +231,24 @@
     "description": "A precision Array instrument that harmonizes energy flow, drastically reducing waste while amplifying output to adjacent components.",
     "shape": [[1, 1]]
   },
+  "array_signal_tap": {
+    "type": "modifier",
+    "name": "Array Signal Tap",
+    "rarity": "rare",
+    "faction": "dayside",
+    "bonus": { "cooldownReduction": 0.15, "energyCostReduction": 0.10 },
+    "description": "Disrupts hostile sensor and communication networks. Interferes with enemy coordination, reducing their effectiveness in combat.",
+    "shape": [[1, 1]]
+  },
+  "array_assault_amplifier": {
+    "type": "modifier",
+    "name": "Array Assault Amplifier",
+    "rarity": "rare",
+    "faction": "dayside",
+    "bonus": { "damageMultiplier": 0.30, "cooldownReduction": 0.10 },
+    "description": "Combat-grade amplifier designed for the Monument assault. Boosts ability output when placed adjacent to offensive components.",
+    "shape": [[1, 1]]
+  },
   "abyssal_nexus": {
     "type": "modifier",
     "name": "Abyssal Nexus",
@@ -247,7 +265,7 @@
     "rarity": "legendary",
     "faction": "greenway",
     "adjacencyPattern": "column",
-    "bonus": { "healOnHit": 12, "damageMultiplier": 0.30 },
+    "bonus": { "healOnHit": 7, "damageMultiplier": 0.30 },
     "description": "A towering column of living biotech whose tendrils extend through the entire grid column, feeding all abilities along its vertical path.",
     "shape": [[1], [1], [1]]
   },
@@ -299,7 +317,7 @@
     "path": "merge",
     "unlockFlag": "chose_path_merge",
     "adjacencyPattern": "area3x3",
-    "bonus": { "damageMultiplier": 0.35, "healOnHit": 6 },
+    "bonus": { "damageMultiplier": 0.35, "healOnHit": 4 },
     "description": "Two systems as one.",
     "shape": [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
   },
@@ -332,7 +350,7 @@
     "path": "control",
     "unlockFlag": "chose_path_control",
     "adjacencyPattern": "row",
-    "bonus": { "energyCostReduction": 0.55, "healOnHit": 4 },
+    "bonus": { "energyCostReduction": 0.55, "healOnHit": 3 },
     "description": "Optimized beyond design parameters.",
     "shape": [[1, 1, 1]]
   },
@@ -371,7 +389,7 @@
     "name": "Symbiotic Bridge",
     "rarity": "epic",
     "faction": "greenway",
-    "bonus": { "healOnHit": 6, "damageMultiplier": 0.25 },
+    "bonus": { "healOnHit": 4, "damageMultiplier": 0.25 },
     "description": "Living circuitry grown from cross-system compatibility data. Heals its user on every strike while boosting adjacent abilities — biology and technology in balance.",
     "shape": [[1, 1]]
   },
@@ -382,6 +400,88 @@
     "faction": "dayside",
     "bonus": { "energyCostReduction": 0.35, "damageMultiplier": 0.20 },
     "description": "Array override protocols encoded into an efficiency matrix. Reduces energy waste and amplifies output — the language of absolute authority.",
+    "shape": [[1, 1]]
+  },
+  "lighthouse_lens": {
+    "type": "modifier",
+    "name": "Lighthouse Lens",
+    "rarity": "legendary",
+    "source": "cooperative",
+    "adjacencyPattern": "area3x3",
+    "bonus": { "damageMultiplier": 0.40, "energyCostReduction": 0.30 },
+    "description": "Forged in the light of a defended Lighthouse.",
+    "shape": [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+  },
+  "deep_resonance": {
+    "type": "modifier",
+    "name": "Deep Resonance",
+    "rarity": "legendary",
+    "source": "cooperative",
+    "adjacencyPattern": "radius2",
+    "bonus": { "cooldownReduction": 0.40, "healOnHit": 5 },
+    "description": "Echoes from the deepest Nightside.",
+    "shape": [[1, 1], [1, 1]]
+  },
+  "prismatic_core": {
+    "type": "generator",
+    "name": "Prismatic Core",
+    "rarity": "legendary",
+    "source": "cooperative",
+    "energyRegen": 12,
+    "description": "A convergence of all energy sources.",
+    "shape": [[1, 1], [1, 1]]
+  },
+  "silicon_amplifier": {
+    "type": "modifier",
+    "name": "Silicon Amplifier",
+    "rarity": "rare",
+    "bonus": { "damageMultiplier": 0.30 },
+    "shape": [[1]]
+  },
+  "overcharge_core": {
+    "type": "modifier",
+    "name": "Overcharge Core",
+    "rarity": "epic",
+    "bonus": { "cooldownReduction": 0.25 },
+    "shape": [[1, 1]]
+  },
+  "advanced_generator": {
+    "type": "generator",
+    "name": "Advanced Generator",
+    "rarity": "epic",
+    "energyRegen": 6,
+    "shape": [[1]]
+  },
+  "quantum_battery": {
+    "type": "battery",
+    "name": "Quantum Battery",
+    "rarity": "legendary",
+    "energyCapacity": 200,
+    "shape": [[1]]
+  },
+  "architects_crown": {
+    "type": "modifier",
+    "name": "Architect's Crown",
+    "rarity": "legendary",
+    "bonus": { "damageMultiplier": 0.50, "cooldownReduction": 0.30 },
+    "shape": [[1, 1]]
+  },
+  "photosynthesis_node": {
+    "type": "modifier",
+    "name": "Photosynthesis Node",
+    "rarity": "rare",
+    "faction": "greenway",
+    "bonus": { "healOnHit": 2, "energyCostReduction": 0.15 },
+    "description": "Living bio-circuitry that converts ambient light into restorative energy, healing its host while reducing ability costs.",
+    "shape": [[1]]
+  },
+  "adaptive_tissue": {
+    "type": "modifier",
+    "name": "Adaptive Tissue Graft",
+    "rarity": "epic",
+    "faction": "greenway",
+    "bonus": { "healOnHit": 4, "damageMultiplier": 0.30 },
+    "description": "Self-evolving bio-tech from the Greenway labs. Amplifies damage while regenerating the host with each strike.",
     "shape": [[1, 1]]
   }
 }

@@ -109,7 +109,7 @@
         { "not": { "hasFlag": "array_premium_bonus_given" } }
       ],
       "actions": [
-        { "type": "giveItem", "itemType": "health_potion", "count": 3 },
+        { "type": "giveItem", "itemType": "bandage", "count": 3 },
         { "type": "giveItem", "itemType": "field_medkit" },
         { "type": "setFlag", "flag": "array_premium_bonus_given" },
         { "type": "showMessage", "lines": [
@@ -609,6 +609,50 @@
       ]
     },
     {
+      "id": "meridian7_sees_shutdown_intel",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasItem": "kappa_network_topology" },
+        { "hasFlag": "found_network_topology" },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "meridian7_acknowledged_shutdown_intel" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "meridian7_acknowledged_shutdown_intel" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7's displays shift to red. For a long moment, it says nothing.",
+          "'I recognize that schematic. Relay architecture. Redundancy pathways. A decommissioning map — precise enough to take down every node in sequence without collateral failure.'",
+          "'If you have brought that here to show me, you wish me to understand what the alternative looks like. I understand. That map is the end of the Array. And of me. I would prefer you brought the override protocols instead — they are also in Kappa's archives.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "meridian7_sees_merge_intel",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasItem": "kappa_symbiosis_research" },
+        { "hasFlag": "found_symbiosis_research" },
+        { "not": { "hasFlag": "phase3_intel_control" } },
+        { "not": { "hasFlag": "phase3_intel_shutdown" } },
+        { "not": { "hasFlag": "phase3_intel_merge" } },
+        { "not": { "hasFlag": "meridian7_acknowledged_merge_intel" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "meridian7_acknowledged_merge_intel" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7 scans the data tablet.",
+          "'Cross-system compatibility research. Our own archives — extracted and presented as evidence that the Array's extraction policy is self-defeating. The data is accurate. Those symbiosis models were suppressed for directive-compliance reasons.'",
+          "'But this is Councillor Denn's argument to make, not mine. What I require are the command override protocols — the authentication sequences stored in the same Kappa facility. Those are what enable the throne.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "meridian_hub_menu_endgame",
       "event": "npc_interacted",
       "filter": { "npcType": "meridian_7_hub" },
@@ -639,14 +683,304 @@
         ]}
       ]
     },
+
     {
-      "id": "meridian_craft_menu",
-      "event": "choice_made",
-      "filter": { "choiceId": "meridian_menu", "value": "open_craft" },
+      "id": "alliance_hub_enter",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "array_alliance_accepted" },
+        { "not": { "hasFlag": "spire_winds_cleared" } },
+        { "not": { "hasFlag": "alliance_hub_atmosphere_set" } }
+      ],
       "actions": [
-        { "type": "showMessage", "text": "MERIDIAN-7: 'Fabrication protocols unlocked. Post-crisis resource allocation permits component reforging and fusion. Select a recipe.'" },
-        { "type": "craft" }
+        { "type": "setFlag", "flag": "alliance_hub_atmosphere_set" },
+        { "type": "showMessage", "lines": [
+          "The Hub feels different. The promotional displays have been replaced by scrolling tactical data — patrol schedules, security grid schematics, supply manifests. All marked with Bulwark insignia.",
+          "MERIDIAN-7 has repurposed its trade infrastructure into a war room. The polished corporate aesthetic is still there, but now it serves a different kind of exchange."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "array_alliance_offer",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "supply_sabotage_complete" },
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "array_alliance_accepted" } },
+        { "not": { "hasFlag": "array_alliance_declined" } },
+        { "not": { "hasFlag": "spire_winds_cleared" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "array_alliance", "prompt": "MERIDIAN-7 proposes a tactical alliance against the Bulwark occupation of the Monument of Winds.", "options": [
+          { "label": "Accept Alliance", "description": "Work with MERIDIAN-7 and Councillor Denn to breach the Bulwark perimeter and reach the Spire.", "value": "accept" },
+          { "label": "Decline", "description": "The Array's motives are suspect. Refuse for now.", "value": "decline" }
+        ]}
       ]
+    },
+    {
+      "id": "array_alliance_accept",
+      "event": "choice_made",
+      "filter": { "choiceId": "array_alliance", "value": "accept" },
+      "actions": [
+        { "type": "setFlag", "flag": "array_alliance_accepted" },
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'Alliance confirmed. I am rerouting network resources to support your operation.'",
+          "The hub's displays shift. Promotional content disappears, replaced by live Bulwark position data — patrol movements tracked in real time across the Greenway corridor.",
+          "MERIDIAN-7: 'I have begun compiling a full tactical briefing on Bulwark force disposition. Speak with me again when you are ready to review it.'",
+          "'And Lightkeeper — Councillor Denn asked me to relay: the Steward faction stands with you. You are not doing this alone.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "array_alliance_decline",
+      "event": "choice_made",
+      "filter": { "choiceId": "array_alliance", "value": "decline" },
+      "actions": [
+        { "type": "setFlag", "flag": "array_alliance_declined" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'I understand your reservations. The Array's track record does not inspire trust. But the offer remains open.'",
+          "'The Monument of Winds will not wait forever. General Thorne fortifies his position daily. When you are ready, I will be here.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "array_alliance_reconsider",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "array_alliance_declined" },
+        { "hasFlag": "supply_sabotage_complete" },
+        { "not": { "hasFlag": "array_alliance_accepted" } },
+        { "not": { "hasFlag": "spire_winds_cleared" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "array_alliance", "prompt": "MERIDIAN-7: 'The alliance offer remains open. Bulwark's grip on the Monument tightens each day.'", "options": [
+          { "label": "Accept Alliance", "description": "Work with MERIDIAN-7 and Councillor Denn against the Bulwark occupation.", "value": "accept" },
+          { "label": "Still not ready", "description": "Decline again.", "value": "decline" }
+        ]}
+      ]
+    },
+    {
+      "id": "bulwark_intel_briefing",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "array_alliance_accepted" },
+        { "not": { "hasFlag": "bulwark_intel_received" } },
+        { "not": { "hasFlag": "spire_winds_cleared" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "bulwark_intel_received" },
+        { "type": "grantXp", "amount": 40 },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7 displays a detailed holographic schematic of the Monument perimeter. Bulwark positions are marked in red — patrol routes, sensor coverage, fortified chokepoints.",
+          "MERIDIAN-7: 'Three defensive layers. Outer conscript patrols — four-hour rotations with a ninety-second gap at shift change. Middle ring: riflemen in hardened positions with requisitioned Array drones providing aerial coverage.'",
+          "'Inner ring: General Thorne's personal guard. Engineers, a captain, and Thorne himself commanding from the fortress level above the Monument entrance.'",
+          "'Their critical vulnerability: the entire security grid runs on Array relay nodes. I have designed equipment that exploits this. Speak with me again to select your loadout.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "array_assault_equipment",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "bulwark_intel_received" },
+        { "not": { "hasFlag": "array_assault_gear_received" } },
+        { "not": { "hasFlag": "spire_winds_cleared" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "assault_equipment", "prompt": "MERIDIAN-7: 'Select your equipment package for the Monument assault. Each option is tuned to a different approach.'", "options": [
+          { "label": "Infiltration Package", "description": "Array Door Override + Array Signal Tap. Bypass locks and disrupt enemy sensors. For stealth approaches.", "value": "infiltration" },
+          { "label": "Assault Package", "description": "Array Door Override + Array Assault Amplifier. Bypass locks and amplify combat output. For direct engagement.", "value": "assault" },
+          { "label": "Full Kit", "description": "All three: Door Override, Signal Tap, and Assault Amplifier. Requires: Crystallized Umbracite.", "value": "full" }
+        ]}
+      ]
+    },
+    {
+      "id": "assault_equip_infiltration",
+      "event": "choice_made",
+      "filter": { "choiceId": "assault_equipment", "value": "infiltration" },
+      "actions": [
+        { "type": "giveItem", "itemType": "array_door_override" },
+        { "type": "giveItem", "itemType": "array_signal_tap_chip" },
+        { "type": "setFlag", "flag": "array_assault_gear_received" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "lines": [
+          "Two compartments slide open. The Array Door Override — a sleek device that pulses with quiet authority. And the Signal Tap — a Sol component designed to scramble enemy coordination.",
+          "MERIDIAN-7: 'The infiltration approach. Wise. The Signal Tap will degrade Bulwark sensor networks within range — drones will lose tracking, patrol communications will stutter.'",
+          "'The Door Override opens any lock running Array relay protocols. Which, in the Monument, is all of them. General Thorne requisitioned Array technology without understanding that the Array keeps a spare key.'",
+          "'Approach through the Greenway supply depot route. Outer patrols are thinnest along the agricultural corridors.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "assault_equip_assault",
+      "event": "choice_made",
+      "filter": { "choiceId": "assault_equipment", "value": "assault" },
+      "actions": [
+        { "type": "giveItem", "itemType": "array_door_override" },
+        { "type": "giveItem", "itemType": "array_assault_amplifier_chip" },
+        { "type": "setFlag", "flag": "array_assault_gear_received" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "lines": [
+          "Two compartments slide open. The Array Door Override — bypassing every lock Bulwark installed. And the Assault Amplifier — a combat-grade Sol component that intensifies ability output.",
+          "MERIDIAN-7: 'The direct approach. Place the Amplifier adjacent to your offensive abilities in the Sol Grid. It resonates with combat energy — the more abilities you chain, the harder each one hits.'",
+          "'The Door Override handles the rest. Thorne's fortress was built to keep people out. It was not built to keep out someone carrying Array master codes.'",
+          "'General Thorne commands from the upper fortress. He is a competent tactician. Do not underestimate him.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "assault_equip_full",
+      "event": "choice_made",
+      "filter": { "choiceId": "assault_equipment", "value": "full" },
+      "conditions": [
+        { "hasItem": "crystallized_umbracite" }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "crystallized_umbracite" },
+        { "type": "giveItem", "itemType": "array_door_override" },
+        { "type": "giveItem", "itemType": "array_signal_tap_chip" },
+        { "type": "giveItem", "itemType": "array_assault_amplifier_chip" },
+        { "type": "setFlag", "flag": "array_assault_gear_received" },
+        { "type": "grantXp", "amount": 50 },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7 accepts the crystallized umbracite with practiced efficiency. Three compartments open simultaneously — the full tactical package.",
+          "MERIDIAN-7: 'The complete kit. Door Override, Signal Tap, and Assault Amplifier. Every advantage I can manufacture for you.'",
+          "'The umbracite covered the fabrication cost. Consider it the Array's investment in removing Bulwark from a site they have no business occupying.'",
+          "'You are as prepared as I can make you. Speak with me once more before you go — I have final operational details.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "assault_equip_full_no_crystal",
+      "event": "choice_made",
+      "filter": { "choiceId": "assault_equipment", "value": "full" },
+      "conditions": [
+        { "not": { "hasItem": "crystallized_umbracite" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'The full kit requires a Crystallized Umbracite specimen to cover fabrication costs. The energy density of the crystal powers the manufacturing process.'",
+          "'Return with one, or select a standard package. Either way, you will be better equipped than Bulwark expects.'"
+        ]}
+      ]
+    },
+    {
+      "id": "spire_assault_final_briefing",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "array_assault_gear_received" },
+        { "not": { "hasFlag": "spire_assault_briefed" } },
+        { "not": { "hasFlag": "spire_winds_cleared" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "spire_assault_briefed" },
+        { "type": "setEnergy", "percent": 100 },
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: 'Final briefing. Councillor Denn has secured a six-hour window — the Steward faction will delay any Council response to our operation. That is your window to reach the Spire core.'",
+          "'I will provide remote support: drone suppression, door overrides, power disruption to Bulwark communications. But once you enter the Monument interior, ancient architecture will block my signals.'",
+          "'The Spire of Winds is vertical — deep shafts, bridges over open air, wind currents. The builders designed it to test spatial navigation. If the core activates, your Sol unit may resonate with a new ability.'",
+          "'Be prepared for General Thorne. He believes the Spire is a weapon that must be controlled. He will fight to the last.'",
+          "'I have topped off your Sol unit's energy reserves. You are as ready as anyone can be.'",
+          "'Good luck, Lightkeeper. I will be watching — for as long as the signal holds.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "post_vigil_hub_enter",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "hub_post_vigil_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "hub_post_vigil_entered" },
+        { "type": "showMessage", "lines": [
+          "The Hub is quieter than usual. The holographic advertisements run on schedule, but the ambient audio loop has a faint hesitation — an almost-imperceptible gap every forty seconds.",
+          "MERIDIAN-7's terminal displays its standard welcoming interface. But the response time feels fractionally slower than before.",
+          "Something in the network is processing. The Array knows about the Spire."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "meridian_7_knows_vigil",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "meridian_7_acknowledged_vigil" } },
+        { "not": { "hasFlag": "array_secret_discovered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "meridian_7_acknowledged_vigil" },
+        { "type": "showMessage", "lines": [
+          "The terminal's trade menus load, but there is a pause before MERIDIAN-7 responds — longer than the usual processing delay.",
+          "MERIDIAN-7: '...Trade interface active. I am aware of the Spire of Vigil activation event.'",
+          "'Array monitoring stations registered the Spire's energy signature several hours ago. The activation profile does not match any authorized Array operation.'",
+          "'I want to be transparent with you: I do not know who activated the Spire. That is not a reassuring thing to admit. The Array does not enjoy gaps in its own data.'",
+          "'The trade interface remains available. But I am... recalibrating certain assumptions.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "post_winds_hub_enter",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "hub_post_winds_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "hub_post_winds_entered" },
+        { "type": "showMessage", "lines": [
+          "The Hub's ambient lighting pulses once — not a flicker, something more deliberate, like a slow breath. The holographic advertisements stutter, reframe, resume.",
+          "MERIDIAN-7's terminal displays diagnostic text for three seconds before defaulting back to the trade interface. Error codes scroll past too quickly to read.",
+          "Deep Array interference. The Spire of Winds connected to something ancient and vast, and the signal is bleeding into every MERIDIAN-class node in the network.",
+          "MERIDIAN-7 is still here. But it is not operating at full capacity."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "meridian_7_intermittent",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "meridian_7_acknowledged_winds" } },
+        { "not": { "hasFlag": "array_secret_discovered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "meridian_7_acknowledged_winds" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: '// TRADE INTERFACE ACTIVE // —— //'",
+          "The terminal hesitates. A burst of raw signal data floods the display, then clears.",
+          "MERIDIAN-7: 'Apologies. Deep Array interference is affecting MERIDIAN-class nodes across the network. The Spire of Winds activation sent a signal on a frequency we did not know was still broadcasting.'",
+          "'My connection to the central nodes is intermittent. I am operating on cached protocols. Trade functions remain available — but I cannot guarantee response latency.'",
+          "'I will be honest with you: I do not fully understand what the Spire activated. The frequency matches records from before the Array's founding. It predates our architecture.'",
+          "'Whatever is on the other end of that signal — it is not us. And it is not sleeping anymore.'"
+        ]}
+      ],
+      "once": true
     }
   ]
 }

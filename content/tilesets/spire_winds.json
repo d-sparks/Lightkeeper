@@ -1,0 +1,109 @@
+{
+  "id": "spire_winds",
+  "image": "tilesets/spire_winds.png",
+  "tileSize": 16,
+  "tiles": {
+    "0": { "name": "void",               "solid": true },
+    "1": { "name": "stone_floor",        "solid": false },
+    "2": { "name": "cracked_floor",      "solid": false },
+    "3": { "name": "fortress_wall",      "solid": true },
+    "4": { "name": "door_closed",        "solid": true,  "interactable": "door", "togglesTo": 5 },
+    "5": { "name": "door_open",          "solid": false, "interactable": "door", "togglesTo": 4 },
+    "6": { "name": "stairs_down",        "solid": false, "exit": true },
+    "7": { "name": "wind_chasm",         "solid": true },
+    "8": { "name": "stairs_up",          "solid": false, "exit": true },
+    "9": {
+      "name": "security_door",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasItem": "spire_winds_keycard" }],
+      "failMessage": "Bulwark security door. Requires a command keycard.",
+      "onInteract": [{ "type": "removeItem", "itemType": "spire_winds_keycard" }]
+    },
+    "10": {
+      "name": "chest_closed",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 11
+    },
+    "11": { "name": "chest_opened",      "solid": false },
+    "12": { "name": "ancient_floor",     "solid": false },
+    "13": { "name": "ancient_wall",      "solid": true },
+    "14": { "name": "wind_grate",        "solid": false },
+    "15": { "name": "barricade",         "solid": true, "destructible": true, "destroysTo": 1 },
+    "16": { "name": "metal_wall",        "solid": true },
+    "17": {
+      "name": "control_panel",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 17
+    },
+    "18": { "name": "wind_bridge",       "solid": false },
+    "19": { "name": "elevated_platform", "solid": false, "elevation": 1 },
+    "20": {
+      "name": "ramp_north",
+      "solid": false,
+      "ramp": true,
+      "rampDir": "north",
+      "rampFrom": 0,
+      "rampTo": 1
+    },
+    "21": {
+      "name": "ramp_south",
+      "solid": false,
+      "ramp": true,
+      "rampDir": "south",
+      "rampFrom": 0,
+      "rampTo": 1
+    },
+    "22": {
+      "name": "ramp_east",
+      "solid": false,
+      "ramp": true,
+      "rampDir": "east",
+      "rampFrom": 0,
+      "rampTo": 1
+    },
+    "23": {
+      "name": "ramp_west",
+      "solid": false,
+      "ramp": true,
+      "rampDir": "west",
+      "rampFrom": 0,
+      "rampTo": 1
+    },
+    "24": { "name": "elevated_wall",     "solid": true, "elevation": 1 },
+    "25": { "name": "full_wall",         "solid": true, "elevation": 1, "fullWall": true },
+    "26": {
+      "name": "resonance_pedestal",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 26
+    },
+    "27": {
+      "name": "supply_crate_closed",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 28
+    },
+    "28": { "name": "supply_crate_opened", "solid": false },
+    "29": {
+      "name": "blast_door",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "general_thorne_defeated" }],
+      "failMessage": "Heavy blast door. The fortress command must be neutralized first."
+    },
+    "30": {
+      "name": "wind_shaft_gate",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 5,
+      "conditions": [{ "hasFlag": "fortress_power_disabled" }],
+      "failMessage": "The shaft entrance is sealed by the fortress power grid. Find the control panel."
+    },
+    "31": { "name": "tier_pedestal", "solid": true, "interactable": "door" }
+  }
+}

@@ -507,6 +507,11 @@
       "type": "sol_engineer_1",
       "x": 20,
       "y": 2
+    },
+    {
+      "type": "waypoint_beacon",
+      "x": 2,
+      "y": 4
     }
   ],
   "exits": [
@@ -561,7 +566,7 @@
         },
         {
           "type": "showMessage",
-          "text": "You found an iron key. It feels cold to the touch."
+          "text": "You found an iron key. It feels cold to the touch. There's a locked gate deeper in the crypts — this might open it."
         },
         {
           "type": "grantXp",
@@ -659,6 +664,47 @@
           "type": "showMessage",
           "text": "A relay circuit board, still in good condition. Comms Officer Daley could use this."
         }
+      ],
+      "once": true
+    },
+    {
+      "id": "keeper_asks_for_etching",
+      "event": "npc_interacted",
+      "filter": { "npcType": "old_keeper" },
+      "conditions": [
+        { "hasFlag": "visited_crypt_02" },
+        { "not": { "hasFlag": "keeper_asked_for_etching" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "keeper_asked_for_etching", "scope": "player" }
+      ],
+      "once": true
+    },
+    {
+      "id": "keeper_receives_etching",
+      "event": "npc_interacted",
+      "filter": { "npcType": "old_keeper" },
+      "conditions": [
+        { "hasItem": "underlumen_etching" },
+        { "not": { "hasFlag": "keeper_etching_returned" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "keeper_etching_returned", "scope": "player" },
+        { "type": "grantXp", "amount": 50 }
+      ],
+      "once": true
+    },
+    {
+      "id": "keeper_receives_watchtower_journal",
+      "event": "npc_interacted",
+      "filter": { "npcType": "old_keeper" },
+      "conditions": [
+        { "hasItem": "watchtower_journal" },
+        { "not": { "hasFlag": "keeper_received_journal" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "keeper_received_journal", "scope": "player" },
+        { "type": "grantXp", "amount": 30 }
       ],
       "once": true
     }

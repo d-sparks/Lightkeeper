@@ -270,6 +270,74 @@
       margin-top: 2px;
     }
 
+    /* Siege HUD (top-right info panel) */
+    #siege-hud {
+      position: absolute;
+      top: 12px;
+      right: 52px;
+      text-align: right;
+      pointer-events: none;
+      z-index: 20;
+      min-width: 160px;
+    }
+    #siege-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #ffa726;
+      text-shadow: 0 0 6px rgba(255,167,38,0.5), 0 1px 2px #000;
+      letter-spacing: 1px;
+    }
+    #siege-wave {
+      font-size: 11px;
+      color: #eee;
+      text-shadow: 0 1px 2px #000;
+      margin-top: 2px;
+    }
+    #siege-phase {
+      font-size: 10px;
+      color: #aaa;
+      text-shadow: 0 1px 2px #000;
+      margin-top: 2px;
+    }
+    #siege-monsters {
+      font-size: 10px;
+      color: #e53935;
+      text-shadow: 0 1px 2px #000;
+      margin-top: 3px;
+    }
+    .siege-bar-track {
+      width: 100%;
+      height: 10px;
+      background: #1a1a2e;
+      border: 1px solid #4fc3f7;
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .siege-energy-track {
+      border-color: #fdd835;
+    }
+    .siege-bar-fill {
+      height: 100%;
+      transition: width 0.25s ease-out;
+    }
+    .siege-lh-fill {
+      background: linear-gradient(180deg, #4fc3f7, #0288d1);
+    }
+    .siege-energy-fill {
+      background: linear-gradient(180deg, #fdd835, #f9a825);
+    }
+    .siege-bar-text {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: #fff;
+      text-shadow: 0 0 3px #000, 0 0 3px #000;
+    }
+
     /* Inventory HUD button (top-right, all platforms) */
     #inventory-btn {
       position: absolute;
@@ -615,6 +683,78 @@
       100% { opacity: 1; transform: translateY(0); }
     }
 
+    /* Siege victory/defeat overlay */
+    #siege-overlay {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0);
+      z-index: 85;
+      pointer-events: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #siege-overlay.victory {
+      display: flex;
+      animation: siege-victory-bg 4s ease-out forwards;
+    }
+
+    @keyframes siege-victory-bg {
+      0%   { background: rgba(100, 180, 247, 0.4); }
+      30%  { background: rgba(50, 100, 150, 0.5); }
+      100% { background: rgba(10, 30, 50, 0.6); }
+    }
+
+    #siege-overlay.defeat {
+      display: flex;
+      animation: siege-defeat-bg 3.5s ease-out forwards;
+    }
+
+    @keyframes siege-defeat-bg {
+      0%   { background: rgba(120, 0, 0, 0.5); }
+      30%  { background: rgba(60, 0, 0, 0.6); }
+      100% { background: rgba(10, 0, 0, 0.65); }
+    }
+
+    #siege-overlay .siege-overlay-title {
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: 6px;
+      text-shadow: 0 0 20px currentColor, 0 2px 4px #000;
+      opacity: 0;
+      animation: siege-title-in 1s 0.3s ease-out forwards;
+    }
+
+    #siege-overlay.victory .siege-overlay-title {
+      color: #4fc3f7;
+    }
+
+    #siege-overlay.defeat .siege-overlay-title {
+      color: #e53935;
+    }
+
+    @keyframes siege-title-in {
+      0%   { opacity: 0; transform: scale(1.4); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    #siege-overlay .siege-overlay-details {
+      font-size: 13px;
+      color: #aaa;
+      margin-top: 14px;
+      text-align: center;
+      line-height: 1.6;
+      opacity: 0;
+      animation: siege-details-in 0.8s 1.2s ease-out forwards;
+    }
+
+    @keyframes siege-details-in {
+      0%   { opacity: 0; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
     /* System message overlay */
     #dialogue-overlay {
       display: none;
@@ -787,6 +927,17 @@
       padding: 20px 0;
     }
 
+    .cached-header {
+      font-size: 13px;
+      color: #7cb8e0;
+      padding: 6px 4px 10px;
+      border-bottom: 1px solid rgba(124,184,224,0.2);
+      margin-bottom: 8px;
+    }
+
+    .cached-item { opacity: 0.75; cursor: default; }
+    .cached-item:hover { opacity: 1; background: rgba(255,255,255,0.04); }
+
     #character-menu .inv-item {
       font-size: 16px;
       padding: 8px 0;
@@ -936,6 +1087,23 @@
       font-size: 10px;
     }
 
+    .inv-grid-cell .inv-dur-tag {
+      position: absolute;
+      bottom: 3px;
+      left: 5px;
+      font-size: 9px;
+      font-weight: bold;
+    }
+
+    .inv-grid-cell .inv-stack-count {
+      position: absolute;
+      top: 3px;
+      right: 5px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #ccc;
+    }
+
     .inv-detail-panel {
       min-height: 40px;
       padding: 8px 10px;
@@ -1026,6 +1194,52 @@
       margin-left: auto;
     }
 
+    /* Stats panel */
+    .stats-section {
+      margin-bottom: 16px;
+    }
+    .stats-section-title {
+      font-size: 13px;
+      color: #ffa726;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255,167,38,0.2);
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: #999; }
+    .stat-value { color: #ddd; font-weight: 600; }
+    .stat-bonus { color: #4caf50; font-size: 12px; margin-left: 4px; }
+    .stat-bar-row {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .stat-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .stat-bar-track {
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.2s;
+    }
+
     .sol-grid {
       display: grid;
       gap: 4px;
@@ -1082,6 +1296,145 @@
       text-align: center;
       min-height: 20px;
       margin-top: 8px;
+    }
+
+    /* Weapon Upgrade Grid */
+    .wu-header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .wu-weapon-name {
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .wu-weapon-subtitle {
+      font-size: 11px;
+      color: #777;
+      margin-top: 2px;
+    }
+    .wu-grid {
+      display: grid;
+      gap: 4px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .wu-cell {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
+      color: #aaa;
+      text-align: center;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .wu-cell:hover { background: rgba(255,255,255,0.06); }
+    .wu-cell.has-material {
+      border-color: rgba(255,167,38,0.4);
+      background: rgba(255,167,38,0.08);
+    }
+    .wu-cell.selected { border-color: #ffa726; background: rgba(255,167,38,0.15); }
+    .wu-cell-name {
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .wu-cell-bonus {
+      font-size: 10px;
+      color: #66bb6a;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+    .wu-bonuses {
+      text-align: center;
+      margin: 8px 0;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+    }
+    .wu-bonuses-title {
+      font-size: 10px;
+      color: #4fc3f7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .wu-bonus-tag {
+      display: inline-block;
+      font-size: 12px;
+      color: #66bb6a;
+      background: rgba(102,187,106,0.08);
+      border: 1px solid rgba(102,187,106,0.2);
+      border-radius: 3px;
+      padding: 2px 8px;
+      margin: 2px;
+    }
+    .wu-materials-label {
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 10px 0 6px;
+      text-align: center;
+    }
+    .wu-inv-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 80px);
+      gap: 4px;
+      justify-content: center;
+    }
+    .wu-inv-cell {
+      width: 80px;
+      height: 60px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 11px;
+      color: #aaa;
+      text-align: center;
+    }
+    .wu-inv-cell:hover { background: rgba(255,255,255,0.06); }
+    .wu-inv-cell.selected { border-color: #ffa726; background: rgba(255,167,38,0.1); }
+    .wu-disassemble-btn {
+      display: block;
+      margin: 12px auto 0;
+      padding: 8px 20px;
+      background: rgba(229,57,53,0.15);
+      border: 1px solid rgba(229,57,53,0.4);
+      border-radius: 4px;
+      color: #ef5350;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .wu-disassemble-btn:hover { background: rgba(229,57,53,0.25); }
+    .wu-info {
+      font-size: 14px;
+      color: #888;
+      text-align: center;
+      min-height: 20px;
+      margin-top: 8px;
+    }
+    .wu-empty {
+      text-align: center;
+      color: #555;
+      font-size: 14px;
+      margin-top: 30px;
     }
 
     .sol-innate-banner {
@@ -1490,6 +1843,123 @@
       to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
     }
 
+    /* Raid alert toast notification */
+    #raid-alert-toast {
+      display: none;
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 10, 26, 0.97);
+      border: 1px solid rgba(229, 57, 53, 0.7);
+      border-radius: 6px;
+      padding: 10px 20px;
+      color: #ef9a9a;
+      font-size: 12px;
+      font-family: inherit;
+      z-index: 110;
+      pointer-events: none;
+      text-align: center;
+      min-width: 200px;
+      animation: raid-toast-in 0.4s ease-out;
+    }
+
+    #raid-alert-toast .raid-toast-header {
+      font-size: 13px;
+      color: #ef5350;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    @keyframes raid-toast-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(0.95); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
+
+    /* Raid incoming toast with defend button */
+    #raid-incoming-toast {
+      display: none;
+      position: fixed;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 10, 26, 0.97);
+      border: 2px solid rgba(255, 152, 0, 0.8);
+      border-radius: 6px;
+      padding: 12px 24px;
+      color: #ffcc80;
+      font-size: 12px;
+      font-family: inherit;
+      z-index: 115;
+      pointer-events: auto;
+      text-align: center;
+      min-width: 240px;
+      animation: raid-toast-in 0.4s ease-out;
+    }
+
+    #raid-incoming-toast .raid-toast-header {
+      font-size: 14px;
+      color: #ff9800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    #raid-incoming-toast .raid-countdown {
+      font-size: 11px;
+      color: #ef9a9a;
+      margin-top: 6px;
+    }
+
+    #raid-defend-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 16px;
+      background: rgba(255, 152, 0, 0.25);
+      border: 1px solid #ff9800;
+      border-radius: 4px;
+      color: #ffcc80;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #raid-defend-btn:hover {
+      background: rgba(255, 152, 0, 0.45);
+    }
+
+    /* Structure HP bar inside grid cells */
+    .auto-cell-hp-bar {
+      position: absolute;
+      bottom: 2px;
+      left: 3px;
+      right: 3px;
+      height: 3px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .auto-cell-hp-fill {
+      height: 100%;
+      background: #4caf50;
+      border-radius: 2px;
+    }
+
+    .auto-cell-hp-fill.low {
+      background: #ff9800;
+    }
+
+    .auto-cell-hp-fill.critical {
+      background: #f44336;
+    }
+
+    .auto-grid-cell.damaged {
+      background: rgba(229, 57, 53, 0.12) !important;
+    }
+
     #character-menu .quest-header {
       display: flex;
       align-items: center;
@@ -1551,6 +2021,20 @@
       border-left-color: #66bb6a;
       color: #66bb6a;
       text-decoration: line-through;
+    }
+
+    .quest-step-ellipsis {
+      font-size: 13px;
+      padding: 6px 14px;
+      margin-bottom: 4px;
+      color: #777;
+      cursor: pointer;
+      border-left: 3px solid #333;
+    }
+
+    .quest-step-ellipsis:hover {
+      color: #aaa;
+      background: rgba(255,255,255,0.03);
     }
 
     #character-menu .quest-step .step-desc {
@@ -2238,18 +2722,18 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
+    }
+    #chat-log::before {
+      content: '';
+      flex: 1;
     }
     .chat-line {
       font-size: 13px;
       color: #e0e0e0;
       text-shadow: 1px 1px 2px #000, 0 0 4px #000;
       padding: 1px 4px;
-      opacity: 1;
-      transition: opacity 0.5s;
       word-break: break-word;
     }
-    .chat-line.faded { opacity: 0; }
     .chat-line .chat-name { color: #4fc3f7; font-weight: bold; }
     .chat-line.system { color: #888; font-style: italic; }
     .chat-line.system .chat-name { color: #888; }
@@ -2270,6 +2754,34 @@
       font-family: inherit;
     }
     #chat-input::placeholder { color: #777; }
+    #note-input-row {
+      display: none;
+      position: fixed;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      pointer-events: auto;
+    }
+    #note-input-row.active { display: flex; align-items: center; gap: 6px; }
+    #note-label {
+      color: #ffa726;
+      font-size: 13px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    #note-input {
+      width: 400px;
+      background: rgba(0,0,0,0.85);
+      border: 1px solid #ffa726;
+      border-radius: 3px;
+      color: #fff;
+      font-size: 13px;
+      padding: 6px 10px;
+      outline: none;
+      font-family: inherit;
+    }
+    #note-input::placeholder { color: #777; }
     #voice-indicator {
       display: none;
       color: #ef5350;
@@ -2323,6 +2835,22 @@
       <div id="expedition-floor"></div>
       <div id="expedition-party" style="font-size:11px;color:#4fc3f7;text-shadow:0 1px 2px #000;"></div>
     </div>
+    <!-- Siege HUD (top-right, hidden by default) -->
+    <div id="siege-hud" style="display:none;">
+      <div id="siege-title"></div>
+      <div id="siege-wave"></div>
+      <div id="siege-phase"></div>
+      <div style="margin-top:4px;">
+        <div style="font-size:10px;color:#4fc3f7;margin-bottom:1px;">Lighthouse</div>
+        <div class="siege-bar-track"><div class="siege-bar-fill siege-lh-fill" id="siege-lh-fill"></div><div class="siege-bar-text" id="siege-lh-text"></div></div>
+      </div>
+      <div style="margin-top:3px;">
+        <div style="font-size:10px;color:#fdd835;margin-bottom:1px;">Communal Energy</div>
+        <div class="siege-bar-track siege-energy-track"><div class="siege-bar-fill siege-energy-fill" id="siege-energy-fill"></div><div class="siege-bar-text" id="siege-energy-text"></div></div>
+      </div>
+      <div id="siege-monsters"></div>
+      <button id="siege-repair-btn" style="display:none;margin-top:6px;padding:4px 10px;font-size:11px;font-family:inherit;background:#1a3a4a;color:#4fc3f7;border:1px solid #4fc3f7;border-radius:3px;cursor:pointer;pointer-events:auto;text-shadow:0 0 4px rgba(79,195,247,0.4);width:100%;">Repair Lighthouse</button>
+    </div>
     <div id="worldmap-btn" title="World Map [N]">MAP</div>
     <div id="quest-btn">LOG</div>
     <div id="inventory-btn">INV</div>
@@ -2331,6 +2859,11 @@
     <div id="death-overlay">
       <div class="death-title">YOU DIED</div>
       <div class="death-details" id="death-details"></div>
+    </div>
+    <!-- Siege victory/defeat overlay -->
+    <div id="siege-overlay">
+      <div class="siege-overlay-title" id="siege-overlay-title"></div>
+      <div class="siege-overlay-details" id="siege-overlay-details"></div>
     </div>
   </div>
 
@@ -2380,6 +2913,12 @@
     </div>
   </div>
 
+  <!-- Player note input (Ctrl+Enter to open) -->
+  <div id="note-input-row">
+    <span id="note-label">NOTE:</span>
+    <input id="note-input" type="text" maxlength="500" placeholder="Jot a note to the log..." autocomplete="off">
+  </div>
+
   <!-- Mobile touch controls -->
   <div id="controls">
     <div id="joystick-zone">
@@ -2401,14 +2940,20 @@
   <div id="character-menu" style="display:none">
     <div class="inv-tabs">
       <div class="inv-tab active" data-tab="equipment">EQUIP</div>
+      <div class="inv-tab" data-tab="stats">STATS</div>
       <div class="inv-tab" data-tab="inventory">ITEMS</div>
       <div class="inv-tab" data-tab="solgrid">SOL</div>
+      <div class="inv-tab" data-tab="weapon">WEAPON</div>
       <div class="inv-tab" data-tab="quests">QUESTS</div>
+      <div class="inv-tab" data-tab="cached" style="display:none">CACHED</div>
     </div>
     <div id="inv-tab-equipment" class="inv-tab-content">
       <div id="equipment-slots" class="equip-section">
         <div class="equip-label">SLOTS</div>
       </div>
+    </div>
+    <div id="inv-tab-stats" class="inv-tab-content" style="display:none">
+      <div id="stats-panel"></div>
     </div>
     <div id="inv-tab-inventory" class="inv-tab-content" style="display:none">
       <div id="inventory-list"></div>
@@ -2417,8 +2962,14 @@
       <div id="sol-grid-container"></div>
       <div id="sol-grid-info"></div>
     </div>
+    <div id="inv-tab-weapon" class="inv-tab-content" style="display:none">
+      <div id="weapon-upgrade-container"></div>
+    </div>
     <div id="inv-tab-quests" class="inv-tab-content" style="display:none">
       <div id="quest-panel-content"></div>
+    </div>
+    <div id="inv-tab-cached" class="inv-tab-content" style="display:none">
+      <div id="cached-list"></div>
     </div>
     <div class="inv-hint">[I] Close</div>
   </div>
@@ -2455,6 +3006,16 @@
   <div id="automation-milestone-toast">
     <div class="milestone-label">Automation Milestone</div>
     <div id="automation-milestone-text"></div>
+  </div>
+  <div id="raid-alert-toast">
+    <div class="raid-toast-header">&#x26A0; Raid Alert</div>
+    <div id="raid-alert-text"></div>
+  </div>
+  <div id="raid-incoming-toast">
+    <div class="raid-toast-header">&#x26A0; Raid Incoming</div>
+    <div id="raid-incoming-text"></div>
+    <div class="raid-countdown">Auto-resolve in <span id="raid-countdown-timer">30</span>s</div>
+    <button id="raid-defend-btn">Defend Manually</button>
   </div>
 
   <!-- Onboarding hints (dismissed on first input/interaction) -->

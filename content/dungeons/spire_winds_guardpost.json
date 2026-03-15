@@ -1,0 +1,92 @@
+{
+  "id": "spire_winds_guardpost",
+  "name": "Spire of Winds — Guard Post",
+  "depth": 2,
+  "tileset": "spire_winds",
+  "theme": "greenway_corridor",
+  "tileSize": 32,
+  "width": 24,
+  "height": 18,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,12,13,13,13,13,13,13,13,12,12,12,12,12,12,12,12,12,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,12,12,12,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,13,
+    13,13,12,12,12,12,13,13,13,12,12,13,13,13,12,12,12,12,12,12,12,12,12,13,
+    13,13,13,12,12,12,13,13,13,12,12,13,13,13,12,12,12,13,13,13,12,12,12,13,
+    13,13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,12,12,12,13,
+    13,13,13,12,12, 2,12,12,12,12,12,12,12,12, 2,12,12,13,13,13,12,12,12,13,
+    13,13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,12,12,12,13,
+    13,13,13,12,12,12,13,13,13,12,12,13,13,13,12,12,12,13,13,13,12,12,12,13,
+    13,13,12,12,12,12,13,13,13,12,12,13,13,13,12,12,12,12,12,12,12,12,12,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,12, 2,12,12,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,
+    13,12,12,12,12,12,12,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,13,13,13,
+    13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,12,12, 6,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "bulwark_conscript", "x": 8, "y": 3, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 6, "y": 3}, {"x": 12, "y": 3}, {"x": 12, "y": 5}, {"x": 6, "y": 5}] },
+    { "type": "bulwark_rifleman", "x": 18, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_patrol_drone", "x": 10, "y": 8, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 6, "y": 7}, {"x": 14, "y": 7}, {"x": 14, "y": 9}, {"x": 6, "y": 9}] },
+    { "type": "bulwark_conscript", "x": 21, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_rifleman", "x": 15, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_conscript", "x": 5, "y": 12, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 3, "y": 11}, {"x": 8, "y": 11}, {"x": 8, "y": 14}, {"x": 3, "y": 14}] },
+    { "type": "bulwark_rifleman", "x": 14, "y": 14, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "bandage", "x": 15, "y": 4 },
+    { "type": "field_medkit", "x": 21, "y": 8 },
+    { "type": "salvage", "x": 8, "y": 13 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_approach", "type": "stairs_up", "spawnX": 24, "spawnY": 16 },
+    { "x": 18, "y": 16, "leadsTo": "spire_winds_laboratory", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+      {
+        "id": "guardpost_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "A fortified Bulwark checkpoint blocks the passage deeper into the Monument. Sandbag walls and prefab barricades create overlapping fields of fire through the ancient corridors.",
+              "Conscripts patrol in disciplined pairs while riflemen watch from elevated positions. A patrol drone hums overhead, its sensors sweeping the approach routes.",
+              "Getting past this guard post will require either stealth or overwhelming force. The Bulwark clearly doesn't want anyone reaching whatever lies below."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "guardpost_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "A fortified Bulwark checkpoint blocks the passage deeper into the Monument. Sandbag walls and prefab barricades create overlapping fields of fire through the ancient corridors.",
+              "Conscripts patrol in disciplined pairs while riflemen watch from elevated positions. A patrol drone hums overhead, its sensors sweeping the approach routes.",
+              "Getting past this guard post will require either stealth or overwhelming force. The Bulwark clearly doesn't want anyone reaching whatever lies below."
+            ]
+          }
+        ],
+        "once": true
+      }
+    ]
+}

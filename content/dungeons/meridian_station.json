@@ -38,7 +38,9 @@
   "monsterSpawns": [],
   "npcSpawns": [
     { "type": "station_master_calloway", "x": 10, "y": 10 },
-    { "type": "expedition_board", "x": 20, "y": 10 }
+    { "type": "expedition_board", "x": 20, "y": 10 },
+    { "type": "siege_warden", "x": 15, "y": 10 },
+    { "type": "waypoint_beacon", "x": 13, "y": 17 }
   ],
   "itemSpawns": [],
   "exits": [
@@ -119,6 +121,25 @@
           "'Hasn't been at his post in days. Last time I saw him, he was in the Market Quarter — acting jumpy, looking over his shoulder.'",
           "'Left his logbook on the platform bench. I put it aside, but he never came back. It probably got swept into the market during the evening rush.'"
         ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "daley_radios_coordinates",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "comms_restored" },
+        { "hasFlag": "arrived_meridian" },
+        { "not": { "hasFlag": "daley_gave_coordinates" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Your radio crackles to life — Daley's voice, faint but clear through the restored comms array.",
+          "'You're in Meridian? Good — I've been trying to reach you. I intercepted something strange on the deep frequencies. A distorted voice, repeating coordinates. The signal's old — years old, maybe older.'",
+          "'I'm transmitting the coordinates to your nav unit now. The location is deep in the eastern perimeter — west of the Dead Road, somewhere underground. Be careful out there.'"
+        ]},
+        { "type": "setFlag", "flag": "daley_gave_coordinates" },
+        { "type": "giveItem", "itemType": "daley_coordinates" }
       ],
       "once": true
     },
@@ -248,6 +269,128 @@
           "The Council has not yet reached a decision on the Lightkeeper mandate. The path forward isn't clear yet."
         ]}
       ]
+    },
+
+    {
+      "id": "siege_warden_launch",
+      "event": "npc_interacted",
+      "filter": { "npcType": "siege_warden" },
+      "conditions": [
+        { "hasFlag": "perimeter_breach_cleared" },
+        { "not": { "hasFlag": "siege_active" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "siege_confirm", "prompt": "Siege Warden Kael: Ready to defend the lighthouse? You'll need 2-4 defenders.", "options": [
+          { "label": "Begin Lighthouse Siege", "description": "Cooperative wave defense. 10 waves. Requires 2-4 players.", "value": "start" },
+          { "label": "Not yet", "description": "Return to the station.", "value": "cancel" }
+        ]}
+      ]
+    },
+    {
+      "id": "siege_confirm_start",
+      "event": "choice_made",
+      "filter": { "choiceId": "siege_confirm", "value": "start" },
+      "actions": [
+        { "type": "showMessage", "text": "Siege Warden Kael: 'Steel yourselves. The darkness doesn't wait.'" },
+        { "type": "startSiege", "challengeId": "lighthouse_siege" }
+      ]
+    },
+    {
+      "id": "siege_confirm_cancel",
+      "event": "choice_made",
+      "filter": { "choiceId": "siege_confirm", "value": "cancel" },
+      "actions": [
+        { "type": "showMessage", "text": "Siege Warden Kael: 'No rush. The lighthouse isn't going anywhere — yet.'" }
+      ]
+    },
+    {
+      "id": "siege_warden_active",
+      "event": "npc_interacted",
+      "filter": { "npcType": "siege_warden" },
+      "conditions": [{ "hasFlag": "siege_active" }],
+      "actions": [
+        { "type": "showMessage", "text": "Siege Warden Kael: 'You're already deployed. Get back to the lighthouse!'" }
+      ]
+    },
+    {
+      "id": "siege_warden_locked",
+      "event": "npc_interacted",
+      "filter": { "npcType": "siege_warden" },
+      "conditions": [
+        { "not": { "hasFlag": "perimeter_breach_cleared" } },
+        { "not": { "hasFlag": "siege_active" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Siege Warden Kael: 'You look capable, but this isn't a routine patrol. The lighthouse siege is the hardest thing we run.'",
+          "'Clear the breach on the old perimeter line — prove you can handle what comes out of the dark. Then we'll talk.'"
+        ]}
+      ]
+    },
+
+    {
+      "id": "post_vigil_station",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "station_post_vigil_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "station_post_vigil_entered" },
+        { "type": "showMessage", "lines": [
+          "The station buzzes with something different today — tension beneath the usual noise. A cluster of frontier workers near the platform argue in lowered voices.",
+          "You catch fragments: '...energy readings at the old Spire...' '...not raiders, the signatures don't match...' '...Dural Voss retreated, he didn't blow it, something else activated it...'",
+          "The MERIDIAN-7 advertisement cycles overhead, unchanged: 'Powering Progress.' No one is looking at it."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "bulwark_emergency_station",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "station_post_vigil_entered" },
+        { "not": { "hasFlag": "bulwark_emergency_station_seen" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "bulwark_emergency_station_seen" },
+        { "type": "showMessage", "lines": [
+          "Two Bulwark soldiers have taken up positions at the corridor entrances. Their grey-and-black uniforms bear the Compact insignia — not the transit authority's usual blue.",
+          "A new notice has been posted over the station directory board: 'BY ORDER OF COMPACT EMERGENCY AUTHORITY — All Lightkeeper transit authorizations are subject to Bulwark review. Report to the nearest checkpoint before proceeding to restricted zones.'",
+          "Station Master Calloway is behind his window as always. He looks like a man who has been arguing all morning and lost every argument."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "bulwark_spawn_station",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" }
+      ],
+      "actions": [
+        { "type": "spawnNpc", "npcType": "bulwark_patrol_meridian", "x": 3, "y": 9 },
+        { "type": "spawnNpc", "npcType": "bulwark_patrol_meridian", "x": 26, "y": 9 }
+      ]
+    },
+
+    {
+      "id": "post_winds_station",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "station_post_winds_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "station_post_winds_entered" },
+        { "type": "showMessage", "lines": [
+          "The MERIDIAN-7 advertisement panel above the ticket windows flickers. It cycles through the usual 'Powering Progress' loop, then cuts to static. Returns. Cuts again.",
+          "A station worker is on a ladder with a toolkit, staring at the panel's mounting bracket with the expression of someone who suspects the problem isn't mechanical.",
+          "At the information desk, a traveler asks about trains to the Ring border — the Compact territories. The clerk shakes her head. 'Delayed until further notice. Ring authority is reviewing all transit through the Greenway checkpoint.'"
+        ]}
+      ],
+      "once": true
     }
   ]
 }

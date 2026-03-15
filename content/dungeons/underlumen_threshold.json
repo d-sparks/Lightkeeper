@@ -18,7 +18,7 @@
     3,3,3,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,3,3,3,1,1,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,3,3,3,3,1,3,3,1,1,2,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,3,3,3,3,9,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,3,3,3,3,3,1,1,1,3,3,3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,
     3,3,3,3,3,3,1,1,1,3,7,3,3,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,
     3,3,3,3,3,3,3,1,1,3,3,3,3,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,
@@ -61,15 +61,18 @@
   "itemSpawns": [
     { "type": "umbracite", "x": 2, "y": 2 },
     { "type": "refined_umbrasite", "x": 10, "y": 7 },
-    { "type": "health_potion", "x": 8, "y": 14 },
     { "type": "field_medkit", "x": 19, "y": 15 },
     { "type": "umbracite", "x": 23, "y": 19 },
     { "type": "flare", "x": 15, "y": 17 },
     { "type": "battery_chip", "x": 5, "y": 10 },
-    { "type": "battery_chip", "x": 26, "y": 7 }
+    { "type": "battery_chip", "x": 26, "y": 7 },
+    { "type": "ancestors_listening_stone", "x": 17, "y": 16 }
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "nightside_passage", "type": "stairs_up", "spawnX": 24, "spawnY": 18 },
+    { "x": 5, "y": 8, "leadsTo": "train_station", "type": "transit_portal", "spawnX": 12, "spawnY": 12,
+      "conditions": [{ "hasFlag": "reached_underlumen_threshold" }],
+      "failMessage": "A crystalline arch hums faintly. The transit link is dormant — you haven't attuned to this place yet." },
     { "x": 23, "y": 22, "leadsTo": "merge_nexus", "type": "deep_stairs_down", "spawnX": 1, "spawnY": 20,
       "conditions": [{ "hasFlag": "chose_path_merge" }],
       "failMessage": "A passage descends into deeper crystal. The way is sealed — the convergence has not been called. Yet." }
@@ -78,6 +81,19 @@
     {
       "id": "threshold_enter",
       "event": "room_entered",
+      "conditions": [{ "noHostilesInRoom": true }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Underlumen Threshold. You stand at the edge of the planet's living core.",
+          "The walls here are more crystal than stone. Veins of bioluminescent matter pulse in slow, rhythmic waves — not just glowing, but communicating. Patterns flow through the crystalline network like thoughts through neurons.",
+          "The air itself hums. Not sound — vibration. The entire chamber resonates with a frequency older than human civilization. The planet is aware of you."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "threshold_enter_cleared",
+      "event": "room_cleared",
       "actions": [
         { "type": "showMessage", "lines": [
           "The Underlumen Threshold. You stand at the edge of the planet's living core.",
@@ -91,7 +107,23 @@
       "id": "threshold_reached_flag",
       "event": "room_entered",
       "conditions": [
-        { "hasFlag": "nightside_expedition_started" },
+        { "not": { "hasFlag": "reached_underlumen_threshold" } },
+        { "noHostilesInRoom": true }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "reached_underlumen_threshold" },
+        { "type": "grantXp", "amount": 60 },
+        { "type": "showMessage", "lines": [
+          "You've reached the Underlumen Threshold — deeper than any Ring citizen has ventured.",
+          "The expedition objective is within reach. Document what you find here, collect the symbiotic compound, and return to Councillor Asha."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "threshold_reached_flag_cleared",
+      "event": "room_cleared",
+      "conditions": [
         { "not": { "hasFlag": "reached_underlumen_threshold" } }
       ],
       "actions": [
@@ -100,6 +132,39 @@
         { "type": "showMessage", "lines": [
           "You've reached the Underlumen Threshold — deeper than any Ring citizen has ventured.",
           "The expedition objective is within reach. Document what you find here, collect the symbiotic compound, and return to Councillor Asha."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "transit_portal_discovered",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "reached_underlumen_threshold" },
+        { "not": { "hasFlag": "underlumen_portal_noted" } },
+        { "noHostilesInRoom": true }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_portal_noted" },
+        { "type": "showMessage", "lines": [
+          "A crystalline arch near the entrance pulses with a familiar resonance — the same frequency as the train station's transit network.",
+          "The Underlumen has linked this place to the surface. A shortcut home."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "transit_portal_discovered_cleared",
+      "event": "room_cleared",
+      "conditions": [
+        { "hasFlag": "reached_underlumen_threshold" },
+        { "not": { "hasFlag": "underlumen_portal_noted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "underlumen_portal_noted" },
+        { "type": "showMessage", "lines": [
+          "A crystalline arch near the entrance pulses with a familiar resonance — the same frequency as the train station's transit network.",
+          "The Underlumen has linked this place to the surface. A shortcut home."
         ]}
       ],
       "once": true
@@ -188,6 +253,25 @@
       "conditions": [
         { "hasFlag": "reached_underlumen_threshold" },
         { "hasFlag": "threshold_keeper_defeated" },
+        { "not": { "hasFlag": "threshold_ambient_noted" } },
+        { "noHostilesInRoom": true }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "threshold_ambient_noted" },
+        { "type": "showMessage", "lines": [
+          "With the Threshold Keeper gone, the chamber has changed. The crystal veins pulse freely now — no guardian to regulate the flow.",
+          "The bioluminescence is stronger. Warmer. Patterns emerge in the light: spirals, fractals, wave forms. The Underlumen is communicating.",
+          "Not to you specifically. To everything. To the stone, the water, the air. To the organisms that live in symbiosis with it. It's running diagnostics on a planetary scale."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "threshold_ambient_pulse_cleared",
+      "event": "room_cleared",
+      "conditions": [
+        { "hasFlag": "reached_underlumen_threshold" },
+        { "hasFlag": "threshold_keeper_defeated" },
         { "not": { "hasFlag": "threshold_ambient_noted" } }
       ],
       "actions": [
@@ -196,6 +280,54 @@
           "With the Threshold Keeper gone, the chamber has changed. The crystal veins pulse freely now — no guardian to regulate the flow.",
           "The bioluminescence is stronger. Warmer. Patterns emerge in the light: spirals, fractals, wave forms. The Underlumen is communicating.",
           "Not to you specifically. To everything. To the stone, the water, the air. To the organisms that live in symbiosis with it. It's running diagnostics on a planetary scale."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "threshold_deep_exploration",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "reached_underlumen_threshold" },
+        { "not": { "hasFlag": "threshold_deep_noted" } },
+        { "noHostilesInRoom": true }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "threshold_deep_noted", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "The deeper you push into the chamber, the more the crystal patterns change. Near the entrance, the formations were branching veins — natural geometry. Here they're different.",
+          "Ordered. The luminescent pulses run in sequences that repeat, vary, repeat again in a different arrangement. Not geology. Not chemistry.",
+          "The Underlumen is running computations. And the variables it's working with — the patterns it's testing — look disturbingly like language."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "threshold_deep_exploration_cleared",
+      "event": "room_cleared",
+      "conditions": [
+        { "hasFlag": "reached_underlumen_threshold" },
+        { "not": { "hasFlag": "threshold_deep_noted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "threshold_deep_noted", "scope": "player" },
+        { "type": "showMessage", "lines": [
+          "The deeper you push into the chamber, the more the crystal patterns change. Near the entrance, the formations were branching veins — natural geometry. Here they're different.",
+          "Ordered. The luminescent pulses run in sequences that repeat, vary, repeat again in a different arrangement. Not geology. Not chemistry.",
+          "The Underlumen is running computations. And the variables it's working with — the patterns it's testing — look disturbingly like language."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "threshold_listening_stone_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "ancestors_listening_stone" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A smooth crystal disc, worn to perfect flatness on one side by generations of hands. Unbounded in craft, ancient in material — the crystal predates human presence on Erith by millions of years. The Underlumen grew this long before there were people to hold it.",
+          "On the back, in archaic Unbounded script: a name you can't fully parse, and below it — 'She listened first. She heard the answer.'",
+          "This was left here deliberately. Someone from Sable's lineage made the descent, found this place, and left something behind to mark it. They came back. Someone always came back."
         ]}
       ],
       "once": true

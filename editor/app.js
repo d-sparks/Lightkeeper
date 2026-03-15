@@ -826,7 +826,7 @@ function SpawnPanel({ dungeon, updateDungeon, spawnMode, setSpawnMode, spawnEnti
   const getDefaultType = (mode) => {
     if (mode === 'monster') return Object.keys(monsters)[0] || 'skeleton';
     if (mode === 'npc') return Object.keys(npcs)[0] || 'old_keeper';
-    if (mode === 'item') return Object.keys(items)[0] || 'health_potion';
+    if (mode === 'item') return Object.keys(items)[0] || 'bandage';
     return '';
   };
 
@@ -1320,7 +1320,7 @@ function TileCanvas({ dungeon, tiles, tool, selectedTile, spawnMode, spawnEntity
           const type = spawnEntityType || Object.keys(npcs)[0] || 'old_keeper';
           d.npcSpawns = [...d.npcSpawns, { type, x: cell.x, y: cell.y }];
         } else if (spawnMode === 'item') {
-          const type = spawnEntityType || Object.keys(items)[0] || 'health_potion';
+          const type = spawnEntityType || Object.keys(items)[0] || 'bandage';
           if (!d.itemSpawns) d.itemSpawns = [];
           d.itemSpawns = [...d.itemSpawns, { type, x: cell.x, y: cell.y }];
         } else if (spawnMode === 'exit') {
@@ -3622,7 +3622,7 @@ function MonsterPoolList({ pool, monsters, onChange }) {
 // ─── Item Pool List ──────────────────────────────────────────
 function ItemPoolList({ pool, items, onChange }) {
   const add = () => {
-    const firstType = Object.keys(items)[0] || 'health_potion';
+    const firstType = Object.keys(items)[0] || 'bandage';
     onChange([...pool, { type: firstType, weight: 1, max: 2 }]);
   };
 

@@ -9,8 +9,8 @@
 //   { type: "incrementFlag", flag: "name", amount: 1, scope: "player" }
 //   { type: "setDialogue",  npc: "npc_type", dialogueId: "post_crystal" }
 //   { type: "removeEntity", entityType: "npc"|"monster"|"item", entityId: "npc_old_keeper_0" }
-//   { type: "spawnItem",    itemType: "health_potion", x: 5, y: 3 }  // x/y optional; omit to drop at monster death pos
-//   { type: "giveItem",     itemType: "health_potion" }
+//   { type: "spawnItem",    itemType: "bandage", x: 5, y: 3 }  // x/y optional; omit to drop at monster death pos
+//   { type: "giveItem",     itemType: "bandage" }
 //   { type: "removeItem",   itemType: "iron_key" }
 //   { type: "equipItem",    itemType: "sol_unit" }
 //   { type: "showMessage",  text: "The door unlocks with a click." }
@@ -26,6 +26,8 @@
 //   { type: "craft" }  // opens crafting menu with available recipes from crafting.json
 //   { type: "shop",      shopId: "meridian_7_shop" }  // opens buy/sell menu from shops.json
 //   { type: "bankLoot" }  // banks all non-quest inventory items for expedition checkpoint (survives death)
+//   { type: "startSiege", challengeId: "lighthouse_siege" }  // starts cooperative siege challenge
+//   { type: "healPlayer" }  // restores player to full health
 
 const CONSTANTS = require('../../shared/constants');
 
@@ -127,6 +129,12 @@ class ActionExecutor {
         break;
       case 'bankLoot':
         this.doBankLoot(action, context);
+        break;
+      case 'startSiege':
+        this.doStartSiege(action, context);
+        break;
+      case 'healPlayer':
+        this.doHealPlayer(action, context);
         break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
@@ -762,6 +770,12 @@ class ActionExecutor {
       dialogue: [{ speaker: 'MERIDIAN-7', text: `Fabrication complete: ${resultDef.name}.` }],
     });
 
+    if (this.gameLoop && this.gameLoop.activityLog) {
+      this.gameLoop.activityLog.logById(context.playerId, 'craft', {
+        recipe: recipeId, result: recipe.result.itemType, room: context.roomId,
+      });
+    }
+
     return true;
   }
 
@@ -979,6 +993,12 @@ class ActionExecutor {
         dialogue: [{ speaker, text: `// FABRICATION COMPLETE // ${itemName} delivered // ${sellEntry.creditsCost} CREDITS DEDUCTED // Balance: ${player.credits} //` }],
       });
     }
+
+    if (this.gameLoop && this.gameLoop.activityLog) {
+      this.gameLoop.activityLog.logById(context.playerId, 'shop', {
+        shop: shopId, transaction: transactionValue, room: context.roomId,
+      });
+    }
   }
 
   // Bank loot: { type: "bankLoot" }
@@ -1044,6 +1064,7 @@ class ActionExecutor {
       bankedCount: toBankItems.length,
       totalBanked: allBanked.length,
       items: itemNames,
+      bankedItems: allBanked,
     });
     this.sendToPlayer(context.playerId, {
       type: CONSTANTS.MSG.DIALOGUE,
@@ -1051,6 +1072,66 @@ class ActionExecutor {
     });
 
     console.log(`[Actions] Player ${context.playerId} banked ${toBankItems.length} items (total: ${allBanked.length})`);
+  }
+
+  // Start a siege challenge: { type: "startSiege", challengeId: "lighthouse_siege" }
+  // Validates unlock conditions, cooldown, and player count, then transitions party to arena.
+  doStartSiege(action, context) {
+    if (!this.gameLoop) {
+      console.warn('[Actions] startSiege requires gameLoop reference');
+      return;
+    }
+    const challengeId = action.challengeId;
+    if (!challengeId) {
+      console.warn('[Actions] startSiege missing challengeId');
+      return;
+    }
+    const result = this.gameLoop.startSiege(context.playerId, challengeId);
+    if (!result) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.DIALOGUE,
+          dialogue: [{ speaker: 'System', text: 'You do not meet the requirements for this siege challenge.' }],
+        });
+      }
+      return;
+    }
+    if (result.onCooldown) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.DIALOGUE,
+          dialogue: [{ speaker: 'Siege Warden', text: `The lighthouse defenses are still recharging. Try again in ${result.hoursRemaining} hours.` }],
+        });
+      }
+      return;
+    }
+    if (result.insufficientPlayers) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.DIALOGUE,
+          dialogue: [{ speaker: 'Siege Warden', text: `This operation requires ${result.required} defenders. Only ${result.present} present in this area.` }],
+        });
+      }
+      return;
+    }
+    if (result.tooManyPlayers) {
+      if (this.sendToPlayer) {
+        this.sendToPlayer(context.playerId, {
+          type: CONSTANTS.MSG.DIALOGUE,
+          dialogue: [{ speaker: 'Siege Warden', text: `Maximum ${result.max} defenders allowed. ${result.present} are present — some must leave first.` }],
+        });
+      }
+      return;
+    }
+    // Queue transitions for all party members to the siege arena
+    const partyMembers = result.partyMembers || [context.playerId];
+    for (const pid of partyMembers) {
+      this.gameLoop.pendingTransitions.push({
+        playerId: pid,
+        fromRoom: context.roomId,
+        toDungeon: result.roomId,
+      });
+    }
   }
 
   // Start an expedition: { type: "startExpedition", tier: 1 }
@@ -1102,6 +1183,13 @@ class ActionExecutor {
         toDungeon: result.roomId,
       });
     }
+  }
+
+  doHealPlayer(action, context) {
+    const player = context.player;
+    if (!player) return;
+    if (player.health >= player.maxHealth) return;
+    player.health = player.maxHealth;
   }
 }
 

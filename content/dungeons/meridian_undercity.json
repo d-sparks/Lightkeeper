@@ -1,0 +1,315 @@
+{
+  "id": "meridian_undercity",
+  "name": "Undercity Warrens",
+  "depth": 0,
+  "tileset": "dark_city",
+  "theme": "undercity",
+  "tileSize": 32,
+  "width": 30,
+  "height": 20,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,6,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,3,
+    3,1,2,2,2,2,2,1,3,1,1,1,1,1,1,1,1,1,1,1,3,1,2,2,2,2,2,2,1,3,
+    3,1,2,2,2,2,2,1,3,1,1,1,1,1,1,1,1,1,1,1,3,1,2,2,2,2,2,2,1,3,
+    3,1,2,2,2,10,2,1,3,1,1,1,1,1,1,1,1,1,1,1,3,1,2,2,2,2,2,2,1,3,
+    3,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,9,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,12,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,7,7,7,7,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,3,
+    3,7,7,7,7,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,1,3,
+    3,1,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 13, "y": 18, "type": "player_start" },
+    { "x": 14, "y": 18, "type": "player_start" },
+    { "x": 15, "y": 18, "type": "player_start" },
+    { "x": 14, "y": 17, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "luddite_brawler", "x": 23, "y": 3 },
+    { "type": "luddite_brawler", "x": 25, "y": 4 },
+    { "type": "luddite_scrapper", "x": 6, "y": 14 },
+    { "type": "luddite_scrapper", "x": 23, "y": 13 },
+    { "type": "skeleton", "x": 5, "y": 11 }
+  ],
+  "npcSpawns": [
+    { "type": "fence_elara", "x": 3, "y": 3 }
+  ],
+  "itemSpawns": [
+    { "type": "iron_key", "x": 15, "y": 12 },
+    { "type": "supply_crate_key", "x": 25, "y": 2 },
+    { "type": "bandage", "x": 21, "y": 17 }
+  ],
+  "exits": [
+    { "x": 14, "y": 19, "leadsTo": "meridian_market", "type": "stairs_up", "spawnX": 14, "spawnY": 9 },
+    { "x": 14, "y": 0, "leadsTo": "meridian_undercity_deep", "type": "stairs_down", "spawnX": 14, "spawnY": 20 }
+  ],
+  "triggers": [
+    {
+      "id": "enter_undercity",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The air is different down here — stale, heavy with old stone and something chemical you can't quite identify. The Undercity Warrens.",
+          "A hidden network beneath Meridian, officially unacknowledged by the Council. Unofficially, everyone knows it exists.",
+          "A sign scratched into the wall near the entrance: DEEP ACCESS RESTRICTED — OUTPOST CLEARANCE REQUIRED. A sealed gate waits to the north."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "elara_first_meet",
+      "event": "npc_interacted",
+      "filter": { "npcType": "fence_elara" },
+      "conditions": [{ "not": { "hasFlag": "met_fence_elara" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "met_fence_elara" },
+        { "type": "grantXp", "amount": 10 },
+        { "type": "showChoice", "choiceId": "elara_questions", "prompt": "Elara studies you for a moment, then gives a slow nod. 'New face. Ask what you need to know.'", "options": [
+          { "label": "What's in the east wing?", "description": "The Luddite cell and what they're guarding.", "value": "ask_gang" },
+          { "label": "What's in the supply crate?", "description": "The locked crate in the corner of this room.", "value": "ask_crate" },
+          { "label": "How do I get through the sealed gate?", "description": "The Ring Authority checkpoint to the north.", "value": "ask_gate" },
+          { "label": "Nothing for now.", "description": "Move on.", "value": "nothing" }
+        ]}
+      ]
+    },
+    {
+      "id": "elara_answer_gang",
+      "event": "choice_made",
+      "filter": { "choiceId": "elara_questions", "value": "ask_gang" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Elara leans against the wall. 'Luddite hardliners. Eight to ten fighters — came through maintenance passages from the Nightside undercity about three months ago.'",
+          "'They took the east wing and nobody's moved them since. They're guarding something. I haven't been able to find out what, and I'm not in the business of finding out the hard way.'"
+        ]}
+      ]
+    },
+    {
+      "id": "elara_answer_crate",
+      "event": "choice_made",
+      "filter": { "choiceId": "elara_questions", "value": "ask_crate" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Elara glances at the supply crate in the corner. 'That came off a Meridian city convoy — the gang intercepted it. I intercepted it back, eventually, but they kept the key.'",
+          "'If you find the key in the east wing and come back here, the crate is yours to open. Consider it payment for clearing out the problem.'"
+        ]}
+      ]
+    },
+    {
+      "id": "elara_answer_gate",
+      "event": "choice_made",
+      "filter": { "choiceId": "elara_questions", "value": "ask_gate" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Elara shrugs. 'Ring Authority installation — old checkpoint from when the warrens were used for legitimate civil maintenance. Still keyed to Outpost Balor clearances.'",
+          "'If you've talked to Warden Holt up at the outpost, you've got the credentials. The gate reads biometrics somehow. Don't ask me how the old tech still works down here.'"
+        ]}
+      ]
+    },
+    {
+      "id": "elara_return",
+      "event": "npc_interacted",
+      "filter": { "npcType": "fence_elara" },
+      "conditions": [
+        { "hasFlag": "met_fence_elara" },
+        { "not": { "hasFlag": "luddite_gang_cleared" } }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "elara_return_chat", "prompt": "Elara looks up from her work. 'Back again.'", "options": [
+          { "label": "Anything new on the gang?", "description": "Latest Luddite intel.", "value": "gang_update" },
+          { "label": "The supply crate — remind me what's in it.", "description": "Contents hint.", "value": "crate_update" },
+          { "label": "Nothing right now.", "description": "Move on.", "value": "nothing" }
+        ]}
+      ]
+    },
+    {
+      "id": "elara_return_cleared",
+      "event": "npc_interacted",
+      "filter": { "npcType": "fence_elara" },
+      "conditions": [
+        { "hasFlag": "met_fence_elara" },
+        { "hasFlag": "luddite_gang_cleared" }
+      ],
+      "actions": [
+        { "type": "showChoice", "choiceId": "elara_shop_chat", "prompt": "Elara leans back, a rare look of ease on her face. 'You cleared the east wing. Means I can move stock again. Need anything?'", "options": [
+          { "label": "Browse wares.", "description": "See what Elara has for sale.", "value": "browse" },
+          { "label": "Anything else going on?", "description": "Talk.", "value": "talk" },
+          { "label": "Nothing right now.", "description": "Move on.", "value": "nothing" }
+        ]}
+      ]
+    },
+    {
+      "id": "elara_shop_open",
+      "event": "choice_made",
+      "filter": { "choiceId": "elara_shop_chat", "value": "browse" },
+      "actions": [
+        { "type": "shop", "shopId": "elara_fence_shop" }
+      ]
+    },
+    {
+      "id": "elara_shop_talk",
+      "event": "choice_made",
+      "filter": { "choiceId": "elara_shop_chat", "value": "talk" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Elara glances toward the sealed gate to the north. 'With the Luddites gone, the warrens are quiet for the first time in months.'",
+          "'I've got contacts deeper in. Supply chain runs slow down here — limited stock, but no Council markups, no questions about where you got it. Come back when you need something.'"
+        ]}
+      ]
+    },
+    {
+      "id": "elara_return_gang",
+      "event": "choice_made",
+      "filter": { "choiceId": "elara_return_chat", "value": "gang_update" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Elara shrugs. 'Still there. More disciplined than your average luddite cell — they've got the east wing locked down tight.'",
+          "'The iron key should work on the main door. If you've found it, that's your way in.'"
+        ]}
+      ]
+    },
+    {
+      "id": "elara_return_crate",
+      "event": "choice_made",
+      "filter": { "choiceId": "elara_return_chat", "value": "crate_update" },
+      "conditions": [{ "not": { "hasFlag": "undercity_crate_looted" } }],
+      "actions": [
+        { "type": "showMessage", "text": "Elara glances at the crate. 'Medical supplies. Sol grid modifier. City-grade, not frontier scrap. Find the supply crate key and it's yours.'" }
+      ]
+    },
+    {
+      "id": "elara_return_crate_after",
+      "event": "choice_made",
+      "filter": { "choiceId": "elara_return_chat", "value": "crate_update" },
+      "conditions": [{ "hasFlag": "undercity_crate_looted" }],
+      "actions": [
+        { "type": "showMessage", "text": "Elara glances at the empty crate. 'You already took it. We're square.'" }
+      ]
+    },
+
+    {
+      "id": "iron_key_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "iron_key" },
+      "actions": [
+        { "type": "showMessage", "text": "A worn iron key, bent but functional. It looks like it fits a reinforced door — the kind used in restricted sections." }
+      ],
+      "once": true
+    },
+    {
+      "id": "supply_crate_key_found",
+      "event": "item_picked_up",
+      "filter": { "itemType": "supply_crate_key" },
+      "conditions": [{ "not": { "hasFlag": "undercity_crate_looted" } }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A heavy-duty crate key, still attached to a Meridian supply chain tag. This fits the crate in Elara's den.",
+          "The gang had it hidden here — whatever was in that convoy, they didn't want anyone getting to it easily."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "supply_crate_opened",
+      "event": "door_interacted",
+      "filter": { "tileX": 5, "tileY": 4 },
+      "actions": [
+        { "type": "spawnItem", "itemType": "bandage" },
+        { "type": "spawnItem", "itemType": "bandage" },
+        { "type": "spawnItem", "itemType": "efficiency_core_chip" },
+        { "type": "grantXp", "amount": 20 },
+        { "type": "setFlag", "flag": "undercity_crate_looted" },
+        { "type": "showMessage", "lines": [
+          "The supply crate grinds open with a resonant clang. Inside, wrapped in protective cloth: medical supplies and a sol grid component — undamaged despite everything.",
+          "Elara was right. Worth the trip."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "undercity_track_brawler_kill",
+      "event": "monster_killed",
+      "filter": { "monsterType": "luddite_brawler" },
+      "conditions": [{ "not": { "hasFlag": "luddite_gang_cleared" } }],
+      "actions": [
+        { "type": "incrementFlag", "flag": "undercity_luddite_kills" }
+      ]
+    },
+    {
+      "id": "undercity_track_scrapper_kill",
+      "event": "monster_killed",
+      "filter": { "monsterType": "luddite_scrapper" },
+      "conditions": [{ "not": { "hasFlag": "luddite_gang_cleared" } }],
+      "actions": [
+        { "type": "incrementFlag", "flag": "undercity_luddite_kills" }
+      ]
+    },
+    {
+      "id": "undercity_gang_cleared",
+      "event": "monster_killed",
+      "conditions": [
+        { "flagGreaterThan": { "flag": "undercity_luddite_kills", "value": 3 } },
+        { "not": { "hasFlag": "luddite_gang_cleared" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "luddite_gang_cleared" },
+        { "type": "grantXp", "amount": 30 },
+        { "type": "showMessage", "lines": [
+          "The last Luddite goes down. The east wing is quiet.",
+          "Somewhere behind you, you hear Elara shift. 'That's the last of them. Good work.' A pause. 'Come find me when you're ready. I've got things to move now that the block is clear.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "post_shutdown_undercity",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_shutdown_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The warrens are different now. Without the Array's economic pressure above, some of the undercity's informal economy has relaxed — Elara's network has legitimate competitors on the surface.",
+          "But the passages are carrying more Unbounded traffic. People moving both ways, exchanging techniques in ways the Council can't easily track or stop."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_merge_undercity",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_merge_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The warrens have become a recognized transit corridor — the merger protocols established formal channels between the city above, the Unbounded below, and the Underlumen network deeper still.",
+          "Elara's operation has gone semi-legitimate. She still moves things, but now some of those things have official stamps on them."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "post_control_undercity",
+      "event": "room_entered",
+      "conditions": [{ "hasFlag": "ending_control_complete" }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Ring Authority patrols now check the access point above. The warrens are officially under Council jurisdiction.",
+          "Elara's corner is empty. The crate is gone. The undercity's informal network has gone either deeper or quiet — it's hard to tell which."
+        ]}
+      ],
+      "once": true
+    }
+  ]
+}

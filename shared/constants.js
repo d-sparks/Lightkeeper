@@ -60,6 +60,7 @@ const CONSTANTS = {
   // Combat
   MONSTER_AGGRO_RANGE: 8,    // Tiles distance to aggro
   MONSTER_COLLISION_RADIUS: 10,
+  MONSTER_MIN_SPAWN_SPACING: 2, // Minimum tiles apart for monster spawns
   PLAYER_ATTACK_RANGE: 1.5,  // Tiles distance for auto-attack
   PLAYER_ATTACK_DAMAGE: 15,
   PLAYER_ATTACK_COOLDOWN: 0.5, // Seconds between player attacks
@@ -114,6 +115,10 @@ const CONSTANTS = {
     // Automation (Server -> Client)
     AUTO_STATE: 'auto_state',
     AUTOMATION_MILESTONE: 'automation_milestone',
+    RAID_ALERT: 'raid_alert',
+    RAID_INCOMING: 'raid_incoming',
+    // Automation (Client -> Server)
+    RAID_DEFEND: 'raid_defend',
 
     // Map chunk streaming (Server -> Client)
     MAP_CHUNKS: 'map_chunks',
@@ -128,10 +133,24 @@ const CONSTANTS = {
     SESSION_LIST_RESPONSE: 'session_list_response',
     SESSION_DELETE_RESPONSE: 'session_delete_response',
 
+    // Player note (Client -> Server) — logged to activity log, not broadcast
+    PLAYER_NOTE: 'player_note',
+
     // Chat (Client -> Server)
     CHAT: 'chat',
     // Chat (Server -> Client)
     CHAT_BROADCAST: 'chat_broadcast',
+
+    // Siege / cooperative challenges
+    SIEGE_STATE: 'siege_state',       // Server -> Client
+    SIEGE_REPAIR: 'siege_repair',     // Client -> Server
+
+    // Weapon upgrades (Client -> Server)
+    WEAPON_UPGRADE_PLACE: 'weapon_upgrade_place',
+    WEAPON_UPGRADE_REMOVE: 'weapon_upgrade_remove',
+    WEAPON_DISASSEMBLE: 'weapon_disassemble',
+    // Weapon upgrades (Server -> Client)
+    WEAPON_UPGRADE_STATE: 'weapon_upgrade_state',
 
     // Bidirectional
     SOL_GRID_MOVE: 'sol_grid_move',

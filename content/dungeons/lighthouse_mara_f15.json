@@ -1,0 +1,654 @@
+{
+  "id": "lighthouse_mara_f15",
+  "name": "Maintenance Corridors — Lighthouse Mara",
+  "depth": 15,
+  "tileset": "frost_crypt",
+  "theme": "frozen_cavern",
+  "tileSize": 32,
+  "ambientLight": 0.03,
+  "environmentalHazard": {
+    "type": "cold",
+    "damage": 3,
+    "interval": 2
+  },
+  "width": 22,
+  "height": 16,
+  "data": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    21,
+    8,
+    21,
+    21,
+    21,
+    21,
+    18,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    10,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    4,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    18,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    3,
+    4,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    22,
+    21,
+    21,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    4,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    22,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    3,
+    3,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    6,
+    21,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+  ],
+  "spawns": [
+    {
+      "x": 2,
+      "y": 2,
+      "type": "player_start"
+    },
+    {
+      "x": 3,
+      "y": 2,
+      "type": "player_start"
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "type": "player_start"
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "type": "player_start"
+    }
+  ],
+  "monsterSpawns": [
+    {
+      "type": "frost_warden",
+      "x": 10,
+      "y": 2,
+      "count": 1,
+      "patrol": "patrol",
+      "patrolPath": [
+        {
+          "x": 3,
+          "y": 1
+        },
+        {
+          "x": 18,
+          "y": 1
+        },
+        {
+          "x": 18,
+          "y": 2
+        },
+        {
+          "x": 3,
+          "y": 2
+        }
+      ]
+    },
+    {
+      "type": "frost_revenant",
+      "x": 5,
+      "y": 6,
+      "count": 1,
+      "patrol": "patrol",
+      "patrolPath": [
+        {
+          "x": 3,
+          "y": 5
+        },
+        {
+          "x": 9,
+          "y": 5
+        },
+        {
+          "x": 9,
+          "y": 6
+        },
+        {
+          "x": 3,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "type": "shade_stalker",
+      "x": 15,
+      "y": 6,
+      "count": 1,
+      "patrol": "guard"
+    },
+    {
+      "type": "gloom_wraith",
+      "x": 5,
+      "y": 10,
+      "count": 1,
+      "patrol": "guard"
+    },
+    {
+      "type": "frost_revenant",
+      "x": 15,
+      "y": 10,
+      "count": 1,
+      "patrol": "patrol",
+      "patrolPath": [
+        {
+          "x": 12,
+          "y": 9
+        },
+        {
+          "x": 18,
+          "y": 9
+        },
+        {
+          "x": 18,
+          "y": 10
+        },
+        {
+          "x": 12,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "type": "shade_stalker",
+      "x": 10,
+      "y": 13,
+      "count": 1,
+      "patrol": "patrol",
+      "patrolPath": [
+        {
+          "x": 3,
+          "y": 13
+        },
+        {
+          "x": 18,
+          "y": 13
+        },
+        {
+          "x": 18,
+          "y": 14
+        },
+        {
+          "x": 3,
+          "y": 14
+        }
+      ]
+    }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    {
+      "type": "frost_salve",
+      "x": 5,
+      "y": 2
+    },
+    {
+      "type": "frost_salve",
+      "x": 5,
+      "y": 13
+    },
+    {
+      "type": "reinforced_battery_chip",
+      "x": 5,
+      "y": 14
+    },
+    {
+      "type": "field_medkit",
+      "x": 15,
+      "y": 2
+    },
+    {
+      "type": "field_medkit",
+      "x": 16,
+      "y": 2
+    },
+    {
+      "type": "frost_salve",
+      "x": 15,
+      "y": 13
+    },
+    {
+      "type": "bandage",
+      "x": 16,
+      "y": 13
+    }
+  ],
+  "exits": [
+    {
+      "x": 2,
+      "y": 1,
+      "leadsTo": "lighthouse_mara_f14",
+      "type": "stairs_up",
+      "spawnX": 19,
+      "spawnY": 13
+    },
+    {
+      "x": 19,
+      "y": 14,
+      "leadsTo": "lighthouse_mara_f16",
+      "type": "stairs_down",
+      "spawnX": 2,
+      "spawnY": 2
+    }
+  ],
+  "triggers": [
+    {
+      "id": "f15_enter",
+      "event": "room_entered",
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "Maintenance corridors stretch in a grid pattern — this was the lighthouse's service infrastructure, designed for engineering crews that haven't walked these halls in years.",
+            "Ice has crept through every crack, freezing the doors and coating the walls. Emergency lighting still pulses faintly behind the frost."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "f15_chest",
+      "event": "door_interacted",
+      "filter": {
+        "tileName": "chest_closed"
+      },
+      "actions": [
+        {
+          "type": "rollLootTable",
+          "lootTable": "frost_biome_rare"
+        }
+      ]
+    },
+    {
+      "id": "f15_survey_camp",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_survey_camp_found" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_survey_camp_found", "scope": "player" },
+        {
+          "type": "showMessage",
+          "lines": [
+            "An abandoned survey camp in the corridor junction — portable equipment, thermal blankets, sealed ration packs. The team left in a hurry but took time to cache supplies.",
+            "A note pinned to the wall reads: \"Patel's team. Seismic readings off the charts. Evacuating to surface. If you're reading this, DON'T GO DEEPER. Whatever is down there is still active.\""
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "f15_machinery_1",
+      "event": "door_interacted",
+      "filter": {
+        "tileX": 7,
+        "tileY": 1
+      },
+      "actions": [
+        {
+          "type": "showMessage",
+          "text": "A maintenance log terminal. Last entry: \"Foundation stress sensors triggered at 0247. All readings below Level 3 showing progressive deformation. Chief Engineer Patel ordered full evacuation of sub-basement levels. Nobody argued.\""
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "f15_machinery_2",
+      "event": "door_interacted",
+      "filter": {
+        "tileX": 14,
+        "tileY": 5
+      },
+      "actions": [
+        {
+          "type": "showMessage",
+          "text": "A frozen monitoring station. The seismograph trace is still visible on the display — a steady 4.7-second pulse, each peak slightly higher than the last. The trace ends when the stylus ran off the top of the chart."
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "mark_lighthouse_mara_f15_visited",
+      "event": "room_entered",
+      "actions": [
+        {
+          "type": "setFlag",
+          "flag": "visited_lighthouse_mara_f15",
+          "scope": "player"
+        }
+      ],
+      "once": true
+    }
+  ],
+  "sim_passthrough": true
+}

@@ -226,6 +226,12 @@
       "solid": true,
       "destructible": true,
       "destroysTo": 2
+    },
+    "40": {
+      "name": "junction_box_a",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 40
     }
   }
 }

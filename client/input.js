@@ -42,6 +42,9 @@ class InputHandler {
     this.chatActive = false;
     this.onChatOpen = null;   // () => void — open chat input
     this.onChatClose = null;  // () => void — close chat input
+    this.noteActive = false;
+    this.onNoteOpen = null;   // () => void — open note input
+    this.onNoteClose = null;  // () => void — close note input
 
     // Diablo-style ability selection
     this.selectedAbility = 2;  // right-click defaults to slot 2
@@ -110,6 +113,22 @@ class InputHandler {
 
   onKeyDown(e) {
     if (!this.active) return;
+
+    // Note input is focused — let it handle keys, only intercept Escape
+    if (this.noteActive) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        if (this.onNoteClose) this.onNoteClose();
+      }
+      return;
+    }
+
+    // Ctrl+Enter → open note input
+    if (e.key === 'Enter' && e.ctrlKey) {
+      e.preventDefault();
+      if (this.onNoteOpen) this.onNoteOpen();
+      return;
+    }
 
     // Chat input is focused — let it handle keys, only intercept Escape/Enter
     if (this.chatActive) {

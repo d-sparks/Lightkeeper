@@ -20,6 +20,8 @@ class ContentLoader {
     this.affixes = {};
     this.crafting = {};
     this.shops = {};
+    this.challenges = {};
+    this.spireReplays = null;
     this.worldmap = null;
     this.settings = {};
   }
@@ -42,6 +44,8 @@ class ContentLoader {
     this.loadAffixes();
     this.loadCrafting();
     this.loadShops();
+    this.loadChallenges();
+    this.loadSpireReplays();
     this.loadWorldmap();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
@@ -56,7 +60,8 @@ class ContentLoader {
                 `${Object.keys(this.expeditions).length} expedition(s), ` +
                 `${Object.keys(this.affixes).length} affix(es), ` +
                 `${Object.keys(this.crafting).length} crafting recipe(s), ` +
-                `${Object.keys(this.shops).length} shop(s)`);
+                `${Object.keys(this.shops).length} shop(s), ` +
+                `${Object.keys(this.challenges).length} challenge(s)`);
   }
 
   loadJSON(filePath) {
@@ -80,6 +85,10 @@ class ContentLoader {
 
   getSpawnRoom() {
     return this.settings.spawnRoom || null;
+  }
+
+  getWaypoints() {
+    return this.settings.waypoints || [];
   }
 
   loadDungeons() {
@@ -333,6 +342,60 @@ class ContentLoader {
 
   getShop(id) {
     return this.shops[id] || null;
+  }
+
+  loadChallenges() {
+    const dir = path.join(this.contentDir, 'challenges');
+    if (!fs.existsSync(dir)) return;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.json')) continue;
+      const data = this.loadJSON(path.join(dir, file));
+      if (!data.id) continue;
+      this.challenges[data.id] = data;
+      console.log(`[Content]   Challenge: ${data.id} (${data.displayName})`);
+    }
+  }
+
+  getChallenge(id) {
+    return this.challenges[id] || null;
+  }
+
+  getAllChallenges() {
+    return this.challenges;
+  }
+
+  loadSpireReplays() {
+    const filePath = path.join(this.contentDir, 'spire_replays.json');
+    if (!fs.existsSync(filePath)) {
+      this.spireReplays = null;
+      return;
+    }
+    this.spireReplays = this.loadJSON(filePath);
+    // Build a lookup: dungeonId -> spire config for fast inner-floor checks
+    this._spireInnerFloors = {};
+    if (this.spireReplays && this.spireReplays.spires) {
+      for (const [spireKey, spire] of Object.entries(this.spireReplays.spires)) {
+        for (const floorId of spire.innerFloors) {
+          this._spireInnerFloors[floorId] = { spireKey, ...spire };
+        }
+      }
+    }
+    const spireCount = this.spireReplays && this.spireReplays.spires
+      ? Object.keys(this.spireReplays.spires).length : 0;
+    console.log(`[Content]   Spire replays: ${spireCount} spires configured`);
+  }
+
+  getSpireReplays() {
+    return this.spireReplays;
+  }
+
+  getSpireReplayForFloor(dungeonId) {
+    return this._spireInnerFloors ? this._spireInnerFloors[dungeonId] || null : null;
+  }
+
+  getSpireReplayTier(tierId) {
+    return this.spireReplays && this.spireReplays.tiers
+      ? this.spireReplays.tiers[tierId] || null : null;
   }
 
   loadLootTables() {

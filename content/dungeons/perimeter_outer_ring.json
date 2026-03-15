@@ -66,10 +66,13 @@
       "id": "outer_ring_enter",
       "event": "room_entered",
       "actions": [
+        { "type": "setFlag", "flag": "visited_outer_ring" },
         { "type": "showMessage", "lines": [
           "The darkness here is absolute. Broken floodlights hang from twisted poles, their glass long shattered.",
-          "Crumbling concrete barriers line what was once a fortified perimeter. Now it's overrun."
-        ]}
+          "Crumbling concrete barriers line what was once a fortified perimeter. Now it's overrun.",
+          "Three passages lead out: south back to the perimeter gate, northeast toward a collapsed breach, and west to an old relay station. Each one could hold something worth finding."
+        ]},
+        { "type": "grantXp", "amount": 20 }
       ],
       "once": true
     },
@@ -90,7 +93,8 @@
         { "type": "showMessage", "lines": [
           "A half-burned notebook found near a collapsed floodlight tower. The surviving pages contain obsessive diagrams of the Lighthouse network.",
           "'The spacing is too regular. I checked three times. Every Lighthouse is exactly the same distance from its neighbors — not approximately, EXACTLY.'",
-          "'No human surveyor is that precise. These weren't placed by engineers. They were placed by something that thinks in grids.'"
+          "'No human surveyor is that precise. These weren't placed by engineers. They were placed by something that thinks in grids.'",
+          "The Old Keeper at Outpost Balor studies the Lighthouse network. He'd want to see this."
         ]}
       ],
       "once": true

@@ -30,7 +30,7 @@
       "label": "Defeat the Warlord",
       "description": "Descend to the deepest level of the quarantine wing and defeat the luddite warlord.",
       "prerequisiteSteps": ["talk_to_engineer"],
-      "objective": { "roomId": "proc_quarantine", "depth": 3, "targetMonster": "luddite_warlord" },
+      "objective": { "roomId": "proc_quarantine", "depth": 3, "targetMonster": "quarantine_warlord" },
       "completionConditions": [{ "hasItem": "supply_crate_key" }],
       "completionActions": [{ "type": "grantXp", "amount": 40 }]
     },
@@ -114,10 +114,50 @@
       "completionConditions": [{ "hasFlag": "junction_cleared" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
     },
+    "yara_lighthouse_briefing": {
+      "label": "Talk to Tech Yara About the Power Grid",
+      "description": "The junction is cleared, but something's still blocking the transit line. Return to Tech Yara at the train station — she'll know what's holding up power.",
+      "prerequisiteSteps": ["clear_junction_box"],
+      "objective": { "roomId": "train_station", "targetNpc": "station_tech_yara" },
+      "completionConditions": [{ "hasFlag": "yara_lighthouse_briefed" }],
+      "completionActions": [{ "type": "grantXp", "amount": 10 }]
+    },
+    "enter_lighthouse_mara": {
+      "label": "Enter Lighthouse Mara",
+      "description": "The transit line runs on Lighthouse Mara's power grid — and that grid is dead. Find the entrance to Lighthouse Mara beyond the outpost perimeter and descend into the caverns below.",
+      "prerequisiteSteps": ["yara_lighthouse_briefing"],
+      "objective": { "roomId": "lighthouse_mara_caverns" },
+      "completionConditions": [{ "hasFlag": "visited_mara_caverns" }],
+      "completionActions": [{ "type": "grantXp", "amount": 20 }]
+    },
+    "reach_deep_tower": {
+      "label": "Descend to the Deep Tower",
+      "description": "Push deeper into the frozen caverns beneath Lighthouse Mara. A supply runner operates a cache around the tenth floor.",
+      "prerequisiteSteps": ["enter_lighthouse_mara"],
+      "objective": { "roomId": "lighthouse_mara_f10" },
+      "completionConditions": [{ "hasFlag": "visited_lighthouse_mara_f10" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
+    "reach_sub_basement": {
+      "label": "Reach the Sub-Basement",
+      "description": "Continue past the nesting grounds into the lighthouse's abandoned maintenance infrastructure.",
+      "prerequisiteSteps": ["reach_deep_tower"],
+      "objective": { "roomId": "lighthouse_mara_f15" },
+      "completionConditions": [{ "hasFlag": "visited_lighthouse_mara_f15" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
+    "restore_lighthouse_core": {
+      "label": "Restore Lighthouse Mara's Power Core",
+      "description": "Descend through the conduit halls and the breach. Reach the power core, reactivate the conduits, and clear whatever is keeping the grid offline.",
+      "prerequisiteSteps": ["reach_sub_basement"],
+      "objective": { "roomId": "lighthouse_mara_core" },
+      "completionConditions": [{ "hasFlag": "lighthouse_mara_restored" }],
+      "completionActions": [{ "type": "grantXp", "amount": 50 }]
+    },
     "get_transit_pass": {
       "label": "Collect Your Transit Pass",
-      "description": "Return to Tech Yara — the junction is clear and she owes you a Transit Pass.",
-      "prerequisiteSteps": ["clear_junction_box"],
+      "description": "Lighthouse Mara is back online and the transit line is live. Return to Tech Yara at the train station to collect your Transit Pass.",
+      "prerequisiteSteps": ["restore_lighthouse_core"],
       "objective": { "roomId": "train_station", "targetNpc": "station_tech_yara" },
       "completionConditions": [{ "hasFlag": "has_transit_pass" }],
       "completionActions": [{ "type": "grantXp", "amount": 25 }]
@@ -146,48 +186,101 @@
       "completionConditions": [{ "hasFlag": "has_yard_deed" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
     },
+    "visit_salvage_yard": {
+      "label": "Visit Your Salvage Yard",
+      "description": "Head northeast from the Civic Center to the East Terrace and inspect Lot 7 — your new salvage yard. Meet the neighbors and start building your solar infrastructure.",
+      "prerequisiteSteps": ["visit_civic_center"],
+      "objective": { "roomId": "salvage_yard", "targetNpc": "neighbor_sera" },
+      "completionConditions": [{ "hasFlag": "sera_first_meeting" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
     "visit_workshop": {
       "label": "Visit the Workshop District",
       "description": "Head west from the station to the Workshop District and meet Master Crafter Yun.",
-      "prerequisiteSteps": ["visit_civic_center"],
+      "prerequisiteSteps": ["visit_salvage_yard"],
       "objective": { "roomId": "meridian_workshop", "targetNpc": "crafter_yun" },
       "completionConditions": [{ "hasFlag": "met_crafter_yun" }],
       "completionActions": [{ "type": "grantXp", "amount": 30 }]
     },
-    "explore_dayside": {
-      "label": "Explore the Dayside Solar Fields",
-      "description": "Yun says the Array controls the dayside — automated harvesters, solar panels, all of it. Visit the Dayside Solar Fields through the Array Hub to see the Array's infrastructure firsthand.",
+    "clear_spire_vigil": {
+      "label": "Clear the Spire of Vigil",
+      "description": "Ancient technology in the Nightside is connected to the Lighthouses. Return to the Nightside and clear the Spire of Vigil to understand the threat.",
       "prerequisiteSteps": ["visit_workshop"],
+      "objective": { "roomId": "spire_vigil_core" },
+      "completionConditions": [{ "hasFlag": "spire_vigil_cleared" }],
+      "completionActions": [{ "type": "grantXp", "amount": 50 }]
+    },
+    "report_to_asha": {
+      "label": "Report to Councillor Asha Denn",
+      "description": "Your findings in the Spire have shaken the Council. Report to Councillor Asha Denn at the Civic Center — the political situation in Meridian is deteriorating.",
+      "prerequisiteSteps": ["clear_spire_vigil"],
+      "objective": { "roomId": "meridian_civic", "targetNpc": "councillor_asha" },
+      "completionConditions": [{ "hasFlag": "asha_briefed_on_spire" }],
+      "completionActions": [{ "type": "grantXp", "amount": 25 }]
+    },
+    "enter_greenway": {
+      "label": "Investigate the Greenway",
+      "description": "The Compact has seized the Monument of Winds under emergency authority. The Bulwark has locked down the Greenway. Pass through the checkpoint east of the Civic Center to investigate.",
+      "prerequisiteSteps": ["report_to_asha"],
+      "objective": { "roomId": "greenway_checkpoint" },
+      "completionConditions": [{ "hasFlag": "visited_greenway_checkpoint" }],
+      "completionActions": [{ "type": "grantXp", "amount": 30 }]
+    },
+    "greenway_operations": {
+      "label": "Disrupt Bulwark Supply Lines",
+      "description": "The Bulwark is requisitioning supplies from Greenway settlements. Find Councillor Asha Denn at the Greenway settlement and help disrupt the Compact's supply lines.",
+      "prerequisiteSteps": ["enter_greenway"],
+      "objective": { "roomId": "greenway_settlement", "targetNpc": "councillor_asha_denn" },
+      "completionConditions": [{ "hasFlag": "supply_sabotage_complete" }],
+      "completionActions": [{ "type": "grantXp", "amount": 40 }]
+    },
+    "assault_monument": {
+      "label": "Assault the Monument of Winds",
+      "description": "The Compact's grip on the Monument must be broken. Fight through the Bulwark fortress and defeat General Thorne to reach the Spire's core.",
+      "prerequisiteSteps": ["greenway_operations"],
+      "objective": { "roomId": "spire_winds_fortress", "targetMonster": "bulwark_general_thorne" },
+      "completionConditions": [{ "hasFlag": "general_thorne_defeated" }],
+      "completionActions": [{ "type": "grantXp", "amount": 60 }]
+    },
+    "explore_dayside": {
+      "label": "Cross into the Dayside",
+      "description": "The Deep Array has withdrawn from Ring-facing systems. MERIDIAN-7 is offline. The Council has authorized what no one has attempted in living memory: a Lightkeeper expedition into the Dayside. Cross through the solar fields and survive the heat.",
+      "prerequisiteSteps": ["assault_monument"],
       "objective": { "roomId": "dayside_solar_fields" },
       "completionConditions": [{ "hasFlag": "visited_dayside" }],
       "completionActions": [{ "type": "grantXp", "amount": 40 }]
     },
     "discover_array_secret": {
-      "label": "Discover the Array's Secret",
-      "description": "MERIDIAN-7 trades umbracite for infrastructure, but something deeper is going on. Find the Array Deep Processing center and uncover what the Array doesn't want you to see.",
+      "label": "Investigate Array Deep Processing",
+      "description": "Push deeper into Array territory. The Deep Array has been processing umbrasite for centuries — find out what it's really building. Reach the Array Deep Processing facility and uncover the truth.",
       "prerequisiteSteps": ["explore_dayside"],
       "objective": { "roomId": "array_deep_processing" },
       "completionConditions": [{ "hasFlag": "array_secret_discovered" }],
       "completionActions": [{ "type": "grantXp", "amount": 50 }]
     },
     "build_alliance": {
-      "label": "Rally Sable and Confront MERIDIAN-7",
-      "description": "The Array's secret changes everything. Warn Sable about what you found in the residential quarter, then confront MERIDIAN-7 at the Array Hub.",
+      "label": "Rally the Coalition",
+      "description": "Return to Meridian with proof of the Deep Array's true purpose. Councillor Asha Denn and whatever remains of MERIDIAN-7 must coordinate a plan to reach the Dayside Spire before the Deep Array completes its work.",
       "prerequisiteSteps": ["discover_array_secret"],
-      "objective": { "roomId": "meridian_residential", "targetNpc": "sable_meridian" },
-      "completionConditions": [
-        { "hasFlag": "sable_warned_about_array" },
-        { "hasFlag": "confronted_meridian_7" }
-      ],
+      "objective": { "roomId": "meridian_civic", "targetNpc": "councillor_asha" },
+      "completionConditions": [{ "hasFlag": "expedition_authorized" }],
       "completionActions": [{ "type": "grantXp", "amount": 40 }]
     },
     "forge_expedition": {
-      "label": "Forge the Nightside Expedition",
-      "description": "With Sable warned and MERIDIAN-7 confronted, speak to Councillor Asha Denn at the Civic Center. She's assembling a joint expedition into the deep Nightside.",
+      "label": "Assault the Spire of Radiance",
+      "description": "The Dayside Spire has been under Deep Array control for centuries. Lead the expedition through Array defenses and reach the Spire's outer perimeter. The third and final Spire awaits.",
       "prerequisiteSteps": ["build_alliance"],
-      "objective": { "roomId": "meridian_civic", "targetNpc": "councillor_asha" },
-      "completionConditions": [{ "hasFlag": "act3_asha_alliance_activated" }],
+      "objective": { "roomId": "spire_radiance_approach" },
+      "completionConditions": [{ "hasFlag": "visited_spire_radiance_core" }],
       "completionActions": [{ "type": "grantXp", "amount": 60 }]
+    },
+    "ending_choice": {
+      "label": "The Reckoning",
+      "description": "All three Spires are active. The Deep Array's central intelligence is the network itself. Sever, restore, or subsume — the choice that will determine the fate of Erith's infrastructure rests with you.",
+      "prerequisiteSteps": ["forge_expedition"],
+      "objective": { "roomId": "spire_radiance_core" },
+      "completionConditions": [{ "hasFlag": "photonic_pulse_unlocked" }],
+      "completionActions": [{ "type": "grantXp", "amount": 100 }]
     }
   },
   "startStep": "talk_to_warden"

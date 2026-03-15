@@ -6,9 +6,11 @@ const CONSTANTS = require('../shared/constants');
 class Automation {
   constructor(content) {
     this.content = content;
+    this.flagStore = null; // injected after construction (set by game-loop.js)
     this.playerStates = new Map(); // playerId -> AutoState
     this._gridConfig = null;         // computed 12x12 grid config (blocked cells, etc.)
     this._gridConfigExpanded = null; // computed 16x16 grid config (unlocked at level 6)
+    this._gridConfigTier2 = null;    // computed 20x20 grid config (unlocked at level 12)
   }
 
   // Get or create automation state for a player
@@ -20,7 +22,12 @@ class Automation {
         productionTimers: {},     // structureId -> seconds accumulated
         replicationTimers: {},    // structureId -> seconds accumulated (for self-replicating structures)
         claimedMilestones: [],    // indices of milestones already claimed
-        gridExpanded: false,      // true once player reaches automation level 6 (20 structures)
+        gridExpandedTier: 0,      // 0=12x12, 1=16x16 (level 6), 2=20x20 (level 12)
+        structureHp: {},          // "structureId:x:y" -> current HP (0 = destroyed)
+        raidTimer: 0,             // seconds since last raid check
+        repairTimer: 0,           // seconds since last repair tick
+        lastRaidResult: null,     // last raid outcome for client display
+        pendingRaid: null,        // pending raid awaiting player defense decision
         stats: {
           totalSalvageProduced: 0,
           totalSalvageSpent: 0,
@@ -103,6 +110,17 @@ class Automation {
     return level;
   }
 
+  // Get the path-based cost multiplier from player flags.
+  // Shutdown path: +50% cost (infrastructure degraded, Array offline).
+  // Control path: -25% cost (full Array access, optimized logistics).
+  // Merge path / no path: no modifier.
+  _getPathCostMultiplier(playerFlags) {
+    if (!playerFlags) return 1.0;
+    if (playerFlags['chose_path_shutdown']) return 1.5;
+    if (playerFlags['chose_path_control']) return 0.75;
+    return 1.0;
+  }
+
   // Build a structure at a grid position (returns true if successful)
   // gridX and gridY are required — every placement needs a position on the grid.
   // playerFlags: optional object of { flagName: value } for requiresFlag checks.
@@ -133,7 +151,13 @@ class Automation {
     if (this.isCellBlocked(playerId, gridX, gridY)) return false;
     if (this.isCellOccupied(playerId, gridX, gridY)) return false;
 
-    if (!this.spendResources(playerId, def.cost)) return false;
+    // Apply path-based cost modifier (shutdown +50%, control -25%)
+    const costMultiplier = this._getPathCostMultiplier(playerFlags);
+    const scaledCost = {};
+    for (const [resource, amount] of Object.entries(def.cost)) {
+      scaledCost[resource] = Math.ceil(amount * costMultiplier);
+    }
+    if (!this.spendResources(playerId, scaledCost)) return false;
 
     structData.count += 1;
     structData.placements.push({ x: gridX, y: gridY });
@@ -321,6 +345,23 @@ class Automation {
     return rating;
   }
 
+  // Get total auto-repair rate from array_drone_bay structures (repairs per hour)
+  getRepairRate(playerId) {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    const state = this.getState(playerId);
+    let repairsPerHour = 0;
+
+    for (const [structureId, structData] of Object.entries(state.structures)) {
+      const count = typeof structData === 'object' ? structData.count : structData;
+      if (count <= 0) continue;
+      const def = structures[structureId];
+      if (!def || !def.effect || def.effect.type !== 'structure_repair') continue;
+      repairsPerHour += def.effect.repairRate * count * (3600 / def.effect.intervalSeconds);
+    }
+
+    return repairsPerHour;
+  }
+
   // Grant a structure for free (used by scripting actions)
   grantStructure(playerId, structureId, gridX, gridY) {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
@@ -369,7 +410,7 @@ class Automation {
   checkMilestones(playerId) {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
     const milestones = structures._milestoneRewards || [];
-    const expandedCfg = structures._gridConfigExpanded;
+    const gridExpansions = structures._gridExpansions || [];
     const state = this.getState(playerId);
     if (!state.claimedMilestones) state.claimedMilestones = [];
 
@@ -387,10 +428,20 @@ class Automation {
         const m = milestones[i];
         newRewards.push({ type: 'item', itemId: m.itemId, count: m.count || 1, milestoneName: m.name, milestoneThreshold: m.threshold, milestoneIcon: m.icon || '★' });
 
-        // At the Grid Expansion threshold (20 structures / automation level 6), expand grid to 16x16
-        if (expandedCfg && m.threshold === 20) {
-          state.gridExpanded = true;
-          newRewards.push({ type: 'grid_expansion', newWidth: expandedCfg.gridWidth, newHeight: expandedCfg.gridHeight, milestoneName: 'Grid Expansion', milestoneThreshold: m.threshold, milestoneIcon: '⊞' });
+        // Check data-driven grid expansions at this threshold
+        for (let tier = 0; tier < gridExpansions.length; tier++) {
+          const ge = gridExpansions[tier];
+          if (m.threshold === ge.threshold && state.gridExpandedTier <= tier) {
+            const cfg = structures[ge.configKey];
+            if (cfg) {
+              state.gridExpandedTier = tier + 1;
+              // Invalidate cached grid configs so the new tier is recomputed
+              this._gridConfig = null;
+              this._gridConfigExpanded = null;
+              this._gridConfigTier2 = null;
+              newRewards.push({ type: 'grid_expansion', newWidth: cfg.gridWidth, newHeight: cfg.gridHeight, milestoneName: 'Grid Expansion', milestoneThreshold: m.threshold, milestoneIcon: '⊞' });
+            }
+          }
         }
       }
     }
@@ -417,10 +468,15 @@ class Automation {
   getGridConfig(playerId) {
     const structures = this.content.getStructures ? this.content.getStructures() : {};
 
-    // Determine which config spec to use for this player
-    const useExpanded = playerId && this.playerStates.has(playerId) && this.playerStates.get(playerId).gridExpanded;
-    const cfgKey = useExpanded ? '_gridConfigExpanded' : '_gridConfig';
-    const cacheKey = useExpanded ? '_gridConfigExpanded' : '_gridConfig';
+    // Determine which config spec to use for this player based on expansion tier
+    const tier = (playerId && this.playerStates.has(playerId)) ? (this.playerStates.get(playerId).gridExpandedTier || 0) : 0;
+    const gridExpansions = structures._gridExpansions || [];
+    let cfgKey = '_gridConfig';
+    let cacheKey = '_gridConfig';
+    if (tier > 0 && tier <= gridExpansions.length) {
+      cfgKey = gridExpansions[tier - 1].configKey;
+      cacheKey = cfgKey;
+    }
 
     if (this[cacheKey]) return this[cacheKey];
 
@@ -486,9 +542,22 @@ class Automation {
     return placements;
   }
 
+  // Build the path-flag map for a player from the injected flagStore.
+  // Falls back to an empty object if flagStore is not yet wired up.
+  _getPathFlags(playerId) {
+    if (!this.flagStore) return {};
+    return {
+      chose_path_shutdown: this.flagStore.getPlayerFlag(playerId, 'chose_path_shutdown'),
+      chose_path_merge: this.flagStore.getPlayerFlag(playerId, 'chose_path_merge'),
+      chose_path_control: this.flagStore.getPlayerFlag(playerId, 'chose_path_control'),
+    };
+  }
+
   // Get state formatted for client.
   // playerFlags: optional { flagName: value } map; used to mark path-gated structures as locked.
+  // When omitted the method looks them up from this.flagStore automatically.
   getStateForClient(playerId, playerFlags) {
+    const resolvedFlags = playerFlags !== undefined ? playerFlags : this._getPathFlags(playerId);
     const state = this.getState(playerId);
     const structures = this.content.getStructures ? this.content.getStructures() : {};
     const config = this.getGridConfig(playerId);
@@ -508,6 +577,9 @@ class Automation {
       if (totalStructures >= levels[i].threshold) automationLevel = i + 1;
     }
 
+    // Path cost multiplier for displaying accurate build costs to the client
+    const costMultiplier = this._getPathCostMultiplier(resolvedFlags);
+
     for (const [id, def] of Object.entries(structures)) {
       if (id.startsWith('_')) continue; // skip meta keys
       const structData = state.structures[id] || { count: 0, placements: [] };
@@ -515,13 +587,19 @@ class Automation {
 
       // A structure is locked if: unlock level not met, OR requires a path flag the player lacks.
       const levelLocked = def.unlockLevel ? automationLevel < def.unlockLevel : false;
-      const flagLocked = def.requiresFlag && playerFlags ? !playerFlags[def.requiresFlag] : false;
+      const flagLocked = def.requiresFlag ? !resolvedFlags[def.requiresFlag] : false;
+
+      // Scale displayed cost by path modifier so the UI shows the actual price
+      const scaledCost = {};
+      for (const [resource, amount] of Object.entries(def.cost)) {
+        scaledCost[resource] = Math.ceil(amount * costMultiplier);
+      }
 
       structureList.push({
         id,
         name: def.name,
         description: def.description,
-        cost: def.cost,
+        cost: scaledCost,
         maxCount: def.maxCount || 0,
         count,
         gridIcon: def.gridIcon || '?',
@@ -584,6 +662,9 @@ class Automation {
       if (def.effect.type === 'defense_value') {
         defenseRating += def.effect.amount * count;
       }
+      if (def.effect.type === 'structure_repair') {
+        // repairRate is summed separately via getRepairRate() and included in stats below
+      }
       if (def.effect.type === 'dual_production' && Array.isArray(def.effect.produces)) {
         for (const sub of def.effect.produces) {
           if (sub.type === 'resource_production') {
@@ -631,8 +712,27 @@ class Automation {
         automationProgress,
         nextThreshold,
         totalStructures,
+        repairRate: this.getRepairRate(playerId),
+        pathCostMultiplier: costMultiplier,
       },
     };
+
+    // Include structure HP for placed structures
+    const raidCfg = this._getRaidConfig();
+    if (raidCfg) {
+      const structureHpList = [];
+      for (const [structureId, structData] of Object.entries(state.structures)) {
+        if (!structData || !structData.placements) continue;
+        for (const p of structData.placements) {
+          const key = this._hpKey(structureId, p.x, p.y);
+          const hp = state.structureHp[key] !== undefined ? state.structureHp[key] : raidCfg.structureMaxHp;
+          structureHpList.push({ structureId, x: p.x, y: p.y, hp, maxHp: raidCfg.structureMaxHp });
+        }
+      }
+      result.structureHp = structureHpList;
+      result.lastRaidResult = state.lastRaidResult || null;
+      result.raidEnabled = automationLevel >= raidCfg.minAutomationLevel;
+    }
 
     // Include grid data
     if (config) {
@@ -709,6 +809,11 @@ class Automation {
       { id: 'bio_harvester', type: 'scrap_drone', name: 'Bio-Harvester' },
       { id: 'symbiotic_node', type: 'scrap_drone', name: 'Symbiotic Node' },
       { id: 'array_drone_bay', type: 'scrap_drone', name: 'Array Drone Bay' },
+      { id: 'advanced_refinery', type: 'scrap_drone', name: 'Advanced Refinery' },
+      { id: 'deep_extractor', type: 'scrap_drone', name: 'Deep Extractor' },
+      { id: 'reinforced_turret', type: 'scrap_drone', name: 'Reinforced Turret' },
+      { id: 'quantum_harvester', type: 'scrap_drone', name: 'Quantum Harvester' },
+      { id: 'matter_compiler', type: 'scrap_drone', name: 'Matter Compiler' },
     ];
 
     for (const vs of visualStructures) {
@@ -732,6 +837,254 @@ class Automation {
     return entities;
   }
 
+  // ─── Raid Event System ───────────────────────────────────────────────
+
+  // Get the HP key for a structure placement
+  _hpKey(structureId, x, y) {
+    return `${structureId}:${x}:${y}`;
+  }
+
+  // Get or initialise structure HP for a placement
+  getStructureHp(playerId, structureId, x, y) {
+    const state = this.getState(playerId);
+    const key = this._hpKey(structureId, x, y);
+    const raidCfg = this._getRaidConfig();
+    if (state.structureHp[key] === undefined) {
+      state.structureHp[key] = raidCfg ? raidCfg.structureMaxHp : 100;
+    }
+    return state.structureHp[key];
+  }
+
+  _getRaidConfig() {
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+    return structures._raidConfig || null;
+  }
+
+  // Tick raid timer for a player. Returns a raid result object if a raid happened, null otherwise.
+  updateRaidTimer(playerId, dt) {
+    const raidCfg = this._getRaidConfig();
+    if (!raidCfg) return null;
+
+    const automationLevel = this.getAutomationLevel(playerId);
+    if (automationLevel < raidCfg.minAutomationLevel) return null;
+
+    const state = this.getState(playerId);
+    state.raidTimer += dt;
+
+    if (state.raidTimer < raidCfg.intervalSeconds) return null;
+    state.raidTimer = 0;
+
+    // Roll raid chance
+    if (Math.random() > raidCfg.chance) {
+      return { occurred: false, reason: 'chance_miss' };
+    }
+
+    // Start a pending raid — player has 30 seconds to choose manual defense
+    return this._startPendingRaid(playerId, automationLevel, raidCfg);
+  }
+
+  // Execute a raid: compute damage to structures, apply turret defense
+  _executeRaid(playerId, automationLevel, raidCfg) {
+    const state = this.getState(playerId);
+    const structures = this.content.getStructures ? this.content.getStructures() : {};
+
+    // Determine raid strength
+    const monsterCount = raidCfg.baseMonsters + (automationLevel - raidCfg.minAutomationLevel) * raidCfg.scalingPerLevel;
+    const totalRaidDamage = monsterCount * raidCfg.baseDamagePerMonster;
+
+    // Defense rating from turrets reduces damage
+    const defenseRating = this.getDefenseRating(playerId);
+    // Each point of defense negates 1 damage, minimum 0 total damage
+    const effectiveDamage = Math.max(0, totalRaidDamage - defenseRating);
+
+    // Pick which monster types participated (for flavor)
+    const raidMonsters = [];
+    for (let i = 0; i < monsterCount; i++) {
+      raidMonsters.push(raidCfg.monsterPool[Math.floor(Math.random() * raidCfg.monsterPool.length)]);
+    }
+
+    // Collect all non-turret structure placements as potential targets
+    const targets = [];
+    for (const [structureId, structData] of Object.entries(state.structures)) {
+      if (!structData || !structData.placements) continue;
+      const def = structures[structureId];
+      if (!def) continue;
+      // Turrets defend but aren't targeted (they're hardened)
+      if (def.effect && def.effect.type === 'defense_value') continue;
+      for (const p of structData.placements) {
+        const key = this._hpKey(structureId, p.x, p.y);
+        if (state.structureHp[key] === undefined) {
+          state.structureHp[key] = raidCfg.structureMaxHp;
+        }
+        // Skip already-destroyed structures
+        if (state.structureHp[key] <= 0) continue;
+        targets.push({ structureId, x: p.x, y: p.y, key });
+      }
+    }
+
+    const damaged = [];
+    const destroyed = [];
+
+    if (effectiveDamage > 0 && targets.length > 0) {
+      // Distribute damage across random targets
+      let remainingDamage = effectiveDamage;
+      while (remainingDamage > 0 && targets.length > 0) {
+        const idx = Math.floor(Math.random() * targets.length);
+        const target = targets[idx];
+        const dmg = Math.min(remainingDamage, raidCfg.baseDamagePerMonster);
+        state.structureHp[target.key] -= dmg;
+        remainingDamage -= dmg;
+
+        if (state.structureHp[target.key] <= 0) {
+          state.structureHp[target.key] = 0;
+          destroyed.push({ structureId: target.structureId, x: target.x, y: target.y });
+          // Remove from target pool so it's not hit again
+          targets.splice(idx, 1);
+          // Remove from actual structure placements and decrement count
+          this._removeStructurePlacement(playerId, target.structureId, target.x, target.y);
+        } else {
+          damaged.push({ structureId: target.structureId, x: target.x, y: target.y, hp: state.structureHp[target.key] });
+        }
+      }
+    }
+
+    const result = {
+      occurred: true,
+      monsterCount,
+      monsters: raidMonsters,
+      totalRaidDamage,
+      defenseRating,
+      effectiveDamage,
+      damaged,
+      destroyed,
+      structuresRemaining: this._countTotalStructures(playerId),
+    };
+
+    state.lastRaidResult = result;
+    return result;
+  }
+
+  // Start a pending raid — gives the player time to choose manual defense
+  _startPendingRaid(playerId, automationLevel, raidCfg) {
+    const monsterCount = raidCfg.baseMonsters + (automationLevel - raidCfg.minAutomationLevel) * raidCfg.scalingPerLevel;
+    const totalRaidDamage = monsterCount * raidCfg.baseDamagePerMonster;
+    const defenseRating = this.getDefenseRating(playerId);
+
+    // Pick which monster types will participate
+    const raidMonsters = [];
+    for (let i = 0; i < monsterCount; i++) {
+      raidMonsters.push(raidCfg.monsterPool[Math.floor(Math.random() * raidCfg.monsterPool.length)]);
+    }
+
+    const state = this.getState(playerId);
+    state.pendingRaid = {
+      monsterCount,
+      monsters: raidMonsters,
+      totalRaidDamage,
+      defenseRating,
+      automationLevel,
+      countdown: 30, // seconds to decide
+    };
+
+    return {
+      occurred: true,
+      pending: true,
+      monsterCount,
+      monsters: raidMonsters,
+      totalRaidDamage,
+      defenseRating,
+      countdown: 30,
+    };
+  }
+
+  // Tick the pending raid countdown. Returns 'expired' if time ran out.
+  updatePendingRaid(playerId, dt) {
+    const state = this.getState(playerId);
+    if (!state.pendingRaid) return null;
+
+    state.pendingRaid.countdown -= dt;
+    if (state.pendingRaid.countdown <= 0) {
+      // Time expired — execute abstract damage
+      const raidCfg = this._getRaidConfig();
+      const result = this._executeRaid(playerId, state.pendingRaid.automationLevel, raidCfg);
+      state.pendingRaid = null;
+      return { type: 'expired', result };
+    }
+    return null;
+  }
+
+  // Player chose to defend manually — clear pending raid (no abstract damage)
+  claimPendingRaid(playerId) {
+    const state = this.getState(playerId);
+    if (!state.pendingRaid) return null;
+    const pending = state.pendingRaid;
+    state.pendingRaid = null;
+    return pending;
+  }
+
+  // Player successfully defended — no damage applied
+  completeRaidDefense(playerId) {
+    const state = this.getState(playerId);
+    state.lastRaidResult = {
+      occurred: true,
+      defended: true,
+      monsterCount: 0,
+      effectiveDamage: 0,
+      damaged: [],
+      destroyed: [],
+    };
+  }
+
+  // Remove a structure placement (when destroyed by raid)
+  _removeStructurePlacement(playerId, structureId, x, y) {
+    const state = this.getState(playerId);
+    const structData = state.structures[structureId];
+    if (!structData || !structData.placements) return;
+    const idx = structData.placements.findIndex(p => p.x === x && p.y === y);
+    if (idx !== -1) {
+      structData.placements.splice(idx, 1);
+      structData.count = Math.max(0, structData.count - 1);
+    }
+  }
+
+  _countTotalStructures(playerId) {
+    const state = this.getState(playerId);
+    let total = 0;
+    for (const structData of Object.values(state.structures)) {
+      total += typeof structData === 'object' ? structData.count : structData;
+    }
+    return total;
+  }
+
+  // Tick repair timer — drone bays gradually restore damaged structures
+  updateRepairTimer(playerId, dt) {
+    const raidCfg = this._getRaidConfig();
+    if (!raidCfg) return [];
+
+    const repairRate = this.getRepairRate(playerId);
+    if (repairRate <= 0) return [];
+
+    const state = this.getState(playerId);
+    state.repairTimer += dt;
+
+    // Repair ticks based on drone bay interval (convert repairsPerHour to a per-tick check)
+    // repairRate is already in repairs/hour, convert to repair HP per second
+    const repairHpPerSecond = (repairRate * raidCfg.repairAmountPerTick) / 3600;
+    const repairAmount = repairHpPerSecond * dt;
+    if (repairAmount <= 0) return [];
+
+    // Find damaged (but not destroyed) structures and heal them
+    const repaired = [];
+    for (const [key, hp] of Object.entries(state.structureHp)) {
+      if (hp <= 0 || hp >= raidCfg.structureMaxHp) continue;
+      state.structureHp[key] = Math.min(raidCfg.structureMaxHp, hp + repairAmount);
+      if (state.structureHp[key] >= raidCfg.structureMaxHp) {
+        repaired.push(key);
+      }
+    }
+    return repaired;
+  }
+
   // Serialize automation state for persistence (returns plain JSON-safe object)
   serializeState(playerId) {
     if (!this.playerStates.has(playerId)) return null;
@@ -747,7 +1100,12 @@ class Automation {
       productionTimers: data.productionTimers || {},
       replicationTimers: data.replicationTimers || {},
       claimedMilestones: data.claimedMilestones || [],
-      gridExpanded: data.gridExpanded || false,
+      gridExpandedTier: data.gridExpandedTier || (data.gridExpanded ? 1 : 0),
+      structureHp: data.structureHp || {},
+      raidTimer: data.raidTimer || 0,
+      repairTimer: data.repairTimer || 0,
+      lastRaidResult: data.lastRaidResult || null,
+      pendingRaid: null, // never restore pending raids across sessions
       stats: data.stats || {
         totalSalvageProduced: 0,
         totalSalvageSpent: 0,

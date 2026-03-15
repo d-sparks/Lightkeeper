@@ -2475,6 +2475,14 @@
       "type": "stairs_down",
       "spawnX": 9,
       "spawnY": 10
+    },
+    {
+      "x": 48,
+      "y": 22,
+      "leadsTo": "lighthouse_siege_arena",
+      "type": "stairs_down",
+      "spawnX": 10,
+      "spawnY": 1
     }
   ],
   "triggers": [
@@ -2546,7 +2554,7 @@
             "A crumpled survey report stamped UNVERIFIED:",
             "'Survey Team 4, Day 11. Found structures at coordinates [redacted]. Not human construction — geometry is wrong. Walls curve inward at angles that don't match any known engineering.'",
             "'Material is warm to the touch despite ambient temp of -40C. Faint glow from deep inside, no identifiable source.'",
-            "The report was never followed up on."
+            "The report was never followed up on. Comms Officer Daley in the radio room might know something about those coordinates."
           ]
         }
       ],
@@ -2562,6 +2570,32 @@
         {
           "type": "showMessage",
           "text": "A backup power cell in good condition. Comms Officer Daley needs one of these to repair the long-range radio."
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "perimeter_gate_nightside_hint",
+      "event": "room_entered",
+      "conditions": [
+        {
+          "hasFlag": "received_sol_unit"
+        },
+        {
+          "not": {
+            "hasFlag": "visited_dead_road"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "Through the outer gate to the north, the perimeter opens into uncharted dark. Survey markers were placed years ago — the teams that placed them never came back.",
+            "There are stories. Salvagers who found an old road running through the black, a wrecked transport, signs of something that used to live out there.",
+            "Deeper still, they say, is the Nightside — a vast frozen dark where the planet never turns toward the sun. Whatever the Array was searching for, it was out there.",
+            "The outer gate is still unlocked."
+          ]
         }
       ],
       "once": true

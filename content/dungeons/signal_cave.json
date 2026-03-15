@@ -70,7 +70,8 @@
         { "type": "showMessage", "lines": [
           "The moment you touch it, you feel something. Not a sound — a vibration, deep in your bones. As if the ground itself took a breath.",
           "The crystal is warm. Perfectly formed, with facets that catch light that isn't there. It pulses with a rhythm like a heartbeat.",
-          "This is nothing like raw umbracite. This is something else entirely."
+          "This is nothing like raw umbracite. This is something else entirely.",
+          "Councillor Asha Denn in Meridian City studies the planet's geology. She would want to examine this."
         ]},
         { "type": "setFlag", "flag": "found_crystallized_umbracite" },
         { "type": "grantXp", "amount": 25 }

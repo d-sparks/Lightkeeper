@@ -3,7 +3,6 @@
     "dropChance": 0.5,
     "rolls": [
       { "item": "frost_salve", "weight": 10 },
-      { "item": "health_potion", "weight": 6 },
       { "item": "bandage", "weight": 8 },
       { "item": "ration_pack", "weight": 5 },
       { "item": "flare", "weight": 3 }
@@ -28,6 +27,34 @@
       { "item": "shadow_conduit_chip", "weight": 3 },
       { "item": "signal_booster_chip", "weight": 2 },
       { "item": "umbral_amplifier_chip", "weight": 1 },
+      { "item": "void_resonator_chip", "weight": 1 },
+      { "item": "rechargeable_battery_chip", "weight": 1 }
+    ]
+  },
+  "spire_winds_chest": {
+    "dropChance": 1.0,
+    "note": "Spire of Winds first-clear chest. Higher tier than Vigil — rarer components, energy-focused.",
+    "rolls": [
+      { "item": "field_medkit", "weight": 3 },
+      { "item": "signal_booster_chip", "weight": 4 },
+      { "item": "rechargeable_battery_chip", "weight": 4 },
+      { "item": "advanced_rechargeable_battery_chip", "weight": 3 },
+      { "item": "guardian_core_chip", "weight": 3 },
+      { "item": "void_resonator_chip", "weight": 2 },
+      { "item": "array_harmonic_stabilizer_chip", "weight": 2 },
+      { "item": "uranium_generator_chip", "weight": 1 },
+      { "item": "bulwark_assault_plating", "weight": 1 }
+    ]
+  },
+  "spire_vigil_chest": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "field_medkit", "weight": 4 },
+      { "item": "frozen_core", "weight": 3 },
+      { "item": "shadow_conduit_chip", "weight": 3 },
+      { "item": "signal_booster_chip", "weight": 2 },
+      { "item": "power_tap_chip", "weight": 2 },
+      { "item": "umbral_amplifier_chip", "weight": 2 },
       { "item": "void_resonator_chip", "weight": 1 },
       { "item": "rechargeable_battery_chip", "weight": 1 }
     ]

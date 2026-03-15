@@ -248,7 +248,7 @@ describe('Sol grid integration', () => {
       assert.equal(result.energyCost, 10);
     });
 
-    it('caps healOnHit at 15', () => {
+    it('caps healOnHit at 10', () => {
       const comps = {
         h1: { id: 'h1', type: 'modifier', name: 'Lifesteal1', bonus: { healOnHit: 10 } },
         h2: { id: 'h2', type: 'modifier', name: 'Lifesteal2', bonus: { healOnHit: 10 } },
@@ -261,7 +261,7 @@ describe('Sol grid integration', () => {
       ]);
       const result = gl._computeModifiedAbility(grid, 2, 1, BASE_ABILITY);
       assert.ok(result);
-      assert.equal(result.healOnHit, 15); // min(10+10, 15) = 15
+      assert.equal(result.healOnHit, 10); // min(10+10, 10) = 10
     });
 
     it('applies innate sol unit bonus even without adjacent modifiers', () => {

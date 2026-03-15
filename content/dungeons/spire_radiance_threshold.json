@@ -1,0 +1,242 @@
+{
+  "id": "spire_radiance_threshold",
+  "name": "Spire of Radiance — Solar Threshold",
+  "depth": 10,
+  "tileset": "spire_radiance",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.08,
+  "environmentalHazard": { "type": "heat", "damage": 7, "interval": 1.5 },
+  "width": 20,
+  "height": 20,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,31,31,31,12,12,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12, 2,12,12,12,12,12,12,13,13,13,12,12,12,12,13,13,13,
+    13,12,12,12,12,25,25,12,12,12,12,12,12,12,12,12,12,12,13,13,
+    13,13,12,12,25,25,25,25,12,12,12,12,12,12, 2,12,12,12,13,13,
+    13,13,13,12,25,12,12,25,18,12,12,12,12,12,12,12,12,12,13,13,
+    13,13,13,12,25,12,12,25,12,12,13,13,12,12,12,25,25,12,13,13,
+    13,13,13,12,25,25,25,25,12,13,13,13,13,12,25,25,25,12,13,13,
+    13,13,12,12,12,25,25,12,13,13,13,13,13,12,25,12,25,12,13,13,
+    13,12,12,12,12,12,12,12,13,13,13,13,13,12,25,25,25,12,13,13,
+    13,12,12,12,12, 2,12,12,12,13,13,13,12,12,12,25,12,12,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,18,12,12,12,12,12,12,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,
+    13,13,12,12,12,12,25,25,25,12,12,12,12,25,25,25,12,13,13,13,
+    13,13,12,12,12,25,25,12,25,25,12,12,25,25,12,25,25,13,13,13,
+    13,13,13,12,12,25,12,12,12,25,12,12,25,12,12,12,13,13,13,13,
+    13,13,13,12,12,25,12, 2,12,25,18,12,25,12, 6,12,13,13,13,13,
+    13,13,13,13,12,25,25,25,25,25,25,25,25,12,12,12,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "array_sentinel", "x": 5, "y": 4, "count": 2, "patrol": "guard" },
+    { "type": "hybrid_stalker", "x": 14, "y": 4, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 12, "y": 3}, {"x": 17, "y": 3}, {"x": 17, "y": 6}, {"x": 12, "y": 6}] },
+    { "type": "radiance_construct", "x": 6, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_stalker", "x": 15, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "array_sentinel", "x": 4, "y": 10, "count": 1, "patrol": "wander" },
+    { "type": "radiance_construct", "x": 15, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_stalker", "x": 8, "y": 12, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 3, "y": 12}, {"x": 14, "y": 12}, {"x": 14, "y": 14}, {"x": 3, "y": 14}] },
+    { "type": "array_fabricator", "x": 10, "y": 15, "count": 1, "patrol": "guard" },
+    { "type": "radiance_construct", "x": 7, "y": 17, "count": 1, "patrol": "guard" },
+    { "type": "array_sentinel", "x": 12, "y": 17, "count": 1, "patrol": "guard" }
+  ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_sentinel", "x": 5, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 14, "y": 5, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 4, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 15, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 8, "y": 13, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 7, "y": 17, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 12, "y": 16, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "field_medkit", "x": 15, "y": 5 },
+    { "type": "bandage", "x": 14, "y": 12 },
+    { "type": "solar_focusing_crystal", "x": 7, "y": 15 },
+    { "type": "field_medkit", "x": 13, "y": 16 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_radiance_sanctum", "type": "stairs_up", "spawnX": 20, "spawnY": 20 },
+    { "x": 14, "y": 17, "leadsTo": "spire_radiance_crucible", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+      {
+        "id": "threshold_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Solar Threshold. Beyond this point, the Array has committed everything it has \u2014 its strongest sentinels, its most advanced fabricators, its deepest-integrated hybrid units.",
+              "This is not a defense perimeter. This is a last stand. The Array knows what lies beyond, and it will spend every resource it has to prevent you from reaching it.",
+              "The heat is almost unbearable. The walls themselves glow with channeled solar energy, and the air shimmers with visible thermals. Whatever waits beyond the Threshold, it is close."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "threshold_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Solar Threshold. Beyond this point, the Array has committed everything it has \u2014 its strongest sentinels, its most advanced fabricators, its deepest-integrated hybrid units.",
+              "This is not a defense perimeter. This is a last stand. The Array knows what lies beyond, and it will spend every resource it has to prevent you from reaching it.",
+              "The heat is almost unbearable. The walls themselves glow with channeled solar energy, and the air shimmers with visible thermals. Whatever waits beyond the Threshold, it is close."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "threshold_warning",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "threshold_warned"
+            }
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "threshold_warned"
+          },
+          {
+            "type": "showMessage",
+            "text": "Warning: maximum Array resistance detected ahead. The Spire's defenders are concentrated here in force. Prepare for sustained combat."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "threshold_warning_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "threshold_warned"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "threshold_warned"
+          },
+          {
+            "type": "showMessage",
+            "text": "Warning: maximum Array resistance detected ahead. The Spire's defenders are concentrated here in force. Prepare for sustained combat."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "replay_enter_info",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "photonic_pulse_unlocked" }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Solar Threshold has reconfigured. The Array's forces are gone — replaced by Underlumen guardians, ancient constructs drawn from the Spire's deepest reserves.",
+              "Three pedestals near the entrance radiate at different intensities. Touch one to attune the Spire's difficulty before descending."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "tier_select_normal",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 2 },
+        "conditions": [
+          { "hasFlag": "photonic_pulse_unlocked" }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "spire_radiance_replay_tier", "value": "normal" },
+          { "type": "showMessage", "text": "NORMAL — The Spire's guardians stir at base strength. Standard modifier drops." }
+        ]
+      },
+      {
+        "id": "tier_select_hard",
+        "event": "door_interacted",
+        "filter": { "tileX": 4, "tileY": 2 },
+        "conditions": [
+          { "hasFlag": "photonic_pulse_unlocked" }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "spire_radiance_replay_tier", "value": "hard" },
+          { "type": "showMessage", "text": "HARD — The Spire intensifies. Guardians are stronger and deadlier. Better modifier drops." }
+        ]
+      },
+      {
+        "id": "tier_select_legendary",
+        "event": "door_interacted",
+        "filter": { "tileX": 5, "tileY": 2 },
+        "conditions": [
+          { "hasFlag": "photonic_pulse_unlocked" }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "spire_radiance_replay_tier", "value": "legendary" },
+          { "type": "showMessage", "text": "LEGENDARY — The Spire awakens fully. Only the strongest Lightkeepers survive. Rare and epic modifier drops." }
+        ]
+      },
+      {
+        "id": "tier_pedestal_dormant_1",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 2 },
+        "conditions": [
+          { "not": { "hasFlag": "photonic_pulse_unlocked" } }
+        ],
+        "actions": [
+          { "type": "showMessage", "text": "The pedestal is dormant. Solar energy courses through its base but the interface remains sealed." }
+        ]
+      },
+      {
+        "id": "tier_pedestal_dormant_2",
+        "event": "door_interacted",
+        "filter": { "tileX": 4, "tileY": 2 },
+        "conditions": [
+          { "not": { "hasFlag": "photonic_pulse_unlocked" } }
+        ],
+        "actions": [
+          { "type": "showMessage", "text": "The pedestal is dormant. Solar energy courses through its base but the interface remains sealed." }
+        ]
+      },
+      {
+        "id": "tier_pedestal_dormant_3",
+        "event": "door_interacted",
+        "filter": { "tileX": 5, "tileY": 2 },
+        "conditions": [
+          { "not": { "hasFlag": "photonic_pulse_unlocked" } }
+        ],
+        "actions": [
+          { "type": "showMessage", "text": "The pedestal is dormant. Solar energy courses through its base but the interface remains sealed." }
+        ]
+      }
+    ]
+}

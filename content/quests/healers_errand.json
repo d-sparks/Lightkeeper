@@ -1,0 +1,43 @@
+{
+  "id": "healers_errand",
+  "name": "Healer's Errand",
+  "description": "Dr. Vasik needs bioluminescent moss from the deep crypts to treat Pvt. Tannis. The Old Keeper below the outpost knows where it grows.",
+  "startConditions": [{ "hasFlag": "vasik_asked_for_moss" }],
+  "steps": {
+    "talk_to_keeper": {
+      "label": "Talk to the Old Keeper",
+      "description": "Descend into the crypts below Outpost Balor's basement and find the Old Keeper. He knows where the bioluminescent moss grows.",
+      "prerequisiteSteps": [],
+      "objective": { "roomId": "crypt_01", "targetNpc": "old_keeper" },
+      "completionConditions": [{ "hasFlag": "keeper_told_moss_location" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 15 },
+        { "type": "showMessage", "text": "The Old Keeper knows exactly where the moss grows. Into the Bone Chamber." }
+      ]
+    },
+    "find_moss": {
+      "label": "Find the Bioluminescent Moss",
+      "description": "Descend to the Bone Chamber — the second level of the crypt — and harvest the bioluminescent moss from the far wall.",
+      "prerequisiteSteps": ["talk_to_keeper"],
+      "objective": { "roomId": "crypt_02" },
+      "objectiveItem": "bioluminescent_moss",
+      "completionConditions": [{ "hasItem": "bioluminescent_moss" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "text": "You found the moss. Get it back to Dr. Vasik quickly." }
+      ]
+    },
+    "return_to_vasik": {
+      "label": "Return the Moss to Dr. Vasik",
+      "description": "Bring the bioluminescent moss back to Dr. Vasik in the outpost infirmary.",
+      "prerequisiteSteps": ["find_moss"],
+      "objective": { "roomId": "outpost_infirmary", "targetNpc": "infirmary_dr_vasik" },
+      "completionConditions": [{ "hasFlag": "vasik_quest_complete" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 35 },
+        { "type": "showMessage", "text": "Quest complete: Healer's Errand. Tannis will recover. Dr. Vasik has taught you to craft Field Medkits." }
+      ]
+    }
+  },
+  "startStep": "talk_to_keeper"
+}

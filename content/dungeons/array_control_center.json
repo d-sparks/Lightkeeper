@@ -50,10 +50,8 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 1, "y": 14 },
     { "type": "field_medkit", "x": 20, "y": 14 },
-    { "type": "lore_array_directive", "x": 6, "y": 2 },
-    { "type": "health_potion", "x": 20, "y": 1 }
+    { "type": "lore_array_directive", "x": 6, "y": 2 }
   ],
   "exits": [
     { "x": 10, "y": 18, "leadsTo": "array_deep_processing", "type": "stairs_up", "spawnX": 1, "spawnY": 17 }

@@ -1,0 +1,239 @@
+{
+  "id": "spire_winds_underlumen",
+  "name": "Spire of Winds — Underlumen Galleries",
+  "depth": 10,
+  "tileset": "spire_winds",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.04,
+  "width": 26,
+  "height": 22,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,20,19,19,19,19,19,21,12,12,12,13,13,13,13,13,13,13,13,13,13,13,
+    13,13,12,12,12,12,19,19,19,19,19,12,12,12,12,12,12,12,12,13,13,13,13,13,13,13,
+    13,13,13,12,12,12,19,24,24,24,19,12,12, 2,12,12,12,12,12,12,12,13,13,13,13,13,
+    13,13,13,13, 7, 7,23,24, 7,24,22,12,12,12,12,12,20,19,19,19,19,21,12,13,13,13,
+    13,13,13,13, 7, 7, 7,24, 7,24, 7, 7, 7, 7, 7,12,12,19,19,19,19,12,12,13,13,13,
+    13,13,13,13, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,12,19,24,24,19,12,12,12,13,13,
+    13,13,13,12,12,12,12,18, 7,18,12,12,12, 7, 7, 7,12,23,24, 7,22,12,12,12,12,13,
+    13,13,12,12,12,12,12,12, 7,12,12,12,12,12, 7, 7, 7, 7, 7, 7, 7, 7,12, 2,12,13,
+    13,13,12, 2,12,12,12,12, 7,12,12, 2,12,12,12, 7, 7, 7, 7, 7, 7, 7,12,12,12,13,
+    13,12,12,12,12,20,19,19,19,19,19,21,12,12,12,12, 7,18,12,12,18, 7,12,12,12,13,
+    13,12,12,12,12,12,19,19,19,19,19,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,
+    13,13,12,12,12,12,19,24,24,24,19,12,12,12,12,20,19,19,19,19,21,12,12,13,13,13,
+    13,13,13, 7, 7,12,23,24, 7,24,22,12, 2,12,12,12,19,19,19,19,12,12,13,13,13,13,
+    13,13,13, 7, 7, 7, 7,24, 7,24, 7, 7, 7, 7,12,12,19,24,24,19,12,13,13,13,13,13,
+    13,13,13, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,12,12,23,24, 7,22,12,13,13,13,13,13,
+    13,13,12,12,12,12,12,18, 7,18,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,13,13,13,13,
+    13,13,12,12,12,12,12,12, 7,12,12,12,12,12,12,12,12,12,12,12, 6,12,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "dusk_crawler", "x": 9, "y": 3, "count": 2, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 16, "y": 6, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 14, "y": 5}, {"x": 18, "y": 5}, {"x": 18, "y": 8}, {"x": 14, "y": 8}] },
+    { "type": "frostfang_hunter", "x": 19, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 4, "y": 12, "count": 2, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 8, "y": 14, "count": 1, "patrol": "guard" },
+    { "type": "frostfang_hunter", "x": 12, "y": 16, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 10, "y": 14}, {"x": 14, "y": 14}, {"x": 14, "y": 17}, {"x": 10, "y": 17}] },
+    { "type": "dusk_crawler", "x": 18, "y": 15, "count": 2, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 15, "y": 19, "count": 1, "patrol": "guard" }
+  ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_warden", "x": 9, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 16, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 13, "y": 6, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_sentinel", "x": 22, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 4, "y": 14, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_channeler", "x": 12, "y": 16, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_warden", "x": 15, "y": 19, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "bioluminescent_moss", "x": 8, "y": 5 },
+    { "type": "bandage", "x": 3, "y": 12 },
+    { "type": "bioluminescent_moss", "x": 12, "y": 12 },
+    { "type": "field_medkit", "x": 17, "y": 16 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_depths", "type": "stairs_up", "spawnX": 19, "spawnY": 20 },
+    { "x": 20, "y": 20, "leadsTo": "spire_winds_antechamber", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "windCurrents": [
+    { "x": 3, "y": 7, "w": 3, "h": 3, "direction": "east", "force": 2 },
+    { "x": 3, "y": 16, "w": 3, "h": 3, "direction": "east", "force": 2 },
+    { "x": 14, "y": 10, "w": 3, "h": 3, "direction": "south", "force": 2.5 },
+    { "x": 14, "y": 19, "w": 4, "h": 2, "direction": "west", "force": 2 },
+    { "x": 18, "y": 7, "w": 3, "h": 3, "direction": "south", "force": 2 },
+    { "x": 7, "y": 10, "w": 2, "h": 3, "direction": "north", "force": 3 }
+  ],
+  "triggers": [
+      {
+        "id": "underlumen_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The shaft opens into a vast subterranean gallery. The architecture here is unmistakably Spire \u2014 the same geometric precision you saw beneath the Nightside. But where Vigil was dark and still, this place moves.",
+              "Wind flows through carved channels in the walls, spiraling up through vertical shafts that pierce the ceiling. Platforms at different elevations are connected by ramps of worked stone, each positioned precisely in the wind currents.",
+              "This is a three-dimensional puzzle. The Spire's builders understood vertical space in ways human architecture never attempted. You'll need to navigate multiple elevation levels to reach the resonance core below."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "underlumen_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The shaft opens into a vast subterranean gallery. The architecture here is unmistakably Spire \u2014 the same geometric precision you saw beneath the Nightside. But where Vigil was dark and still, this place moves.",
+              "Wind flows through carved channels in the walls, spiraling up through vertical shafts that pierce the ceiling. Platforms at different elevations are connected by ramps of worked stone, each positioned precisely in the wind currents.",
+              "This is a three-dimensional puzzle. The Spire's builders understood vertical space in ways human architecture never attempted. You'll need to navigate multiple elevation levels to reach the resonance core below."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "first_elevation_puzzle",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "winds_elevation_noted"
+            }
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "winds_elevation_noted"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The elevated platforms are connected by ramps \u2014 but the layout forces you to take indirect paths, navigating around chasms and through wind corridors.",
+              "Your sol unit resonates with the wind currents. It's responding to the same energy that powers this place. If only you could harness it directly..."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "first_elevation_puzzle_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "winds_elevation_noted"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "winds_elevation_noted"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The elevated platforms are connected by ramps \u2014 but the layout forces you to take indirect paths, navigating around chasms and through wind corridors.",
+              "Your sol unit resonates with the wind currents. It's responding to the same energy that powers this place. If only you could harness it directly..."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "wind_bridge_lore",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "hasFlag": "winds_elevation_noted"
+          },
+          {
+            "not": {
+              "hasFlag": "winds_bridge_lore"
+            }
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "winds_bridge_lore"
+          },
+          {
+            "type": "showMessage",
+            "text": "The wind bridges span impossible gaps \u2014 thin stone arches over dark chasms. Whatever built this Spire could apparently nullify gravity at will. The bridges are concessions to visitors who couldn't."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "wind_bridge_lore_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "hasFlag": "winds_elevation_noted"
+          },
+          {
+            "not": {
+              "hasFlag": "winds_bridge_lore"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "winds_bridge_lore"
+          },
+          {
+            "type": "showMessage",
+            "text": "The wind bridges span impossible gaps \u2014 thin stone arches over dark chasms. Whatever built this Spire could apparently nullify gravity at will. The bridges are concessions to visitors who couldn't."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "moss_pickup",
+        "event": "item_picked_up",
+        "filter": {
+          "itemType": "bioluminescent_moss"
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "Luminescent moss grows in the wind channels, nourished by something in the ancient airflow. It pulses with a gentle blue-green light."
+          },
+          {
+            "type": "grantXp",
+            "amount": 10
+          }
+        ]
+      }
+    ]
+}

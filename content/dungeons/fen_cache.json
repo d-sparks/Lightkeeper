@@ -81,6 +81,18 @@
         { "type": "showMessage", "text": "A military-spec battery housing. Combined with umbracite and copper coils at Yun's workshop, this could make a much more powerful rechargeable battery." }
       ],
       "once": true
+    },
+    {
+      "id": "squad_leaders_visor_pickup",
+      "event": "item_picked_up",
+      "filter": { "itemType": "squad_leaders_visor" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A tactical visor from Fen's squad leader. The heads-up display still works — enemy silhouettes glow through darkness and thin cover.",
+          "Fen Maro in Meridian City would recognize this. It belonged to someone he served with."
+        ]}
+      ],
+      "once": true
     }
   ]
 }

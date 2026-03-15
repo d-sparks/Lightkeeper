@@ -1,0 +1,286 @@
+{
+  "id": "spire_vigil_archives",
+  "name": "Spire of Vigil — Ancient Archives",
+  "depth": 7,
+  "tileset": "nightside",
+  "theme": "nightside",
+  "tileSize": 32,
+  "ambientLight": 0.04,
+  "environmentalHazard": { "type": "cold", "damage": 3, "interval": 3.0 },
+  "width": 22,
+  "height": 18,
+  "data": [
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,8,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,2,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,4,1,1,1,1,2,1,3,3,3,3,3,3,3,3,
+    3,3,1,10,1,3,3,3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,1,2,1,10,1,2,1,1,3,3,3,3,3,3,
+    3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,
+    3,3,3,3,3,3,1,1,2,1,3,3,3,1,2,1,1,1,3,3,3,3,
+    3,3,3,1,1,1,1,1,1,3,3,7,3,3,1,1,1,1,1,3,3,3,
+    3,3,1,1,2,1,1,1,3,3,7,18,7,3,3,1,1,2,1,1,3,3,
+    3,1,1,1,1,10,1,3,3,7,7,1,7,7,3,3,1,1,1,1,3,3,
+    3,1,2,1,1,1,1,3,3,3,7,1,7,3,3,1,1,10,1,1,3,3,
+    3,1,1,1,1,2,1,1,3,3,3,1,3,3,1,1,2,1,1,1,3,3,
+    3,3,1,1,1,1,1,1,1,3,1,1,1,3,1,1,1,1,1,3,3,3,
+    3,3,3,1,1,1,2,1,1,4,1,10,1,4,1,1,2,1,3,3,3,3,
+    3,3,3,3,1,1,1,1,1,3,1,1,1,3,1,1,1,6,3,3,3,3,
+    3,3,3,3,3,1,1,1,3,3,3,1,3,3,3,1,1,3,3,3,3,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "tunnel_creeper", "x": 10, "y": 4, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 8, "y": 3}, {"x": 13, "y": 3}, {"x": 13, "y": 6}, {"x": 8, "y": 6}
+    ] },
+    { "type": "shade_stalker", "x": 15, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "tunnel_creeper", "x": 4, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "shade_stalker", "x": 17, "y": 9, "count": 1, "patrol": "patrol", "patrolPath": [
+      {"x": 15, "y": 8}, {"x": 18, "y": 8}, {"x": 18, "y": 11}, {"x": 15, "y": 11}
+    ] },
+    { "type": "tunnel_creeper", "x": 3, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "shade_stalker", "x": 8, "y": 14, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "frost_salve", "x": 8, "y": 7 },
+    { "type": "battery_chip", "x": 2, "y": 11 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_vigil_fortress", "type": "stairs_up", "spawnX": 19, "spawnY": 16 },
+    { "x": 17, "y": 15, "leadsTo": "spire_vigil_sanctum", "type": "stairs_down", "spawnX": 1, "spawnY": 3 }
+  ],
+  "triggers": [
+      {
+        "id": "archives_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The air changes immediately. No raider graffiti here, no crude modifications \u2014 this section of the Spire has been left untouched. Perhaps the Luddites feared what they couldn't understand.",
+              "Crystal shelves line the walls, holding objects that might be books, or might be something else entirely. Geometric patterns pulse with faint inner light when you draw near.",
+              "Reading pedestals stand at intervals through the archives. Whatever knowledge the Underlumen builders stored here, it has waited patiently for someone to find it."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "archives_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The air changes immediately. No raider graffiti here, no crude modifications \u2014 this section of the Spire has been left untouched. Perhaps the Luddites feared what they couldn't understand.",
+              "Crystal shelves line the walls, holding objects that might be books, or might be something else entirely. Geometric patterns pulse with faint inner light when you draw near.",
+              "Reading pedestals stand at intervals through the archives. Whatever knowledge the Underlumen builders stored here, it has waited patiently for someone to find it."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "archives_lore_pedestal_1",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 11,
+          "tileY": 5
+        },
+        "actions": [
+          {
+            "type": "grantXp",
+            "amount": 25
+          },
+          {
+            "type": "setFlag",
+            "flag": "archives_lore_1"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The pedestal activates at your touch. Light coalesces into geometric patterns \u2014 a language of pure structure.",
+              "You can't read it, but the meaning seeps through: this Spire was a watchtower in the truest sense. Not watching for enemies, but watching the boundary between the surface world and something deeper.",
+              "The builders called themselves Vigil-keepers. They monitored a resonance \u2014 a frequency that connects the Underlumen network across vast distances."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "archives_lore_pedestal_2",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 5,
+          "tileY": 10
+        },
+        "actions": [
+          {
+            "type": "grantXp",
+            "amount": 25
+          },
+          {
+            "type": "setFlag",
+            "flag": "archives_lore_2"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "Another pedestal hums to life. This one shows schematics \u2014 cross-sections of the Spire extending deep underground, far deeper than the raiders have explored.",
+              "Below the fortress levels, the Spire descends into what the builders called the Resonance Chamber \u2014 a place where the boundary between nodes grows thin.",
+              "The schematics show energy pathways converging on a central core. Whatever powers the Underlumen network, this Spire is one of its anchor points."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "archives_lore_pedestal_3",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 17,
+          "tileY": 11
+        },
+        "actions": [
+          {
+            "type": "grantXp",
+            "amount": 25
+          },
+          {
+            "type": "setFlag",
+            "flag": "archives_lore_3"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The third pedestal shows something different \u2014 a warning. The geometric patterns pulse red, urgent even after millennia.",
+              "The Resonance Chamber was sealed deliberately. Not to keep intruders out, but to keep something contained. The builders detected an anomaly in the network \u2014 a frequency that didn't belong.",
+              "They couldn't eliminate it. They could only contain it. The Spire of Vigil was built specifically for this purpose: to watch, and to hold."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "archives_central_pool",
+        "event": "tile_entered",
+        "filter": {
+          "tileX": 11,
+          "tileY": 10
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "A reflecting pool of perfectly still water fills the central atrium. The crystal ceiling above focuses ambient light into the water, creating patterns that shift like constellations."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "chest_loot_archives",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "spire_vigil_chest"
+          }
+        ]
+      },
+      {
+        "id": "mark_archives_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_archives",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "hover_pool_alcove",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          { "type": "setTile", "x": 12, "y": 9, "tileId": 1 },
+          { "type": "setTile", "x": 12, "y": 10, "tileId": 1 },
+          { "type": "setTile", "x": 13, "y": 10, "tileId": 2 },
+          { "type": "spawnItem", "itemType": "resonance_detector_chip", "x": 13, "y": 10 }
+        ]
+      },
+      {
+        "id": "hover_pool_alcove_message",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "With the ability to hover, you can cross the reflecting pool's eastern shallows. Beyond the dark water, a small alcove in the crystal wall holds a component the archivists kept separate from the main collection.",
+              "A Resonance Detector \u2014 the Vigil-keepers used these to monitor the Underlumen network's integrity. Its dual-stat design suggests it was considered essential equipment."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "hover_alcove_pickup",
+        "event": "item_picked_up",
+        "filter": { "itemType": "resonance_detector_chip" },
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "archives_alcove_looted"
+          },
+          {
+            "type": "grantXp",
+            "amount": 30
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Resonance Detector hums as you lift it from its cradle. Geometric patterns flash across its surface \u2014 a burst of stored data, readings from the last time it was active.",
+              "The final reading is a spike. An anomalous frequency surging through the network, centuries ago. The same signal the archives warned about. The same one Voss found evidence of.",
+              "Whatever woke the Underlumen network \u2014 it happened here first. The Spire of Vigil detected it before anyone else."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "hover_tease_archives",
+        "event": "tile_entered",
+        "filter": { "tileX": 11, "tileY": 10 },
+        "conditions": [
+          { "not": { "hasFlag": "hover_unlocked" } }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The reflecting pool stretches east into a shadowed alcove. Through the dark water you can make out a crystalline cradle holding something \u2014 but the pool is too deep to cross on foot."
+          }
+        ],
+        "once": true
+      }
+    ]
+}

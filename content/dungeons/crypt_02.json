@@ -127,6 +127,34 @@
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "spawn_etching_if_keeper_asked",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "keeper_asked_for_etching" },
+        { "not": { "hasFlag": "etching_spawned" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "etching_spawned" },
+        { "type": "spawnItem", "itemType": "underlumen_etching", "x": 6, "y": 9 },
+        { "type": "showMessage", "text": "Near a collapsed alcove along the far wall, you spot something half-buried in rubble — a stone tablet, just where the Old Keeper described." }
+      ],
+      "once": true
+    },
+    {
+      "id": "etching_pickup_message",
+      "event": "item_picked_up",
+      "filter": { "itemType": "underlumen_etching" },
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The tablet is heavier than it looks. Its surface is covered in precise geometric etchings — spirals, nested hexagons, branching lines that resemble root networks.",
+          "The markings pulse with a faint warmth when your Sol Unit passes over them. Whatever made these was not human.",
+          "The Old Keeper will want to see this."
+        ]},
+        { "type": "grantXp", "amount": 25 }
+      ],
+      "once": true
     }
   ]
 }
