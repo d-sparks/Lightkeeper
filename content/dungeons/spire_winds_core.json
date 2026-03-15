@@ -100,6 +100,10 @@
             "flag": "hover_unlocked"
           },
           {
+            "type": "setFlag",
+            "flag": "spire_winds_cleared"
+          },
+          {
             "type": "showMessage",
             "lines": [
               "You place your hand on the crystal pedestal. The wind stops. Every current, every breeze, every whisper of air in the chamber freezes in place.",
