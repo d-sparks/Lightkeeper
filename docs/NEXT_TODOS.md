@@ -29,6 +29,9 @@ Generated 17 new placeholder sprites to resolve missing-file errors:
 
 Outstanding art tasks:
 - [ ] All generated sprites need replacement with proper pixel art (see `PLACEHOLDER_ASSETS.md`)
+- [ ] **Batch 1 commission ready** — `docs/art-commission-brief.md` covers 10 priority entities (14 files). Send to artist when ready. All sprites are 64x16 horizontal strips (4 frames: idle1, idle2, attack, hit).
+- [ ] Once commissioned art is received, replace PNGs in `content/sprites/` — no engine changes needed
+- [ ] Test commissioned sprites against dark tilesets (Dark Perimeter, Stone Crypt) for readability at 32x32 upscale
 - [ ] `liaison_thorne` NPC (Array Liaison Thorne) still uses `npc_default.png` — create `liaison_thorne.png`
 - [ ] `frostfang_alpha` monster still reuses `frostfang_hunter.png` — create `frostfang_alpha.png`
 - [ ] `bulwark_soldier_doubter` (Private Yenn) has a sprite file but no `sprite` field in npcs.json — wire it

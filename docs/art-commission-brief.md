@@ -217,6 +217,31 @@ Palette hex values are in `docs/art-style-guide.md` — please use the master pa
 
 ---
 
+### 10. Dural Voss (Boss)
+
+**File:** `content/sprites/dural_voss.png`
+
+**Monster ID:** `dural_voss` — 600 HP, boss_retreat AI, Act 1 climax boss
+
+**Description:** Warlord of the Unbounded — charismatic raider leader who commands the Luddite forces occupying the Spire of Vigil. Brutal, imposing, but not mindless. Heavy scavenged armor with trophies. Retreats at 20% HP rather than dying — he's a survivor, not a martyr.
+
+**Visual elements:**
+- Tall humanoid silhouette, broad and imposing — fill the sprite space
+- Rust `#a05a28` and Brown `#5a4128` scavenged heavy armor (raider aesthetic)
+- Orange `#dc9632` hostile eyes
+- Red `#c83232` shoulder marking or war paint (faction identity, matches Luddite colors)
+- Dark Red `#8c1e1e` shadows on armor plating
+- Mid Gray `#3d3d50` metal pauldron or salvaged tech plating on one shoulder
+- Short or shaved head (warlord, no helmet — shows confidence)
+- Weapon suggestion: large blade or club shape in attack frame (Frame 2)
+- Asymmetric armor — one shoulder heavier than the other (scavenged, not uniform)
+
+**Palette:** Brown/Rust (armor) + Red family (war paint) + Orange (eyes) + Core Grays
+
+**Narrative role:** Act 1 final boss. Retreats and delivers key revelation about the Array's true role.
+
+---
+
 ## Delivery Notes
 
 - Replace the PNG files at the paths listed above. No engine changes needed.
@@ -241,4 +266,5 @@ Palette hex values are in `docs/art-style-guide.md` — please use the master pa
 | 10 | `frostfang_hunter.png` | Frostfang Hunter | Monster |
 | 11 | `shade_stalker.png` | Shade Stalker | Monster |
 | 12 | `crystal_guardian.png` | Crystal Guardian (Boss) | Monster |
-| 13 | `councillor_asha_denn.png` | Asha Denn (travel variant) | NPC |
+| 13 | `dural_voss.png` | Dural Voss (Boss) | Monster |
+| 14 | `councillor_asha_denn.png` | Asha Denn (travel variant) | NPC |
