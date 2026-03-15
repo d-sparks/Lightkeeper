@@ -174,6 +174,23 @@ Remaining follow-ups:
 - **Deep Warrens discovery trigger** — Add flavor message in `meridian_undercity` near the stairs_down at (14,0).
 - **Undercity discovery trigger in meridian_market** — Add first-discovery message for stairs_down at (14, 9).
 
+## Room-Entry Dialogue Suppression During Combat (2026-03-15)
+
+Fixed station_junction: room-entry dialogue now deferred until combat clears using `noHostilesInRoom` condition + `room_cleared` event.
+
+**Engine additions:**
+- `room_cleared` event — fires for all players when last monster in a room dies
+- `noHostilesInRoom` condition — checks `room.monsters.size === 0`
+
+**Other dungeons with the same issue** (room_entered + showMessage + monsterSpawns):
+- `array_deep_processing` (9 monsters)
+- `spire_radiance_approach` (8), `spire_radiance_conduit` (7), `spire_radiance_nexus` (12), `spire_radiance_sanctum` (8), `spire_radiance_core` (1)
+- `spire_winds_approach` (8), `spire_winds_fortress` (12), `spire_winds_shaft` (7), `spire_winds_underlumen` (8)
+- `greenway_supply_depot` (7), `greenway_farmstead` (3), `greenway_checkpoint` (4)
+- `underlumen_threshold` (10), `nightside_passage` (10)
+
+Each needs the same treatment: add `noHostilesInRoom` condition to room_entered trigger + add a paired `room_cleared` trigger.
+
 ## Testing
 
 - **All-quests mode: 5/14 quests fail** — See TODOs.md #1 for full breakdown. Key bugs: underlumen_threshold→meridian_civic has no fast travel (blocks main_quest + nightside_expedition), lost_tool/the_deserter/phase3_investigation all timeout. relay_recovery and broken_signal now pass (relay: junction boxes moved; broken_signal: Daley radios coordinates on Meridian arrival).

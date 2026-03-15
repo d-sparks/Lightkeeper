@@ -81,6 +81,14 @@ class ConditionEvaluator {
       return player.inventory.some(item => item.type === condition.hasItem);
     }
 
+    // --- Room state checks ---
+    if (condition.noHostilesInRoom !== undefined) {
+      const room = context.room;
+      if (!room) return !condition.noHostilesInRoom;
+      const hasHostiles = room.monsters.size > 0;
+      return condition.noHostilesInRoom ? !hasHostiles : hasHostiles;
+    }
+
     // Unknown condition type — treat as passing (don't block on bad data)
     console.warn('[Conditions] Unknown condition type:', JSON.stringify(condition));
     return true;

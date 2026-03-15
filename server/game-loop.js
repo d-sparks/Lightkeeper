@@ -189,6 +189,16 @@ class GameLoop {
     this.eventBus.emit(eventType, eventPayload);
     this.triggers.processEvent(eventType, eventPayload, context);
     this.questTracker.processEvent(eventType, context);
+
+    // When the last monster in a room dies, emit room_cleared for all players
+    if (eventType === EventBus.Events.MONSTER_KILLED && context.room && context.room.monsters.size === 0) {
+      for (const [pid] of context.room.players) {
+        const ctx = this._scriptContext(pid, context.roomId);
+        this._emitGameEvent(EventBus.Events.ROOM_CLEARED, {
+          playerId: pid, roomId: context.roomId,
+        }, ctx);
+      }
+    }
   }
 
   start() {

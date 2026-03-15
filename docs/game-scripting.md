@@ -141,6 +141,7 @@ Events are emitted automatically by the game loop. You don't create them — you
 | `npc_interacted` | Player talks to an NPC | `npcType`, `npcId` |
 | `door_interacted` | Player opens/closes a door | `tileX`, `tileY`, `tileName` |
 | `room_entered` | Player enters a room | `dungeonId` |
+| `room_cleared` | Last monster in a room dies | — |
 | `player_death` | Player dies | — |
 | `flag_changed` | A flag was set/changed | `flag`, `value`, `scope` |
 
@@ -181,6 +182,26 @@ Returns true if the player has at least one item of this type.
 ```
 
 Returns true if the player's total single-use battery energy is below the given threshold (or they have no single-use batteries).
+
+#### `noHostilesInRoom` — Check if room has no living monsters
+
+```json
+{ "noHostilesInRoom": true }
+```
+
+Returns true if the room has no monsters. Useful for deferring dialogue until combat is clear:
+
+```json
+{
+  "id": "safe_dialogue",
+  "event": "room_entered",
+  "conditions": [{ "noHostilesInRoom": true }],
+  "actions": [{ "type": "showMessage", "text": "The area is quiet now." }],
+  "once": true
+}
+```
+
+Pair with a `room_cleared` trigger to show the dialogue after combat if the player entered during a fight.
 
 #### `flagGreaterThan` / `flagLessThan` — Numeric comparisons
 

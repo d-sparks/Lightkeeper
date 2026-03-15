@@ -49,11 +49,27 @@
     {
       "id": "junction_enter",
       "event": "room_entered",
+      "conditions": [{ "noHostilesInRoom": true }],
       "actions": [
         { "type": "showMessage", "lines": [
           "The junction box area is overrun. Dusk Crawlers have nested around the main power conduit.",
           "The grinding noise Yara mentioned is the crawlers chewing on the insulation. They need to be cleared out."
         ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "junction_enter_deferred",
+      "event": "room_cleared",
+      "conditions": [
+        { "not": { "hasFlag": "__trigger_junction_enter_fired" } }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The junction box area is overrun. Dusk Crawlers have nested around the main power conduit.",
+          "The grinding noise Yara mentioned is the crawlers chewing on the insulation. They need to be cleared out."
+        ]},
+        { "type": "setFlag", "flag": "__trigger_junction_enter_fired" }
       ],
       "once": true
     },
