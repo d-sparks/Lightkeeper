@@ -59,32 +59,73 @@
     { "x": 10, "y": 18, "leadsTo": "spire_radiance_nexus", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "processing_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The hum of data streams fills the air. Rows of Array processing banks line the walls, their indicator lights flickering in cascading patterns as terabytes of information flow through crystalline circuits.",
-          "This is where the Array digests the Spire's energy readings — translating ancient solar harmonics into machine-readable data. The processing lanes stretch deep into the hall, guarded by stalker units that patrol with mechanical precision.",
-          "Somewhere in these data banks lies the Array's understanding of the Spire. Its secrets, catalogued and analyzed by an intelligence that has spent centuries trying to comprehend what it conquered."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "data_terminal",
-      "event": "tile_interact",
-      "filter": { "tileX": 11, "tileY": 9 },
-      "conditions": [{ "not": { "hasFlag": "processing_terminal_read" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "processing_terminal_read" },
-        { "type": "showMessage", "lines": [
-          "ARRAY PROCESSING LOG — CYCLE 847,291: Solar energy throughput at 12.4% of theoretical maximum. The Spire's core continues to resist full integration. Anomalous energy signatures detected in lower conduit levels.",
-          "ANALYSIS: The Spire's crystalline architecture appears to be actively routing energy away from Array collection nodes. Recommend increased processing allocation to counter-pattern generation."
-        ]},
-        { "type": "grantXp", "amount": 15 }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "processing_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The hum of data streams fills the air. Rows of Array processing banks line the walls, their indicator lights flickering in cascading patterns as terabytes of information flow through crystalline circuits.",
+              "This is where the Array digests the Spire's energy readings \u2014 translating ancient solar harmonics into machine-readable data. The processing lanes stretch deep into the hall, guarded by stalker units that patrol with mechanical precision.",
+              "Somewhere in these data banks lies the Array's understanding of the Spire. Its secrets, catalogued and analyzed by an intelligence that has spent centuries trying to comprehend what it conquered."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "processing_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The hum of data streams fills the air. Rows of Array processing banks line the walls, their indicator lights flickering in cascading patterns as terabytes of information flow through crystalline circuits.",
+              "This is where the Array digests the Spire's energy readings \u2014 translating ancient solar harmonics into machine-readable data. The processing lanes stretch deep into the hall, guarded by stalker units that patrol with mechanical precision.",
+              "Somewhere in these data banks lies the Array's understanding of the Spire. Its secrets, catalogued and analyzed by an intelligence that has spent centuries trying to comprehend what it conquered."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "data_terminal",
+        "event": "tile_interact",
+        "filter": {
+          "tileX": 11,
+          "tileY": 9
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "processing_terminal_read"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "processing_terminal_read"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "ARRAY PROCESSING LOG \u2014 CYCLE 847,291: Solar energy throughput at 12.4% of theoretical maximum. The Spire's core continues to resist full integration. Anomalous energy signatures detected in lower conduit levels.",
+              "ANALYSIS: The Spire's crystalline architecture appears to be actively routing energy away from Array collection nodes. Recommend increased processing allocation to counter-pattern generation."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 15
+          }
+        ],
+        "once": true
+      }
+    ]
 }

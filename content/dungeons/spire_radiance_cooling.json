@@ -59,42 +59,120 @@
     { "x": 14, "y": 17, "leadsTo": "spire_radiance_conduit", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "cooling_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The Array's cooling infrastructure sprawls before you — a labyrinth of pipes, vents, and heat exchangers struggling to contain the Spire's relentless thermal output.",
-          "Many systems have already failed. Burst pipes leak coolant across the floor, and shattered vents release scalding steam in unpredictable bursts. The temperature here is brutal.",
-          "The cooling systems were never designed for this. The Spire generates more heat than any machine can dissipate — and it has been getting worse."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "heat_warning",
-      "event": "room_entered",
-      "conditions": [{ "not": { "hasFlag": "cooling_heat_warned" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "cooling_heat_warned" },
-        { "type": "showMessage", "text": "Warning: ambient temperature exceeding safe thresholds. The deeper you descend, the worse it will get. The Spire's core is a furnace — and the cooling systems down here are losing the battle." }
-      ],
-      "once": true
-    },
-    {
-      "id": "cooling_control_panel",
-      "event": "tile_interact",
-      "filter": { "tileX": 11, "tileY": 11 },
-      "conditions": [{ "not": { "hasFlag": "cooling_panel_used" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "cooling_panel_used" },
-        { "type": "showMessage", "lines": [
-          "The cooling control panel flickers to life. Emergency override available. You reroute the remaining coolant reserves to flood the central chamber.",
-          "The temperature drops noticeably — but only in this immediate area. A temporary reprieve. The systems are too far gone for a permanent fix."
-        ]},
-        { "type": "grantXp", "amount": 10 }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "cooling_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Array's cooling infrastructure sprawls before you \u2014 a labyrinth of pipes, vents, and heat exchangers struggling to contain the Spire's relentless thermal output.",
+              "Many systems have already failed. Burst pipes leak coolant across the floor, and shattered vents release scalding steam in unpredictable bursts. The temperature here is brutal.",
+              "The cooling systems were never designed for this. The Spire generates more heat than any machine can dissipate \u2014 and it has been getting worse."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "cooling_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Array's cooling infrastructure sprawls before you \u2014 a labyrinth of pipes, vents, and heat exchangers struggling to contain the Spire's relentless thermal output.",
+              "Many systems have already failed. Burst pipes leak coolant across the floor, and shattered vents release scalding steam in unpredictable bursts. The temperature here is brutal.",
+              "The cooling systems were never designed for this. The Spire generates more heat than any machine can dissipate \u2014 and it has been getting worse."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "heat_warning",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "cooling_heat_warned"
+            }
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "cooling_heat_warned"
+          },
+          {
+            "type": "showMessage",
+            "text": "Warning: ambient temperature exceeding safe thresholds. The deeper you descend, the worse it will get. The Spire's core is a furnace \u2014 and the cooling systems down here are losing the battle."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "heat_warning_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "cooling_heat_warned"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "cooling_heat_warned"
+          },
+          {
+            "type": "showMessage",
+            "text": "Warning: ambient temperature exceeding safe thresholds. The deeper you descend, the worse it will get. The Spire's core is a furnace \u2014 and the cooling systems down here are losing the battle."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "cooling_control_panel",
+        "event": "tile_interact",
+        "filter": {
+          "tileX": 11,
+          "tileY": 11
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "cooling_panel_used"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "cooling_panel_used"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The cooling control panel flickers to life. Emergency override available. You reroute the remaining coolant reserves to flood the central chamber.",
+              "The temperature drops noticeably \u2014 but only in this immediate area. A temporary reprieve. The systems are too far gone for a permanent fix."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 10
+          }
+        ],
+        "once": true
+      }
+    ]
 }

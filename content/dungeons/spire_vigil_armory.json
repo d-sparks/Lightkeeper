@@ -64,70 +64,133 @@
     }
   ],
   "triggers": [
-    {
-      "id": "armory_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "Racks of salvaged weapons line the walls — clubs wrapped in wire, crossbows rebuilt from scrap, shields beaten from hull plating. The raiders have turned ancient storage vaults into their arsenal.",
-          "Deeper in, trapped corridors protect the most valuable stores. Two crystal pedestals flank a sealed gate — the Spire's original security system, still functional after millennia.",
-          "The raiders couldn't crack the lock. Perhaps you can."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "armory_pedestal_west",
-      "event": "door_interacted",
-      "filter": { "tileX": 9, "tileY": 5 },
-      "actions": [
-        { "type": "setFlag", "flag": "armory_pedestal_west" },
-        { "type": "showMessage", "text": "The western pedestal hums to life, emitting a pale blue glow. Ancient mechanisms click somewhere behind the walls." }
-      ],
-      "once": true
-    },
-    {
-      "id": "armory_pedestal_east",
-      "event": "door_interacted",
-      "filter": { "tileX": 6, "tileY": 10 },
-      "actions": [
-        { "type": "setFlag", "flag": "armory_pedestal_east" },
-        { "type": "showMessage", "text": "The eastern pedestal activates with a resonant chime. Light traces through channels carved in the floor." }
-      ],
-      "once": true
-    },
-    {
-      "id": "armory_gate_check",
-      "event": "flag_changed",
-      "conditions": [
-        { "hasFlag": "armory_pedestal_west" },
-        { "hasFlag": "armory_pedestal_east" }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "armory_gate_opened" },
-        { "type": "grantXp", "amount": 40 },
-        { "type": "showMessage", "lines": [
-          "Both pedestals are active. The crystal gate at the far end of the armory grinds open, revealing stairs descending into the barracks below.",
-          "The Spire's ancient lock yields to those who understand its design — not brute force, but harmony."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "chest_loot_armory",
-      "event": "door_interacted",
-      "filter": { "tileName": "chest_closed" },
-      "actions": [
-        { "type": "rollLootTable", "lootTable": "spire_vigil_chest" }
-      ]
-    },
-    {
-      "id": "mark_armory_visited",
-      "event": "room_entered",
-      "actions": [
-        { "type": "setFlag", "flag": "visited_spire_armory", "scope": "player" }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "armory_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Racks of salvaged weapons line the walls \u2014 clubs wrapped in wire, crossbows rebuilt from scrap, shields beaten from hull plating. The raiders have turned ancient storage vaults into their arsenal.",
+              "Deeper in, trapped corridors protect the most valuable stores. Two crystal pedestals flank a sealed gate \u2014 the Spire's original security system, still functional after millennia.",
+              "The raiders couldn't crack the lock. Perhaps you can."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "armory_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Racks of salvaged weapons line the walls \u2014 clubs wrapped in wire, crossbows rebuilt from scrap, shields beaten from hull plating. The raiders have turned ancient storage vaults into their arsenal.",
+              "Deeper in, trapped corridors protect the most valuable stores. Two crystal pedestals flank a sealed gate \u2014 the Spire's original security system, still functional after millennia.",
+              "The raiders couldn't crack the lock. Perhaps you can."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "armory_pedestal_west",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 9,
+          "tileY": 5
+        },
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "armory_pedestal_west"
+          },
+          {
+            "type": "showMessage",
+            "text": "The western pedestal hums to life, emitting a pale blue glow. Ancient mechanisms click somewhere behind the walls."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "armory_pedestal_east",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 6,
+          "tileY": 10
+        },
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "armory_pedestal_east"
+          },
+          {
+            "type": "showMessage",
+            "text": "The eastern pedestal activates with a resonant chime. Light traces through channels carved in the floor."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "armory_gate_check",
+        "event": "flag_changed",
+        "conditions": [
+          {
+            "hasFlag": "armory_pedestal_west"
+          },
+          {
+            "hasFlag": "armory_pedestal_east"
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "armory_gate_opened"
+          },
+          {
+            "type": "grantXp",
+            "amount": 40
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "Both pedestals are active. The crystal gate at the far end of the armory grinds open, revealing stairs descending into the barracks below.",
+              "The Spire's ancient lock yields to those who understand its design \u2014 not brute force, but harmony."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "chest_loot_armory",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "spire_vigil_chest"
+          }
+        ]
+      },
+      {
+        "id": "mark_armory_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_armory",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      }
+    ]
 }

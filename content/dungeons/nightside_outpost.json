@@ -78,6 +78,19 @@
     {
       "id": "outpost_enter",
       "event": "room_entered",
+      "conditions": [{ "noHostilesInRoom": true }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The cavern widens into a natural gallery — and you find what's left of a raider forward camp. Fire pits still warm. Supply crates pried open and abandoned. Whoever was here left in a hurry.",
+          "Boot prints in the frost lead deeper into the Nightside, converging on a single direction. Southeast. Toward something they wanted badly enough to move their entire operation.",
+          "The fauna have already moved in to reclaim the space. You're not the only one following the trail."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "outpost_enter_cleared",
+      "event": "room_cleared",
       "actions": [
         { "type": "showMessage", "lines": [
           "The cavern widens into a natural gallery — and you find what's left of a raider forward camp. Fire pits still warm. Supply crates pried open and abandoned. Whoever was here left in a hurry.",

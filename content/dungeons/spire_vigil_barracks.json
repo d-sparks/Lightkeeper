@@ -68,58 +68,109 @@
     { "x": 21, "y": 18, "leadsTo": "spire_vigil_fortress", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "barracks_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "Makeshift living quarters fill the ancient halls — hammocks strung between crystal pillars, cook fires blackening ceilings that once channeled light. The stench of unwashed bodies and smoked meat hangs heavy.",
-          "Bedrolls, scattered personal effects, crude graffiti scratched into timeless walls. The raiders have made this place home, after a fashion.",
-          "Movement in the shadows. This floor is densely populated — and they know you're here."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "barracks_central_ambush",
-      "event": "tile_entered",
-      "filter": { "tileX": 11, "tileY": 9 },
-      "conditions": [
-        { "not": { "hasFlag": "barracks_ambush_sprung" } }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "barracks_ambush_sprung" },
-        { "type": "showMessage", "lines": [
-          "A sharp whistle pierces the air — ambush! Raiders pour from concealed alcoves on all sides.",
-          "Feral hounds snarl and lunge from the shadows. This was a trap, and you walked right into it."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "barracks_hound_pen",
-      "event": "tile_entered",
-      "filter": { "tileX": 8, "tileY": 7 },
-      "actions": [
-        { "type": "showMessage", "text": "Gnawed bones and scratched flooring — a feral hound pen. The alpha's territory. The crystal walls bear deep claw marks." }
-      ],
-      "once": true
-    },
-    {
-      "id": "chest_loot_barracks",
-      "event": "door_interacted",
-      "filter": { "tileName": "chest_closed" },
-      "actions": [
-        { "type": "rollLootTable", "lootTable": "spire_vigil_chest" }
-      ]
-    },
-    {
-      "id": "mark_barracks_visited",
-      "event": "room_entered",
-      "actions": [
-        { "type": "setFlag", "flag": "visited_spire_barracks", "scope": "player" }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "barracks_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Makeshift living quarters fill the ancient halls \u2014 hammocks strung between crystal pillars, cook fires blackening ceilings that once channeled light. The stench of unwashed bodies and smoked meat hangs heavy.",
+              "Bedrolls, scattered personal effects, crude graffiti scratched into timeless walls. The raiders have made this place home, after a fashion.",
+              "Movement in the shadows. This floor is densely populated \u2014 and they know you're here."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "barracks_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Makeshift living quarters fill the ancient halls \u2014 hammocks strung between crystal pillars, cook fires blackening ceilings that once channeled light. The stench of unwashed bodies and smoked meat hangs heavy.",
+              "Bedrolls, scattered personal effects, crude graffiti scratched into timeless walls. The raiders have made this place home, after a fashion.",
+              "Movement in the shadows. This floor is densely populated \u2014 and they know you're here."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "barracks_central_ambush",
+        "event": "tile_entered",
+        "filter": {
+          "tileX": 11,
+          "tileY": 9
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "barracks_ambush_sprung"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "barracks_ambush_sprung"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "A sharp whistle pierces the air \u2014 ambush! Raiders pour from concealed alcoves on all sides.",
+              "Feral hounds snarl and lunge from the shadows. This was a trap, and you walked right into it."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "barracks_hound_pen",
+        "event": "tile_entered",
+        "filter": {
+          "tileX": 8,
+          "tileY": 7
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "Gnawed bones and scratched flooring \u2014 a feral hound pen. The alpha's territory. The crystal walls bear deep claw marks."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "chest_loot_barracks",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "spire_vigil_chest"
+          }
+        ]
+      },
+      {
+        "id": "mark_barracks_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_barracks",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      }
+    ]
 }

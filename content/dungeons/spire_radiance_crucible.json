@@ -46,77 +46,175 @@
     { "x": 7, "y": 15, "leadsTo": "spire_radiance_core", "type": "stairs_down", "spawnX": 7, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "crucible_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The Crucible. A perfectly symmetrical chamber of ancient crystal, designed not for defense but for focusing. Three solar pedestals ring a central passage, their surfaces dark and cold.",
-          "The passage to the core below is sealed — not by the Array, but by the Spire itself. The pedestals must be activated to open the way. This was the Underlumen's final lock.",
-          "No enemies guard this place. The Spire's builders trusted the puzzle itself to be sufficient protection."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "pedestal_north",
-      "event": "tile_interact",
-      "filter": { "tileX": 8, "tileY": 7 },
-      "conditions": [{ "not": { "hasFlag": "crucible_pedestal_north" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "crucible_pedestal_north" },
-        { "type": "showMessage", "text": "You place your hand on the northern pedestal. Solar energy surges up through the crystal floor, and the pedestal ignites with a warm golden light. The bridge above hums with power. First pedestal activated." },
-        { "type": "grantXp", "amount": 10 }
-      ],
-      "once": true
-    },
-    {
-      "id": "pedestal_south",
-      "event": "tile_interact",
-      "filter": { "tileX": 8, "tileY": 10 },
-      "conditions": [{ "not": { "hasFlag": "crucible_pedestal_south" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "crucible_pedestal_south" },
-        { "type": "showMessage", "text": "The southern pedestal flares to life. Energy channels in the floor connect it to the northern pedestal, and the two beams converge toward the center of the chamber. Second pedestal activated." },
-        { "type": "grantXp", "amount": 10 }
-      ],
-      "once": true
-    },
-    {
-      "id": "pedestal_center",
-      "event": "tile_interact",
-      "filter": { "tileX": 8, "tileY": 8 },
-      "conditions": [
-        { "hasFlag": "crucible_pedestal_north" },
-        { "hasFlag": "crucible_pedestal_south" },
-        { "not": { "hasFlag": "crucible_pedestal_center" } }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "crucible_pedestal_center" },
-        { "type": "showMessage", "text": "The central pedestal accepts your touch only after the other two are lit. All three beams converge, and the floor trembles. Third pedestal activated." },
-        { "type": "grantXp", "amount": 10 }
-      ],
-      "once": true
-    },
-    {
-      "id": "crucible_complete",
-      "event": "tile_interact",
-      "conditions": [
-        { "hasFlag": "crucible_pedestal_north" },
-        { "hasFlag": "crucible_pedestal_south" },
-        { "hasFlag": "crucible_pedestal_center" },
-        { "not": { "hasFlag": "crucible_complete" } }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "crucible_complete" },
-        { "type": "showMessage", "lines": [
-          "The three beams of focused solar energy converge on the passage below. Ancient crystal seals shatter in a cascade of light, and the way to the core opens.",
-          "Heat rolls up from the passage in waves — the raw, unfiltered thermal output of a star's energy focused to a single point. The Spire's heart awaits.",
-          "The Underlumen built this lock not to keep intruders out, but to ensure that only those who understood the Spire's purpose could reach its center."
-        ]},
-        { "type": "grantXp", "amount": 30 }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "crucible_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Crucible. A perfectly symmetrical chamber of ancient crystal, designed not for defense but for focusing. Three solar pedestals ring a central passage, their surfaces dark and cold.",
+              "The passage to the core below is sealed \u2014 not by the Array, but by the Spire itself. The pedestals must be activated to open the way. This was the Underlumen's final lock.",
+              "No enemies guard this place. The Spire's builders trusted the puzzle itself to be sufficient protection."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "crucible_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Crucible. A perfectly symmetrical chamber of ancient crystal, designed not for defense but for focusing. Three solar pedestals ring a central passage, their surfaces dark and cold.",
+              "The passage to the core below is sealed \u2014 not by the Array, but by the Spire itself. The pedestals must be activated to open the way. This was the Underlumen's final lock.",
+              "No enemies guard this place. The Spire's builders trusted the puzzle itself to be sufficient protection."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "pedestal_north",
+        "event": "tile_interact",
+        "filter": {
+          "tileX": 8,
+          "tileY": 7
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "crucible_pedestal_north"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "crucible_pedestal_north"
+          },
+          {
+            "type": "showMessage",
+            "text": "You place your hand on the northern pedestal. Solar energy surges up through the crystal floor, and the pedestal ignites with a warm golden light. The bridge above hums with power. First pedestal activated."
+          },
+          {
+            "type": "grantXp",
+            "amount": 10
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "pedestal_south",
+        "event": "tile_interact",
+        "filter": {
+          "tileX": 8,
+          "tileY": 10
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "crucible_pedestal_south"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "crucible_pedestal_south"
+          },
+          {
+            "type": "showMessage",
+            "text": "The southern pedestal flares to life. Energy channels in the floor connect it to the northern pedestal, and the two beams converge toward the center of the chamber. Second pedestal activated."
+          },
+          {
+            "type": "grantXp",
+            "amount": 10
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "pedestal_center",
+        "event": "tile_interact",
+        "filter": {
+          "tileX": 8,
+          "tileY": 8
+        },
+        "conditions": [
+          {
+            "hasFlag": "crucible_pedestal_north"
+          },
+          {
+            "hasFlag": "crucible_pedestal_south"
+          },
+          {
+            "not": {
+              "hasFlag": "crucible_pedestal_center"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "crucible_pedestal_center"
+          },
+          {
+            "type": "showMessage",
+            "text": "The central pedestal accepts your touch only after the other two are lit. All three beams converge, and the floor trembles. Third pedestal activated."
+          },
+          {
+            "type": "grantXp",
+            "amount": 10
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "crucible_complete",
+        "event": "tile_interact",
+        "conditions": [
+          {
+            "hasFlag": "crucible_pedestal_north"
+          },
+          {
+            "hasFlag": "crucible_pedestal_south"
+          },
+          {
+            "hasFlag": "crucible_pedestal_center"
+          },
+          {
+            "not": {
+              "hasFlag": "crucible_complete"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "crucible_complete"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The three beams of focused solar energy converge on the passage below. Ancient crystal seals shatter in a cascade of light, and the way to the core opens.",
+              "Heat rolls up from the passage in waves \u2014 the raw, unfiltered thermal output of a star's energy focused to a single point. The Spire's heart awaits.",
+              "The Underlumen built this lock not to keep intruders out, but to ensure that only those who understood the Spire's purpose could reach its center."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 30
+          }
+        ],
+        "once": true
+      }
+    ]
 }

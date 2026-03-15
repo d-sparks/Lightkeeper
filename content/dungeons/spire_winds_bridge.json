@@ -59,27 +59,87 @@
     { "x": 17, "y": 18, "leadsTo": "spire_winds_depths", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "bridge_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The gallery gives way to a dizzying expanse of open void. Narrow bridges of ancient stone arc across a chasm so deep the bottom is invisible — only darkness and the endless rush of spiraling wind.",
-          "The bridges connect island-like platforms of carved stone, each suspended by forces you cannot see. Wind gusts surge through the void in rhythmic pulses, strong enough to stagger you if you're caught mid-crossing.",
-          "Creatures cling to the underside of the bridges, moving with unsettling ease across surfaces no human could grip. They've made this vertical maze their hunting ground."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "wind_gust_warning",
-      "event": "room_entered",
-      "conditions": [{ "not": { "hasFlag": "bridge_gust_warned" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "bridge_gust_warned" },
-        { "type": "showMessage", "text": "A powerful gust of wind roars up from the void below. The bridges shudder but hold. Timing your crossings between gusts will be essential — the wind follows a pattern, rising and falling in cycles." }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "bridge_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The gallery gives way to a dizzying expanse of open void. Narrow bridges of ancient stone arc across a chasm so deep the bottom is invisible \u2014 only darkness and the endless rush of spiraling wind.",
+              "The bridges connect island-like platforms of carved stone, each suspended by forces you cannot see. Wind gusts surge through the void in rhythmic pulses, strong enough to stagger you if you're caught mid-crossing.",
+              "Creatures cling to the underside of the bridges, moving with unsettling ease across surfaces no human could grip. They've made this vertical maze their hunting ground."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "bridge_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The gallery gives way to a dizzying expanse of open void. Narrow bridges of ancient stone arc across a chasm so deep the bottom is invisible \u2014 only darkness and the endless rush of spiraling wind.",
+              "The bridges connect island-like platforms of carved stone, each suspended by forces you cannot see. Wind gusts surge through the void in rhythmic pulses, strong enough to stagger you if you're caught mid-crossing.",
+              "Creatures cling to the underside of the bridges, moving with unsettling ease across surfaces no human could grip. They've made this vertical maze their hunting ground."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "wind_gust_warning",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "bridge_gust_warned"
+            }
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "bridge_gust_warned"
+          },
+          {
+            "type": "showMessage",
+            "text": "A powerful gust of wind roars up from the void below. The bridges shudder but hold. Timing your crossings between gusts will be essential \u2014 the wind follows a pattern, rising and falling in cycles."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "wind_gust_warning_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "bridge_gust_warned"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "bridge_gust_warned"
+          },
+          {
+            "type": "showMessage",
+            "text": "A powerful gust of wind roars up from the void below. The bridges shudder but hold. Timing your crossings between gusts will be essential \u2014 the wind follows a pattern, rising and falling in cycles."
+          }
+        ],
+        "once": true
+      }
+    ]
 }

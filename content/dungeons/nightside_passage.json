@@ -74,6 +74,18 @@
     {
       "id": "nightside_passage_enter",
       "event": "room_entered",
+      "conditions": [{ "noHostilesInRoom": true }],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "Unbounded trail markers are scratched into the walls here. Fresh ones. Sable's people have walked this path recently.",
+          "The umbracite veins in the walls pulse with a deep, rhythmic light. Like a heartbeat."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "nightside_passage_enter_cleared",
+      "event": "room_cleared",
       "actions": [
         { "type": "showMessage", "lines": [
           "Unbounded trail markers are scratched into the walls here. Fresh ones. Sable's people have walked this path recently.",
@@ -128,6 +140,24 @@
       "event": "room_entered",
       "conditions": [
         { "hasFlag": "nightside_expedition_started" },
+        { "not": { "hasFlag": "felt_underlumen_pulse" } },
+        { "noHostilesInRoom": true }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "felt_underlumen_pulse" },
+        { "type": "showMessage", "lines": [
+          "The floor shudders. Not an earthquake — something rhythmic. Purposeful.",
+          "The umbracite veins in the walls flare bright for three seconds, then dim. Flare again. Dim.",
+          "It's breathing. The planet is breathing."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "passage_underlumen_pulse_cleared",
+      "event": "room_cleared",
+      "conditions": [
+        { "hasFlag": "nightside_expedition_started" },
         { "not": { "hasFlag": "felt_underlumen_pulse" } }
       ],
       "actions": [
@@ -175,6 +205,24 @@
     {
       "id": "passage_exit_warning",
       "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "nightside_expedition_started" },
+        { "not": { "hasFlag": "passage_exit_warned" } },
+        { "noHostilesInRoom": true }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "passage_exit_warned" },
+        { "type": "showMessage", "lines": [
+          "The passage opens into a vast natural cavern. Far below, through gaps in the stone, you see light — not sunlight, not Sol light.",
+          "A deep, warm bioluminescence radiates from somewhere beneath the planet's crust. The Underlumen.",
+          "The stairs at the far end descend toward it. There will be no turning back easily from what lies below."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "passage_exit_warning_cleared",
+      "event": "room_cleared",
       "conditions": [
         { "hasFlag": "nightside_expedition_started" },
         { "not": { "hasFlag": "passage_exit_warned" } }

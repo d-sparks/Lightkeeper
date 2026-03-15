@@ -57,61 +57,109 @@
     { "x": 9, "y": 18, "leadsTo": "spire_vigil_underlumen", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "descent_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The raider territory ends abruptly. One step past the sanctum threshold and everything changes — the crude modifications disappear, replaced by pristine crystal architecture that hums with quiet energy.",
-          "The air is different here. Warmer. The biting cold of the Nightside fades as you descend, replaced by a gentle radiance that seems to emanate from the walls themselves.",
-          "No graffiti. No weapon racks. No sign that any human has set foot here in centuries. Only the patient glow of ancient light, guiding you deeper."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "descent_central_void",
-      "event": "tile_entered",
-      "filter": { "tileX": 9, "tileY": 9 },
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The spiral path descends around a vast central void — a shaft that plunges into darkness so deep it seems to swallow light itself.",
-          "But not quite. Far, far below, you can see it: a faint pulse of amber light, rhythmic as a heartbeat. The Underlumen core, still alive after all this time.",
-          "The water that floods the central shaft reflects the pulse back upward, creating a pillar of ghost-light that reaches toward the surface world above."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "descent_lore_pickup",
-      "event": "tile_entered",
-      "filter": { "tileX": 9, "tileY": 15 },
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "Crystal markers line the final stretch of the descent. Each one bears the same geometric warning you saw in the archives, but here they pulse more urgently.",
-          "The architecture shifts subtly — walls curve in ways that shouldn't be possible, corridors that seem straight reveal gentle spirals. Underlumen design principles, built to channel resonance rather than merely contain space.",
-          "Whatever waits below, the builders wanted visitors to understand: you are leaving the world you know."
-        ]},
-        { "type": "grantXp", "amount": 15 }
-      ],
-      "once": true
-    },
-    {
-      "id": "descent_door_transition",
-      "event": "door_interacted",
-      "filter": { "tileX": 10, "tileY": 15 },
-      "actions": [
-        { "type": "showMessage", "text": "The crystal gate opens silently — perfectly balanced after millennia. Beyond it, the architecture transforms completely. You are entering the Underlumen proper." }
-      ],
-      "once": true
-    },
-    {
-      "id": "mark_descent_visited",
-      "event": "room_entered",
-      "actions": [
-        { "type": "setFlag", "flag": "visited_spire_descent", "scope": "player" }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "descent_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The raider territory ends abruptly. One step past the sanctum threshold and everything changes \u2014 the crude modifications disappear, replaced by pristine crystal architecture that hums with quiet energy.",
+              "The air is different here. Warmer. The biting cold of the Nightside fades as you descend, replaced by a gentle radiance that seems to emanate from the walls themselves.",
+              "No graffiti. No weapon racks. No sign that any human has set foot here in centuries. Only the patient glow of ancient light, guiding you deeper."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "descent_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The raider territory ends abruptly. One step past the sanctum threshold and everything changes \u2014 the crude modifications disappear, replaced by pristine crystal architecture that hums with quiet energy.",
+              "The air is different here. Warmer. The biting cold of the Nightside fades as you descend, replaced by a gentle radiance that seems to emanate from the walls themselves.",
+              "No graffiti. No weapon racks. No sign that any human has set foot here in centuries. Only the patient glow of ancient light, guiding you deeper."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "descent_central_void",
+        "event": "tile_entered",
+        "filter": {
+          "tileX": 9,
+          "tileY": 9
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The spiral path descends around a vast central void \u2014 a shaft that plunges into darkness so deep it seems to swallow light itself.",
+              "But not quite. Far, far below, you can see it: a faint pulse of amber light, rhythmic as a heartbeat. The Underlumen core, still alive after all this time.",
+              "The water that floods the central shaft reflects the pulse back upward, creating a pillar of ghost-light that reaches toward the surface world above."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "descent_lore_pickup",
+        "event": "tile_entered",
+        "filter": {
+          "tileX": 9,
+          "tileY": 15
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Crystal markers line the final stretch of the descent. Each one bears the same geometric warning you saw in the archives, but here they pulse more urgently.",
+              "The architecture shifts subtly \u2014 walls curve in ways that shouldn't be possible, corridors that seem straight reveal gentle spirals. Underlumen design principles, built to channel resonance rather than merely contain space.",
+              "Whatever waits below, the builders wanted visitors to understand: you are leaving the world you know."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 15
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "descent_door_transition",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 10,
+          "tileY": 15
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The crystal gate opens silently \u2014 perfectly balanced after millennia. Beyond it, the architecture transforms completely. You are entering the Underlumen proper."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "mark_descent_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_descent",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      }
+    ]
 }

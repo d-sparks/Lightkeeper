@@ -53,17 +53,40 @@
     { "x": 18, "y": 16, "leadsTo": "spire_winds_laboratory", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "guardpost_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "A fortified Bulwark checkpoint blocks the passage deeper into the Monument. Sandbag walls and prefab barricades create overlapping fields of fire through the ancient corridors.",
-          "Conscripts patrol in disciplined pairs while riflemen watch from elevated positions. A patrol drone hums overhead, its sensors sweeping the approach routes.",
-          "Getting past this guard post will require either stealth or overwhelming force. The Bulwark clearly doesn't want anyone reaching whatever lies below."
-        ]}
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "guardpost_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "A fortified Bulwark checkpoint blocks the passage deeper into the Monument. Sandbag walls and prefab barricades create overlapping fields of fire through the ancient corridors.",
+              "Conscripts patrol in disciplined pairs while riflemen watch from elevated positions. A patrol drone hums overhead, its sensors sweeping the approach routes.",
+              "Getting past this guard post will require either stealth or overwhelming force. The Bulwark clearly doesn't want anyone reaching whatever lies below."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "guardpost_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "A fortified Bulwark checkpoint blocks the passage deeper into the Monument. Sandbag walls and prefab barricades create overlapping fields of fire through the ancient corridors.",
+              "Conscripts patrol in disciplined pairs while riflemen watch from elevated positions. A patrol drone hums overhead, its sensors sweeping the approach routes.",
+              "Getting past this guard post will require either stealth or overwhelming force. The Bulwark clearly doesn't want anyone reaching whatever lies below."
+            ]
+          }
+        ],
+        "once": true
+      }
+    ]
 }

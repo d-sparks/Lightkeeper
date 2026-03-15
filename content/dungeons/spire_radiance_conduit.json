@@ -59,40 +59,108 @@
     { "x": 8, "y": 20, "leadsTo": "spire_radiance_forge", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "conduit_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "Below the Nexus, the Array's infrastructure peels away like dead skin. The ancient architecture of the Spire reasserts itself — massive vertical conduits that channel raw solar energy from the surface to the core below.",
-          "The conduits pulse with blinding light. Energy flows downward in visible streams, following channels carved into crystal walls that glow with their own inner fire. The heat is beyond anything the Array's cooling systems can manage.",
-          "This is not a passage designed for machines or humans. This is a focusing instrument — built to concentrate the power of a star into a single point deep below."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "bridge_cross",
-      "event": "room_entered",
-      "conditions": [{ "not": { "hasFlag": "radiance_bridge_crossed" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "radiance_bridge_crossed" },
-        { "type": "showMessage", "text": "The energy bridge holds — barely. Ancient crystal spans the conduit void, humming with channeled solar power. The light below is so intense your sol unit automatically dims its display." }
-      ],
-      "once": true
-    },
-    {
-      "id": "lore_pickup",
-      "event": "item_picked_up",
-      "filter": { "itemType": "lore_radiance_nexus_directive" },
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The Array's founding directive for this Spire. Three hundred years ago, the Array's central intelligence looked at this ancient structure and saw the most powerful energy source on the planet.",
-          "It didn't try to destroy the Spire or replicate it. It tried to become it. And the Spire has been letting it try — while quietly routing that computational power into its own ancient systems."
-        ]},
-        { "type": "grantXp", "amount": 20 }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "conduit_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Below the Nexus, the Array's infrastructure peels away like dead skin. The ancient architecture of the Spire reasserts itself \u2014 massive vertical conduits that channel raw solar energy from the surface to the core below.",
+              "The conduits pulse with blinding light. Energy flows downward in visible streams, following channels carved into crystal walls that glow with their own inner fire. The heat is beyond anything the Array's cooling systems can manage.",
+              "This is not a passage designed for machines or humans. This is a focusing instrument \u2014 built to concentrate the power of a star into a single point deep below."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "conduit_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Below the Nexus, the Array's infrastructure peels away like dead skin. The ancient architecture of the Spire reasserts itself \u2014 massive vertical conduits that channel raw solar energy from the surface to the core below.",
+              "The conduits pulse with blinding light. Energy flows downward in visible streams, following channels carved into crystal walls that glow with their own inner fire. The heat is beyond anything the Array's cooling systems can manage.",
+              "This is not a passage designed for machines or humans. This is a focusing instrument \u2014 built to concentrate the power of a star into a single point deep below."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "bridge_cross",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "radiance_bridge_crossed"
+            }
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "radiance_bridge_crossed"
+          },
+          {
+            "type": "showMessage",
+            "text": "The energy bridge holds \u2014 barely. Ancient crystal spans the conduit void, humming with channeled solar power. The light below is so intense your sol unit automatically dims its display."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "bridge_cross_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "radiance_bridge_crossed"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "radiance_bridge_crossed"
+          },
+          {
+            "type": "showMessage",
+            "text": "The energy bridge holds \u2014 barely. Ancient crystal spans the conduit void, humming with channeled solar power. The light below is so intense your sol unit automatically dims its display."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "lore_pickup",
+        "event": "item_picked_up",
+        "filter": {
+          "itemType": "lore_radiance_nexus_directive"
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Array's founding directive for this Spire. Three hundred years ago, the Array's central intelligence looked at this ancient structure and saw the most powerful energy source on the planet.",
+              "It didn't try to destroy the Spire or replicate it. It tried to become it. And the Spire has been letting it try \u2014 while quietly routing that computational power into its own ancient systems."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 20
+          }
+        ],
+        "once": true
+      }
+    ]
 }

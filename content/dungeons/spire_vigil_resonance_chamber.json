@@ -53,123 +53,231 @@
     }
   ],
   "triggers": [
-    {
-      "id": "resonance_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The chamber is a perfect octagon of crystal, centered on a deep well of dark water. The walls pulse with harmonic light — wave patterns that ripple outward from three pedestals arranged around the chamber.",
-          "Each pedestal bears a different geometric symbol: a circle, a triangle, a square. The symbols glow faintly, waiting.",
-          "No monsters here. No threats. Only the patient hum of ancient machinery and the gentle lapping of water against crystal. This is a place of intention, not violence."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "resonance_pedestal_north",
-      "event": "door_interacted",
-      "filter": { "tileX": 8, "tileY": 4 },
-      "actions": [
-        { "type": "setFlag", "flag": "resonance_pedestal_1" },
-        { "type": "showMessage", "lines": [
-          "You press the circle symbol. The pedestal rings with a deep bass tone that vibrates through the floor. Light pulses outward from the pedestal in concentric circles.",
-          "The first harmonic. The chamber remembers."
-        ]},
-        { "type": "grantXp", "amount": 20 }
-      ],
-      "once": true
-    },
-    {
-      "id": "resonance_pedestal_west",
-      "event": "door_interacted",
-      "filter": { "tileX": 2, "tileY": 8 },
-      "conditions": [
-        { "hasFlag": "resonance_pedestal_1" }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "resonance_pedestal_2" },
-        { "type": "showMessage", "lines": [
-          "The triangle symbol activates with a mid-range harmonic that layers over the first tone. The two frequencies interweave, creating interference patterns in the water below.",
-          "The second harmonic. The chamber awakens."
-        ]},
-        { "type": "grantXp", "amount": 20 }
-      ],
-      "once": true
-    },
-    {
-      "id": "resonance_pedestal_west_early",
-      "event": "door_interacted",
-      "filter": { "tileX": 2, "tileY": 8 },
-      "conditions": [
-        { "not": { "hasFlag": "resonance_pedestal_1" } }
-      ],
-      "actions": [
-        { "type": "showMessage", "text": "The pedestal flickers but doesn't respond. The sequence must begin elsewhere — the circle symbol to the north pulses invitingly." }
-      ]
-    },
-    {
-      "id": "resonance_pedestal_east",
-      "event": "door_interacted",
-      "filter": { "tileX": 14, "tileY": 8 },
-      "conditions": [
-        { "hasFlag": "resonance_pedestal_2" }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "resonance_pedestal_3" },
-        { "type": "showMessage", "lines": [
-          "The square symbol completes the triad. A high, clear tone joins the harmony — three frequencies that together form something greater than their parts.",
-          "The third harmonic. The chamber resonates."
-        ]},
-        { "type": "grantXp", "amount": 20 }
-      ],
-      "once": true
-    },
-    {
-      "id": "resonance_pedestal_east_early",
-      "event": "door_interacted",
-      "filter": { "tileX": 14, "tileY": 8 },
-      "conditions": [
-        { "not": { "hasFlag": "resonance_pedestal_2" } }
-      ],
-      "actions": [
-        { "type": "showMessage", "text": "The pedestal remains dark. The harmonic sequence is incomplete — other pedestals must be activated first." }
-      ]
-    },
-    {
-      "id": "resonance_complete_check",
-      "event": "flag_changed",
-      "conditions": [
-        { "hasFlag": "resonance_pedestal_1" },
-        { "hasFlag": "resonance_pedestal_2" },
-        { "hasFlag": "resonance_pedestal_3" }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "resonance_complete" },
-        { "type": "grantXp", "amount": 50 },
-        { "type": "showMessage", "lines": [
-          "All three harmonics align. The chamber erupts in light — crystalline walls blaze with patterns that cascade from floor to ceiling. The water in the central well begins to glow.",
-          "The sealed gate at the chamber's southern end grinds open, revealing a stairway that descends into brilliant amber light. The core of the Spire of Vigil lies below.",
-          "Whatever the builders sealed away, whatever they spent millennia watching — you are about to find it."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "resonance_south_pedestal",
-      "event": "door_interacted",
-      "filter": { "tileX": 8, "tileY": 12 },
-      "actions": [
-        { "type": "showMessage", "text": "This pedestal displays a map of the Underlumen network — nodes connected by lines of light. The Spire of Vigil pulses at the network's edge, a sentinel watching the boundary." }
-      ],
-      "once": true
-    },
-    {
-      "id": "mark_resonance_visited",
-      "event": "room_entered",
-      "actions": [
-        { "type": "setFlag", "flag": "visited_spire_resonance_chamber", "scope": "player" }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "resonance_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The chamber is a perfect octagon of crystal, centered on a deep well of dark water. The walls pulse with harmonic light \u2014 wave patterns that ripple outward from three pedestals arranged around the chamber.",
+              "Each pedestal bears a different geometric symbol: a circle, a triangle, a square. The symbols glow faintly, waiting.",
+              "No monsters here. No threats. Only the patient hum of ancient machinery and the gentle lapping of water against crystal. This is a place of intention, not violence."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "resonance_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The chamber is a perfect octagon of crystal, centered on a deep well of dark water. The walls pulse with harmonic light \u2014 wave patterns that ripple outward from three pedestals arranged around the chamber.",
+              "Each pedestal bears a different geometric symbol: a circle, a triangle, a square. The symbols glow faintly, waiting.",
+              "No monsters here. No threats. Only the patient hum of ancient machinery and the gentle lapping of water against crystal. This is a place of intention, not violence."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "resonance_pedestal_north",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 8,
+          "tileY": 4
+        },
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "resonance_pedestal_1"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "You press the circle symbol. The pedestal rings with a deep bass tone that vibrates through the floor. Light pulses outward from the pedestal in concentric circles.",
+              "The first harmonic. The chamber remembers."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 20
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "resonance_pedestal_west",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 2,
+          "tileY": 8
+        },
+        "conditions": [
+          {
+            "hasFlag": "resonance_pedestal_1"
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "resonance_pedestal_2"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The triangle symbol activates with a mid-range harmonic that layers over the first tone. The two frequencies interweave, creating interference patterns in the water below.",
+              "The second harmonic. The chamber awakens."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 20
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "resonance_pedestal_west_early",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 2,
+          "tileY": 8
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "resonance_pedestal_1"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The pedestal flickers but doesn't respond. The sequence must begin elsewhere \u2014 the circle symbol to the north pulses invitingly."
+          }
+        ]
+      },
+      {
+        "id": "resonance_pedestal_east",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 14,
+          "tileY": 8
+        },
+        "conditions": [
+          {
+            "hasFlag": "resonance_pedestal_2"
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "resonance_pedestal_3"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The square symbol completes the triad. A high, clear tone joins the harmony \u2014 three frequencies that together form something greater than their parts.",
+              "The third harmonic. The chamber resonates."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 20
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "resonance_pedestal_east_early",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 14,
+          "tileY": 8
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "resonance_pedestal_2"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The pedestal remains dark. The harmonic sequence is incomplete \u2014 other pedestals must be activated first."
+          }
+        ]
+      },
+      {
+        "id": "resonance_complete_check",
+        "event": "flag_changed",
+        "conditions": [
+          {
+            "hasFlag": "resonance_pedestal_1"
+          },
+          {
+            "hasFlag": "resonance_pedestal_2"
+          },
+          {
+            "hasFlag": "resonance_pedestal_3"
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "resonance_complete"
+          },
+          {
+            "type": "grantXp",
+            "amount": 50
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "All three harmonics align. The chamber erupts in light \u2014 crystalline walls blaze with patterns that cascade from floor to ceiling. The water in the central well begins to glow.",
+              "The sealed gate at the chamber's southern end grinds open, revealing a stairway that descends into brilliant amber light. The core of the Spire of Vigil lies below.",
+              "Whatever the builders sealed away, whatever they spent millennia watching \u2014 you are about to find it."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "resonance_south_pedestal",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 8,
+          "tileY": 12
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "This pedestal displays a map of the Underlumen network \u2014 nodes connected by lines of light. The Spire of Vigil pulses at the network's edge, a sentinel watching the boundary."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "mark_resonance_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_resonance_chamber",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      }
+    ]
 }

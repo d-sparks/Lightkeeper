@@ -58,6 +58,23 @@
     {
       "id": "arrive_farmstead",
       "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "visited_greenway_farmstead" } },
+        { "noHostilesInRoom": true }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Greenway opens before you \u2014 long rows of engineered crops stretching under banks of grow-lights. Irrigation canals divide the fields into orderly plots.",
+          "It should be peaceful. Instead, Bulwark soldiers patrol the paths between fields. A requisition convoy idles near the eastern road, half-loaded with confiscated produce.",
+          "Farmers watch from the edges of their plots. Their expressions are carefully neutral. The kind of neutral that comes from practice."
+        ]},
+        { "type": "setFlag", "flag": "visited_greenway_farmstead" }
+      ],
+      "once": true
+    },
+    {
+      "id": "arrive_farmstead_cleared",
+      "event": "room_cleared",
       "conditions": [{ "not": { "hasFlag": "visited_greenway_farmstead" } }],
       "actions": [
         { "type": "showMessage", "lines": [

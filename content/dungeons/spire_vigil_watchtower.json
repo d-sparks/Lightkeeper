@@ -62,51 +62,95 @@
     { "x": 21, "y": 16, "leadsTo": "spire_vigil_garrison", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "watchtower_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The watchtower juts upward from the Spire's outer shell, overlooking miles of dark wasteland. Cold wind screams through arrow slits carved into ancient crystal walls.",
-          "Luddite lookout posts have been hammered into the stonework — crude wooden platforms bolted to architecture that predates civilization. Crossbowmen scan the approaches from elevated nests.",
-          "Below, the dark wastes stretch endlessly. Up here, the raiders have turned precision-engineered observation galleries into sniper positions."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "watchtower_bridge_cross",
-      "event": "tile_entered",
-      "filter": { "tileX": 6, "tileY": 7 },
-      "actions": [
-        { "type": "showMessage", "text": "A narrow crystal bridge spans a gap where the floor has collapsed into darkness. The water below reflects no light." }
-      ],
-      "once": true
-    },
-    {
-      "id": "watchtower_south_bridge",
-      "event": "tile_entered",
-      "filter": { "tileX": 11, "tileY": 12 },
-      "actions": [
-        { "type": "showMessage", "text": "Another crystal bridge over a flooded pit. Faint bioluminescence pulses in the water far below — something alive down there." }
-      ],
-      "once": true
-    },
-    {
-      "id": "chest_loot_watchtower",
-      "event": "door_interacted",
-      "filter": { "tileName": "chest_closed" },
-      "actions": [
-        { "type": "rollLootTable", "lootTable": "spire_vigil_chest" }
-      ]
-    },
-    {
-      "id": "mark_watchtower_visited",
-      "event": "room_entered",
-      "actions": [
-        { "type": "setFlag", "flag": "visited_spire_watchtower", "scope": "player" }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "watchtower_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The watchtower juts upward from the Spire's outer shell, overlooking miles of dark wasteland. Cold wind screams through arrow slits carved into ancient crystal walls.",
+              "Luddite lookout posts have been hammered into the stonework \u2014 crude wooden platforms bolted to architecture that predates civilization. Crossbowmen scan the approaches from elevated nests.",
+              "Below, the dark wastes stretch endlessly. Up here, the raiders have turned precision-engineered observation galleries into sniper positions."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "watchtower_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The watchtower juts upward from the Spire's outer shell, overlooking miles of dark wasteland. Cold wind screams through arrow slits carved into ancient crystal walls.",
+              "Luddite lookout posts have been hammered into the stonework \u2014 crude wooden platforms bolted to architecture that predates civilization. Crossbowmen scan the approaches from elevated nests.",
+              "Below, the dark wastes stretch endlessly. Up here, the raiders have turned precision-engineered observation galleries into sniper positions."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "watchtower_bridge_cross",
+        "event": "tile_entered",
+        "filter": {
+          "tileX": 6,
+          "tileY": 7
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "A narrow crystal bridge spans a gap where the floor has collapsed into darkness. The water below reflects no light."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "watchtower_south_bridge",
+        "event": "tile_entered",
+        "filter": {
+          "tileX": 11,
+          "tileY": 12
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "Another crystal bridge over a flooded pit. Faint bioluminescence pulses in the water far below \u2014 something alive down there."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "chest_loot_watchtower",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "spire_vigil_chest"
+          }
+        ]
+      },
+      {
+        "id": "mark_watchtower_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_watchtower",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      }
+    ]
 }

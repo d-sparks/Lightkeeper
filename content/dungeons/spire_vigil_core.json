@@ -39,83 +39,179 @@
     { "x": 6, "y": 1, "leadsTo": "spire_vigil_resonance_chamber", "type": "stairs_up", "spawnX": 7, "spawnY": 16 }
   ],
   "triggers": [
-    {
-      "id": "core_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The spiral staircase ends in a vast circular chamber. The walls curve inward overhead, converging on a point of absolute darkness at the apex — and within that darkness, a single point of light.",
-          "The Spire's resonance core. The geometric patterns on every surface pulse in rhythm with your sol unit, as if the ancient structure recognizes the technology you carry.",
-          "At the center of the chamber, a crystal pedestal rises from the floor. Its surface is covered in symbols you can't read — but the meaning is clear. This is an interface. It's waiting for you."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "core_pedestal_interact",
-      "event": "door_interacted",
-      "filter": { "tileX": 7, "tileY": 10 },
-      "conditions": [
-        { "not": { "hasFlag": "light_sentry_unlocked" } }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "light_sentry_unlocked" },
-        { "type": "showMessage", "lines": [
-          "You place your hand on the crystal pedestal. Your sol unit flares — painfully bright — and the entire chamber ignites.",
-          "Light erupts from every geometric groove, every symbol, every surface. The patterns converge on your sol unit and pour energy through it in a cascade that rewrites its base configuration.",
-          "For a moment you feel it — the Underlumen. A vast network beneath the planet's surface, ancient beyond reckoning. Not alive, exactly. But aware. Responding.",
-          "The torrent subsides. Your sol unit has changed. New patterns are etched into its housing, and a new ability thrums in its core: the power to deploy autonomous light. A sentry that holds ground for you.",
-          "The Spire of Vigil has given you what it was built to teach: spatial control through light. The ability to hold territory, to defend positions, to project presence beyond your own body.",
-          "LIGHT SENTRY UNLOCKED — deploy stationary sentries that target enemies with sustained beams."
-        ]},
-        { "type": "giveItem", "itemType": "light_sentry_chip" },
-        { "type": "grantXp", "amount": 150 },
-        { "type": "setQuestObjective", "text": "Return to Outpost Balor with the Spire data" }
-      ],
-      "once": true
-    },
-    {
-      "id": "core_chest",
-      "event": "door_interacted",
-      "filter": { "tileName": "chest_closed" },
-      "conditions": [
-        { "hasFlag": "light_sentry_unlocked" }
-      ],
-      "actions": [
-        { "type": "rollLootTable", "lootTable": "spire_vigil_chest" },
-        { "type": "showMessage", "text": "The Spire offers one final gift — a cache of ancient components, preserved in crystal since before human colonization." }
-      ]
-    },
-    {
-      "id": "core_chest_locked",
-      "event": "door_interacted",
-      "filter": { "tileName": "chest_closed" },
-      "conditions": [
-        { "not": { "hasFlag": "light_sentry_unlocked" } }
-      ],
-      "actions": [
-        { "type": "showMessage", "text": "The cache is sealed behind crystal. The central pedestal must be activated first." }
-      ]
-    },
-    {
-      "id": "post_unlock_message",
-      "event": "room_entered",
-      "conditions": [
-        { "hasFlag": "light_sentry_unlocked" }
-      ],
-      "actions": [
-        { "type": "showMessage", "text": "The resonance core pulses gently. The Spire's purpose is fulfilled — for now. Its inner chambers will reconfigure for those who return seeking greater challenges." }
-      ],
-      "once": true
-    },
-    {
-      "id": "mark_core_visited",
-      "event": "room_entered",
-      "actions": [
-        { "type": "setFlag", "flag": "visited_spire_core", "scope": "player" },
-        { "type": "setFlag", "flag": "spire_vigil_core_reached", "scope": "player" }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "core_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The spiral staircase ends in a vast circular chamber. The walls curve inward overhead, converging on a point of absolute darkness at the apex \u2014 and within that darkness, a single point of light.",
+              "The Spire's resonance core. The geometric patterns on every surface pulse in rhythm with your sol unit, as if the ancient structure recognizes the technology you carry.",
+              "At the center of the chamber, a crystal pedestal rises from the floor. Its surface is covered in symbols you can't read \u2014 but the meaning is clear. This is an interface. It's waiting for you."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "core_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The spiral staircase ends in a vast circular chamber. The walls curve inward overhead, converging on a point of absolute darkness at the apex \u2014 and within that darkness, a single point of light.",
+              "The Spire's resonance core. The geometric patterns on every surface pulse in rhythm with your sol unit, as if the ancient structure recognizes the technology you carry.",
+              "At the center of the chamber, a crystal pedestal rises from the floor. Its surface is covered in symbols you can't read \u2014 but the meaning is clear. This is an interface. It's waiting for you."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "core_pedestal_interact",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 7,
+          "tileY": 10
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "light_sentry_unlocked"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "light_sentry_unlocked"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "You place your hand on the crystal pedestal. Your sol unit flares \u2014 painfully bright \u2014 and the entire chamber ignites.",
+              "Light erupts from every geometric groove, every symbol, every surface. The patterns converge on your sol unit and pour energy through it in a cascade that rewrites its base configuration.",
+              "For a moment you feel it \u2014 the Underlumen. A vast network beneath the planet's surface, ancient beyond reckoning. Not alive, exactly. But aware. Responding.",
+              "The torrent subsides. Your sol unit has changed. New patterns are etched into its housing, and a new ability thrums in its core: the power to deploy autonomous light. A sentry that holds ground for you.",
+              "The Spire of Vigil has given you what it was built to teach: spatial control through light. The ability to hold territory, to defend positions, to project presence beyond your own body.",
+              "LIGHT SENTRY UNLOCKED \u2014 deploy stationary sentries that target enemies with sustained beams."
+            ]
+          },
+          {
+            "type": "giveItem",
+            "itemType": "light_sentry_chip"
+          },
+          {
+            "type": "grantXp",
+            "amount": 150
+          },
+          {
+            "type": "setQuestObjective",
+            "text": "Return to Outpost Balor with the Spire data"
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "core_chest",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "conditions": [
+          {
+            "hasFlag": "light_sentry_unlocked"
+          }
+        ],
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "spire_vigil_chest"
+          },
+          {
+            "type": "showMessage",
+            "text": "The Spire offers one final gift \u2014 a cache of ancient components, preserved in crystal since before human colonization."
+          }
+        ]
+      },
+      {
+        "id": "core_chest_locked",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "light_sentry_unlocked"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The cache is sealed behind crystal. The central pedestal must be activated first."
+          }
+        ]
+      },
+      {
+        "id": "post_unlock_message",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "hasFlag": "light_sentry_unlocked"
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The resonance core pulses gently. The Spire's purpose is fulfilled \u2014 for now. Its inner chambers will reconfigure for those who return seeking greater challenges."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "post_unlock_message_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "hasFlag": "light_sentry_unlocked"
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The resonance core pulses gently. The Spire's purpose is fulfilled \u2014 for now. Its inner chambers will reconfigure for those who return seeking greater challenges."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "mark_core_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_core",
+            "scope": "player"
+          },
+          {
+            "type": "setFlag",
+            "flag": "spire_vigil_core_reached",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      }
+    ]
 }

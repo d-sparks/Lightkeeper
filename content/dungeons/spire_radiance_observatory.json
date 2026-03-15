@@ -56,60 +56,139 @@
     { "x": 12, "y": 15, "leadsTo": "spire_radiance_sanctum", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "observatory_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "A crystalline observatory opens around you — a vast chamber where ancient lenses of shaped crystal hang suspended in geometric arrays, each one focusing and redirecting beams of solar energy along invisible channels.",
-          "The light here moves with purpose, bouncing between lenses in patterns too complex to follow. Some channels are dark — their lenses misaligned by centuries of neglect.",
-          "The Underlumen builders used this chamber to observe and direct the Spire's energy flows. Two of the main focusing lenses have drifted from their mounts. Realigning them might reveal what this observatory was watching."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "lens_align_left",
-      "event": "tile_interact",
-      "filter": { "tileX": 6, "tileY": 7 },
-      "conditions": [{ "not": { "hasFlag": "observatory_lens_left" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "observatory_lens_left" },
-        { "type": "showMessage", "text": "You rotate the crystalline lens back into its mount. A beam of concentrated light snaps into alignment, illuminating a channel that runs deep into the floor below. One lens aligned." },
-        { "type": "grantXp", "amount": 15 }
-      ],
-      "once": true
-    },
-    {
-      "id": "lens_align_right",
-      "event": "tile_interact",
-      "filter": { "tileX": 16, "tileY": 9 },
-      "conditions": [{ "not": { "hasFlag": "observatory_lens_right" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "observatory_lens_right" },
-        { "type": "showMessage", "text": "The second lens clicks into place. Another beam of light joins the first, and the two converge on a point far below — the direction of the Spire's core. Two lenses aligned." },
-        { "type": "grantXp", "amount": 15 }
-      ],
-      "once": true
-    },
-    {
-      "id": "lens_puzzle_complete",
-      "event": "tile_interact",
-      "conditions": [
-        { "hasFlag": "observatory_lens_left" },
-        { "hasFlag": "observatory_lens_right" },
-        { "not": { "hasFlag": "observatory_puzzle_complete" } }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "observatory_puzzle_complete" },
-        { "type": "setFlag", "flag": "radiance_conduits_aligned" },
-        { "type": "showMessage", "lines": [
-          "Both lenses aligned, the observatory comes alive. Light cascades through every crystal surface, and for a brief moment you see it — a map of the Spire's energy architecture rendered in pure light.",
-          "The core is not just below you. It is everywhere — threaded through every wall, every crystal, every conduit. The entire Spire is the core. And it is waking up."
-        ]},
-        { "type": "grantXp", "amount": 25 }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "observatory_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "A crystalline observatory opens around you \u2014 a vast chamber where ancient lenses of shaped crystal hang suspended in geometric arrays, each one focusing and redirecting beams of solar energy along invisible channels.",
+              "The light here moves with purpose, bouncing between lenses in patterns too complex to follow. Some channels are dark \u2014 their lenses misaligned by centuries of neglect.",
+              "The Underlumen builders used this chamber to observe and direct the Spire's energy flows. Two of the main focusing lenses have drifted from their mounts. Realigning them might reveal what this observatory was watching."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "observatory_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "A crystalline observatory opens around you \u2014 a vast chamber where ancient lenses of shaped crystal hang suspended in geometric arrays, each one focusing and redirecting beams of solar energy along invisible channels.",
+              "The light here moves with purpose, bouncing between lenses in patterns too complex to follow. Some channels are dark \u2014 their lenses misaligned by centuries of neglect.",
+              "The Underlumen builders used this chamber to observe and direct the Spire's energy flows. Two of the main focusing lenses have drifted from their mounts. Realigning them might reveal what this observatory was watching."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "lens_align_left",
+        "event": "tile_interact",
+        "filter": {
+          "tileX": 6,
+          "tileY": 7
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "observatory_lens_left"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "observatory_lens_left"
+          },
+          {
+            "type": "showMessage",
+            "text": "You rotate the crystalline lens back into its mount. A beam of concentrated light snaps into alignment, illuminating a channel that runs deep into the floor below. One lens aligned."
+          },
+          {
+            "type": "grantXp",
+            "amount": 15
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "lens_align_right",
+        "event": "tile_interact",
+        "filter": {
+          "tileX": 16,
+          "tileY": 9
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "observatory_lens_right"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "observatory_lens_right"
+          },
+          {
+            "type": "showMessage",
+            "text": "The second lens clicks into place. Another beam of light joins the first, and the two converge on a point far below \u2014 the direction of the Spire's core. Two lenses aligned."
+          },
+          {
+            "type": "grantXp",
+            "amount": 15
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "lens_puzzle_complete",
+        "event": "tile_interact",
+        "conditions": [
+          {
+            "hasFlag": "observatory_lens_left"
+          },
+          {
+            "hasFlag": "observatory_lens_right"
+          },
+          {
+            "not": {
+              "hasFlag": "observatory_puzzle_complete"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "observatory_puzzle_complete"
+          },
+          {
+            "type": "setFlag",
+            "flag": "radiance_conduits_aligned"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "Both lenses aligned, the observatory comes alive. Light cascades through every crystal surface, and for a brief moment you see it \u2014 a map of the Spire's energy architecture rendered in pure light.",
+              "The core is not just below you. It is everywhere \u2014 threaded through every wall, every crystal, every conduit. The entire Spire is the core. And it is waking up."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 25
+          }
+        ],
+        "once": true
+      }
+    ]
 }

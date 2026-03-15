@@ -59,69 +59,142 @@
     { "x": 23, "y": 18, "leadsTo": "spire_winds_excavation", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "fortress_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "Inside the Monument's outer shell, the Bulwark has built a full military installation. Prefab walls divide the ancient stone corridors into barracks, armories, and command posts.",
-          "The architecture fights itself — ancient curves forced into military right angles. Cables snake over carved geometric patterns older than human civilization.",
-          "Somewhere in this fortress, the Bulwark commander has established a command post. Beyond that — the way down into the Monument's true structure."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "thorne_defeated",
-      "event": "monster_killed",
-      "filter": { "monsterType": "bulwark_general_thorne" },
-      "actions": [
-        { "type": "setFlag", "flag": "general_thorne_defeated" },
-        { "type": "showMessage", "lines": [
-          "General Thorne falls. His final words are not a curse but a warning: 'You don't understand what's down there. We were trying to contain it — not control it.'",
-          "His command tablet clatters to the floor. The blast doors deeper in the fortress lose their security lock.",
-          "Whatever the Bulwark found beneath the Monument, it frightened even a Compact general."
-        ]},
-        { "type": "grantXp", "amount": 100 },
-        { "type": "giveItem", "itemType": "thorne_command_tablet" },
-        { "type": "setQuestObjective", "text": "Descend into the Spire's ancient structure" }
-      ],
-      "once": true
-    },
-    {
-      "id": "command_panel",
-      "event": "door_interacted",
-      "filter": { "tileName": "control_panel" },
-      "conditions": [{ "not": { "hasFlag": "fortress_intel_gathered" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "fortress_intel_gathered" },
-        { "type": "showMessage", "lines": [
-          "The Bulwark command terminal is still active. Scrolling through the logs reveals weeks of escalating reports:",
-          "'Excavation Level 3 — structural anomaly. Vertical shaft, apparently natural. Wind readings inconsistent with surface conditions.'",
-          "'Level 5 — team reports geometric patterns on walls. Similar to those documented at the Nightside site. Requesting specialist support.'",
-          "'Level 7 — General Thorne has ordered the shaft sealed. Something is resonating down there. The engineers' equipment keeps recalibrating itself.'"
-        ]},
-        { "type": "grantXp", "amount": 25 }
-      ],
-      "once": true
-    },
-    {
-      "id": "armory_chest",
-      "event": "door_interacted",
-      "filter": { "tileName": "chest_closed" },
-      "actions": [
-        { "type": "rollLootTable", "lootTable": "bulwark_common" },
-        { "type": "showMessage", "text": "Bulwark armory equipment. Military-grade supplies." }
-      ]
-    },
-    {
-      "id": "supply_crate_loot",
-      "event": "door_interacted",
-      "filter": { "tileName": "supply_crate_closed" },
-      "actions": [
-        { "type": "rollLootTable", "lootTable": "bulwark_common" },
-        { "type": "showMessage", "text": "Requisitioned supplies. Stamped with Compact military insignia." }
-      ]
-    }
-  ]
+      {
+        "id": "fortress_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Inside the Monument's outer shell, the Bulwark has built a full military installation. Prefab walls divide the ancient stone corridors into barracks, armories, and command posts.",
+              "The architecture fights itself \u2014 ancient curves forced into military right angles. Cables snake over carved geometric patterns older than human civilization.",
+              "Somewhere in this fortress, the Bulwark commander has established a command post. Beyond that \u2014 the way down into the Monument's true structure."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "fortress_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Inside the Monument's outer shell, the Bulwark has built a full military installation. Prefab walls divide the ancient stone corridors into barracks, armories, and command posts.",
+              "The architecture fights itself \u2014 ancient curves forced into military right angles. Cables snake over carved geometric patterns older than human civilization.",
+              "Somewhere in this fortress, the Bulwark commander has established a command post. Beyond that \u2014 the way down into the Monument's true structure."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "thorne_defeated",
+        "event": "monster_killed",
+        "filter": {
+          "monsterType": "bulwark_general_thorne"
+        },
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "general_thorne_defeated"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "General Thorne falls. His final words are not a curse but a warning: 'You don't understand what's down there. We were trying to contain it \u2014 not control it.'",
+              "His command tablet clatters to the floor. The blast doors deeper in the fortress lose their security lock.",
+              "Whatever the Bulwark found beneath the Monument, it frightened even a Compact general."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 100
+          },
+          {
+            "type": "giveItem",
+            "itemType": "thorne_command_tablet"
+          },
+          {
+            "type": "setQuestObjective",
+            "text": "Descend into the Spire's ancient structure"
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "command_panel",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "control_panel"
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "fortress_intel_gathered"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "fortress_intel_gathered"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Bulwark command terminal is still active. Scrolling through the logs reveals weeks of escalating reports:",
+              "'Excavation Level 3 \u2014 structural anomaly. Vertical shaft, apparently natural. Wind readings inconsistent with surface conditions.'",
+              "'Level 5 \u2014 team reports geometric patterns on walls. Similar to those documented at the Nightside site. Requesting specialist support.'",
+              "'Level 7 \u2014 General Thorne has ordered the shaft sealed. Something is resonating down there. The engineers' equipment keeps recalibrating itself.'"
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 25
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "armory_chest",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "bulwark_common"
+          },
+          {
+            "type": "showMessage",
+            "text": "Bulwark armory equipment. Military-grade supplies."
+          }
+        ]
+      },
+      {
+        "id": "supply_crate_loot",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "supply_crate_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "bulwark_common"
+          },
+          {
+            "type": "showMessage",
+            "text": "Requisitioned supplies. Stamped with Compact military insignia."
+          }
+        ]
+      }
+    ]
 }

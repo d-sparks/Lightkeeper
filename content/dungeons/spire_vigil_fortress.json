@@ -66,79 +66,157 @@
     { "x": 11, "y": 19, "leadsTo": "spire_vigil_archives", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "fortress_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The corridor opens into a vaulted chamber — the raiders have turned the Spire's interior into a command post. Weapon racks, supply caches, and crude sleeping quarters line the walls.",
-          "At the center, a Raider Captain directs operations. This is the garrison's command structure. Break through here and Dural Voss himself awaits below."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "entry_gate",
-      "event": "door_interacted",
-      "filter": { "tileX": 11, "tileY": 3 },
-      "actions": [
-        { "type": "showMessage", "text": "The crystal barrier slides aside. Beyond it, the fortress opens into a wide defensive gallery." }
-      ],
-      "once": true
-    },
-    {
-      "id": "captain_killed",
-      "event": "monster_killed",
-      "filter": { "monsterType": "luddite_captain" },
-      "actions": [
-        { "type": "setFlag", "flag": "fortress_captain_killed" },
-        { "type": "grantXp", "amount": 40 },
-        { "type": "showMessage", "lines": [
-          "The Raider Captain falls. Without their commander, the garrison's coordination breaks down.",
-          "The inner gate to Voss's sanctum should be passable now."
-        ]},
-        { "type": "setTile", "x": 10, "y": 17, "tileId": 5 },
-        { "type": "setTile", "x": 11, "y": 17, "tileId": 5 }
-      ],
-      "once": true
-    },
-    {
-      "id": "inner_gate_locked",
-      "event": "door_interacted",
-      "filter": { "tileX": 10, "tileY": 17 },
-      "conditions": [
-        { "not": { "hasFlag": "fortress_captain_killed" } }
-      ],
-      "actions": [
-        { "type": "showMessage", "text": "The inner gate is barricaded from the other side. The garrison commander must be maintaining the lock — defeat the Raider Captain to break through." }
-      ]
-    },
-    {
-      "id": "inner_gate_locked_2",
-      "event": "door_interacted",
-      "filter": { "tileX": 11, "tileY": 17 },
-      "conditions": [
-        { "not": { "hasFlag": "fortress_captain_killed" } }
-      ],
-      "actions": [
-        { "type": "showMessage", "text": "The inner gate is barricaded from the other side. The garrison commander must be maintaining the lock — defeat the Raider Captain to break through." }
-      ]
-    },
-    {
-      "id": "chest_loot_fortress",
-      "event": "door_interacted",
-      "filter": { "tileName": "chest_closed" },
-      "actions": [
-        { "type": "rollLootTable", "lootTable": "spire_vigil_chest" }
-      ]
-    },
-    {
-      "id": "mark_fortress_visited",
-      "event": "room_entered",
-      "actions": [
-        { "type": "setFlag", "flag": "visited_spire_fortress", "scope": "player" }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "fortress_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The corridor opens into a vaulted chamber \u2014 the raiders have turned the Spire's interior into a command post. Weapon racks, supply caches, and crude sleeping quarters line the walls.",
+              "At the center, a Raider Captain directs operations. This is the garrison's command structure. Break through here and Dural Voss himself awaits below."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "fortress_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The corridor opens into a vaulted chamber \u2014 the raiders have turned the Spire's interior into a command post. Weapon racks, supply caches, and crude sleeping quarters line the walls.",
+              "At the center, a Raider Captain directs operations. This is the garrison's command structure. Break through here and Dural Voss himself awaits below."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "entry_gate",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 11,
+          "tileY": 3
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The crystal barrier slides aside. Beyond it, the fortress opens into a wide defensive gallery."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "captain_killed",
+        "event": "monster_killed",
+        "filter": {
+          "monsterType": "luddite_captain"
+        },
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "fortress_captain_killed"
+          },
+          {
+            "type": "grantXp",
+            "amount": 40
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Raider Captain falls. Without their commander, the garrison's coordination breaks down.",
+              "The inner gate to Voss's sanctum should be passable now."
+            ]
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 17,
+            "tileId": 5
+          },
+          {
+            "type": "setTile",
+            "x": 11,
+            "y": 17,
+            "tileId": 5
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "inner_gate_locked",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 10,
+          "tileY": 17
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "fortress_captain_killed"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The inner gate is barricaded from the other side. The garrison commander must be maintaining the lock \u2014 defeat the Raider Captain to break through."
+          }
+        ]
+      },
+      {
+        "id": "inner_gate_locked_2",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 11,
+          "tileY": 17
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "fortress_captain_killed"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The inner gate is barricaded from the other side. The garrison commander must be maintaining the lock \u2014 defeat the Raider Captain to break through."
+          }
+        ]
+      },
+      {
+        "id": "chest_loot_fortress",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "spire_vigil_chest"
+          }
+        ]
+      },
+      {
+        "id": "mark_fortress_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_fortress",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      }
+    ]
 }

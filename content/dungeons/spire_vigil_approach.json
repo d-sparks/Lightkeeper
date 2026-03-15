@@ -62,51 +62,95 @@
     { "x": 19, "y": 17, "leadsTo": "spire_vigil_watchtower", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "approach_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The cavern opens into a massive gallery — and there it is. The Spire of Vigil rises from the bedrock like a dark needle, its surface smooth and geometric where the ice hasn't claimed it.",
-          "The raiders have built fortifications around the base. Barricades of salvaged metal and bone, firelight flickering behind crude walls. You can hear voices, the clang of weapons being sharpened.",
-          "This is Dural Voss's stronghold. The outer defenses are between you and the Spire's interior."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "approach_gate_west",
-      "event": "door_interacted",
-      "filter": { "tileX": 12, "tileY": 5 },
-      "actions": [
-        { "type": "showMessage", "text": "The crystal gate grinds open. Beyond it, raider fortifications line the corridor — they've turned the Spire's architecture into defensive positions." }
-      ],
-      "once": true
-    },
-    {
-      "id": "approach_gate_east",
-      "event": "door_interacted",
-      "filter": { "tileX": 12, "tileY": 14 },
-      "actions": [
-        { "type": "showMessage", "text": "The lower gate yields. The path narrows ahead, winding down toward the Spire's inner levels." }
-      ],
-      "once": true
-    },
-    {
-      "id": "chest_loot_approach",
-      "event": "door_interacted",
-      "filter": { "tileName": "chest_closed" },
-      "actions": [
-        { "type": "rollLootTable", "lootTable": "spire_vigil_chest" }
-      ]
-    },
-    {
-      "id": "mark_approach_visited",
-      "event": "room_entered",
-      "actions": [
-        { "type": "setFlag", "flag": "visited_spire_approach", "scope": "player" }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "approach_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The cavern opens into a massive gallery \u2014 and there it is. The Spire of Vigil rises from the bedrock like a dark needle, its surface smooth and geometric where the ice hasn't claimed it.",
+              "The raiders have built fortifications around the base. Barricades of salvaged metal and bone, firelight flickering behind crude walls. You can hear voices, the clang of weapons being sharpened.",
+              "This is Dural Voss's stronghold. The outer defenses are between you and the Spire's interior."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "approach_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The cavern opens into a massive gallery \u2014 and there it is. The Spire of Vigil rises from the bedrock like a dark needle, its surface smooth and geometric where the ice hasn't claimed it.",
+              "The raiders have built fortifications around the base. Barricades of salvaged metal and bone, firelight flickering behind crude walls. You can hear voices, the clang of weapons being sharpened.",
+              "This is Dural Voss's stronghold. The outer defenses are between you and the Spire's interior."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "approach_gate_west",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 12,
+          "tileY": 5
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The crystal gate grinds open. Beyond it, raider fortifications line the corridor \u2014 they've turned the Spire's architecture into defensive positions."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "approach_gate_east",
+        "event": "door_interacted",
+        "filter": {
+          "tileX": 12,
+          "tileY": 14
+        },
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The lower gate yields. The path narrows ahead, winding down toward the Spire's inner levels."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "chest_loot_approach",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "spire_vigil_chest"
+          }
+        ]
+      },
+      {
+        "id": "mark_approach_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_approach",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      }
+    ]
 }

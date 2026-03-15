@@ -52,6 +52,23 @@
     {
       "id": "arrive_checkpoint",
       "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "visited_greenway_checkpoint" } },
+        { "noHostilesInRoom": true }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The corridor opens into a wide agricultural transit hub. Bright grow-lights line the ceiling, casting everything in warm amber.",
+          "But the warmth ends at the barricades. Bulwark soldiers in grey uniforms man a checkpoint across the main path. Military drones hover overhead, scanning.",
+          "Beyond the barricade, you can see the Greenway \u2014 rows of crops stretching into the distance, greenhouses glinting under artificial sun. And far beyond, a tall stone structure rises above the fields: the Monument of Winds."
+        ]},
+        { "type": "setFlag", "flag": "visited_greenway_checkpoint" }
+      ],
+      "once": true
+    },
+    {
+      "id": "arrive_checkpoint_cleared",
+      "event": "room_cleared",
       "conditions": [{ "not": { "hasFlag": "visited_greenway_checkpoint" } }],
       "actions": [
         { "type": "showMessage", "lines": [

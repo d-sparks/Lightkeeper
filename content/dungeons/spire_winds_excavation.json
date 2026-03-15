@@ -58,37 +58,134 @@
     { "x": 15, "y": 18, "leadsTo": "spire_winds_shaft", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
-    {
-      "id": "excavation_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The Bulwark's excavation site sprawls across a vast cavern where military engineering meets ancient architecture. Drilling rigs and pneumatic hammers stand abandoned beside walls of impossibly precise stonework.",
-          "A massive shaft has been bored through the Monument's foundation, but the diggers clearly hit something unexpected. The edges of the excavation reveal carved chambers far older than the Monument itself.",
-          "Creatures skitter in the darkness below the abandoned equipment. The workers left in a hurry — some of their lights are still on, casting harsh shadows across the dig site."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "abandoned_rig_lore",
-      "event": "room_entered",
-      "conditions": [{ "not": { "hasFlag": "excavation_rig_noted" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "excavation_rig_noted" },
-        { "type": "showMessage", "text": "An abandoned drilling rig lists sideways, its diamond bit shattered against stone that shouldn't exist at this depth. The Bulwark engineers' notes are scrawled on the housing: 'Material resists all cutting methods. Not natural formation.'" }
-      ],
-      "once": true
-    },
-    {
-      "id": "creatures_below",
-      "event": "room_entered",
-      "conditions": [{ "not": { "hasFlag": "excavation_creatures_noted" } }],
-      "actions": [
-        { "type": "setFlag", "flag": "excavation_creatures_noted" },
-        { "type": "showMessage", "text": "Chitinous scraping echoes from the excavated tunnels. The creatures emerging from below seem drawn to the vibrations of the drilling equipment — or perhaps to whatever the drilling disturbed." }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "excavation_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Bulwark's excavation site sprawls across a vast cavern where military engineering meets ancient architecture. Drilling rigs and pneumatic hammers stand abandoned beside walls of impossibly precise stonework.",
+              "A massive shaft has been bored through the Monument's foundation, but the diggers clearly hit something unexpected. The edges of the excavation reveal carved chambers far older than the Monument itself.",
+              "Creatures skitter in the darkness below the abandoned equipment. The workers left in a hurry \u2014 some of their lights are still on, casting harsh shadows across the dig site."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "excavation_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Bulwark's excavation site sprawls across a vast cavern where military engineering meets ancient architecture. Drilling rigs and pneumatic hammers stand abandoned beside walls of impossibly precise stonework.",
+              "A massive shaft has been bored through the Monument's foundation, but the diggers clearly hit something unexpected. The edges of the excavation reveal carved chambers far older than the Monument itself.",
+              "Creatures skitter in the darkness below the abandoned equipment. The workers left in a hurry \u2014 some of their lights are still on, casting harsh shadows across the dig site."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "abandoned_rig_lore",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "excavation_rig_noted"
+            }
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "excavation_rig_noted"
+          },
+          {
+            "type": "showMessage",
+            "text": "An abandoned drilling rig lists sideways, its diamond bit shattered against stone that shouldn't exist at this depth. The Bulwark engineers' notes are scrawled on the housing: 'Material resists all cutting methods. Not natural formation.'"
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "abandoned_rig_lore_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "excavation_rig_noted"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "excavation_rig_noted"
+          },
+          {
+            "type": "showMessage",
+            "text": "An abandoned drilling rig lists sideways, its diamond bit shattered against stone that shouldn't exist at this depth. The Bulwark engineers' notes are scrawled on the housing: 'Material resists all cutting methods. Not natural formation.'"
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "creatures_below",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "excavation_creatures_noted"
+            }
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "excavation_creatures_noted"
+          },
+          {
+            "type": "showMessage",
+            "text": "Chitinous scraping echoes from the excavated tunnels. The creatures emerging from below seem drawn to the vibrations of the drilling equipment \u2014 or perhaps to whatever the drilling disturbed."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "creatures_below_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "excavation_creatures_noted"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "excavation_creatures_noted"
+          },
+          {
+            "type": "showMessage",
+            "text": "Chitinous scraping echoes from the excavated tunnels. The creatures emerging from below seem drawn to the vibrations of the drilling equipment \u2014 or perhaps to whatever the drilling disturbed."
+          }
+        ],
+        "once": true
+      }
+    ]
 }

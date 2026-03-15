@@ -44,120 +44,244 @@
     { "x": 7, "y": 1, "leadsTo": "spire_radiance_crucible", "type": "stairs_up", "spawnX": 7, "spawnY": 15 }
   ],
   "triggers": [
-    {
-      "id": "core_enter",
-      "event": "room_entered",
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The Solar Core. A circular chamber identical in structure to the Spires of Vigil and Winds — but blazing with concentrated light. Every surface radiates energy so intense it has visible weight, bending the air into prismatic halos.",
-          "The geometric patterns on every wall pulse with white-gold fire, cycling in rhythm with your sol unit. The Spire recognizes the technology — and the activation of its sister structures. All three nodes of the ancient network are now live.",
-          "At the center, a crystal pedestal rises from the floor, wreathed in focused solar beams converging from every direction. This is what the Array has been trying to consume for three centuries — the oldest and most powerful energy focusing system on Erith."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "warden_defeated",
-      "event": "monster_killed",
-      "filter": { "monsterType": "solar_core_warden" },
-      "actions": [
-        { "type": "setFlag", "flag": "solar_core_warden_defeated" },
-        { "type": "showMessage", "lines": [
-          "The Solar Core Warden shatters. Not like a machine breaking — like a crystal resonating at frequencies beyond its structure. The ancient construct was the last of the Spire's original guardians, kept alive by the same energy it was built to protect.",
-          "As it falls, the concentrated beams in the chamber realign. The pedestal at the center blazes brighter. The way to the core is open.",
-          "Your sol unit's energy readings spike beyond any measurement it can display. The Spire is offering its gift."
-        ]},
-        { "type": "grantXp", "amount": 150 }
-      ],
-      "once": true
-    },
-    {
-      "id": "core_pedestal_interact",
-      "event": "door_interacted",
-      "filter": { "tileName": "radiance_pedestal" },
-      "conditions": [
-        { "hasFlag": "solar_core_warden_defeated" },
-        { "not": { "hasFlag": "photonic_pulse_unlocked" } }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "photonic_pulse_unlocked" },
-        { "type": "showMessage", "lines": [
-          "You place your hand on the crystal pedestal. The light stops. Every beam, every refraction, every photon in the chamber freezes in place — suspended between moments.",
-          "Then it converges. Light crashes inward from every direction, channeling through the geometric grooves, concentrating on your sol unit with a force that turns the world white. Your vision floods with pure radiance.",
-          "For one eternal instant, you see what the builders saw: light as information, light as structure, light as force. Your sol unit drinks in the knowledge, its architecture reconfiguring around a capability that rewrites its relationship with radiant energy itself.",
-          "The light releases you. Your hands are scorched. Your sol unit is blazing with new circuitry — patterns you've never seen, channels that focus ambient light into concentrated destruction. The Photonic Pulse: the oldest weapon the Spire's builders ever created, and the most devastating.",
-          "PHOTONIC PULSE UNLOCKED — channel and release a massive burst of focused light energy. The blast damages everything in the area and can destroy weakened structures."
-        ]},
-        { "type": "giveItem", "itemType": "pulse_cannon_chip" },
-        { "type": "grantXp", "amount": 200 },
-        { "type": "setQuestObjective", "text": "Return to the Array Complex — all three Spires are now active" }
-      ],
-      "once": true
-    },
-    {
-      "id": "core_pedestal_locked",
-      "event": "door_interacted",
-      "filter": { "tileName": "radiance_pedestal" },
-      "conditions": [
-        { "not": { "hasFlag": "solar_core_warden_defeated" } }
-      ],
-      "actions": [
-        { "type": "showMessage", "text": "The pedestal blazes with concentrated light — too intense to touch. The Solar Core Warden's energy field still saturates the chamber. The guardian must fall before the Spire will yield its gift." }
-      ]
-    },
-    {
-      "id": "core_pedestal_revisit",
-      "event": "door_interacted",
-      "filter": { "tileName": "radiance_pedestal" },
-      "conditions": [
-        { "hasFlag": "photonic_pulse_unlocked" }
-      ],
-      "actions": [
-        { "type": "showMessage", "text": "The pedestal hums with quiet radiance. The Spire's gift has been given. The concentrated light still flows, but gently now — the core is at rest, its purpose fulfilled after millennia of waiting." }
-      ]
-    },
-    {
-      "id": "core_chest",
-      "event": "door_interacted",
-      "filter": { "tileName": "chest_closed" },
-      "conditions": [
-        { "hasFlag": "photonic_pulse_unlocked" }
-      ],
-      "actions": [
-        { "type": "rollLootTable", "lootTable": "threshold_keeper" },
-        { "type": "showMessage", "text": "The Spire offers a final gift — ancient components preserved in focused light, designed for technology that wouldn't exist for millennia after the Spire was built. Solar-forged, imperishable." }
-      ]
-    },
-    {
-      "id": "core_chest_locked",
-      "event": "door_interacted",
-      "filter": { "tileName": "chest_closed" },
-      "conditions": [
-        { "not": { "hasFlag": "photonic_pulse_unlocked" } }
-      ],
-      "actions": [
-        { "type": "showMessage", "text": "The cache is sealed in concentrated light. The radiance pedestal must be activated first." }
-      ]
-    },
-    {
-      "id": "post_unlock_message",
-      "event": "room_entered",
-      "conditions": [
-        { "hasFlag": "photonic_pulse_unlocked" }
-      ],
-      "actions": [
-        { "type": "showMessage", "text": "The Solar Core pulses with gentle warmth. The Spire of Radiance has fulfilled its purpose. Above, the Array's machinery feels very far away — and very fragile. Three Spires, three gifts, three pieces of a network older than humanity. Whatever comes next, you carry the light of all of them." }
-      ],
-      "once": true
-    },
-    {
-      "id": "mark_core_visited",
-      "event": "room_entered",
-      "actions": [
-        { "type": "setFlag", "flag": "visited_spire_radiance_core", "scope": "player" },
-        { "type": "setFlag", "flag": "spire_radiance_core_reached", "scope": "player" }
-      ],
-      "once": true
-    }
-  ]
+      {
+        "id": "core_enter",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Solar Core. A circular chamber identical in structure to the Spires of Vigil and Winds \u2014 but blazing with concentrated light. Every surface radiates energy so intense it has visible weight, bending the air into prismatic halos.",
+              "The geometric patterns on every wall pulse with white-gold fire, cycling in rhythm with your sol unit. The Spire recognizes the technology \u2014 and the activation of its sister structures. All three nodes of the ancient network are now live.",
+              "At the center, a crystal pedestal rises from the floor, wreathed in focused solar beams converging from every direction. This is what the Array has been trying to consume for three centuries \u2014 the oldest and most powerful energy focusing system on Erith."
+            ]
+          }
+        ],
+        "once": true,
+        "conditions": [
+          {
+            "noHostilesInRoom": true
+          }
+        ]
+      },
+      {
+        "id": "core_enter_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Solar Core. A circular chamber identical in structure to the Spires of Vigil and Winds \u2014 but blazing with concentrated light. Every surface radiates energy so intense it has visible weight, bending the air into prismatic halos.",
+              "The geometric patterns on every wall pulse with white-gold fire, cycling in rhythm with your sol unit. The Spire recognizes the technology \u2014 and the activation of its sister structures. All three nodes of the ancient network are now live.",
+              "At the center, a crystal pedestal rises from the floor, wreathed in focused solar beams converging from every direction. This is what the Array has been trying to consume for three centuries \u2014 the oldest and most powerful energy focusing system on Erith."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "warden_defeated",
+        "event": "monster_killed",
+        "filter": {
+          "monsterType": "solar_core_warden"
+        },
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "solar_core_warden_defeated"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Solar Core Warden shatters. Not like a machine breaking \u2014 like a crystal resonating at frequencies beyond its structure. The ancient construct was the last of the Spire's original guardians, kept alive by the same energy it was built to protect.",
+              "As it falls, the concentrated beams in the chamber realign. The pedestal at the center blazes brighter. The way to the core is open.",
+              "Your sol unit's energy readings spike beyond any measurement it can display. The Spire is offering its gift."
+            ]
+          },
+          {
+            "type": "grantXp",
+            "amount": 150
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "core_pedestal_interact",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "radiance_pedestal"
+        },
+        "conditions": [
+          {
+            "hasFlag": "solar_core_warden_defeated"
+          },
+          {
+            "not": {
+              "hasFlag": "photonic_pulse_unlocked"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "photonic_pulse_unlocked"
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "You place your hand on the crystal pedestal. The light stops. Every beam, every refraction, every photon in the chamber freezes in place \u2014 suspended between moments.",
+              "Then it converges. Light crashes inward from every direction, channeling through the geometric grooves, concentrating on your sol unit with a force that turns the world white. Your vision floods with pure radiance.",
+              "For one eternal instant, you see what the builders saw: light as information, light as structure, light as force. Your sol unit drinks in the knowledge, its architecture reconfiguring around a capability that rewrites its relationship with radiant energy itself.",
+              "The light releases you. Your hands are scorched. Your sol unit is blazing with new circuitry \u2014 patterns you've never seen, channels that focus ambient light into concentrated destruction. The Photonic Pulse: the oldest weapon the Spire's builders ever created, and the most devastating.",
+              "PHOTONIC PULSE UNLOCKED \u2014 channel and release a massive burst of focused light energy. The blast damages everything in the area and can destroy weakened structures."
+            ]
+          },
+          {
+            "type": "giveItem",
+            "itemType": "pulse_cannon_chip"
+          },
+          {
+            "type": "grantXp",
+            "amount": 200
+          },
+          {
+            "type": "setQuestObjective",
+            "text": "Return to the Array Complex \u2014 all three Spires are now active"
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "core_pedestal_locked",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "radiance_pedestal"
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "solar_core_warden_defeated"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The pedestal blazes with concentrated light \u2014 too intense to touch. The Solar Core Warden's energy field still saturates the chamber. The guardian must fall before the Spire will yield its gift."
+          }
+        ]
+      },
+      {
+        "id": "core_pedestal_revisit",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "radiance_pedestal"
+        },
+        "conditions": [
+          {
+            "hasFlag": "photonic_pulse_unlocked"
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The pedestal hums with quiet radiance. The Spire's gift has been given. The concentrated light still flows, but gently now \u2014 the core is at rest, its purpose fulfilled after millennia of waiting."
+          }
+        ]
+      },
+      {
+        "id": "core_chest",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "conditions": [
+          {
+            "hasFlag": "photonic_pulse_unlocked"
+          }
+        ],
+        "actions": [
+          {
+            "type": "rollLootTable",
+            "lootTable": "threshold_keeper"
+          },
+          {
+            "type": "showMessage",
+            "text": "The Spire offers a final gift \u2014 ancient components preserved in focused light, designed for technology that wouldn't exist for millennia after the Spire was built. Solar-forged, imperishable."
+          }
+        ]
+      },
+      {
+        "id": "core_chest_locked",
+        "event": "door_interacted",
+        "filter": {
+          "tileName": "chest_closed"
+        },
+        "conditions": [
+          {
+            "not": {
+              "hasFlag": "photonic_pulse_unlocked"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The cache is sealed in concentrated light. The radiance pedestal must be activated first."
+          }
+        ]
+      },
+      {
+        "id": "post_unlock_message",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "hasFlag": "photonic_pulse_unlocked"
+          },
+          {
+            "noHostilesInRoom": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The Solar Core pulses with gentle warmth. The Spire of Radiance has fulfilled its purpose. Above, the Array's machinery feels very far away \u2014 and very fragile. Three Spires, three gifts, three pieces of a network older than humanity. Whatever comes next, you carry the light of all of them."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "post_unlock_message_cleared",
+        "event": "room_cleared",
+        "conditions": [
+          {
+            "hasFlag": "photonic_pulse_unlocked"
+          }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The Solar Core pulses with gentle warmth. The Spire of Radiance has fulfilled its purpose. Above, the Array's machinery feels very far away \u2014 and very fragile. Three Spires, three gifts, three pieces of a network older than humanity. Whatever comes next, you carry the light of all of them."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "mark_core_visited",
+        "event": "room_entered",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_radiance_core",
+            "scope": "player"
+          },
+          {
+            "type": "setFlag",
+            "flag": "spire_radiance_core_reached",
+            "scope": "player"
+          }
+        ],
+        "once": true
+      }
+    ]
 }

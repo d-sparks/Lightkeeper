@@ -275,15 +275,15 @@ Fixed station_junction: room-entry dialogue now deferred until combat clears usi
 - `room_cleared` event — fires for all players when last monster in a room dies
 - `noHostilesInRoom` condition — checks `room.monsters.size === 0`
 
-**Other dungeons with the same issue** (room_entered + showMessage + monsterSpawns):
-- `array_deep_processing` (9 monsters)
-- All Spire of Radiance floors (12 floors total)
-- All Spire of Winds floors (12 floors total)
-- All Spire of Vigil floors (12 floors total)
-- `greenway_supply_depot` (7), `greenway_farmstead` (3), `greenway_checkpoint` (4)
-- `underlumen_threshold` (10), `nightside_passage` (10)
+**All 36 Spire floors + 8 other dungeons fixed (2026-03-15):**
+- All Spire of Vigil floors (12): vigil_approach, vigil_garrison, vigil_barracks, vigil_fortress, vigil_watchtower, vigil_archives, vigil_armory, vigil_resonance_chamber, vigil_underlumen, vigil_descent, vigil_sanctum, vigil_core
+- All Spire of Winds floors (12): winds_approach, winds_guardpost, winds_fortress, winds_bridge, winds_antechamber, winds_shaft, winds_gallery, winds_laboratory, winds_underlumen, winds_depths, winds_excavation, winds_core
+- All Spire of Radiance floors (12): radiance_approach, radiance_perimeter, radiance_conduit, radiance_cooling, radiance_forge, radiance_processing, radiance_crucible, radiance_threshold, radiance_nexus, radiance_observatory, radiance_sanctum, radiance_core
+- `greenway_supply_depot`, `greenway_farmstead`, `greenway_checkpoint`
+- `underlumen_threshold`, `nightside_passage`, `nightside_outpost`, `nightside_frost_crypt`
+- `array_deep_processing`
 
-Each needs the same treatment: add `noHostilesInRoom` condition to room_entered trigger + add a paired `room_cleared` trigger.
+55 spire triggers + 17 non-spire triggers patched. Each modified room_entered trigger gained `noHostilesInRoom: true` + a paired `*_cleared` trigger for players who entered during combat.
 
 ## Testing
 
