@@ -326,6 +326,42 @@
           "'Clear the breach on the old perimeter line — prove you can handle what comes out of the dark. Then we'll talk.'"
         ]}
       ]
+    },
+
+    {
+      "id": "post_vigil_station",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "station_post_vigil_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "station_post_vigil_entered" },
+        { "type": "showMessage", "lines": [
+          "The station buzzes with something different today — tension beneath the usual noise. A cluster of frontier workers near the platform argue in lowered voices.",
+          "You catch fragments: '...energy readings at the old Spire...' '...not raiders, the signatures don't match...' '...Dural Voss retreated, he didn't blow it, something else activated it...'",
+          "The MERIDIAN-7 advertisement cycles overhead, unchanged: 'Powering Progress.' No one is looking at it."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "post_winds_station",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "station_post_winds_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "station_post_winds_entered" },
+        { "type": "showMessage", "lines": [
+          "The MERIDIAN-7 advertisement panel above the ticket windows flickers. It cycles through the usual 'Powering Progress' loop, then cuts to static. Returns. Cuts again.",
+          "A station worker is on a ladder with a toolkit, staring at the panel's mounting bracket with the expression of someone who suspects the problem isn't mechanical.",
+          "At the information desk, a traveler asks about trains to the Ring border — the Compact territories. The clerk shakes her head. 'Delayed until further notice. Ring authority is reviewing all transit through the Greenway checkpoint.'"
+        ]}
+      ],
+      "once": true
     }
   ]
 }

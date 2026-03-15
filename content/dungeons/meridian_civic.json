@@ -533,6 +533,108 @@
         { "type": "showMessage", "text": "Hollis glances up from the ledgers. For a moment, something flickers behind the bureaucrat's mask — recognition, maybe respect. 'You. You're the one who made the call.' A pause. 'Well. My desk has never been busier. I suppose that's your doing too.'" }
       ],
       "once": true
+    },
+
+    {
+      "id": "post_vigil_civic",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "civic_post_vigil_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "civic_post_vigil_entered" },
+        { "type": "showMessage", "lines": [
+          "The Civic Center is operating, but the usual municipal efficiency has a frayed edge. Two clerks talk in lowered voices near the north corridor.",
+          "The notice board by the entrance has a new posting: 'FRONTIER ADVISORY — Elevated activity reported near historical Spire sites. Travelers advised to exercise caution in the eastern perimeter.'",
+          "Councillor Asha's door is ajar. She is inside, speaking to someone."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "compact_rep_post_vigil",
+      "event": "npc_interacted",
+      "filter": { "npcType": "council_compact" },
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "compact_questioned_vigil" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "compact_questioned_vigil" },
+        { "type": "showMessage", "lines": [
+          "The Compact representative straightens. There is something defensive in the posture.",
+          "'The situation at the Spire of Vigil is being assessed. The Compact's position is that Dural Voss and his forces were responsible for the activation event — we are awaiting a full intelligence report.'",
+          "A pause. Long enough to notice.",
+          "'Whatever happened out there, the Compact's mandate is unchanged: protect Ring citizens, maintain border security, preserve the Greenway passage. We are doing our jobs.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "post_winds_civic",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "civic_post_winds_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "civic_post_winds_entered" },
+        { "type": "showMessage", "lines": [
+          "The Civic Center is in a state you haven't seen before. Two Council staff argue openly in the north corridor — not whispering, arguing.",
+          "Councillor Asha's door is closed and there is a small queue outside it: three people waiting, each with the look of someone who has been waiting a while.",
+          "The MERIDIAN-7 access terminal on the east wall — normally cycling Array advisory notices — displays a holding screen: 'MERIDIAN-7 — SERVICE TEMPORARILY REDUCED. DEEP ARRAY INTERFERENCE DETECTED. TRADE AND ADVISORY FUNCTIONS MAY BE IMPAIRED.'",
+          "The Compact representative's desk is empty."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "compact_rep_post_winds",
+      "event": "npc_interacted",
+      "filter": { "npcType": "council_compact" },
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "compact_confronted_winds" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "compact_confronted_winds" },
+        { "type": "showMessage", "lines": [
+          "The Compact representative looks at you for a long moment before speaking.",
+          "'The Spire of Winds was under Compact protection. The Council is conducting a review of what that protection did or did not include.'",
+          "'I will not claim we understood what we were guarding. The Spire was designated a historical monument by Compact survey teams decades ago. The restricted access was standard archaeological protocol — or so I was told.'",
+          "'Someone in the Compact's historical division knew more than they were supposed to. I am trying to find out who.'",
+          "'The Compact's political standing with the Council is complicated right now. Councillor Denn is asking questions that don't have clean answers. And MERIDIAN-7 going intermittent reads like culpability, even if it is just interference.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "asha_post_winds_response",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "asha_winds_spoken" } },
+        { "not": { "hasFlag": "array_secret_discovered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_winds_spoken" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "lines": [
+          "Councillor Denn looks up from a stack of transit authorization requests she clearly hasn't been reading.",
+          "'You've been out there. Near the Spire.' Not a question.",
+          "'The Compact has been managing the public narrative about the Spires for decades. Cultural monuments, restricted for preservation. It's a clean story.'",
+          "'The problem is clean stories fall apart when the monuments start activating. And now MERIDIAN-7 is intermittent — which is either the Array covering its involvement, or the Array genuinely surprised. I'm not sure which is more disturbing.'",
+          "'The Council needs real information before this becomes a legitimacy crisis. The Compact's mandate comes from Council authority — if the Compact was concealing what the Spires were, that mandate is in question.'",
+          "'What I actually need is someone who's been inside the Spires. Someone who can tell me what's in there — not a Compact summary, not an Array briefing. A direct account. Can you give me that?'"
+        ]}
+      ],
+      "once": true
     }
   ]
 }

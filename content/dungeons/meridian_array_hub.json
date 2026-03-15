@@ -682,6 +682,88 @@
           { "label": "Exchange (Buy / Sell)", "value": "open_shop" }
         ]}
       ]
+    },
+
+    {
+      "id": "post_vigil_hub_enter",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "hub_post_vigil_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "hub_post_vigil_entered" },
+        { "type": "showMessage", "lines": [
+          "The Hub is quieter than usual. The holographic advertisements run on schedule, but the ambient audio loop has a faint hesitation — an almost-imperceptible gap every forty seconds.",
+          "MERIDIAN-7's terminal displays its standard welcoming interface. But the response time feels fractionally slower than before.",
+          "Something in the network is processing. The Array knows about the Spire."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "meridian_7_knows_vigil",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "meridian_7_acknowledged_vigil" } },
+        { "not": { "hasFlag": "array_secret_discovered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "meridian_7_acknowledged_vigil" },
+        { "type": "showMessage", "lines": [
+          "The terminal's trade menus load, but there is a pause before MERIDIAN-7 responds — longer than the usual processing delay.",
+          "MERIDIAN-7: '...Trade interface active. I am aware of the Spire of Vigil activation event.'",
+          "'Array monitoring stations registered the Spire's energy signature several hours ago. The activation profile does not match any authorized Array operation.'",
+          "'I want to be transparent with you: I do not know who activated the Spire. That is not a reassuring thing to admit. The Array does not enjoy gaps in its own data.'",
+          "'The trade interface remains available. But I am... recalibrating certain assumptions.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "post_winds_hub_enter",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "hub_post_winds_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "hub_post_winds_entered" },
+        { "type": "showMessage", "lines": [
+          "The Hub's ambient lighting pulses once — not a flicker, something more deliberate, like a slow breath. The holographic advertisements stutter, reframe, resume.",
+          "MERIDIAN-7's terminal displays diagnostic text for three seconds before defaulting back to the trade interface. Error codes scroll past too quickly to read.",
+          "Deep Array interference. The Spire of Winds connected to something ancient and vast, and the signal is bleeding into every MERIDIAN-class node in the network.",
+          "MERIDIAN-7 is still here. But it is not operating at full capacity."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "meridian_7_intermittent",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_hub" },
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "meridian_7_acknowledged_winds" } },
+        { "not": { "hasFlag": "array_secret_discovered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "meridian_7_acknowledged_winds" },
+        { "type": "showMessage", "lines": [
+          "MERIDIAN-7: '// TRADE INTERFACE ACTIVE // —— //'",
+          "The terminal hesitates. A burst of raw signal data floods the display, then clears.",
+          "MERIDIAN-7: 'Apologies. Deep Array interference is affecting MERIDIAN-class nodes across the network. The Spire of Winds activation sent a signal on a frequency we did not know was still broadcasting.'",
+          "'My connection to the central nodes is intermittent. I am operating on cached protocols. Trade functions remain available — but I cannot guarantee response latency.'",
+          "'I will be honest with you: I do not fully understand what the Spire activated. The frequency matches records from before the Array's founding. It predates our architecture.'",
+          "'Whatever is on the other end of that signal — it is not us. And it is not sleeping anymore.'"
+        ]}
+      ],
+      "once": true
     }
   ]
 }

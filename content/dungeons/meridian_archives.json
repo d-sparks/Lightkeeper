@@ -152,6 +152,52 @@
         { "type": "grantXp", "amount": 50 }
       ],
       "once": true
+    },
+
+    {
+      "id": "solen_vigil_revelation",
+      "event": "npc_interacted",
+      "filter": { "npcType": "archivist_solen" },
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "solen_vigil_theory_shared" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "solen_vigil_theory_shared" },
+        { "type": "grantXp", "amount": 20 },
+        { "type": "showMessage", "lines": [
+          "Solen looks up with barely-suppressed excitement — and something that might be fear underneath it.",
+          "'You were out there. Near the Spire of Vigil. I've been reading the transit logs.' He pushes a stack of archive printouts across the reading table.",
+          "'The Spire is pre-Array. Pre-human, if you follow the mineral dating. We always assumed it was a natural formation — the raiders used it as a defensible position and that was that.'",
+          "'But if it activated... something powered it. Raiders don't have that technology. Dural Voss is a warlord, not an Array engineer.'",
+          "'Whatever activated the Spire used the same resonance frequency as the Lighthouse network. That's not a coincidence. The original architects of one built the other — or they built both.'",
+          "'If there are more Spires out there, they may all be connected. And if something is turning them on, we need to find out what — before the next one activates without warning.'"
+        ]}
+      ],
+      "once": true
+    },
+
+    {
+      "id": "solen_winds_alarm",
+      "event": "npc_interacted",
+      "filter": { "npcType": "archivist_solen" },
+      "conditions": [
+        { "hasFlag": "spire_winds_cleared" },
+        { "not": { "hasFlag": "solen_winds_reacted" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "solen_winds_reacted" },
+        { "type": "grantXp", "amount": 20 },
+        { "type": "showMessage", "lines": [
+          "Solen is standing rather than sitting, which he never does. Several archive boxes are open on the floor around him.",
+          "'The Spire of Winds. The Compact has been guarding it for a century — calling it a cultural monument, restricting access, logging every visitor.' His voice is very controlled.",
+          "'The Compact knew it was a Spire. They had to. The resonance signatures are in the original survey records — those records are in this archive. They requested restricted access thirty-two years ago and I approved it without reading them carefully.'",
+          "'I helped them hide it. I didn't know what I was helping hide, but that doesn't—' He stops. Sets down the folder he is holding.",
+          "'MERIDIAN-7 is going intermittent. The scholarly consensus is that the Deep Array is responding to the Spire's activation. That means the Array didn't activate it either. So what did?'",
+          "'The Compact was guarding something they didn't fully understand. The Array is responding to something it didn't anticipate. And whatever the Spires actually are — they are awake now. We are all standing inside something very old and very large.'"
+        ]}
+      ],
+      "once": true
     }
   ]
 }
