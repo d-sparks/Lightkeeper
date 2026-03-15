@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-15 night. Sim quarantine loop FIXED — bot now reaches lighthouse_mara_core (37/124 rooms, 90 kills, 2 deaths, 10m12s). Blocks at conduit puzzle (tile interact conflict). All-quests: 2/21 pass (tannis_tags, relay_recovery), 2 STUCK (pathing), 17 TIMEOUT. Content validator: 0 errors, 59 warnings (unused visited_* flags). Major completed: quarantine fix, item ref fixes, sim tile interaction support, Greenway bio-lab, MERIDIAN-7 alliance content, puzzle variety, full campaign audit. Critical remaining: sim conduit puzzle, Sol Shield heal nerf, sol_cone wall penetration, Lighthouse Mara pacing (19 floors with no checkpoints), 15+ missing sprites, spire_winds_chest loot table.
+Last updated: 2026-03-15 night. Sim quarantine loop FIXED — bot now reaches lighthouse_mara_core (37/124 rooms, 90 kills, 2 deaths, 10m12s). Blocks at conduit puzzle (tile interact conflict). All-quests: 2/21 pass (tannis_tags, relay_recovery), 2 STUCK (pathing), 17 TIMEOUT. Content validator: 0 errors, 59 warnings (unused visited_* flags). Major completed: quarantine fix, item ref fixes, sim tile interaction support, Greenway bio-lab, MERIDIAN-7 alliance content, puzzle variety, full campaign audit, Sol Shield heal nerfed to 1.25 HP/s. Critical remaining: sim conduit puzzle, sol_cone wall penetration, Lighthouse Mara pacing (19 floors with no checkpoints), 15+ missing sprites.
 
 ## Big Picture
 
@@ -10,7 +10,7 @@ The game needs four things to go from "structurally complete" to "shippable":
 
 1. **Sim coverage** — Bot blocks at Mara core conduit puzzle, can't pathfind in large maps, and can't handle ending choices. Only 37/124 rooms reachable by sim. Everything past Act 1 midpoint is testing-dark.
 2. **Pacing & flow** — Lighthouse Mara (19 floors, no checkpoints) is the biggest pacing problem. Greenway → Spire of Winds has no flag gate. Array door override is a dead item. 17/21 quests timeout in sim.
-3. **Game feel & balance** — Sol Shield 3.5 HP/s trivializes all content (2 deaths in mainline). Sol cone penetrates walls. Quarantine warlord is a 67-hit slog with starting weapon.
+3. **Game feel & balance** — Sol Shield nerfed to 1.25 HP/s (heal:15/CD:12s). Sol cone penetrates walls. Quarantine warlord is a 67-hit slog with starting weapon.
 4. **Art & polish** — ~15 entities missing sprites. No real commissioned art yet. 59 orphaned flags represent unrealized narrative connections.
 
 ## Project Status Overview
@@ -34,7 +34,7 @@ The game needs four things to go from "structurally complete" to "shippable":
 | Act III Content | Structurally Done | Three ending dungeons + Spire of Radiance (12 floors) built. Post-choice dialogue and world state done. Main quest steps route through dayside. Sim can't verify (blocks at Mara core). showChoice handler needed for ending path. |
 | Story Campaign Dungeons | Done | Lighthouse Mara (20 floors), all 3 Spires (12 floors each), Greenway (4 zones + 4 bio-lab), Nightside scouting chain all connected. Spire replay tiers implemented. Pacing issues in Mara (19 floors, no checkpoints). |
 | Game Feel | Done | Sound effects (24 SFX), combat juice, death penalty, wind push mechanic all done |
-| Game Balance | Needs Work | Mid-game energy pacing tuned, but Sol Shield 3.5 HP/s passive heal trivializes content (2 deaths in mainline sim). Sol cone penetrates walls. Quarantine warlord is tedious with starting weapon. |
+| Game Balance | Needs Work | Sol Shield nerfed to 1.25 HP/s (heal:15/CD:12s, was 3.5 HP/s). Needs manual playtest to confirm 2-4 deaths. Sol cone penetrates walls. Quarantine warlord is tedious with starting weapon. |
 | Player Onboarding | Done | WASD/interact prompts, first-time tutorial for combat, NPC interaction, and healing |
 | Unit Tests | Done | Tiers 1-4: 320 tests (flag-store, event-bus, automation, conditions, actions, trigger-registry, physics, combat, equipment, sol-grid, room-lifecycle). All passing |
 | Per-Biome Music | Done | Ambient music definitions and tileset-based track selection wired |
@@ -58,7 +58,7 @@ Focus: **Unblock sim, fix game feel, close content gaps**
 1. **Fix sim Mara core conduit puzzle** — Bot reaches lighthouse_mara_core but tryInteract picks up ground items instead of conduit tiles. Blocks all testing beyond Act 1 midpoint.
 2. **Fix sim pathfinding for large/cavern maps** — 2 quests STUCK (lighthouse_mara caverns A* fail, outer_expanse 200x120 exceeds A* limits). Add waypoint nav or chunked pathfinding.
 3. **Teach sim bot showChoice handling** — Ending path choice requires player input bot can't provide. Act 3 untestable.
-4. **Nerf Sol Shield passive heal** — 3.5 HP/s trivializes all content (only 2 deaths in mainline). Reduce to 1-1.5 HP/s. Target 4-6 deaths.
+4. **~~Nerf Sol Shield passive heal~~** — DONE: nerfed to 1.25 HP/s (heal:15/CD:12s). Manual playtest needed to confirm 2-4 deaths target.
 5. **Fix sol_cone wall penetration** — Cone damages through solid tiles. Add LOS check.
 6. **Split Lighthouse Mara into narrative segments** — 19 floors with zero checkpoints is the biggest pacing problem. Add 2-3 intermediate quest objectives, healing caches, mid-tower waypoint.
 7. **Add spire_winds_chest loot table** — Referenced but doesn't exist.
