@@ -687,5 +687,6 @@
       ],
       "once": true
     }
-  ]
+  ],
+  "sim_passthrough": true
 }

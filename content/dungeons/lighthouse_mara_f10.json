@@ -580,18 +580,38 @@
     {
       "id": "f10_dasha_meet",
       "event": "npc_interacted",
-      "filter": { "npcType": "cache_runner_mara" },
-      "conditions": [{ "not": { "hasFlag": "met_cache_runner_mara" } }],
+      "filter": {
+        "npcType": "cache_runner_mara"
+      },
+      "conditions": [
+        {
+          "not": {
+            "hasFlag": "met_cache_runner_mara"
+          }
+        }
+      ],
       "actions": [
-        { "type": "setFlag", "flag": "met_cache_runner_mara" },
+        {
+          "type": "setFlag",
+          "flag": "met_cache_runner_mara"
+        },
         {
           "type": "showChoice",
           "choiceId": "dasha_first_meet",
           "prompt": "A woman in worn cold-weather gear looks up from a thermal flask. 'Supply runner. Ten floors deep is where I stop and you keep going. What do you need?'",
           "options": [
-            { "label": "Browse supplies", "value": "browse" },
-            { "label": "Ask about the lower floors", "value": "ask_below" },
-            { "label": "Nothing right now", "value": "dismiss" }
+            {
+              "label": "Browse supplies",
+              "value": "browse"
+            },
+            {
+              "label": "Ask about the lower floors",
+              "value": "ask_below"
+            },
+            {
+              "label": "Nothing right now",
+              "value": "dismiss"
+            }
           ]
         }
       ]
@@ -599,16 +619,28 @@
     {
       "id": "f10_dasha_return",
       "event": "npc_interacted",
-      "filter": { "npcType": "cache_runner_mara" },
-      "conditions": [{ "hasFlag": "met_cache_runner_mara" }],
+      "filter": {
+        "npcType": "cache_runner_mara"
+      },
+      "conditions": [
+        {
+          "hasFlag": "met_cache_runner_mara"
+        }
+      ],
       "actions": [
         {
           "type": "showChoice",
           "choiceId": "dasha_return",
           "prompt": "Dasha looks up. 'Back already? Or still heading down?'",
           "options": [
-            { "label": "Browse supplies", "value": "browse" },
-            { "label": "Nothing", "value": "dismiss" }
+            {
+              "label": "Browse supplies",
+              "value": "browse"
+            },
+            {
+              "label": "Nothing",
+              "value": "dismiss"
+            }
           ]
         }
       ]
@@ -616,23 +648,38 @@
     {
       "id": "f10_dasha_open_shop",
       "event": "choice_selected",
-      "filter": { "choiceId": "dasha_first_meet", "value": "browse" },
+      "filter": {
+        "choiceId": "dasha_first_meet",
+        "value": "browse"
+      },
       "actions": [
-        { "type": "shop", "shopId": "mara_supply_depot" }
+        {
+          "type": "shop",
+          "shopId": "mara_supply_depot"
+        }
       ]
     },
     {
       "id": "f10_dasha_open_shop_return",
       "event": "choice_selected",
-      "filter": { "choiceId": "dasha_return", "value": "browse" },
+      "filter": {
+        "choiceId": "dasha_return",
+        "value": "browse"
+      },
       "actions": [
-        { "type": "shop", "shopId": "mara_supply_depot" }
+        {
+          "type": "shop",
+          "shopId": "mara_supply_depot"
+        }
       ]
     },
     {
       "id": "f10_dasha_ask_below",
       "event": "choice_selected",
-      "filter": { "choiceId": "dasha_first_meet", "value": "ask_below" },
+      "filter": {
+        "choiceId": "dasha_first_meet",
+        "value": "ask_below"
+      },
       "actions": [
         {
           "type": "showMessage",
@@ -656,5 +703,6 @@
       ],
       "once": true
     }
-  ]
+  ],
+  "sim_passthrough": true
 }
