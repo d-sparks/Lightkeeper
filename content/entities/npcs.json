@@ -13291,6 +13291,7 @@
   },
   "councillor_asha_denn": {
     "name": "Councillor Asha Denn",
+    "sprite": "sprites/councillor_asha_denn.png",
     "dialogue": [
       {
         "speaker": "Asha Denn",
@@ -13468,6 +13469,7 @@
   },
   "bulwark_patrol_meridian": {
     "name": "Bulwark Soldier",
+    "sprite": "sprites/bulwark_patrol_meridian.png",
     "dialogue": [
       {
         "speaker": "Bulwark Soldier",
@@ -13550,6 +13552,7 @@
   },
   "corporal_venn": {
     "name": "Corporal Venn",
+    "sprite": "sprites/corporal_venn.png",
     "dialogue": [
       {
         "speaker": "Corporal Venn",

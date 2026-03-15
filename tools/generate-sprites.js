@@ -3342,6 +3342,444 @@ function generateDarkCityTileset() {
 }
 
 // ============================================================================
+// MISSING ENTITY SPRITES
+// Bio-lab enemies, hybrid/radiance monsters, underlumen replay variants,
+// General Thorne, and city patrol / researcher NPCs.
+// ============================================================================
+
+function generateMissingSprites() {
+  // ---- Bio-lab enemy palette ----
+  const BLd = C.darkGreen;   // dark carapace
+  const BLm = C.green;       // mid body
+  const BLl = C.lightGreen;  // highlight / bioluminescent
+
+  // --- Biolab Tendril: rogue worm-like creature, snapping jaws, spreading tendrils ---
+  const btendril = createPNG(16, 16);
+  drawPixelArt(btendril, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, BLd, BLd, BLd, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BLd, BLm, BLm, BLm, BLd, _, _, _, _, _, _],
+    [_, _, _, _, _, BLd, Oe,  BLm, BLm, Oe,  BLd, _, _, _, _, _],
+    [_, _, _, _, _, _, BLd, BLd, BLd, BLd, _, _, _, _, _, _],
+    [_, _, _, _, _, _, BLd, BLm, BLm, BLd, _, _, _, _, _, _],
+    [_, _, _, BLd, BLd, BLd, BLm, BLm, BLm, BLd, BLd, BLd, _, _, _, _],
+    [_, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _],
+    [_, BLd, BLm, BLm, BLd, BLm, BLl, BLl, BLl, BLm, BLd, BLm, BLm, BLd, _, _],
+    [_, _, BLd, BLm, BLm, BLd, BLm, BLm, BLm, BLm, BLd, BLm, BLd, _, _, _],
+    [_, BLd, _, BLd, BLm, BLm, BLd, BLd, BLd, BLm, BLm, BLd, _, BLd, _, _],
+    [BLd, _, _, _, BLd, BLm, BLm, _, _, BLm, BLm, BLd, _, _, BLd, _],
+    [_, _, _, _, _, BLd, BLd, _, _, BLd, BLd, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(btendril, path.join(CONTENT_DIR, 'sprites', 'biolab_tendril.png'));
+
+  // --- Biolab Spitter: squat toad-form, wide maw, venom sac belly ---
+  const bspitter = createPNG(16, 16);
+  drawPixelArt(bspitter, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BLd, BLd, BLd, BLd, BLd, BLd, _, _, _, _, _],
+    [_, _, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _, _],
+    [_, _, _, _, BLd, BLm, Oe,  BLl, BLl, Oe,  BLm, BLd, _, _, _, _],
+    [_, _, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _, _],
+    [_, _, _, _, _, BLd, BLm, BLl, BLl, BLm, BLd, _, _, _, _, _],
+    [_, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _],
+    [_, _, BLd, BLm, BLl, BLm, BLm, BLm, BLm, BLm, BLl, BLm, BLm, BLd, _, _],
+    [_, _, BLd, BLm, BLm, BLl, BLl, BLl, BLl, BLl, BLm, BLm, BLm, BLd, _, _],
+    [_, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _],
+    [_, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _, _],
+    [_, _, _, _, BLd, BLd, BLm, BLm, BLm, BLd, BLd, _, _, _, _, _],
+    [_, _, _, BLd, BLm, BLd, _, _, _, _, BLd, BLm, BLd, _, _, _],
+    [_, _, _, BLd, BLd, _, _, _, _, _, _, BLd, BLd, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(bspitter, path.join(CONTENT_DIR, 'sprites', 'biolab_spitter.png'));
+
+  // --- Biolab Construct: bio-mechanical frame with organic tendrils growing through ---
+  const BcMt = C.midGray;    // metal frame
+  const BcDk = C.darkSlate;  // dark metal
+  const bconstruct = createPNG(16, 16);
+  drawPixelArt(bconstruct, 0, 0, [
+    [_, _, _, _, _, BcDk, BcDk, BcDk, BcDk, BcDk, BcDk, _, _, _, _, _],
+    [_, _, _, _, BcDk, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcDk, _, _, _, _],
+    [_, _, _, _, BcDk, BcMt, Oe,   BcMt, BcMt, Oe,   BcMt, BcDk, _, _, _, _],
+    [_, _, _, _, BcDk, BcDk, BcMt, BcMt, BcMt, BcMt, BcDk, BcDk, _, _, _, _],
+    [_, _, _, _, _, BcDk, BcDk, BcMt, BcMt, BcDk, BcDk, _, _, _, _, _],
+    [_, _, _, _, _, _, BcDk, BLd, BLd, BcDk, _, _, _, _, _, _],
+    [_, BLd, BLd, BcDk, BcMt, BcMt, BLd, BLm, BLm, BLd, BcMt, BcMt, BcDk, BLd, _, _],
+    [_, BLd, BcDk, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcDk, BLd, _, _],
+    [_, _, BcDk, BcMt, BLd, BcMt, BLm, BLl, BLl, BLm, BcMt, BLd, BcDk, _, _, _],
+    [_, _, BcDk, BLd, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcMt, BcDk, _, _, _, _],
+    [_, BLd, _, _, BcDk, BcMt, BcMt, BcMt, BcMt, BcMt, BcDk, _, _, BLd, _, _],
+    [BLd, _, _, _, BcDk, BcDk, BcMt, BcMt, BcMt, BcDk, BcDk, _, _, _, BLd, _],
+    [_, _, _, _, _, BcDk, BcDk, BLd, BLd, BcDk, BcDk, _, _, _, _, _],
+    [_, _, _, _, BcDk, BLd, BcDk, _, _, BcDk, BLd, BcDk, _, _, _, _],
+    [_, _, _, _, BcDk, BcDk, _, _, _, _, BcDk, BcDk, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(bconstruct, path.join(CONTENT_DIR, 'sprites', 'biolab_construct.png'));
+
+  // --- Biolab Guardian: armored insectoid, thick carapace plates, bone highlights ---
+  const BgLt = C.bone;   // carapace plates (pale)
+  const bguardian = createPNG(16, 16);
+  drawPixelArt(bguardian, 0, 0, [
+    [_, _, _, _, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, _, _, _, _],
+    [_, _, _, BLd, BLm, BLm, BgLt, BgLt, BgLt, BgLt, BLm, BLm, BLd, _, _, _],
+    [_, _, _, BLd, BLm, Oe,  BLm, BLm, BLm, BLm, Oe,  BLm, BLd, _, _, _],
+    [_, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _],
+    [_, _, _, _, BLd, BgLt, BLm, BLm, BLm, BLm, BgLt, BLd, _, _, _, _],
+    [_, _, _, _, _, BLd, BLm, BLm, BLm, BLm, BLd, _, _, _, _, _],
+    [_, BLd, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, BLd, _, _],
+    [_, BLd, BLm, BLm, BLm, BLm, BLm, BgLt, BgLt, BLm, BLm, BLm, BLm, BLd, _, _],
+    [_, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _],
+    [_, _, _, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _, _, _],
+    [_, _, BLd, BLm, BLd, BLm, BLm, BLm, BLm, BLm, BLd, BLm, BLd, _, _, _],
+    [_, _, BLd, BLm, BLm, BLd, BLd, BLm, BLm, BLd, BLd, BLm, BLd, _, _, _],
+    [_, _, _, _, BLd, BLm, BLd, _, _, BLd, BLm, BLd, _, _, _, _],
+    [_, _, _, _, BLd, BLd, _, _, _, _, BLd, BLd, _, _, _, _],
+    [_, _, _, BLd, BLd, _, _, _, _, _, _, BLd, BLd, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(bguardian, path.join(CONTENT_DIR, 'sprites', 'biolab_guardian.png'));
+
+  // --- Biolab Alpha: boss apex overgrowth, massive form, red pulsing veins ---
+  const BaRd = C.red;        // pulsing veins
+  const balpha = createPNG(16, 16);
+  drawPixelArt(balpha, 0, 0, [
+    [_, BLl, BLd, _, _, _, _, _, _, _, _, _, _, BLd, BLl, _],
+    [BLl, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLd, BLl, _],
+    [_, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _, _],
+    [_, BLd, BLm, BaRd, BLm, BLm, Oe,  BLm, BLm, Oe,  BLm, BLm, BaRd, BLd, _, _],
+    [_, BLd, BLm, BLm, BaRd, BLm, BLm, BLm, BLm, BLm, BLm, BaRd, BLm, BLd, _, _],
+    [_, _, BLd, BaRd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BaRd, BLd, _, _],
+    [_, BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _],
+    [BLd, BLm, BLm, BLm, BLm, BLm, BLl, BLl, BLl, BLl, BLm, BLm, BLm, BLm, BLm, BLd],
+    [BLd, BLm, BaRd, BLm, BLm, BLl, BLl, BLm, BLm, BLl, BLl, BLm, BaRd, BLm, BLm, BLd],
+    [BLd, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLm, BLd, _],
+    [_, BLd, BLm, BLm, BaRd, BLm, BLm, BLm, BLm, BLm, BaRd, BLm, BLm, BLd, _, _],
+    [_, _, BLd, BLd, BLm, BLd, BLm, BLm, BLm, BLm, BLd, BLm, BLd, BLd, _, _],
+    [_, _, _, BLd, BLd, BLm, BLd, BLd, BLd, BLd, BLm, BLd, BLd, _, _, _],
+    [_, _, BLd, BLm, BLd, BLd, _, _, _, _, BLd, BLd, BLm, BLd, _, _],
+    [_, _, BLd, BLd, _, _, _, _, _, _, _, _, BLd, BLd, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(balpha, path.join(CONTENT_DIR, 'sprites', 'biolab_alpha.png'));
+
+  // ---- Hybrid sprites (Array-Organic mix: metal + green growth) ----
+  const HyGr = C.midGray;    // metal frame
+  const HyDk = C.darkSlate;  // dark metal
+  const HyGn = C.darkGreen;  // organic growth
+  const HyGl = C.green;      // organic glow
+
+  // --- Hybrid Drone: small flying scout, metal chassis, green organic tendrils ---
+  const hdrone = createPNG(16, 16);
+  drawPixelArt(hdrone, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, HyDk, HyDk, HyDk, HyDk, HyDk, HyDk, _, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, Oe,   HyGn, HyGn, Oe,   HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, HyGl, HyGr, HyGr, HyGl, HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, _, HyDk, HyGn, HyGn, HyGn, HyGn, HyDk, _, _, _, _, _],
+    [_, _, _, _, _, _, HyDk, HyDk, HyDk, HyDk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, HyGr, HyGr, HyGr, HyGr, _, _, _, _, _, _],
+    [_, HyDk, HyGr, _, _, HyDk, HyGr, HyGr, HyGr, HyGr, HyDk, _, _, HyGr, HyDk, _],
+    [HyGn, HyGl, _, _, _, _, _, _, _, _, _, _, _, _, HyGl, HyGn],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(hdrone, path.join(CONTENT_DIR, 'sprites', 'hybrid_drone.png'));
+
+  // --- Hybrid Stalker: humanoid hunter, gray armor with green organic tendrils ---
+  const hstalker = createPNG(16, 16);
+  drawPixelArt(hstalker, 0, 0, [
+    [_, _, _, _, _, HyDk, HyGn, HyGn, HyGn, HyGn, HyDk, _, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, Oe,   HyGr, HyGr, Oe,   HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyGn, HyGr, HyGr, HyGr, HyGr, HyGn, HyDk, _, _, _, _],
+    [_, _, _, _, _, HyDk, HyGr, HyGr, HyGr, HyGr, HyDk, _, _, _, _, _],
+    [_, _, _, _, _, _, HyDk, HyGr, HyGr, HyDk, _, _, _, _, _, _],
+    [_, HyGn, _, HyDk, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyDk, _, HyGn, _],
+    [_, HyGl, HyDk, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyDk, HyGl, _],
+    [_, _, HyDk, HyGr, HyGn, HyGr, HyGr, HyGr, HyGr, HyGr, HyGn, HyGr, HyDk, _, _, _],
+    [_, _, HyDk, HyGn, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGr, HyGn, HyDk, _, _, _],
+    [_, HyGl, _, HyDk, HyGr, HyGr, HyDk, HyDk, HyDk, HyGr, HyGr, HyDk, _, HyGl, _, _],
+    [_, _, _, _, HyDk, HyDk, HyGn, HyDk, HyDk, HyGn, HyDk, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyGr, HyDk, _, _, HyDk, HyGr, HyDk, _, _, _, _],
+    [_, _, _, _, HyDk, HyDk, _, _, _, _, HyDk, HyDk, _, _, _, _],
+    [_, _, _, _, HyGn, HyGl, _, _, _, _, HyGl, HyGn, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(hstalker, path.join(CONTENT_DIR, 'sprites', 'hybrid_stalker.png'));
+
+  // ---- Radiance / Solar sprites ----
+  const RcGd = C.solGold;    // Sol Gold
+  const RcWh = C.white;      // bright white
+  const RcLt = C.paleGray;   // chrome highlight
+  const RcGr = C.lightGray;  // mid chrome
+  const RcDk = C.midGray;    // dark chrome
+
+  // --- Radiance Construct: angular golden automaton, blazing core ---
+  const rconstruct = createPNG(16, 16);
+  drawPixelArt(rconstruct, 0, 0, [
+    [_, _, _, _, _, RcWh, RcGd, RcGd, RcGd, RcGd, RcWh, _, _, _, _, _],
+    [_, _, _, _, RcGd, RcGr, RcLt, RcLt, RcLt, RcLt, RcGr, RcGd, _, _, _, _],
+    [_, _, _, _, RcGd, RcLt, Oe,   RcWh, RcWh, Oe,   RcLt, RcGd, _, _, _, _],
+    [_, _, _, _, RcGd, RcGr, RcGd, RcGr, RcGr, RcGd, RcGr, RcGd, _, _, _, _],
+    [_, _, _, _, _, RcGd, RcGd, RcGr, RcGr, RcGd, RcGd, _, _, _, _, _],
+    [_, _, _, _, _, _, RcGd, RcWh, RcWh, RcGd, _, _, _, _, _, _],
+    [_, RcGd, RcWh, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcWh, RcGd, _, _],
+    [_, _, RcGd, RcLt, RcGr, RcGr, RcGr, RcGr, RcGr, RcGr, RcGr, RcLt, RcGd, _, _, _],
+    [_, _, RcGd, RcGr, RcGd, RcLt, RcGd, RcWh, RcWh, RcGd, RcLt, RcGr, RcGd, _, _, _],
+    [_, _, _, RcGd, RcGr, RcGr, RcGd, RcGd, RcGd, RcGd, RcGr, RcGd, _, _, _, _],
+    [_, _, RcWh, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcGd, RcWh, _, _, _],
+    [_, _, _, RcGd, RcDk, RcDk, RcGd, RcGd, RcGd, RcGd, RcDk, RcDk, RcGd, _, _, _],
+    [_, _, _, _, RcGd, RcGd, RcGd, _, _, RcGd, RcGd, RcGd, _, _, _, _],
+    [_, _, _, _, _, RcGd, RcGd, _, _, RcGd, RcGd, _, _, _, _, _],
+    [_, _, _, _, _, RcGd, RcDk, _, _, RcDk, RcGd, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(rconstruct, path.join(CONTENT_DIR, 'sprites', 'radiance_construct.png'));
+
+  // --- Nexus Guardian: boss, Array-Underlumen hybrid commander, crystal + circuit blue ---
+  const NgBl = C.blue;
+  const NgDk = C.darkBlue;
+  const NgTl = C.teal;
+  const NgLt = C.lightTeal;
+  const NgCr = C.lightBlue;  // crystal shards
+  const nguard = createPNG(16, 16);
+  drawPixelArt(nguard, 0, 0, [
+    [_, NgLt, NgTl, _, _, _, NgDk, NgDk, NgDk, NgDk, _, _, _, NgTl, NgLt, _],
+    [NgLt, NgTl, NgDk, NgDk, NgDk, NgDk, NgBl, NgBl, NgBl, NgBl, NgDk, NgDk, NgDk, NgDk, NgTl, NgLt],
+    [_, NgTl, NgDk, NgBl, NgBl, NgBl, NgCr, NgCr, NgCr, NgCr, NgBl, NgBl, NgDk, NgTl, _, _],
+    [_, _, NgDk, NgBl, NgBl, Oe,  NgBl, NgBl, NgBl, Oe,  NgBl, NgBl, NgDk, _, _, _],
+    [_, _, NgDk, NgDk, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgDk, NgDk, _, _, _],
+    [_, _, _, NgDk, NgDk, NgTl, NgBl, NgBl, NgBl, NgTl, NgDk, NgDk, _, _, _, _],
+    [_, NgTl, NgDk, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgDk, NgTl, _, _],
+    [NgTl, NgDk, NgBl, NgBl, NgBl, NgCr, NgLt, NgLt, NgLt, NgCr, NgBl, NgBl, NgBl, NgDk, NgTl, _],
+    [_, NgDk, NgBl, NgCr, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgCr, NgBl, NgDk, _, _],
+    [_, _, NgDk, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgBl, NgDk, _, _, _],
+    [_, NgTl, NgDk, NgBl, NgTl, NgBl, NgBl, NgBl, NgBl, NgBl, NgTl, NgBl, NgDk, NgTl, _, _],
+    [_, _, NgDk, NgDk, NgBl, NgDk, NgBl, NgBl, NgBl, NgBl, NgDk, NgBl, NgDk, NgDk, _, _],
+    [_, _, _, NgDk, NgDk, NgBl, NgDk, NgDk, NgDk, NgDk, NgBl, NgDk, NgDk, _, _, _],
+    [_, _, NgTl, NgDk, NgBl, NgDk, _, NgTl, NgTl, _, NgDk, NgBl, NgDk, NgTl, _, _],
+    [_, _, NgTl, NgDk, NgDk, _, _, _, _, _, _, NgDk, NgDk, NgTl, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(nguard, path.join(CONTENT_DIR, 'sprites', 'nexus_guardian.png'));
+
+  // --- Solar Core Warden: boss, ancient light construct, Sol Gold + blazing yellow ---
+  const ScGd = C.solGold;
+  const ScWh = C.white;
+  const ScYl = C.yellow;
+  const ScLt = C.paleGray;
+  const ScDk = C.orange;   // deep gold shadow
+  const scwarden = createPNG(16, 16);
+  drawPixelArt(scwarden, 0, 0, [
+    [_, _, _, ScWh, _, _, ScGd, ScGd, ScGd, ScGd, _, _, ScWh, _, _, _],
+    [_, _, ScWh, ScGd, ScGd, ScGd, ScYl, ScYl, ScYl, ScYl, ScGd, ScGd, ScWh, _, _, _],
+    [_, _, ScWh, ScGd, ScYl, ScWh, ScWh, ScWh, ScWh, ScWh, ScWh, ScGd, ScWh, _, _, _],
+    [_, _, _, ScGd, ScWh, ScGd, ScGd, Oe,  Oe,  ScGd, ScGd, ScWh, ScGd, _, _, _],
+    [_, _, _, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, _, _, _],
+    [_, _, _, _, ScGd, ScYl, ScGd, ScWh, ScWh, ScGd, ScYl, ScGd, _, _, _, _],
+    [_, ScWh, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScWh, _, _],
+    [ScWh, ScGd, ScYl, ScGd, ScGd, ScGd, ScWh, ScWh, ScWh, ScWh, ScGd, ScGd, ScYl, ScGd, ScWh, _],
+    [_, ScGd, ScGd, ScGd, ScGd, ScWh, ScGd, ScYl, ScYl, ScGd, ScWh, ScGd, ScGd, ScGd, ScGd, _],
+    [_, _, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, _, _, _],
+    [_, ScWh, ScGd, ScDk, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScGd, ScDk, ScGd, ScWh, _, _],
+    [_, _, ScGd, ScDk, ScDk, ScGd, ScGd, ScGd, ScGd, ScGd, ScDk, ScDk, ScGd, _, _, _],
+    [_, _, _, ScGd, ScGd, ScDk, ScGd, ScGd, ScGd, ScGd, ScDk, ScGd, ScGd, _, _, _],
+    [_, _, _, _, ScDk, ScGd, ScDk, ScWh, ScWh, ScDk, ScGd, ScDk, _, _, _, _],
+    [_, _, _, _, ScDk, ScDk, _, _, _, _, ScDk, ScDk, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(scwarden, path.join(CONTENT_DIR, 'sprites', 'solar_core_warden.png'));
+
+  // ---- General Thorne: Bulwark general, heavier armor, Sol Gold command sigil ----
+  const ThBl = C.blue;
+  const ThDk = C.darkBlue;
+  const ThLt = C.lightBlue;
+  const ThGd = C.solGold;   // gold command insignia + epaulettes
+  const gthorne = createPNG(16, 16);
+  drawPixelArt(gthorne, 0, 0, [
+    [_, _, _, ThGd, ThGd, _, _, _, _, _, _, ThGd, ThGd, _, _, _],
+    [_, _, _, ThDk, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThDk, _, _, _, _],
+    [_, _, _, ThDk, ThBl, ThLt, ThLt, ThLt, ThLt, ThLt, ThBl, ThDk, _, _, _, _],
+    [_, _, _, ThDk, ThBl, ThBl, Oe,   ThBl, ThBl, Oe,   ThBl, ThDk, _, _, _, _],
+    [_, _, _, ThDk, ThDk, ThBl, ThBl, ThBl, ThBl, ThBl, ThDk, ThDk, _, _, _, _],
+    [_, _, _, _, _, ThDk, ThBl, ThBl, ThBl, ThBl, ThDk, _, _, _, _, _],
+    [_, ThGd, _, ThDk, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThDk, _, ThGd, _],
+    [_, ThGd, ThDk, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThDk, ThGd, _],
+    [_, _, ThDk, ThBl, ThDk, ThGd, ThBl, ThBl, ThBl, ThBl, ThGd, ThDk, ThBl, ThDk, _, _],
+    [_, _, ThDk, ThBl, ThBl, ThGd, ThGd, ThBl, ThBl, ThGd, ThGd, ThBl, ThBl, ThDk, _, _],
+    [_, _, ThDk, ThBl, ThBl, ThBl, ThGd, ThBl, ThBl, ThGd, ThBl, ThBl, ThBl, ThDk, _, _],
+    [_, _, _, ThDk, ThDk, ThBl, ThBl, ThBl, ThBl, ThBl, ThBl, ThDk, ThDk, _, _, _],
+    [_, _, _, _, ThDk, ThDk, ThBl, ThBl, ThBl, ThBl, ThDk, ThDk, _, _, _, _],
+    [_, _, _, _, _, ThDk, ThDk, _, _, ThDk, ThDk, _, _, _, _, _],
+    [_, _, _, _, _, ThDk, ThDk, _, _, ThDk, ThDk, _, _, _, _, _],
+    [_, _, _, _, ThDk, ThDk, ThDk, _, _, ThDk, ThDk, ThDk, _, _, _, _],
+  ]);
+  savePNG(gthorne, path.join(CONTENT_DIR, 'sprites', 'general_thorne.png'));
+
+  // ---- Underlumen Replay Monsters (unique variants, not reusing crystal_guardian) ----
+  const UlDk = C.darkBlue;
+  const UlMd = C.blue;
+  const UlTl = C.teal;
+  const UlLt = C.lightTeal;
+  const UlCr = C.white;      // crystal white highlight
+  const UlPl = C.paleGray;   // pale crystal surface
+
+  // --- Underlumen Warden: heavy crystalline soldier, imposing form ---
+  const ulwarden = createPNG(16, 16);
+  drawPixelArt(ulwarden, 0, 0, [
+    [_, _, UlTl, _, _, UlDk, UlDk, UlDk, UlDk, UlDk, UlDk, _, UlTl, _, _, _],
+    [_, _, _, UlDk, UlMd, UlMd, UlCr, UlCr, UlCr, UlCr, UlMd, UlMd, UlDk, _, _, _],
+    [_, _, _, UlDk, UlMd, UlTl, UlMd, UlMd, UlMd, UlMd, UlTl, UlMd, UlDk, _, _, _],
+    [_, _, _, UlDk, UlMd, UlMd, Oe,   UlMd, UlMd, Oe,   UlMd, UlMd, UlDk, _, _, _],
+    [_, _, _, _, UlDk, UlMd, UlMd, UlDk, UlDk, UlMd, UlMd, UlDk, _, _, _, _],
+    [_, _, _, _, _, UlDk, UlTl, UlMd, UlMd, UlTl, UlDk, _, _, _, _, _],
+    [_, UlTl, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, UlTl, _, _],
+    [_, _, UlPl, UlMd, UlMd, UlCr, UlMd, UlLt, UlLt, UlMd, UlCr, UlMd, UlPl, _, _, _],
+    [_, _, UlDk, UlMd, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, UlMd, UlDk, _, _],
+    [_, _, _, UlDk, UlMd, UlMd, UlTl, UlMd, UlMd, UlTl, UlMd, UlMd, UlDk, _, _, _],
+    [_, _, UlTl, _, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, _, UlTl, _, _],
+    [_, _, _, _, UlDk, UlDk, UlMd, UlMd, UlMd, UlMd, UlDk, UlDk, _, _, _, _],
+    [_, _, _, _, UlDk, UlMd, UlDk, _, _, UlDk, UlMd, UlDk, _, _, _, _],
+    [_, _, _, _, UlDk, UlDk, _, _, _, _, UlDk, UlDk, _, _, _, _],
+    [_, _, _, UlDk, UlDk, UlDk, _, _, _, _, UlDk, UlDk, UlDk, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(ulwarden, path.join(CONTENT_DIR, 'sprites', 'underlumen_warden.png'));
+
+  // --- Underlumen Channeler: robed crystalline caster, teal glow staff / orb ---
+  const ulchanneler = createPNG(16, 16);
+  drawPixelArt(ulchanneler, 0, 0, [
+    [_, _, _, _, _, _, UlTl, UlLt, UlTl, _, _, _, _, _, _, _],
+    [_, _, _, _, _, UlDk, UlMd, UlMd, UlMd, UlDk, _, _, _, _, _, _],
+    [_, _, _, _, _, UlDk, UlCr, UlMd, UlMd, UlCr, UlDk, _, _, _, _, _],
+    [_, _, _, _, _, UlDk, Oe,   UlMd, UlMd, Oe,   UlDk, _, _, _, _, _],
+    [_, _, _, _, _, _, UlDk, UlMd, UlMd, UlDk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, UlTl, UlTl, _, _, _, _, _, _, _],
+    [_, _, _, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, _, _, _, _],
+    [_, _, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, _, _, _],
+    [_, UlTl, UlDk, UlMd, UlTl, UlMd, UlLt, UlLt, UlLt, UlMd, UlTl, UlMd, UlDk, UlTl, _, _],
+    [_, UlLt, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, UlLt, _, _],
+    [_, _, UlDk, UlMd, UlTl, UlMd, UlMd, UlMd, UlMd, UlMd, UlTl, UlMd, UlDk, _, _, _],
+    [_, _, _, UlDk, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, UlDk, _, _, _, _],
+    [_, _, _, _, UlDk, UlMd, UlDk, UlMd, UlMd, UlDk, UlMd, UlDk, _, _, _, _],
+    [_, _, _, _, UlDk, UlDk, _, UlTl, UlTl, _, UlDk, UlDk, _, _, _, _],
+    [_, _, _, _, _, _, _, UlLt, UlLt, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(ulchanneler, path.join(CONTENT_DIR, 'sprites', 'underlumen_channeler.png'));
+
+  // --- Underlumen Sentinel: large pack leader, crystal spines, aura presence ---
+  const ulsentinel = createPNG(16, 16);
+  drawPixelArt(ulsentinel, 0, 0, [
+    [_, UlLt, _, _, UlCr, UlDk, UlDk, UlDk, UlDk, UlDk, UlDk, UlCr, _, UlLt, _, _],
+    [UlLt, UlDk, UlDk, UlDk, UlMd, UlMd, UlCr, UlCr, UlCr, UlCr, UlMd, UlMd, UlDk, UlDk, UlLt, _],
+    [_, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, _, _],
+    [_, UlDk, UlMd, UlCr, UlMd, Oe,   UlMd, UlMd, UlMd, Oe,   UlMd, UlCr, UlMd, UlDk, _, _],
+    [_, UlDk, UlMd, UlMd, UlMd, UlMd, UlTl, UlMd, UlMd, UlTl, UlMd, UlMd, UlMd, UlDk, _, _],
+    [_, _, UlDk, UlMd, UlMd, UlMd, UlMd, UlDk, UlDk, UlMd, UlMd, UlMd, UlDk, _, _, _],
+    [_, UlTl, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, UlTl, _, _],
+    [UlTl, UlDk, UlMd, UlMd, UlCr, UlMd, UlMd, UlLt, UlLt, UlMd, UlMd, UlCr, UlMd, UlDk, UlTl, _],
+    [_, UlDk, UlMd, UlMd, UlMd, UlTl, UlMd, UlMd, UlMd, UlMd, UlTl, UlMd, UlMd, UlDk, _, _],
+    [_, UlDk, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlMd, UlDk, _, _],
+    [_, _, UlDk, UlCr, UlMd, UlMd, UlDk, UlMd, UlMd, UlDk, UlMd, UlMd, UlCr, UlDk, _, _],
+    [_, _, _, UlDk, UlDk, UlMd, UlMd, UlDk, UlDk, UlMd, UlMd, UlDk, UlDk, _, _, _],
+    [_, _, _, _, UlDk, UlDk, UlMd, _, _, UlMd, UlDk, UlDk, _, _, _, _],
+    [_, _, _, _, _, UlDk, UlDk, _, _, UlDk, UlDk, _, _, _, _, _],
+    [_, _, _, _, UlDk, UlDk, UlDk, _, _, UlDk, UlDk, UlDk, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(ulsentinel, path.join(CONTENT_DIR, 'sprites', 'underlumen_sentinel.png'));
+
+  // --- Underlumen Shade: fast ambusher, shadowy form, teal ghost-wisps ---
+  const UsDk = C.darkSlate;
+  const UsMd = C.midGray;
+  const ulshade = createPNG(16, 16);
+  drawPixelArt(ulshade, 0, 0, [
+    [_, UlLt, _, _, _, _, _, _, _, _, _, _, _, UlLt, _, _],
+    [_, _, UsDk, _, _, _, _, _, _, _, _, _, UsDk, _, _, _],
+    [_, _, _, UsDk, UsDk, UsDk, UsDk, UsDk, UsDk, UsDk, UsDk, UsDk, _, _, _, _],
+    [_, _, _, UsDk, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsDk, _, _, _, _],
+    [_, _, _, UsDk, UsMd, Oe,   UsMd, UsMd, UsMd, Oe,   UsMd, UsDk, _, _, _, _],
+    [_, _, _, _, UsDk, UsDk, UsMd, UsMd, UsMd, UsDk, UsDk, _, _, _, _, _],
+    [_, UlLt, UlLt, UsDk, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsDk, UsDk, UlLt, UlLt, _, _],
+    [UlLt, _, UsDk, UsMd, UsMd, UsMd, UlTl, UlTl, UlTl, UsMd, UsMd, UsMd, UsDk, _, UlLt, _],
+    [_, UlLt, UsDk, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsMd, UsDk, UlLt, _, _, _],
+    [_, UlLt, UsDk, UsMd, UlTl, UsMd, UsMd, UsMd, UsMd, UsMd, UlTl, UsDk, UlLt, _, _, _],
+    [_, _, UlLt, UsDk, UsMd, UsMd, UsDk, UsDk, UsDk, UsMd, UsDk, UsDk, UlLt, _, _, _],
+    [_, UlLt, _, _, UsDk, UsDk, _, _, _, UsDk, UsDk, _, _, UlLt, _, _],
+    [UlLt, _, _, _, _, UsDk, UlTl, _, _, UlTl, UsDk, _, _, _, UlLt, _],
+    [_, UlLt, _, _, _, UsDk, UsDk, _, _, UsDk, UsDk, _, _, UlLt, _, _],
+    [_, _, UlLt, _, _, _, _, _, _, _, _, _, UlLt, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(ulshade, path.join(CONTENT_DIR, 'sprites', 'underlumen_shade.png'));
+
+  // ---- NPC Sprites ----
+
+  // --- Bulwark Patrol Meridian: armed soldier, blue-gray city patrol uniform ---
+  const BpBl = C.blue;
+  const BpDb = C.darkBlue;
+  const BpMd = C.gray;
+  const BpDk = C.midGray;
+  const bpatrol = createPNG(16, 16);
+  drawPixelArt(bpatrol, 0, 0, [
+    [_, _, _, _, _, BpDk, BpDk, BpDk, BpDk, BpDk, BpDk, _, _, _, _, _],
+    [_, _, _, _, BpDk, BpMd, BpMd, BpMd, BpMd, BpMd, BpMd, BpDk, _, _, _, _],
+    [_, _, _, _, BpDk, BpMd, S,    S,    S,    S,    BpMd, BpDk, _, _, _, _],
+    [_, _, _, _, BpDk, BpMd, S,    W,    W,    S,    BpMd, BpDk, _, _, _, _],
+    [_, _, _, _, BpDk, BpDk, S,    s,    s,    S,    BpDk, BpDk, _, _, _, _],
+    [_, _, _, _, _, _, S,    S,    S,    S,    _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, BpBl, BpBl, _, _, _, _, _, _, _],
+    [_, _, _, BpDb, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpDb, _, _, _],
+    [_, _, _, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, BpBl, _, _, _],
+    [_, _, _, BpDb, _, BpBl, BpMd, BpBl, BpBl, BpMd, BpBl, _, BpDb, _, _, _],
+    [_, _, _, BpDb, _, BpDb, BpBl, BpBl, BpBl, BpBl, BpDb, _, BpDb, _, _, _],
+    [_, _, _, _, _, BpDb, BpDb, BpBl, BpBl, BpDb, BpDb, _, _, _, _, _],
+    [_, _, _, _, _, BpDb, BpDb, BpBl, BpBl, BpDb, BpDb, _, _, _, _, _],
+    [_, _, _, _, _, BpDb, BpDb, _, _, BpDb, BpDb, _, _, _, _, _],
+    [_, _, _, _, _, BpDb, BpDb, _, _, BpDb, BpDb, _, _, _, _, _],
+    [_, _, _, _, n,  BpDb, BpDb, _, _, BpDb, BpDb, n,  _, _, _, _],
+  ]);
+  savePNG(bpatrol, path.join(CONTENT_DIR, 'sprites', 'bulwark_patrol_meridian.png'));
+
+  // --- Greenway NPC (Researcher Tova): lab researcher, gray-green lab coat ---
+  const RsGn = C.darkGreen;   // lab coat dark
+  const RsMg = C.green;       // lab coat mid
+  const RsLg = C.lightGreen;  // lab coat light
+  const RsBr = C.darkBrown;   // hair
+  const gwNpc = createPNG(16, 16);
+  drawPixelArt(gwNpc, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, RsBr, RsBr, RsBr, RsBr, RsBr, RsBr, _, _, _, _, _],
+    [_, _, _, _, _, RsBr, S,    S,    S,    S,    RsBr, _, _, _, _, _],
+    [_, _, _, _, _, S,    W,    S,    S,    W,    S,    _, _, _, _, _],
+    [_, _, _, _, _, S,    S,    s,    s,    S,    S,    _, _, _, _, _],
+    [_, _, _, _, _, _, S,    S,    S,    S,    _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, RsMg, RsMg, _, _, _, _, _, _, _],
+    [_, _, _, n,  RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, n,  _, _, _],
+    [_, _, _, RsLg, RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, RsMg, RsLg, _, _, _],
+    [_, _, _, n,  _, RsMg, RsGn, RsMg, RsMg, RsGn, RsMg, _, n,  _, _, _],
+    [_, _, _, n,  _, RsGn, RsMg, RsMg, RsMg, RsMg, RsGn, _, n,  _, _, _],
+    [_, _, _, _, _, RsGn, RsGn, RsMg, RsMg, RsGn, RsGn, _, _, _, _, _],
+    [_, _, _, _, _, RsGn, RsGn, RsMg, RsMg, RsGn, RsGn, _, _, _, _, _],
+    [_, _, _, _, _, RsGn, RsGn, _, _, RsGn, RsGn, _, _, _, _, _],
+    [_, _, _, _, _, RsGn, RsGn, _, _, RsGn, RsGn, _, _, _, _, _],
+    [_, _, _, _, n,  RsGn, RsGn, _, _, RsGn, RsGn, n,  _, _, _, _],
+  ]);
+  savePNG(gwNpc, path.join(CONTENT_DIR, 'sprites', 'greenway_npc.png'));
+}
+
+// ============================================================================
 // MAIN
 // ============================================================================
 
@@ -3354,4 +3792,5 @@ generateMonsterSprites();
 generatePlayerSprites();
 generateNPCSprites();
 generateItemSprites();
+generateMissingSprites();
 console.log('Done! All sprites generated.');

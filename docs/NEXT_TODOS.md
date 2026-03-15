@@ -4,6 +4,22 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 (full playtest audit — mainline sim reaches ~37% rooms/46 of 124, blocks at lighthouse_mara_core boss fight; all-quests: 2/21 pass (tannis_tags, relay_recovery), rest TIMEOUT; content validator: 0 errors, 3 warnings).
 
+## Placeholder Sprite Replacements (2026-03-15)
+
+Generated 17 new placeholder sprites to resolve missing-file errors:
+- Bio-lab enemies: `biolab_tendril`, `biolab_spitter`, `biolab_construct`, `biolab_guardian`, `biolab_alpha`
+- Hybrid/Radiance: `hybrid_drone`, `hybrid_stalker`, `radiance_construct`, `nexus_guardian`, `solar_core_warden`
+- Bosses/Named: `general_thorne` (wired, was using `bulwark_captain.png`)
+- Underlumen replay variants: `underlumen_warden`, `underlumen_channeler`, `underlumen_sentinel`, `underlumen_shade` (wired, were using reused sprites)
+- NPCs: `bulwark_patrol_meridian`, `greenway_npc` (Researcher Tova)
+- Wired existing sprites: `corporal_venn.png`, `councillor_asha_denn.png` (files existed but NPCs had no `sprite` field)
+
+Outstanding art tasks:
+- [ ] All generated sprites need replacement with proper pixel art (see `PLACEHOLDER_ASSETS.md`)
+- [ ] `liaison_thorne` NPC (Array Liaison Thorne) still uses `npc_default.png` — create `liaison_thorne.png`
+- [ ] `frostfang_alpha` monster still reuses `frostfang_hunter.png` — create `frostfang_alpha.png`
+- [ ] `bulwark_soldier_doubter` (Private Yenn) has a sprite file but no `sprite` field in npcs.json — wire it
+
 ## Full Campaign Playtest Audit (2026-03-15)
 
 ### Fixes Applied This Session

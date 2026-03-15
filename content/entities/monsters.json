@@ -806,7 +806,7 @@
     "name": "General Thorne",
     "bossTitle": "Commander of the Monument Garrison",
     "bossMusic": "boss_crystal",
-    "sprite": "sprites/bulwark_captain.png",
+    "sprite": "sprites/general_thorne.png",
     "size": [16, 16],
     "health": 650,
     "speed": 1.1,
@@ -1083,7 +1083,7 @@
 
   "underlumen_warden": {
     "name": "Underlumen Warden",
-    "sprite": "sprites/crystal_guardian.png",
+    "sprite": "sprites/underlumen_warden.png",
     "size": [16, 16],
     "health": 120,
     "speed": 1.3,
@@ -1100,7 +1100,7 @@
   },
   "underlumen_channeler": {
     "name": "Underlumen Channeler",
-    "sprite": "sprites/threshold_watcher.png",
+    "sprite": "sprites/underlumen_channeler.png",
     "size": [16, 16],
     "health": 80,
     "speed": 1.0,
@@ -1114,7 +1114,7 @@
   },
   "underlumen_sentinel": {
     "name": "Underlumen Sentinel",
-    "sprite": "sprites/crystal_guardian.png",
+    "sprite": "sprites/underlumen_sentinel.png",
     "size": [16, 16],
     "health": 180,
     "speed": 1.0,
@@ -1132,7 +1132,7 @@
   },
   "underlumen_shade": {
     "name": "Underlumen Shade",
-    "sprite": "sprites/abyssal_tendril.png",
+    "sprite": "sprites/underlumen_shade.png",
     "size": [16, 16],
     "health": 70,
     "speed": 2.0,
