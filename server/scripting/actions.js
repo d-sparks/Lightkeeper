@@ -27,6 +27,7 @@
 //   { type: "shop",      shopId: "meridian_7_shop" }  // opens buy/sell menu from shops.json
 //   { type: "bankLoot" }  // banks all non-quest inventory items for expedition checkpoint (survives death)
 //   { type: "startSiege", challengeId: "lighthouse_siege" }  // starts cooperative siege challenge
+//   { type: "healPlayer" }  // restores player to full health
 
 const CONSTANTS = require('../../shared/constants');
 
@@ -131,6 +132,9 @@ class ActionExecutor {
         break;
       case 'startSiege':
         this.doStartSiege(action, context);
+        break;
+      case 'healPlayer':
+        this.doHealPlayer(action, context);
         break;
       default:
         console.warn(`[Actions] Unknown action type: ${action.type}`);
@@ -1179,6 +1183,13 @@ class ActionExecutor {
         toDungeon: result.roomId,
       });
     }
+  }
+
+  doHealPlayer(action, context) {
+    const player = context.player;
+    if (!player) return;
+    if (player.health >= player.maxHealth) return;
+    player.health = player.maxHealth;
   }
 }
 

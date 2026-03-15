@@ -3773,6 +3773,28 @@
       }
     ]
   },
+  "workshop_medic_renna": {
+    "name": "Medic Renna",
+    "dialogue": [
+      {
+        "speaker": "Medic Renna",
+        "text": "Hold still. ...There, good as new."
+      }
+    ],
+    "dialogues": {
+      "default": [
+        {
+          "speaker": "Medic Renna",
+          "text": "Field Medic Renna. I'm stationed here to keep you Keepers on your feet between runs."
+        },
+        {
+          "speaker": "Medic Renna",
+          "text": "Let me take a look at you... There. All patched up. Come back any time you need healing."
+        }
+      ]
+    },
+    "dialogueRules": []
+  },
   "gate_sgt_fenn": {
     "name": "Sgt. Fenn",
     "dialogue": [
