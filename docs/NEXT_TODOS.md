@@ -4,6 +4,19 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 (full playtest audit — mainline sim reaches ~37% rooms/46 of 124, blocks at lighthouse_mara_core boss fight; all-quests: 2/21 pass (tannis_tags, relay_recovery), rest TIMEOUT; content validator: 0 errors, 3 warnings).
 
+## Quarantine Warlord Balance (2026-03-15)
+
+Fixes applied:
+- Reduced `quarantine_warlord` HP from 200 → 120 (67 hits → 40 hits with Standard Blaster)
+- Added `precision_blaster` (weight 2) to `outpost_biome_uncommon` loot table so it can drop from the depth-2 treasure chest
+
+Outcomes (approximate):
+- With Standard Blaster (3 dmg): 40 hits to kill — hard but survivable
+- With Precision Blaster (6 dmg, ~14% chance from depth-2 chest): 20 hits — clean fight
+
+Outstanding:
+- [ ] Consider a guaranteed weapon cache in depth-1 supply_alcove if playtests show players still feeling under-geared
+
 ## Placeholder Sprite Replacements (2026-03-15)
 
 Generated 17 new placeholder sprites to resolve missing-file errors:

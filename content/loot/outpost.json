@@ -15,7 +15,8 @@
       { "item": "damage_booster_chip", "weight": 3 },
       { "item": "reinforced_battery_chip", "weight": 3 },
       { "item": "tempered_blade", "weight": 1 },
-      { "item": "rechargeable_battery_chip", "weight": 1 }
+      { "item": "rechargeable_battery_chip", "weight": 1 },
+      { "item": "precision_blaster", "weight": 2 }
     ]
   },
   "outpost_biome_rare": {

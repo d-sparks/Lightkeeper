@@ -134,7 +134,7 @@
     "name": "Luddite Warlord",
     "sprite": "sprites/luddite_warlord.png",
     "size": [16, 16],
-    "health": 200,
+    "health": 120,
     "speed": 1.0,
     "damage": 18,
     "attackRange": 1.5,
