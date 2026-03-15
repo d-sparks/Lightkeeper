@@ -67,6 +67,15 @@
     { "x": 1, "y": 1, "leadsTo": "spire_winds_gallery", "type": "stairs_up", "spawnX": 13, "spawnY": 18 },
     { "x": 17, "y": 18, "leadsTo": "spire_winds_depths", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
+  "windCurrents": [
+    { "x": 4, "y": 1, "w": 2, "h": 4, "direction": "south", "force": 3 },
+    { "x": 18, "y": 1, "w": 3, "h": 4, "direction": "south", "force": 3 },
+    { "x": 1, "y": 5, "w": 3, "h": 3, "direction": "east", "force": 2.5 },
+    { "x": 8, "y": 7, "w": 6, "h": 2, "direction": "west", "force": 2 },
+    { "x": 1, "y": 9, "w": 3, "h": 4, "direction": "south", "force": 2.5 },
+    { "x": 20, "y": 9, "w": 3, "h": 4, "direction": "north", "force": 2.5 },
+    { "x": 8, "y": 12, "w": 6, "h": 2, "direction": "east", "force": 2 }
+  ],
   "triggers": [
       {
         "id": "bridge_enter",

@@ -65,6 +65,14 @@
     { "x": 1, "y": 1, "leadsTo": "spire_winds_excavation", "type": "stairs_up", "spawnX": 15, "spawnY": 18 },
     { "x": 8, "y": 20, "leadsTo": "spire_winds_gallery", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
+  "windCurrents": [
+    { "x": 6, "y": 6, "w": 2, "h": 4, "direction": "south", "force": 2.5 },
+    { "x": 14, "y": 6, "w": 2, "h": 4, "direction": "north", "force": 2.5 },
+    { "x": 6, "y": 12, "w": 2, "h": 4, "direction": "south", "force": 2.5 },
+    { "x": 14, "y": 12, "w": 2, "h": 4, "direction": "north", "force": 2.5 },
+    { "x": 4, "y": 16, "w": 5, "h": 2, "direction": "east", "force": 2 },
+    { "x": 10, "y": 17, "w": 5, "h": 2, "direction": "west", "force": 2 }
+  ],
   "triggers": [
       {
         "id": "shaft_enter",

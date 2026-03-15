@@ -51,7 +51,8 @@
     { "type": "field_medkit", "x": 17, "y": 4 },
     { "type": "salvage", "x": 3, "y": 9 },
     { "type": "bandage", "x": 20, "y": 9 },
-    { "type": "umbracite", "x": 17, "y": 16 }
+    { "type": "umbracite", "x": 17, "y": 16 },
+    { "type": "wind_anchor", "x": 10, "y": 14 }
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "spire_winds_fortress", "type": "stairs_up", "spawnX": 23, "spawnY": 18 },

@@ -1295,5 +1295,12 @@
     "description": "An ancient crystal lens from the Spire's original architecture. It concentrates ambient light into a beam of staggering intensity. The Array tried to replicate this for three centuries and failed.",
     "type": "key",
     "rarity": "epic"
+  },
+  "wind_anchor": {
+    "name": "Wind Anchor",
+    "description": "A dense stone disc carved with spiraling channels. When held, it generates a localized counter-current that neutralizes the Spire's wind forces. The Bulwark excavation team used these before they retreated.",
+    "type": "key",
+    "rarity": "uncommon",
+    "hazardResist": ["wind"]
   }
 }

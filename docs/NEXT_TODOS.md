@@ -453,3 +453,14 @@ Fixed station_junction: room-entry dialogue now deferred until combat clears usi
 - **`thrown_projectile` special attack** — New engine attack type added to `_trySpecialAttack()`. Fires a projectile from melee mobs when player is outside melee range. Uses existing projectile infrastructure. Consider adding a client-side visual indicator (e.g., distinct projectile sprite) for thrown weapons vs ranged mob shots.
 - **`spire_garrison_warlord` sprite** — Currently shares `sprites/luddite_warlord.png`. Could use a unique sprite to visually distinguish the mid-Spire variant.
 - **Balance tuning** — Luddite Warlord now has aggressive anti-kite (3.5s lunge CD, range 7, thrown projectile). May need tuning after playtesting. Garrison variant (280 HP, 16 dmg) is scaled for mid-Spire; verify feels appropriately challenging relative to surrounding encounters.
+
+## Wind Push Mechanic — Spire of Winds (2026-03-15)
+
+Wind currents added to 5 Spire of Winds floors (shaft, gallery, bridge, depths, underlumen). Outstanding items:
+
+- **Client-side wind visual** — Wind zones have no visual indicator on the client. Consider adding directional particle effects (drifting motes) in wind current zones so players can see wind direction before entering. Could use the dungeon's `windCurrents` data sent with room state.
+- **Wind force tuning** — Forces range from 2–3 tiles/sec. Playtest to verify these feel challenging but fair, especially on narrow bridge tiles near chasms. The bridge map has the strongest winds (force 3) which may need reduction.
+- **Wind anchor sprite** — `wind_anchor` item needs a dedicated sprite (`sprites/wind_anchor.png`). Currently uses default item visual.
+- **Additional wind anchor placement** — Currently placed in excavation (depth 5) and gallery (depth 7). Consider adding to a shop or NPC trade in the fortress floors for players who miss them.
+- **Wind + combat interactions** — Wind pushes entities during combat, which could push players into chasms or separate groups. This is intentional but may need tuning if too punishing in multiplayer.
+- **Projectile wind deflection** — Wind currents don't affect projectiles. Could add this as a future enhancement for deeper mechanical identity.

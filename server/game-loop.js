@@ -3940,6 +3940,9 @@ class GameLoop {
       // Apply environmental hazard damage (cold, heat, poison)
       this.updateEnvironmentalHazards(room, dt);
 
+      // Apply wind current push forces
+      this.updateWindCurrents(room, dt);
+
       // Update siege wave defense (if active)
       if (room.siege) {
         this.updateSiege(room, dt);
@@ -4061,6 +4064,63 @@ class GameLoop {
       }
     }
     return false;
+  }
+
+  updateWindCurrents(room, dt) {
+    const currents = room.dungeon.windCurrents;
+    if (!currents || currents.length === 0) return;
+
+    const ts = CONSTANTS.TILE_SIZE;
+    const pr = CONSTANTS.PLAYER_RADIUS;
+    const mr = CONSTANTS.MONSTER_COLLISION_RADIUS;
+
+    for (const current of currents) {
+      // Current zone in tile coords: x, y, w, h
+      const zoneLeft = current.x * ts;
+      const zoneTop = current.y * ts;
+      const zoneRight = (current.x + current.w) * ts;
+      const zoneBottom = (current.y + current.h) * ts;
+
+      // Direction vector
+      let wdx = 0, wdy = 0;
+      switch (current.direction) {
+        case 'north': wdy = -1; break;
+        case 'south': wdy = 1; break;
+        case 'east':  wdx = 1; break;
+        case 'west':  wdx = -1; break;
+      }
+      const force = (current.force || 2) * ts * dt; // tiles/sec converted to pixels
+
+      // Push players
+      for (const [pid, player] of room.players) {
+        if (player.x < zoneLeft || player.x >= zoneRight ||
+            player.y < zoneTop || player.y >= zoneBottom) continue;
+        // Check elevation match (0 = ground level by default)
+        const currentElev = current.elevation != null ? current.elevation : 0;
+        if (Math.floor(player.elevation || 0) !== currentElev) continue;
+        // Check wind resistance
+        if (this._playerResistsHazard(player, 'wind')) continue;
+
+        const nx = player.x + wdx * force;
+        const ny = player.y + wdy * force;
+        if (!this.physics.collidesAt(nx, player.y, room.dungeon, pr, player.elevation)) player.x = nx;
+        if (!this.physics.collidesAt(player.x, ny, room.dungeon, pr, player.elevation)) player.y = ny;
+      }
+
+      // Push monsters
+      for (const [mid, mob] of room.monsters) {
+        if (mob.health <= 0) continue;
+        if (mob.x < zoneLeft || mob.x >= zoneRight ||
+            mob.y < zoneTop || mob.y >= zoneBottom) continue;
+        const currentElev = current.elevation != null ? current.elevation : 0;
+        if (Math.floor(mob.elevation || 0) !== currentElev) continue;
+
+        const nx = mob.x + wdx * force;
+        const ny = mob.y + wdy * force;
+        if (!this.physics.collidesAt(nx, mob.y, room.dungeon, mr, mob.elevation)) mob.x = nx;
+        if (!this.physics.collidesAt(mob.x, ny, room.dungeon, mr, mob.elevation)) mob.y = ny;
+      }
+    }
   }
 
   updateMonsters(room, dt) {

@@ -56,11 +56,18 @@
   "itemSpawns": [
     { "type": "bioluminescent_moss", "x": 18, "y": 3 },
     { "type": "underlumen_etching", "x": 3, "y": 12 },
-    { "type": "bandage", "x": 10, "y": 15 }
+    { "type": "bandage", "x": 10, "y": 15 },
+    { "type": "wind_anchor", "x": 19, "y": 11 }
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "spire_winds_shaft", "type": "stairs_up", "spawnX": 8, "spawnY": 20 },
     { "x": 13, "y": 18, "leadsTo": "spire_winds_bridge", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "windCurrents": [
+    { "x": 5, "y": 7, "w": 2, "h": 3, "direction": "south", "force": 2 },
+    { "x": 15, "y": 7, "w": 2, "h": 3, "direction": "north", "force": 2 },
+    { "x": 5, "y": 12, "w": 2, "h": 3, "direction": "south", "force": 2 },
+    { "x": 15, "y": 12, "w": 2, "h": 3, "direction": "north", "force": 2 }
   ],
   "triggers": [
       {

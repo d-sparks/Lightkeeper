@@ -68,6 +68,14 @@
     { "x": 1, "y": 1, "leadsTo": "spire_winds_depths", "type": "stairs_up", "spawnX": 19, "spawnY": 20 },
     { "x": 20, "y": 20, "leadsTo": "spire_winds_antechamber", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
+  "windCurrents": [
+    { "x": 3, "y": 7, "w": 3, "h": 3, "direction": "east", "force": 2 },
+    { "x": 3, "y": 16, "w": 3, "h": 3, "direction": "east", "force": 2 },
+    { "x": 14, "y": 10, "w": 3, "h": 3, "direction": "south", "force": 2.5 },
+    { "x": 14, "y": 19, "w": 4, "h": 2, "direction": "west", "force": 2 },
+    { "x": 18, "y": 7, "w": 3, "h": 3, "direction": "south", "force": 2 },
+    { "x": 7, "y": 10, "w": 2, "h": 3, "direction": "north", "force": 3 }
+  ],
   "triggers": [
       {
         "id": "underlumen_enter",
