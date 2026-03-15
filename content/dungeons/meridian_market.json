@@ -83,7 +83,7 @@
       "event": "choice_made",
       "filter": { "choiceId": "reva_shop", "value": "potions" },
       "actions": [
-        { "type": "giveItem", "itemType": "health_potion", "count": 3 },
+        { "type": "giveItem", "itemType": "bandage", "count": 3 },
         { "type": "setFlag", "flag": "bought_from_reva" },
         { "type": "setFlag", "flag": "reva_mentioned_solen" },
         { "type": "showMessage", "text": "Reva wraps three potions in cloth. 'Good choice. You can never have too many of these.'" }
@@ -262,7 +262,7 @@
       "event": "choice_made",
       "filter": { "choiceId": "reva_return", "value": "potions" },
       "actions": [
-        { "type": "giveItem", "itemType": "health_potion", "count": 3 },
+        { "type": "giveItem", "itemType": "bandage", "count": 3 },
         { "type": "showMessage", "text": "Reva wraps three potions in cloth. 'A classic. Can't go wrong.'" }
       ]
     },

@@ -4,14 +4,12 @@
     "rolls": [
       { "item": "bandage", "weight": 5 },
       { "item": "ration_pack", "weight": 4 },
-      { "item": "health_potion", "weight": 2 },
       { "item": "medical_supplies", "weight": 3 }
     ]
   },
   "outpost_biome_uncommon": {
     "dropChance": 0.7,
     "rolls": [
-      { "item": "health_potion", "weight": 3 },
       { "item": "field_medkit", "weight": 2 },
       { "item": "medical_supplies", "weight": 2 },
       { "item": "damage_booster_chip", "weight": 3 },
@@ -36,7 +34,6 @@
     "rolls": [
       { "item": "bandage", "weight": 5 },
       { "item": "battery_chip", "weight": 6 },
-      { "item": "health_potion", "weight": 2 },
       { "item": "rechargeable_battery_chip", "weight": 2 },
       { "item": "precision_blaster", "weight": 1 }
     ]

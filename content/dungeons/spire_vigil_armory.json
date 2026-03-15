@@ -49,10 +49,8 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "frost_salve", "x": 15, "y": 4 },
-    { "type": "battery_chip", "x": 2, "y": 11 },
-    { "type": "health_potion", "x": 17, "y": 9 }
+    { "type": "battery_chip", "x": 2, "y": 11 }
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "spire_vigil_garrison", "type": "stairs_up", "spawnX": 19, "spawnY": 16 },

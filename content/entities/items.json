@@ -1,13 +1,4 @@
 {
-  "health_potion": {
-    "name": "Health Potion",
-    "description": "Restores 25 health",
-    "type": "consumable",
-    "rarity": "common",
-    "effect": {
-      "heal": 25
-    }
-  },
   "bandage": {
     "name": "Bandage",
     "description": "A basic field dressing. Restores 15 health.",

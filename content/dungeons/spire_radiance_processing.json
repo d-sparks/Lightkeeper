@@ -50,10 +50,8 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "battery_chip", "x": 17, "y": 6 },
     { "type": "bandage", "x": 11, "y": 10 },
-    { "type": "health_potion", "x": 7, "y": 14 },
     { "type": "salvage", "x": 16, "y": 16 }
   ],
   "exits": [

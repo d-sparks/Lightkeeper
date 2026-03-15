@@ -3,7 +3,6 @@
     "dropChance": 0.5,
     "rolls": [
       { "item": "frost_salve", "weight": 10 },
-      { "item": "health_potion", "weight": 6 },
       { "item": "bandage", "weight": 8 },
       { "item": "ration_pack", "weight": 5 },
       { "item": "flare", "weight": 3 }

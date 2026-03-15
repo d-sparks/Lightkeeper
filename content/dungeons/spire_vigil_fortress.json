@@ -57,10 +57,8 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 2, "y": 3 },
     { "type": "field_medkit", "x": 15, "y": 5 },
     { "type": "frost_salve", "x": 6, "y": 8 },
-    { "type": "health_potion", "x": 18, "y": 9 },
     { "type": "battery_chip", "x": 6, "y": 14 }
   ],
   "exits": [

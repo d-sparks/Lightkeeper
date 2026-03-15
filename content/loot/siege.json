@@ -13,7 +13,6 @@
     "dropChance": 0.4,
     "note": "Per-wave loot from siege monsters. Lower-tier consumables and components.",
     "rolls": [
-      { "item": "health_potion", "weight": 25 },
       { "item": "ration_pack", "weight": 15 },
       { "item": "bandage", "weight": 15 },
       { "item": "battery_chip", "weight": 10 },

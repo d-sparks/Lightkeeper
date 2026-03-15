@@ -48,11 +48,9 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "field_medkit", "x": 17, "y": 4 },
     { "type": "salvage", "x": 3, "y": 9 },
     { "type": "bandage", "x": 20, "y": 9 },
-    { "type": "health_potion", "x": 8, "y": 15 },
     { "type": "umbrasite", "x": 17, "y": 16 }
   ],
   "exits": [

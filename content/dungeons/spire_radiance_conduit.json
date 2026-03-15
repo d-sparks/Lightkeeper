@@ -50,11 +50,9 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "field_medkit", "x": 17, "y": 7 },
     { "type": "lore_radiance_nexus_directive", "x": 6, "y": 11 },
-    { "type": "bandage", "x": 3, "y": 15 },
-    { "type": "health_potion", "x": 10, "y": 19 }
+    { "type": "bandage", "x": 3, "y": 15 }
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "spire_radiance_cooling", "type": "stairs_up", "spawnX": 14, "spawnY": 17 },

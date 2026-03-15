@@ -18,7 +18,7 @@ function makeContent() {
       name: 'Power Cell', type: 'accessory', slot: 'accessory', rarity: 'common',
       stats: { attackDamage: 3 },
     },
-    health_potion: { name: 'Health Potion', type: 'consumable', rarity: 'common' },
+    bandage: { name: 'Bandage', type: 'consumable', rarity: 'common' },
   };
   const monsters = {
     drone: { name: 'Drone', health: 30, xp: 10, lootTable: 'drone_loot' },
@@ -28,7 +28,7 @@ function makeContent() {
   const lootTables = {
     drone_loot: {
       dropChance: 1.0,
-      rolls: [{ item: 'health_potion', weight: 1 }],
+      rolls: [{ item: 'bandage', weight: 1 }],
     },
   };
   const settings = {
@@ -184,7 +184,7 @@ describe('Combat integration', () => {
       gl._rollLoot(room, mob);
       assert.equal(room.items.size, 1);
       const [item] = room.items.values();
-      assert.equal(item.type, 'health_potion');
+      assert.equal(item.type, 'bandage');
       assert.equal(item.x, 200);
       assert.equal(item.y, 200);
     });

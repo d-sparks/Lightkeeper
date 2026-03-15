@@ -92,7 +92,6 @@
     { "type": "umbracite", "x": 3, "y": 9 },
     { "type": "umbracite", "x": 12, "y": 14 },
     { "type": "field_medkit", "x": 18, "y": 9 },
-    { "type": "health_potion", "x": 3, "y": 16 },
     { "type": "flare", "x": 15, "y": 4 },
     { "type": "battery_chip", "x": 9, "y": 11 },
     { "type": "battery_chip", "x": 19, "y": 5 },

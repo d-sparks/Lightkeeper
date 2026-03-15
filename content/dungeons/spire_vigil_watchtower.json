@@ -54,9 +54,7 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 2 },
     { "type": "frost_salve", "x": 17, "y": 9 },
-    { "type": "health_potion", "x": 2, "y": 15 },
     { "type": "salvage", "x": 14, "y": 14 }
   ],
   "exits": [

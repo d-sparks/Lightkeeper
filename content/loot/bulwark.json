@@ -4,7 +4,6 @@
     "rolls": [
       { "item": "salvage", "weight": 10 },
       { "item": "bandage", "weight": 4 },
-      { "item": "health_potion", "weight": 3 },
       { "item": "bulwark_dog_tags", "weight": 6 },
       { "item": "military_medkit", "weight": 1 },
       { "item": "metal_casing", "weight": 4 },
@@ -16,7 +15,6 @@
     "dropChance": 0.5,
     "rolls": [
       { "item": "salvage", "weight": 8 },
-      { "item": "health_potion", "weight": 3 },
       { "item": "military_medkit", "weight": 2 },
       { "item": "compact_orders", "weight": 2 },
       { "item": "bulwark_shock_baton", "weight": 1 },

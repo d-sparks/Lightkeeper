@@ -53,9 +53,7 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 23, "y": 4 },
     { "type": "field_medkit", "x": 2, "y": 4 },
-    { "type": "health_potion", "x": 12, "y": 14 },
     { "type": "lore_kappa_harvest_log", "x": 7, "y": 7 }
   ],
   "exits": [

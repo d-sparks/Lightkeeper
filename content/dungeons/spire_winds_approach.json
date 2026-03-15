@@ -47,7 +47,6 @@
     { "type": "corporal_venn", "x": 22, "y": 9 }
   ],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "field_ration_greenway", "x": 11, "y": 6 },
     { "type": "bandage", "x": 4, "y": 11 },
     { "type": "spire_winds_keycard", "x": 22, "y": 13 }

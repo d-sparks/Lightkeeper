@@ -53,7 +53,6 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 17, "y": 2 },
     { "type": "field_medkit", "x": 2, "y": 11 },
     { "type": "battery_chip", "x": 17, "y": 11 }
   ],

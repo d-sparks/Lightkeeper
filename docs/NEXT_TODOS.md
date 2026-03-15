@@ -376,7 +376,6 @@ Each needs the same treatment: add `noHostilesInRoom` condition to room_entered 
 - **Lore items with no NPC connection** — Add `hasItem` dialogue rules for lore items that have pickup hints pointing to specific NPCs.
 - **Perimeter/Dead Road items** — bandage, ration_pack, salvage, field_medkit in outpost_perimeter / perimeter_outer_ring / perimeter_breach / dead_road have no pickup hints. Add item_picked_up triggers in those dungeons.
 - **Sol component discovery** — Most sol chips found in the world (efficiency_core_chip, area_expander_chip, etc.) lack pickup hints explaining what they do. Consider a generic sol_component_hint trigger.
-- **Health potion hint** — health_potion has no pickup hint. Add one to outpost_munitions (where it can be obtained via Voss side quest) or in loot tables.
 
 ## Quest Graph
 

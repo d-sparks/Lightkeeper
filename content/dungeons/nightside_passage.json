@@ -60,7 +60,6 @@
     { "type": "umbracite", "x": 2, "y": 2 },
     { "type": "umbracite", "x": 10, "y": 6 },
     { "type": "refined_umbrasite", "x": 8, "y": 13 },
-    { "type": "health_potion", "x": 15, "y": 9 },
     { "type": "field_medkit", "x": 20, "y": 12 },
     { "type": "flare", "x": 14, "y": 17 },
     { "type": "battery_chip", "x": 6, "y": 17 },

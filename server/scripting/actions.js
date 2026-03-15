@@ -9,8 +9,8 @@
 //   { type: "incrementFlag", flag: "name", amount: 1, scope: "player" }
 //   { type: "setDialogue",  npc: "npc_type", dialogueId: "post_crystal" }
 //   { type: "removeEntity", entityType: "npc"|"monster"|"item", entityId: "npc_old_keeper_0" }
-//   { type: "spawnItem",    itemType: "health_potion", x: 5, y: 3 }  // x/y optional; omit to drop at monster death pos
-//   { type: "giveItem",     itemType: "health_potion" }
+//   { type: "spawnItem",    itemType: "bandage", x: 5, y: 3 }  // x/y optional; omit to drop at monster death pos
+//   { type: "giveItem",     itemType: "bandage" }
 //   { type: "removeItem",   itemType: "iron_key" }
 //   { type: "equipItem",    itemType: "sol_unit" }
 //   { type: "showMessage",  text: "The door unlocks with a click." }

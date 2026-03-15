@@ -41,7 +41,7 @@
     { "type": "waypoint_beacon", "x": 12, "y": 15 }
   ],
   "itemSpawns": [
-    { "type": "health_potion", "x": 5, "y": 6 },
+    { "type": "bandage", "x": 5, "y": 6 },
     { "type": "bio_graft", "x": 12, "y": 12 }
   ],
   "exits": [

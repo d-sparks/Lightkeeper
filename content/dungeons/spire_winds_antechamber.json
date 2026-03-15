@@ -37,8 +37,8 @@
   "monsterSpawns": [],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 8, "y": 1 },
-    { "type": "health_potion", "x": 14, "y": 1 }
+    { "type": "bandage", "x": 8, "y": 1 },
+    { "type": "bandage", "x": 14, "y": 1 }
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "spire_winds_underlumen", "type": "stairs_up", "spawnX": 20, "spawnY": 20 },

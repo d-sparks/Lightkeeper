@@ -109,7 +109,7 @@
         { "not": { "hasFlag": "array_premium_bonus_given" } }
       ],
       "actions": [
-        { "type": "giveItem", "itemType": "health_potion", "count": 3 },
+        { "type": "giveItem", "itemType": "bandage", "count": 3 },
         { "type": "giveItem", "itemType": "field_medkit" },
         { "type": "setFlag", "flag": "array_premium_bonus_given" },
         { "type": "showMessage", "lines": [

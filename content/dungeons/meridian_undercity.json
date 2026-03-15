@@ -48,7 +48,6 @@
   "itemSpawns": [
     { "type": "iron_key", "x": 15, "y": 12 },
     { "type": "supply_crate_key", "x": 25, "y": 2 },
-    { "type": "health_potion", "x": 8, "y": 16 },
     { "type": "bandage", "x": 21, "y": 17 }
   ],
   "exits": [
@@ -227,7 +226,7 @@
       "event": "door_interacted",
       "filter": { "tileX": 5, "tileY": 4 },
       "actions": [
-        { "type": "spawnItem", "itemType": "health_potion" },
+        { "type": "spawnItem", "itemType": "bandage" },
         { "type": "spawnItem", "itemType": "bandage" },
         { "type": "spawnItem", "itemType": "efficiency_core_chip" },
         { "type": "grantXp", "amount": 20 },

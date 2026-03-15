@@ -46,10 +46,8 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "solar_focusing_crystal", "x": 19, "y": 3 },
     { "type": "field_medkit", "x": 5, "y": 10 },
-    { "type": "health_potion", "x": 17, "y": 13 },
     { "type": "bandage", "x": 8, "y": 15 },
     { "type": "umbrasite", "x": 15, "y": 15 }
   ],

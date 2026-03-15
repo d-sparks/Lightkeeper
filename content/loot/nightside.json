@@ -32,7 +32,6 @@
     "rolls": [
       { "item": "salvage", "weight": 10 },
       { "item": "frost_salve", "weight": 8 },
-      { "item": "health_potion", "weight": 5 },
       { "item": "umbracite_shard", "weight": 2 },
       { "item": "shadow_conduit_chip", "weight": 1 }
     ]
@@ -50,7 +49,6 @@
     "dropChance": 0.35,
     "rolls": [
       { "item": "salvage", "weight": 10 },
-      { "item": "health_potion", "weight": 8 },
       { "item": "field_medkit", "weight": 2 },
       { "item": "photon_regulator_chip", "weight": 1 }
     ]
@@ -60,7 +58,6 @@
     "rolls": [
       { "item": "salvage", "weight": 6 },
       { "item": "field_medkit", "weight": 5 },
-      { "item": "health_potion", "weight": 6 },
       { "item": "frozen_core", "weight": 2 },
       { "item": "photon_regulator_chip", "weight": 2 },
       { "item": "efficiency_core_chip", "weight": 1 }
@@ -129,7 +126,6 @@
     "dropChance": 0.45,
     "rolls": [
       { "item": "salvage", "weight": 8 },
-      { "item": "health_potion", "weight": 6 },
       { "item": "umbracite_shard", "weight": 4 },
       { "item": "shadow_conduit_chip", "weight": 2 },
       { "item": "umbral_amplifier_chip", "weight": 1 }
@@ -172,7 +168,6 @@
     "rolls": [
       { "item": "salvage", "weight": 8 },
       { "item": "frost_salve", "weight": 6 },
-      { "item": "health_potion", "weight": 5 },
       { "item": "umbracite_shard", "weight": 3 },
       { "item": "shadow_conduit_chip", "weight": 2 },
       { "item": "umbral_amplifier_chip", "weight": 1 }

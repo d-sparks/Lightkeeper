@@ -56,9 +56,7 @@
   ],
   "itemSpawns": [
     { "type": "field_medkit", "x": 2, "y": 2 },
-    { "type": "health_potion", "x": 23, "y": 2 },
     { "type": "symbiotic_compound", "x": 5, "y": 8 },
-    { "type": "health_potion", "x": 20, "y": 8 },
     { "type": "field_medkit", "x": 12, "y": 15 },
     { "type": "flare", "x": 4, "y": 19 },
     { "type": "battery_chip", "x": 15, "y": 4 },

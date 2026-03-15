@@ -41,7 +41,6 @@
   "monsterSpawns": [],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 8, "y": 4 },
     { "type": "field_medkit", "x": 17, "y": 10 },
     { "type": "frost_salve", "x": 11, "y": 15 }
   ],

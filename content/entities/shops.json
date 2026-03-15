@@ -6,7 +6,6 @@
       { "item": "bandage", "creditsCost": 6, "label": "Bandage (6 cr)" },
       { "item": "ration_pack", "creditsCost": 4, "label": "Ration Pack (4 cr)" },
       { "item": "medical_supplies", "creditsCost": 8, "label": "Medical Supplies (8 cr)" },
-      { "item": "health_potion", "creditsCost": 18, "label": "Health Potion (18 cr)" },
       { "item": "flare", "creditsCost": 20, "label": "Flare (20 cr)" }
     ],
     "buys": [
@@ -20,7 +19,6 @@
       { "item": "single_use_battery_chip", "creditsCost": 15, "label": "Single-Use Battery (15 cr)" },
       { "item": "battery_chip", "creditsCost": 30, "label": "Battery Chip (30 cr)" },
       { "item": "medical_supplies", "creditsCost": 10, "label": "Medical Supplies (10 cr)" },
-      { "item": "health_potion", "creditsCost": 20, "label": "Health Potion (20 cr)" },
       { "item": "field_medkit", "creditsCost": 40, "label": "Field Medkit (40 cr)" },
       { "item": "flare", "creditsCost": 25, "label": "Flare (25 cr)" }
     ],

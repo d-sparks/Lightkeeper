@@ -109,7 +109,7 @@ describe('TriggerRegistry', () => {
           actions: [{ type: 'setFlag', flag: 'found_crystal' }],
         }],
       });
-      registry.processEvent('item_picked_up', { itemType: 'health_potion' }, makeContext());
+      registry.processEvent('item_picked_up', { itemType: 'bandage' }, makeContext());
       assert.equal(flagStore.getPlayerFlag('p1', 'found_crystal'), undefined);
     });
 

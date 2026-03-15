@@ -59,10 +59,8 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "field_medkit", "x": 12, "y": 5 },
     { "type": "frost_salve", "x": 4, "y": 10 },
-    { "type": "health_potion", "x": 16, "y": 10 },
     { "type": "battery_chip", "x": 7, "y": 15 },
     { "type": "garrison_battle_plans", "x": 14, "y": 14 }
   ],

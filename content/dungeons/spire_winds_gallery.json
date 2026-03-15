@@ -46,10 +46,8 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "bioluminescent_moss", "x": 18, "y": 3 },
     { "type": "underlumen_etching", "x": 3, "y": 12 },
-    { "type": "health_potion", "x": 20, "y": 11 },
     { "type": "bandage", "x": 10, "y": 15 }
   ],
   "exits": [

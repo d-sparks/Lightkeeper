@@ -452,11 +452,6 @@
       "y": 2
     },
     {
-      "type": "health_potion",
-      "x": 8,
-      "y": 9
-    },
-    {
       "type": "shadow_conduit_chip",
       "x": 2,
       "y": 12

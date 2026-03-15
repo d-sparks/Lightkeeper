@@ -49,11 +49,9 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "frost_salve", "x": 17, "y": 7 },
     { "type": "underlumen_etching", "x": 6, "y": 11 },
-    { "type": "bandage", "x": 3, "y": 15 },
-    { "type": "health_potion", "x": 10, "y": 19 }
+    { "type": "bandage", "x": 3, "y": 15 }
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "spire_winds_excavation", "type": "stairs_up", "spawnX": 15, "spawnY": 18 },

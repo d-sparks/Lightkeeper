@@ -48,8 +48,7 @@
   ],
   "itemSpawns": [
     { "type": "lore_synthesis_log", "x": 21, "y": 3 },
-    { "type": "array_clearance_badge", "x": 2, "y": 2 },
-    { "type": "health_potion", "x": 20, "y": 14 }
+    { "type": "array_clearance_badge", "x": 2, "y": 2 }
   ],
   "exits": [
     { "x": 0, "y": 16, "leadsTo": "dayside_solar_fields", "type": "stairs_up", "spawnX": 8, "spawnY": 12 },

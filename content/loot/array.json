@@ -2,7 +2,6 @@
   "array_sentinel": {
     "dropChance": 0.3,
     "rolls": [
-      { "item": "health_potion", "weight": 4 },
       { "item": "silicon", "weight": 5 },
       { "item": "emp_charge", "weight": 3 },
       { "item": "photon_regulator_chip", "weight": 2 },
@@ -12,7 +11,6 @@
   "array_fabricator": {
     "dropChance": 0.4,
     "rolls": [
-      { "item": "health_potion", "weight": 3 },
       { "item": "field_medkit", "weight": 1 },
       { "item": "silicon", "weight": 5 },
       { "item": "circuit_board", "weight": 3 },

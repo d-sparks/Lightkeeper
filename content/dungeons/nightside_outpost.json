@@ -62,7 +62,6 @@
     { "type": "wounded_unbounded_scout", "x": 3, "y": 9 }
   ],
   "itemSpawns": [
-    { "type": "health_potion", "x": 2, "y": 3 },
     { "type": "bandage", "x": 13, "y": 3 },
     { "type": "field_medkit", "x": 17, "y": 8 },
     { "type": "flare", "x": 5, "y": 12 },

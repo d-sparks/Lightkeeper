@@ -413,11 +413,6 @@
   "npcSpawns": [],
   "itemSpawns": [
     {
-      "type": "health_potion",
-      "x": 12,
-      "y": 2
-    },
-    {
       "type": "frost_salve",
       "x": 3,
       "y": 10

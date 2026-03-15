@@ -49,9 +49,7 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "frost_salve", "x": 22, "y": 4 },
-    { "type": "health_potion", "x": 10, "y": 10 },
     { "type": "bandage", "x": 5, "y": 15 },
     { "type": "bioluminescent_moss", "x": 20, "y": 17 },
     { "type": "field_medkit", "x": 11, "y": 17 }

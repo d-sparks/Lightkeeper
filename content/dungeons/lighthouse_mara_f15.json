@@ -513,11 +513,6 @@
       "y": 2
     },
     {
-      "type": "health_potion",
-      "x": 15,
-      "y": 10
-    },
-    {
       "type": "reinforced_battery_chip",
       "x": 5,
       "y": 14

@@ -897,7 +897,7 @@
         },
         {
           "type": "giveItem",
-          "itemType": "health_potion"
+          "itemType": "bandage"
         },
         {
           "type": "giveItem",

@@ -44,7 +44,6 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "bandage", "x": 15, "y": 4 },
     { "type": "field_medkit", "x": 21, "y": 8 },
     { "type": "salvage", "x": 8, "y": 13 }

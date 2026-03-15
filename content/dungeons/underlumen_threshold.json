@@ -61,7 +61,6 @@
   "itemSpawns": [
     { "type": "umbracite", "x": 2, "y": 2 },
     { "type": "refined_umbrasite", "x": 10, "y": 7 },
-    { "type": "health_potion", "x": 8, "y": 14 },
     { "type": "field_medkit", "x": 19, "y": 15 },
     { "type": "umbracite", "x": 23, "y": 19 },
     { "type": "flare", "x": 15, "y": 17 },

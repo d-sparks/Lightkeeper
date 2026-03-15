@@ -53,11 +53,9 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "frost_salve", "x": 17, "y": 5 },
     { "type": "field_medkit", "x": 20, "y": 9 },
-    { "type": "bandage", "x": 5, "y": 11 },
-    { "type": "health_potion", "x": 3, "y": 16 }
+    { "type": "bandage", "x": 5, "y": 11 }
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "nightside_outpost", "type": "stairs_up", "spawnX": 18, "spawnY": 12 },

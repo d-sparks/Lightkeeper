@@ -49,10 +49,8 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 4, "y": 2 },
     { "type": "field_medkit", "x": 20, "y": 4 },
     { "type": "bandage", "x": 4, "y": 10 },
-    { "type": "health_potion", "x": 16, "y": 13 },
     { "type": "battery_chip", "x": 10, "y": 16 },
     { "type": "salvage", "x": 3, "y": 18 }
   ],

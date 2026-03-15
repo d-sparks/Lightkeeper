@@ -54,7 +54,6 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 2 },
     { "type": "frost_salve", "x": 14, "y": 6 },
     { "type": "battery_chip", "x": 3, "y": 8 },
     { "type": "umbracite", "x": 8, "y": 2 },

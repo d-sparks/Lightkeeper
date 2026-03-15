@@ -29,7 +29,6 @@
       { "item": "salvage", "weight": 10 },
       { "item": "bandage", "weight": 4 },
       { "item": "ration_pack", "weight": 3 },
-      { "item": "health_potion", "weight": 1 },
       { "item": "medical_supplies", "weight": 2 },
       { "item": "reinforced_battery_chip", "weight": 1 },
       { "item": "metal_casing", "weight": 4 },
@@ -40,7 +39,6 @@
     "dropChance": 0.8,
     "rolls": [
       { "item": "salvage", "weight": 6 },
-      { "item": "health_potion", "weight": 3 },
       { "item": "supply_crate_key", "weight": 2 },
       { "item": "tempered_blade", "weight": 1 },
       { "item": "efficiency_core_chip", "weight": 2 },
@@ -56,7 +54,6 @@
     "rolls": [
       { "item": "salvage", "weight": 4 },
       { "item": "field_medkit", "weight": 3 },
-      { "item": "health_potion", "weight": 3 },
       { "item": "tempered_blade", "weight": 2 },
       { "item": "efficiency_core_chip", "weight": 2 },
       { "item": "signal_booster_chip", "weight": 2 },
@@ -80,7 +77,6 @@
     "dropChance": 0.35,
     "rolls": [
       { "item": "salvage", "weight": 10 },
-      { "item": "health_potion", "weight": 4 },
       { "item": "bandage", "weight": 6 },
       { "item": "umbracite_shard", "weight": 2 },
       { "item": "shadow_conduit_chip", "weight": 1 },
@@ -92,7 +88,6 @@
     "dropChance": 0.75,
     "rolls": [
       { "item": "salvage", "weight": 6 },
-      { "item": "health_potion", "weight": 3 },
       { "item": "chitin_plate", "weight": 3 },
       { "item": "field_medkit", "weight": 1 },
       { "item": "area_expander_chip", "weight": 2 },
@@ -115,7 +110,6 @@
     "dropChance": 0.4,
     "rolls": [
       { "item": "salvage", "weight": 10 },
-      { "item": "health_potion", "weight": 4 },
       { "item": "umbracite_shard", "weight": 3 },
       { "item": "flare", "weight": 5 },
       { "item": "shadow_conduit_chip", "weight": 1 },
@@ -127,7 +121,6 @@
     "dropChance": 0.5,
     "rolls": [
       { "item": "salvage", "weight": 8 },
-      { "item": "health_potion", "weight": 3 },
       { "item": "lurker_hide", "weight": 3 },
       { "item": "field_medkit", "weight": 1 },
       { "item": "reinforced_battery_chip", "weight": 1 },

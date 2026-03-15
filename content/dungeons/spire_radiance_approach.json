@@ -49,7 +49,6 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "field_medkit", "x": 11, "y": 6 },
     { "type": "bandage", "x": 4, "y": 11 },
     { "type": "spire_radiance_keycard", "x": 22, "y": 13 }

@@ -55,9 +55,7 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "field_medkit", "x": 7, "y": 11 },
-    { "type": "health_potion", "x": 22, "y": 10 },
     { "type": "lore_radiance_hybrid_log", "x": 13, "y": 7 }
   ],
   "exits": [

@@ -51,9 +51,7 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "lore_radiance_ancient_record", "x": 8, "y": 5 },
-    { "type": "health_potion", "x": 22, "y": 9 },
     { "type": "bandage", "x": 3, "y": 12 },
     { "type": "solar_focusing_crystal", "x": 12, "y": 12 },
     { "type": "field_medkit", "x": 17, "y": 16 }

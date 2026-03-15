@@ -52,12 +52,9 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
-    { "type": "health_potion", "x": 3, "y": 3 },
     { "type": "frost_salve", "x": 16, "y": 4 },
-    { "type": "health_potion", "x": 3, "y": 9 },
     { "type": "field_medkit", "x": 15, "y": 9 },
     { "type": "umbrasite", "x": 10, "y": 15 },
-    { "type": "health_potion", "x": 4, "y": 18 },
     { "type": "bioluminescent_moss", "x": 17, "y": 20 }
   ],
   "exits": [
