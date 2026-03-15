@@ -2,9 +2,53 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-15 night (mainline sim: 47/124 rooms (38%), 167 kills, 78 deaths, blocks at lighthouse_mara_core boss — shade_stalker_alpha death loop; content validator: 0 errors, 4 warnings; unit tests: 320/320 pass after healOnHit cap fix). Balance fix applied for shade_stalker_alpha death loop — see Fixes Applied #6.
+Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
-## Three-Act Campaign Playtest Audit (2026-03-15)
+## Full Three-Act Campaign Playtest Audit (2026-03-15 late)
+
+Comprehensive end-to-end audit of all 124 rooms across 3 acts, all 3 ending paths, 22 quests, and 66 monsters. Sim coverage limited by pathfinding/combat AI, but manual content review covers Acts 2-3 fully.
+
+### Fixes Applied This Session
+
+7. **`projectile_burst` special attack not implemented**: 5 monsters (bulwark_engineer, hybrid_drone, radiance_construct, solar_core_warden, underlumen_emergence) had `projectile_burst` specials that were silently ignored by the engine. Converted all to `thrown_projectile` with appropriate damage/range/speed values. These are Act 2-3 enemies — their ranged specials now actually fire.
+
+8. **lighthouse_mara_caverns disconnected map section**: The southeast quadrant (rows 10-16, x=16-22) containing the `mara_power_cell` item, chest, and several monsters was completely unreachable from the player spawn. A diagonal wall barrier from (13,10) to (9,14) had no passage connecting the two halves. Added a 5-tile corridor at y=13 (x=10-14: wall → frozen_stone) to connect the sections.
+
+9. **Sim navigate_to_room infinite loop**: When move_to_position goals timed out, navigate_to_room would retry indefinitely, creating loops where the bot bounced between two rooms forever. Added retry counter (max 6 attempts / 1500 ticks) before abandoning navigation. Explore mode improved from 6.5% to 11.3% room coverage with zero soft locks.
+
+### Content Audit Results
+
+**Dungeon connectivity**: All 124 rooms reachable from spawn. No orphaned dungeons. 15 conditional exits properly gated. 2 intentional one-way exits (merge_nexus→array_deep_processing, underlumen_threshold→train_station).
+
+**Quest flag chains**: All 22 quests have valid start condition sources. The only "missing" completion flag (`damage_booster_equipped`) is correctly set by engine code.
+
+**Monster balance curve**: Proper HP/damage scaling from Act 1 (10-130 HP, 0-16 dmg) → Act 2 (40-450 HP, 8-24 dmg) → Act 3 (110-900 HP, 12-26 dmg). Boss progression: quarantine_warlord(120HP) → dural_voss(600) → general_thorne(650) → threshold_keeper(750) → nexus_guardian(800) → solar_core_warden(900).
+
+**Ending paths**: All three endings fully implemented with:
+- SHUTDOWN (array_control_center): defeat overseer → activate terminal → `ending_shutdown_complete`
+- CONTROL (array_command_throne): defeat overseer → seize throne → `ending_control_complete`
+- MERGE (merge_nexus): defeat elder sporecap → convergence communion → `ending_merge_complete`
+- Each has intel-match bonuses, intel-mismatch dialogue, boss fight, multi-page ending text, post-ending atmosphere
+
+**NPC dialogue**: 74 NPCs across campaign. All have dialogue via `dialogues.default` or `dialogue` array. corporal_venn (5 sets) and keeper_mara (4 sets) have the most state-dependent dialogue.
+
+### Outstanding Issues
+
+1. **[opus] Sim bot can't traverse outpost_perimeter**: The 45x43 map with 27-30 monsters is a death trap for the sim bot (735 deaths in explore mode). The bot can't pathfind through dense monster rooms and lacks the combat AI to survive. This blocks all content beyond Act 1 outpost. Consider sim-only monster reduction or passthrough option for perimeter.
+
+2. **[opus] Proc room nesting bug**: In all-quests mode, the bot enters `proc:proc_quarantine:proc:proc_quarantine:proc:proc_quarantine:...` — a triply-nested procedural room. The exit at (24,4) has no A* path (returns null). The proc room generator may be creating recursive entries from the same exit tile.
+
+3. **[opus] `spire_radiance_cleared` flag set but never checked**: Content validator warning. If any future content gates on Spire of Radiance completion, this flag exists but currently nothing reads it.
+
+4. **[sonnet] Ending path quest tracking**: No quest definition covers the Act 3 ending choice (choosing shutdown/control/merge path and completing it). The `nightside_expedition` quest tracks the path choice but not the actual ending execution. Consider adding an `endgame` quest.
+
+5. **[opus] Sim explore mode combat**: The bot deals 0 damage and kills 0 monsters in explore mode despite taking 90,120 damage (735 deaths). The combat AI appears completely broken in explore mode — investigate `skipCombat` flag or weapon/ability initialization.
+
+6. **[sonnet] Act 2-3 NPC conditional dialogue**: Most NPCs (70/74) have only 1 dialogue set with 0 conditions. Only corporal_venn (5 sets), keeper_mara (4 sets), wounded_unbounded_scout (2), and unbounded_elder (2) react to game state. Key NPCs like councillor_asha, warden_holt, and MERIDIAN-7 should have state-dependent dialogue as the player progresses through acts.
+
+7. **[sonnet] Merge ending NPC interaction ordering**: The merge_nexus has three NPCs (asha_merge, sable_merge, meridian_7_merge) but the ending trigger (`symbiosis_communion_begin`) fires on tile interaction at (12,11), not on NPC conversations. Consider requiring all three NPCs to be spoken to before the communion can begin — adds narrative weight.
+
+## Three-Act Campaign Playtest Audit (2026-03-15 earlier session)
 
 Full end-to-end audit of Acts 1-3, ending paths, and endgame loop. Sim verified through Act 1 midpoint; everything beyond Lighthouse Mara required manual content review.
 

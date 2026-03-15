@@ -749,7 +749,7 @@
     "lootTable": "bulwark_common",
     "xp": 25,
     "specialAttacks": [
-      { "type": "projectile_burst", "cooldown": 10, "projectile": "energy_bolt", "count": 3, "spread": 0.4 }
+      { "type": "thrown_projectile", "cooldown": 10, "projectileType": "energy_bolt", "damage": 0.8, "range": 6, "speed": 0.7 }
     ]
   },
   "bulwark_shieldwall": {
@@ -844,7 +844,7 @@
     "lootTable": "array_sentinel",
     "xp": 28,
     "specialAttacks": [
-      { "type": "projectile_burst", "cooldown": 10, "projectile": "energy_bolt", "count": 3, "spread": 0.5 }
+      { "type": "thrown_projectile", "cooldown": 10, "projectileType": "energy_bolt", "damage": 0.9, "range": 7, "speed": 0.7 }
     ]
   },
   "hybrid_stalker": {
@@ -878,7 +878,7 @@
     "lootTable": "array_sentinel",
     "xp": 35,
     "specialAttacks": [
-      { "type": "projectile_burst", "cooldown": 8, "projectile": "energy_bolt", "count": 5, "spread": 0.6 },
+      { "type": "thrown_projectile", "cooldown": 8, "projectileType": "energy_bolt", "damage": 1.0, "range": 7, "speed": 0.8 },
       { "type": "ground_slam", "cooldown": 12, "range": 2.5, "damage": 1.3, "knockback": 100 }
     ]
   },
@@ -928,7 +928,7 @@
       { "threshold": 0.25, "mode": "ranged", "speed": 2.0, "damage": 28, "projectile": "energy_bolt", "projectileInterval": 0.9 }
     ],
     "specialAttacks": [
-      { "type": "projectile_burst", "cooldown": 8, "projectile": "energy_bolt", "count": 5, "spread": 0.8 },
+      { "type": "thrown_projectile", "cooldown": 8, "projectileType": "energy_bolt", "damage": 1.2, "range": 8, "speed": 0.9 },
       { "type": "ground_slam", "cooldown": 10, "range": 3.5, "damage": 1.6, "knockback": 200 },
       { "type": "wound", "cooldown": 12, "damage": 0.5, "range": 3.5, "duration": 6.0, "healReduction": 0.5 }
     ],
@@ -1075,7 +1075,7 @@
       { "type": "ground_slam", "cooldown": 8, "range": 3, "damage": 1.8, "knockback": 160 },
       { "type": "wound", "cooldown": 10, "damage": 0.5, "duration": 6.0, "healReduction": 0.5 },
       { "type": "stun", "cooldown": 12, "damage": 0.6, "duration": 1.5 },
-      { "type": "projectile_burst", "cooldown": 15, "projectile": "frost_bolt", "count": 5, "spread": 0.7 }
+      { "type": "thrown_projectile", "cooldown": 15, "projectileType": "frost_bolt", "damage": 1.0, "range": 7, "speed": 0.7 }
     ],
     "lootTable": "underlumen_emergence",
     "xp": 120

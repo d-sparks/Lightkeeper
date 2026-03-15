@@ -830,6 +830,16 @@ class Bot {
       return;
     }
 
+    // Track navigation attempts — bail after too many failures to prevent infinite loops
+    if (!goal._navAttempts) goal._navAttempts = 0;
+    if (!goal._navTotalTicks) goal._navTotalTicks = 0;
+    goal._navTotalTicks++;
+    if (goal._navTotalTicks > 1500 || goal._navAttempts > 6) {
+      console.log(`[Bot] navigate_to_room "${goal.room}" ABANDONED after ${goal._navAttempts} attempts / ${goal._navTotalTicks} ticks`);
+      this.popGoal();
+      return;
+    }
+
     // If we're in a procedural room, first escape by finding stairs_up
     if (this.currentRoom.startsWith('proc:')) {
       this.pushGoal({ type: 'find_exit_in_room', exitType: 'stairs_up' });
@@ -934,6 +944,7 @@ class Bot {
     }
 
     // Push sub-goal: move to the exit tile of the first hop
+    goal._navAttempts = (goal._navAttempts || 0) + 1;
     this.popGoal();
     // Re-push navigate goal (in case we need multiple hops)
     this.pushGoal(goal);
