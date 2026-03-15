@@ -1,7 +1,7 @@
 {
   "id": "spire_radiance_core",
   "name": "Spire of Radiance — Solar Core",
-  "depth": 5,
+  "depth": 12,
   "tileset": "spire_radiance",
   "theme": "underlumen",
   "tileSize": 32,
@@ -41,7 +41,7 @@
   "npcSpawns": [],
   "itemSpawns": [],
   "exits": [
-    { "x": 7, "y": 1, "leadsTo": "spire_radiance_sanctum", "type": "stairs_up", "spawnX": 20, "spawnY": 20 }
+    { "x": 7, "y": 1, "leadsTo": "spire_radiance_crucible", "type": "stairs_up", "spawnX": 7, "spawnY": 15 }
   ],
   "triggers": [
     {

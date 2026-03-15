@@ -1,7 +1,7 @@
 {
   "id": "spire_vigil_garrison",
   "name": "Spire of Vigil — Garrison",
-  "depth": 2,
+  "depth": 3,
   "tileset": "nightside",
   "theme": "nightside",
   "tileSize": 32,
@@ -67,10 +67,10 @@
     { "type": "garrison_battle_plans", "x": 14, "y": 14 }
   ],
   "exits": [
-    { "x": 1, "y": 1, "leadsTo": "spire_vigil_approach", "type": "stairs_up", "spawnX": 19, "spawnY": 17 },
+    { "x": 1, "y": 1, "leadsTo": "spire_vigil_watchtower", "type": "stairs_up", "spawnX": 21, "spawnY": 16 },
     {
       "x": 19, "y": 16,
-      "leadsTo": "spire_vigil_fortress",
+      "leadsTo": "spire_vigil_armory",
       "type": "stairs_down",
       "spawnX": 1, "spawnY": 1,
       "conditions": [{ "hasFlag": "garrison_warlord_killed" }],
@@ -133,7 +133,7 @@
         { "type": "setFlag", "flag": "found_battle_plans" },
         { "type": "showMessage", "lines": [
           "Battle plans scratched onto salvaged metal plates. You can piece together Voss's strategy:",
-          "The Spire has five levels. The outer defenses and this garrison hold levels one and two. Voss himself commands level three — the sanctum. Below that...",
+          "The Spire runs deep — far deeper than the raiders expected. The outer defenses, watchtower, and this garrison hold the upper levels. Voss himself commands the sanctum far below. Below that...",
           "The plans stop. Voss has drawn a line across the page and written one word: 'SEALED.' Whatever lies beneath the sanctum, even Voss hasn't breached it.",
           "But the plans include energy readings from below — massive, regular pulses that match no known power source. Voss has been trying to break through for weeks."
         ]}

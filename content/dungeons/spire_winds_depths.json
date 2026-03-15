@@ -1,0 +1,91 @@
+{
+  "id": "spire_winds_depths",
+  "name": "Spire of Winds — Monument Depths",
+  "depth": 9,
+  "tileset": "spire_winds",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.03,
+  "width": 22,
+  "height": 22,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,12,12,12,12,13,13,13,13,13,12,12,12,12,12,12,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,12,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,
+    13,13,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12, 7, 7, 7, 7,12,12,13,13,
+    13,13,12,12,12, 7, 7, 7, 7, 7, 7,12,12, 7, 7, 7, 7, 7,12,12,13,13,
+    13,13,12,12,18, 7, 7, 7, 7, 7, 7,18,12, 7, 7, 7, 7, 7,18,12,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,12,12,12,13,
+    13,12,12,12,12,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12,13,
+    13,12,12,12, 7, 7, 7, 7,18,12,12,12,12,18, 7, 7, 7, 7,12,12,13,13,
+    13,13,12,12, 7, 7, 7, 7,12,12, 2,12,12,12, 7, 7, 7, 7,12,13,13,13,
+    13,13,12,12, 7, 7, 7, 7,12,12,12,12,12,12, 7, 7, 7, 7,12,13,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,12,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,
+    13,13,12,12,12, 7, 7, 7,18,12,12,12,12,18, 7, 7, 7,12,12,12,12,13,
+    13,13,12,12,12, 7, 7, 7,12,12, 2,12,12,12, 7, 7, 7,12, 2,12,12,13,
+    13,13,13,12,12, 7, 7, 7,12,12,12,12,12,12, 7, 7, 7,12,12,12,12,13,
+    13,13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12, 6,12,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "shade_stalker_alpha", "x": 8, "y": 3, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 5, "y": 2}, {"x": 12, "y": 2}, {"x": 12, "y": 5}, {"x": 5, "y": 5}] },
+    { "type": "frostfang_hunter", "x": 17, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 3, "y": 8, "count": 2, "patrol": "wander" },
+    { "type": "frostfang_alpha", "x": 17, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "shade_stalker", "x": 8, "y": 10, "count": 1, "patrol": "wander" },
+    { "type": "dusk_crawler", "x": 10, "y": 12, "count": 2, "patrol": "wander" },
+    { "type": "frostfang_hunter", "x": 3, "y": 15, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 2, "y": 14}, {"x": 7, "y": 14}, {"x": 7, "y": 17}, {"x": 2, "y": 17}] },
+    { "type": "shade_stalker_alpha", "x": 15, "y": 16, "count": 1, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 10, "y": 19, "count": 2, "patrol": "wander" },
+    { "type": "frostfang_hunter", "x": 17, "y": 19, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 3, "y": 3 },
+    { "type": "frost_salve", "x": 16, "y": 4 },
+    { "type": "health_potion", "x": 3, "y": 9 },
+    { "type": "field_medkit", "x": 15, "y": 9 },
+    { "type": "umbrasite", "x": 10, "y": 15 },
+    { "type": "health_potion", "x": 4, "y": 18 },
+    { "type": "bioluminescent_moss", "x": 17, "y": 20 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_bridge", "type": "stairs_up", "spawnX": 17, "spawnY": 18 },
+    { "x": 19, "y": 20, "leadsTo": "spire_winds_underlumen", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "depths_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The air grows thick with the musk of nesting creatures. The Monument's depths are fauna territory now — the ancient chambers repurposed as dens, the wind channels used as hunting corridors.",
+          "Alpha predators have established territories here. Their markings scar the ancient walls — claw gouges over geometric carvings millennia old. These creatures are stronger, faster, and more territorial than anything above.",
+          "The wind still flows, but it carries the sound of movement from every direction. You are deep in their domain now."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "alpha_territory",
+      "event": "room_entered",
+      "conditions": [{ "not": { "hasFlag": "depths_alpha_warned" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "depths_alpha_warned" },
+        { "type": "showMessage", "text": "A low, resonant growl echoes through the chamber. The alpha creatures here are not merely dangerous — they are apex predators that have adapted to the Spire's unique environment. Their attacks carry the chill of the deep wind." }
+      ],
+      "once": true
+    }
+  ]
+}

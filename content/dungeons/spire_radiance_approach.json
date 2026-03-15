@@ -56,7 +56,7 @@
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "array_deep_processing", "type": "stairs_up", "spawnX": 1, "spawnY": 17 },
-    { "x": 24, "y": 16, "leadsTo": "spire_radiance_nexus", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 24, "y": 16, "leadsTo": "spire_radiance_perimeter", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
     {

@@ -1,7 +1,7 @@
 {
   "id": "spire_vigil_fortress",
   "name": "Spire of Vigil — Raider Fortress",
-  "depth": 2,
+  "depth": 6,
   "tileset": "nightside",
   "theme": "nightside",
   "tileSize": 32,
@@ -64,8 +64,8 @@
     { "type": "battery_chip", "x": 6, "y": 14 }
   ],
   "exits": [
-    { "x": 1, "y": 1, "leadsTo": "spire_vigil_garrison", "type": "stairs_up", "spawnX": 19, "spawnY": 16 },
-    { "x": 11, "y": 19, "leadsTo": "spire_vigil_sanctum", "type": "stairs_down", "spawnX": 1, "spawnY": 2 }
+    { "x": 1, "y": 1, "leadsTo": "spire_vigil_barracks", "type": "stairs_up", "spawnX": 21, "spawnY": 18 },
+    { "x": 11, "y": 19, "leadsTo": "spire_vigil_archives", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
     {

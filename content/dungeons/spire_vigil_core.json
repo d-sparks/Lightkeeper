@@ -1,7 +1,7 @@
 {
   "id": "spire_vigil_core",
   "name": "Spire of Vigil — Resonance Core",
-  "depth": 5,
+  "depth": 12,
   "tileset": "nightside",
   "theme": "underlumen",
   "tileSize": 32,
@@ -36,7 +36,7 @@
   "npcSpawns": [],
   "itemSpawns": [],
   "exits": [
-    { "x": 6, "y": 1, "leadsTo": "spire_vigil_underlumen", "type": "stairs_up", "spawnX": 13, "spawnY": 20 }
+    { "x": 6, "y": 1, "leadsTo": "spire_vigil_resonance_chamber", "type": "stairs_up", "spawnX": 7, "spawnY": 16 }
   ],
   "triggers": [
     {

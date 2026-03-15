@@ -1,7 +1,7 @@
 {
   "id": "spire_winds_shaft",
   "name": "Spire of Winds — Wind Shaft",
-  "depth": 3,
+  "depth": 6,
   "tileset": "spire_winds",
   "theme": "underlumen",
   "tileSize": 32,
@@ -56,8 +56,8 @@
     { "type": "health_potion", "x": 10, "y": 19 }
   ],
   "exits": [
-    { "x": 1, "y": 1, "leadsTo": "spire_winds_fortress", "type": "stairs_up", "spawnX": 23, "spawnY": 18 },
-    { "x": 8, "y": 20, "leadsTo": "spire_winds_underlumen", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_excavation", "type": "stairs_up", "spawnX": 15, "spawnY": 18 },
+    { "x": 8, "y": 20, "leadsTo": "spire_winds_gallery", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
     {

@@ -1,7 +1,7 @@
 {
   "id": "spire_radiance_sanctum",
   "name": "Spire of Radiance — Solar Sanctum",
-  "depth": 4,
+  "depth": 9,
   "tileset": "spire_radiance",
   "theme": "underlumen",
   "tileSize": 32,
@@ -59,8 +59,8 @@
     { "type": "field_medkit", "x": 17, "y": 16 }
   ],
   "exits": [
-    { "x": 1, "y": 1, "leadsTo": "spire_radiance_conduit", "type": "stairs_up", "spawnX": 8, "spawnY": 20 },
-    { "x": 20, "y": 20, "leadsTo": "spire_radiance_core", "type": "stairs_down", "spawnX": 7, "spawnY": 1 }
+    { "x": 1, "y": 1, "leadsTo": "spire_radiance_observatory", "type": "stairs_up", "spawnX": 12, "spawnY": 15 },
+    { "x": 20, "y": 20, "leadsTo": "spire_radiance_threshold", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
     {

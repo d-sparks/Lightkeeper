@@ -62,6 +62,35 @@ Remaining follow-ups:
 - **NPC dayside dialogue cleanup** — Sable, Hollis, and MERIDIAN-7 have dialogue states gated on `visited_dayside` flag. These still work but won't fire until a player visits the dayside independently. Verify no dialogue state is softlocked by the quest reordering
 - **Asha spire briefing grants greenway_pass** — The new `asha_spire_briefing` trigger gives the player a `greenway_pass` item. Verify this integrates correctly with greenway_checkpoint's `greenway_pass_granted` gating
 
+## Content — Spire Dungeon Scaling (2026-03-15)
+
+All three Spire dungeons expanded from 5-6 floors to 12 floors each, adding combat, puzzle, lore, and pacing variety for multi-hour dungeon runs.
+
+**Spire of Vigil (6 → 12 floors):**
+- 6 new floors: watchtower (sniper nests), armory (pedestal puzzle), barracks (ambush encounters), archives (lore/exploration), descent (atmospheric transition), resonance_chamber (3-pedestal puzzle)
+- Pacing: dense combat early (watchtower → barracks), boss fight mid (sanctum/Dural Voss), quiet exploration late (descent → puzzles → core)
+- Total monster count: ~95 across 12 floors
+
+**Spire of Winds (5 → 12 floors):**
+- 7 new floors: guardpost (Bulwark checkpoint), laboratory (wind research), excavation (transition zone), gallery (wind murals/lore), bridge (void bridges combat), depths (dense fauna), antechamber (valve puzzle)
+- Pacing: military opposition early, fauna encounters mid, puzzles late
+- Total monster count: ~103 across 12 floors
+
+**Spire of Radiance (5 → 12 floors):**
+- 7 new floors: perimeter (Array defenses), processing (data halls), cooling (failing systems), forge (ancient lore), observatory (lens puzzle), threshold (combat gauntlet), crucible (focusing puzzle)
+- Pacing: Array military early, escalating heat hazard throughout, lore/puzzle mid, gauntlet + puzzle late
+- Total monster count: ~96 across 12 floors
+
+Remaining follow-ups:
+- **New floor sprites** — All 20 new floors use existing tileset tiles. No new tileset tiles were added, but layouts should be visually verified in-game.
+- **Puzzle mechanic variety** — New puzzle floors use pedestal/valve activation patterns. Consider adding timed sequences, beam reflection, or environmental manipulation puzzles for more variety.
+- **Room-entry dialogue suppression** — All 20 new floors have room_entered + showMessage triggers that fire during combat. Apply the noHostilesInRoom + room_cleared pattern from station_junction.
+- **Monster type variety for new floors** — Some new floors reuse the same enemy compositions. Consider adding 2-3 new monster types per Spire for mid-dungeon encounters.
+- **Loot table balance** — New floors use existing loot tables. Item economy across 12 floors (health potions, frost salves, medkits) needs playtesting.
+- **Quest step updates** — The spire_vigil quest (7 steps) was designed for 6 floors. May need additional steps for the expanded chain. Similar for any Winds/Radiance quest chains.
+- **Depth display** — Verify client shows floor depth correctly for 12-floor dungeons.
+- **Garrison battle plans lore update** — The garrison_battle_plans item says "The Spire has five levels." Should be updated to reflect the expanded 12-floor layout.
+
 ## Checkpoint Tool — Autosave History
 
 - **MAX_HISTORY constant** — Currently hardcoded to 5 in `server/session-store.js`. Could be exposed as an env var.
@@ -147,7 +176,7 @@ Act 1 climax content expanded — 3 new dungeons, 1 new quest, Act 2 gating, way
 
 **Waypoints added:** nightside_caverns, spire_vigil_approach
 
-**Full dungeon chain (11 rooms):** nightside_caverns → nightside_depths → nightside_outpost → (side: nightside_frost_crypt) → spire_vigil_approach → spire_vigil_garrison → spire_vigil_fortress → spire_vigil_sanctum → spire_vigil_underlumen → spire_vigil_core
+**Full dungeon chain (17 rooms):** nightside_caverns → nightside_depths → nightside_outpost → (side: nightside_frost_crypt) → spire_vigil_approach → spire_vigil_watchtower → spire_vigil_garrison → spire_vigil_armory → spire_vigil_barracks → spire_vigil_fortress → spire_vigil_archives → spire_vigil_sanctum → spire_vigil_descent → spire_vigil_underlumen → spire_vigil_resonance_chamber → spire_vigil_core
 
 Remaining follow-ups:
 - ~~**Spire of Vigil outer floors**~~ — DONE
@@ -248,8 +277,9 @@ Fixed station_junction: room-entry dialogue now deferred until combat clears usi
 
 **Other dungeons with the same issue** (room_entered + showMessage + monsterSpawns):
 - `array_deep_processing` (9 monsters)
-- `spire_radiance_approach` (8), `spire_radiance_conduit` (7), `spire_radiance_nexus` (12), `spire_radiance_sanctum` (8), `spire_radiance_core` (1)
-- `spire_winds_approach` (8), `spire_winds_fortress` (12), `spire_winds_shaft` (7), `spire_winds_underlumen` (8)
+- All Spire of Radiance floors (12 floors total)
+- All Spire of Winds floors (12 floors total)
+- All Spire of Vigil floors (12 floors total)
 - `greenway_supply_depot` (7), `greenway_farmstead` (3), `greenway_checkpoint` (4)
 - `underlumen_threshold` (10), `nightside_passage` (10)
 

@@ -1,0 +1,121 @@
+{
+  "id": "spire_winds_gallery",
+  "name": "Spire of Winds — Wind Gallery",
+  "depth": 7,
+  "tileset": "spire_winds",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.04,
+  "width": 24,
+  "height": 20,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13,12,12,12,12,12,12,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,12,12,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,
+    13,13,12,12,12,12,13, 7, 7, 7, 7, 7, 7, 7, 7, 7,13,12,12,12,12,12,13,13,
+    13,13,13,12,12,12,13, 7, 7, 7, 7, 7, 7, 7, 7, 7,13,12,12,13,13,13,13,13,
+    13,13,13,12,12,12,12,18, 7, 7, 7, 7, 7, 7, 7,18,12,12,12,13,13,13,13,13,
+    13,13,12,12, 2,12,12,12, 7, 7, 7, 7, 7, 7, 7,12,12, 2,12,12,12,13,13,13,
+    13,13,12,12,12,12,12,18, 7, 7, 7, 7, 7, 7, 7,18,12,12,12,12,12,12,13,13,
+    13,13,12,12,12,12,13, 7, 7, 7, 7, 7, 7, 7, 7, 7,13,12,12,12,12,12,12,13,
+    13,12,12,12,12,12,13, 7, 7, 7, 7, 7, 7, 7, 7, 7,13,12,12,12, 2,12,12,13,
+    13,12,12, 2,12,12,12,18, 7, 7, 7, 7, 7, 7, 7,18,12,12,12,12,12,12,12,13,
+    13,12,12,12,12,12,12,12,12,12,12,18,12,12,12,12,12,12,12,12,12,12,12,13,
+    13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,
+    13,13,13,12,12,12,12,12, 2,12,12,12,12,12, 2,12,12,12,12,12,12,13,13,13,
+    13,13,13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,
+    13,13,13,13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,12,12, 6,13,13,13,13,13,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "shade_stalker", "x": 7, "y": 4, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 5, "y": 3}, {"x": 10, "y": 3}, {"x": 10, "y": 5}, {"x": 5, "y": 5}] },
+    { "type": "tunnel_creeper", "x": 19, "y": 4, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 4, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "tunnel_creeper", "x": 19, "y": 10, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 5, "y": 14, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 3, "y": 13}, {"x": 8, "y": 13}, {"x": 8, "y": 16}, {"x": 3, "y": 16}] },
+    { "type": "tunnel_creeper", "x": 16, "y": 16, "count": 1, "patrol": "wander" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 3, "y": 3 },
+    { "type": "bioluminescent_moss", "x": 18, "y": 3 },
+    { "type": "underlumen_etching", "x": 3, "y": 12 },
+    { "type": "health_potion", "x": 20, "y": 11 },
+    { "type": "bandage", "x": 10, "y": 15 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_shaft", "type": "stairs_up", "spawnX": 8, "spawnY": 20 },
+    { "x": 13, "y": 18, "leadsTo": "spire_winds_bridge", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "gallery_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The passage opens into a long, vaulted gallery. Every surface is covered in murals carved directly into the stone — geometric patterns that seem to shift in the faint ambient light.",
+          "Wind whispers through channels cut into the gallery walls, creating a low harmonic that resonates in your chest. The murals aren't just decorative. They're functional — part of the wind-generation system.",
+          "This was a place of record. Whatever civilization built the Spires, they left their history here, encoded in stone and wind."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "mural_civilization",
+      "event": "room_entered",
+      "conditions": [{ "not": { "hasFlag": "gallery_mural_1" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "gallery_mural_1" },
+        { "type": "showMessage", "lines": [
+          "A large mural panel depicts a network of towering structures — Spires, dozens of them — connected by lines of energy that arc across a landscape unrecognizable as modern terrain.",
+          "The civilization that built these Spires operated on a continental scale. The Monument of Winds was just one node in a vast network. Your sol unit pulses in recognition."
+        ]},
+        { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    },
+    {
+      "id": "mural_wind_architecture",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "gallery_mural_1" },
+        { "not": { "hasFlag": "gallery_mural_2" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "gallery_mural_2" },
+        { "type": "showMessage", "lines": [
+          "Another mural sequence shows the construction of the Monument itself. Figures — not human, but humanoid — direct flows of energy that lift stone into place without physical contact.",
+          "The wind wasn't a byproduct of the architecture. The architecture was built to generate and channel wind. The entire Monument is a machine for moving air in precise patterns."
+        ]},
+        { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    },
+    {
+      "id": "mural_collapse",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "gallery_mural_2" },
+        { "not": { "hasFlag": "gallery_mural_3" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "gallery_mural_3" },
+        { "type": "showMessage", "lines": [
+          "The final mural is damaged — partially erased by time or intent. What remains shows the Spire network going dark, one node at a time. The connecting lines of energy fracturing and fading.",
+          "Something ended this civilization. Not suddenly, but progressively — a slow failure cascading through their network. The Spires were their last attempt to preserve something. But what?"
+        ]},
+        { "type": "grantXp", "amount": 20 }
+      ],
+      "once": true
+    }
+  ]
+}

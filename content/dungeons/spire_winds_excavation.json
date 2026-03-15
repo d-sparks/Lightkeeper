@@ -1,0 +1,96 @@
+{
+  "id": "spire_winds_excavation",
+  "name": "Spire of Winds — Excavation Site",
+  "depth": 5,
+  "tileset": "spire_winds",
+  "theme": "greenway_corridor",
+  "tileSize": 32,
+  "ambientLight": 0.06,
+  "width": 24,
+  "height": 20,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,12,12,12,12,12,13,13,13,13,12,12,12,12,12,12,12,12,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,12,12,12,12,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,13,
+    13,13,12,12,12,12,13,13, 7, 7, 7, 7, 7,13,13,12,12,12,12,12,12,12,12,13,
+    13,13,13,12,12,12,13, 7, 7, 7, 7, 7, 7, 7,13,12,12,12,13,13,12,12,12,13,
+    13,13,13,12,12,12,12,18, 7, 7, 7, 7, 7,18,12,12,12,12,13,13,12,12,12,13,
+    13,13,12,12, 2,12,12,12, 7, 7, 7, 7, 7,12,12,12, 2,12,12,12,12,12,12,13,
+    13,12,12,12,12,12,12,12, 7, 7, 7, 7, 7,12,12,12,12,12,12,12,12,12,13,13,
+    13,12,12,12,12,12,12,18, 7, 7, 7, 7, 7,18,12,12,12,12,12,12,12,13,13,13,
+    13,12,12,12,12,12,13, 7, 7, 7, 7, 7, 7, 7,13,12,12,12,12,12,12,12,13,13,
+    13,13,12,12,12,12,13,13, 7, 7, 7, 7, 7,13,13,12,12,12,12,12,12,12,12,13,
+    13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,12,12,12,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,
+    13,12,12,12,12,12,12,12,12, 2,12,12,12,12,12,12,12,12,12, 2,12,13,13,13,
+    13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,
+    13,13,13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,12,12, 6,13,13,13,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "bulwark_conscript", "x": 7, "y": 3, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 5, "y": 2}, {"x": 10, "y": 2}, {"x": 10, "y": 5}, {"x": 5, "y": 5}] },
+    { "type": "bulwark_rifleman", "x": 18, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "bulwark_rifleman", "x": 21, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 4, "y": 9, "count": 2, "patrol": "wander" },
+    { "type": "dusk_crawler", "x": 16, "y": 10, "count": 2, "patrol": "wander" },
+    { "type": "bulwark_conscript", "x": 5, "y": 14, "count": 1, "patrol": "wander" },
+    { "type": "dusk_crawler", "x": 12, "y": 15, "count": 2, "patrol": "wander" },
+    { "type": "bulwark_rifleman", "x": 19, "y": 14, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 3, "y": 3 },
+    { "type": "field_medkit", "x": 17, "y": 4 },
+    { "type": "salvage", "x": 3, "y": 9 },
+    { "type": "bandage", "x": 20, "y": 9 },
+    { "type": "health_potion", "x": 8, "y": 15 },
+    { "type": "umbrasite", "x": 17, "y": 16 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_fortress", "type": "stairs_up", "spawnX": 23, "spawnY": 18 },
+    { "x": 15, "y": 18, "leadsTo": "spire_winds_shaft", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "excavation_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The Bulwark's excavation site sprawls across a vast cavern where military engineering meets ancient architecture. Drilling rigs and pneumatic hammers stand abandoned beside walls of impossibly precise stonework.",
+          "A massive shaft has been bored through the Monument's foundation, but the diggers clearly hit something unexpected. The edges of the excavation reveal carved chambers far older than the Monument itself.",
+          "Creatures skitter in the darkness below the abandoned equipment. The workers left in a hurry — some of their lights are still on, casting harsh shadows across the dig site."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "abandoned_rig_lore",
+      "event": "room_entered",
+      "conditions": [{ "not": { "hasFlag": "excavation_rig_noted" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "excavation_rig_noted" },
+        { "type": "showMessage", "text": "An abandoned drilling rig lists sideways, its diamond bit shattered against stone that shouldn't exist at this depth. The Bulwark engineers' notes are scrawled on the housing: 'Material resists all cutting methods. Not natural formation.'" }
+      ],
+      "once": true
+    },
+    {
+      "id": "creatures_below",
+      "event": "room_entered",
+      "conditions": [{ "not": { "hasFlag": "excavation_creatures_noted" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "excavation_creatures_noted" },
+        { "type": "showMessage", "text": "Chitinous scraping echoes from the excavated tunnels. The creatures emerging from below seem drawn to the vibrations of the drilling equipment — or perhaps to whatever the drilling disturbed." }
+      ],
+      "once": true
+    }
+  ]
+}

@@ -61,7 +61,7 @@
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "nightside_outpost", "type": "stairs_up", "spawnX": 18, "spawnY": 12 },
-    { "x": 19, "y": 17, "leadsTo": "spire_vigil_garrison", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 19, "y": 17, "leadsTo": "spire_vigil_watchtower", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
     {

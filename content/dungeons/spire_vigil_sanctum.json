@@ -1,7 +1,7 @@
 {
   "id": "spire_vigil_sanctum",
   "name": "Spire of Vigil — Sanctum",
-  "depth": 3,
+  "depth": 8,
   "tileset": "nightside",
   "theme": "nightside",
   "tileSize": 32,
@@ -58,8 +58,8 @@
     { "type": "battery_chip", "x": 17, "y": 11 }
   ],
   "exits": [
-    { "x": 1, "y": 3, "leadsTo": "spire_vigil_fortress", "type": "stairs_up", "spawnX": 11, "spawnY": 19 },
-    { "x": 9, "y": 16, "leadsTo": "spire_vigil_underlumen", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 1, "y": 3, "leadsTo": "spire_vigil_archives", "type": "stairs_up", "spawnX": 17, "spawnY": 15 },
+    { "x": 9, "y": 16, "leadsTo": "spire_vigil_descent", "type": "stairs_down", "spawnX": 9, "spawnY": 1 }
   ],
   "triggers": [
     {

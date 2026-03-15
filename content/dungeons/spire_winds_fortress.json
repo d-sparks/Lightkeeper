@@ -1,7 +1,7 @@
 {
   "id": "spire_winds_fortress",
   "name": "Monument of Winds — Bulwark Command",
-  "depth": 2,
+  "depth": 4,
   "tileset": "spire_winds",
   "theme": "greenway_corridor",
   "tileSize": 32,
@@ -57,8 +57,8 @@
     { "type": "bandage", "x": 13, "y": 7 }
   ],
   "exits": [
-    { "x": 1, "y": 1, "leadsTo": "spire_winds_approach", "type": "stairs_up", "spawnX": 24, "spawnY": 16 },
-    { "x": 23, "y": 18, "leadsTo": "spire_winds_shaft", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_laboratory", "type": "stairs_up", "spawnX": 13, "spawnY": 16 },
+    { "x": 23, "y": 18, "leadsTo": "spire_winds_excavation", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
     {

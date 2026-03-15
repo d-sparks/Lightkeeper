@@ -1,7 +1,7 @@
 {
   "id": "spire_radiance_nexus",
   "name": "Spire of Radiance — Deep Array Nexus",
-  "depth": 2,
+  "depth": 4,
   "tileset": "spire_radiance",
   "theme": "dayside_solar",
   "tileSize": 32,
@@ -61,8 +61,8 @@
     { "type": "lore_radiance_hybrid_log", "x": 13, "y": 7 }
   ],
   "exits": [
-    { "x": 1, "y": 1, "leadsTo": "spire_radiance_approach", "type": "stairs_up", "spawnX": 24, "spawnY": 16 },
-    { "x": 23, "y": 18, "leadsTo": "spire_radiance_conduit", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 1, "y": 1, "leadsTo": "spire_radiance_processing", "type": "stairs_up", "spawnX": 10, "spawnY": 18 },
+    { "x": 23, "y": 18, "leadsTo": "spire_radiance_cooling", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
     {

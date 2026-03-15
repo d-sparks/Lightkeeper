@@ -1,0 +1,133 @@
+{
+  "id": "spire_winds_antechamber",
+  "name": "Spire of Winds — Wind Antechamber",
+  "depth": 11,
+  "tileset": "spire_winds",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.05,
+  "width": 18,
+  "height": 18,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,
+    13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
+    13,12,12,25,12,12, 7, 7, 7, 7, 7, 7,12,12,25,12,12,13,
+    13,12,12,12,12,18, 7, 7, 7, 7, 7, 7,18,12,12,12,12,13,
+    13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
+    13,12, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12, 7, 7, 7, 7, 7,12,12, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12, 7, 7, 7, 7, 7,12,12, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12, 7, 7, 7, 7, 7,12,12, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12, 7, 7, 7, 7, 7,12,12, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,12,13,
+    13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
+    13,12,12,12,12,18, 7, 7, 7, 7, 7, 7,18,12,12,12,12,13,
+    13,12,12,25,12,12, 7, 7, 7, 7, 7, 7,12,12,25,12,12,13,
+    13,12,12,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12,12,13,
+    13,12,12,12,12,12,12, 6,12,12,12,12,12,12,12,12,12,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 8, "y": 1 },
+    { "type": "health_potion", "x": 14, "y": 1 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_underlumen", "type": "stairs_up", "spawnX": 20, "spawnY": 20 },
+    { "x": 7, "y": 16, "leadsTo": "spire_winds_core", "type": "stairs_down", "spawnX": 6, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "antechamber_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A vast circular chamber opens before you, dominated by a central platform suspended over a swirling void. Wind currents spiral upward in visible patterns, carrying motes of luminescent dust.",
+          "Four energy conduits are set into the chamber walls at cardinal positions, each pulsing with dormant light. Ancient mechanisms connect them to the central platform through channels carved into the stone floor.",
+          "The passage to the core below is sealed. The wind currents form a barrier too powerful to cross. The conduits must hold the key."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "valve_1_activate",
+      "event": "door_interacted",
+      "filter": { "tileName": "energy_conduit" },
+      "conditions": [
+        { "not": { "hasFlag": "antechamber_valve_1" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "antechamber_valve_1" },
+        { "type": "showMessage", "lines": [
+          "The first conduit responds to your touch. Ancient mechanisms grind to life as wind channels realign. A quarter of the barrier currents redirect, flowing into the conduit's carved channels.",
+          "The conduit glows with steady blue light. Three more remain."
+        ]},
+        { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    },
+    {
+      "id": "valve_2_activate",
+      "event": "door_interacted",
+      "filter": { "tileName": "energy_conduit" },
+      "conditions": [
+        { "hasFlag": "antechamber_valve_1" },
+        { "not": { "hasFlag": "antechamber_valve_2" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "antechamber_valve_2" },
+        { "type": "showMessage", "lines": [
+          "The second conduit activates. The wind barrier weakens noticeably — the spiral currents slow and thin. The chamber hums with a harmonic that resonates in your bones.",
+          "Two conduits remain. The ancient mechanism is waking up."
+        ]},
+        { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    },
+    {
+      "id": "valve_3_activate",
+      "event": "door_interacted",
+      "filter": { "tileName": "energy_conduit" },
+      "conditions": [
+        { "hasFlag": "antechamber_valve_2" },
+        { "not": { "hasFlag": "antechamber_valve_3" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "antechamber_valve_3" },
+        { "type": "showMessage", "lines": [
+          "The third conduit flares to life. The wind barrier is barely a whisper now. The geometric patterns on every surface glow with increasing intensity, tracing paths of energy through the ancient stone.",
+          "One conduit remains. The passage to the core is almost open."
+        ]},
+        { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    },
+    {
+      "id": "valve_4_complete",
+      "event": "door_interacted",
+      "filter": { "tileName": "energy_conduit" },
+      "conditions": [
+        { "hasFlag": "antechamber_valve_3" },
+        { "not": { "hasFlag": "antechamber_puzzle_complete" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "antechamber_puzzle_complete" },
+        { "type": "showMessage", "lines": [
+          "The final conduit blazes with light. All four channels converge — the wind barrier dissolves in a cascading wave of released energy that washes over you like a warm exhale.",
+          "The chamber transforms. The swirling void below the central platform calms to a gentle updraft. The passage to the resonance core opens with a deep, resonant tone that echoes through the entire Monument.",
+          "The Spire of Winds recognizes your intent. The way to the core is open."
+        ]},
+        { "type": "grantXp", "amount": 30 }
+      ],
+      "once": true
+    }
+  ]
+}

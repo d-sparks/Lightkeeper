@@ -1,0 +1,87 @@
+{
+  "id": "spire_winds_bridge",
+  "name": "Spire of Winds — Void Bridges",
+  "depth": 8,
+  "tileset": "spire_winds",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.03,
+  "width": 26,
+  "height": 20,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,13,13,13,13,13,
+    13,12,12,12,12,18, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,18,12,12,12,13,13,
+    13,12,12, 2,12, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,12,12,12,12,13,
+    13,12,12,12,12, 7, 7,12,12,12,18, 7, 7, 7, 7,18,12,12,12, 7, 7,12, 2,12,12,13,
+    13,13,18, 7, 7, 7, 7,12,12, 2,12, 7, 7, 7, 7,12, 2,12,12, 7, 7, 7, 7,18,13,13,
+    13,13, 7, 7, 7, 7, 7,12,12,12,12, 7, 7, 7, 7,12,12,12,12, 7, 7, 7, 7, 7,13,13,
+    13,13, 7, 7, 7, 7, 7,18, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,18, 7, 7, 7, 7, 7,13,13,
+    13,13, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,13,13,
+    13,12,12,18, 7, 7, 7, 7, 7,12,12,12,18, 7,18,12,12,12, 7, 7, 7, 7,18,12,12,13,
+    13,12,12, 7, 7, 7, 7, 7, 7,12,12, 2,12, 7,12, 2,12,12, 7, 7, 7, 7, 7,12,12,13,
+    13,12,12, 7, 7, 7, 7, 7, 7,12,12,12,12, 7,12,12,12,12, 7, 7, 7, 7, 7,12,12,13,
+    13,13,18, 7, 7, 7, 7, 7, 7,18, 7, 7, 7, 7, 7, 7, 7,18, 7, 7, 7, 7,18,13,13,13,
+    13,13, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,13,13,13,
+    13,13, 7, 7,18,12,12,12, 7, 7, 7, 7,18, 7,18, 7, 7, 7, 7,12,12,12,13,13,13,13,
+    13,13, 7, 7,12,12, 2,12, 7, 7, 7, 7,12, 7,12, 7, 7, 7, 7,12, 2,12,13,13,13,13,
+    13,13, 7, 7,12,12,12,12,18, 7, 7, 7,12, 7,12, 7, 7, 7,18,12,12,12,13,13,13,13,
+    13,13, 7, 7,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,12,12, 6,13,13,13,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "shade_stalker", "x": 8, "y": 4, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 7, "y": 4}, {"x": 10, "y": 4}, {"x": 10, "y": 6}, {"x": 7, "y": 6}] },
+    { "type": "frostfang_hunter", "x": 16, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 22, "y": 3, "count": 2, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 11, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "frostfang_hunter", "x": 15, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 1, "y": 10, "count": 1, "patrol": "wander" },
+    { "type": "shade_stalker", "x": 6, "y": 15, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 4, "y": 14}, {"x": 7, "y": 14}, {"x": 7, "y": 17}, {"x": 4, "y": 17}] },
+    { "type": "dusk_crawler", "x": 14, "y": 17, "count": 2, "patrol": "wander" },
+    { "type": "frostfang_hunter", "x": 19, "y": 16, "count": 1, "patrol": "guard" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 3, "y": 3 },
+    { "type": "frost_salve", "x": 22, "y": 4 },
+    { "type": "health_potion", "x": 10, "y": 10 },
+    { "type": "bandage", "x": 5, "y": 15 },
+    { "type": "bioluminescent_moss", "x": 20, "y": 17 },
+    { "type": "field_medkit", "x": 11, "y": 17 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_winds_gallery", "type": "stairs_up", "spawnX": 13, "spawnY": 18 },
+    { "x": 17, "y": 18, "leadsTo": "spire_winds_depths", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "bridge_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The gallery gives way to a dizzying expanse of open void. Narrow bridges of ancient stone arc across a chasm so deep the bottom is invisible — only darkness and the endless rush of spiraling wind.",
+          "The bridges connect island-like platforms of carved stone, each suspended by forces you cannot see. Wind gusts surge through the void in rhythmic pulses, strong enough to stagger you if you're caught mid-crossing.",
+          "Creatures cling to the underside of the bridges, moving with unsettling ease across surfaces no human could grip. They've made this vertical maze their hunting ground."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "wind_gust_warning",
+      "event": "room_entered",
+      "conditions": [{ "not": { "hasFlag": "bridge_gust_warned" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "bridge_gust_warned" },
+        { "type": "showMessage", "text": "A powerful gust of wind roars up from the void below. The bridges shudder but hold. Timing your crossings between gusts will be essential — the wind follows a pattern, rising and falling in cycles." }
+      ],
+      "once": true
+    }
+  ]
+}

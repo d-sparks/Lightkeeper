@@ -1,0 +1,92 @@
+{
+  "id": "spire_radiance_processing",
+  "name": "Spire of Radiance — Data Processing Hall",
+  "depth": 3,
+  "tileset": "spire_radiance",
+  "theme": "dayside_solar",
+  "tileSize": 32,
+  "ambientLight": 0.5,
+  "environmentalHazard": { "type": "heat", "damage": 5, "interval": 2.0 },
+  "width": 24,
+  "height": 20,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12, 2,12,12,12,12,12,12,13,13,13,13,12,12,12,12,12,13,13,13,13,13,
+    13,12,12,12,12,25,12,12,12,12,12,12,12,12,12,25,12,12,12,12,13,13,13,13,
+    13,13,12,12,12,25,12,12,12,12,12,12,12,12,12,25,12,12,12,12,12,13,13,13,
+    13,13,13,12,12,25,12, 2,12,12,12,12,12,12,12,25,12, 2,12,12,12,12,13,13,
+    13,13,13,12,12,25,12,12,12,12,12,12,12,12,12,25,12,12,12,12,12,12,13,13,
+    13,13,12,12,12,18,12,12,12,12,12,18,12,12,12,18,12,12,12,12,12,12,13,13,
+    13,13,12,12,12,12,12,12,12,25,25,25,25,25,12,12,12,12,12,12,12,13,13,13,
+    13,13,12,12,12,12,12,12,12,25,12,12,12,25,12,12,12,12,12,12,13,13,13,13,
+    13,13,12,12,12,18,12,12,12,25,12,12,12,25,12,12,12,18,12,12,13,13,13,13,
+    13,13,13,12,12,25,12,12,12,12,12,12,12,12,12,12,12,25,12,13,13,13,13,13,
+    13,13,13,12,12,25,12, 2,12,12,12,12,12,12, 2,12,12,25,12,13,13,13,13,13,
+    13,13,12,12,12,25,12,12,12,12,12,12,12,12,12,12,12,25,12,12,13,13,13,13,
+    13,12,12,12,12,25,12,12,12,12,12,12,12,12,12,12,12,25,12,12,12,13,13,13,
+    13,12,12,12,12,12,12,12,12,12,12, 2,12,12,12,12,12,12,12,12,12,13,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,
+    13,12,12,12,12,12,12,12,12,12, 6,12,12,12,12,12,13,13,13,13,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "hybrid_stalker", "x": 9, "y": 4, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 6, "y": 4}, {"x": 13, "y": 4}, {"x": 13, "y": 7}, {"x": 6, "y": 7}] },
+    { "type": "hybrid_drone", "x": 18, "y": 5, "count": 1, "patrol": "wander" },
+    { "type": "hybrid_drone", "x": 20, "y": 7, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 17, "y": 6}, {"x": 21, "y": 6}, {"x": 21, "y": 8}, {"x": 17, "y": 8}] },
+    { "type": "hybrid_stalker", "x": 10, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "array_sentinel", "x": 15, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_stalker", "x": 7, "y": 13, "count": 1, "patrol": "wander" },
+    { "type": "hybrid_drone", "x": 14, "y": 14, "count": 1, "patrol": "wander" },
+    { "type": "hybrid_stalker", "x": 8, "y": 16, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 4, "y": 16}, {"x": 12, "y": 16}, {"x": 12, "y": 18}, {"x": 4, "y": 18}] },
+    { "type": "hybrid_drone", "x": 17, "y": 16, "count": 1, "patrol": "wander" }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 3, "y": 3 },
+    { "type": "battery_chip", "x": 17, "y": 6 },
+    { "type": "bandage", "x": 11, "y": 10 },
+    { "type": "health_potion", "x": 7, "y": 14 },
+    { "type": "salvage", "x": 16, "y": 16 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_radiance_perimeter", "type": "stairs_up", "spawnX": 5, "spawnY": 16 },
+    { "x": 10, "y": 18, "leadsTo": "spire_radiance_nexus", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "processing_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The hum of data streams fills the air. Rows of Array processing banks line the walls, their indicator lights flickering in cascading patterns as terabytes of information flow through crystalline circuits.",
+          "This is where the Array digests the Spire's energy readings — translating ancient solar harmonics into machine-readable data. The processing lanes stretch deep into the hall, guarded by stalker units that patrol with mechanical precision.",
+          "Somewhere in these data banks lies the Array's understanding of the Spire. Its secrets, catalogued and analyzed by an intelligence that has spent centuries trying to comprehend what it conquered."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "data_terminal",
+      "event": "tile_interact",
+      "filter": { "tileX": 11, "tileY": 9 },
+      "conditions": [{ "not": { "hasFlag": "processing_terminal_read" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "processing_terminal_read" },
+        { "type": "showMessage", "lines": [
+          "ARRAY PROCESSING LOG — CYCLE 847,291: Solar energy throughput at 12.4% of theoretical maximum. The Spire's core continues to resist full integration. Anomalous energy signatures detected in lower conduit levels.",
+          "ANALYSIS: The Spire's crystalline architecture appears to be actively routing energy away from Array collection nodes. Recommend increased processing allocation to counter-pattern generation."
+        ]},
+        { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    }
+  ]
+}

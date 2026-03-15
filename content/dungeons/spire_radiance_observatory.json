@@ -1,0 +1,116 @@
+{
+  "id": "spire_radiance_observatory",
+  "name": "Spire of Radiance — Solar Observatory",
+  "depth": 8,
+  "tileset": "spire_radiance",
+  "theme": "underlumen",
+  "tileSize": 32,
+  "ambientLight": 0.15,
+  "environmentalHazard": { "type": "heat", "damage": 6, "interval": 1.5 },
+  "width": 24,
+  "height": 18,
+  "data": [
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13, 8,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+    13,12,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13,12,12,12,12,12,13,13,
+    13,12,12, 2,12,12,12,12,12,13,13,13,13,13,13,12,12,12, 2,12,12,12,13,13,
+    13,12,12,12,12,12,12,12,12,12,25,25,25,12,12,12,12,12,12,12,12,12,13,13,
+    13,13,12,12,12,12,12,12,12,25,25,12,25,25,12,12,12,12,12,12,12,13,13,13,
+    13,13,13,12,12,12,12,12,25,25,12,12,12,25,25,12,12,12,12,12,13,13,13,13,
+    13,13,13,12,12,12,18,12,25,12,12,12,12,12,25,12,18,12,12,12,13,13,13,13,
+    13,13,13,12,12,12,12,12,25,12,12,12,12,12,25,12,12,12,12,12,13,13,13,13,
+    13,13,13,12,12,12,18,12,25,12,12,12,12,12,25,12,18,12,12,12,13,13,13,13,
+    13,13,13,12,12,12,12,12,25,25,12,12,12,25,25,12,12,12,12,12,13,13,13,13,
+    13,13,12,12,12,12,12,12,12,25,25,12,25,25,12,12,12,12,12,12,12,13,13,13,
+    13,12,12,12,12,12,12,12,12,12,25,25,25,12,12,12,12,12,12,12,12,12,13,13,
+    13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,12,12,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,
+    13,12,12,12,12,12,12,12,12,12,12,12, 6,12,12,12,12,12,12,12,12,13,13,13,
+    13,12,12,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,
+    13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13
+  ],
+  "spawns": [
+    { "x": 1, "y": 1, "type": "player_start" },
+    { "x": 2, "y": 1, "type": "player_start" },
+    { "x": 1, "y": 2, "type": "player_start" },
+    { "x": 2, "y": 2, "type": "player_start" }
+  ],
+  "monsterSpawns": [
+    { "type": "hybrid_stalker", "x": 8, "y": 4, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 5, "y": 3}, {"x": 14, "y": 3}, {"x": 14, "y": 6}, {"x": 5, "y": 6}] },
+    { "type": "radiance_construct", "x": 19, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_stalker", "x": 5, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "radiance_construct", "x": 11, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_stalker", "x": 18, "y": 9, "count": 1, "patrol": "wander" },
+    { "type": "radiance_construct", "x": 11, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "hybrid_stalker", "x": 7, "y": 14, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 3, "y": 13}, {"x": 10, "y": 13}, {"x": 10, "y": 16}, {"x": 3, "y": 16}] }
+  ],
+  "npcSpawns": [],
+  "itemSpawns": [
+    { "type": "health_potion", "x": 3, "y": 3 },
+    { "type": "solar_focusing_crystal", "x": 19, "y": 3 },
+    { "type": "field_medkit", "x": 5, "y": 10 },
+    { "type": "health_potion", "x": 17, "y": 13 },
+    { "type": "bandage", "x": 8, "y": 15 },
+    { "type": "umbrasite", "x": 15, "y": 15 }
+  ],
+  "exits": [
+    { "x": 1, "y": 1, "leadsTo": "spire_radiance_forge", "type": "stairs_up", "spawnX": 8, "spawnY": 18 },
+    { "x": 12, "y": 15, "leadsTo": "spire_radiance_sanctum", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+  ],
+  "triggers": [
+    {
+      "id": "observatory_enter",
+      "event": "room_entered",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "A crystalline observatory opens around you — a vast chamber where ancient lenses of shaped crystal hang suspended in geometric arrays, each one focusing and redirecting beams of solar energy along invisible channels.",
+          "The light here moves with purpose, bouncing between lenses in patterns too complex to follow. Some channels are dark — their lenses misaligned by centuries of neglect.",
+          "The Underlumen builders used this chamber to observe and direct the Spire's energy flows. Two of the main focusing lenses have drifted from their mounts. Realigning them might reveal what this observatory was watching."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "lens_align_left",
+      "event": "tile_interact",
+      "filter": { "tileX": 6, "tileY": 7 },
+      "conditions": [{ "not": { "hasFlag": "observatory_lens_left" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "observatory_lens_left" },
+        { "type": "showMessage", "text": "You rotate the crystalline lens back into its mount. A beam of concentrated light snaps into alignment, illuminating a channel that runs deep into the floor below. One lens aligned." },
+        { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    },
+    {
+      "id": "lens_align_right",
+      "event": "tile_interact",
+      "filter": { "tileX": 16, "tileY": 9 },
+      "conditions": [{ "not": { "hasFlag": "observatory_lens_right" } }],
+      "actions": [
+        { "type": "setFlag", "flag": "observatory_lens_right" },
+        { "type": "showMessage", "text": "The second lens clicks into place. Another beam of light joins the first, and the two converge on a point far below — the direction of the Spire's core. Two lenses aligned." },
+        { "type": "grantXp", "amount": 15 }
+      ],
+      "once": true
+    },
+    {
+      "id": "lens_puzzle_complete",
+      "event": "tile_interact",
+      "conditions": [
+        { "hasFlag": "observatory_lens_left" },
+        { "hasFlag": "observatory_lens_right" },
+        { "not": { "hasFlag": "observatory_puzzle_complete" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "observatory_puzzle_complete" },
+        { "type": "showMessage", "lines": [
+          "Both lenses aligned, the observatory comes alive. Light cascades through every crystal surface, and for a brief moment you see it — a map of the Spire's energy architecture rendered in pure light.",
+          "The core is not just below you. It is everywhere — threaded through every wall, every crystal, every conduit. The entire Spire is the core. And it is waking up."
+        ]},
+        { "type": "grantXp", "amount": 25 }
+      ],
+      "once": true
+    }
+  ]
+}

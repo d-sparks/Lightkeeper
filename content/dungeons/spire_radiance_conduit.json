@@ -1,7 +1,7 @@
 {
   "id": "spire_radiance_conduit",
   "name": "Spire of Radiance — Energy Conduit",
-  "depth": 3,
+  "depth": 6,
   "tileset": "spire_radiance",
   "theme": "underlumen",
   "tileSize": 32,
@@ -57,8 +57,8 @@
     { "type": "health_potion", "x": 10, "y": 19 }
   ],
   "exits": [
-    { "x": 1, "y": 1, "leadsTo": "spire_radiance_nexus", "type": "stairs_up", "spawnX": 23, "spawnY": 18 },
-    { "x": 8, "y": 20, "leadsTo": "spire_radiance_sanctum", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 1, "y": 1, "leadsTo": "spire_radiance_cooling", "type": "stairs_up", "spawnX": 14, "spawnY": 17 },
+    { "x": 8, "y": 20, "leadsTo": "spire_radiance_forge", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
   ],
   "triggers": [
     {
