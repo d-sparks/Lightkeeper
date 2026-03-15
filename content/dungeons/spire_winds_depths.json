@@ -54,7 +54,7 @@
   "itemSpawns": [
     { "type": "frost_salve", "x": 16, "y": 4 },
     { "type": "field_medkit", "x": 15, "y": 9 },
-    { "type": "umbrasite", "x": 10, "y": 15 },
+    { "type": "umbracite", "x": 10, "y": 15 },
     { "type": "bioluminescent_moss", "x": 17, "y": 20 }
   ],
   "exits": [

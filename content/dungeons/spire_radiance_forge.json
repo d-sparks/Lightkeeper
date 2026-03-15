@@ -49,7 +49,7 @@
   "itemSpawns": [
     { "type": "solar_focusing_crystal", "x": 6, "y": 6 },
     { "type": "field_medkit", "x": 16, "y": 7 },
-    { "type": "umbrasite", "x": 16, "y": 12 },
+    { "type": "umbracite", "x": 16, "y": 12 },
     { "type": "bandage", "x": 11, "y": 17 }
   ],
   "exits": [

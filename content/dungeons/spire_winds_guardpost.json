@@ -36,7 +36,7 @@
   "monsterSpawns": [
     { "type": "bulwark_conscript", "x": 8, "y": 3, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 6, "y": 3}, {"x": 12, "y": 3}, {"x": 12, "y": 5}, {"x": 6, "y": 5}] },
     { "type": "bulwark_rifleman", "x": 18, "y": 3, "count": 1, "patrol": "guard" },
-    { "type": "patrol_drone", "x": 10, "y": 8, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 6, "y": 7}, {"x": 14, "y": 7}, {"x": 14, "y": 9}, {"x": 6, "y": 9}] },
+    { "type": "bulwark_patrol_drone", "x": 10, "y": 8, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 6, "y": 7}, {"x": 14, "y": 7}, {"x": 14, "y": 9}, {"x": 6, "y": 9}] },
     { "type": "bulwark_conscript", "x": 21, "y": 6, "count": 1, "patrol": "guard" },
     { "type": "bulwark_rifleman", "x": 15, "y": 10, "count": 1, "patrol": "guard" },
     { "type": "bulwark_conscript", "x": 5, "y": 12, "count": 2, "patrol": "patrol", "patrolPath": [{"x": 3, "y": 11}, {"x": 8, "y": 11}, {"x": 8, "y": 14}, {"x": 3, "y": 14}] },

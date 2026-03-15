@@ -49,7 +49,7 @@
     { "type": "solar_focusing_crystal", "x": 19, "y": 3 },
     { "type": "field_medkit", "x": 5, "y": 10 },
     { "type": "bandage", "x": 8, "y": 15 },
-    { "type": "umbrasite", "x": 15, "y": 15 }
+    { "type": "umbracite", "x": 15, "y": 15 }
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "spire_radiance_forge", "type": "stairs_up", "spawnX": 8, "spawnY": 18 },
@@ -102,6 +102,7 @@
       ],
       "actions": [
         { "type": "setFlag", "flag": "observatory_puzzle_complete" },
+        { "type": "setFlag", "flag": "radiance_conduits_aligned" },
         { "type": "showMessage", "lines": [
           "Both lenses aligned, the observatory comes alive. Light cascades through every crystal surface, and for a brief moment you see it — a map of the Spire's energy architecture rendered in pure light.",
           "The core is not just below you. It is everywhere — threaded through every wall, every crystal, every conduit. The entire Spire is the core. And it is waking up."

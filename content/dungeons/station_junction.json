@@ -74,6 +74,7 @@
         ]},
         { "type": "setFlag", "flag": "junction_cleared" },
         { "type": "setFlag", "flag": "junction_crawlers_cleared" },
+        { "type": "setFlag", "flag": "waypoint_active_here" },
         { "type": "giveItem", "itemType": "bandage" }
       ],
       "once": true
@@ -88,7 +89,8 @@
       ],
       "actions": [
         { "type": "showMessage", "text": "Junction conduit: STABLE. Return to Yara at the train station to claim your transit pass." },
-        { "type": "setFlag", "flag": "yara_transit_pass_ready_hint" }
+        { "type": "setFlag", "flag": "yara_transit_pass_ready_hint" },
+        { "type": "setFlag", "flag": "waypoint_active_here" }
       ],
       "once": true
     },

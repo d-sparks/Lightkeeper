@@ -50,7 +50,7 @@
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "frost_salve", "x": 2, "y": 10 },
-    { "type": "umbrasite", "x": 9, "y": 16 }
+    { "type": "umbracite", "x": 9, "y": 16 }
   ],
   "exits": [
     { "x": 9, "y": 1, "leadsTo": "spire_vigil_sanctum", "type": "stairs_up", "spawnX": 9, "spawnY": 16 },
