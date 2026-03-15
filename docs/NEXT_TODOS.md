@@ -4,6 +4,54 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 (full playtest audit — mainline sim reaches ~37% rooms/46 of 124, blocks at lighthouse_mara_core boss fight; all-quests: 2/21 pass (tannis_tags, relay_recovery), rest TIMEOUT; content validator: 0 errors, 3 warnings).
 
+## Three-Act Campaign Playtest Audit (2026-03-15)
+
+Full end-to-end audit of Acts 1-3, ending paths, and endgame loop. Sim verified through Act 1 midpoint; everything beyond Lighthouse Mara required manual content review.
+
+### Fixes Applied
+
+1. **Missing `spire_radiance_cleared` flag**: Added to `spire_radiance_core.json` pedestal activation trigger. This Act 3 critical path flag was never set — would block any content gated on completing the final Spire.
+
+2. **Luddite Crossbowman damage spike**: Reduced damage 20 → 15. At 20 damage with 8-tile range and 0.6 attack speed, this Act 1 mid enemy was dealing 33 DPS — killing players in ~3 seconds. Now aligned with other Nightside enemies (14-16 damage range).
+
+3. **Biolab enemies too weak for Act 2**: Buffed `biolab_tendril` (35→60 HP, 8→12 dmg, 6→8 XP) and `biolab_spitter` (45→70 HP, 12→14 dmg). Previously weaker than Act 1 Nightside enemies, creating a difficulty dip at Act 2 entry.
+
+4. **Solar Core Warden phase 3 overtuned**: Phase 3 was dealing 68 DPS from projectiles alone (34 dmg × 0.5s interval), with a 68-damage ground slam. Reduced phase 3 damage 34→28, projectile interval 0.5→0.9, slam multiplier 2.0→1.6, burst count 6→5, wound duration 8→6s, wound heal reduction 0.6→0.5. Still the hardest boss but no longer mathematically impossible solo.
+
+5. **Act 3 healing drought**: Added `field_medkit` (weight 3) to `array_sentinel` loot table. Array sentinels had zero healing drops — the most common Act 3 enemy was the only enemy type in the game with no consumable drops at all.
+
+### Outstanding — Manual Playtest Required
+
+These issues were identified through content review but need human playtesting to confirm severity:
+
+**HIGH priority (potential blockers):**
+- [ ] **Nexus Guardian stun+wound combo**: 1.5s stun guarantees a free 50-damage slam, wound then reduces healing 60% for 7s. Solo players may find this mechanically impossible. Consider: make wound and stun mutually exclusive on the same boss, or add a 2s stun immunity window after being stunned.
+- [ ] **General Thorne phase 3**: 28-damage projectiles at 0.9s interval + conscript summons creates an overwhelming combination. May need longer summon interval (10→15s) or lower phase 3 projectile damage.
+- [ ] **Player max HP never scales**: 100 HP from start to finish while monster damage scales 7→34. Late-game bosses can near-one-shot. Consider: HP-boosting sol components, or equipment with +maxHP, or a per-Spire +25 HP bonus.
+
+**MEDIUM priority (pacing/balance):**
+- [ ] **Weapon progression plateau**: Between Sol Unit (12 attackDamage) and epic sol units (14-18), there is no intermediate weapon. Players may feel stagnant through most of Act 2. Consider a rare-tier weapon drop from General Thorne or Spire Winds content.
+- [ ] **Ranged weapon cap too low**: Best ranged weapon is Bulwark Combat Rifle at +8 attackDamage. Ranged builds fall behind melee by Act 3. Need a rare/epic ranged weapon.
+- [ ] **Bulwark Shock Baton drop rate**: Only Act 2 melee upgrade has 2.5% effective drop rate (50% drop × weight 1/20 from Bulwark Sergeant). Players could go through all of Act 2 without finding it. Consider increasing weight to 3.
+- [ ] **Spire Radiance Forge hazard**: 6 damage per 1.8s (3.3 DPS) heat combined with combat is extremely punishing without Array Precision Frame's heat resist. Need a warning NPC or make heat resist available earlier.
+- [ ] **Act 2-3 regular enemy difficulty flattens**: Act 3 Array enemies (12-18 dmg) aren't significantly harder than Act 2 Bulwark enemies (12-16 dmg). The difficulty curve plateaus for non-boss encounters. Consider +2-3 damage or +30 HP bump for Act 3 regular enemies.
+
+**LOW priority (narrative/polish):**
+- [ ] **~10 dead visit-tracking flags**: Flags like `visited_lighthouse_mara_f02` through `f19` are set but never checked by any trigger or NPC. Harmless but could be wired to NPC dialogue for flavor.
+- [ ] **Ending path dungeons need pacing verification**: The three ending paths (shutdown/merge/control via `meridian_civic.json`) each lead to distinct dungeon branches. Verify each path takes roughly equal time to complete and has adequate narrative payoff.
+- [ ] **Endgame loop entry**: `endgame_active` flag is set once per path choice. Verify Expedition Board, Siege Warden, and Spire replay systems all correctly gate on this flag.
+- [ ] **Quarantine Warlord still feels trivial at 120 HP** (dies in 3 seconds with starter weapons). The earlier balance pass intentionally reduced it, but it may need re-evaluation if playtests confirm it's not satisfying as a boss encounter.
+
+### Dungeon Connection Audit — CLEAN
+
+- 0 broken exit links across 120 dungeons
+- 0 unreachable dungeons (all connected)
+- 0 dead-end dungeons (all have exits)
+- 2 intentional one-way connections (fast-travel shortcuts, not soft locks)
+- 15 gated exits, all with obtainable prerequisites
+- No soft locks from flag/item dependencies
+- All 41 items flagged by tileset-level audit confirmed to have valid spawn sources
+
 ## Quarantine Warlord Balance (2026-03-15)
 
 Fixes applied:

@@ -3,6 +3,7 @@
     "dropChance": 0.3,
     "rolls": [
       { "item": "silicon", "weight": 5 },
+      { "item": "field_medkit", "weight": 3 },
       { "item": "emp_charge", "weight": 3 },
       { "item": "photon_regulator_chip", "weight": 2 },
       { "item": "efficiency_core_chip", "weight": 1 }

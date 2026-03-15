@@ -135,6 +135,11 @@
             "flag": "photonic_pulse_unlocked"
           },
           {
+            "type": "setFlag",
+            "flag": "spire_radiance_cleared",
+            "scope": "player"
+          },
+          {
             "type": "showMessage",
             "lines": [
               "You place your hand on the crystal pedestal. The light stops. Every beam, every refraction, every photon in the chamber freezes in place \u2014 suspended between moments.",
