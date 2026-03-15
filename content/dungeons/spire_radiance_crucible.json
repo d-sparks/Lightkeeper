@@ -36,6 +36,13 @@
     { "x": 2, "y": 2, "type": "player_start" }
   ],
   "monsterSpawns": [],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_warden", "x": 13, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 4, "y": 4, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_channeler", "x": 12, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_sentinel", "x": 5, "y": 13, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 12, "y": 14, "count": 1, "patrol": "wander" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "field_medkit", "x": 13, "y": 2 },

@@ -44,6 +44,15 @@
     { "type": "radiance_construct", "x": 11, "y": 12, "count": 1, "patrol": "guard" },
     { "type": "hybrid_stalker", "x": 7, "y": 14, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 3, "y": 13}, {"x": 10, "y": 13}, {"x": 10, "y": 16}, {"x": 3, "y": 16}] }
   ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_sentinel", "x": 15, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 5, "y": 7, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_channeler", "x": 18, "y": 8, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_warden", "x": 5, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 19, "y": 13, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_channeler", "x": 10, "y": 14, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_warden", "x": 15, "y": 16, "count": 1, "patrol": "guard" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "solar_focusing_crystal", "x": 19, "y": 3 },

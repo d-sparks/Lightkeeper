@@ -11,7 +11,7 @@
   "data": [
     13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
     13, 8,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
-    13,12,12,12,12,12,12,12,12,13,13,13,13,13,12,12,12,12,12,12,13,13,
+    13,12,12,31,31,31,12,12,12,13,13,13,13,13,12,12,12,12,12,12,13,13,
     13,12,12, 2,12,12,12,12,12,12,12,12,12,12,12,12,12, 2,12,12,12,13,
     13,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,
     13,13,12,12,12, 7, 7, 7, 7, 7, 7,12,12,12, 7, 7, 7, 7,12,12,13,13,
@@ -49,6 +49,15 @@
     { "type": "shade_stalker_alpha", "x": 15, "y": 16, "count": 1, "patrol": "guard" },
     { "type": "dusk_crawler", "x": 10, "y": 19, "count": 2, "patrol": "wander" },
     { "type": "frostfang_hunter", "x": 17, "y": 19, "count": 1, "patrol": "guard" }
+  ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_sentinel", "x": 10, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 17, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 3, "y": 9, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 15, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 6, "y": 14, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 12, "y": 16, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 17, "y": 19, "count": 1, "patrol": "guard" }
   ],
   "npcSpawns": [],
   "itemSpawns": [
@@ -143,6 +152,92 @@
           }
         ],
         "once": true
+      },
+      {
+        "id": "replay_enter_info",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Monument Depths have reconfigured. Underlumen guardians now patrol chambers once claimed by fauna — the Spire's ancient defenses reawakened.",
+              "Three pedestals near the entrance pulse with different intensities. Touch one to attune the Spire's difficulty before descending."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "tier_select_normal",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 2 },
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "spire_winds_replay_tier", "value": "normal" },
+          { "type": "showMessage", "text": "NORMAL — The Spire's guardians stir at base strength. Standard modifier drops." }
+        ]
+      },
+      {
+        "id": "tier_select_hard",
+        "event": "door_interacted",
+        "filter": { "tileX": 4, "tileY": 2 },
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "spire_winds_replay_tier", "value": "hard" },
+          { "type": "showMessage", "text": "HARD — The Spire intensifies. Guardians are stronger and deadlier. Better modifier drops." }
+        ]
+      },
+      {
+        "id": "tier_select_legendary",
+        "event": "door_interacted",
+        "filter": { "tileX": 5, "tileY": 2 },
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "spire_winds_replay_tier", "value": "legendary" },
+          { "type": "showMessage", "text": "LEGENDARY — The Spire awakens fully. Only the strongest Lightkeepers survive. Rare and epic modifier drops." }
+        ]
+      },
+      {
+        "id": "tier_pedestal_dormant_1",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 2 },
+        "conditions": [
+          { "not": { "hasFlag": "hover_unlocked" } }
+        ],
+        "actions": [
+          { "type": "showMessage", "text": "The pedestal is dormant. Ancient symbols cover its surface, waiting to be understood." }
+        ]
+      },
+      {
+        "id": "tier_pedestal_dormant_2",
+        "event": "door_interacted",
+        "filter": { "tileX": 4, "tileY": 2 },
+        "conditions": [
+          { "not": { "hasFlag": "hover_unlocked" } }
+        ],
+        "actions": [
+          { "type": "showMessage", "text": "The pedestal is dormant. Ancient symbols cover its surface, waiting to be understood." }
+        ]
+      },
+      {
+        "id": "tier_pedestal_dormant_3",
+        "event": "door_interacted",
+        "filter": { "tileX": 5, "tileY": 2 },
+        "conditions": [
+          { "not": { "hasFlag": "hover_unlocked" } }
+        ],
+        "actions": [
+          { "type": "showMessage", "text": "The pedestal is dormant. Ancient symbols cover its surface, waiting to be understood." }
+        ]
       }
     ]
 }

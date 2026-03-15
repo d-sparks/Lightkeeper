@@ -48,6 +48,14 @@
     { "type": "radiance_construct", "x": 10, "y": 17, "count": 1, "patrol": "guard" },
     { "type": "hybrid_stalker", "x": 6, "y": 19, "count": 2, "patrol": "wander" }
   ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_warden", "x": 5, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 16, "y": 7, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 5, "y": 11, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_sentinel", "x": 17, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 4, "y": 15, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 10, "y": 18, "count": 1, "patrol": "guard" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "field_medkit", "x": 17, "y": 7 },

@@ -44,6 +44,14 @@
     { "type": "shade_stalker", "x": 5, "y": 14, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 3, "y": 13}, {"x": 8, "y": 13}, {"x": 8, "y": 16}, {"x": 3, "y": 16}] },
     { "type": "tunnel_creeper", "x": 16, "y": 16, "count": 1, "patrol": "wander" }
   ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_warden", "x": 15, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 19, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 4, "y": 8, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_sentinel", "x": 19, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 5, "y": 14, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_channeler", "x": 16, "y": 16, "count": 1, "patrol": "guard" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "bioluminescent_moss", "x": 18, "y": 3 },

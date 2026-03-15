@@ -11,7 +11,7 @@
   "data": [
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,8,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-    3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,12,12,12,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,1,1,2,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,1,1,1,1,1,1,1,2,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
     3,3,3,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
@@ -39,6 +39,14 @@
     { "x": 2, "y": 2, "type": "player_start" }
   ],
   "monsterSpawns": [],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_warden", "x": 9, "y": 9 },
+    { "type": "underlumen_channeler", "x": 3, "y": 4 },
+    { "type": "underlumen_shade", "x": 17, "y": 10, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 13, "y": 14 },
+    { "type": "underlumen_channeler", "x": 9, "y": 15 },
+    { "type": "underlumen_shade", "x": 15, "y": 16, "patrol": "wander" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "field_medkit", "x": 17, "y": 10 },
@@ -488,6 +496,92 @@
           }
         ],
         "once": true
+      },
+      {
+        "id": "replay_enter_info",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "light_sentry_unlocked" }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Underlumen chambers have reconfigured. Ancient guardians patrol the corridors — the Spire's defenses reawakened for those who return seeking greater challenges.",
+              "Three pedestals near the entrance pulse with different intensities. Touch one to attune the Spire's difficulty before descending."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "tier_select_normal",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 2 },
+        "conditions": [
+          { "hasFlag": "light_sentry_unlocked" }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "spire_vigil_replay_tier", "value": "normal" },
+          { "type": "showMessage", "text": "NORMAL — The Spire's guardians stir at base strength. Standard modifier drops." }
+        ]
+      },
+      {
+        "id": "tier_select_hard",
+        "event": "door_interacted",
+        "filter": { "tileX": 4, "tileY": 2 },
+        "conditions": [
+          { "hasFlag": "light_sentry_unlocked" }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "spire_vigil_replay_tier", "value": "hard" },
+          { "type": "showMessage", "text": "HARD — The Spire intensifies. Guardians are stronger and deadlier. Better modifier drops." }
+        ]
+      },
+      {
+        "id": "tier_select_legendary",
+        "event": "door_interacted",
+        "filter": { "tileX": 5, "tileY": 2 },
+        "conditions": [
+          { "hasFlag": "light_sentry_unlocked" }
+        ],
+        "actions": [
+          { "type": "setFlag", "flag": "spire_vigil_replay_tier", "value": "legendary" },
+          { "type": "showMessage", "text": "LEGENDARY — The Spire awakens fully. Only the strongest Lightkeepers survive. Rare and epic modifier drops." }
+        ]
+      },
+      {
+        "id": "tier_pedestal_dormant_1",
+        "event": "door_interacted",
+        "filter": { "tileX": 3, "tileY": 2 },
+        "conditions": [
+          { "not": { "hasFlag": "light_sentry_unlocked" } }
+        ],
+        "actions": [
+          { "type": "showMessage", "text": "The pedestal is dormant. Its surface is etched with symbols you cannot yet read." }
+        ]
+      },
+      {
+        "id": "tier_pedestal_dormant_2",
+        "event": "door_interacted",
+        "filter": { "tileX": 4, "tileY": 2 },
+        "conditions": [
+          { "not": { "hasFlag": "light_sentry_unlocked" } }
+        ],
+        "actions": [
+          { "type": "showMessage", "text": "The pedestal is dormant. Its surface is etched with symbols you cannot yet read." }
+        ]
+      },
+      {
+        "id": "tier_pedestal_dormant_3",
+        "event": "door_interacted",
+        "filter": { "tileX": 5, "tileY": 2 },
+        "conditions": [
+          { "not": { "hasFlag": "light_sentry_unlocked" } }
+        ],
+        "actions": [
+          { "type": "showMessage", "text": "The pedestal is dormant. Its surface is etched with symbols you cannot yet read." }
+        ]
       }
     ]
 }

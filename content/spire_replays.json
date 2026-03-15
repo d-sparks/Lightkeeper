@@ -1,0 +1,71 @@
+{
+  "note": "Spire replay system. After clearing a Spire (one-time story), inner puzzle floors reconfigure with combat encounters on revisit. Three difficulty tiers with escalating scaling and better modifier drops.",
+
+  "tiers": {
+    "normal": {
+      "id": "normal",
+      "displayName": "Normal",
+      "scaling": { "hpMult": 1.0, "damageMult": 1.0, "xpMult": 1.5 },
+      "lootTableSuffix": "_normal",
+      "description": "The Spire's inner chambers reconfigure with standard Underlumen guardians."
+    },
+    "hard": {
+      "id": "hard",
+      "displayName": "Hard",
+      "scaling": { "hpMult": 1.8, "damageMult": 1.5, "xpMult": 2.5 },
+      "lootTableSuffix": "_hard",
+      "description": "The Spire's defenses intensify. Stronger guardians, deadlier configurations."
+    },
+    "legendary": {
+      "id": "legendary",
+      "displayName": "Legendary",
+      "scaling": { "hpMult": 3.0, "damageMult": 2.2, "xpMult": 4.0 },
+      "lootTableSuffix": "_legendary",
+      "description": "The Spire awakens fully. Only the strongest Lightkeepers survive."
+    }
+  },
+
+  "spires": {
+    "vigil": {
+      "clearedFlag": "light_sentry_unlocked",
+      "replayFlag": "spire_vigil_replay_tier",
+      "entryFloor": "spire_vigil_underlumen",
+      "innerFloors": [
+        "spire_vigil_underlumen",
+        "spire_vigil_resonance_chamber",
+        "spire_vigil_core"
+      ],
+      "lootTablePrefix": "spire_vigil_replay"
+    },
+    "winds": {
+      "clearedFlag": "hover_unlocked",
+      "replayFlag": "spire_winds_replay_tier",
+      "entryFloor": "spire_winds_depths",
+      "innerFloors": [
+        "spire_winds_depths",
+        "spire_winds_shaft",
+        "spire_winds_gallery",
+        "spire_winds_antechamber",
+        "spire_winds_bridge",
+        "spire_winds_underlumen",
+        "spire_winds_core"
+      ],
+      "lootTablePrefix": "spire_winds_replay"
+    },
+    "radiance": {
+      "clearedFlag": "photonic_pulse_unlocked",
+      "replayFlag": "spire_radiance_replay_tier",
+      "entryFloor": "spire_radiance_threshold",
+      "innerFloors": [
+        "spire_radiance_threshold",
+        "spire_radiance_conduit",
+        "spire_radiance_forge",
+        "spire_radiance_observatory",
+        "spire_radiance_sanctum",
+        "spire_radiance_crucible",
+        "spire_radiance_core"
+      ],
+      "lootTablePrefix": "spire_radiance_replay"
+    }
+  }
+}

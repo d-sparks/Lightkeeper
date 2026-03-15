@@ -33,6 +33,11 @@
     { "x": 8, "y": 2, "type": "player_start" }
   ],
   "monsterSpawns": [],
+  "replayMonsterSpawns": [
+    { "type": "spire_resonance_boss", "x": 7, "y": 7 },
+    { "type": "underlumen_channeler", "x": 3, "y": 6 },
+    { "type": "underlumen_channeler", "x": 11, "y": 6 }
+  ],
   "npcSpawns": [],
   "itemSpawns": [],
   "exits": [
@@ -120,25 +125,58 @@
         "once": true
       },
       {
-        "id": "core_chest",
+        "id": "core_chest_replay_normal",
         "event": "door_interacted",
-        "filter": {
-          "tileName": "chest_closed"
-        },
+        "filter": { "tileName": "chest_closed" },
         "conditions": [
-          {
-            "hasFlag": "light_sentry_unlocked"
-          }
+          { "hasFlag": "light_sentry_unlocked" },
+          { "hasFlag": "spire_vigil_replay_tier", "value": "normal" }
         ],
         "actions": [
-          {
-            "type": "rollLootTable",
-            "lootTable": "spire_vigil_chest"
-          },
-          {
-            "type": "showMessage",
-            "text": "The Spire offers one final gift \u2014 a cache of ancient components, preserved in crystal since before human colonization."
-          }
+          { "type": "rollLootTable", "lootTable": "spire_vigil_replay_normal" },
+          { "type": "showMessage", "text": "The reconfigured Spire yields its reward \u2014 Underlumen components attuned to Normal resonance." }
+        ]
+      },
+      {
+        "id": "core_chest_replay_hard",
+        "event": "door_interacted",
+        "filter": { "tileName": "chest_closed" },
+        "conditions": [
+          { "hasFlag": "light_sentry_unlocked" },
+          { "hasFlag": "spire_vigil_replay_tier", "value": "hard" }
+        ],
+        "actions": [
+          { "type": "rollLootTable", "lootTable": "spire_vigil_replay_hard" },
+          { "type": "rollLootTable", "lootTable": "spire_vigil_replay_hard" },
+          { "type": "showMessage", "text": "The Spire rewards your courage \u2014 rare components forged in the deeper resonance of Hard difficulty." }
+        ]
+      },
+      {
+        "id": "core_chest_replay_legendary",
+        "event": "door_interacted",
+        "filter": { "tileName": "chest_closed" },
+        "conditions": [
+          { "hasFlag": "light_sentry_unlocked" },
+          { "hasFlag": "spire_vigil_replay_tier", "value": "legendary" }
+        ],
+        "actions": [
+          { "type": "rollLootTable", "lootTable": "spire_vigil_replay_legendary" },
+          { "type": "rollLootTable", "lootTable": "spire_vigil_replay_legendary" },
+          { "type": "rollLootTable", "lootTable": "spire_vigil_replay_legendary" },
+          { "type": "showMessage", "text": "The Spire unleashes its deepest treasures \u2014 ancient components of extraordinary power, preserved since before human colonization." }
+        ]
+      },
+      {
+        "id": "core_chest",
+        "event": "door_interacted",
+        "filter": { "tileName": "chest_closed" },
+        "conditions": [
+          { "hasFlag": "light_sentry_unlocked" },
+          { "not": { "hasFlag": "spire_vigil_replay_tier" } }
+        ],
+        "actions": [
+          { "type": "rollLootTable", "lootTable": "spire_vigil_chest" },
+          { "type": "showMessage", "text": "The Spire offers one final gift \u2014 a cache of ancient components, preserved in crystal since before human colonization." }
         ]
       },
       {

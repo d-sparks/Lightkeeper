@@ -21,6 +21,7 @@ class ContentLoader {
     this.crafting = {};
     this.shops = {};
     this.challenges = {};
+    this.spireReplays = null;
     this.worldmap = null;
     this.settings = {};
   }
@@ -44,6 +45,7 @@ class ContentLoader {
     this.loadCrafting();
     this.loadShops();
     this.loadChallenges();
+    this.loadSpireReplays();
     this.loadWorldmap();
     console.log(`[Content] Loaded ${Object.keys(this.dungeons).length} dungeon(s), ` +
                 `${Object.keys(this.tilesets).length} tileset(s), ` +
@@ -360,6 +362,40 @@ class ContentLoader {
 
   getAllChallenges() {
     return this.challenges;
+  }
+
+  loadSpireReplays() {
+    const filePath = path.join(this.contentDir, 'spire_replays.json');
+    if (!fs.existsSync(filePath)) {
+      this.spireReplays = null;
+      return;
+    }
+    this.spireReplays = this.loadJSON(filePath);
+    // Build a lookup: dungeonId -> spire config for fast inner-floor checks
+    this._spireInnerFloors = {};
+    if (this.spireReplays && this.spireReplays.spires) {
+      for (const [spireKey, spire] of Object.entries(this.spireReplays.spires)) {
+        for (const floorId of spire.innerFloors) {
+          this._spireInnerFloors[floorId] = { spireKey, ...spire };
+        }
+      }
+    }
+    const spireCount = this.spireReplays && this.spireReplays.spires
+      ? Object.keys(this.spireReplays.spires).length : 0;
+    console.log(`[Content]   Spire replays: ${spireCount} spires configured`);
+  }
+
+  getSpireReplays() {
+    return this.spireReplays;
+  }
+
+  getSpireReplayForFloor(dungeonId) {
+    return this._spireInnerFloors ? this._spireInnerFloors[dungeonId] || null : null;
+  }
+
+  getSpireReplayTier(tierId) {
+    return this.spireReplays && this.spireReplays.tiers
+      ? this.spireReplays.tiers[tierId] || null : null;
   }
 
   loadLootTables() {

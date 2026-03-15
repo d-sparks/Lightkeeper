@@ -47,6 +47,15 @@
     { "type": "dusk_crawler", "x": 14, "y": 17, "count": 2, "patrol": "wander" },
     { "type": "frostfang_hunter", "x": 19, "y": 16, "count": 1, "patrol": "guard" }
   ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_warden", "x": 8, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 16, "y": 5, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 22, "y": 3, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_sentinel", "x": 11, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 1, "y": 10, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_channeler", "x": 6, "y": 15, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_warden", "x": 14, "y": 17, "count": 1, "patrol": "guard" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "frost_salve", "x": 22, "y": 4 },

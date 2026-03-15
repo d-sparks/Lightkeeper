@@ -1030,6 +1030,28 @@ class GameLoop {
     this.spawnMonsters(room);
   }
 
+  // ========== Spire Replay System ==========
+
+  // Apply spire replay scaling to a room — swaps in replayMonsterSpawns and scales stats
+  // tierConfig: { scaling: { hpMult, damageMult, xpMult }, lootTableSuffix }
+  applySpireReplayScaling(room, tierConfig) {
+    if (room.spireReplayTier) return; // Already set up
+    room.spireReplayTier = tierConfig.id;
+
+    // If the dungeon has replayMonsterSpawns, use those instead of regular spawns
+    if (room.dungeon.replayMonsterSpawns && room.dungeon.replayMonsterSpawns.length > 0) {
+      room.dungeon.monsterSpawns = room.dungeon.replayMonsterSpawns;
+    }
+
+    // Apply scaling via the same mechanism as expeditions
+    room.expeditionScaling = tierConfig.scaling;
+    room.monsters.clear();
+    room.nextMonsterId = 0;
+    this.killedMonsters.delete(room.id);
+    this.spawnMonsters(room);
+    console.log(`[GameLoop] Spire replay applied: tier=${tierConfig.id}, hpMult=${tierConfig.scaling.hpMult}, room=${room.id}`);
+  }
+
   // ========== Cooperative Challenge: Siege System ==========
 
   // Start a siege challenge for players in a room.
@@ -1987,7 +2009,7 @@ class GameLoop {
     // Apply stacking caps
     cdReduce = Math.min(cdReduce, 0.75);
     energyCostReduce = Math.min(energyCostReduce, 0.75);
-    healOnHit = Math.min(healOnHit, 15);
+    healOnHit = Math.min(healOnHit, 10);
 
     if (dmgMult > 0) {
       modified.damageMultiplier = (baseAbilityDef.damageMultiplier || 1.0) + dmgMult;
@@ -2753,7 +2775,7 @@ class GameLoop {
 
       // Heal on hit
       if (abilityDef.healOnHit > 0) {
-        player.health = Math.min(player.maxHealth, player.health + abilityDef.healOnHit);
+        this._applyHealOnHit(player, abilityDef.healOnHit);
       }
 
       // Apply knockback
@@ -2858,7 +2880,7 @@ class GameLoop {
 
     // Heal on hit
     if (abilityDef.healOnHit > 0) {
-      player.health = Math.min(player.maxHealth, player.health + abilityDef.healOnHit);
+      this._applyHealOnHit(player, abilityDef.healOnHit);
     }
 
     // Apply knockback
@@ -2942,7 +2964,12 @@ class GameLoop {
       if (!this._consumeEnergy(player, abilityDef.energyCost, room)) return false;
     }
 
-    const healAmount = Math.min(abilityDef.heal || 0, player.maxHealth - player.health);
+    let rawHeal = abilityDef.heal || 0;
+    // Apply wound heal reduction
+    if (player.woundTime > 0 && player.woundHealReduction > 0) {
+      rawHeal = Math.round(rawHeal * (1 - player.woundHealReduction));
+    }
+    const healAmount = Math.min(rawHeal, player.maxHealth - player.health);
     if (healAmount <= 0) return false;
 
     player.health += healAmount;
@@ -3333,7 +3360,7 @@ class GameLoop {
       if (proj.healOnHit > 0) {
         const attacker = room.players.get(proj.ownerId);
         if (attacker) {
-          attacker.health = Math.min(attacker.maxHealth, attacker.health + proj.healOnHit);
+          this._applyHealOnHit(attacker, proj.healOnHit);
         }
       }
     }
@@ -3549,7 +3576,7 @@ class GameLoop {
       if (sentry.healOnHit > 0) {
         const owner = room.players.get(sentry.ownerId);
         if (owner && owner.health < owner.maxHealth) {
-          owner.health = Math.min(owner.maxHealth, owner.health + sentry.healOnHit);
+          this._applyHealOnHit(owner, sentry.healOnHit);
           room.events.push({
             type: 'heal', targetId: sentry.ownerId,
             amount: sentry.healOnHit,
@@ -3760,6 +3787,36 @@ class GameLoop {
         if ((player.stunImmunityTime || 0) > 0) {
           player.stunImmunityTime -= dt;
           if (player.stunImmunityTime <= 0) player.stunImmunityTime = 0;
+        }
+        // Tick poison DoT
+        if (player.poisonTime > 0) {
+          player.poisonTime -= dt;
+          player.poisonTickTimer = (player.poisonTickTimer || 0) - dt;
+          if (player.poisonTickTimer <= 0) {
+            const poisonDmg = player.poisonDps || 4;
+            player.health -= poisonDmg;
+            this._logDamage(player, poisonDmg, 'poison', room.id);
+            room.events.push({
+              type: 'damage', targetId: player.id,
+              amount: poisonDmg, x: player.x, y: player.y,
+              damageType: 'poison',
+            });
+            this._checkPlayerDeath(player, room);
+            player.poisonTickTimer += 1.0; // tick once per second
+          }
+          if (player.poisonTime <= 0) {
+            player.poisonTime = 0;
+            player.poisonDps = 0;
+            player.poisonTickTimer = 0;
+          }
+        }
+        // Tick wound (heal reduction) debuff
+        if (player.woundTime > 0) {
+          player.woundTime -= dt;
+          if (player.woundTime <= 0) {
+            player.woundTime = 0;
+            player.woundHealReduction = 0;
+          }
         }
         // Tick channeling (pulse cannon etc.)
         if (player.channeling) {
@@ -4724,7 +4781,7 @@ class GameLoop {
 
   /**
    * Try to use a special attack. Returns true if one was used (preempts normal behavior).
-   * Special attack types: lunge, stun, ground_slam, thrown_projectile
+   * Special attack types: lunge, stun, ground_slam, thrown_projectile, poison, wound
    */
   _trySpecialAttack(mob, target, dist, room, dt) {
     const TILE = CONSTANTS.TILE_SIZE;
@@ -4845,9 +4902,68 @@ class GameLoop {
           });
           return true;
         }
+      } else if (sa.type === 'poison') {
+        // Poison: apply DoT when in melee range
+        if (dist <= mob.attackRange && mob.attackTimer <= 0) {
+          const poisonDmg = Math.round(mob.damage * (sa.damage || 0.3));
+          target.health -= poisonDmg;
+          // Apply poison DoT (stacks refresh duration, takes highest dps)
+          const dps = sa.dps || 4;
+          const duration = sa.duration || 5.0;
+          target.poisonTime = Math.max(target.poisonTime || 0, duration);
+          target.poisonDps = Math.max(target.poisonDps || 0, dps);
+          if (!target.poisonTickTimer || target.poisonTickTimer <= 0) {
+            target.poisonTickTimer = 1.0;
+          }
+          mob.attackTimer = mob.attackCooldown;
+          sa.timer = sa.cooldown;
+          room.events.push({
+            type: 'damage', targetId: target.id,
+            amount: poisonDmg, x: target.x, y: target.y,
+          });
+          room.events.push({
+            type: 'debuff', targetId: target.id,
+            debuffType: 'poison', duration,
+            x: target.x, y: target.y,
+          });
+          this._checkPlayerDeath(target, room);
+          return true;
+        }
+      } else if (sa.type === 'wound') {
+        // Wound: reduce healing received for a duration
+        if (dist <= (sa.range || mob.attackRange) && mob.attackTimer <= 0) {
+          const woundDmg = Math.round(mob.damage * (sa.damage || 0.4));
+          target.health -= woundDmg;
+          const duration = sa.duration || 6.0;
+          const healReduction = sa.healReduction || 0.5;
+          target.woundTime = Math.max(target.woundTime || 0, duration);
+          target.woundHealReduction = Math.max(target.woundHealReduction || 0, healReduction);
+          mob.attackTimer = mob.attackCooldown;
+          sa.timer = sa.cooldown;
+          room.events.push({
+            type: 'damage', targetId: target.id,
+            amount: woundDmg, x: target.x, y: target.y,
+          });
+          room.events.push({
+            type: 'debuff', targetId: target.id,
+            debuffType: 'wound', duration,
+            x: target.x, y: target.y,
+          });
+          this._checkPlayerDeath(target, room);
+          return true;
+        }
       }
     }
     return false;
+  }
+
+  _applyHealOnHit(player, amount) {
+    if (player.woundTime > 0 && player.woundHealReduction > 0) {
+      amount = Math.round(amount * (1 - player.woundHealReduction));
+    }
+    if (amount > 0) {
+      player.health = Math.min(player.maxHealth, player.health + amount);
+    }
   }
 
   _checkPlayerDeath(player, room) {
@@ -5846,7 +5962,11 @@ class GameLoop {
     // Heal effect
     if (itemDef.effect.heal) {
       if (player.health >= player.maxHealth) return null; // Already full
-      const healAmount = Math.min(itemDef.effect.heal, player.maxHealth - player.health);
+      let rawItemHeal = itemDef.effect.heal;
+      if (player.woundTime > 0 && player.woundHealReduction > 0) {
+        rawItemHeal = Math.round(rawItemHeal * (1 - player.woundHealReduction));
+      }
+      const healAmount = Math.min(rawItemHeal, player.maxHealth - player.health);
       player.health += healAmount;
       used = true;
 
@@ -6333,6 +6453,8 @@ class GameLoop {
         elevation: Math.round((p.elevation || 0) * 100) / 100,
         hovering: p.hovering || false,
         stunned: (p.stunTime || 0) > 0,
+        poisoned: (p.poisonTime || 0) > 0,
+        wounded: (p.woundTime || 0) > 0,
       };
       if (p.attackTimer > 0) {
         pData.attacking = true;

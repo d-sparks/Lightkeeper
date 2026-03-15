@@ -49,6 +49,15 @@
     { "type": "hybrid_drone", "x": 18, "y": 15, "count": 2, "patrol": "wander" },
     { "type": "radiance_construct", "x": 15, "y": 19, "count": 1, "patrol": "guard" }
   ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_sentinel", "x": 9, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 16, "y": 6, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 19, "y": 9, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 4, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 12, "y": 16, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 18, "y": 15, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 15, "y": 19, "count": 1, "patrol": "guard" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "lore_radiance_ancient_record", "x": 8, "y": 5 },

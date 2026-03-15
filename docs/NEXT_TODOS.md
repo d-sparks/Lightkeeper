@@ -4,6 +4,18 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 8/14 pass, 6 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; relay_recovery FIXED; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
 
+## Spire Replay System (2026-03-15)
+
+Spire replay with difficulty tiers implemented. Outstanding items:
+
+- **Spire replay sprites**: The new Underlumen guardian monsters (underlumen_warden, underlumen_channeler, underlumen_sentinel, underlumen_shade, spire_resonance_boss) reuse existing sprites. Need unique placeholder sprites in `sprites/`.
+- **Spire replay room reset**: Rooms are currently cached once created — returning to an inner floor mid-replay reuses the same room instance. Rooms should reset between separate replay runs (clear killed monsters, reset items). May need a "leave spire" trigger that clears the replay tier flag.
+- **Tier pedestal visual feedback**: The tier_pedestal tiles use a generic interactable appearance. Consider adding visual differentiation (e.g., different glow colors) for Normal/Hard/Legendary.
+- **Replay XP scaling**: The xpMult from tier scaling affects monster XP but is not shown in UI. Consider a HUD indicator for active replay tier.
+- **spire_winds_chest loot table**: Missing — the Spire of Winds core references `spire_winds_chest` as its first-clear loot table, but this table doesn't exist in any loot file. Add it to `content/loot/` (similar to `spire_vigil_chest` in frost.json).
+- **Multiplayer replay coordination**: If multiple players enter the same inner floor with different tier flags, the first player's tier wins (room scaling is applied once). Consider per-party tier consensus or preventing mismatched tier entry.
+- **Replay completion tracking**: No flags track highest tier cleared per spire. Could add `spire_vigil_hard_cleared`, `spire_vigil_legendary_cleared` etc. for gating progression or cosmetic rewards.
+
 ## Content — Greenway Zones & Bulwark Faction (2026-03-13)
 
 Act 2 Greenway agricultural corridor and Bulwark military faction content added:

@@ -98,6 +98,7 @@
       "togglesTo": 5,
       "conditions": [{ "hasFlag": "radiance_conduits_aligned" }],
       "failMessage": "The solar gate is sealed. The energy conduits in this chamber must be aligned first."
-    }
+    },
+    "31": { "name": "tier_pedestal", "solid": true, "interactable": "door" }
   }
 }

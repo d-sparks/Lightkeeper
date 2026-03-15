@@ -48,6 +48,15 @@
     { "type": "dusk_crawler", "x": 18, "y": 15, "count": 2, "patrol": "wander" },
     { "type": "shade_stalker", "x": 15, "y": 19, "count": 1, "patrol": "guard" }
   ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_warden", "x": 9, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 16, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 13, "y": 6, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_sentinel", "x": 22, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 4, "y": 14, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_channeler", "x": 12, "y": 16, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_warden", "x": 15, "y": 19, "count": 1, "patrol": "guard" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "bioluminescent_moss", "x": 8, "y": 5 },

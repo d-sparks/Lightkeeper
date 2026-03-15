@@ -103,6 +103,7 @@
       "togglesTo": 5,
       "conditions": [{ "hasFlag": "fortress_power_disabled" }],
       "failMessage": "The shaft entrance is sealed by the fortress power grid. Find the control panel."
-    }
+    },
+    "31": { "name": "tier_pedestal", "solid": true, "interactable": "door" }
   }
 }

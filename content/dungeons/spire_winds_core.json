@@ -33,6 +33,13 @@
     { "x": 8, "y": 2, "type": "player_start" }
   ],
   "monsterSpawns": [],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_warden", "x": 5, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 9, "y": 4, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_sentinel", "x": 4, "y": 10, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 10, "y": 10, "count": 1, "patrol": "wander" },
+    { "type": "spire_resonance_boss", "x": 7, "y": 7, "count": 1, "patrol": "guard" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [],
   "exits": [
@@ -136,25 +143,58 @@
         ]
       },
       {
-        "id": "core_chest",
+        "id": "core_chest_replay_normal",
         "event": "door_interacted",
-        "filter": {
-          "tileName": "chest_closed"
-        },
+        "filter": { "tileName": "chest_closed" },
         "conditions": [
-          {
-            "hasFlag": "hover_unlocked"
-          }
+          { "hasFlag": "hover_unlocked" },
+          { "hasFlag": "spire_winds_replay_tier", "value": "normal" }
         ],
         "actions": [
-          {
-            "type": "rollLootTable",
-            "lootTable": "spire_winds_chest"
-          },
-          {
-            "type": "showMessage",
-            "text": "The Spire offers a final gift \u2014 ancient components preserved in crystal, designed for technology that wouldn't exist for millennia after the Spire was built."
-          }
+          { "type": "rollLootTable", "lootTable": "spire_winds_replay_normal" },
+          { "type": "showMessage", "text": "The reconfigured Spire yields its reward \u2014 Underlumen components attuned to Normal resonance." }
+        ]
+      },
+      {
+        "id": "core_chest_replay_hard",
+        "event": "door_interacted",
+        "filter": { "tileName": "chest_closed" },
+        "conditions": [
+          { "hasFlag": "hover_unlocked" },
+          { "hasFlag": "spire_winds_replay_tier", "value": "hard" }
+        ],
+        "actions": [
+          { "type": "rollLootTable", "lootTable": "spire_winds_replay_hard" },
+          { "type": "rollLootTable", "lootTable": "spire_winds_replay_hard" },
+          { "type": "showMessage", "text": "The Spire rewards your courage \u2014 rare components forged in the deeper resonance of Hard difficulty." }
+        ]
+      },
+      {
+        "id": "core_chest_replay_legendary",
+        "event": "door_interacted",
+        "filter": { "tileName": "chest_closed" },
+        "conditions": [
+          { "hasFlag": "hover_unlocked" },
+          { "hasFlag": "spire_winds_replay_tier", "value": "legendary" }
+        ],
+        "actions": [
+          { "type": "rollLootTable", "lootTable": "spire_winds_replay_legendary" },
+          { "type": "rollLootTable", "lootTable": "spire_winds_replay_legendary" },
+          { "type": "rollLootTable", "lootTable": "spire_winds_replay_legendary" },
+          { "type": "showMessage", "text": "The Spire unleashes its deepest treasures \u2014 ancient components of extraordinary power, preserved in focused wind." }
+        ]
+      },
+      {
+        "id": "core_chest",
+        "event": "door_interacted",
+        "filter": { "tileName": "chest_closed" },
+        "conditions": [
+          { "hasFlag": "hover_unlocked" },
+          { "not": { "hasFlag": "spire_winds_replay_tier" } }
+        ],
+        "actions": [
+          { "type": "rollLootTable", "lootTable": "spire_winds_chest" },
+          { "type": "showMessage", "text": "The Spire offers a final gift \u2014 ancient components preserved in crystal, designed for technology that wouldn't exist for millennia after the Spire was built." }
         ]
       },
       {

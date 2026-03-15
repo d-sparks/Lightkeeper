@@ -45,6 +45,14 @@
     { "type": "radiance_construct", "x": 10, "y": 15, "count": 1, "patrol": "wander" },
     { "type": "radiance_construct", "x": 12, "y": 17, "count": 1, "patrol": "guard" }
   ],
+  "replayMonsterSpawns": [
+    { "type": "underlumen_sentinel", "x": 15, "y": 6, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 17, "y": 7, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 5, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_channeler", "x": 16, "y": 12, "count": 1, "patrol": "guard" },
+    { "type": "underlumen_shade", "x": 10, "y": 15, "count": 1, "patrol": "wander" },
+    { "type": "underlumen_warden", "x": 5, "y": 17, "count": 1, "patrol": "guard" }
+  ],
   "npcSpawns": [],
   "itemSpawns": [
     { "type": "solar_focusing_crystal", "x": 6, "y": 6 },

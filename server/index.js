@@ -1482,6 +1482,21 @@ setInterval(() => {
       if (t.expeditionScaling) {
         gameLoop.applyExpeditionScaling(targetRoom, t.expeditionScaling, t.expeditionBossAffixes);
       }
+
+      // Apply spire replay scaling if this is an inner spire floor and the spire is cleared
+      if (!t.expeditionScaling && !targetRoom.spireReplayTier) {
+        const spireConfig = content.getSpireReplayForFloor(t.toDungeon);
+        if (spireConfig) {
+          const clearedFlag = gameLoop.flagStore.getPlayerFlag(t.playerId, spireConfig.clearedFlag);
+          if (clearedFlag) {
+            const tierValue = gameLoop.flagStore.getPlayerFlag(t.playerId, spireConfig.replayFlag) || 'normal';
+            const tierConfig = content.getSpireReplayTier(tierValue);
+            if (tierConfig) {
+              gameLoop.applySpireReplayScaling(targetRoom, tierConfig);
+            }
+          }
+        }
+      }
     }
 
     // Resolve spawn position: targetId > spawnX/Y > first player_start > fallback (2,2)
