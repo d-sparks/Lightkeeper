@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-15 (sim BROKEN: quarantine loop blocks mainline. Content validator: 9 errors, 55 warnings. Major content built since last update: Lighthouse Mara 20-floor dungeon, all 3 Spires expanded to 12 floors each, Greenway zones + Bulwark faction, Nightside scouting chain. Critical gaps: Act 3 main quest steps removed and not re-added, Lighthouse Mara not wired into main quest, 36+ dungeons have room-entry dialogue during combat, 0 deaths in sim)
+Last updated: 2026-03-15 evening (sim STILL BROKEN: quarantine loop persists despite giveItem fix — bot cycles depth 1-3 13 times then gives up. 14 deaths, 6/119 rooms, 0/82 items. Content validator: 1 error (spire_winds_cleared never set), 55 warnings (mostly unused visited_* flags). Major completed since last batch: Lighthouse Mara wired to main quest, Act 3 steps added, room-entry dialogue suppression for 44 dungeons, post-Spire narrative triggers, Sable/Old Keeper lore connections, thorne_command_tablet wired, Spire replay tiers, Act 2 political atmosphere, 21 sprites generated, wind push mechanic, Dasha supply depot at Mara F10. Critical remaining gaps: sim broken, 0 deaths (Sol Shield 3.5 HP/s), sol_cone wall penetration, orphaned rooms, missing loot tables)
 
 ## Big Picture
 
@@ -30,11 +30,11 @@ The game needs four things to go from "deep tech demo" to "complete game":
 | Content Validation CI | Done | `npm test` runs content-validator.js + headless-sim.js --mainline |
 | Automation System | Done (Phases 1-5) | All phases complete: grid state, UI, MERIDIAN-7 wiring, dungeon sync, tooltips, placement sounds, touch support. See docs/automation_screen.md |
 | Environmental Hazards | Done | Cold, heat, and poison damage in biome dungeons |
-| Act II Content | Partial | Greenway zones (4 dungeons), Bulwark faction (7 monsters), Spire of Winds (12 floors), General Thorne boss all built. Missing: political crisis atmosphere in Meridian, Array alliance content, MERIDIAN-7/Deep Array reveal triggers |
-| Act III Content | Partial | Three ending dungeons + Spire of Radiance (12 floors) built. Post-choice dialogue and world state done. Missing: main quest steps to route players here, Dayside approach disconnected |
-| Story Campaign Dungeons | Built, Not Wired | Lighthouse Mara (20 floors), all 3 Spires (12 floors each), Greenway (4 zones), Nightside scouting chain all built. Main quest doesn't route through Lighthouse Mara or Act 3 content. |
-| Game Feel | Done | Sound effects (24 SFX), combat juice, death penalty (energy drain + item drop + respawn teleport + death screen overlay) all done |
-| Game Balance | Done | Mid-game energy pacing tuned, Pulse Rifle reward feel improved, combat balance pass complete |
+| Act II Content | Mostly Done | Greenway zones (4 dungeons), Bulwark faction (7 monsters), Spire of Winds (12 floors), General Thorne boss, political crisis atmosphere in Meridian, post-Spire narrative triggers all done. Missing: Array alliance content (MERIDIAN-7 tactical support), Greenway bio-lab dungeon |
+| Act III Content | Partial | Three ending dungeons + Spire of Radiance (12 floors) built. Post-choice dialogue and world state done. Main quest steps added routing through dayside. Missing: sim can't verify flow (quarantine loop blocks), some NPC dialogue gating untested |
+| Story Campaign Dungeons | Mostly Wired | Lighthouse Mara (20 floors) wired to main quest. All 3 Spires (12 floors each) connected. Greenway (4 zones) + Nightside scouting chain connected. Spire replay tiers implemented. |
+| Game Feel | Done | Sound effects (24 SFX), combat juice, death penalty, wind push mechanic all done |
+| Game Balance | Needs Work | Mid-game energy pacing tuned, but Sol Shield 3.5 HP/s passive heal trivializes all content (0 deaths in sim). Sol cone penetrates walls. |
 | Player Onboarding | Done | WASD/interact prompts, first-time tutorial for combat, NPC interaction, and healing |
 | Unit Tests | Done | Tiers 1-4: 320 tests (flag-store, event-bus, automation, conditions, actions, trigger-registry, physics, combat, equipment, sol-grid, room-lifecycle). All passing |
 | Per-Biome Music | Done | Ambient music definitions and tileset-based track selection wired |
@@ -53,35 +53,38 @@ The game needs four things to go from "deep tech demo" to "complete game":
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Fix sim, wire built content into main quest, add tension**
+Focus: **Fix sim, fix game feel, connect built content**
 
-1. **Fix headless sim quarantine loop** — Blocks all automated testing. Bot stuck cycling quarantine depth 1-3 (traverse_procedural goal bug).
-2. **Fix 9 content validator errors** — umbrasite item missing from items.json (5 refs), patrol_drone missing from monsters.json, 3 flags never set.
-3. **Apply room-entry dialogue suppression** — 36+ dungeons fire showMessage during combat. Systematic fix using noHostilesInRoom + room_cleared pattern.
-4. **Wire Lighthouse Mara into main quest** — 20-floor dungeon built but main quest skips it. Gate transit pass behind lighthouse restoration.
-5. **Add Act 3 main quest steps** — Removed during Act 2 restructuring, never re-added. Players can't progress past assault_monument.
-6. **Fix quest routing bugs** — underlumen_threshold has no return path, 3 side quests timeout.
-7. **Difficulty tuning** — 0 deaths across all modes despite damage buffs. Sol Shield passive heal trivializes content.
-8. **Add post-Spire narrative triggers** — Spire completions should cascade story consequences in Meridian.
+1. **Fix headless sim quarantine loop** — Bot cycles quarantine depth 1-3 13 times then gives up. supply_crate_key never reaches inventory. Blocks all automated testing.
+2. **Fix content validator error** — spire_winds_cleared flag never set by any trigger (1 error remaining).
+3. **Nerf Sol Shield passive heal** — 3.5 HP/s trivializes all content (0 deaths). Reduce to 1-1.5 HP/s or make active-only. Target 2-4 deaths mainline.
+4. **Fix sol_cone wall penetration** — Player-reported: cone damages through walls.
+5. **Increase sim time budget for Lighthouse Mara** — 20-floor dungeon exceeds 40min per-quest cap, cascade-fails all Meridian-gated quests.
+6. **Wire orphaned rooms** — void_flats, salvage_yard, perimeter_outer_ring, meridian_undercity_deep, expedition_checkpoint have no quest flow.
+7. **Add spire_winds_chest loot table** — Referenced by Spire of Winds core but doesn't exist.
+8. **Differentiate garrison warlord** — Same monster as generic warlord; needs distinct stats and anti-kite ability.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
-Focus: **Connect existing content, add mechanical depth, polish game feel**
+Focus: **Deepen mechanical identity, fill narrative gaps, polish**
 
-13. **Act 2 political crisis atmosphere** — Meridian should transform after Spire of Vigil: Bulwark NPCs, checkpoints, shifted dialogue tone.
-14. **Spire replay with difficulty tiers** — Normal/Hard/Legendary scaling with better modifier drops. Core endgame loop.
-15. **Wind push mechanic for Spire of Winds** — Give each Spire its own mechanical identity.
-16. **Generate sprites for 20+ new entities** — Bulwark soldiers, Greenway NPCs, Lighthouse Mara monsters, boss variants.
-17. **Wire NPC reactions across major milestones** — lighthouse_mara_restored, spire_vigil_cleared, thorne_command_tablet delivery, Nightside lore items to Sable/Old Keeper.
+9. **Add Hover-gated paths in Spire of Vigil** — Per storyboard, revisit vigil floors with Hover for new areas.
+10. **Add puzzle variety to Spire inner floors** — All three use same pedestal pattern; add timed/beam/environmental puzzles.
+11. **Wire MERIDIAN-7 Array alliance content for Act 2** — Storyboard calls for Array tactical support during Greenway assault.
+12. **Add Greenway bio-lab optional dungeon** — Referenced in dialogue, doesn't exist. Bio-themed enemies + sol component rewards.
+13. **Wire exploration-reward lore connections** — 55 set-but-never-checked flags could trigger NPC reactions.
+14. **Add Spire replay completion tracking** — No flags track highest tier cleared per Spire.
+15. **Fix Tech Maren restoration dialogue gating** — Stuck showing restoration reaction instead of battery service.
+16. **Add second frost salve resupply at Mara F16** — F10 depot may not sustain 10 more floors of escalating cold.
 
 ## Long-Term Vision (3+ Months)
 
 Focus: **Polish campaign, real art, apex endgame**
 
-18. **Commission real art** — Replace placeholder sprites and synthesized music tracks with professional pixel art and audio.
-19. **Deep Expedition (Tier 6)** — 3-4 player, 7-floor apex cooperative content with coordination mechanics.
+17. **Commission real sprite art for 10 most-seen entities** — Player, key NPCs, common monsters, Crystal Guardian.
+18. **Full end-to-end playtest of three-act campaign** — Real human playthrough, all three ending paths.
+19. **Deep Expedition (Tier 6)** — 3-4 player, 7-floor apex cooperative content.
 20. **Faction Rally** — Server-wide cooperative monthly events.
-21. **Full playtest campaign** — End-to-end playtesting of all three acts with real players, balance passes on every dungeon.
 
 ---
 
@@ -201,16 +204,28 @@ These are done and don't need further investment:
 - **First-time tutorial prompts** — NPC interaction, combat, and healing tutorials
 - **Monster sprite redesign** — 20 monsters redesigned with distinctive silhouettes and warm hostile eyes
 - **Sprite outlines + lighting** — 1px dark outlines and top-left lighting pass on all entity sprites
+- **Room-entry dialogue suppression** — noHostilesInRoom + room_cleared pattern applied to 44 dungeons (36 Spire floors + 8 others)
+- **Lighthouse Mara main quest integration** — 3 quest steps wired, transit pass gated behind mara_core_cleared
+- **Act 3 main quest steps** — 5 steps added routing through dayside → array → spire_radiance → ending choice
+- **Post-Spire narrative triggers** — Flag-gated atmosphere shifts in 4 Meridian rooms for both vigil and winds completion
+- **Sable/Old Keeper lore item connections** — hasItem dialogue rules for 5 lore items across Nightside chain
+- **Thorne command tablet wiring** — Turn-in to Asha in meridian_civic, gates Act 3 access
+- **NPC reactions to Lighthouse Mara restoration** — Warden Holt, Sgt. Ellers, Tech Maren + seismic survey turn-in
+- **Spire replay difficulty tiers** — Normal/Hard/Legendary scaling with modifier drops
+- **Act 2 political crisis atmosphere** — Bulwark checkpoints in 3 Meridian hubs after spire_vigil_cleared
+- **Placeholder sprites batch** — 21 new entity sprites generated (Bulwark, Greenway NPCs, Mara monsters)
+- **Wind push mechanic** — Environmental hazard wind_push type for Spire of Winds shaft/underlumen floors
+- **Dasha supply depot** — Frost salve vendor + supply cache at Lighthouse Mara F10
 
 ## Active Design Docs
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
-| docs/storyboard.md | Active | **Primary gap is connectivity, not content.** Act I ~80% (Outpost done, Lighthouse Mara 20-floor built but not wired to main quest, Nightside scouting done, Spire of Vigil 12-floor built). Act II ~50% (Greenway zones + Bulwark faction built, Spire of Winds 12-floor built, but political crisis atmosphere and Array alliance content missing). Act III ~35% (ending dungeons + Spire of Radiance 12-floor built, but main quest steps removed and Dayside approach disconnected). |
-| docs/endgame-loop.md | Active | Phases 1-7 engine done. Remaining: Deep Expedition (Tier 6), Faction Rally |
-| docs/progression-system.md | Active | Core systems done. Harvester scaling done (levels 11-20). Spire ability unlocks not yet wired. |
+| docs/storyboard.md | Active | **Content built, connectivity improving.** Act I ~90% (Outpost done, Lighthouse Mara 20-floor wired to main quest, Nightside scouting + Spire of Vigil 12-floor all connected, post-Spire narrative triggers firing). Act II ~65% (Greenway + Bulwark built, Spire of Winds 12-floor built, political crisis atmosphere added, but Array alliance content and bio-lab still missing). Act III ~45% (ending dungeons + Spire of Radiance 12-floor built, main quest steps added and routing through dayside, but sim can't verify). |
+| docs/endgame-loop.md | Active | Phases 1-7 engine done. Spire replay tiers done. Remaining: Deep Expedition (Tier 6), Faction Rally |
+| docs/progression-system.md | Active | Core systems done. Harvester scaling done (levels 11-20). Spire ability unlocks wired (vigil + winds). |
 | docs/automation_screen.md | Done | All phases implemented |
-| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline BROKEN (quarantine loop). Content validator: 9 errors, 55 warnings. Item/NPC engagement very low (5-9/52 items, 20-29/60 NPCs). |
+| docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline BROKEN (quarantine loop). Content validator: 1 error, 55 warnings. Sim budget too short for Lighthouse Mara. |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented |
 | docs/TESTING.md | Done | Tiers 1-4 complete |
 | docs/art-style-guide.md | Done | Complete style guide with master palette |
