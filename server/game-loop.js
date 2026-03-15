@@ -313,8 +313,18 @@ class GameLoop {
   }
 
   // Find a nearby spawnable tile using a spiral search from the given tile position
-  findSpawnableTile(dungeon, tileX, tileY) {
-    if (this.content.isSpawnable(dungeon, tileX, tileY)) {
+  // occupiedTiles is an optional array of {x, y} tile positions to keep spacing from
+  findSpawnableTile(dungeon, tileX, tileY, occupiedTiles) {
+    const minSpacing = CONSTANTS.MONSTER_MIN_SPAWN_SPACING;
+    const tooClose = (tx, ty) => {
+      if (!occupiedTiles) return false;
+      for (const ot of occupiedTiles) {
+        const dx = tx - ot.x, dy = ty - ot.y;
+        if (Math.sqrt(dx * dx + dy * dy) < minSpacing) return true;
+      }
+      return false;
+    };
+    if (this.content.isSpawnable(dungeon, tileX, tileY) && !tooClose(tileX, tileY)) {
       return { x: tileX, y: tileY };
     }
     // Search expanding rings up to 5 tiles away
@@ -322,8 +332,9 @@ class GameLoop {
       for (let dx = -r; dx <= r; dx++) {
         for (let dy = -r; dy <= r; dy++) {
           if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue; // Only ring perimeter
-          if (this.content.isSpawnable(dungeon, tileX + dx, tileY + dy)) {
-            return { x: tileX + dx, y: tileY + dy };
+          const cx = tileX + dx, cy = tileY + dy;
+          if (this.content.isSpawnable(dungeon, cx, cy) && !tooClose(cx, cy)) {
+            return { x: cx, y: cy };
           }
         }
       }
@@ -334,6 +345,7 @@ class GameLoop {
   spawnMonsters(room) {
     if (!room.dungeon.monsterSpawns) return;
     const killed = this.killedMonsters.get(room.dungeonId);
+    const occupiedTiles = []; // Track where monsters have been placed for spacing
     for (let si = 0; si < room.dungeon.monsterSpawns.length; si++) {
       const spawn = room.dungeon.monsterSpawns[si];
       const def = this.content.getMonster(spawn.type);
@@ -346,11 +358,12 @@ class GameLoop {
         const offsetX = count > 1 ? (i - (count - 1) / 2) * 1.5 : 0;
         const targetTileX = Math.floor(spawn.x + 0.5 + offsetX);
         const targetTileY = spawn.y;
-        const validTile = this.findSpawnableTile(room.dungeon, targetTileX, targetTileY);
+        const validTile = this.findSpawnableTile(room.dungeon, targetTileX, targetTileY, occupiedTiles);
         if (!validTile) {
           console.warn(`[GameLoop] No valid spawn tile for ${spawn.type} near (${targetTileX}, ${targetTileY}), skipping`);
           continue;
         }
+        occupiedTiles.push({ x: validTile.x, y: validTile.y });
         const spawnX = (validTile.x + 0.5) * CONSTANTS.TILE_SIZE;
         const spawnY = (validTile.y + 0.5) * CONSTANTS.TILE_SIZE;
         // Determine spawn tile elevation

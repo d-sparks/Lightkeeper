@@ -508,6 +508,7 @@ class DungeonGenerator {
     const spawns = [];
     let remaining = budget;
     const roomCounts = new Map();
+    const minSpacing = CONSTANTS.MONSTER_MIN_SPAWN_SPACING;
 
     while (remaining > 0) {
       // Pick a random room
@@ -531,9 +532,19 @@ class DungeonGenerator {
       const cost = chosen.cost || 1;
       if (cost > remaining) { remaining--; continue; }
 
-      // Random position within room
-      const mx = room.x + 1 + Math.floor(rng() * Math.max(1, room.w - 2));
-      const my = room.y + 1 + Math.floor(rng() * Math.max(1, room.h - 2));
+      // Random position within room, retry up to 5 times for spacing
+      let mx, my, placed = false;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        mx = room.x + 1 + Math.floor(rng() * Math.max(1, room.w - 2));
+        my = room.y + 1 + Math.floor(rng() * Math.max(1, room.h - 2));
+        let tooClose = false;
+        for (const s of spawns) {
+          const dx = mx - s.x, dy = my - s.y;
+          if (Math.sqrt(dx * dx + dy * dy) < minSpacing) { tooClose = true; break; }
+        }
+        if (!tooClose) { placed = true; break; }
+      }
+      if (!placed) { remaining--; continue; }
 
       spawns.push({ type: chosen.type, x: mx, y: my, count: 1 });
       roomCounts.set(roomKey, count + 1);

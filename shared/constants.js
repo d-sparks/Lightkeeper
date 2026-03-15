@@ -60,6 +60,7 @@ const CONSTANTS = {
   // Combat
   MONSTER_AGGRO_RANGE: 8,    // Tiles distance to aggro
   MONSTER_COLLISION_RADIUS: 10,
+  MONSTER_MIN_SPAWN_SPACING: 2, // Minimum tiles apart for monster spawns
   PLAYER_ATTACK_RANGE: 1.5,  // Tiles distance for auto-attack
   PLAYER_ATTACK_DAMAGE: 15,
   PLAYER_ATTACK_COOLDOWN: 0.5, // Seconds between player attacks

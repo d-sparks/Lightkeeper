@@ -243,6 +243,7 @@ Remaining follow-ups:
 
 - Tune special attack cooldowns and damage multipliers after playtesting.
 - Automation controller support for grid (d-pad navigation, A to place, B to cancel).
+- **Spawn spacing audit** — MONSTER_MIN_SPAWN_SPACING (2 tiles) now enforced in engine. Review authored dungeon spawns where multiple monsters share the same (x,y) with count>1 — spacing may push some into walls or off-map in tight rooms. Particularly check spire_winds_fortress (12 spawns) and greenway_supply_depot (7 spawns).
 
 ## Death Penalty — Modifier Durability
 
