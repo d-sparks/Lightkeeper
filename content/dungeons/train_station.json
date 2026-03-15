@@ -43,7 +43,7 @@
   "exits": [
     { "x": 12, "y": 14, "leadsTo": "station_approach", "type": "stairs_up", "spawnX": 9, "spawnY": 2 },
     { "x": 12, "y": 0, "leadsTo": "meridian_station", "type": "stairs_down", "spawnX": 15, "spawnY": 17 },
-    { "x": 23, "y": 9, "leadsTo": "station_junction", "type": "stairs_down", "spawnX": 7, "spawnY": 4 },
+    { "x": 23, "y": 9, "leadsTo": "station_junction", "type": "stairs_down", "spawnX": 9, "spawnY": 2 },
     { "x": 0, "y": 9, "leadsTo": "dayside_solar_fields", "type": "stairs_down", "spawnX": 15, "spawnY": 27 }
   ],
   "triggers": [

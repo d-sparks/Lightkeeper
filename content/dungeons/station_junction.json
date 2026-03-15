@@ -6,77 +6,52 @@
   "theme": "transit_infrastructure",
   "tileSize": 32,
   "ambientLight": 0.20,
-  "width": 15,
-  "height": 10,
+  "width": 20,
+  "height": 15,
   "data": [
-    3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,
-    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
-    3,1,1,1,2,1,1,1,1,2,1,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
-    3,1,1,3,3,1,1,1,1,3,3,1,1,1,3,
-    3,1,1,3,2,1,1,1,1,2,3,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,4,1,1,1,1,1,1,3,
-    3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+    3,3,3,3,3,3,3,3,3,8,3,3,3,3,3,3,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,1,1,3,3,1,1,1,1,1,3,3,1,1,3,3,3,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,2,1,1,1,1,1,1,1,1,1,2,1,1,1,1,3,
+    3,1,1,3,3,1,1,1,1,1,1,1,1,3,3,1,1,1,1,3,
+    3,1,1,3,2,1,1,1,1,1,1,1,1,2,3,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,
+    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
   ],
   "spawns": [
-    { "x": 7, "y": 4, "type": "player_start" },
-    { "x": 8, "y": 4, "type": "player_start" },
-    { "x": 7, "y": 5, "type": "player_start" },
-    { "x": 8, "y": 5, "type": "player_start" }
+    { "x": 9, "y": 2, "type": "player_start" },
+    { "x": 10, "y": 2, "type": "player_start" },
+    { "x": 9, "y": 3, "type": "player_start" },
+    { "x": 10, "y": 3, "type": "player_start" }
   ],
   "monsterSpawns": [
-    { "type": "dusk_crawler", "x": 4, "y": 5, "count": 2, "patrol": "guard" },
-    { "type": "dusk_crawler", "x": 10, "y": 5, "count": 2, "patrol": "guard" },
-    { "type": "dusk_crawler", "x": 7, "y": 7, "count": 2, "patrol": "guard" },
-    { "type": "tunnel_creeper", "x": 7, "y": 3, "count": 1, "patrol": "patrol" },
-    { "type": "tunnel_creeper", "x": 12, "y": 8, "count": 1, "patrol": "patrol" },
-    { "type": "shade_stalker", "x": 2, "y": 6, "count": 1, "patrol": "wander" },
-    { "type": "shade_stalker", "x": 12, "y": 3, "count": 1, "patrol": "wander" }
+    { "type": "dusk_crawler", "x": 4, "y": 9, "count": 2, "patrol": "guard" },
+    { "type": "dusk_crawler", "x": 14, "y": 9, "count": 2, "patrol": "guard" },
+    { "type": "tunnel_creeper", "x": 9, "y": 12, "count": 1, "patrol": "patrol" },
+    { "type": "shade_stalker", "x": 16, "y": 7, "count": 1, "patrol": "wander" }
   ],
   "npcSpawns": [
-    { "type": "waypoint_beacon", "x": 5, "y": 2 }
+    { "type": "waypoint_beacon", "x": 5, "y": 3 }
   ],
   "itemSpawns": [
-    { "type": "bandage", "x": 2, "y": 8 },
-    { "type": "ration_pack", "x": 12, "y": 2 }
+    { "type": "bandage", "x": 2, "y": 12 },
+    { "type": "ration_pack", "x": 17, "y": 7 }
   ],
   "exits": [
-    { "x": 7, "y": 0, "leadsTo": "train_station", "type": "stairs_up", "spawnX": 22, "spawnY": 9 }
+    { "x": 9, "y": 0, "leadsTo": "train_station", "type": "stairs_up", "spawnX": 22, "spawnY": 9 }
   ],
   "triggers": [
     {
-      "id": "junction_enter",
-      "event": "room_entered",
-      "conditions": [{ "noHostilesInRoom": true }],
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The junction box area is overrun. Dusk Crawlers have nested around the main power conduit.",
-          "The grinding noise Yara mentioned is the crawlers chewing on the insulation. They need to be cleared out."
-        ]}
-      ],
-      "once": true
-    },
-    {
-      "id": "junction_enter_deferred",
-      "event": "room_cleared",
-      "conditions": [
-        { "not": { "hasFlag": "__trigger_junction_enter_fired" } }
-      ],
-      "actions": [
-        { "type": "showMessage", "lines": [
-          "The junction box area is overrun. Dusk Crawlers have nested around the main power conduit.",
-          "The grinding noise Yara mentioned is the crawlers chewing on the insulation. They need to be cleared out."
-        ]},
-        { "type": "setFlag", "flag": "__trigger_junction_enter_fired" }
-      ],
-      "once": true
-    },
-    {
       "id": "junction_box_interact",
       "event": "door_interacted",
-      "filter": { "tileX": 7, "tileY": 7 },
+      "filter": { "tileX": 9, "tileY": 11 },
       "actions": [
         { "type": "showMessage", "text": "You reset the junction box and seal the damaged conduit. The power flow stabilizes. Yara will be relieved." },
         { "type": "setFlag", "flag": "junction_cleared" }
@@ -133,7 +108,7 @@
       "event": "monster_killed",
       "filter": { "monsterType": "dusk_crawler" },
       "conditions": [
-        { "hasFlag": "junction_crawler_kills", "value": 6 }
+        { "hasFlag": "junction_crawler_kills", "value": 4 }
       ],
       "actions": [
         { "type": "setFlag", "flag": "junction_crawlers_cleared" },
