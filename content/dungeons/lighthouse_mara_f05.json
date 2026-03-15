@@ -506,6 +506,21 @@
       "type": "flare",
       "x": 7,
       "y": 6
+    },
+    {
+      "type": "field_medkit",
+      "x": 8,
+      "y": 7
+    },
+    {
+      "type": "frost_salve",
+      "x": 15,
+      "y": 6
+    },
+    {
+      "type": "bandage",
+      "x": 16,
+      "y": 6
     }
   ],
   "exits": [
@@ -569,6 +584,13 @@
           "type": "setFlag",
           "flag": "mara_crystal_clue",
           "scope": "player"
+        },
+        {
+          "type": "showMessage",
+          "lines": [
+            "You feel it now — a low vibration in the floor, rhythmic and constant. Every 4.7 seconds, like a heartbeat. The crystals resonate with each pulse.",
+            "Someone left a supply cache near the eastern wall. Frost salves and a medkit, still sealed. Whatever crew cached these didn't come back for them."
+          ]
         }
       ],
       "once": true

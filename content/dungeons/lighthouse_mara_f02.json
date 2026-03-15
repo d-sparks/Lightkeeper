@@ -536,6 +536,24 @@
       ]
     },
     {
+      "id": "f02_descent_warning",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_descent_warned" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_descent_warned", "scope": "player" },
+        {
+          "type": "showMessage",
+          "lines": [
+            "The air gets colder with every step down. This cavern system runs deep — the keeper's journal mentioned sub-basement levels far below.",
+            "Stock up on frost salves. It's a long way to the bottom, and a longer way back."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "mark_lighthouse_mara_f02_visited",
       "event": "room_entered",
       "actions": [

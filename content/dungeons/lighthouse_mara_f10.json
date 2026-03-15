@@ -488,6 +488,11 @@
       "type": "cache_runner_mara",
       "x": 7,
       "y": 10
+    },
+    {
+      "type": "waypoint_beacon",
+      "x": 8,
+      "y": 10
     }
   ],
   "itemSpawns": [
@@ -515,6 +520,21 @@
       "type": "bandage",
       "x": 6,
       "y": 8
+    },
+    {
+      "type": "field_medkit",
+      "x": 8,
+      "y": 10
+    },
+    {
+      "type": "field_medkit",
+      "x": 9,
+      "y": 10
+    },
+    {
+      "type": "frost_salve",
+      "x": 8,
+      "y": 11
     }
   ],
   "exits": [
@@ -570,8 +590,8 @@
         {
           "type": "showMessage",
           "lines": [
-            "A crude shelter has been set up in a side passage — supply crates stacked against the wall, a portable heat lamp cutting the worst of the cold.",
-            "Someone has been here recently."
+            "A crude shelter has been set up in a side passage — supply crates stacked against the wall, a portable heat lamp cutting the worst of the cold. A waypoint beacon pulses nearby.",
+            "This is the last outpost of the surface world. Below here, the caverns give way to something older. The 4.7-second pulse in the floor is stronger now — you can feel it through your boots."
           ]
         }
       ],

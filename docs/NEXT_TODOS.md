@@ -18,15 +18,17 @@ Last cleaned: 2026-03-15 (full playtest audit — mainline sim reaches ~37% room
    - `doInteractWithTile` retries when item pickup steals the interaction
    - Door flag resolution tries tile interactions before falling back to NPCs
 
-### CRITICAL — Lighthouse Mara Pacing
+### CRITICAL — Lighthouse Mara Pacing (MOSTLY DONE)
 
-Lighthouse Mara is 19 consecutive floors with ZERO intermediate quest steps, no NPC presence, and insufficient healing. This is the biggest pacing problem in the campaign.
+Split into narrative segments with intermediate quest objectives, healing caches, waypoint, and ambient triggers.
 
-- [ ] **Split `restore_lighthouse_core` into 2-3 quest steps** — add intermediate objective at ~f10 ("Reach the Deep Tower") so the player gets narrative checkpoints
-- [ ] **Add healing items to mid-tower floors** — f05, f10, f15 need field_medkit/bandage spawns; current healing is insufficient for continuous cold damage + monsters across 19 floors
-- [ ] **Add ambient narrative triggers** to floors f05, f10, f14 — messages about deepening fractures, rhythmic pulses, geological survey readings to sustain interest
-- [ ] **Add descent warning trigger on f02 entry** — set expectation about the scale ("This will be a long climb back out")
-- [ ] **Add Keeper Mara presence** via message trigger on f10/f14 (not full NPC spawn, just environmental voice)
+- [x] **Split `restore_lighthouse_core` into 2-3 quest steps** — added "Reach the Deep Tower" (f10) and "Reach the Sub-Basement" (f15) in both lighthouse_mara.json and main_quest.json
+- [x] **Add healing items to mid-tower floors** — added field_medkit + frost_salve + bandage caches to f05, f10, f15
+- [x] **Add ambient narrative triggers** — f02 descent warning, f05 crystal/pulse, f07 Keeper Renn wall note, f10 waypoint camp, f12 cave-to-infrastructure transition, f15 survey camp, f17 final descent warning
+- [x] **Add descent warning trigger on f02 entry** — warns about the long descent and encourages stocking up
+- [x] **Add Keeper Mara presence** — Keeper Renn's handwriting on f07 wall, abandoned survey notes on f15
+- [x] **Add mid-tower waypoint beacon** — waypoint_beacon on f10 near Dasha's camp, registered as "Mara Deep Tower" in settings.json
+- [ ] **Lighthouse cold damage variety** — floors 2-10 still use identical cold hazard params. Consider varying damage/interval or adding brief warm zones on milestone floors
 
 ### HIGH — Balance Issues
 
@@ -50,9 +52,9 @@ Lighthouse Mara is 19 consecutive floors with ZERO intermediate quest steps, no 
 
 ### MODERATE — Narrative Gaps
 
-- [ ] **No NPC guidance for 19-floor Mara descent** — Keeper Mara dialogue doesn't mention tower structure or depth. Quest description says "Descend through the lighthouse ruins" (vague).
-- [ ] **Lighthouse Mara floors 2-10 are functionally identical** — same frost_crypt tileset, same cold damage, same monster types. No narrative variation.
-- [ ] **Missing waypoint in Lighthouse Mara** — no waypoint beacon between caverns entry and core. 19-floor death means restarting from outpost or station_junction.
+- [x] **No NPC guidance for 19-floor Mara descent** — FIXED: quest now has 4 steps with descriptions, f02 descent warning, f10/f15 milestone messages
+- [ ] **Lighthouse Mara floors 2-10 are functionally identical** — same frost_crypt tileset, same cold damage, same monster types. Ambient narrative now varies but visual/mechanical variety still needed.
+- [x] **Missing waypoint in Lighthouse Mara** — FIXED: waypoint beacon added on f10 ("Mara Deep Tower")
 
 ### LOW — Orphaned Content
 

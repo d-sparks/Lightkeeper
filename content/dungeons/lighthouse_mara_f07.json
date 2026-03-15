@@ -657,6 +657,24 @@
       ]
     },
     {
+      "id": "f07_renn_marker",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_renn_marker_f07" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_renn_marker_f07", "scope": "player" },
+        {
+          "type": "showMessage",
+          "lines": [
+            "Scratched into the ice wall near the stairwell, in the same handwriting as the keeper's journal: \"Gallery level. Fractures consistent to depth 12. Not geological — STRUCTURAL. Something is reshaping the substrate from below.\"",
+            "Below the note, a single word underlined twice: \"Geometry.\""
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "mark_lighthouse_mara_f07_visited",
       "event": "room_entered",
       "actions": [

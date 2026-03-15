@@ -20,10 +20,32 @@
       "completionConditions": [{ "hasFlag": "noticed_structural_damage" }],
       "completionActions": [{ "type": "grantXp", "amount": 15 }]
     },
+    "reach_deep_tower": {
+      "label": "Reach the Deep Tower",
+      "description": "Descend past the upper caverns to the frozen depths. A supply runner named Dasha reportedly operates a cache around floor 10.",
+      "prerequisiteSteps": ["find_keeper"],
+      "objective": { "roomId": "lighthouse_mara_f10" },
+      "completionConditions": [{ "hasFlag": "visited_lighthouse_mara_f10" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 20 },
+        { "type": "showMessage", "text": "You've reached the deep tower. The cold is intensifying, but Dasha's supply cache offers a moment of respite. The core is still far below." }
+      ]
+    },
+    "reach_sub_basement": {
+      "label": "Reach the Sub-Basement",
+      "description": "Push through the nesting grounds and into the lighthouse's abandoned infrastructure. The maintenance corridors on floor 15 mark the transition from natural caverns to engineered systems.",
+      "prerequisiteSteps": ["reach_deep_tower"],
+      "objective": { "roomId": "lighthouse_mara_f15" },
+      "completionConditions": [{ "hasFlag": "visited_lighthouse_mara_f15" }],
+      "completionActions": [
+        { "type": "grantXp", "amount": 20 },
+        { "type": "showMessage", "text": "The sub-basement. Frozen maintenance corridors and dead infrastructure stretch ahead. Whatever broke through came from below these floors." }
+      ]
+    },
     "reach_core": {
       "label": "Reach the Lighthouse Core",
-      "description": "Descend to the lighthouse's power core. The keeper says a backup power cell can restart the systems.",
-      "prerequisiteSteps": ["find_keeper"],
+      "description": "Descend through the conduit halls and the breach to the lighthouse's power core. The keeper says a backup power cell can restart the systems.",
+      "prerequisiteSteps": ["reach_sub_basement"],
       "objective": { "roomId": "lighthouse_mara_core" },
       "completionConditions": [{ "hasFlag": "visited_mara_core" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]

@@ -512,6 +512,24 @@
       ]
     },
     {
+      "id": "f12_transition_warning",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_nest_warning" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_nest_warning", "scope": "player" },
+        {
+          "type": "showMessage",
+          "lines": [
+            "Through gaps in the nest walls, you catch glimpses of metal — corroded panels, frozen conduit brackets. The natural caverns are ending.",
+            "Below the nesting ground lies the lighthouse's buried infrastructure. The engineering team that built this place never expected anything to come up through the foundations."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "mark_lighthouse_mara_f12_visited",
       "event": "room_entered",
       "actions": [

@@ -6,6 +6,7 @@
     { "id": "station_junction", "name": "Station Junction", "room": "station_junction" },
     { "id": "perimeter_gate", "name": "Perimeter Gate", "room": "perimeter_gate" },
     { "id": "relay_station", "name": "Lighthouse Mara", "room": "relay_station" },
+    { "id": "lighthouse_mara_f10", "name": "Mara Deep Tower", "room": "lighthouse_mara_f10" },
     { "id": "crypt_01", "name": "Frost Crypts", "room": "crypt_01" },
     { "id": "nightside_caverns", "name": "Nightside Caverns", "room": "nightside_caverns" },
     { "id": "spire_vigil_approach", "name": "Spire of Vigil", "room": "spire_vigil_approach" },

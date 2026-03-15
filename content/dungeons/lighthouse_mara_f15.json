@@ -521,6 +521,26 @@
       "type": "reinforced_battery_chip",
       "x": 5,
       "y": 14
+    },
+    {
+      "type": "field_medkit",
+      "x": 15,
+      "y": 2
+    },
+    {
+      "type": "field_medkit",
+      "x": 16,
+      "y": 2
+    },
+    {
+      "type": "frost_salve",
+      "x": 15,
+      "y": 13
+    },
+    {
+      "type": "bandage",
+      "x": 16,
+      "y": 13
     }
   ],
   "exits": [
@@ -568,6 +588,24 @@
           "lootTable": "frost_biome_rare"
         }
       ]
+    },
+    {
+      "id": "f15_survey_camp",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_survey_camp_found" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_survey_camp_found", "scope": "player" },
+        {
+          "type": "showMessage",
+          "lines": [
+            "An abandoned survey camp in the corridor junction — portable equipment, thermal blankets, sealed ration packs. The team left in a hurry but took time to cache supplies.",
+            "A note pinned to the wall reads: \"Patel's team. Seismic readings off the charts. Evacuating to surface. If you're reading this, DON'T GO DEEPER. Whatever is down there is still active.\""
+          ]
+        }
+      ],
+      "once": true
     },
     {
       "id": "f15_machinery_1",

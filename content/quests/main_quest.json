@@ -130,10 +130,26 @@
       "completionConditions": [{ "hasFlag": "visited_mara_caverns" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
     },
+    "reach_deep_tower": {
+      "label": "Descend to the Deep Tower",
+      "description": "Push deeper into the frozen caverns beneath Lighthouse Mara. A supply runner operates a cache around the tenth floor.",
+      "prerequisiteSteps": ["enter_lighthouse_mara"],
+      "objective": { "roomId": "lighthouse_mara_f10" },
+      "completionConditions": [{ "hasFlag": "visited_lighthouse_mara_f10" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
+    "reach_sub_basement": {
+      "label": "Reach the Sub-Basement",
+      "description": "Continue past the nesting grounds into the lighthouse's abandoned maintenance infrastructure.",
+      "prerequisiteSteps": ["reach_deep_tower"],
+      "objective": { "roomId": "lighthouse_mara_f15" },
+      "completionConditions": [{ "hasFlag": "visited_lighthouse_mara_f15" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
     "restore_lighthouse_core": {
       "label": "Restore Lighthouse Mara's Power Core",
-      "description": "Descend through the lighthouse ruins. Reach the power core, reactivate the conduits, and clear whatever is keeping the grid offline.",
-      "prerequisiteSteps": ["enter_lighthouse_mara"],
+      "description": "Descend through the conduit halls and the breach. Reach the power core, reactivate the conduits, and clear whatever is keeping the grid offline.",
+      "prerequisiteSteps": ["reach_sub_basement"],
       "objective": { "roomId": "lighthouse_mara_core" },
       "completionConditions": [{ "hasFlag": "lighthouse_mara_restored" }],
       "completionActions": [{ "type": "grantXp", "amount": 50 }]

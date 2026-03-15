@@ -504,6 +504,24 @@
       ]
     },
     {
+      "id": "f17_final_descent",
+      "event": "room_entered",
+      "conditions": [
+        { "not": { "hasFlag": "mara_final_descent_warned" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "mara_final_descent_warned", "scope": "player" },
+        {
+          "type": "showMessage",
+          "lines": [
+            "The 4.7-second pulse is deafening now. Each vibration shakes frost from the conduit brackets. The geometric fractures in the floor glow faintly — not with heat, but with something else entirely.",
+            "Two floors below this, something broke through. You can feel it pulling at you. The core is close."
+          ]
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "f17_machinery",
       "event": "door_interacted",
       "filter": {
