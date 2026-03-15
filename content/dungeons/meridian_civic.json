@@ -174,6 +174,28 @@
       "once": true
     },
     {
+      "id": "asha_spire_briefing",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "spire_vigil_cleared" },
+        { "not": { "hasFlag": "asha_briefed_on_spire" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "asha_briefed_on_spire" },
+        { "type": "grantXp", "amount": 25 },
+        { "type": "showMessage", "lines": [
+          "Councillor Asha Denn listens carefully as you describe the Spire of Vigil — the ancient architecture, the pre-human technology, the energy signatures connecting it to the Lighthouse network.",
+          "'This confirms what I feared. The Lighthouses aren't independent systems. They're nodes in something much older. And now the Compact knows it too.'",
+          "'General Thorne has already briefed the Council. The Compact is invoking emergency security powers — they want military control over every structure that matches the Spire's architecture.'",
+          "'The Monument of Winds. That old landmark east of the Greenway. It matches the Spire's profile. The Bulwark is moving to seize it as we speak.'",
+          "'I need someone in the Greenway. Someone who can see what the Bulwark is doing and isn't afraid to push back. The checkpoint east of here will let you through — I've arranged clearance.'"
+        ]},
+        { "type": "giveItem", "itemType": "greenway_pass" }
+      ],
+      "once": true
+    },
+    {
       "id": "asha_briefed_on_secret",
       "event": "npc_interacted",
       "filter": { "npcType": "councillor_asha" },

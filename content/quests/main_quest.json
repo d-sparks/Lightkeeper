@@ -154,39 +154,44 @@
       "completionConditions": [{ "hasFlag": "met_crafter_yun" }],
       "completionActions": [{ "type": "grantXp", "amount": 30 }]
     },
-    "explore_dayside": {
-      "label": "Explore the Dayside Solar Fields",
-      "description": "Yun says the Array controls the dayside — automated harvesters, solar panels, all of it. Visit the Dayside Solar Fields through the Array Hub to see the Array's infrastructure firsthand.",
+    "clear_spire_vigil": {
+      "label": "Clear the Spire of Vigil",
+      "description": "Ancient technology in the Nightside is connected to the Lighthouses. Return to the Nightside and clear the Spire of Vigil to understand the threat.",
       "prerequisiteSteps": ["visit_workshop"],
-      "objective": { "roomId": "dayside_solar_fields" },
-      "completionConditions": [{ "hasFlag": "visited_dayside" }],
-      "completionActions": [{ "type": "grantXp", "amount": 40 }]
-    },
-    "discover_array_secret": {
-      "label": "Discover the Array's Secret",
-      "description": "MERIDIAN-7 trades umbracite for infrastructure, but something deeper is going on. Find the Array Deep Processing center and uncover what the Array doesn't want you to see.",
-      "prerequisiteSteps": ["explore_dayside"],
-      "objective": { "roomId": "array_deep_processing" },
-      "completionConditions": [{ "hasFlag": "array_secret_discovered" }],
+      "objective": { "roomId": "spire_vigil_core" },
+      "completionConditions": [{ "hasFlag": "spire_vigil_cleared" }],
       "completionActions": [{ "type": "grantXp", "amount": 50 }]
     },
-    "build_alliance": {
-      "label": "Rally Sable and Confront MERIDIAN-7",
-      "description": "The Array's secret changes everything. Warn Sable about what you found in the residential quarter, then confront MERIDIAN-7 at the Array Hub.",
-      "prerequisiteSteps": ["discover_array_secret"],
-      "objective": { "roomId": "meridian_residential", "targetNpc": "sable_meridian" },
-      "completionConditions": [
-        { "hasFlag": "sable_warned_about_array" },
-        { "hasFlag": "confronted_meridian_7" }
-      ],
+    "report_to_asha": {
+      "label": "Report to Councillor Asha Denn",
+      "description": "Your findings in the Spire have shaken the Council. Report to Councillor Asha Denn at the Civic Center — the political situation in Meridian is deteriorating.",
+      "prerequisiteSteps": ["clear_spire_vigil"],
+      "objective": { "roomId": "meridian_civic", "targetNpc": "councillor_asha" },
+      "completionConditions": [{ "hasFlag": "asha_briefed_on_spire" }],
+      "completionActions": [{ "type": "grantXp", "amount": 25 }]
+    },
+    "enter_greenway": {
+      "label": "Investigate the Greenway",
+      "description": "The Compact has seized the Monument of Winds under emergency authority. The Bulwark has locked down the Greenway. Pass through the checkpoint east of the Civic Center to investigate.",
+      "prerequisiteSteps": ["report_to_asha"],
+      "objective": { "roomId": "greenway_checkpoint" },
+      "completionConditions": [{ "hasFlag": "visited_greenway_checkpoint" }],
+      "completionActions": [{ "type": "grantXp", "amount": 30 }]
+    },
+    "greenway_operations": {
+      "label": "Disrupt Bulwark Supply Lines",
+      "description": "The Bulwark is requisitioning supplies from Greenway settlements. Find Councillor Asha Denn at the Greenway settlement and help disrupt the Compact's supply lines.",
+      "prerequisiteSteps": ["enter_greenway"],
+      "objective": { "roomId": "greenway_settlement", "targetNpc": "councillor_asha_denn" },
+      "completionConditions": [{ "hasFlag": "supply_sabotage_complete" }],
       "completionActions": [{ "type": "grantXp", "amount": 40 }]
     },
-    "forge_expedition": {
-      "label": "Forge the Nightside Expedition",
-      "description": "With Sable warned and MERIDIAN-7 confronted, speak to Councillor Asha Denn at the Civic Center. She's assembling a joint expedition into the deep Nightside.",
-      "prerequisiteSteps": ["build_alliance"],
-      "objective": { "roomId": "meridian_civic", "targetNpc": "councillor_asha" },
-      "completionConditions": [{ "hasFlag": "act3_asha_alliance_activated" }],
+    "assault_monument": {
+      "label": "Assault the Monument of Winds",
+      "description": "The Compact's grip on the Monument must be broken. Fight through the Bulwark fortress and defeat General Thorne to reach the Spire's core.",
+      "prerequisiteSteps": ["greenway_operations"],
+      "objective": { "roomId": "spire_winds_fortress", "targetMonster": "bulwark_general_thorne" },
+      "completionConditions": [{ "hasFlag": "general_thorne_defeated" }],
       "completionActions": [{ "type": "grantXp", "amount": 60 }]
     }
   },

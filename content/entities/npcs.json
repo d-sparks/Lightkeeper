@@ -5073,22 +5073,22 @@
           "text": "Talk to Master Crafter Yun in the Workshop District if you haven't already. He'll help you get your array infrastructure set up."
         }
       ],
-      "post_yun_dayside": [
+      "post_yun_political": [
         {
           "speaker": "Land Registrar Hollis",
           "text": "Your lot's all registered. Lot 7, East Terrace."
         },
         {
           "speaker": "Land Registrar Hollis",
-          "text": "Now that you've met Yun, you've got the skills to build. But you should see what you're building against."
+          "text": "Word of advice? Talk to Councillor Asha Denn. Things are moving fast in the Council — the Compact is pushing for emergency powers over Lighthouse infrastructure."
         },
         {
           "speaker": "Land Registrar Hollis",
-          "text": "The Dayside Solar Fields. Everything the Array has built — harvesters, panels, processing labs — it's all out there on the sunward side."
+          "text": "If the Bulwark locks down the Greenway, every supply route east of here gets choked. That includes your lot's water allocation."
         },
         {
           "speaker": "Land Registrar Hollis",
-          "text": "Gives you perspective on what 'self-sufficient' really means when your competition never sleeps."
+          "text": "Asha's the only one on the Council who's thinking past the next crisis. She could use an ally."
         }
       ],
       "array_secret_discovered": [
@@ -5234,11 +5234,11 @@
           },
           {
             "not": {
-              "hasFlag": "visited_dayside"
+              "hasFlag": "asha_briefed_on_spire"
             }
           }
         ],
-        "use": "post_yun_dayside"
+        "use": "post_yun_political"
       },
       {
         "conditions": [
@@ -5381,6 +5381,30 @@
         {
           "speaker": "Councillor Asha Denn",
           "text": "Be careful who else you show this to. Thorne will want it for the Array. The Array wants everything."
+        }
+      ],
+      "spire_briefing_pending": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "You've cleared the Spire of Vigil? I need to hear everything. Talk to me."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "The Council is already fractured over what to do about the ancient infrastructure. Your firsthand account could change everything."
+        }
+      ],
+      "greenway_directive": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "The Compact has moved faster than I expected. Bulwark soldiers are already entrenched at the Monument of Winds."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "I've given you a Greenway pass. Use the checkpoint east of here to get through. Find out what General Thorne is doing to that Spire."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "I'll be coordinating from the Greenway settlement. Meet me there when you've assessed the situation."
         }
       ],
       "array_secret_crisis": [
@@ -5699,6 +5723,32 @@
           }
         ],
         "use": "array_secret_crisis"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_vigil_cleared"
+          },
+          {
+            "not": {
+              "hasFlag": "asha_briefed_on_spire"
+            }
+          }
+        ],
+        "use": "spire_briefing_pending"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "asha_briefed_on_spire"
+          },
+          {
+            "not": {
+              "hasFlag": "visited_greenway_checkpoint"
+            }
+          }
+        ],
+        "use": "greenway_directive"
       },
       {
         "conditions": [
@@ -8454,22 +8504,36 @@
           "text": "You're different. That's why the Array will be watching you. They don't like independence."
         }
       ],
-      "dayside_breadcrumb": [
+      "nightside_breadcrumb": [
         {
           "speaker": "Master Crafter Yun",
-          "text": "You want to understand what you're building against? Go see the dayside."
+          "text": "You want to understand what's really going on? The answers are in the Nightside."
         },
         {
           "speaker": "Master Crafter Yun",
-          "text": "The Dayside Solar Fields — automated harvesters, solar arrays, all run by MERIDIAN-7. No humans needed. That's the point."
+          "text": "There's a Spire out there — ancient, pre-human. The Lighthouses are connected to it somehow. The old-timers at Balor know the way."
         },
         {
           "speaker": "Master Crafter Yun",
-          "text": "Head through the Array Hub south of the station. MERIDIAN-7 controls access, but they'll let you through — they want you to see it. Makes you feel small."
+          "text": "Clear the Spire of Vigil and bring what you find back to the Council. Councillor Asha Denn will want to hear it."
         },
         {
           "speaker": "Master Crafter Yun",
-          "text": "See the scale of what we're up against. Then come back and tell me independence isn't worth fighting for."
+          "text": "And be careful. The dark perimeter isn't kind to people who go looking for answers."
+        }
+      ],
+      "greenway_breadcrumb": [
+        {
+          "speaker": "Master Crafter Yun",
+          "text": "You've heard? The Compact has seized the Monument of Winds. Bulwark soldiers everywhere."
+        },
+        {
+          "speaker": "Master Crafter Yun",
+          "text": "Councillor Asha Denn is coordinating the response. Talk to her at the Civic Center — she'll need people like you in the Greenway."
+        },
+        {
+          "speaker": "Master Crafter Yun",
+          "text": "The Compact thinks they can militarize ancient technology they don't understand. This won't end well for anyone if someone doesn't stop them."
         }
       ]
     },
@@ -8528,12 +8592,28 @@
             "hasFlag": "met_crafter_yun"
           },
           {
+            "hasFlag": "spire_vigil_cleared"
+          },
+          {
             "not": {
-              "hasFlag": "visited_dayside"
+              "hasFlag": "visited_greenway_checkpoint"
             }
           }
         ],
-        "use": "dayside_breadcrumb"
+        "use": "greenway_breadcrumb"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "met_crafter_yun"
+          },
+          {
+            "not": {
+              "hasFlag": "spire_vigil_cleared"
+            }
+          }
+        ],
+        "use": "nightside_breadcrumb"
       },
       {
         "conditions": [

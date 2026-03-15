@@ -55,8 +55,12 @@ Remaining follow-ups:
 - **Thorne command tablet turn-in** — thorne_command_tablet has no receiving NPC. Add `hasItem: thorne_command_tablet` dialogue rule to Councillor Asha Denn
 - **Post-Spire narrative triggers** — Per storyboard, activating the Spire should trigger two simultaneous events: 1) MERIDIAN-7 goes silent (Deep Array interference), 2) Compact loses legitimacy. Needs flag-gated triggers in Meridian rooms
 - **Spire replay difficulty** — Both Spires should reconfigure for replay visits with harder enemies and better loot
-- **Main quest integration** — The main_quest needs steps for the Spire of Winds chain (arrive at Monument, defeat Thorne, unlock Hover, return to Asha)
+- ~~**Main quest integration**~~ — DONE: main_quest steps 15-19 now route through Act 2 content (clear_spire_vigil → report_to_asha → enter_greenway → greenway_operations → assault_monument). Old dayside steps removed (dayside is Act 3 per storyboard)
 - **Bulwark encounter balance** — General Thorne at 650 HP with 3 phases needs playtesting. Phase 3 summons conscripts which may overwhelm in tight spaces
+- **Act 3 main quest steps** — Dayside quest chain (explore_dayside, discover_array_secret, build_alliance, forge_expedition) removed from main_quest. Needs re-adding as Act 3 steps gated behind Spire of Winds completion (general_thorne_defeated or hover_unlocked)
+- **Dayside content still accessible** — dayside_solar_fields and array_deep_processing dungeons still exist but have no main_quest steps directing players there. Verify they remain reachable as optional content or add Act 3 quest steps
+- **NPC dayside dialogue cleanup** — Sable, Hollis, and MERIDIAN-7 have dialogue states gated on `visited_dayside` flag. These still work but won't fire until a player visits the dayside independently. Verify no dialogue state is softlocked by the quest reordering
+- **Asha spire briefing grants greenway_pass** — The new `asha_spire_briefing` trigger gives the player a `greenway_pass` item. Verify this integrates correctly with greenway_checkpoint's `greenway_pass_granted` gating
 
 ## Checkpoint Tool — Autosave History
 
@@ -175,7 +179,7 @@ Remaining orphaned rooms still to connect:
 - **`void_flats`** — Currently an endpoint of `into_the_expanse` but has no interior content beyond entry. Needs monsters, loot, and an onward lead.
 - **`merge_nexus`** — Accessed from underlumen_threshold. Has `visited_merge_nexus` flag but no quest references it.
 - **`homestead_interior`** — Accessed from salvage_yard. Umbral Seed mechanic exists but no quest targets it.
-- **`dayside_solar_fields` / `dayside_raid_defense`** — Dayside content exists but may not be reachable without a formal quest directing players there.
+- **`dayside_solar_fields` / `dayside_raid_defense`** — Dayside content exists but is no longer part of the main quest (moved to Act 3). Needs Act 3 quest steps to formally direct players there.
 - **`perimeter_outer_ring`** — Reachable from perimeter_gate and relay_station but no quest targets it directly.
 - **`salvage_yard`** — Has homestead exit and lore but no quest requires visiting.
 - **`expedition_checkpoint`** — Unknown connection; verify in sim.
