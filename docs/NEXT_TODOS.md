@@ -8,7 +8,7 @@ Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26
 
 Bulwark checkpoint atmosphere added to all three Meridian hubs after `spire_vigil_cleared`. Outstanding items:
 
-- **Bulwark NPC sprites**: `bulwark_patrol_meridian` and `bulwark_checkpoint_civic` use default NPC sprites. Add distinct placeholder sprites (grey-uniformed soldier) in `sprites/`.
+- **Bulwark NPC sprites**: `bulwark_patrol_meridian` and `bulwark_checkpoint_civic` use default NPC sprites. Consider reusing `bulwark_soldier_doubter.png` (now exists) or adding dedicated sprites for these Meridian patrol types.
 - **Greenway corridor_sign timing**: The `greenway_corridor_sign` trigger in `meridian_civic.json` fires on `arrived_meridian` (before Vigil is cleared), showing grey-uniform soldiers. This creates mild narrative overlap with the Act 2 escalation — consider gating it on `spire_vigil_cleared` instead, or differentiating the pre-crisis vs. post-crisis patrol presence more clearly.
 - **Market merchant stock disruption**: Weaponsmith Garro has no post-vigil dialogue variant — he could note increased demand from Bulwark soldiers or supply chain disruption. Low priority.
 - **Checkpoint blocking**: The Bulwark checkpoint officer in `meridian_civic` is narrative-only — players can still pass through the Greenway exit if they have the pass. Consider whether the spawned checkpoint officer should physically block the path (engine change needed) or remain dialogue-only.
@@ -17,7 +17,7 @@ Bulwark checkpoint atmosphere added to all three Meridian hubs after `spire_vigi
 
 Spire replay with difficulty tiers implemented. Outstanding items:
 
-- **Spire replay sprites**: The new Underlumen guardian monsters (underlumen_warden, underlumen_channeler, underlumen_sentinel, underlumen_shade, spire_resonance_boss) reuse existing sprites. Need unique placeholder sprites in `sprites/`.
+- **Spire replay sprites**: underlumen_warden, underlumen_channeler, underlumen_sentinel, underlumen_shade, spire_resonance_boss still reuse existing sprites (crystal_guardian, threshold_watcher, abyssal_tendril). Need unique placeholder sprites in `sprites/`.
 - **Spire replay room reset**: Rooms are currently cached once created — returning to an inner floor mid-replay reuses the same room instance. Rooms should reset between separate replay runs (clear killed monsters, reset items). May need a "leave spire" trigger that clears the replay tier flag.
 - **Tier pedestal visual feedback**: The tier_pedestal tiles use a generic interactable appearance. Consider adding visual differentiation (e.g., different glow colors) for Normal/Hard/Legendary.
 - **Replay XP scaling**: The xpMult from tier scaling affects monster XP but is not shown in UI. Consider a HUD indicator for active replay tier.
@@ -42,8 +42,10 @@ Remaining follow-ups:
 - ~~**Spire of Winds dungeon chain**~~ — DONE: 5-floor dungeon chain added (spire_winds_approach, spire_winds_fortress, spire_winds_shaft, spire_winds_underlumen, spire_winds_core). Connected from greenway_supply_depot.
 - ~~**General Thorne boss fight**~~ — DONE: bulwark_general_thorne boss monster (650 HP, 3-phase) placed in spire_winds_fortress.
 - ~~**Hover ability unlock**~~ — DONE: hover_chip granted at spire_winds_core resonance pedestal with full narrative sequence.
-- **Bulwark sprites** — All 7 Bulwark monster types need dedicated sprites (currently using default/placeholder).
-- **Greenway NPC sprites** — Checkpoint Officer Maren, Farmer Dael, Farmer Lissa, Merchant Orin, Councillor Asha Denn, Pvt. Yenn, Elder Moss all need sprites.
+- ~~**Bulwark sprites**~~ — DONE: All 7 Bulwark monster types have placeholder sprites (bulwark_conscript, bulwark_rifleman, bulwark_sergeant, bulwark_engineer, bulwark_shieldwall, bulwark_captain, bulwark_drone). Also added dural_voss.png (unique sprite for Dural Voss boss).
+- ~~**Greenway NPC sprites**~~ — DONE: checkpoint_officer_maren, farmer_dael, farmer_lissa, greenway_merchant_orin, bulwark_soldier_doubter (Pvt. Yenn), greenway_elder_moss, corporal_venn all generated. Also old_keeper.png (Keeper Renn), wounded_unbounded_scout.png, ice_borer.png, glacial_maw.png, frost_revenant.png, underlumen_emergence.png added.
+- **Councillor Asha Denn sprite** — Greenway settlement NPC uses npc_default. Needs a distinct sprite (diplomat/councillor look, not a farmer or soldier).
+- **bulwark_patrol_meridian / bulwark_checkpoint_civic sprites** — These Meridian NPC types still use npc_default. They can reuse bulwark_soldier_doubter.png or get dedicated sprites.
 - **Greenway tileset PNG** — `tilesets/greenway.png` sprite strip needed for the 31 tile definitions.
 - **Meridian political crisis content** — Per storyboard, Meridian itself should transform with Bulwark checkpoints and political tension when Act 2 begins. Needs flag-gated atmosphere triggers in existing Meridian rooms.
 - **MERIDIAN-7 / Array alliance content** — Per storyboard, the Array provides intelligence through MERIDIAN-7 during Act 2. Needs triggers/dialogue tying Array Hub to Greenway operations.

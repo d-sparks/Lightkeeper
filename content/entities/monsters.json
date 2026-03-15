@@ -156,7 +156,7 @@
     "name": "Dural Voss",
     "bossTitle": "Warlord of the Unbounded",
     "bossMusic": "boss_crystal",
-    "sprite": "sprites/luddite_warlord.png",
+    "sprite": "sprites/dural_voss.png",
     "size": [16, 16],
     "health": 600,
     "speed": 1.2,

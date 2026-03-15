@@ -1632,6 +1632,298 @@ function generateMonsterSprites() {
     [_, _, _, _, Kk, Kk, _, _, _, _, Kk, Kk, _, _, _, _],  // feet
   ]);
   savePNG(tkeeper, path.join(CONTENT_DIR, 'sprites', 'threshold_keeper.png'));
+
+  // ============================================================
+  // BULWARK FACTION SPRITES (Compact military, blue-gray armor)
+  // ============================================================
+  const BuDk = C.darkBlue;    // Bulwark armor dark
+  const BuMd = C.blue;        // Bulwark armor mid
+  const BuLt = C.lightBlue;   // Bulwark armor highlight
+  const BuY  = C.yellow;      // engineer tool glow
+
+  // --- Bulwark Conscript: standard Compact foot soldier, blue combat helmet ---
+  const bCons = createPNG(16, 16);
+  drawPixelArt(bCons, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuDk,BuDk,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,BuLt,BuLt,BuLt,BuLt,BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,Oe,  BuDk,BuDk,Oe,  BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, _, BuDk,BuMd,BuMd,BuDk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, BuMd,BuMd, _, _, _, _, _, _, _],
+    [_, _, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, _, _],
+    [_, _, _, BuMd,BuMd,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuMd,BuMd, _, _, _],
+    [_, _, _, BuDk, _, BuMd,BuMd,BuMd,BuMd,BuMd,BuMd, _, BuDk, _, _, _],
+    [_, _, _, BuDk, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuDk, _, BuDk, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bCons, path.join(CONTENT_DIR, 'sprites', 'bulwark_conscript.png'));
+
+  // --- Bulwark Rifleman: ranged soldier, rifle barrel extends left ---
+  const bRifl = createPNG(16, 16);
+  drawPixelArt(bRifl, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuDk,BuDk,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,BuLt,BuLt,BuLt,BuLt,BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,Oe,  BuDk,BuDk,Oe,  BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, _, BuDk,BuMd,BuMd,BuDk, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, BuMd,BuMd, _, _, _, _, _, _, _],
+    [BuDk,BuDk,BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, _, _],
+    [_, _, _, BuMd,BuMd,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuMd,BuMd, _, _, _],
+    [_, _, _, BuDk, _, BuMd,BuMd,BuMd,BuMd,BuMd,BuMd, _, BuDk, _, _, _],
+    [_, _, _, BuDk, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuDk, _, BuDk, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bRifl, path.join(CONTENT_DIR, 'sprites', 'bulwark_rifleman.png'));
+
+  // --- Bulwark Sergeant: pack leader, wider shoulders, command insignia stripe ---
+  const bSgtS = createPNG(16, 16);
+  drawPixelArt(bSgtS, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuMd,Oe,  BuMd,BuMd,Oe,  BuMd,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, _, _, BuMd,BuMd, _, _, _, _, _, _, _],
+    [_, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, _],
+    [_, _, BuMd,BuMd,BuMd,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuMd,BuMd,BuMd, _, _],
+    [_, _, BuDk, _, BuMd,BuMd,BuLt,BuMd,BuMd,BuLt,BuMd,BuMd, _, BuDk, _, _],
+    [_, _, BuDk, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, BuDk, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bSgtS, path.join(CONTENT_DIR, 'sprites', 'bulwark_sergeant.png'));
+
+  // --- Bulwark Engineer: tech specialist, gray helmet, yellow tool glow left ---
+  const bEngr = createPNG(16, 16);
+  drawPixelArt(bEngr, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, Hd, Hd, Hd, Hd, Hd, Hd, _, _, _, _, _],
+    [_, _, _, _, Hd, Hl, Hl, Hl, Hl, Hl, Hl, Hd, _, _, _, _],
+    [_, _, _, _, Hd, Hl, Oe, Hd, Hd, Oe, Hl, Hd, _, _, _, _],
+    [_, _, _, _, Hd, Hd, Hl, Hl, Hl, Hl, Hd, Hd, _, _, _, _],
+    [_, _, _, _, _, _, Hd, Hl, Hl, Hd, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, BuMd,BuMd, _, _, _, _, _, _, _],
+    [_,BuY,BuY, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, _, _],
+    [_, _, _, BuMd,BuMd,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuMd,BuMd, _, _, _],
+    [_, _, _, BuDk, _, BuMd,BuMd,BuMd,BuMd,BuMd,BuMd, _, BuDk, _, _, _],
+    [_, _, _, BuDk, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuDk, _, BuDk, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bEngr, path.join(CONTENT_DIR, 'sprites', 'bulwark_engineer.png'));
+
+  // --- Bulwark Shieldwall: heavy defender, extra-wide body with shield plates ---
+  const bShld = createPNG(16, 16);
+  drawPixelArt(bShld, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk, _, _, _, _],
+    [_, _, _, BuDk,BuMd,BuMd,BuLt,BuLt,BuLt,BuLt,BuMd,BuMd,BuDk, _, _, _],
+    [_, _, _, BuDk,BuMd,Oe,  BuMd,BuMd,BuMd,BuMd,Oe,  BuMd,BuDk, _, _, _],
+    [_, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, _, BuMd,BuMd,BuMd,BuMd, _, _, _, _, _, _],
+    [_, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _],
+    [_, BuDk,BuMd,BuLt,BuLt,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuLt,BuLt,BuMd,BuDk, _],
+    [_, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _],
+    [_, _, BuDk,BuDk,BuMd,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuMd,BuDk,BuDk, _, _],
+    [_, _, _, BuDk,BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk,BuDk, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk,BuMd,BuMd,BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bShld, path.join(CONTENT_DIR, 'sprites', 'bulwark_shieldwall.png'));
+
+  // --- Bulwark Captain: boss-tier commander, crest spikes, wide armor ---
+  const bCapt = createPNG(16, 16);
+  drawPixelArt(bCapt, 0, 0, [
+    [_, _, _, _, BuLt, _, _, _, _, _, _, BuLt, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk,BuDk, _, _, _, _],
+    [_, _, _, BuDk,BuMd,BuMd,BuLt,BuLt,BuLt,BuLt,BuMd,BuMd,BuDk, _, _, _],
+    [_, _, _, BuDk,BuMd,Oe,  BuMd,BuMd,BuMd,BuMd,Oe,  BuMd,BuDk, _, _, _],
+    [_, _, _, BuDk,BuDk,BuMd,BuLt,BuMd,BuMd,BuLt,BuMd,BuDk,BuDk, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, _, BuMd,BuMd,BuMd,BuMd, _, _, _, _, _, _],
+    [_, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, _],
+    [_, _, BuMd,BuMd,BuMd,BuMd,BuMd,BuLt,BuLt,BuMd,BuMd,BuMd,BuMd,BuMd, _, _],
+    [_, _, BuDk, _, BuMd,BuLt,BuMd,BuMd,BuMd,BuMd,BuLt,BuMd, _, BuDk, _, _],
+    [_, _, BuDk, _, BuDk,BuMd,BuMd,BuMd,BuMd,BuMd,BuMd,BuDk, _, BuDk, _, _],
+    [_, _, _, _, BuDk,BuDk,BuMd,BuMd,BuMd,BuMd,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk,BuMd,BuMd,BuDk,BuDk,BuDk, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, _, BuDk,BuDk, _, _, BuDk,BuDk, _, _, _, _, _],
+    [_, _, _, _, BuDk,BuDk,BuDk, _, _, BuDk,BuDk,BuDk, _, _, _, _],
+  ]);
+  savePNG(bCapt, path.join(CONTENT_DIR, 'sprites', 'bulwark_captain.png'));
+
+  // --- Bulwark Patrol Drone: floating mechanical, yellow scanner eye, antenna ---
+  const bDrn = createPNG(16, 16);
+  const DrGr = C.midGray;    // drone body
+  const DrDk = C.darkSlate;  // drone dark
+  const DrEy = C.yellow;     // drone scanner
+  drawPixelArt(bDrn, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, DrDk,DrDk,DrDk,DrDk,DrDk,DrDk, _, _, _, _, _],
+    [_, _, _, _, DrDk,DrGr,DrGr,DrGr,DrGr,DrGr,DrGr,DrDk, _, _, _, _],
+    [_, _, _, _, DrDk,DrGr,DrEy,DrEy,DrEy,DrEy,DrGr,DrDk, _, _, _, _],
+    [_, _, _, _, DrDk,DrGr,DrEy,DrDk,DrDk,DrEy,DrGr,DrDk, _, _, _, _],
+    [_, _, _, _, DrDk,DrGr,DrGr,DrGr,DrGr,DrGr,DrGr,DrDk, _, _, _, _],
+    [_, _, _, _, _, DrDk,DrDk,DrDk,DrDk,DrDk,DrDk, _, _, _, _, _],
+    [_, _, _, _, _, _, DrDk,DrDk,DrDk,DrDk, _, _, _, _, _, _],
+    [_, DrDk, _, _, _, _, DrGr,DrGr,DrGr,DrGr, _, _, _, _, DrDk, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(bDrn, path.join(CONTENT_DIR, 'sprites', 'bulwark_drone.png'));
+
+  // ============================================================
+  // LIGHTHOUSE MARA / ICE REGION SPRITES
+  // ============================================================
+  const IcLt = C.lightBlue;  // ice frost / light
+  const IcMd = C.blue;       // ice mid
+  const IcDk = C.darkBlue;   // ice dark
+  const IcWh = C.white;      // ice crystal white
+
+  // --- Ice Borer: fast pack insect, icy blue carapace, orange hostile eyes ---
+  const iceBor = createPNG(16, 16);
+  drawPixelArt(iceBor, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, IcWh,IcMd, _, _, IcMd,IcWh, _, _, _, _, _],
+    [_, _, _, _, IcWh,IcMd,IcLt,IcLt,IcLt,IcLt,IcMd,IcWh, _, _, _, _],
+    [_, _, _, _, IcDk,IcMd,Oe,  IcMd,IcMd,Oe,  IcMd,IcDk, _, _, _, _],
+    [_, _, _, _, _, IcDk,IcMd,IcLt,IcLt,IcMd,IcDk, _, _, _, _, _],
+    [_, _, _, _, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcDk, _, _, _, _, _],
+    [_, IcLt, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, IcLt, _, _, _],
+    [IcLt, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, IcLt, _, _],
+    [_, IcLt, _, IcDk,IcMd,IcDk, _, _, _, _, IcDk,IcMd,IcDk, _, _, _],
+    [_, _, IcMd, _, IcDk, _, _, _, _, _, _, IcDk, _, IcMd, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(iceBor, path.join(CONTENT_DIR, 'sprites', 'ice_borer.png'));
+
+  // --- Glacial Maw: heavy predator, crystal jaw/teeth, massive form ---
+  const glcMaw = createPNG(16, 16);
+  drawPixelArt(glcMaw, 0, 0, [
+    [_, _, _, _, IcWh,IcDk,IcDk,IcDk,IcDk,IcDk,IcDk,IcWh, _, _, _, _],
+    [_, _, _, IcDk,IcLt,IcMd,IcLt,IcLt,IcLt,IcLt,IcMd,IcLt,IcDk, _, _, _],
+    [_, _, _, IcDk,IcMd,IcMd,Oe,  IcMd,IcMd,Oe,  IcMd,IcMd,IcDk, _, _, _],
+    [_, _, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, _, _],
+    [_, _, _, IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk, _, _, _],
+    [_, _, _, IcDk,IcWh,IcMd,IcWh,IcMd,IcMd,IcWh,IcMd,IcWh,IcDk, _, _, _],
+    [_, _, _, _, IcDk,IcDk,IcDk,IcDk,IcDk,IcDk,IcDk,IcDk, _, _, _, _],
+    [_, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, _],
+    [_, _, IcDk,IcMd,IcDk,IcMd,IcMd,IcWh,IcWh,IcMd,IcMd,IcDk,IcMd,IcDk, _, _],
+    [_, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, _],
+    [_, _, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, _, _],
+    [_, _, _, _, IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk, _, _, _, _],
+    [_, _, _, _, _, IcDk,IcDk,IcMd,IcMd,IcDk,IcDk, _, _, _, _, _],
+    [_, _, _, _, _, IcDk,IcDk, _, _, IcDk,IcDk, _, _, _, _, _],
+    [_, _, _, _, _, IcDk,IcDk, _, _, IcDk,IcDk, _, _, _, _, _],
+    [_, _, _, _, IcDk,IcDk,IcDk, _, _, IcDk,IcDk,IcDk, _, _, _, _],
+  ]);
+  savePNG(glcMaw, path.join(CONTENT_DIR, 'sprites', 'glacial_maw.png'));
+
+  // --- Frost Revenant: ghostly floating form, icy blue wisps, orange eyes ---
+  const fstRev = createPNG(16, 16);
+  drawPixelArt(fstRev, 0, 0, [
+    [_, _, IcWh,IcLt, _, _, _, _, _, _, _, _, IcLt,IcWh, _, _],
+    [_, _, IcLt,IcMd,IcLt, _, _, _, _, _, IcLt,IcMd,IcLt, _, _, _],
+    [_, _, _, IcMd,IcDk,IcDk,IcLt,IcLt,IcLt,IcLt,IcDk,IcDk,IcMd, _, _, _],
+    [_, _, _, IcDk,IcMd,IcMd,IcWh,IcWh,IcWh,IcWh,IcMd,IcMd,IcDk, _, _, _],
+    [_, _, _, IcDk,IcMd,Oe,  IcLt,IcMd,IcMd,IcLt,Oe,  IcMd,IcDk, _, _, _],
+    [_, _, _, IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk, _, _, _],
+    [_, _, _, _, IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk, _, _, _, _],
+    [_, _, _, IcLt,IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk,IcLt, _, _, _],
+    [_, _, _, IcDk,IcMd,IcMd,IcWh,IcMd,IcMd,IcWh,IcMd,IcMd,IcDk, _, _, _],
+    [_, _, _, IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk, _, _, _],
+    [_, _, _, _, IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk, _, _, _, _],
+    [_, IcLt, _, IcDk,IcDk,IcDk,IcMd,IcMd,IcMd,IcMd,IcDk,IcDk,IcDk, _, IcLt, _],
+    [IcLt, _, _, _, IcDk,IcMd, _, _, _, _, IcMd,IcDk, _, _, _, IcLt],
+    [_, _, _, _, _, IcLt, _, _, _, _, IcLt, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+  ]);
+  savePNG(fstRev, path.join(CONTENT_DIR, 'sprites', 'frost_revenant.png'));
+
+  // --- Underlumen Emergence: void-entity boss, teal/purple horror, wide form ---
+  const ulEmer = createPNG(16, 16);
+  const UlDk = C.darkPurple;
+  const UlMd = C.purple;
+  const UlLt = C.lightPurple;
+  const UlTl = C.teal;
+  const UlRd = C.red;
+  drawPixelArt(ulEmer, 0, 0, [
+    [_, UlDk,UlMd, _, _, UlLt, _, _, _, UlLt, _, _, UlMd,UlDk, _, _],
+    [_, _, UlDk,UlMd,UlDk, _, UlMd,UlMd,UlMd, _, UlDk,UlMd, _, _, _, _],
+    [_, _, UlDk,UlMd,UlMd,UlMd,UlMd,UlLt,UlLt,UlMd,UlMd,UlMd,UlDk, _, _, _],
+    [_, _, UlDk,UlMd,UlRd, UlMd,UlMd,UlMd,UlMd,UlMd,UlRd, UlMd,UlDk, _, _, _],
+    [_, _, UlDk,UlMd,UlMd,UlTl,UlMd,UlMd,UlMd,UlMd,UlTl,UlMd,UlDk, _, _, _],
+    [_, _, _, UlDk,UlDk,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlDk,UlDk, _, _, _],
+    [_, _, _, _, _, UlMd,UlMd,UlMd,UlMd,UlMd, _, _, _, _, _, _],
+    [_, UlDk,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlDk, _],
+    [_, UlMd,UlMd,UlMd,UlMd,UlLt,UlMd,UlMd,UlMd,UlMd,UlLt,UlMd,UlMd,UlMd,UlMd, _],
+    [_, UlDk,UlMd,UlTl,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlTl,UlMd,UlDk, _],
+    [_, _, _, UlDk,UlDk,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlDk,UlDk, _, _, _],
+    [_, _, UlDk,UlMd,UlDk,UlDk,UlMd,UlMd,UlMd,UlMd,UlDk,UlDk,UlMd,UlDk, _, _],
+    [_, _, UlDk,UlDk,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlMd,UlDk,UlDk, _, _],
+    [_, _, UlDk,UlMd, _, UlDk,UlMd,UlMd,UlMd,UlMd,UlDk, _, UlMd,UlDk, _, _],
+    [_, UlDk,UlMd, _, _, _, UlDk,UlDk,UlDk,UlDk, _, _, _, UlMd,UlDk, _],
+    [UlDk, _, _, _, _, _, _, _, _, _, _, _, _, _, _, UlDk],
+  ]);
+  savePNG(ulEmer, path.join(CONTENT_DIR, 'sprites', 'underlumen_emergence.png'));
+
+  // --- Dural Voss: Warlord of the Unbounded — raider armor with teal void taint ---
+  const dvoss = createPNG(16, 16);
+  const DvAr = C.gray;      // raider armor (gray, different from Bulwark blue)
+  const DvAd = C.midGray;   // armor shadow
+  const DvRd = C.red;       // red accent
+  const DvTl = C.teal;      // underlumen corruption teal
+  drawPixelArt(dvoss, 0, 0, [
+    [_, _, _, _, _, DvRd,DvAr,DvAr,DvAr,DvAr,DvRd, _, _, _, _, _],
+    [_, _, _, _, DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr, _, _, _, _],
+    [_, _, _, _, DvAr,DvTl,DvAr,DvAr,DvAr,DvAr,DvTl,DvAr, _, _, _, _],
+    [_, _, _, _, DvAr,DvAr,Oe,  DvAr,DvAr,Oe,  DvAr,DvAr, _, _, _, _],
+    [_, _, _, _, DvAr,DvRd,DvAd,DvAd,DvAd,DvAd,DvRd,DvAr, _, _, _, _],
+    [_, _, _, _, _, _, DvAr,DvAr,DvAr,DvAr, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, DvAr,DvAr, _, _, _, _, _, _, _],
+    [_, _, DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr, _, _],
+    [_, _, DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr,DvAr, _, _],
+    [_, _, S,   DvAd, _, DvAr,DvTl,DvAr,DvAr,DvTl,DvAr, _, DvAd, S,   _, _],
+    [_, _, S,   _, _, DvAd,DvAr,DvAr,DvAr,DvAr,DvAd, _, _, S,   _, _],
+    [_, _, _, _, _, DvAd,DvAd,DvAr,DvAr,DvAd,DvAd, _, _, _, _, _],
+    [_, _, _, _, _, DvAd,DvAd,DvAr,DvAr,DvAd,DvAd, _, _, _, _, _],
+    [_, _, _, _, _, DvAd, _, _, _, _, DvAd, _, _, _, _, _],
+    [_, _, _, _, _, DvAd, _, _, _, _, DvAd, _, _, _, _, _],
+    [_, _, _, _, DvAd,DvAd, _, _, _, _, DvAd,DvAd, _, _, _, _],
+  ]);
+  savePNG(dvoss, path.join(CONTENT_DIR, 'sprites', 'dural_voss.png'));
 }
 
 // ============================================================================
@@ -1801,6 +2093,212 @@ function generateNPCSprites() {
     [_, _, _, _, n, dt, dt, _, _, dt, dt, n, _, _, _, _],
   ]);
   savePNG(wren, path.join(CONTENT_DIR, 'sprites', 'wren_alcott.png'));
+
+  // ============================================================
+  // GREENWAY NPCS (Compact military + Greenway civilians)
+  // ============================================================
+  const FaGn = C.darkGreen;  // farmer dark green
+  const FaMn = C.green;      // farmer mid green
+  const NpcRs = C.rust;      // rust for merchant/keeper
+  const KpTn = C.tan;        // keeper tan/weathered
+
+  // --- Checkpoint Officer Maren: Compact officer, blue uniform, gold rank insignia ---
+  const maren = createPNG(16, 16);
+  drawPixelArt(maren, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, bl,bl, _, _, _, _, _, _, _],
+    [_, _, _, bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,bl, _, _, _],
+    [_, _, _, Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl, _, _, _],
+    [_, _, _, bl, _, Bl,Bl,SG, SG,Bl,Bl, _, bl, _, _, _],
+    [_, _, _, bl, _, bl,Bl,Bl,Bl,Bl,bl, _, bl, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, n, bl,bl, _, _, bl,bl, n, _, _, _, _],
+  ]);
+  savePNG(maren, path.join(CONTENT_DIR, 'sprites', 'checkpoint_officer_maren.png'));
+
+  // --- Farmer Dael: working farmer, earthy green-brown clothes ---
+  const fDael = createPNG(16, 16);
+  drawPixelArt(fDael, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, N, N, N, N, _, _, _, _, _, _],
+    [_, _, _, _, _, N, S, S, S, S, N, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,FaMn,FaMn, _, _, _, _, _, _, _],
+    [_, _, _, n, FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn, n, _, _, _],
+    [_, _, _, FaGn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaGn, _, _, _],
+    [_, _, _, FaGn, _, FaMn,FaMn,FaMn,FaMn,FaMn,FaMn, _, FaGn, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn, _, _, FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn, _, _, FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, n, FaGn,FaGn, _, _, FaGn,FaGn, n, _, _, _, _],
+  ]);
+  savePNG(fDael, path.join(CONTENT_DIR, 'sprites', 'farmer_dael.png'));
+
+  // --- Farmer Lissa: farmer, same palette as Dael but with longer hair ---
+  const fLissa = createPNG(16, 16);
+  drawPixelArt(fLissa, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, N, N, N, N, N, N, _, _, _, _, _],
+    [_, _, _, _, N, N, S, S, S, S, N, N, _, _, _, _],
+    [_, _, _, _, _, N, S, W, S, W, S, N, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,FaMn,FaMn, _, _, _, _, _, _, _],
+    [_, _, _, n, N, FaMn,FaMn,FaMn,FaMn,FaMn,FaMn, N, n, _, _, _],
+    [_, _, _, FaGn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaMn,FaGn, _, _, _],
+    [_, _, _, FaGn, _, FaMn,FaMn,FaMn,FaMn,FaMn,FaMn, _, FaGn, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn,FaMn,FaMn,FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn, _, _, FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, _, FaGn,FaGn, _, _, FaGn,FaGn, _, _, _, _, _],
+    [_, _, _, _, n, FaGn,FaGn, _, _, FaGn,FaGn, n, _, _, _, _],
+  ]);
+  savePNG(fLissa, path.join(CONTENT_DIR, 'sprites', 'farmer_lissa.png'));
+
+  // --- Merchant Orin: greenway merchant, orange-brown clothes, gold coin accent ---
+  const mOrin = createPNG(16, 16);
+  drawPixelArt(mOrin, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, _, n, N, N, n, _, _, _, _, _, _],
+    [_, _, _, _, _, N, S, S, S, S, N, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Og,Og, _, _, _, _, _, _, _],
+    [_, _, _, n, Og,Og,Og,Og,Og,Og,Og,Og, n, _, _, _],
+    [_, _, _, Og,Og,Og,Og,Og,Og,Og,Og,Og,Og, _, _, _],
+    [_, _, _, NpcRs, _, Og,Og,SG, SG,Og,Og, _, NpcRs, _, _, _],
+    [_, _, _, NpcRs, _, NpcRs,Og,Og,Og,Og,NpcRs, _, NpcRs, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs,Og,Og,NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs,Og,Og,NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs, _, _, NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs, _, _, NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, n, NpcRs,NpcRs, _, _, NpcRs,NpcRs, n, _, _, _, _],
+  ]);
+  savePNG(mOrin, path.join(CONTENT_DIR, 'sprites', 'greenway_merchant_orin.png'));
+
+  // --- Pvt. Yenn (bulwark_soldier_doubter): Bulwark private, visor up, worried face ---
+  const pvtYenn = createPNG(16, 16);
+  drawPixelArt(pvtYenn, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl,bl,bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, bl,Bl,Bl,Bl,Bl,Bl,Bl,bl, _, _, _, _],
+    [_, _, _, _, bl, S, S, S, S, S, S,bl, _, _, _, _],
+    [_, _, _, _, bl, S, W, S, S, W, S,bl, _, _, _, _],
+    [_, _, _, _, _, _, S, s, s, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, S, S, _, _, _, _, _, _, _],
+    [_, _, _, bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,bl, _, _, _],
+    [_, _, _, Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl, _, _, _],
+    [_, _, _, bl, _, Bl,Bl,Bl,Bl,Bl,Bl, _, bl, _, _, _],
+    [_, _, _, bl, _, bl,Bl,Bl,Bl,Bl,bl, _, bl, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, n, bl,bl, _, _, bl,bl, n, _, _, _, _],
+  ]);
+  savePNG(pvtYenn, path.join(CONTENT_DIR, 'sprites', 'bulwark_soldier_doubter.png'));
+
+  // --- Elder Moss (greenway_elder_moss): elderly civilian, gray robes, walking staff ---
+  const elderMoss = createPNG(16, 16);
+  drawPixelArt(elderMoss, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, G, G, G, G, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, S, S, S, S, G, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Hl,Hl, _, _, _, _, _, _, _],
+    [_, _, _, G, Hl, Hl, Hl, Hl, Hl, Hl, Hl, Hl, G, _, _, _],
+    [_, n, _, Hl,Hl,Hl, Hl, Hl, Hl, Hl, Hl,Hl, Hl, _, _, _],
+    [_, n, _, G, _, Hl, Hl, Hl, Hl, Hl, Hl, _, G, _, _, _],
+    [_, n, _, _, _, G, G, Hl, Hl, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, G, Hl, Hl, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, G, Hl, Hl, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, G, _, _, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, G, _, _, G, G, _, _, _, _, _],
+    [_, _, _, _, n, G, G, _, _, G, G, n, _, _, _, _],
+  ]);
+  savePNG(elderMoss, path.join(CONTENT_DIR, 'sprites', 'greenway_elder_moss.png'));
+
+  // --- Corporal Venn: Bulwark corporal, two gold rank stripes on chest ---
+  const corpVenn = createPNG(16, 16);
+  drawPixelArt(corpVenn, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl,bl,bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, bl,Bl,Bl,Bl,Bl,Bl,Bl,bl, _, _, _, _],
+    [_, _, _, _, bl,Bl,Oe, bl,bl,Oe, Bl,bl, _, _, _, _],
+    [_, _, _, _, bl,bl,Bl,Bl,Bl,Bl,bl,bl, _, _, _, _],
+    [_, _, _, _, _, _, bl,Bl,Bl,bl, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, Bl,Bl, _, _, _, _, _, _, _],
+    [_, _, _, bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,bl, _, _, _],
+    [_, _, _, Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl,Bl, _, _, _],
+    [_, _, _, bl, _, Bl,SG, Bl,Bl,SG, Bl, _, bl, _, _, _],
+    [_, _, _, bl, _, bl,Bl,Bl,Bl,Bl,bl, _, bl, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl,Bl,Bl,bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, _, bl,bl, _, _, bl,bl, _, _, _, _, _],
+    [_, _, _, _, n, bl,bl, _, _, bl,bl, n, _, _, _, _],
+  ]);
+  savePNG(corpVenn, path.join(CONTENT_DIR, 'sprites', 'corporal_venn.png'));
+
+  // --- Old Keeper (Keeper Renn): lighthouse keeper, weathered tan uniform, gray hair ---
+  const oKeeper = createPNG(16, 16);
+  drawPixelArt(oKeeper, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, G, G, G, G, G, G, _, _, _, _, _],
+    [_, _, _, _, _, G, S, S, S, S, G, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _,KpTn,KpTn, _, _, _, _, _, _, _],
+    [_, _, _, n, KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn, n, _, _, _],
+    [_, _, _, KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn,KpTn, _, _, _],
+    [_, _, _, n, _, KpTn,KpTn,NpcRs,NpcRs,KpTn,KpTn, _, n, _, _, _],
+    [_, _, _, n, _, NpcRs,KpTn,KpTn,KpTn,KpTn,NpcRs, _, n, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs,KpTn,KpTn,NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs,KpTn,KpTn,NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs, _, _, NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, _, NpcRs,NpcRs, _, _, NpcRs,NpcRs, _, _, _, _, _],
+    [_, _, _, _, n, NpcRs,NpcRs, _, _, NpcRs,NpcRs, n, _, _, _, _],
+  ]);
+  savePNG(oKeeper, path.join(CONTENT_DIR, 'sprites', 'old_keeper.png'));
+
+  // --- Wounded Unbounded Scout (Kael): scout with bandaged left arm, teal clothing ---
+  const wndScout = createPNG(16, 16);
+  drawPixelArt(wndScout, 0, 0, [
+    [_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _],
+    [_, _, _, _, _, n, n, S, S, n, n, _, _, _, _, _],
+    [_, _, _, _, _, S, S, S, S, S, S, _, _, _, _, _],
+    [_, _, _, _, _, S, W, S, S, W, S, _, _, _, _, _],
+    [_, _, _, _, _, S, S, s, s, S, S, _, _, _, _, _],
+    [_, _, _, _, _, _, S, S, S, S, _, _, _, _, _, _],
+    [_, _, _, _, _, _, _, dt,dt, _, _, _, _, _, _, _],
+    [_, _, _, n, dt, Te, Te, dt, dt, Te, Te, dt, n, _, _, _],
+    [_, _, _, Te, Te, Te, Te, Te, Te, Te, Te, Te, Te, _, _, _],
+    [_, _,W, dt, _, Te, Te, Te, Te, Te, Te, _, dt, _, _, _],
+    [_, _,W, dt, _, dt, Te, Te, Te, Te, dt, _, dt, _, _, _],
+    [_, _, _, _, _, dt, dt, Te, Te, dt, dt, _, _, _, _, _],
+    [_, _, _, _, _, dt, dt, Te, Te, dt, dt, _, _, _, _, _],
+    [_, _, _, _, _, dt, dt, _, _, dt, dt, _, _, _, _, _],
+    [_, _, _, _, _, dt, dt, _, _, dt, dt, _, _, _, _, _],
+    [_, _, _, _, n, dt, dt, _, _, dt, dt, n, _, _, _, _],
+  ]);
+  savePNG(wndScout, path.join(CONTENT_DIR, 'sprites', 'wounded_unbounded_scout.png'));
 }
 
 // ============================================================================
