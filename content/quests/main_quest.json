@@ -193,6 +193,46 @@
       "objective": { "roomId": "spire_winds_fortress", "targetMonster": "bulwark_general_thorne" },
       "completionConditions": [{ "hasFlag": "general_thorne_defeated" }],
       "completionActions": [{ "type": "grantXp", "amount": 60 }]
+    },
+    "explore_dayside": {
+      "label": "Cross into the Dayside",
+      "description": "The Deep Array has withdrawn from Ring-facing systems. MERIDIAN-7 is offline. The Council has authorized what no one has attempted in living memory: a Lightkeeper expedition into the Dayside. Cross through the solar fields and survive the heat.",
+      "prerequisiteSteps": ["assault_monument"],
+      "objective": { "roomId": "dayside_solar_fields" },
+      "completionConditions": [{ "hasFlag": "visited_dayside" }],
+      "completionActions": [{ "type": "grantXp", "amount": 40 }]
+    },
+    "discover_array_secret": {
+      "label": "Investigate Array Deep Processing",
+      "description": "Push deeper into Array territory. The Deep Array has been processing umbrasite for centuries — find out what it's really building. Reach the Array Deep Processing facility and uncover the truth.",
+      "prerequisiteSteps": ["explore_dayside"],
+      "objective": { "roomId": "array_deep_processing" },
+      "completionConditions": [{ "hasFlag": "array_secret_discovered" }],
+      "completionActions": [{ "type": "grantXp", "amount": 50 }]
+    },
+    "build_alliance": {
+      "label": "Rally the Coalition",
+      "description": "Return to Meridian with proof of the Deep Array's true purpose. Councillor Asha Denn and whatever remains of MERIDIAN-7 must coordinate a plan to reach the Dayside Spire before the Deep Array completes its work.",
+      "prerequisiteSteps": ["discover_array_secret"],
+      "objective": { "roomId": "meridian_civic", "targetNpc": "councillor_asha" },
+      "completionConditions": [{ "hasFlag": "expedition_authorized" }],
+      "completionActions": [{ "type": "grantXp", "amount": 40 }]
+    },
+    "forge_expedition": {
+      "label": "Assault the Spire of Radiance",
+      "description": "The Dayside Spire has been under Deep Array control for centuries. Lead the expedition through Array defenses and reach the Spire's outer perimeter. The third and final Spire awaits.",
+      "prerequisiteSteps": ["build_alliance"],
+      "objective": { "roomId": "spire_radiance_approach" },
+      "completionConditions": [{ "hasFlag": "visited_spire_radiance_core" }],
+      "completionActions": [{ "type": "grantXp", "amount": 60 }]
+    },
+    "ending_choice": {
+      "label": "The Reckoning",
+      "description": "All three Spires are active. The Deep Array's central intelligence is the network itself. Sever, restore, or subsume — the choice that will determine the fate of Erith's infrastructure rests with you.",
+      "prerequisiteSteps": ["forge_expedition"],
+      "objective": { "roomId": "spire_radiance_core" },
+      "completionConditions": [{ "hasFlag": "photonic_pulse_unlocked" }],
+      "completionActions": [{ "type": "grantXp", "amount": 100 }]
     }
   },
   "startStep": "talk_to_warden"

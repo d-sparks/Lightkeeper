@@ -281,6 +281,19 @@
       ]
     },
     {
+      "id": "asha_authorizes_expedition",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasFlag": "array_secret_discovered" },
+        { "not": { "hasFlag": "expedition_authorized" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "expedition_authorized" }
+      ],
+      "once": true
+    },
+    {
       "id": "act3_asha_alliance_trigger",
       "event": "npc_interacted",
       "filter": { "npcType": "councillor_asha" },
