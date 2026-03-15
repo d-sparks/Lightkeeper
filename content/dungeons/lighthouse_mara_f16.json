@@ -621,6 +621,28 @@
       ]
     },
     {
+      "id": "f16_emergency_cache",
+      "event": "door_interacted",
+      "filter": {
+        "tileX": 10,
+        "tileY": 7
+      },
+      "actions": [
+        {
+          "type": "showMessage",
+          "lines": [
+            "You pry open a maintenance access panel on Generator 3. Inside, sealed in a thermal case marked EMERGENCY USE ONLY, someone stashed supplies before the evacuation.",
+            "Three frost salves and a bandage — frozen but intact."
+          ]
+        },
+        { "type": "giveItem", "itemType": "frost_salve" },
+        { "type": "giveItem", "itemType": "frost_salve" },
+        { "type": "giveItem", "itemType": "frost_salve" },
+        { "type": "giveItem", "itemType": "bandage" }
+      ],
+      "once": true
+    },
+    {
       "id": "mark_lighthouse_mara_f16_visited",
       "event": "room_entered",
       "actions": [
@@ -632,5 +654,6 @@
       ],
       "once": true
     }
-  ]
+  ],
+  "sim_passthrough": true
 }

@@ -513,6 +513,11 @@
       "y": 2
     },
     {
+      "type": "frost_salve",
+      "x": 5,
+      "y": 13
+    },
+    {
       "type": "reinforced_battery_chip",
       "x": 5,
       "y": 14
@@ -606,5 +611,6 @@
       ],
       "once": true
     }
-  ]
+  ],
+  "sim_passthrough": true
 }
