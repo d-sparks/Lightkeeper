@@ -4724,7 +4724,7 @@ class GameLoop {
 
   /**
    * Try to use a special attack. Returns true if one was used (preempts normal behavior).
-   * Special attack types: lunge, stun, ground_slam
+   * Special attack types: lunge, stun, ground_slam, thrown_projectile
    */
   _trySpecialAttack(mob, target, dist, room, dt) {
     const TILE = CONSTANTS.TILE_SIZE;
@@ -4780,6 +4780,36 @@ class GameLoop {
           }
           this._checkPlayerDeath(target, room);
           return true;
+        }
+      } else if (sa.type === 'thrown_projectile') {
+        // Thrown projectile: ranged attack for melee mobs (anti-kite)
+        if (dist > mob.attackRange && dist <= saRange) {
+          const dx = target.x - mob.x;
+          const dy = target.y - mob.y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          if (len > 0) {
+            const projSpeed = (sa.speed || 0.7) * CONSTANTS.PROJECTILE_SPEED;
+            const projId = `proj_${room.nextProjectileId++}`;
+            room.projectiles.push({
+              id: projId,
+              ownerId: mob.id,
+              isMonsterProjectile: true,
+              projectileType: sa.projectileType || mob.projectile || null,
+              x: mob.x,
+              y: mob.y,
+              vx: (dx / len) * projSpeed,
+              vy: (dy / len) * projSpeed,
+              damage: Math.round(mob.damage * (sa.damage || 1.0)),
+              lifetime: sa.lifetime || CONSTANTS.PROJECTILE_LIFETIME,
+            });
+            mob.facing = Math.atan2(dy, dx);
+            sa.timer = sa.cooldown;
+            room.events.push({
+              type: 'ranged_attack', targetId: mob.id,
+              x: mob.x, y: mob.y,
+            });
+            return true;
+          }
         }
       } else if (sa.type === 'ground_slam') {
         // Ground slam: AOE knockback + damage when in range

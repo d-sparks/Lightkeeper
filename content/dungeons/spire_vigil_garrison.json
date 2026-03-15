@@ -46,7 +46,7 @@
     ] },
     { "type": "luddite_crossbowman", "x": 14, "y": 7, "count": 1, "patrol": "guard" },
     { "type": "luddite_scrapper", "x": 16, "y": 9, "count": 1, "patrol": "guard" },
-    { "type": "luddite_warlord", "x": 12, "y": 11, "count": 1, "patrol": "guard" },
+    { "type": "spire_garrison_warlord", "x": 12, "y": 11, "count": 1, "patrol": "guard" },
     { "type": "luddite_brawler", "x": 15, "y": 12, "count": 2, "patrol": "patrol", "patrolPath": [
       {"x": 13, "y": 11}, {"x": 18, "y": 11}, {"x": 18, "y": 14}, {"x": 13, "y": 14}
     ] },
@@ -130,7 +130,7 @@
         "id": "garrison_warlord_killed",
         "event": "monster_killed",
         "filter": {
-          "monsterType": "luddite_warlord"
+          "monsterType": "spire_garrison_warlord"
         },
         "actions": [
           {

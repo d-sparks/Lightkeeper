@@ -424,3 +424,9 @@ Fixed station_junction: room-entry dialogue now deferred until combat clears usi
 - **Raid scaling** — Level 20 raids would have 29 monsters (580 damage). Verify balance against reinforced_turret (+100 defense).
 - **Client automation UI** — Verify structure list and grid render correctly at 20×20 grid size.
 - **Late-game structure sprites** — All new structures use `scrap_drone` visual. Need dedicated sprites.
+
+## Warlord Anti-Kite & Garrison Differentiation (2026-03-15)
+
+- **`thrown_projectile` special attack** — New engine attack type added to `_trySpecialAttack()`. Fires a projectile from melee mobs when player is outside melee range. Uses existing projectile infrastructure. Consider adding a client-side visual indicator (e.g., distinct projectile sprite) for thrown weapons vs ranged mob shots.
+- **`spire_garrison_warlord` sprite** — Currently shares `sprites/luddite_warlord.png`. Could use a unique sprite to visually distinguish the mid-Spire variant.
+- **Balance tuning** — Luddite Warlord now has aggressive anti-kite (3.5s lunge CD, range 7, thrown projectile). May need tuning after playtesting. Garrison variant (280 HP, 16 dmg) is scaled for mid-Spire; verify feels appropriately challenging relative to surrounding encounters.
