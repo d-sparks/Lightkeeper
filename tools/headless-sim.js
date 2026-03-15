@@ -1231,17 +1231,17 @@ class Bot {
       return;
     }
 
-    // Close enough — interact. tryInteract prioritizes items over doors,
-    // so retry if we picked up an item instead of interacting with the tile.
-    if (!goal._retries) goal._retries = 0;
+    // Close enough — use targeted tile interaction to avoid picking up nearby ground items
     this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
-    const result = this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
-    if (result && result.interactType === 'pickup') {
-      // Picked up an item instead — retry on next tick (up to 10 retries)
-      goal._retries++;
-      if (goal._retries < 10) return;
+    const result = this.gameLoop.tryInteractTile(this.currentRoom, PLAYER_ID, targetTX, targetTY);
+    if (result && result.interactType === 'message') {
+      // Tile conditions not met (e.g., locked) — log and pop, prereqs should handle this
+      console.log(`[Bot] Tile (${targetTX},${targetTY}) blocked: ${result.text}`);
+    } else if (result && result.interactType === 'door') {
+      console.log(`[Bot] Interacted with tile (${targetTX},${targetTY})`);
+    } else {
+      console.log(`[Bot] No interactable tile at (${targetTX},${targetTY})`);
     }
-    console.log(`[Bot] Interacted with tile (${targetTX},${targetTY})`);
     this.popGoal();
   }
 

@@ -96,16 +96,27 @@
       "once": true
     },
     {
-      "id": "core_hatch_opened",
-      "event": "door_interacted",
-      "filter": { "tileX": 9, "tileY": 9 },
+      "id": "conduits_open_hatch",
+      "event": "flag_changed",
+      "filter": { "flag": "mara_conduits_online" },
       "conditions": [
         { "hasFlag": "mara_conduits_online" }
       ],
       "actions": [
+        { "type": "setTile", "x": 9, "y": 9, "tileId": 5 },
         { "type": "showMessage", "text": "The core hatch grinds open. Below, a narrow shaft leads down to the lighthouse's heart — the lens chamber. The walls of the shaft are covered in geometric fractures, perfectly symmetrical. Something ancient shaped this rock." }
       ],
       "once": true
+    },
+    {
+      "id": "conduits_reopen_hatch",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "mara_conduits_online" }
+      ],
+      "actions": [
+        { "type": "setTile", "x": 9, "y": 9, "tileId": 5 }
+      ]
     },
     {
       "id": "survey_marker_interact",

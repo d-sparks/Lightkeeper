@@ -5770,6 +5770,66 @@ class GameLoop {
     return null;
   }
 
+  // Targeted tile interaction — skips item pickup, interacts only with the tile at (targetTX, targetTY).
+  // Used by the headless sim bot to avoid picking up nearby ground items instead of activating puzzle tiles.
+  tryInteractTile(roomId, playerId, targetTX, targetTY) {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    const player = room.players.get(playerId);
+    if (!player) return null;
+
+    const ts = CONSTANTS.TILE_SIZE;
+    const tileset = this.content.getTileset(room.dungeon.tileset);
+    if (!tileset) return null;
+
+    if (targetTX < 0 || targetTY < 0 || targetTX >= room.dungeon.width || targetTY >= room.dungeon.height) return null;
+
+    const tileId = room.dungeon.data[targetTY * room.dungeon.width + targetTX];
+    const tileDef = tileset.tiles[String(tileId)];
+    if (!tileDef || !tileDef.interactable || tileDef.togglesTo == null) return null;
+
+    // Range check — player must be within door interact range of the target tile
+    const tileCX = (targetTX + 0.5) * ts;
+    const tileCY = (targetTY + 0.5) * ts;
+    const dx = tileCX - player.x;
+    const dy = tileCY - player.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const doorRange = CONSTANTS.DOOR_INTERACT_RANGE * ts;
+    if (dist > doorRange) return null;
+
+    const ctx = this._scriptContext(playerId, roomId);
+
+    // Evaluate tile conditions (e.g., locked doors)
+    if (tileDef.conditions) {
+      if (!this.conditions.evaluate(tileDef.conditions, ctx)) {
+        const failMsg = tileDef.failMessage || 'You can\'t do that yet.';
+        return { interactType: 'message', text: failMsg };
+      }
+    }
+
+    // Execute onInteract actions (e.g., consume key)
+    if (tileDef.onInteract) {
+      this.actions.executeAll(tileDef.onInteract, ctx);
+    }
+
+    const newTileId = tileDef.togglesTo;
+    const idx = targetTY * room.dungeon.width + targetTX;
+    room.dungeon.data[idx] = newTileId;
+
+    // Emit door_interacted scripting event
+    this._emitGameEvent(EventBus.Events.DOOR_INTERACTED, {
+      playerId, roomId, tileX: targetTX, tileY: targetTY,
+      tileName: tileDef.name,
+    }, ctx);
+
+    return {
+      interactType: 'door',
+      x: targetTX,
+      y: targetTY,
+      tileId: newTileId,
+    };
+  }
+
   // Handle waypoint beacon NPC interaction: activate waypoint + show fast travel menu
   _handleWaypointBeacon(playerId, roomId, npc) {
     const waypoints = this.content.getWaypoints();

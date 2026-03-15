@@ -2,7 +2,7 @@
 
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
-Last cleaned: 2026-03-15 (full playtest audit — mainline sim reaches ~38% rooms/48 of 124, blocks at lighthouse_mara_core conduit puzzle; all-quests: 2/21 pass (tannis_tags, relay_recovery), rest TIMEOUT; content validator: 0 errors, 59 warnings).
+Last cleaned: 2026-03-15 (full playtest audit — mainline sim reaches ~37% rooms/46 of 124, blocks at lighthouse_mara_core boss fight; all-quests: 2/21 pass (tannis_tags, relay_recovery), rest TIMEOUT; content validator: 0 errors, 59 warnings).
 
 ## Full Campaign Playtest Audit (2026-03-15)
 
@@ -42,7 +42,8 @@ Lighthouse Mara is 19 consecutive floors with ZERO intermediate quest steps, no 
 
 ### MODERATE — Sim Improvements Needed
 
-- [ ] **Sim can't solve lighthouse_mara_core conduit puzzle reliably** — the bot interacts with conduit A but `tryInteract` sometimes picks up ground items instead. The retry mechanism helps but isn't consistent. Need either: (a) targeted tile interact in game-loop.js, or (b) bot clears items before puzzle.
+- [x] **Sim can't solve lighthouse_mara_core conduit puzzle reliably** — FIXED: added `tryInteractTile()` to game-loop.js for targeted tile interaction, bot now uses it in `doInteractWithTile`. Core hatch auto-opens via `conduits_reopen_hatch` trigger on room re-entry.
+- [ ] **Sim can't kill shade_stalker_alpha in lighthouse_mara_core** — bot reaches boss area (hatch opens correctly) but dies repeatedly to boss (110 HP, 18 dmg, lunge+stun) + environmental cold damage (3 dmg/2.5s). 92 deaths in a single run. Consider: reducing boss HP, adding healing spawns near boss area, or improving bot combat AI for boss fights.
 - [ ] **Sim `into_the_expanse` stuck** — outer_expanse (200x120 map) is too large for A* pathfinding. Need pathfinding chunk optimization or waypoint-based navigation for large maps.
 - [ ] **Sim `lighthouse_mara` side quest stuck** — A* failure from (21,12) in caverns room. Likely pathing issue near solid tiles.
 - [ ] **Sim doesn't handle `showChoice` actions** — ending path choice (Asha's three-path choice in meridian_civic) requires player input the bot can't provide. Need bot choice-selection logic for quest resolution.
