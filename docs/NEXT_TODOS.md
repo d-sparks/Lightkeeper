@@ -112,6 +112,20 @@ Remaining follow-ups:
 - **Siege arena solo blocker** — `minPlayers: 2` means solo players can never start the siege. Consider adding an NPC hint about this requirement.
 - **Breach clear as a quest step** — perimeter_breach is visited during early exploration but has no quest formally directing players there. The `gloom_wraith` kill flag ties it in organically, but a quest step would make it explicit.
 
+## Content — Lighthouse Mara Main Quest Integration (2026-03-15)
+
+Wired Lighthouse Mara into the main quest flow. The transit pass is already gated behind `mara_core_cleared` in `train_station.json`; the main quest steps now formally route players through the 20-floor dungeon chain.
+
+**Changes made:**
+- `main_quest.json` — 3 new steps inserted between `clear_junction_box` and `get_transit_pass`: `yara_lighthouse_briefing` (talk to Yara after junction clear → `yara_lighthouse_briefed`), `enter_lighthouse_mara` (descend to caverns → `visited_mara_caverns`), `restore_lighthouse_core` (clear core → `lighthouse_mara_restored`). `get_transit_pass` prerequisite updated from `clear_junction_box` → `restore_lighthouse_core`.
+- `train_station.json` — `yara_mara_not_cleared` trigger now sets `yara_lighthouse_briefed` flag and has `once: true`. Completes the briefing quest step when Yara explains the power grid situation.
+
+**Player flow:** clear_junction → talk to Yara (briefed) → enter lighthouse caverns → restore core + defeat boss → return to Yara (transit pass) → board train.
+
+Remaining follow-ups:
+- **`lighthouse_mara` side quest alignment** — `lighthouse_mara.json` side quest (4 steps: descend_caverns → find_keeper → reach_core → restore_power) runs in parallel with the new main quest steps. Verify no step conflicts or double-completion edge cases.
+- **Post-restoration NPC reactions** — Warden Holt, Sgt. Ellers, Tech Maren should react to `lighthouse_mara_restored`. See existing NPC engagement TODOs.
+
 ## Content — Lighthouse Mara (expanded 2026-03-15)
 
 **20-floor dungeon chain built** — Full expedition from relay_station through frozen caverns, fracture zone, frozen depths, sub-basement infrastructure, breach zone, and lighthouse core. Chain: lighthouse_mara_caverns → f02-f19 → lighthouse_mara_core.

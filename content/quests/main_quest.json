@@ -114,10 +114,34 @@
       "completionConditions": [{ "hasFlag": "junction_cleared" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
     },
+    "yara_lighthouse_briefing": {
+      "label": "Talk to Tech Yara About the Power Grid",
+      "description": "The junction is cleared, but something's still blocking the transit line. Return to Tech Yara at the train station — she'll know what's holding up power.",
+      "prerequisiteSteps": ["clear_junction_box"],
+      "objective": { "roomId": "train_station", "targetNpc": "station_tech_yara" },
+      "completionConditions": [{ "hasFlag": "yara_lighthouse_briefed" }],
+      "completionActions": [{ "type": "grantXp", "amount": 10 }]
+    },
+    "enter_lighthouse_mara": {
+      "label": "Enter Lighthouse Mara",
+      "description": "The transit line runs on Lighthouse Mara's power grid — and that grid is dead. Find the entrance to Lighthouse Mara beyond the outpost perimeter and descend into the caverns below.",
+      "prerequisiteSteps": ["yara_lighthouse_briefing"],
+      "objective": { "roomId": "lighthouse_mara_caverns" },
+      "completionConditions": [{ "hasFlag": "visited_mara_caverns" }],
+      "completionActions": [{ "type": "grantXp", "amount": 20 }]
+    },
+    "restore_lighthouse_core": {
+      "label": "Restore Lighthouse Mara's Power Core",
+      "description": "Descend through the lighthouse ruins. Reach the power core, reactivate the conduits, and clear whatever is keeping the grid offline.",
+      "prerequisiteSteps": ["enter_lighthouse_mara"],
+      "objective": { "roomId": "lighthouse_mara_core" },
+      "completionConditions": [{ "hasFlag": "lighthouse_mara_restored" }],
+      "completionActions": [{ "type": "grantXp", "amount": 50 }]
+    },
     "get_transit_pass": {
       "label": "Collect Your Transit Pass",
-      "description": "Return to Tech Yara — the junction is clear and she owes you a Transit Pass.",
-      "prerequisiteSteps": ["clear_junction_box"],
+      "description": "Lighthouse Mara is back online and the transit line is live. Return to Tech Yara at the train station to collect your Transit Pass.",
+      "prerequisiteSteps": ["restore_lighthouse_core"],
       "objective": { "roomId": "train_station", "targetNpc": "station_tech_yara" },
       "completionConditions": [{ "hasFlag": "has_transit_pass" }],
       "completionActions": [{ "type": "grantXp", "amount": 25 }]

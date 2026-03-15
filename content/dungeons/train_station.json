@@ -97,11 +97,13 @@
         { "not": { "hasFlag": "has_transit_pass" } }
       ],
       "actions": [
+        { "type": "setFlag", "flag": "yara_lighthouse_briefed" },
         { "type": "showMessage", "lines": [
           "\"Junction's clear, good work. But the transit line pulls power from Lighthouse Mara's grid — and that grid is dead.\"",
           "\"The lighthouse core needs to be reactivated before I can get the train running. Head back to the outpost perimeter and find a way into the lighthouse.\""
         ]}
-      ]
+      ],
+      "once": true
     },
     {
       "id": "yara_gives_transit_pass",
