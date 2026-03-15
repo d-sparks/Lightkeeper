@@ -45,6 +45,32 @@
     "16": {
       "name": "cracked_ice_wall",
       "solid": true
+    },
+    "17": {
+      "name": "geometric_fracture",
+      "solid": true
+    },
+    "18": {
+      "name": "broken_machinery",
+      "solid": true,
+      "interactable": "door",
+      "togglesTo": 18
+    },
+    "19": {
+      "name": "frozen_pillar",
+      "solid": true
+    },
+    "20": {
+      "name": "ice_rubble",
+      "solid": false
+    },
+    "21": {
+      "name": "metal_floor",
+      "solid": false
+    },
+    "22": {
+      "name": "damaged_panel",
+      "solid": true
     }
   }
 }

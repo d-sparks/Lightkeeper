@@ -146,5 +146,47 @@
       { "item": "underlumen_nexus", "weight": 1 },
       { "item": "rechargeable_battery_chip", "weight": 1 }
     ]
+  },
+  "ice_borer": {
+    "dropChance": 0.2,
+    "rolls": [
+      { "item": "salvage", "weight": 12 },
+      { "item": "frost_salve", "weight": 8 },
+      { "item": "ration_pack", "weight": 6 },
+      { "item": "reinforced_battery_chip", "weight": 1 }
+    ]
+  },
+  "glacial_maw": {
+    "dropChance": 0.6,
+    "rolls": [
+      { "item": "salvage", "weight": 6 },
+      { "item": "field_medkit", "weight": 5 },
+      { "item": "frozen_core", "weight": 3 },
+      { "item": "frost_salve", "weight": 6 },
+      { "item": "umbral_amplifier_chip", "weight": 1 },
+      { "item": "shadow_conduit_chip", "weight": 2 }
+    ]
+  },
+  "frost_revenant": {
+    "dropChance": 0.45,
+    "rolls": [
+      { "item": "salvage", "weight": 8 },
+      { "item": "frost_salve", "weight": 6 },
+      { "item": "health_potion", "weight": 5 },
+      { "item": "umbracite_shard", "weight": 3 },
+      { "item": "shadow_conduit_chip", "weight": 2 },
+      { "item": "umbral_amplifier_chip", "weight": 1 }
+    ]
+  },
+  "underlumen_emergence": {
+    "dropChance": 1.0,
+    "rolls": [
+      { "item": "field_medkit", "weight": 4 },
+      { "item": "frozen_core", "weight": 3 },
+      { "item": "void_resonator_chip", "weight": 3 },
+      { "item": "umbral_amplifier_chip", "weight": 2 },
+      { "item": "rechargeable_battery_chip", "weight": 2 },
+      { "item": "umbracite_shard", "weight": 3 }
+    ]
   }
 }

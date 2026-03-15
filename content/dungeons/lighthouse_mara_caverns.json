@@ -63,7 +63,7 @@
   ],
   "exits": [
     { "x": 21, "y": 1, "leadsTo": "relay_station", "type": "stairs_up", "spawnX": 14, "spawnY": 2 },
-    { "x": 6, "y": 16, "leadsTo": "lighthouse_mara_core", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 6, "y": 16, "leadsTo": "lighthouse_mara_f02", "type": "stairs_down", "spawnX": 3, "spawnY": 3 }
   ],
   "triggers": [
     {

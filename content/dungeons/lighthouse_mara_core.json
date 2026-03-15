@@ -54,7 +54,7 @@
     { "type": "reinforced_battery_chip", "x": 5, "y": 8 }
   ],
   "exits": [
-    { "x": 1, "y": 1, "leadsTo": "lighthouse_mara_caverns", "type": "stairs_up", "spawnX": 6, "spawnY": 15 }
+    { "x": 1, "y": 1, "leadsTo": "lighthouse_mara_f19", "type": "stairs_up", "spawnX": 10, "spawnY": 15 }
   ],
   "triggers": [
     {

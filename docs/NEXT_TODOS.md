@@ -79,15 +79,42 @@ Remaining follow-ups:
 - **Siege arena solo blocker** — `minPlayers: 2` means solo players can never start the siege. Consider adding an NPC hint about this requirement.
 - **Breach clear as a quest step** — perimeter_breach is visited during early exploration but has no quest formally directing players there. The `gloom_wraith` kill flag ties it in organically, but a quest step would make it explicit.
 
-## Content — Lighthouse Mara
+## Content — Lighthouse Mara (expanded 2026-03-15)
 
-- **Lighthouse Mara sprites** — New tiles (power_conduit_a/b, core_hatch, survey_marker, cracked_ice_wall) in frost_crypt tileset need dedicated sprite art in the tileset PNG strip.
+**20-floor dungeon chain built** — Full expedition from relay_station through frozen caverns, fracture zone, frozen depths, sub-basement infrastructure, breach zone, and lighthouse core. Chain: lighthouse_mara_caverns → f02-f19 → lighthouse_mara_core.
+
+**5 zones, progressive difficulty:**
+- Zone 1 (F1-F5): Upper Frozen Caverns — frostfang packs, dusk crawlers, tunnel creepers. Natural ice cave layouts.
+- Zone 2 (F6-F9): The Fracture — geometric crack patterns appear, shade stalkers, gloom wraiths. Underlumen clue escalation.
+- Zone 3 (F10-F13): Frozen Depths — ice_borer swarms (new), glacial_maw (new), frozen lake, fauna nest. Deepening cold.
+- Zone 4 (F14-F17): Sub-Basement — infrastructure transition (metal floors), frost wardens, frost revenants (new). Machinery interaction triggers with crew logs.
+- Zone 5 (F18-F19): The Breach — geometric Underlumen architecture, underlumen_emergence boss (new, 500 HP 3-phase). Climactic revelation about what broke the lighthouse.
+- Zone 6 (F20): Lighthouse Core — existing restoration sequence with conduit puzzle.
+
+**5 new monster types added:**
+- `ice_borer` (35 HP, pack, lunge — deep cave swarmer)
+- `ice_borer_queen` (70 HP, pack_leader with aura)
+- `glacial_maw` (180 HP, ground_slam + stun — large predator)
+- `frost_revenant` (120 HP, ranged_kite, frost_bolt projectile — spectral)
+- `underlumen_emergence` (500 HP, 3-phase boss — melee/ranged/melee, ground_slam + stun + projectile_burst)
+
+**7 new frost_crypt tileset tiles:** geometric_fracture, broken_machinery, frozen_pillar, ice_rubble, metal_floor, damaged_panel
+
+**Environmental storytelling arc:** Survey team logs (4.7s pulse), crew evacuation records, Chief Engineer Patel's annotations, seismograph data, breach point discovery. Builds to revelation: Underlumen emergence broke the lighthouse from below, connected to planetary Spire network.
+
+Remaining follow-ups:
+- **Lighthouse Mara sprites** — New tiles (power_conduit_a/b, core_hatch, survey_marker, cracked_ice_wall, geometric_fracture, broken_machinery, frozen_pillar, ice_rubble, metal_floor, damaged_panel) in frost_crypt tileset need dedicated sprite art in the tileset PNG strip.
+- **New monster sprites** — ice_borer, glacial_maw, frost_revenant, underlumen_emergence all need dedicated sprites (currently placeholder paths).
 - **Keeper Renn sprite** — Currently uses `old_keeper` sprite. Needs a dedicated `sprites/keeper_renn.png` (frost-worn technician).
 - **Post-restoration NPC reactions** — NPCs at Outpost Balor (Warden Holt, Sgt. Ellers, Tech Maren) should have dialogue updates when `lighthouse_mara_restored` flag is set.
 - **Relay recovery quest chain** — The existing `relay_recovery` quest ends at the nest_mother. Consider linking it to the new `lighthouse_mara` quest or adding a bridge step.
 - **Seismic survey data delivery** — The seismic_survey_data item has no turn-in NPC yet. Should go to someone at the Deep Array or Meridian (MERIDIAN-7 or a geologist NPC).
 - **Lighthouse Mara siege variant** — The existing `lighthouse_siege_arena` challenge could be narratively connected to Lighthouse Mara post-restoration (defend the restored lighthouse).
-- **Environmental hazard tuning** — Cold damage in caverns (2/3s) and core (3/2.5s) needs playtesting. May be too punishing for early Act 1 without frost_salve stockpile.
+- **Environmental hazard tuning** — Cold damage escalates from 2/3s (upper caves) through 3/2.5s (mid) to 4/2s (breach) and 3/2.5s (core). Needs playtesting — may be too punishing without frost_salve stockpile across 20 floors.
+- **Frost salve economy** — 20 floors of cold damage requires significant healing. Verify frost_salve drop rates from frost_biome loot tables are sufficient. Consider adding a mid-dungeon NPC vendor or supply cache.
+- **Boss arena design (F19)** — The underlumen_emergence boss fight on floor 19 has 4 pillars and side alcoves. Needs playtesting for kiting paths and phase transitions.
+- **Floor layout variety** — Generated layouts are functional but could benefit from hand-tuning for visual distinctiveness. Floors 14-17 (sub-basement) use metal floor tiles for infrastructure feel.
+- **Quest integration** — The `lighthouse_mara` quest (4 steps) may need updating to reflect the expanded 20-floor expedition. Current steps may complete too early.
 
 ## Content — Dural Voss / Spire of Vigil
 
