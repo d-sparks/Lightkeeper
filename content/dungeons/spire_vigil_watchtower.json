@@ -59,7 +59,8 @@
   ],
   "exits": [
     { "x": 1, "y": 1, "leadsTo": "spire_vigil_approach", "type": "stairs_up", "spawnX": 19, "spawnY": 17 },
-    { "x": 21, "y": 16, "leadsTo": "spire_vigil_garrison", "type": "stairs_down", "spawnX": 1, "spawnY": 1 }
+    { "x": 21, "y": 16, "leadsTo": "spire_vigil_garrison", "type": "stairs_down", "spawnX": 1, "spawnY": 1 },
+    { "x": 5, "y": 6, "leadsTo": "spire_vigil_aerie", "type": "transit_portal", "spawnX": 5, "spawnY": 9 }
   ],
   "triggers": [
       {
@@ -148,6 +149,48 @@
             "type": "setFlag",
             "flag": "visited_spire_watchtower",
             "scope": "player"
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "hover_aerie_revealed",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          { "type": "setTile", "x": 5, "y": 6, "tileId": 9 }
+        ]
+      },
+      {
+        "id": "hover_aerie_message",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Your hover ability reveals something the raiders never found \u2014 a transit point across the collapsed floor near the observation pools. A faint resonance pulses from an isolated platform above.",
+              "The Vigil-keepers built an aerie here, accessible only to those who could cross the gap."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "hover_tease_watchtower",
+        "event": "tile_entered",
+        "filter": { "tileX": 4, "tileY": 6 },
+        "conditions": [
+          { "not": { "hasFlag": "hover_unlocked" } }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The floor drops away beyond this point \u2014 a wide gap over dark water, far too wide to jump. Something glints on a platform above, just out of reach. If only you could hover across\u2026"
           }
         ],
         "once": true

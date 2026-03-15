@@ -212,6 +212,75 @@
           }
         ],
         "once": true
+      },
+      {
+        "id": "hover_pool_alcove",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          { "type": "setTile", "x": 12, "y": 9, "tileId": 1 },
+          { "type": "setTile", "x": 12, "y": 10, "tileId": 1 },
+          { "type": "setTile", "x": 13, "y": 10, "tileId": 2 },
+          { "type": "spawnItem", "itemType": "resonance_detector", "x": 13, "y": 10 }
+        ]
+      },
+      {
+        "id": "hover_pool_alcove_message",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "With the ability to hover, you can cross the reflecting pool's eastern shallows. Beyond the dark water, a small alcove in the crystal wall holds a component the archivists kept separate from the main collection.",
+              "A Resonance Detector \u2014 the Vigil-keepers used these to monitor the Underlumen network's integrity. Its dual-stat design suggests it was considered essential equipment."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "hover_alcove_pickup",
+        "event": "item_picked_up",
+        "filter": { "itemType": "resonance_detector" },
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "archives_alcove_looted"
+          },
+          {
+            "type": "grantXp",
+            "amount": 30
+          },
+          {
+            "type": "showMessage",
+            "lines": [
+              "The Resonance Detector hums as you lift it from its cradle. Geometric patterns flash across its surface \u2014 a burst of stored data, readings from the last time it was active.",
+              "The final reading is a spike. An anomalous frequency surging through the network, centuries ago. The same signal the archives warned about. The same one Voss found evidence of.",
+              "Whatever woke the Underlumen network \u2014 it happened here first. The Spire of Vigil detected it before anyone else."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "hover_tease_archives",
+        "event": "tile_entered",
+        "filter": { "tileX": 11, "tileY": 10 },
+        "conditions": [
+          { "not": { "hasFlag": "hover_unlocked" } }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "The reflecting pool stretches east into a shadowed alcove. Through the dark water you can make out a crystalline cradle holding something \u2014 but the pool is too deep to cross on foot."
+          }
+        ],
+        "once": true
       }
     ]
 }

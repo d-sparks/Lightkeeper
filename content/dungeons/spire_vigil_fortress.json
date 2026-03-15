@@ -217,6 +217,68 @@
           }
         ],
         "once": true
+      },
+      {
+        "id": "hover_pool_crossing",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          { "type": "setTile", "x": 8, "y": 11, "tileId": 1 },
+          { "type": "setTile", "x": 9, "y": 11, "tileId": 1 },
+          { "type": "setTile", "x": 10, "y": 11, "tileId": 2 },
+          { "type": "setTile", "x": 11, "y": 11, "tileId": 1 },
+          { "type": "spawnItem", "itemType": "shadow_conduit", "x": 10, "y": 11 }
+        ]
+      },
+      {
+        "id": "hover_pool_crossing_message",
+        "event": "room_entered",
+        "conditions": [
+          { "hasFlag": "hover_unlocked" }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "lines": [
+              "Your hover ability lets you skim across the dark pools at the fortress center. The water is shallow here \u2014 barely ankle-deep beneath a surface of perfect stillness.",
+              "Half-submerged in the pool's depression, something pulses with a familiar Nightside resonance. An Underlumen component the raiders never could reach."
+            ]
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "hover_pool_pickup",
+        "event": "item_picked_up",
+        "filter": { "itemType": "shadow_conduit" },
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "fortress_pool_looted"
+          },
+          {
+            "type": "showMessage",
+            "text": "A Shadow Conduit \u2014 dark-tuned and resonating with Nightside energy. The Vigil-keepers stored these in places only they could reach, insurance against the very raiders who later occupied the Spire."
+          }
+        ],
+        "once": true
+      },
+      {
+        "id": "hover_tease_fortress",
+        "event": "tile_entered",
+        "filter": { "tileX": 7, "tileY": 11 },
+        "conditions": [
+          { "not": { "hasFlag": "hover_unlocked" } }
+        ],
+        "actions": [
+          {
+            "type": "showMessage",
+            "text": "Dark water fills the central depression. You can see something glimmering beneath the surface, but the pool is too deep to wade and the walls too smooth to climb around. There must be another way to reach it."
+          }
+        ],
+        "once": true
       }
     ]
 }
