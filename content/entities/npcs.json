@@ -2087,6 +2087,11 @@
         "conditions": [
           {
             "hasFlag": "lighthouse_mara_restored"
+          },
+          {
+            "not": {
+              "hasFlag": "mara_restored_acknowledged_maren"
+            }
           }
         ],
         "use": "lighthouse_mara_restored"

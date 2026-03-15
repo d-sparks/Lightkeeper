@@ -146,6 +146,24 @@
       ]
     },
     {
+      "id": "maren_acknowledges_restoration",
+      "event": "npc_interacted",
+      "filter": {
+        "npcType": "charging_tech_maren"
+      },
+      "conditions": [
+        { "hasFlag": "lighthouse_mara_restored" },
+        { "not": { "hasFlag": "mara_restored_acknowledged_maren" } }
+      ],
+      "actions": [
+        {
+          "type": "setFlag",
+          "flag": "mara_restored_acknowledged_maren"
+        }
+      ],
+      "once": true
+    },
+    {
       "id": "enter_power_station_needs_battery",
       "event": "room_entered",
       "conditions": [
