@@ -4,6 +4,18 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 8/14 pass, 6 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; relay_recovery FIXED; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
 
+## Remaining Unchecked Flags (2026-03-15)
+
+53 validator flag warnings remain. The most interesting candidates for future NPC reactions:
+
+- **visited_lighthouse_mara_f02–f19** (18 flags): Lighthouse Mara floor visit flags. Could wire to Warden Holt or Old Keeper for progressive acknowledgment as the player climbs ("You've made it to floor X").
+- **seen_mara_breach / seen_mara_fractures**: Mara structural damage flags. Could trigger Warden Holt or engineer NPC reactions about lighthouse stability.
+- **resonance_complete**: Vigil Resonance Chamber puzzle completion. Good candidate for Archivist Solen reaction.
+- **visited_spire_***: Individual Spire room visited flags (archives, armory, garrison, etc.). Could aggregate into a "thorough Spire explorer" dialogue.
+- **found_geometric_tablet / found_raider_manifest / found_raider_journal**: Nightside discovery flags. Good candidates for Old Keeper or Sable reactions.
+- **aerie_lore_found**: Vigil Aerie lore discovery. Another Archivist Solen candidate.
+- **underlumen_emergence_defeated**: Lighthouse Mara F19 boss kill. Strong candidate for Warden Holt or Asha reaction.
+
 ## Orphaned Room Integration Follow-ups (2026-03-15)
 
 Wired 6 orphaned rooms into quest flow. Outstanding items:

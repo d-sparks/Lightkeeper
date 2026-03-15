@@ -226,6 +226,28 @@
           "text": "Whatever the Underlumen is, we've been walking on top of it our entire lives without knowing."
         }
       ],
+      "spire_armory_opened": [
+        {
+          "speaker": "Old Keeper",
+          "text": "You opened the Spire armory? The sealed one, in the Vigil garrison?"
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "That armory has been locked since before I started my tenure. The old Lightkeepers sealed it themselves — said the weapons inside were built for a war that hadn't happened yet."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "A war against what, we always wondered. The creatures in the dark? The luddites? Something deeper?"
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "If the Spire builders stockpiled weapons behind sealed gates, they expected to need them. That tells me more about what's underneath those structures than any survey data."
+        },
+        {
+          "speaker": "Old Keeper",
+          "text": "Whatever you found in there — keep it close. The kind of people who sealed that armory didn't do it lightly."
+        }
+      ],
       "has_expedition_log": [
         {
           "speaker": "Old Keeper",
@@ -269,6 +291,14 @@
           }
         ],
         "use": "found_dead_lightkeeper_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "armory_gate_opened"
+          }
+        ],
+        "use": "spire_armory_opened"
       },
       {
         "conditions": [
@@ -771,6 +801,28 @@
           "speaker": "Warden Holt",
           "text": "Whatever's down there at 3.2 kilometers isn't going away. Someone will have to deal with it eventually."
         }
+      ],
+      "found_garrison_plans": [
+        {
+          "speaker": "Warden Holt",
+          "text": "Battle plans from the Spire garrison? Let me see those."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Voss's tactical assessments... sealed sections, massive energy readings below the Spire. She knew the structure went deeper than the official surveys indicated."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "I served with officers like Voss. They don't write reports like this unless they're worried. And soldiers like her don't worry about much."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Whatever is underneath those Spires, it was important enough to station a permanent garrison above it. Not to explore it — to keep people out."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "I'll pass this along to Meridian Command. Quietly. The Council doesn't need another reason to argue."
+        }
       ]
     },
     "dialogueRules": [
@@ -819,6 +871,17 @@
           }
         ],
         "use": "seismic_survey_delivered"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "found_battle_plans"
+          },
+          {
+            "hasFlag": "arrived_meridian"
+          }
+        ],
+        "use": "found_garrison_plans"
       },
       {
         "conditions": [
@@ -5880,6 +5943,28 @@
           "speaker": "Councillor Asha Denn",
           "text": "'I'll hold this close for now. But you've changed the map, Lightkeeper. Bring me anything else you find out there.'"
         }
+      ],
+      "compact_crimes_revealed": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Asha closes the door behind you. Her voice drops."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'The evidence you uncovered in the Civic Quarter — procurement fraud, resource diversion, falsified inspection reports. This isn't petty corruption. This is systematic.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'The Compact has been siphoning Ring resources for years. Not for trade, not for Array negotiations — for private operations. Osel's people have been running a shadow budget that the rest of the Council never approved.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'The Stewards will want blood. The Root will want hearings. And I need to decide what the Cultivar Corps does with this — because some of those diverted resources were biological samples. My samples.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'Hold this close for now. I need time to verify the chain of evidence before I bring it to the full Council. But thank you, Lightkeeper. Some truths are worth the cost of finding them.'"
+        }
       ]
     },
     "dialogueRules": [
@@ -6006,6 +6091,19 @@
           }
         ],
         "use": "has_command_tablet"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "compact_crimes_exposed"
+          },
+          {
+            "not": {
+              "hasFlag": "array_secret_discovered"
+            }
+          }
+        ],
+        "use": "compact_crimes_revealed"
       },
       {
         "conditions": [
@@ -6381,6 +6479,28 @@
           "speaker": "Councillor Maret Sovell",
           "text": "'Keep humans in that seat. Not algorithms. Not councils. People — fallible, stubborn, arguing people. That's the only safeguard that ever worked.'"
         }
+      ],
+      "compact_crimes_revealed": [
+        {
+          "speaker": "Councillor Maret Sovell",
+          "text": "Sovell reads the evidence you've brought. She doesn't look surprised — she looks tired."
+        },
+        {
+          "speaker": "Councillor Maret Sovell",
+          "text": "'I've suspected the Compact was running shadow operations for two years. Unexplained budget gaps. Supply requisitions that didn't match any approved program. But suspicion isn't evidence.'"
+        },
+        {
+          "speaker": "Councillor Maret Sovell",
+          "text": "'This is evidence. Resource diversion at scale, authorized at the faction level. Osel's people have been building something the rest of the Council was never consulted on.'"
+        },
+        {
+          "speaker": "Councillor Maret Sovell",
+          "text": "'The Stewards will move to censure the Compact. Emergency session. But I need to be strategic about timing — if we push too hard, they'll close ranks and we'll get nothing.'"
+        },
+        {
+          "speaker": "Councillor Maret Sovell",
+          "text": "'You've done what I couldn't from inside the Council chambers. Keep your eyes open out there — where there's one secret, there are usually more.'"
+        }
       ]
     },
     "dialogueRules": [
@@ -6415,6 +6535,14 @@
           }
         ],
         "use": "crisis"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "compact_crimes_exposed"
+          }
+        ],
+        "use": "compact_crimes_revealed"
       }
     ]
   },
@@ -6536,6 +6664,32 @@
           "speaker": "Councillor Thav Osel",
           "text": "'We'll manage it. The Compact manages things. But I'd recommend keeping Sable's people in the conversation.'"
         }
+      ],
+      "compact_crimes_revealed": [
+        {
+          "speaker": "Councillor Thav Osel",
+          "text": "Osel's composure holds, but barely. He gestures you closer, voice low."
+        },
+        {
+          "speaker": "Councillor Thav Osel",
+          "text": "'You've been in the Civic Quarter records. I know what you found. Before you take this to Sovell and turn it into a political weapon, hear me out.'"
+        },
+        {
+          "speaker": "Councillor Thav Osel",
+          "text": "'Yes, the Compact diverted resources. Procurement channels, inspection waivers, supply reallocation. I authorized it. All of it.'"
+        },
+        {
+          "speaker": "Councillor Thav Osel",
+          "text": "'Because the official budget doesn't account for the real costs of keeping this city alive. Emergency infrastructure repairs the Stewards won't fund. Trade negotiations that require incentives the Council won't approve. Quiet payments to keep the Array relationship stable.'"
+        },
+        {
+          "speaker": "Councillor Thav Osel",
+          "text": "'Is it clean? No. But this city runs because someone is willing to make the decisions that don't look good in a Council record.'"
+        },
+        {
+          "speaker": "Councillor Thav Osel",
+          "text": "'Do what you will with those records, Lightkeeper. But remember — the people who demand transparency are rarely the ones who have to govern in the dark.'"
+        }
       ]
     },
     "dialogueRules": [
@@ -6570,6 +6724,14 @@
           }
         ],
         "use": "crisis"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "compact_crimes_exposed"
+          }
+        ],
+        "use": "compact_crimes_revealed"
       }
     ]
   },
@@ -6858,6 +7020,28 @@
           "speaker": "Archivist Solen",
           "text": "Primary sources are worth more than gold to a historian. I pay accordingly."
         }
+      ],
+      "vigil_archives_discovered": [
+        {
+          "speaker": "Archivist Solen",
+          "text": "You've been inside the Spire of Vigil's archives? The actual archives? Tell me everything."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "Vigil-keeper watchtowers monitoring Underlumen resonance... sealed Resonance Chambers containing frequency anomalies... This matches fragments I've pieced together from the old surveys, but I've never had primary confirmation."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "The Spires weren't just watchtowers. They were instruments. Tuned to something beneath the surface — something the builders understood well enough to fear."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "Do you realize what this means? The Lighthouses, the Spires, the relay network — they're all part of a single system. A containment grid built by people who knew exactly what they were containing."
+        },
+        {
+          "speaker": "Archivist Solen",
+          "text": "I need to cross-reference this with the Delta-7 thermal data. If the Resonance Chamber readings align with the conduit network... we may finally understand what the Underlumen actually is. Keep exploring those Spires, Lightkeeper."
+        }
       ]
     },
     "dialogueRules": [
@@ -6898,6 +7082,20 @@
           }
         ],
         "use": "quest_accepted"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "archives_lore_1"
+          },
+          {
+            "hasFlag": "archives_lore_2"
+          },
+          {
+            "hasFlag": "archives_lore_3"
+          }
+        ],
+        "use": "vigil_archives_discovered"
       },
       {
         "conditions": [
