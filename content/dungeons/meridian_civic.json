@@ -294,6 +294,22 @@
       "once": true
     },
     {
+      "id": "asha_tablet_delivery",
+      "event": "npc_interacted",
+      "filter": { "npcType": "councillor_asha" },
+      "conditions": [
+        { "hasItem": "thorne_command_tablet" },
+        { "not": { "hasFlag": "thorne_tablet_delivered" } }
+      ],
+      "actions": [
+        { "type": "removeItem", "itemType": "thorne_command_tablet" },
+        { "type": "setFlag", "flag": "thorne_tablet_delivered" },
+        { "type": "setFlag", "flag": "compact_crimes_exposed" },
+        { "type": "grantXp", "amount": 75 }
+      ],
+      "once": true
+    },
+    {
       "id": "act3_asha_alliance_trigger",
       "event": "npc_interacted",
       "filter": { "npcType": "councillor_asha" },
@@ -301,6 +317,7 @@
         { "hasFlag": "array_secret_discovered" },
         { "hasFlag": "sable_warned_about_array" },
         { "hasFlag": "confronted_meridian_7" },
+        { "hasFlag": "thorne_tablet_delivered" },
         { "not": { "hasFlag": "act3_asha_alliance_activated" } }
       ],
       "actions": [

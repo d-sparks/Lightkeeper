@@ -5768,6 +5768,40 @@
           "speaker": "Councillor Asha Denn",
           "text": "'Go. Document everything. The Council needs evidence, not warnings. If the Array is already harvesting Ring biology without consent, that changes every political calculation in this city.'"
         }
+      ],
+      "has_command_tablet": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Asha's eyes fix on the tablet in your hands before you've said a word."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'Is that Thorne's command tablet? He's dead, then.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "She takes it. Reads in silence for a long moment. Her expression doesn't change, but something behind her eyes does."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'Excavation reports. Subsurface anomaly classifications. And here — override authorization, signed by three sitting Councillors. The full Council knew. They approved containment protocols around the Monument of Winds years before the Compact ever deployed Thorne.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'This isn't a rogue general acting without orders. This is a policy decision that was made above my head and buried in classified appendices. The Compact didn't stumble onto something dangerous. They were managing it. On behalf of people I call colleagues.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'Combined with what we know about Project Autotroph — two parallel operations, both operating around the Council, both treating the Ring's population as a variable to be stabilized.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'I've been trying to work within the institutions. I need to decide if the institutions still deserve that effort.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'I'll hold this close for now. But you've changed the map, Lightkeeper. Bring me anything else you find out there.'"
+        }
       ]
     },
     "dialogueRules": [
@@ -5881,6 +5915,19 @@
           }
         ],
         "use": "greenway_directive"
+      },
+      {
+        "conditions": [
+          {
+            "hasItem": "thorne_command_tablet"
+          },
+          {
+            "not": {
+              "hasFlag": "thorne_tablet_delivered"
+            }
+          }
+        ],
+        "use": "has_command_tablet"
       },
       {
         "conditions": [
