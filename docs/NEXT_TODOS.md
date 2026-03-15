@@ -464,3 +464,13 @@ Wind currents added to 5 Spire of Winds floors (shaft, gallery, bridge, depths, 
 - **Additional wind anchor placement** — Currently placed in excavation (depth 5) and gallery (depth 7). Consider adding to a shop or NPC trade in the fortress floors for players who miss them.
 - **Wind + combat interactions** — Wind pushes entities during combat, which could push players into chasms or separate groups. This is intentional but may need tuning if too punishing in multiplayer.
 - **Projectile wind deflection** — Wind currents don't affect projectiles. Could add this as a future enhancement for deeper mechanical identity.
+
+## Sol Shield Nerf — Combat Balance (2026-03-15)
+
+Sol Shield nerfed from heal:35/CD:10s (3.5 HP/s) → heal:15/CD:12s (1.25 HP/s base rate).
+
+**Manual playtest required** to verify 2-4 deaths in a mainline playthrough:
+
+- **Death risk verification** — Sim bot shows 13-14 deaths (bot doesn't use sol abilities optimally), but a skilled human player should see 2-4 deaths. Needs manual verification on a fresh playthrough.
+- **CDR interaction** — With heavy cooldown reduction stacking (~44%), effective rate rises to ~2.2 HP/s. If this still trivializes combat, consider reducing heal further to 12 or adding a minimum cooldown floor on sol_shield specifically.
+- **Feel check** — At 15 HP per use (15% of max health), the ability should feel meaningful but not game-breaking. Verify it doesn't feel useless compared to medipac (90 HP heal).
