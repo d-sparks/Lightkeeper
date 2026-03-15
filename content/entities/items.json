@@ -857,6 +857,26 @@
     "rarity": "epic",
     "solComponentId": "array_harmonic_stabilizer"
   },
+  "array_door_override": {
+    "name": "Array Door Override",
+    "description": "A compact device tuned to Array-manufactured relay nodes. Bypasses Bulwark security locks. MERIDIAN-7 fabricated it specifically for the Monument assault.",
+    "type": "key",
+    "rarity": "rare"
+  },
+  "array_signal_tap_chip": {
+    "name": "Array Signal Tap",
+    "description": "An Array-designed sol component that disrupts hostile communications and sensor networks. Nearby enemies have reduced accuracy and slower reaction times.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "array_signal_tap"
+  },
+  "array_assault_amplifier_chip": {
+    "name": "Array Assault Amplifier",
+    "description": "A combat-grade sol component fabricated for the Spire of Winds operation. Boosts ability damage output when multiple abilities are placed adjacent in the grid.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "array_assault_amplifier"
+  },
   "hover_chip": {
     "name": "Hover Thruster",
     "description": "An anti-gravity thruster module. Place in a Sol Grid to gain the Hover ability — float above ground level to traverse elevation changes and cross gaps.",

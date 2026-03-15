@@ -4,6 +4,16 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-12 evening (fresh sim — mainline PASSES consistently: 26 min, 112 kills, 0 deaths, 28/57 rooms, 5/52 items, 20/60 NPCs; all-quests: 8/14 pass, 6 fail — main_quest STUCK at underlumen_threshold→meridian_civic nav, broken_signal/lost_tool/the_deserter/phase3_investigation TIMEOUT; relay_recovery FIXED; explore mode broken at 7/57 rooms, blocked by engineer_briefing_complete flag).
 
+## MERIDIAN-7 Array Alliance — Act 2 Content (2026-03-15)
+
+Wired Act 2 "Array Alliance" content for the Greenway/Spire of Winds assault. MERIDIAN-7 now offers tactical intel, Bulwark position data, and equipment upgrades when gated by `supply_sabotage_complete` + `spire_vigil_cleared`. Outstanding items:
+
+- **Quest log entry needed**: The alliance flow (offer → intel → equipment → final briefing) does not yet have a quest definition in `content/quests/`. Should create a quest like `greenway_assault` with steps tracking each phase.
+- **Spire of Winds door override integration**: The `array_door_override` key item is given to the player but no locked doors in `spire_winds_fortress.json` or `spire_winds_approach.json` currently check for it. Add `hasItem: "array_door_override"` conditions to Bulwark security door tiles.
+- **Signal Tap combat effect**: The `array_signal_tap` sol component has stat bonuses but no runtime mechanic for enemy accuracy/reaction debuff. Would need engine support in `game-loop.js` for area debuff effects.
+- **Greenway supply depot routing**: The final briefing tells player to approach through supply depot. Verify the exit chain `greenway_farmstead → greenway_supply_depot → spire_winds_approach` is navigable and the sim bot can path through it.
+- **Bulwark soldier doubters**: Storyboard mentions conflicted Bulwark soldiers. The NPC `bulwark_soldier_doubter` exists but has no dialogue gated on `array_alliance_accepted`. Could add conditional dialogue where doubters help the player if alliance is active.
+
 ## Spire Puzzle Variety Follow-ups (2026-03-15)
 
 Added beam reflection puzzle to Radiance Observatory and wind resonance sequence to Winds Antechamber. Outstanding items:

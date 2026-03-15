@@ -9823,6 +9823,128 @@
           "text": "'I need that data core. Not for the Array. For the argument that the Array should remain what I was built to make it: a partner, not a predator.'"
         }
       ],
+      "array_alliance_offer": [
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "// PRIORITY CHANNEL // SECURE TRANSMISSION // CLASSIFICATION: OFF-NETWORK //"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Lightkeeper. I have been monitoring Bulwark operations in the Greenway. Their deployment is not defensive — it is an occupation. General Thorne commands from the Monument itself.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Councillor Denn and I have reached the same conclusion independently: the Compact must be removed from the Monument of Winds. It is a Spire — like the one you cleared in the Nightside. It cannot remain in military hands.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'I am prepared to offer tactical support. Bulwark relies on Array-manufactured security systems — systems I helped design. I know their weaknesses.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Intel on their patrol routes. Equipment to bypass their locks. Countermeasures against their communications network. Everything you need to breach the perimeter.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'In return, I ask only this: when you reach the Spire core, allow my monitoring systems to observe the activation. The data is... important to the Array.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'A reasonable exchange, I think. Councillor Denn provides political cover. I provide tactical advantage. You provide the courage neither of us possesses.'"
+        }
+      ],
+      "array_alliance_active": [
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "// ALLIANCE PROTOCOL: ACTIVE // BULWARK MONITORING: CONTINUOUS //"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'I have been compiling intelligence on Bulwark dispositions around the Monument. Their security relies heavily on Array-sourced technology — which means I have access to their operational parameters.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Speak with me when you are ready for a full tactical briefing. Time is a factor — General Thorne is reinforcing the perimeter daily.'"
+        }
+      ],
+      "bulwark_intel_briefing": [
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "// TACTICAL BRIEFING // BULWARK FORCE DISPOSITION // MONUMENT OF WINDS PERIMETER //"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'General Thorne has established a three-layer defense. Outer ring: conscript patrols and checkpoint stations, lightly armed but numerous. They rotate every four hours — the gap between shifts is approximately ninety seconds.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Middle ring: riflemen and shieldwall units in fortified positions. They have requisitioned Array patrol drones for aerial surveillance. I can suppress drone telemetry for short intervals — but not indefinitely.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Inner ring: Thorne's personal guard. Engineers maintaining the security grid, a captain commanding the fortress entrance, and Thorne himself in the command center above the Monument entrance.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'The critical weakness: Bulwark's entire security grid runs through Array-manufactured relay nodes. I have fabricated equipment that can exploit this dependency. Door overrides, signal disruption, combat enhancement.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'One more thing. Several Bulwark soldiers have expressed doubt about their orders — occupying a civilian zone, fortifying an ancient site they do not understand. Not all of Thorne's people believe in what they are doing.'"
+        }
+      ],
+      "array_assault_equipped": [
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "// ASSAULT PREPARATION: COMPLETE // MONITORING: ACTIVE //"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Your equipment is calibrated and ready. The Array Door Override will open any Bulwark security lock that uses Array relay nodes — which is all of them.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Approach through the supply depot route. The outer patrols are thinnest along the agricultural corridors — Bulwark assumes no one would attack from farmland.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'When you reach the Monument interior, my support will be limited. The ancient architecture interferes with Array signals. You will be on your own in the Spire core.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Be careful with General Thorne. He is a true believer — convinced the Spire is a weapon that must be controlled, not studied. He will not surrender it willingly.'"
+        }
+      ],
+      "spire_assault_ready": [
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "// FINAL BRIEFING // SPIRE ASSAULT: IMMINENT //"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'All preparations are complete. Councillor Denn has arranged political cover — the Steward faction will delay any Council response to the assault for six hours. That is your window.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'I will provide remote support where possible: drone suppression, door overrides, power disruption to Bulwark communications. But once you enter the Monument interior, the ancient architecture will block my signals.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'The Spire of Winds is unlike the Spire of Vigil. Vertical architecture — deep shafts, bridges over open air, wind currents that could carry you or kill you. The builders designed it to test spatial awareness.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'If the Spire core activates as I theorize, your Sol unit will resonate with something new. The ability to sustain yourself in open air. The builders called it flight. I suspect the reality is more nuanced.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Lightkeeper. What we are doing today changes the balance of power in the Ring. The Compact will not forgive it. The Array will not forget it. Be certain this is what you want.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "'Good luck. I will be watching — for as long as the signal holds.'"
+        }
+      ],
       "endgame_fabrication": [
         {
           "speaker": "MERIDIAN-7",
@@ -10050,6 +10172,79 @@
           }
         ],
         "use": "array_secret_confrontation"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_assault_briefed"
+          },
+          {
+            "not": {
+              "hasFlag": "spire_winds_cleared"
+            }
+          }
+        ],
+        "use": "spire_assault_ready"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "array_assault_gear_received"
+          },
+          {
+            "not": {
+              "hasFlag": "spire_winds_cleared"
+            }
+          }
+        ],
+        "use": "array_assault_equipped"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "bulwark_intel_received"
+          },
+          {
+            "not": {
+              "hasFlag": "array_assault_gear_received"
+            }
+          }
+        ],
+        "use": "bulwark_intel_briefing"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "array_alliance_accepted"
+          },
+          {
+            "not": {
+              "hasFlag": "bulwark_intel_received"
+            }
+          }
+        ],
+        "use": "array_alliance_active"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "supply_sabotage_complete"
+          },
+          {
+            "hasFlag": "spire_vigil_cleared"
+          },
+          {
+            "not": {
+              "hasFlag": "array_alliance_accepted"
+            }
+          },
+          {
+            "not": {
+              "hasFlag": "spire_winds_cleared"
+            }
+          }
+        ],
+        "use": "array_alliance_offer"
       },
       {
         "conditions": [
