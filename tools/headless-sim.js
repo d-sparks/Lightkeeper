@@ -736,7 +736,8 @@ class Bot {
     this.questsCompleted = new Set();
     this.failedQuestPrereqs = new Set(); // quests whose prereqs couldn't be resolved
     this.unreachableExits = new Set();   // "from:to" edges the bot can't unblock
-    this.skipCombat = false;             // set true in explore mode to skip combat
+    this.skipCombat = false;             // set true to skip combat entirely
+    this.lightCombat = false;            // set true in explore mode: tight engage range, short stall limit
     this.deathCount = 0;
     this.ticksWithoutProgress = 0;
     this.questDeaths = 0;
@@ -941,9 +942,10 @@ class Bot {
 
     if (!nearest) return false;
 
-    // During navigation, only fight monsters that are very close (within 3 tiles)
-    // to avoid wasting health on optional encounters
-    const engageRange = isNavigating ? 3 * TILE_SIZE : CONSTANTS.MONSTER_AGGRO_RANGE * TILE_SIZE;
+    // During navigation (or lightCombat/explore mode), only fight monsters that
+    // are very close (within 3 tiles) to avoid wasting time on optional encounters
+    const preferNavigation = isNavigating || this.lightCombat;
+    const engageRange = preferNavigation ? 3 * TILE_SIZE : CONSTANTS.MONSTER_AGGRO_RANGE * TILE_SIZE;
     if (nearestDist > engageRange) return false;
 
     // Combat skip cooldown: after combat timeout, ignore combat for a while
@@ -966,8 +968,8 @@ class Bot {
       this._combatStuckTicks = (this._combatStuckTicks || 0) + 1;
     }
     // After zero combat progress, skip combat to let goals proceed
-    // Use a shorter threshold during navigation (45 ticks ~3s) vs general (150 ticks ~10s)
-    const combatStallLimit = isNavigating ? 45 : 150;
+    // Use a shorter threshold during navigation/explore (45 ticks ~3s) vs general (150 ticks ~10s)
+    const combatStallLimit = preferNavigation ? 45 : 150;
     if (this._combatStuckTicks > combatStallLimit) {
       this._combatStuckTicks = 0;
       this._combatSkipTicks = 300;
@@ -3349,19 +3351,38 @@ function runExplore(gameLoop, bot) {
   }
   console.log(`[Explore] Pre-granted ${EXPLORE_FLAGS.length} story flags for full dungeon access`);
 
-  // Skip combat in explore mode — the validator only cares about reachability,
-  // not survivability. Fighting 30+ monsters wastes the entire time budget.
-  bot.skipCombat = true;
+  // Light combat: fight only monsters blocking the path, disengage quickly.
+  // Explore mode cares about room coverage, not clearing every encounter.
+  bot.lightCombat = true;
 
-  // Boost player health massively so combat doesn't kill the bot in monster rooms.
-  // The explore validator cares about reachability, not survivability.
+  // Equip the bot with a weapon, sol unit, and medipac so it can actually fight.
+  // Without equipment the bot deals 0 damage and dies repeatedly.
   const startingSpawnRoom = content.getSpawnRoom() || 'outpost_entrance';
   const startRoom = gameLoop.getRoom(startingSpawnRoom);
   if (startRoom) {
     const player = startRoom.players.get(PLAYER_ID);
     if (player) {
-      player.maxHealth = 9999;
-      player.health = 9999;
+      // Give items then equip them — pulse_rifle for ranged damage, sol_unit
+      // for abilities, medipac + supplies for healing.
+      const equipItems = ['pulse_rifle', 'sol_unit', 'medipac'];
+      for (const itemId of equipItems) {
+        const itemDef = content.getItem(itemId);
+        if (itemDef) {
+          player.inventory.push({ type: itemId, name: itemDef.name, rarity: itemDef.rarity, category: itemDef.type || 'misc' });
+          gameLoop.tryEquip(startingSpawnRoom, PLAYER_ID, player.inventory.length - 1);
+        }
+      }
+      // Grant medical supplies for the medipac
+      const medSupplies = content.getItem('medical_supplies');
+      if (medSupplies) {
+        for (let i = 0; i < 50; i++) {
+          player.inventory.push({ type: 'medical_supplies', name: medSupplies.name, rarity: medSupplies.rarity, category: 'consumable' });
+        }
+      }
+      // Boost health — explore bot needs to survive heavy rooms while still
+      // fighting (not invincible, but tough enough to push through)
+      player.maxHealth = 2000;
+      player.health = 2000;
     }
   }
 

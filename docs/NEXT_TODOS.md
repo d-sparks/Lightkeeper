@@ -96,7 +96,7 @@ Comprehensive end-to-end audit of all 124 rooms across 3 acts, all 3 ending path
 
 ### Outstanding Issues
 
-1. **[opus] Sim bot can't traverse outpost_perimeter**: The 45x43 map with 27-30 monsters is a death trap for the sim bot (735 deaths in explore mode). The bot can't pathfind through dense monster rooms and lacks the combat AI to survive. This blocks all content beyond Act 1 outpost. Consider sim-only monster reduction or passthrough option for perimeter.
+1. **[opus] Sim bot stuck in perimeter_outer_ring**: A* pathfinding fails at tile (13,6) in perimeter_outer_ring, causing the bot to softlock. The combat fix (issue #5) resolved the 735-death loop — bot now kills monsters and survives — but the navigation issue blocks explore mode at 11/124 rooms. Investigate pathfinding in perimeter_outer_ring.
 
 2. **[opus] Proc room nesting bug**: In all-quests mode, the bot enters `proc:proc_quarantine:proc:proc_quarantine:proc:proc_quarantine:...` — a triply-nested procedural room. The exit at (24,4) has no A* path (returns null). The proc room generator may be creating recursive entries from the same exit tile.
 
@@ -104,7 +104,7 @@ Comprehensive end-to-end audit of all 124 rooms across 3 acts, all 3 ending path
 
 4. **[sonnet] Ending path quest tracking**: No quest definition covers the Act 3 ending choice (choosing shutdown/control/merge path and completing it). The `nightside_expedition` quest tracks the path choice but not the actual ending execution. Consider adding an `endgame` quest.
 
-5. **[opus] Sim explore mode combat**: The bot deals 0 damage and kills 0 monsters in explore mode despite taking 90,120 damage (735 deaths). The combat AI appears completely broken in explore mode — investigate `skipCombat` flag or weapon/ability initialization.
+5. ~~**[opus] Sim explore mode combat**~~: **FIXED** (2026-03-23). Bot now gets pulse_rifle + sol_unit + medipac at explore start, `lightCombat` mode fights only nearby monsters with short stall timeout. Result: 38 kills, 2362 damage dealt, 1 death (was 0 kills, 0 damage, 735 deaths).
 
 6. **[sonnet] Act 2-3 NPC conditional dialogue**: Most NPCs (70/74) have only 1 dialogue set with 0 conditions. Only corporal_venn (5 sets), keeper_mara (4 sets), wounded_unbounded_scout (2), and unbounded_elder (2) react to game state. Key NPCs like councillor_asha, warden_holt, and MERIDIAN-7 should have state-dependent dialogue as the player progresses through acts.
 
