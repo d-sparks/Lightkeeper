@@ -3775,8 +3775,8 @@ class GameLoop {
           player.stunTime -= dt;
           if (player.stunTime <= 0) {
             player.stunTime = 0;
-            // Grant immunity window after stun expires to prevent stun-lock
-            player.stunImmunityTime = Math.max(player.stunImmunityTime || 0, 1.5);
+            // Grant immunity window after stun expires to prevent stun-lock and stun+wound combos
+            player.stunImmunityTime = Math.max(player.stunImmunityTime || 0, 2.0);
           }
         }
         // Apply player knockback (from ground slam etc.)
@@ -5003,24 +5003,29 @@ class GameLoop {
         }
       } else if (sa.type === 'wound') {
         // Wound: reduce healing received for a duration
+        // Wound is blocked during stun immunity to prevent stun+wound combo
         if (dist <= (sa.range || mob.attackRange) && mob.attackTimer <= 0) {
           const woundDmg = Math.round(mob.damage * (sa.damage || 0.4));
           target.health -= woundDmg;
           const duration = sa.duration || 6.0;
           const healReduction = sa.healReduction || 0.5;
-          target.woundTime = Math.max(target.woundTime || 0, duration);
-          target.woundHealReduction = Math.max(target.woundHealReduction || 0, healReduction);
+          if (!(target.stunImmunityTime > 0)) {
+            target.woundTime = Math.max(target.woundTime || 0, duration);
+            target.woundHealReduction = Math.max(target.woundHealReduction || 0, healReduction);
+          }
           mob.attackTimer = mob.attackCooldown;
           sa.timer = sa.cooldown;
           room.events.push({
             type: 'damage', targetId: target.id,
             amount: woundDmg, x: target.x, y: target.y,
           });
-          room.events.push({
-            type: 'debuff', targetId: target.id,
-            debuffType: 'wound', duration,
-            x: target.x, y: target.y,
-          });
+          if (!(target.stunImmunityTime > 0)) {
+            room.events.push({
+              type: 'debuff', targetId: target.id,
+              debuffType: 'wound', duration,
+              x: target.x, y: target.y,
+            });
+          }
           this._checkPlayerDeath(target, room);
           return true;
         }

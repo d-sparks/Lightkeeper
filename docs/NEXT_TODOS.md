@@ -103,7 +103,7 @@ Full end-to-end audit of Acts 1-3, ending paths, and endgame loop. Sim verified 
 These issues were identified through content review but need human playtesting to confirm severity:
 
 **HIGH priority (potential blockers):**
-- [ ] **Nexus Guardian stun+wound combo**: 1.5s stun guarantees a free 50-damage slam, wound then reduces healing 60% for 7s. Solo players may find this mechanically impossible. Consider: make wound and stun mutually exclusive on the same boss, or add a 2s stun immunity window after being stunned.
+- [x] **Nexus Guardian stun+wound combo**: Fixed — 2s post-stun immunity window now blocks both re-stun and wound application. Damage still goes through but the debuff is resisted, breaking the guaranteed combo.
 - [ ] **General Thorne phase 3**: 28-damage projectiles at 0.9s interval + conscript summons creates an overwhelming combination. May need longer summon interval (10→15s) or lower phase 3 projectile damage.
 - [x] **Player max HP never scales**: Fixed — hpPerLevel increased 10→15 (max level 20 = 385 HP), added 7 accessory-slot equipment items with +maxHP (25/40/60/60/80/100/125 by rarity tier), distributed across loot tables from Act 1 through endgame. With best accessory at level 20: 510 HP. Follow-up: consider per-Spire-cleared +25 HP permanent bonus and HP-boosting sol components as future enhancements.
 
