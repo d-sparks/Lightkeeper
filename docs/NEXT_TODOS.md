@@ -835,3 +835,32 @@ Rebalanced lighthouse_mara_core to fix sim bot death loop (78 deaths to shade_st
 - **Re-run sim** — Verify bot can now clear mara_core with <10 deaths and reach rooms beyond Act 1 (target: >60% reachability, up from 38%).
 - **Manual playtest** — Confirm the boss fight still feels threatening. The lunge+stun combo is the signature mechanic; reduced cooldown/duration should preserve the danger without being a death sentence.
 - **Consider cold resistance item** — If cold damage is still a problem in extended fights, a cold-resist consumable or equipment drop on an earlier Mara floor could help. The nightcaster_frame sol unit already grants cold resist but may not be available at this progression point.
+
+## Acts 2-3 Human Playtest Prep (2026-03-23)
+
+Full playtest checklist created at `docs/playtest-acts2-3.md`. Target: 2-3 testers, 5-10 hours each through Acts 2-3 and all 3 ending paths.
+
+### Fixes Applied This Session
+
+1. **dayside_raid_defense was completely empty**: Added 8 monsters (4 hybrid_drones, 2 hybrid_stalkers, 2 vent_spewers), 2 healing items (field_medkit, bandage), and a room_cleared trigger that sets `raid_defense_complete` flag. Room trigger message says "defend the solar infrastructure" — now there are actually enemies to defend against.
+
+### Blockers for Human Playtest
+
+- [ ] **proc_quarantine recursive nesting bug (Act 1)**: Testers will hit this before reaching Acts 2-3. The procedural dungeon template exists (`content/dungeons/templates/proc_quarantine.json`) but generates recursive room IDs (`proc:proc_quarantine:proc:proc_quarantine:...`). Either fix the proc generator or provide testers with flag-skip instructions to bypass the quarantine quest steps.
+- [ ] **spire_winds_cleared not gating Act 3 entry**: Player can skip the Spire of Winds entirely and still access Dayside. Consider adding `hasFlag: spire_winds_cleared` condition to the train_station → dayside exit or the dayside_solar_fields entry trigger.
+
+### Balance Items Requiring Playtest Verification
+
+- [ ] **General Thorne phase 3**: 28-dmg projectiles at 0.9s interval + conscript summons — potentially overwhelming. May need summon interval 10→15s or phase 3 dmg reduction.
+- [ ] **Spire Radiance Forge heat**: 6 dmg/1.8s heat + combat is brutal without heat resist. Need warning NPC or earlier heat resist availability.
+- [ ] **Weapon progression plateau**: No meaningful weapon upgrade between Sol Unit (12 dmg) and epic sol units (14-18 dmg). Entire Act 2 may feel stagnant. Consider rare weapon drop from General Thorne.
+- [ ] **Ranged build cap**: Best ranged weapon is Bulwark Combat Rifle (+8 dmg). Ranged builds fall behind melee by Act 3. Need rare/epic ranged weapon.
+- [ ] **Act 3 healing economy**: Array sentinels now drop field_medkits (weight 3) but verify this is frequent enough across 12 Spire Radiance floors.
+- [ ] **dayside_raid_defense tuning**: Newly populated — 8 enemies may be too many or too few for the 20x20 arena. Needs playtest feedback.
+
+### Narrative Items Requiring Playtest Verification
+
+- [ ] **NPC dialogue staleness**: 70/74 NPCs have 1 dialogue set. Key NPCs (Asha, Holt, MERIDIAN-7) need state-dependent dialogue for Acts 2-3 progression beats.
+- [ ] **Merge ending NPC ordering**: merge_nexus communion fires on tile interaction, not on talking to all 3 NPCs first. Consider gating communion on NPC conversations for narrative weight.
+- [ ] **Ending path pacing**: Verify shutdown/control/merge paths take roughly equal time and have adequate narrative payoff.
+- [ ] **Deep Array reveal**: End of Act 2 when MERIDIAN-7 is compromised — does this land dramatically or feel abrupt?
