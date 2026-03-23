@@ -4,6 +4,19 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Art Commission — Batch 1 Sprites (2026-03-23)
+
+Prepared commission brief for 10 priority entities (14 PNG files). See `docs/art-commission-brief.md` for full visual specs and `docs/art-style-guide.md` for palette/conventions.
+
+### Outstanding Follow-ups
+- [ ] Find and engage pixel artist for Batch 1 commission (14 files: 4 player variants, 4 NPCs, 4 monsters, 2 boss sprites)
+- [ ] Provide artist with `docs/art-commission-brief.md` and `docs/art-style-guide.md` as reference
+- [ ] When sprites are delivered, drop PNGs into `content/sprites/` and verify rendering at 32x32 upscale
+- [ ] Test all 14 sprites against dark tilesets (Dark Perimeter, Stone Crypt) for readability
+- [ ] Verify `crystal_shard_minion` still looks acceptable reusing the new `crystal_guardian.png` — if not, add minion sprite to Batch 2
+- [ ] Update `PLACEHOLDER_ASSETS.md` to remove Batch 1 entries once final art is integrated
+- [ ] Plan Batch 2 commission (Sable, General Thorne, Wren Alcott, Nest Mother, skeletons, luddites)
+
 ## Act 2→3 Difficulty Curve (2026-03-23)
 
 Bumped Act 3 Array regular enemy stats (+3 dmg, +30 HP) to create a noticeable difficulty step entering the Dayside. Act 2 Bulwark regulars top out at 16 dmg; Act 3 now starts at 15-21 dmg instead of 12-18 dmg.

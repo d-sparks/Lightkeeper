@@ -250,21 +250,41 @@ Palette hex values are in `docs/art-style-guide.md` — please use the master pa
 - The engine applies nearest-neighbor upscaling; sub-pixel blending will look wrong.
 - Animation: Frame 0 (idle standing), Frame 1 (slight bob up 1px), Frame 2 (attack lunge right 2px), Frame 3 (hit recoil left 1px). These are currently auto-generated from the base frame — custom animation frames would be a major visual upgrade.
 
-## File Checklist
+## File Checklist & Commission Status
 
-| # | File | Entity | Type |
-|---|------|--------|------|
-| 1 | `player_blue.png` | Player (blue) | Player |
-| 2 | `player_red.png` | Player (red) | Player |
-| 3 | `player_green.png` | Player (green) | Player |
-| 4 | `player_orange.png` | Player (orange) | Player |
-| 5 | `outpost_warden.png` | Warden Holt | NPC |
-| 6 | `meridian_7.png` | MERIDIAN-7 Terminal | NPC |
-| 7 | `sol_engineer_1.png` | Apprentice Sol Engineer | NPC |
-| 8 | `councillor_asha.png` | Councillor Asha Denn | NPC |
-| 9 | `dusk_crawler.png` | Dusk Crawler | Monster |
-| 10 | `frostfang_hunter.png` | Frostfang Hunter | Monster |
-| 11 | `shade_stalker.png` | Shade Stalker | Monster |
-| 12 | `crystal_guardian.png` | Crystal Guardian (Boss) | Monster |
-| 13 | `dural_voss.png` | Dural Voss (Boss) | Monster |
-| 14 | `councillor_asha_denn.png` | Asha Denn (travel variant) | NPC |
+| # | File | Entity | Type | Status |
+|---|------|--------|------|--------|
+| 1 | `player_blue.png` | Player (blue) | Player | Placeholder |
+| 2 | `player_red.png` | Player (red) | Player | Placeholder |
+| 3 | `player_green.png` | Player (green) | Player | Placeholder |
+| 4 | `player_orange.png` | Player (orange) | Player | Placeholder |
+| 5 | `outpost_warden.png` | Warden Holt | NPC | Placeholder |
+| 6 | `meridian_7.png` | MERIDIAN-7 Terminal | NPC | Placeholder |
+| 7 | `sol_engineer_1.png` | Apprentice Sol Engineer | NPC | Placeholder |
+| 8 | `councillor_asha.png` | Councillor Asha Denn | NPC | Placeholder |
+| 9 | `dusk_crawler.png` | Dusk Crawler | Monster | Placeholder |
+| 10 | `frostfang_hunter.png` | Frostfang Hunter | Monster | Placeholder |
+| 11 | `shade_stalker.png` | Shade Stalker | Monster | Placeholder |
+| 12 | `crystal_guardian.png` | Crystal Guardian (Boss) | Monster | Placeholder |
+| 13 | `dural_voss.png` | Dural Voss (Boss) | Monster | Placeholder |
+| 14 | `councillor_asha_denn.png` | Asha Denn (travel variant) | NPC | Placeholder |
+
+## Integration Notes
+
+- **No engine changes required.** Drop-in replacement PNGs are loaded at runtime from `/content/sprites/`.
+- Client derives sprite paths from entity `type` field — file names MUST match entity IDs exactly (e.g., `outpost_warden.png` for NPC type `outpost_warden`).
+- Engine applies `imageSmoothingEnabled = false` (nearest-neighbor upscale) — sub-pixel blending will look wrong.
+- All 4 player variants share the same silhouette; only the accent color differs.
+- Councillor Asha has two separate files: `councillor_asha.png` (formal robes, used in Meridian City) and `councillor_asha_denn.png` (travel cloak, used at Bulwark outposts).
+- Test sprites against **Dark Perimeter** and **Stone Crypt** tilesets — these are the darkest backgrounds sprites appear on.
+- The `crystal_shard_minion` entity reuses `crystal_guardian.png` — if the guardian sprite changes dramatically, consider whether the minion needs its own sprite (future batch).
+
+## Batch 2 Candidates
+
+After Batch 1 is complete, the next priority sprites to commission are:
+- Sable (nightside guide) — `sable_nightside_guide.png`, `sable_threshold.png`
+- General Thorne (Act 3 boss) — `general_thorne.png`
+- Wren Alcott (Compact mechanic) — `wren_alcott.png`
+- Nest Mother (boss) — `nest_mother.png`
+- Skeleton / Skeleton Archer — `skeleton.png`, `skeleton_archer.png`
+- Luddite Brawler / Scrapper — `luddite_brawler.png`, `luddite_scrapper.png`
