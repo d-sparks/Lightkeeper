@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-15 night. Sim reaches lighthouse_mara_core (47/124 rooms/38%, 167 kills, 78 deaths, 90m). Bot now opens conduit hatch correctly but dies repeatedly to shade_stalker_alpha boss + cold damage combo. Content validator: 0 errors, 4 warnings. Unit tests: 320/320 pass (healOnHit cap fixed 15→10). Major completed: quarantine fix, item ref fixes, sim tile interaction, Greenway bio-lab, MERIDIAN-7 alliance, puzzle variety, full campaign audit, Sol Shield nerfed, Mara pacing split, orphaned flags wired. Critical remaining: sim boss death loop, showChoice handler, sol_cone wall penetration, player HP scaling, array_door_override dead item, spire_winds_chest missing loot, tileset PNGs.
+Last updated: 2026-03-23. Mainline sim: 46/124 rooms (37.1%), 165 kills, 10 deaths — bot reaches Nightside/Spire approach but can't navigate to spire_vigil_core/sanctum (abandoned after 16 attempts), then enters fast-travel loop. Explore sim: 9/124 rooms (7.3%) — severe regression, bot loops between workshop/training_range, combat completely broken (0 damage dealt). Content validator: 2 errors (lighthouse_siege flags never set), 5 warnings. Unit tests: 320/320 pass. Major completed since last update: HP scaling (sol mods + per-Spire bonus + medipacs), Act 3 difficulty bump, stun immunity windows, art commission brief, sprite field wiring. Critical remaining: sim bot navigation loops, explore combat broken, Spire Vigil navigation, lighthouse_siege flag wiring, array_door_override dead item, spire_winds_chest missing loot, weapon progression plateau, NPC conditional dialogue, full human playtest.
 
 ## Big Picture
 
@@ -8,10 +8,10 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, deep e
 
 The game needs four things to go from "structurally complete" to "shippable":
 
-1. **Sim coverage** — Bot blocks at Mara core conduit puzzle, can't pathfind in large maps, and can't handle ending choices. Only 37/124 rooms reachable by sim. Everything past Act 1 midpoint is testing-dark.
-2. **Pacing & flow** — Lighthouse Mara (19 floors, no checkpoints) is the biggest pacing problem. Greenway → Spire of Winds has no flag gate. Array door override is a dead item. 17/21 quests timeout in sim.
-3. **Game feel & balance** — Sol Shield nerfed to 1.25 HP/s (heal:15/CD:12s). Sol cone penetrates walls. Quarantine warlord is a 67-hit slog with starting weapon.
-4. **Art & polish** — ~15 entities missing sprites. No real commissioned art yet. 59 orphaned flags represent unrealized narrative connections.
+1. **Sim coverage** — Mainline reaches 46/124 rooms (37%) but can't navigate into Spire of Vigil interior. Explore mode regressed to 9/124 (7%) with combat completely broken (0 damage). Bot enters navigation loops (workshop↔training_range, fast-travel bouncing). Everything past Act 1 midpoint is testing-dark.
+2. **Content wiring** — Lighthouse siege flags never set (validator errors). Array door override is a dead item. Spire winds chest has no loot table. Greenway assault has no quest definition. 70/74 NPCs have no conditional dialogue.
+3. **Game feel & balance** — Weapon progression plateaus in Act 2 (no intermediate upgrade). General Thorne phase 3 overwhelming. Spire Radiance Forge heat hazard has no warning. HP scaling partially fixed but unverified by playtest.
+4. **Art & polish** — All 118 sprites are placeholders. Commission brief written but no artist engaged. Missing tileset PNGs for greenway, biolab, spire_winds.
 
 ## Project Status Overview
 
@@ -53,37 +53,38 @@ The game needs four things to go from "structurally complete" to "shippable":
 
 ## Short-Term Priorities (Next 1-2 Sprints)
 
-Focus: **Unblock sim, fix game feel, close content gaps**
+Focus: **Unblock sim, fix content errors, close content gaps**
 
-1. **Fix sim Mara core conduit puzzle** — Bot reaches lighthouse_mara_core but tryInteract picks up ground items instead of conduit tiles. Blocks all testing beyond Act 1 midpoint.
-2. **Fix sim pathfinding for large/cavern maps** — 2 quests STUCK (lighthouse_mara caverns A* fail, outer_expanse 200x120 exceeds A* limits). Add waypoint nav or chunked pathfinding.
-3. **Teach sim bot showChoice handling** — Ending path choice requires player input bot can't provide. Act 3 untestable.
-4. **~~Nerf Sol Shield passive heal~~** — DONE: nerfed to 1.25 HP/s (heal:15/CD:12s). Manual playtest needed to confirm 2-4 deaths target.
-5. **Fix sol_cone wall penetration** — Cone damages through solid tiles. Add LOS check.
-6. **Split Lighthouse Mara into narrative segments** — 19 floors with zero checkpoints is the biggest pacing problem. Add 2-3 intermediate quest objectives, healing caches, mid-tower waypoint.
-7. **Add spire_winds_chest loot table** — Referenced but doesn't exist.
-8. **Wire array_door_override into Spire of Winds doors** — Key item given but no doors check for it.
-9. **Add Greenway → Spire flag gate** — Players can skip supply sabotage entirely.
+1. **Fix explore mode bot combat** — Bot deals 0 damage and kills 0 monsters in explore mode. Weapon/ability initialization is broken when not running quest mode.
+2. **Fix bot navigation loops** — Bot loops between workshop↔training_range seeking outpost_basement, and bounces between fast-travel waypoints when stuck. Both block exploration.
+3. **Fix bot navigation to Spire of Vigil interior** — navigate_to_room for spire_vigil_core and spire_vigil_sanctum abandoned after 16 attempts. Blocks all Act 1 endgame sim testing.
+4. **Fix lighthouse_siege flag errors** — Content validator: `lighthouse_siege_last_clear` and `siege_cooldown_active` flags checked by siege_warden NPC but never set by any trigger. Wire siege completion triggers.
+5. **Wire array_door_override into Spire of Winds doors** — Key item given but no doors check for it.
+6. **Add spire_winds_chest loot table** — Referenced by tileset but doesn't exist.
+7. **Add greenway_assault quest definition** — Array alliance flow has no quest log entries.
+8. **Add Act 3 ending quest tracking** — Ending execution has no quest to track. Add endgame quest covering path choice through completion.
+9. **Teach sim bot showChoice handling** — Ending path choice requires player input bot can't provide. Act 3 untestable.
 
 ## Medium-Term Priorities (Next 1-3 Months)
 
-Focus: **Deepen content, connect narrative threads, polish feel**
+Focus: **Balance, narrative depth, content polish**
 
-10. **Differentiate Lighthouse Mara floors 2-10** — All identical frost_crypt. Add visual variety, unique encounters, ambient narrative.
-11. **Wire 59 orphaned flags to NPC reactions** — underlumen_emergence_defeated, found_geometric_tablet, resonance_complete, spire replay tiers → NPC dialogue and rewards.
-12. **Generate ~15 missing entity sprites** — Bio-lab enemies, General Thorne, Corporal Venn, Asha Denn, Bulwark patrols, Spire replay monsters.
-13. **Create greenway_assault quest definition** — Array Alliance flow has no quest log entries or waypoints.
-14. **Add Spire of Vigil third puzzle mechanic** — Still only pedestal patterns. Add shadow/light zone manipulation for spatial-control theme.
-15. **Quarantine Warlord balance** — 3 dmg blaster vs 200 HP boss is tedious. Drop weapon upgrade or reduce HP.
+10. **Add conditional dialogue to key NPCs** — Only 4/74 NPCs react to game state. Asha, Holt, MERIDIAN-7, Tech Maren should have dialogue variants for Act progression.
+11. **Bridge Act 2 weapon progression plateau** — No intermediate weapon between Sol Unit (12 dmg) and epic sol units (14-18 dmg). Add rare-tier weapon from General Thorne or Spire Winds.
+12. **General Thorne phase 3 rebalance** — 28-damage projectiles at 0.9s + conscript summons is overwhelming solo. Longer summon interval or lower phase 3 projectile damage.
+13. **Require merge_nexus NPC conversations** — Ending trigger fires on tile interaction, not NPC talks. Require all three NPCs spoken to before communion.
+14. **Add heat warning before Spire Radiance Forge** — 3.3 DPS heat + combat is extremely punishing without Array Precision Frame's heat resist.
+15. **Wire orphaned visit flags to NPC dialogue** — ~10 dead visit-tracking flags (visited_lighthouse_mara_f02-f19) could add NPC flavor.
 
 ## Long-Term Vision (3+ Months)
 
 Focus: **Polish campaign, real art, apex endgame**
 
-16. **Commission real sprite art for 10 priority entities** — See docs/art-commission-brief.md.
-17. **Full end-to-end human playtest of three-act campaign** — Everything beyond Mara is unverified. Document pacing/balance/gaps across all 3 ending paths.
-18. **Deep Expedition (Tier 6)** — 3-4 player, 7-floor apex cooperative content.
-19. **Faction Rally** — Server-wide cooperative monthly events.
+16. **Commission Batch 1 sprite art** — 10 priority entities (14 PNGs). Brief ready at docs/art-commission-brief.md. No artist engaged yet.
+17. **Generate missing tileset PNGs** — greenway.png (31 tiles), biolab.png (21 tiles), spire_winds.png extended (23-26 tiles).
+18. **Full end-to-end human playtest of three-act campaign** — Everything beyond Mara is unverified. Document pacing/balance/gaps across all 3 ending paths.
+19. **Deep Expedition (Tier 6)** — 3-4 player, 7-floor apex cooperative content.
+20. **Faction Rally** — Server-wide cooperative monthly events.
 
 ---
 
@@ -220,9 +221,9 @@ These are done and don't need further investment:
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
-| docs/storyboard.md | Active | **Content structurally complete, needs testing + polish.** Act I ~95% (all dungeons wired, quest flow verified by sim through Mara core). Act II ~80% (Greenway + Bulwark + Spire of Winds + bio-lab + MERIDIAN-7 alliance all built; missing spire_winds_chest loot, array_door_override wiring, greenway_assault quest def). Act III ~60% (ending dungeons + Spire of Radiance built, main quest routing done; sim can't verify, showChoice unhandled). |
+| docs/storyboard.md | Active | **Content structurally complete, needs testing + polish.** Act I ~95% (sim reaches 46/124 rooms in mainline, blocks at Spire Vigil interior navigation). Act II ~85% (Greenway + Bulwark + Spire of Winds + bio-lab + MERIDIAN-7 alliance all built; missing spire_winds_chest loot, array_door_override wiring, greenway_assault quest def). Act III ~70% (ending dungeons + Spire of Radiance built, main quest routing done, post-choice world state done; sim can't verify, showChoice unhandled, no ending quest tracking). |
 | docs/endgame-loop.md | Active | Phases 1-7 engine done. Spire replay tiers done. Remaining: Deep Expedition (Tier 6), Faction Rally |
-| docs/progression-system.md | Active | Core systems done. Harvester scaling done (levels 11-20). All 3 Spire ability unlocks wired. |
+| docs/progression-system.md | Active | Core systems done. HP scaling added (sol mods + per-Spire bonus + medipacs). Harvester scaling done (levels 11-20). All 3 Spire ability unlocks wired. Needs playtest verification. |
 | docs/automation_screen.md | Done | All phases implemented |
 | docs/testing-design.md | Done | Both tools built. 320+ unit tests passing. Mainline reaches Mara core (blocks at conduit puzzle). Content validator: 0 errors, 59 warnings. |
 | docs/procedural-generation.md | Done | Engine + 5 templates implemented |
