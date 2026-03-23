@@ -37,8 +37,10 @@ Added 14 spire vigil gate flags to EXPLORE_FLAGS, added exit condition + tile-op
 Prepared commission brief for 10 priority entities (14 PNG files). See `docs/art-commission-brief.md` for full visual specs and `docs/art-style-guide.md` for palette/conventions.
 
 ### Outstanding Follow-ups
-- [ ] Find and engage pixel artist for Batch 1 commission (14 files: 4 player variants, 4 NPCs, 4 monsters, 2 boss sprites)
-- [ ] Provide artist with `docs/art-commission-brief.md` and `docs/art-style-guide.md` as reference
+- [ ] Post commission listing from `docs/art-commission-posting.md` to artist platforms (r/PixelArt, r/gameDevClassifieds, Fiverr, Pixel Joint, Twitter #pixelart)
+- [ ] Review artist portfolios — look for dark/moody 16x16 pixel art, palette discipline, readable silhouettes
+- [ ] Select artist, agree on rate and timeline, send `docs/art-commission-brief.md` + `docs/art-style-guide.md`
+- [ ] Request 1-2 test sprites first (e.g. player_blue + dusk_crawler) before committing to full batch
 - [ ] When sprites are delivered, drop PNGs into `content/sprites/` and verify rendering at 32x32 upscale
 - [ ] Test all 14 sprites against dark tilesets (Dark Perimeter, Stone Crypt) for readability
 - [ ] Verify `crystal_shard_minion` still looks acceptable reusing the new `crystal_guardian.png` — if not, add minion sprite to Batch 2
