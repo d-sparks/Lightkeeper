@@ -1261,6 +1261,21 @@
       "id": "melee_strike"
     }
   },
+  "thorne_command_sidearm": {
+    "name": "Thorne's Command Sidearm",
+    "description": "General Thorne's personal weapon — a heavily modified energy sidearm with a reinforced focusing array. Its output exceeds any standard-issue weapon. Not something a general carries for ceremony.",
+    "type": "weapon",
+    "rarity": "rare",
+    "slot": "weapon",
+    "stats": {
+      "attackDamage": 13,
+      "projectile": true,
+      "projectileType": "pulse_bolt"
+    },
+    "ability": {
+      "id": "pulse_shot"
+    }
+  },
   "military_medkit": {
     "name": "Military Medkit",
     "description": "Compact-issue medical supplies. Better than civilian equipment. Restores 50 health.",
