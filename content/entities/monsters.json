@@ -455,7 +455,7 @@
   },
   "frostfang_alpha": {
     "name": "Frostfang Alpha",
-    "sprite": "sprites/frostfang_hunter.png",
+    "sprite": "sprites/frostfang_alpha.png",
     "size": [16, 16],
     "health": 90,
     "speed": 1.7,

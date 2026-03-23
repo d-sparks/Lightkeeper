@@ -7025,6 +7025,7 @@
   },
   "liaison_thorne": {
     "name": "Array Liaison Thorne",
+    "sprite": "sprites/liaison_thorne.png",
     "dialogue": [
       {
         "speaker": "Array Liaison Thorne",
@@ -13371,6 +13372,7 @@
   },
   "bulwark_soldier_doubter": {
     "name": "Bulwark Private Yenn",
+    "sprite": "sprites/bulwark_soldier_doubter.png",
     "dialogue": [
       {
         "speaker": "Pvt. Yenn",
