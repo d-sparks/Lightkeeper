@@ -4,6 +4,22 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Large-Map Waypoint Navigation (2026-03-23)
+
+Added waypoint-based pathfinding decomposition for maps exceeding 100 tiles in either dimension (currently only `outer_expanse` at 200x120). Pre-computes a coarse waypoint grid (every 25 tiles) with A*-verified connectivity, then decomposes long paths into short waypoint-to-waypoint segments.
+
+### Changes Applied
+1. **Waypoint graph system**: `getWaypointGraph()` computes and caches a coarse navigation graph for large dungeons. Waypoints placed every 25 tiles at walkable positions, plus exit tiles. Adjacency verified via short A* calls.
+2. **Waypoint-segmented move_to_position**: `doMoveToPosition()` detects large maps and decomposes long paths (>37 tiles) into waypoint sub-goals. Each segment is a separate `move_to_position` with tolerance=2, allowing independent re-planning when combat disrupts a segment.
+3. **Extended timeout for large maps**: 800 ticks (~53s) vs 500 ticks (~33s) for move_to_position on large maps.
+4. **Waypoint graph A***: Separate lightweight A* on the waypoint graph (~42 nodes for outer_expanse) to find optimal waypoint route before decomposing into tile-level paths.
+
+### Outstanding Follow-ups
+- [ ] Bot cannot reach outer_expanse in sim due to upstream quest chain blockers (main_quest gets stuck at `spire_vigil_cleared` flag). Once fixed, the waypoint system will activate automatically.
+- [ ] Consider adding waypoint graph visualization to the editor for debugging large maps.
+- [ ] If more large maps are added, verify WAYPOINT_SPACING=25 gives good coverage — may need tuning per dungeon.
+- [ ] Waypoint graph cache is never invalidated — if dungeons are hot-reloaded in editor, stale graphs could cause issues.
+
 ## HP Scaling Balance Pass (2026-03-23)
 
 Three-pronged fix for player HP never scaling to match monster damage in Acts 2-3:

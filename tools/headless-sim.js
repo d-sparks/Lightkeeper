@@ -529,6 +529,189 @@ function pixelToTile(px, py) {
   return { tx: Math.floor(px / TILE_SIZE), ty: Math.floor(py / TILE_SIZE) };
 }
 
+// ─── Waypoint graph for large-map navigation ─────────────────────────
+// For maps exceeding LARGE_MAP_THRESHOLD tiles in either dimension, we
+// pre-compute a coarse waypoint grid so that long-distance pathfinding
+// can be broken into short A* segments.  Each segment stays well within
+// the ASTAR_MAX_NODES cap and re-planning after combat disruption only
+// re-computes the current segment instead of the entire 200-tile path.
+
+const LARGE_MAP_THRESHOLD = 100;  // tiles — maps larger than this use waypoints
+const WAYPOINT_SPACING = 25;      // coarse grid spacing in tiles
+
+// Cache: dungeonId -> { waypoints, edges }
+const waypointGraphCache = new Map();
+
+function isLargeMap(dungeon) {
+  return dungeon.width > LARGE_MAP_THRESHOLD || dungeon.height > LARGE_MAP_THRESHOLD;
+}
+
+// Find the nearest walkable tile to (cx, cy) within a search radius
+function findNearestWalkable(dungeon, cx, cy, playerFlags, maxRadius) {
+  maxRadius = maxRadius || 5;
+  if (!isTileSolid(dungeon, cx, cy, playerFlags)) return { x: cx, y: cy };
+  for (let r = 1; r <= maxRadius; r++) {
+    for (let dx = -r; dx <= r; dx++) {
+      for (let dy = -r; dy <= r; dy++) {
+        if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
+        const nx = cx + dx, ny = cy + dy;
+        if (nx >= 0 && nx < dungeon.width && ny >= 0 && ny < dungeon.height) {
+          if (!isTileSolid(dungeon, nx, ny, playerFlags)) return { x: nx, y: ny };
+        }
+      }
+    }
+  }
+  return null;
+}
+
+// Build the waypoint graph for a dungeon (cached per dungeon id)
+function getWaypointGraph(dungeon) {
+  const cacheKey = dungeon.id || `${dungeon.width}x${dungeon.height}`;
+  if (waypointGraphCache.has(cacheKey)) return waypointGraphCache.get(cacheKey);
+
+  const waypoints = []; // Array of { x, y, idx }
+
+  // Place waypoints on a coarse grid at walkable positions
+  for (let gy = Math.floor(WAYPOINT_SPACING / 2); gy < dungeon.height; gy += WAYPOINT_SPACING) {
+    for (let gx = Math.floor(WAYPOINT_SPACING / 2); gx < dungeon.width; gx += WAYPOINT_SPACING) {
+      const wp = findNearestWalkable(dungeon, gx, gy);
+      if (wp) {
+        // Avoid duplicate positions
+        const isDup = waypoints.some(w => w.x === wp.x && w.y === wp.y);
+        if (!isDup) {
+          wp.idx = waypoints.length;
+          waypoints.push(wp);
+        }
+      }
+    }
+  }
+
+  // Also add exit tile positions as waypoints
+  if (dungeon.exits) {
+    for (const exit of dungeon.exits) {
+      const wp = findNearestWalkable(dungeon, exit.x, exit.y);
+      if (wp) {
+        const isDup = waypoints.some(w => w.x === wp.x && w.y === wp.y);
+        if (!isDup) {
+          wp.idx = waypoints.length;
+          waypoints.push(wp);
+        }
+      }
+    }
+  }
+
+  // Build adjacency: connect waypoints within ~1.8x spacing distance
+  const maxDist = WAYPOINT_SPACING * 1.8;
+  const edges = waypoints.map(() => []); // edges[i] = [{ to, cost }]
+
+  for (let i = 0; i < waypoints.length; i++) {
+    for (let j = i + 1; j < waypoints.length; j++) {
+      const dx = waypoints[i].x - waypoints[j].x;
+      const dy = waypoints[i].y - waypoints[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > maxDist) continue;
+
+      // Verify connectivity with a short A* (capped at small area)
+      const path = astarPath(dungeon, waypoints[i].x, waypoints[i].y, waypoints[j].x, waypoints[j].y);
+      if (path && path.length > 0) {
+        edges[i].push({ to: j, cost: path.length });
+        edges[j].push({ to: i, cost: path.length });
+      }
+    }
+  }
+
+  const graph = { waypoints, edges };
+  waypointGraphCache.set(cacheKey, graph);
+  return graph;
+}
+
+// Find the waypoint nearest to a given tile position (must be reachable via A*)
+function findNearestWaypoint(dungeon, tx, ty, graph, playerFlags) {
+  let bestIdx = -1, bestDist = Infinity;
+  for (let i = 0; i < graph.waypoints.length; i++) {
+    const wp = graph.waypoints[i];
+    const dx = wp.x - tx, dy = wp.y - ty;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestIdx = i;
+    }
+  }
+  return bestIdx;
+}
+
+// A* on the waypoint graph (small graph — typically <50 nodes)
+function waypointGraphPath(graph, startIdx, goalIdx) {
+  if (startIdx === goalIdx) return [];
+  const n = graph.waypoints.length;
+  const gScore = new Float64Array(n); gScore.fill(Infinity);
+  const closed = new Uint8Array(n);
+  const parent = new Int16Array(n); parent.fill(-1);
+
+  const heuristic = (i) => {
+    const wp = graph.waypoints[i], gp = graph.waypoints[goalIdx];
+    const dx = wp.x - gp.x, dy = wp.y - gp.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const open = new MinHeap();
+  gScore[startIdx] = 0;
+  open.push({ x: startIdx, y: 0, g: 0, f: heuristic(startIdx) });
+
+  while (open.size > 0) {
+    const best = open.pop();
+    const idx = best.x;
+    if (closed[idx]) continue;
+    closed[idx] = 1;
+
+    if (idx === goalIdx) {
+      // Reconstruct
+      const path = [];
+      let cur = idx;
+      while (cur !== startIdx) {
+        path.push(cur);
+        cur = parent[cur];
+      }
+      path.reverse();
+      return path; // Array of waypoint indices
+    }
+
+    for (const edge of graph.edges[idx]) {
+      if (closed[edge.to]) continue;
+      const g = gScore[idx] + edge.cost;
+      if (g < gScore[edge.to]) {
+        gScore[edge.to] = g;
+        parent[edge.to] = idx;
+        open.push({ x: edge.to, y: 0, g, f: g + heuristic(edge.to) });
+      }
+    }
+  }
+  return null; // No path
+}
+
+// Compute waypoint-segmented path for a large map.
+// Returns an array of intermediate waypoint tile positions to visit
+// on the way from (startTX, startTY) to (goalTX, goalTY), or null if
+// the waypoint graph can't connect them (falls back to direct A*).
+function computeWaypointRoute(dungeon, startTX, startTY, goalTX, goalTY, playerFlags) {
+  const graph = getWaypointGraph(dungeon);
+  if (!graph || graph.waypoints.length < 2) return null;
+
+  const startWP = findNearestWaypoint(dungeon, startTX, startTY, graph, playerFlags);
+  const goalWP = findNearestWaypoint(dungeon, goalTX, goalTY, graph, playerFlags);
+  if (startWP < 0 || goalWP < 0) return null;
+  if (startWP === goalWP) return null; // Close enough — use direct A*
+
+  const wpPath = waypointGraphPath(graph, startWP, goalWP);
+  if (!wpPath || wpPath.length === 0) return null;
+
+  // Return intermediate waypoint tile coordinates
+  return wpPath.map(idx => ({
+    x: graph.waypoints[idx].x,
+    y: graph.waypoints[idx].y,
+  }));
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // Phase 4: Bot Brain — Combat & Interaction
 // ═══════════════════════════════════════════════════════════════════════
@@ -893,7 +1076,7 @@ class Bot {
     if (!goal._navAttempts) goal._navAttempts = 0;
     if (!goal._navTotalTicks) goal._navTotalTicks = 0;
     goal._navTotalTicks++;
-    if (goal._navTotalTicks > 1500 || goal._navAttempts > 6) {
+    if (goal._navTotalTicks > 3000 || goal._navAttempts > 15) {
       console.log(`[Bot] navigate_to_room "${goal.room}" ABANDONED after ${goal._navAttempts} attempts / ${goal._navTotalTicks} ticks`);
       this.popGoal();
       return;
@@ -1058,8 +1241,9 @@ class Bot {
     const { tx: currentTX, ty: currentTY } = pixelToTile(player.x, player.y);
     if (!goal._totalTicks) goal._totalTicks = 0;
     goal._totalTicks++;
-    // Allow generous time (500 ticks = ~33s game time) but not infinite
-    if (goal._totalTicks > 500) {
+    // Large maps get more time — 800 ticks (~53s) vs 500 ticks (~33s)
+    const timeoutTicks = isLargeMap(room.dungeon) ? 800 : 500;
+    if (goal._totalTicks > timeoutTicks) {
       const rm = this.getRoom();
       const mc = rm ? rm.monsters.size : '?';
       console.log(`[Bot] move_to_position TIMEOUT in ${this.currentRoom} target=(${goal.tileX},${goal.tileY}) pos=(${currentTX},${currentTY}) px=(${Math.round(player.x)},${Math.round(player.y)}) stalls=${goal._monsterAvoidRetries||0} monsters=${mc} hasPath=${!!goal._path} pathLen=${goal._path?goal._path.length:'n/a'} pathIdx=${goal._pathIndex} combatTicks=${goal._combatTicks||0}`);
@@ -1078,10 +1262,37 @@ class Bot {
       return;
     }
 
+    // ── Waypoint decomposition for large maps ──────────────────────────
+    // On maps >100 tiles in either dimension, break long-distance paths
+    // into waypoint segments. Each segment is a short move_to_position
+    // sub-goal that stays within ~25 tiles, keeping A* fast and allowing
+    // re-planning of just the current segment when combat disrupts it.
+    if (!goal._waypointChecked && isLargeMap(room.dungeon)) {
+      goal._waypointChecked = true;
+      const dist = Math.abs(currentTX - goal.tileX) + Math.abs(currentTY - goal.tileY);
+      if (dist > WAYPOINT_SPACING * 1.5) {
+        const wpRoute = computeWaypointRoute(room.dungeon, currentTX, currentTY, goal.tileX, goal.tileY,
+          this.gameLoop.flagStore.getPlayerFlags(PLAYER_ID));
+        if (wpRoute && wpRoute.length > 0) {
+          console.log(`[Bot] Large map waypoint route: ${wpRoute.length} waypoints from (${currentTX},${currentTY}) to (${goal.tileX},${goal.tileY})`);
+          // Replace this goal with waypoint sub-goals.
+          // Pop current goal, re-push final destination, then push waypoints
+          // in reverse order so the nearest waypoint is on top of the stack.
+          this.popGoal();
+          this.pushGoal({ type: 'move_to_position', tileX: goal.tileX, tileY: goal.tileY, tolerance: goal.tolerance || 0 });
+          for (let i = wpRoute.length - 1; i >= 0; i--) {
+            this.pushGoal({ type: 'move_to_position', tileX: wpRoute[i].x, tileY: wpRoute[i].y, tolerance: 2, _isWaypoint: true });
+          }
+          return;
+        }
+      }
+    }
+
     // Compute A* path if needed — stored per-goal so sub-goals don't share stale paths
     if (!goal._path || goal._path.length === 0) {
       const blockedExits = this._getBlockedExitSet(room.dungeon);
-      goal._path = astarPath(room.dungeon, currentTX, currentTY, goal.tileX, goal.tileY, blockedExits);
+      const flags = this.gameLoop.flagStore.getPlayerFlags(PLAYER_ID);
+      goal._path = astarPath(room.dungeon, currentTX, currentTY, goal.tileX, goal.tileY, blockedExits, flags);
       goal._pathIndex = 0;
 
       if (!goal._path || goal._path.length === 0) {
@@ -1208,11 +1419,12 @@ class Bot {
               }
             }
           }
-          // Move toward the door, then interact
+          // Move toward the door, then interact with it specifically
+          // (tryInteractTile bypasses item pickup which can steal the interaction)
           const doorDist = Math.abs(currentTX - nextTarget.x) + Math.abs(currentTY - nextTarget.y);
           if (doorDist <= 2) {
             this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
-            this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+            this.gameLoop.tryInteractTile(this.currentRoom, PLAYER_ID, nextTarget.x, nextTarget.y);
             return;
           }
         }
@@ -1539,7 +1751,13 @@ class Bot {
         goal._interactCooldown--;
         if (goal._interactCooldown <= 0) {
           goal._interactCooldown = 15;
-          const result = this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+          // Use targeted tile interaction to avoid picking up nearby ground items
+          // instead of activating the chest/interactable we actually need
+          const result = this.gameLoop.tryInteractTile(this.currentRoom, PLAYER_ID, goal._targetTileX, goal._targetTileY);
+          // Also try generic interact as fallback (may pick up spawned items)
+          if (!result) {
+            this.gameLoop.tryInteract(this.currentRoom, PLAYER_ID);
+          }
           // If interaction failed (too far), try moving even closer
           if (!result && dist > 1) {
             goal._movedToTile = false;
