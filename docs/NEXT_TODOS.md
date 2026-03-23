@@ -4,6 +4,15 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Tileset Sprite Strips — Generated (2026-03-23)
+
+Added placeholder PNG sprite strips for 6 missing tilesets: dayside, fungal_forest, nightside, meridian, station, spire_radiance. All generated via `node tools/generate-sprites.js`. Existing tilesets (greenway, biolab, spire_winds, frost_crypt) were already up-to-date.
+
+### Outstanding Follow-ups
+- [ ] All generated tilesets are placeholder pixel art — commission proper art before release (see `docs/art-commission-brief.md`)
+- [ ] dayside and fungal_forest tilesets lack dungeon JSON files using them — verify they render correctly once dungeons reference them
+- [ ] nightside tileset ID 9 (transit_portal) is non-standard — confirm no engine path collision with the existing portal system
+
 ## Bot Navigation — Remaining Issues (2026-03-23)
 
 Fixed workshop↔training_range bounce, fast-travel waypoint loop, and 200+ repeated abandons for unreachable rooms. Explore sim improved from 10→16 rooms visited (8.1%→12.9%).
