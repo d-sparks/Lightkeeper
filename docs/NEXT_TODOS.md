@@ -13,6 +13,16 @@ Fixed workshop↔training_range bounce, fast-travel waypoint loop, and 200+ repe
 - [ ] A* fails from (11,6) to (13,6) in perimeter_outer_ring — bot gets stuck exploring interactable tiles behind walls. explore_room should skip tiles A* can't reach.
 - [ ] Explore mode only visits 16/124 rooms — many rooms behind procedural dungeons or multi-hop chains still unreachable by sim bot. Needs deeper investigation of remaining blockers.
 
+## Spire of Vigil — Bot Navigation Fix (2026-03-23)
+
+Added 14 spire vigil gate flags to EXPLORE_FLAGS, added exit condition + tile-opening trigger to sanctum→descent exit, and added objective.roomId to all spire_vigil quest steps (47 goals now generated vs 7 bare wait_for_flag before).
+
+### Outstanding Follow-ups
+- [ ] Quest sim can't reach nightside_outpost due to pre-existing outpost_perimeter A* failure — spire_vigil quest goals are correct but untested end-to-end
+- [ ] Underlumen puzzle solving in quest mode: bot needs to interact with pedestals in correct order; explore_room may not reliably solve multi-step puzzles in a single pass
+- [ ] Resonance chamber puzzle (3 sequential pedestal interactions) may need explicit ordered goals in buildQuestGoals for quest mode
+- [ ] buildQuestGoals doesn't resolve flags globally when step has no objective.roomId — general engine improvement for quests with array-format steps
+
 ## Art Commission — Batch 1 Sprites (2026-03-23)
 
 Prepared commission brief for 10 priority entities (14 PNG files). See `docs/art-commission-brief.md` for full visual specs and `docs/art-style-guide.md` for palette/conventions.

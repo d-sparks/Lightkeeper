@@ -3425,6 +3425,22 @@ const EXPLORE_FLAGS = [
   'kappa_coordinates_received',
   'meridian_umbrasite_quest_complete',
   'reached_underlumen_threshold',
+  // Spire of Vigil gate flags (boss kills, puzzles, and progression)
+  'garrison_warlord_killed',
+  'armory_gate_opened',
+  'armory_pedestal_west',
+  'armory_pedestal_east',
+  'fortress_captain_killed',
+  'voss_confronted',
+  'spire_vigil_cleared',
+  'underlumen_puzzle_1_solved',
+  'underlumen_puzzle_2_solved',
+  'underlumen_p2_left',
+  'underlumen_p2_right',
+  'resonance_pedestal_1',
+  'resonance_pedestal_2',
+  'resonance_pedestal_3',
+  'resonance_complete',
 ];
 
 function runExplore(gameLoop, bot) {
