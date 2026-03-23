@@ -4,6 +4,23 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Act 2→3 Difficulty Curve (2026-03-23)
+
+Bumped Act 3 Array regular enemy stats (+3 dmg, +30 HP) to create a noticeable difficulty step entering the Dayside. Act 2 Bulwark regulars top out at 16 dmg; Act 3 now starts at 15-21 dmg instead of 12-18 dmg.
+
+### Changes Applied
+- `array_sentinel`: 130 HP / 12 dmg → 160 HP / 15 dmg
+- `array_fabricator`: 150 HP / 12 dmg → 180 HP / 15 dmg
+- `hybrid_drone`: 110 HP / 14 dmg → 140 HP / 17 dmg
+- `hybrid_stalker`: 160 HP / 18 dmg → 190 HP / 21 dmg
+- `radiance_construct`: 200 HP / 16 dmg → 230 HP / 19 dmg
+- Bosses (`array_overseer`, `nexus_guardian`) left unchanged
+
+### Outstanding Follow-ups
+- [ ] Playtest Act 3 entry rooms to verify difficulty feel — new dmg values may require gear check at merge_nexus
+- [ ] Consider whether `vent_spewer` (geothermal, 14 dmg / 70 HP) should also receive a bump for consistency
+- [ ] The old audit note (line: "Act 3 (110-900 HP, 12-26 dmg)") in this file is now stale — min dmg is 15, update if re-auditing
+
 ## Large-Map Waypoint Navigation (2026-03-23)
 
 Added waypoint-based pathfinding decomposition for maps exceeding 100 tiles in either dimension (currently only `outer_expanse` at 200x120). Pre-computes a coarse waypoint grid (every 25 tiles) with A*-verified connectivity, then decomposes long paths into short waypoint-to-waypoint segments.
