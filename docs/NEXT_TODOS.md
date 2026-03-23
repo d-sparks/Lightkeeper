@@ -4,6 +4,15 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Bot Navigation — Remaining Issues (2026-03-23)
+
+Fixed workshop↔training_range bounce, fast-travel waypoint loop, and 200+ repeated abandons for unreachable rooms. Explore sim improved from 10→16 rooms visited (8.1%→12.9%).
+
+### Outstanding Follow-ups
+- [ ] A* fails from (33,22) to (48,22) in outpost_perimeter — lighthouse_siege_arena exit unreachable from east spawn. Map may need a walkable corridor or the exit tile needs repositioning.
+- [ ] A* fails from (11,6) to (13,6) in perimeter_outer_ring — bot gets stuck exploring interactable tiles behind walls. explore_room should skip tiles A* can't reach.
+- [ ] Explore mode only visits 16/124 rooms — many rooms behind procedural dungeons or multi-hop chains still unreachable by sim bot. Needs deeper investigation of remaining blockers.
+
 ## Art Commission — Batch 1 Sprites (2026-03-23)
 
 Prepared commission brief for 10 priority entities (14 PNG files). See `docs/art-commission-brief.md` for full visual specs and `docs/art-style-guide.md` for palette/conventions.

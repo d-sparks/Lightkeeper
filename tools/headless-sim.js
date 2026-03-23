@@ -144,6 +144,36 @@ function processTransitions(gameLoop, botState) {
   for (const t of transitions) {
     if (t.playerId !== PLAYER_ID) continue;
 
+    // Block transitions to wrong destinations in static rooms when the bot
+    // is navigating to a specific exit. Prevents combat knockback from pushing
+    // the bot through nearby exit tiles (e.g. outpost_perimeter → outpost_entrance
+    // when the bot needs to go north to perimeter_gate).
+    if (!t.deathRespawn && !t.fromRoom.startsWith('proc:')) {
+      if (botState._expectedNextRoom && t.toDungeon !== botState._expectedNextRoom) {
+        const currentRoom = gameLoop.getRoom(t.fromRoom);
+        if (currentRoom) {
+          // Nudge player away from the wrong exit tile
+          const exitPX = (t.exitX + 0.5) * TILE_SIZE;
+          const exitPY = (t.exitY + 0.5) * TILE_SIZE;
+          const playerInRoom = currentRoom.players.get(PLAYER_ID);
+          if (playerInRoom) {
+            const dx = playerInRoom.x - exitPX;
+            const dy = playerInRoom.y - exitPY;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            playerInRoom.x += (dx / len) * TILE_SIZE;
+            playerInRoom.y += (dy / len) * TILE_SIZE;
+          }
+          // Block this exit tile for future A* paths
+          const alreadyBlocked = botState._blockedExitTiles.some(
+            e => e.x === t.exitX && e.y === t.exitY && e.room === t.fromRoom);
+          if (!alreadyBlocked) {
+            botState._blockedExitTiles.push({ x: t.exitX, y: t.exitY, room: t.fromRoom });
+          }
+          continue;
+        }
+      }
+    }
+
     // Check if this transition would move the bot in the wrong direction
     // in a proc room (e.g., going up when we need to go deeper)
     // Death respawns always go through — never block them
@@ -271,6 +301,9 @@ function processTransitions(gameLoop, botState) {
     botState._combatSkipTicks = 0;
     botState._lastCombatKey = null;
     botState.ticksWithoutProgress = 0;
+    // Note: _expectedNextRoom is NOT cleared here — it persists until
+    // doNavigateToRoom sets a new value or clears it when done. This prevents
+    // wrong transitions during the ticks between arrival and the next navigate call.
 
     // Clear stale move_to_position goal left over from old room's exit tile
     if (botState.currentGoal && botState.currentGoal() && botState.currentGoal().type === 'move_to_position') {
@@ -747,6 +780,8 @@ class Bot {
     this._lastCombatKey = null;
     // Exit tiles that A* should route around (wrong-direction exits in proc rooms)
     this._blockedExitTiles = []; // Array of { x, y, room }
+    this._expectedNextRoom = null; // Set during navigation to block wrong transitions
+    this._unreachableRooms = new Set(); // Rooms that failed navigation repeatedly
   }
 
   // Build a Set of tile keys (y*width+x) for exit tiles that should be avoided
@@ -1057,7 +1092,15 @@ class Bot {
     for (let i = messageLog.length - 1; i >= 0; i--) {
       const msg = messageLog[i];
       if (msg.type === CONSTANTS.MSG.CHOICE_MENU && msg.to === PLAYER_ID) {
-        // Auto-select first option
+        // Cancel fast travel choices — the bot navigates via exits, not teleportation.
+        // Accepting fast travel causes loops (bot teleports away, then walks back).
+        if (msg.choiceId === 'fast_travel') {
+          this.pendingChoiceId = msg.choiceId;
+          this.pendingChoiceValue = '_cancel';
+          messageLog.splice(i, 1);
+          return;
+        }
+        // Auto-select first option for other choices
         this.pendingChoiceId = msg.choiceId;
         this.pendingChoiceValue = msg.options && msg.options[0] ? msg.options[0].value : null;
         messageLog.splice(i, 1); // Consume message
@@ -1070,6 +1113,13 @@ class Bot {
 
   doNavigateToRoom(goal, player) {
     if (this.currentRoom === goal.room) {
+      this._expectedNextRoom = null;
+      this.popGoal();
+      return;
+    }
+
+    // Skip rooms already proven unreachable — avoids hundreds of repeat attempts
+    if (this._unreachableRooms.has(goal.room)) {
       this.popGoal();
       return;
     }
@@ -1080,6 +1130,8 @@ class Bot {
     goal._navTotalTicks++;
     if (goal._navTotalTicks > 3000 || goal._navAttempts > 15) {
       console.log(`[Bot] navigate_to_room "${goal.room}" ABANDONED after ${goal._navAttempts} attempts / ${goal._navTotalTicks} ticks`);
+      this._unreachableRooms.add(goal.room);
+      this._expectedNextRoom = null;
       this.popGoal();
       return;
     }
@@ -1095,8 +1147,20 @@ class Bot {
     if (!path || path.length === 0) {
       // Can't find path — give up on this goal
       console.log(`[Bot] No path from "${this.currentRoom}" to "${goal.room}" (${this.unreachableExits.size} blocked exits) — skipping`);
+      this._expectedNextRoom = null;
       this.popGoal();
       return;
+    }
+
+    // If the path passes through any room proven unreachable, skip immediately
+    // instead of bouncing through the same failed route again
+    for (const hop of path) {
+      if (this._unreachableRooms.has(hop.to)) {
+        console.log(`[Bot] Path to "${goal.room}" passes through unreachable "${hop.to}" — skipping`);
+        this._expectedNextRoom = null;
+        this.popGoal();
+        return;
+      }
     }
 
     // Check if first hop's exit has conditions that aren't met yet
@@ -1186,6 +1250,26 @@ class Bot {
       this._fastTraverseRoom(firstHop.to, spawnX, spawnY);
       return;
     }
+
+    // Clear stale exit blocks for this room from previous navigation attempts
+    // (e.g. after ABANDON, the new navigate target needs different exits unblocked).
+    this._blockedExitTiles = this._blockedExitTiles.filter(e => e.room !== this.currentRoom);
+
+    // Block all non-target exit tiles in this room so A* routes around them.
+    // Without this, the bot walks through nearby exit tiles (e.g. training_range
+    // exits at (7,9)/(8,9) when trying to reach basement exit at (10,9)).
+    const allExits = this.exitGraph.get(this.currentRoom) || [];
+    for (const exit of allExits) {
+      if (exit.exitX === firstHop.exitX && exit.exitY === firstHop.exitY) continue;
+      const alreadyBlocked = this._blockedExitTiles.some(
+        e => e.x === exit.exitX && e.y === exit.exitY && e.room === this.currentRoom);
+      if (!alreadyBlocked) {
+        this._blockedExitTiles.push({ x: exit.exitX, y: exit.exitY, room: this.currentRoom });
+      }
+    }
+
+    // Track expected next room so processTransitions can block wrong transitions
+    this._expectedNextRoom = firstHop.to;
 
     // Push sub-goal: move to the exit tile of the first hop
     goal._navAttempts = (goal._navAttempts || 0) + 1;
