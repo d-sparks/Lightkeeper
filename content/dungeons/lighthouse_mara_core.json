@@ -9,7 +9,7 @@
   "environmentalHazard": {
     "type": "cold",
     "damage": 2,
-    "interval": 3.5
+    "interval": 5.0
   },
   "width": 20,
   "height": 16,
@@ -41,7 +41,6 @@
     { "type": "shade_stalker", "x": 9, "y": 5, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 7, "y": 5}, {"x": 13, "y": 5}, {"x": 13, "y": 6}, {"x": 7, "y": 6}] },
     { "type": "rime_stalker", "x": 15, "y": 4, "count": 1, "patrol": "guard" },
     { "type": "gloom_wraith", "x": 6, "y": 8, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 4, "y": 7}, {"x": 8, "y": 7}, {"x": 8, "y": 9}, {"x": 4, "y": 9}] },
-    { "type": "gloom_wraith", "x": 12, "y": 8, "count": 1, "patrol": "patrol", "patrolPath": [{"x": 10, "y": 7}, {"x": 14, "y": 7}, {"x": 14, "y": 9}, {"x": 10, "y": 9}] },
     { "type": "shade_stalker_alpha", "x": 9, "y": 12, "count": 1, "patrol": "guard" },
     { "type": "dusk_crawler", "x": 16, "y": 5, "count": 2, "patrol": "guard" }
   ],
@@ -50,6 +49,7 @@
     { "type": "frost_salve", "x": 3, "y": 3 },
     { "type": "field_medkit", "x": 15, "y": 5 },
     { "type": "frost_salve", "x": 8, "y": 11 },
+    { "type": "field_medkit", "x": 9, "y": 10 },
     { "type": "seismic_survey_data", "x": 16, "y": 4 },
     { "type": "umbracite_shard", "x": 9, "y": 13 },
     { "type": "reinforced_battery_chip", "x": 5, "y": 8 }

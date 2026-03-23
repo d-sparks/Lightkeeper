@@ -716,3 +716,11 @@ Created art commission brief (`docs/art-commission-brief.md`) and improved place
 - **Remaining NPC sprites** — Many NPCs beyond the priority 10 still use `npc_default.png` fallback. Next batch should cover: old_keeper, farmer_dael, farmer_lissa, archivist_solen, fence_elara.
 - **Remaining monster sprites** — All monster sprites are placeholders. After the priority batch, next priorities: luddite_warlord, gloom_wraith, magma_brute, array_overseer (boss-tier enemies seen in later acts).
 - **Tileset art** — All tilesets are also placeholders. Consider commissioning tileset art alongside entity sprites for visual consistency.
+
+## Mara Core Boss Tuning — Sim Death Loop Fix (2026-03-23)
+
+Rebalanced lighthouse_mara_core to fix sim bot death loop (78 deaths to shade_stalker_alpha + cold stacking). Changes: boss HP 80→65, dmg 14→12, lunge CD 5→7s, stun duration 0.8→0.5s, cold interval 3.5→5.0s, removed 1 gloom_wraith, added field_medkit at boss corridor entrance.
+
+- **Re-run sim** — Verify bot can now clear mara_core with <10 deaths and reach rooms beyond Act 1 (target: >60% reachability, up from 38%).
+- **Manual playtest** — Confirm the boss fight still feels threatening. The lunge+stun combo is the signature mechanic; reduced cooldown/duration should preserve the danger without being a death sentence.
+- **Consider cold resistance item** — If cold damage is still a problem in extended fights, a cold-resist consumable or equipment drop on an earlier Mara floor could help. The nightcaster_frame sol unit already grants cold resist but may not be available at this progression point.
