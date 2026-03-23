@@ -4,6 +4,22 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## HP Scaling Balance Pass (2026-03-23)
+
+Three-pronged fix for player HP never scaling to match monster damage in Acts 2-3:
+
+### Changes Applied
+1. **Sol grid HP modifiers**: 4 new sol components (vitality_node +15HP, fortification_matrix +25HP, resilience_core +40HP, immortal_lattice +60HP) placed in the sol grid for passive max health. Engine updated to sum maxHealthBonus from placed modifiers.
+2. **Per-Spire permanent HP bonus**: +25 HP per spire cleared (3 spires = +75 HP). Configurable via `settings.json > xpSystem.hpPerSpireCleared`.
+3. **HP medipac equipment**: reinforced_medipac (+20 HP, uncommon) and combat_medipac (+35 HP, rare) provide HP in the medipac slot alongside heal ability.
+
+### Outstanding Follow-ups
+- [ ] Playtest balance curve through Acts 2-3 with new HP sources — verify bosses no longer near-one-shot
+- [ ] Consider adding maxHealthBonus to sol unit innate bonuses (e.g., Greenway Bioframe could grant +30 HP innate)
+- [ ] The spire cleared flags are hardcoded in _recalcMaxHealth — if new spires are added, update the flag list
+- [ ] Consider a HUD element showing HP breakdown (base + level + equipment + sol grid + spire) on hover
+- [ ] Tune loot table weights for HP components after playtesting — current distribution may need adjustment
+
 ## Full Three-Act Campaign Playtest Audit (2026-03-15 late)
 
 Comprehensive end-to-end audit of all 124 rooms across 3 acts, all 3 ending paths, 22 quests, and 66 monsters. Sim coverage limited by pathfinding/combat AI, but manual content review covers Acts 2-3 fully.

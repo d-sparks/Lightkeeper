@@ -2295,6 +2295,9 @@
                 if (mod.bonus.energyCostReduction) {
                   html += '<div class="sol-mod-tag">-' + Math.round(mod.bonus.energyCostReduction * 100) + '% cost</div>';
                 }
+                if (mod.bonus.maxHealthBonus) {
+                  html += '<div class="sol-mod-tag">+' + mod.bonus.maxHealthBonus + ' HP</div>';
+                }
               }
             }
             cell.innerHTML = html;
@@ -2309,6 +2312,7 @@
               if (comp.bonus.cooldownReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.cooldownReduction * 100) + '% cd</div>';
               if (comp.bonus.healOnHit) html += '<div class="sol-mod-tag">+' + comp.bonus.healOnHit + ' heal</div>';
               if (comp.bonus.energyCostReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.energyCostReduction * 100) + '% cost</div>';
+              if (comp.bonus.maxHealthBonus) html += '<div class="sol-mod-tag">+' + comp.bonus.maxHealthBonus + ' HP</div>';
             }
             // Show durability indicator
             if (comp.durability !== undefined) {

@@ -16,7 +16,8 @@
       { "item": "frozen_core", "weight": 3 },
       { "item": "umbracite_shard", "weight": 3 },
       { "item": "shadow_conduit_chip", "weight": 2 },
-      { "item": "reinforced_battery_chip", "weight": 2 }
+      { "item": "reinforced_battery_chip", "weight": 2 },
+      { "item": "vitality_node_chip", "weight": 2 }
     ]
   },
   "frost_biome_rare": {
@@ -28,7 +29,8 @@
       { "item": "signal_booster_chip", "weight": 2 },
       { "item": "umbral_amplifier_chip", "weight": 1 },
       { "item": "void_resonator_chip", "weight": 1 },
-      { "item": "rechargeable_battery_chip", "weight": 1 }
+      { "item": "rechargeable_battery_chip", "weight": 1 },
+      { "item": "fortification_matrix_chip", "weight": 1 }
     ]
   },
   "spire_winds_chest": {
@@ -43,7 +45,9 @@
       { "item": "void_resonator_chip", "weight": 2 },
       { "item": "array_harmonic_stabilizer_chip", "weight": 2 },
       { "item": "uranium_generator_chip", "weight": 1 },
-      { "item": "bulwark_assault_plating", "weight": 1 }
+      { "item": "bulwark_assault_plating", "weight": 1 },
+      { "item": "resilience_core_chip", "weight": 2 },
+      { "item": "combat_medipac", "weight": 1 }
     ]
   },
   "spire_vigil_chest": {
@@ -56,7 +60,9 @@
       { "item": "power_tap_chip", "weight": 2 },
       { "item": "umbral_amplifier_chip", "weight": 2 },
       { "item": "void_resonator_chip", "weight": 1 },
-      { "item": "rechargeable_battery_chip", "weight": 1 }
+      { "item": "rechargeable_battery_chip", "weight": 1 },
+      { "item": "fortification_matrix_chip", "weight": 2 },
+      { "item": "combat_medipac", "weight": 1 }
     ]
   }
 }

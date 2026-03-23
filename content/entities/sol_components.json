@@ -483,5 +483,38 @@
     "bonus": { "healOnHit": 4, "damageMultiplier": 0.30 },
     "description": "Self-evolving bio-tech from the Greenway labs. Amplifies damage while regenerating the host with each strike.",
     "shape": [[1, 1]]
+  },
+  "vitality_node": {
+    "type": "modifier",
+    "name": "Vitality Node",
+    "rarity": "uncommon",
+    "bonus": { "maxHealthBonus": 15 },
+    "description": "Bio-reactive circuitry that reinforces the host's cellular structure, passively increasing maximum health.",
+    "shape": [[1]]
+  },
+  "fortification_matrix": {
+    "type": "modifier",
+    "name": "Fortification Matrix",
+    "rarity": "rare",
+    "bonus": { "maxHealthBonus": 25, "cooldownReduction": 0.10 },
+    "description": "Layered defensive mesh that toughens the body while optimizing combat reflexes.",
+    "shape": [[1, 1]]
+  },
+  "resilience_core": {
+    "type": "modifier",
+    "name": "Resilience Core",
+    "rarity": "epic",
+    "bonus": { "maxHealthBonus": 40, "damageMultiplier": 0.15 },
+    "description": "A dense protective core that channels defensive energy throughout the sol grid, dramatically increasing vitality while amplifying adjacent abilities.",
+    "shape": [[1, 1]]
+  },
+  "immortal_lattice": {
+    "type": "modifier",
+    "name": "Immortal Lattice",
+    "rarity": "legendary",
+    "adjacencyPattern": "radius2",
+    "bonus": { "maxHealthBonus": 60, "damageMultiplier": 0.20 },
+    "description": "Pre-Collapse lattice of self-repairing nanites. Its life-sustaining field extends to components two steps away, granting massive health and boosting nearby abilities.",
+    "shape": [[1, 1], [1, 1]]
   }
 }

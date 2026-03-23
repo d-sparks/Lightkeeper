@@ -2183,8 +2183,9 @@ class GameLoop {
       }
     }
 
-    // Sol grid: scan for abilities, generators, and batteries
+    // Sol grid: scan for abilities, generators, batteries, and passive HP
     player.solGridEnergyRegen = 0;
+    player.solGridMaxHealthBonus = 0;
     let extraMaxEnergy = 0;
     let singleUseMaxEnergy = 0;
     if (player.solGrid) {
@@ -2245,6 +2246,14 @@ class GameLoop {
               }
             }
           }
+
+          // Modifiers with maxHealthBonus — passive HP from placed components
+          if (cell.modifierId) {
+            const compDef = this.content.getSolComponent(cell.modifierId);
+            if (compDef && compDef.bonus && compDef.bonus.maxHealthBonus) {
+              player.solGridMaxHealthBonus += compDef.bonus.maxHealthBonus;
+            }
+          }
         }
       }
       player.maxEnergy += extraMaxEnergy;
@@ -2256,6 +2265,9 @@ class GameLoop {
       // Clamp current energy to new max in case capacity was reduced (e.g. battery removed)
       if (player.energy > player.maxEnergy) player.energy = player.maxEnergy;
     }
+
+    // Recalc max health to pick up sol grid HP modifiers
+    this._recalcMaxHealth(player);
   }
 
   // Consume energy from a player, drawing from rechargeable pool first, then single-use.
@@ -6260,15 +6272,28 @@ class GameLoop {
     return bonus;
   }
 
-  // Recalculate player maxHealth from base + levels + equipment.
+  // Recalculate player maxHealth from base + levels + equipment + sol grid + spire bonuses.
   // Adjusts current health proportionally: heals on increase, clamps on decrease.
   _recalcMaxHealth(player) {
     const settings = this.content.getSettings();
     const xpSys = (settings && settings.xpSystem) || {};
     const hpPerLevel = xpSys.hpPerLevel || 10;
+    const hpPerSpire = xpSys.hpPerSpireCleared || 0;
+    // Count cleared spires for permanent HP bonus
+    let spireBonus = 0;
+    if (hpPerSpire > 0 && player.id) {
+      const spireFlags = ['light_sentry_unlocked', 'hover_unlocked', 'photonic_pulse_unlocked'];
+      for (const flag of spireFlags) {
+        if (this.flagStore.getPlayerFlag(player.id, flag)) {
+          spireBonus += hpPerSpire;
+        }
+      }
+    }
     const newMax = CONSTANTS.PLAYER_MAX_HEALTH
       + (player.level - 1) * hpPerLevel
-      + this._getEquipmentMaxHealthBonus(player);
+      + this._getEquipmentMaxHealthBonus(player)
+      + (player.solGridMaxHealthBonus || 0)
+      + spireBonus;
     const delta = newMax - player.maxHealth;
     player.maxHealth = newMax;
     if (delta > 0) {
