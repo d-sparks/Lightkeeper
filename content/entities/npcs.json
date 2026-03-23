@@ -12697,14 +12697,39 @@
           "speaker": "Siege Warden Kael",
           "text": "The lighthouse defenses need time to recharge after the last siege. Come back later — the darkness isn't going anywhere."
         }
+      ],
+      "siege_cleared": [
+        {
+          "speaker": "Siege Warden Kael",
+          "text": "You held the line. The lighthouse beacon is burning stronger than it has in years."
+        },
+        {
+          "speaker": "Siege Warden Kael",
+          "text": "That kind of coordination doesn't happen by accident. You and your team earned every bit of what came out of that fight."
+        },
+        {
+          "speaker": "Siege Warden Kael",
+          "text": "The darkness will regroup — it always does. When it does, I'll need you back on that perimeter."
+        }
       ]
     },
     "dialogueRules": [
       {
         "conditions": [
-          {
-            "hasFlag": "expedition_tier_4_cleared"
-          }
+          { "hasFlag": "lighthouse_siege_last_clear" },
+          { "hasFlag": "siege_cooldown_active" }
+        ],
+        "use": "cooldown"
+      },
+      {
+        "conditions": [
+          { "hasFlag": "lighthouse_siege_cleared" }
+        ],
+        "use": "siege_cleared"
+      },
+      {
+        "conditions": [
+          { "hasFlag": "perimeter_breach_cleared" }
         ],
         "use": "unlocked"
       }

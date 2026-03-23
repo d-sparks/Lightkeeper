@@ -1390,7 +1390,11 @@ class GameLoop {
       // Set cooldown flag
       if (siege.challenge.cooldownFlag) {
         this.flagStore.setPlayerFlag(pid, siege.challenge.cooldownFlag, Date.now());
+        this.flagStore.setPlayerFlag(pid, 'siege_cooldown_active', true);
       }
+
+      // Set story progression flag (persistent — marks first-ever clear)
+      this.flagStore.setPlayerFlag(pid, 'lighthouse_siege_cleared', true);
 
       // Send updated inventory
       if (this.actions.sendToPlayer) {
@@ -1421,6 +1425,14 @@ class GameLoop {
           x: portalTX, y: portalTY, tileId: 8,
         });
       }
+    }
+
+    // Emit siege_completed event for trigger system
+    for (const [pid] of room.players) {
+      const ctx = this._scriptContext(pid, room.id);
+      this._emitGameEvent(EventBus.Events.SIEGE_COMPLETED, {
+        playerId: pid, roomId: room.id, challengeId: siege.challengeId,
+      }, ctx);
     }
 
     // Clear siege flags on all party members
@@ -1459,6 +1471,15 @@ class GameLoop {
           x: portalTX, y: portalTY, tileId: 8,
         });
       }
+    }
+
+    // Emit siege_failed event for trigger system
+    for (const [pid] of room.players) {
+      const ctx = this._scriptContext(pid, room.id);
+      this._emitGameEvent(EventBus.Events.SIEGE_FAILED, {
+        playerId: pid, roomId: room.id, challengeId: siege.challengeId,
+        wavesCompleted: siege.wave - 1,
+      }, ctx);
     }
 
     // Clear siege flags

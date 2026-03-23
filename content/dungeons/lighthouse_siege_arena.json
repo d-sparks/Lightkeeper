@@ -40,11 +40,36 @@
       "event": "room_entered",
       "actions": [
         { "type": "showMessage", "lines": [
-          "The lighthouse beacon flickers as the nightside assault begins.",
-          "Waves of void creatures are closing in. Hold the perimeter."
+          "The perimeter lighthouse looms ahead, its beacon guttering against the encroaching dark.",
+          "Siege Warden Kael's voice crackles over the field relay: 'Defenders in position. Lighthouse integrity at full. First wave incoming — hold the line.'",
+          "Use the REPAIR button between waves to restore the lighthouse with silicon. If the beacon falls, the darkness wins."
         ]}
       ],
       "once": true
+    },
+    {
+      "id": "siege_victory_narrative",
+      "event": "siege_completed",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The last wave breaks against your defense. The lighthouse beacon blazes to full intensity, pushing the darkness back beyond the perimeter.",
+          "Siege Warden Kael: 'Ten waves. You held through all ten. The beacon's burning brighter than it has in months.'",
+          "Siege Warden Kael: 'Take what the darkness dropped — you've earned it. Use the portal when you're ready to return.'"
+        ]},
+        { "type": "setFlag", "flag": "lighthouse_siege_cleared" }
+      ],
+      "once": true
+    },
+    {
+      "id": "siege_defeat_narrative",
+      "event": "siege_failed",
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The lighthouse beacon sputters and dies. Darkness floods the perimeter as the defensive grid collapses.",
+          "Siege Warden Kael: 'Pull back! The lighthouse is gone. We'll have to rebuild before we can try again.'",
+          "A return portal shimmers open. Regroup and come back stronger."
+        ]}
+      ]
     }
   ]
 }

@@ -413,6 +413,25 @@ Remaining follow-ups:
 - **Siege arena solo blocker** — `minPlayers: 2` means solo players can never start the siege. Consider adding an NPC hint about this requirement.
 - **Breach clear as a quest step** — perimeter_breach is visited during early exploration but has no quest formally directing players there. The `gloom_wraith` kill flag ties it in organically, but a quest step would make it explicit.
 
+## Lighthouse Siege Story Integration (2026-03-23)
+
+Connected siege to story progression: NPC start trigger, arena narrative, victory/defeat triggers, post-siege reactions.
+
+Changes made:
+- **`entities/npcs.json`** — Siege Warden Kael dialogueRules fixed: was checking `expedition_tier_4_cleared`, now uses `perimeter_breach_cleared` for unlock. Added `siege_cleared` dialogue (post-victory), cooldown dialogue rule (checks `siege_cooldown_active` + `lighthouse_siege_last_clear`).
+- **`lighthouse_siege_arena.json`** — Rich entry narrative with Kael relay comms and repair instructions. Added `siege_completed` and `siege_failed` triggers with narrative and `lighthouse_siege_cleared` flag.
+- **`server/game-loop.js`** — `_completeSiege()` now sets `lighthouse_siege_cleared` and `siege_cooldown_active` flags on all players. Both `_completeSiege()` and `_failSiege()` emit game events (`siege_completed`/`siege_failed`) through the trigger system.
+- **`server/scripting/event-bus.js`** — Added `SIEGE_COMPLETED` and `SIEGE_FAILED` event types.
+- **`outpost_perimeter.json`** — Post-siege return trigger: narrative about stabilized perimeter + `perimeter_stabilized` flag.
+- **`meridian_station.json`** — Post-siege station trigger: NPC reactions, dispatch runner flavor, Kael acknowledgment.
+
+Remaining follow-ups:
+- **`siege_cooldown_active` expiry** — Flag is set on victory but never cleared when cooldown expires. Needs a time-based check or a condition that compares `lighthouse_siege_last_clear` timestamp to current time.
+- **Light Sentry placement in siege** — Planned inter-wave mechanic not yet implemented.
+- **Siege keyboard shortcut for repair** — Currently repair is button-click only; a keyboard shortcut (e.g., `R`) would improve accessibility.
+- **Lighthouse Mara siege variant** — Narrative tie-in for defending the restored Lighthouse Mara as a harder siege variant.
+- **Fast travel block during siege** — Not yet implemented (only blocked during expeditions).
+
 ## Content — Lighthouse Mara Main Quest Integration (2026-03-15)
 
 Wired Lighthouse Mara into the main quest flow. The transit pass is already gated behind `mara_core_cleared` in `train_station.json`; the main quest steps now formally route players through the 20-floor dungeon chain.

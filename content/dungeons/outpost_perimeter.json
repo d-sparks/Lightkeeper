@@ -2599,6 +2599,21 @@
         }
       ],
       "once": true
+    },
+    {
+      "id": "post_siege_return",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "lighthouse_siege_cleared" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The perimeter feels different now. The lighthouse beacon burns steady on the horizon — stronger than it has in months.",
+          "Patrols along the dark border report fewer incursions since the siege. Whatever you fought off, the Nightside remembers."
+        ]},
+        { "type": "setFlag", "flag": "perimeter_stabilized" }
+      ],
+      "once": true
     }
   ]
 }

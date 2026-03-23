@@ -329,6 +329,24 @@
     },
 
     {
+      "id": "post_siege_station",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "lighthouse_siege_cleared" },
+        { "not": { "hasFlag": "station_post_siege_entered" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "station_post_siege_entered" },
+        { "type": "showMessage", "lines": [
+          "Word has spread through the station. Frontier workers nod as you pass — they've heard what happened at the perimeter lighthouse.",
+          "A dispatch runner from the Civic Center intercepts you briefly: 'Councillor's office sends regards. The beacon network report just came in — perimeter sector output is up thirty percent since the siege.'",
+          "Siege Warden Kael catches your eye from across the concourse and gives a sharp, approving nod."
+        ]}
+      ],
+      "once": true
+    },
+
+    {
       "id": "post_vigil_station",
       "event": "room_entered",
       "conditions": [
