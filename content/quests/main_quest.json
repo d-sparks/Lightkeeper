@@ -90,10 +90,18 @@
       "completionConditions": [{ "hasFlag": "ready_for_perimeter" }],
       "completionActions": [{ "type": "grantXp", "amount": 10 }]
     },
+    "open_perimeter_gate": {
+      "label": "Open the Perimeter Gate",
+      "description": "Speak to Sgt. Fenn at the perimeter gate to have him open the blast door.",
+      "prerequisiteSteps": ["report_to_warden"],
+      "objective": { "roomId": "perimeter_gate", "targetNpc": "gate_sgt_fenn" },
+      "completionConditions": [{ "hasFlag": "fenn_opened_gate" }],
+      "completionActions": [{ "type": "grantXp", "amount": 5 }]
+    },
     "cross_perimeter": {
       "label": "Cross the Dark Perimeter",
       "description": "Pass through the perimeter gate and traverse the dangerous outer ring to reach the train station.",
-      "prerequisiteSteps": ["report_to_warden"],
+      "prerequisiteSteps": ["open_perimeter_gate"],
       "objective": { "roomId": "station_approach" },
       "completionConditions": [{ "hasFlag": "reached_station_approach" }],
       "completionActions": [{ "type": "grantXp", "amount": 30 }]
@@ -122,10 +130,18 @@
       "completionConditions": [{ "hasFlag": "yara_lighthouse_briefed" }],
       "completionActions": [{ "type": "grantXp", "amount": 10 }]
     },
+    "open_relay_station": {
+      "label": "Restore the Relay Station",
+      "description": "The collapsed relay station's maintenance hatch is sealed. Reroute power through both junction boxes to open it.",
+      "prerequisiteSteps": ["yara_lighthouse_briefing"],
+      "objective": { "roomId": "relay_station", "tileX": 13, "tileY": 10 },
+      "completionConditions": [{ "hasFlag": "relay_junction_complete" }],
+      "completionActions": [{ "type": "grantXp", "amount": 15 }]
+    },
     "enter_lighthouse_mara": {
       "label": "Enter Lighthouse Mara",
       "description": "The transit line runs on Lighthouse Mara's power grid — and that grid is dead. Find the entrance to Lighthouse Mara beyond the outpost perimeter and descend into the caverns below.",
-      "prerequisiteSteps": ["yara_lighthouse_briefing"],
+      "prerequisiteSteps": ["open_relay_station"],
       "objective": { "roomId": "lighthouse_mara_caverns" },
       "completionConditions": [{ "hasFlag": "visited_mara_caverns" }],
       "completionActions": [{ "type": "grantXp", "amount": 20 }]
