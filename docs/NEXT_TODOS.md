@@ -13,13 +13,16 @@ Added placeholder PNG sprite strips for 6 missing tilesets: dayside, fungal_fore
 - [ ] dayside and fungal_forest tilesets lack dungeon JSON files using them — verify they render correctly once dungeons reference them
 - [ ] nightside tileset ID 9 (transit_portal) is non-standard — confirm no engine path collision with the existing portal system
 
-## Bot Navigation — Remaining Issues (2026-03-23)
+## Bot Navigation — Loop Fixes (2026-03-27)
 
-Fixed workshop↔training_range bounce, fast-travel waypoint loop, and 200+ repeated abandons for unreachable rooms. Explore sim improved from 10→16 rooms visited (8.1%→12.9%).
+Fixed two navigation loop bugs: (1) accidental transitions during explore_room/non-navigate goals causing workshop↔proc_quarantine bouncing, (2) room-level bouncing defeating stuck detection. Three changes: loop-detecting transition blocker in processTransitions (blocks transitions to rooms visited 3+ times in recent history), navigate_to_room loop detector (abandons goals after 4+ visits without flag/inventory progress), and smarter stuck detection that ignores room revisits.
+
+Results: explore mode still 16/124 rooms (no regression), mainline deaths reduced 4→1 (fewer entrance↔perimeter bounces), no more proc_quarantine infinite cycling in explore mode.
 
 ### Outstanding Follow-ups
 - [ ] A* fails from (33,22) to (48,22) in outpost_perimeter — lighthouse_siege_arena exit unreachable from east spawn. Map may need a walkable corridor or the exit tile needs repositioning.
 - [ ] A* fails from (11,6) to (13,6) in perimeter_outer_ring — bot gets stuck exploring interactable tiles behind walls. explore_room should skip tiles A* can't reach.
+- [ ] Bot can't physically reach solid-adjacent exit tiles when approach path hugs a wall (e.g., perimeter_gate (9,0)). The move_to_position distance threshold (0.4 * TILE_SIZE) prevents convergence when the player collision radius keeps the center too far from tile center. Consider tile-based arrival check for the final path node.
 - [ ] Explore mode only visits 16/124 rooms — many rooms behind procedural dungeons or multi-hop chains still unreachable by sim bot. Needs deeper investigation of remaining blockers.
 
 ## Spire of Vigil — Bot Navigation Fix (2026-03-23)

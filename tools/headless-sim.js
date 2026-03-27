@@ -144,12 +144,26 @@ function processTransitions(gameLoop, botState) {
   for (const t of transitions) {
     if (t.playerId !== PLAYER_ID) continue;
 
-    // Block transitions to wrong destinations in static rooms when the bot
-    // is navigating to a specific exit. Prevents combat knockback from pushing
-    // the bot through nearby exit tiles (e.g. outpost_perimeter → outpost_entrance
-    // when the bot needs to go north to perimeter_gate).
+    // Block transitions from static rooms in two cases:
+    // (a) _expectedNextRoom is set but doesn't match (combat knockback
+    //     pushed bot through wrong exit) — always block these.
+    // (b) _expectedNextRoom is null AND the destination would create a
+    //     navigation loop (same room visited 3+ times recently without
+    //     progress). Allows first-time accidental transitions through but
+    //     prevents endless bouncing between rooms.
     if (!t.deathRespawn && !t.fromRoom.startsWith('proc:')) {
-      if (botState._expectedNextRoom && t.toDungeon !== botState._expectedNextRoom) {
+      const isWrongDest = botState._expectedNextRoom && t.toDungeon !== botState._expectedNextRoom;
+      // Detect loop-causing transitions: destination visited 3+ times in
+      // recent history without flag/inventory changes between visits.
+      let isLoopTransition = false;
+      if (!botState._expectedNextRoom) {
+        const hist = botState._roomTransitionHistory;
+        const destVisits = hist.filter(r => r === t.toDungeon).length;
+        if (destVisits >= 3) {
+          isLoopTransition = true;
+        }
+      }
+      if (isWrongDest || isLoopTransition) {
         const currentRoom = gameLoop.getRoom(t.fromRoom);
         if (currentRoom) {
           // Nudge player away from the wrong exit tile
@@ -304,6 +318,12 @@ function processTransitions(gameLoop, botState) {
     // Note: _expectedNextRoom is NOT cleared here — it persists until
     // doNavigateToRoom sets a new value or clears it when done. This prevents
     // wrong transitions during the ticks between arrival and the next navigate call.
+
+    // Record transition for loop detection (keep last 20 entries)
+    botState._roomTransitionHistory.push(targetRoomId);
+    if (botState._roomTransitionHistory.length > 20) {
+      botState._roomTransitionHistory.shift();
+    }
 
     // Clear stale move_to_position goal left over from old room's exit tile
     if (botState.currentGoal && botState.currentGoal() && botState.currentGoal().type === 'move_to_position') {
@@ -505,12 +525,12 @@ function astarPath(dungeon, startTX, startTY, goalTX, goalTY, blockedTiles, play
       if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
       const nk = key(nx, ny);
       if (closed[nk]) continue;
-      if (isTileSolid(dungeon, nx, ny)) continue;
+      if (isTileSolid(dungeon, nx, ny, playerFlags)) continue;
       if (blockedTiles && blockedTiles.has(nk)) continue;
 
       // For diagonal movement, check that both cardinal neighbors are clear
       if (dx !== 0 && dy !== 0) {
-        if (isTileSolid(dungeon, best.x + dx, best.y) || isTileSolid(dungeon, best.x, best.y + dy)) continue;
+        if (isTileSolid(dungeon, best.x + dx, best.y, playerFlags) || isTileSolid(dungeon, best.x, best.y + dy, playerFlags)) continue;
       }
 
       const cost = (dx !== 0 && dy !== 0) ? 1.414 : 1;
@@ -782,6 +802,12 @@ class Bot {
     this._blockedExitTiles = []; // Array of { x, y, room }
     this._expectedNextRoom = null; // Set during navigation to block wrong transitions
     this._unreachableRooms = new Set(); // Rooms that failed navigation repeatedly
+    // Circular buffer of recent room transitions for loop detection.
+    // Each entry: { room, tick }. If the same room appears too often in the
+    // window, the bot is bouncing and the goal should be abandoned.
+    this._roomTransitionHistory = [];
+    this._lastNavFlagsSnapshot = null; // flags snapshot for loop detection
+    this._lastNavInvCount = 0;
   }
 
   // Build a Set of tile keys (y*width+x) for exit tiles that should be avoided
@@ -977,10 +1003,12 @@ class Bot {
 
     if (!nearest) return false;
 
-    // During navigation (or lightCombat/explore mode), only fight monsters that
-    // are very close (within 3 tiles) to avoid wasting time on optional encounters
-    const preferNavigation = isNavigating || this.lightCombat;
-    const engageRange = preferNavigation ? 3 * TILE_SIZE : CONSTANTS.MONSTER_AGGRO_RANGE * TILE_SIZE;
+    // During navigation or explore mode, only fight nearby monsters to avoid
+    // wasting time on optional encounters. Explore uses 5 tiles (covers most
+    // corridor widths), navigation uses 3 tiles, general uses full aggro range.
+    const engageRange = this.lightCombat ? 5 * TILE_SIZE
+      : isNavigating ? 3 * TILE_SIZE
+      : CONSTANTS.MONSTER_AGGRO_RANGE * TILE_SIZE;
     if (nearestDist > engageRange) return false;
 
     // Combat skip cooldown: after combat timeout, ignore combat for a while
@@ -1003,11 +1031,14 @@ class Bot {
       this._combatStuckTicks = (this._combatStuckTicks || 0) + 1;
     }
     // After zero combat progress, skip combat to let goals proceed
-    // Use a shorter threshold during navigation/explore (45 ticks ~3s) vs general (150 ticks ~10s)
-    const combatStallLimit = preferNavigation ? 45 : 150;
+    // lightCombat (explore mode) gets 90 ticks (~6s) — enough to kill blocking
+    // monsters but not so long the bot wastes time on unreachable targets.
+    // Navigation gets 45 ticks (~3s), general combat gets 150 ticks (~10s).
+    const combatStallLimit = this.lightCombat ? 90 : (isNavigating ? 45 : 150);
     if (this._combatStuckTicks > combatStallLimit) {
       this._combatStuckTicks = 0;
-      this._combatSkipTicks = 300;
+      // Skip combat briefly — 150 ticks (10s) in explore, 300 (20s) otherwise
+      this._combatSkipTicks = this.lightCombat ? 150 : 300;
       return false;
     }
 
@@ -1122,6 +1153,42 @@ class Bot {
     if (this._unreachableRooms.has(goal.room)) {
       this.popGoal();
       return;
+    }
+
+    // Detect room-level navigation loops: if the bot keeps visiting the same
+    // rooms without making real progress (flag changes, inventory changes), it's
+    // bouncing between rooms and the goal should be abandoned.
+    if (!goal._loopCheckTick) goal._loopCheckTick = 0;
+    goal._loopCheckTick++;
+    if (goal._loopCheckTick % 200 === 0) {
+      // Check every 200 ticks (~13s): count how often each room appears
+      // in recent transition history
+      const hist = this._roomTransitionHistory;
+      if (hist.length >= 6) {
+        const counts = {};
+        for (const r of hist) counts[r] = (counts[r] || 0) + 1;
+        const maxVisits = Math.max(...Object.values(counts));
+        // If any single room was visited 4+ times in the last 20 transitions,
+        // and flags/inventory haven't changed, the bot is in a loop
+        if (maxVisits >= 4) {
+          const flags = JSON.stringify(this.gameLoop.flagStore.getPlayerFlags(PLAYER_ID));
+          const playerObj = this.getPlayer();
+          const invCount = playerObj ? playerObj.inventory.length : 0;
+          if (flags === this._lastNavFlagsSnapshot && invCount === this._lastNavInvCount) {
+            const loopRoom = Object.entries(counts).find(([, c]) => c >= 4)?.[0];
+            console.log(`[Bot] Navigation LOOP detected: "${loopRoom}" visited ${maxVisits} times in last ${hist.length} transitions without progress — abandoning goal "${goal.room}"`);
+            this._unreachableRooms.add(goal.room);
+            this._expectedNextRoom = null;
+            this._roomTransitionHistory = [];
+            this.popGoal();
+            return;
+          }
+        }
+      }
+      // Snapshot current state for next loop check
+      this._lastNavFlagsSnapshot = JSON.stringify(this.gameLoop.flagStore.getPlayerFlags(PLAYER_ID));
+      const playerObj = this.getPlayer();
+      this._lastNavInvCount = playerObj ? playerObj.inventory.length : 0;
     }
 
     // Track navigation attempts — bail after too many failures to prevent infinite loops
@@ -1382,6 +1449,16 @@ class Bot {
       goal._pathIndex = 0;
 
       if (!goal._path || goal._path.length === 0) {
+        // Track consecutive A* failures — if pathfinding never succeeds, the
+        // target is likely unreachable (inside walls, behind locked doors).
+        goal._astarFails = (goal._astarFails || 0) + 1;
+        // In explore/lightCombat mode, abandon quickly (30 ticks ~2s) to avoid
+        // wasting the time budget on unreachable positions.
+        const failLimit = this.lightCombat ? 30 : 100;
+        if (goal._astarFails > failLimit) {
+          this.popGoal();
+          return;
+        }
         // Can't pathfind — try direct movement
         if (goal._totalTicks % 100 === 1) console.log(`[Bot] A* FAILED from (${currentTX},${currentTY}) to (${goal.tileX},${goal.tileY}) in ${this.currentRoom}, fallback to direct, monsters=${room.monsters.size}`);
         this.moveTowardTile(player, goal.tileX, goal.tileY);
@@ -2499,7 +2576,20 @@ class Bot {
       for (const [, mob] of room.monsters) monsterHP += mob.health;
     }
 
-    if (pos === this.lastPos && this.currentRoom === this.lastRoom &&
+    // Room changes only count as progress if the room is genuinely new
+    // (not a recent revisit). This prevents room-bouncing loops from
+    // resetting the stuck counter and hiding soft-locks.
+    let roomIsNew = this.currentRoom !== this.lastRoom;
+    if (roomIsNew && this._roomTransitionHistory.length > 2) {
+      const hist = this._roomTransitionHistory;
+      const recent = hist.slice(-6);
+      const visitCount = recent.filter(r => r === this.currentRoom).length;
+      if (visitCount >= 2) {
+        roomIsNew = false; // Revisiting a room we just came from — not real progress
+      }
+    }
+
+    if (pos === this.lastPos && (!roomIsNew && this.currentRoom === this.lastRoom) &&
         flags === this.lastFlags && invCount === this.lastInventoryCount &&
         monsterHP === this._lastTrackMonsterHP) {
       this.ticksWithoutProgress++;
@@ -3417,6 +3507,15 @@ const EXPLORE_FLAGS = [
   'fen_letter_accepted',
   'damage_booster_equipped',
   'engineer_briefing_complete',
+  // Tileset-gated doors (greenway, spire_radiance, spire_winds, frost_crypt)
+  'greenway_pass_granted',
+  'supply_sabotage_started',
+  'radiance_nexus_guardian_defeated',
+  'radiance_conduits_aligned',
+  'general_thorne_defeated',
+  'fortress_power_disabled',
+  'mara_conduit_a_activated',
+  'mara_conduits_online',
   // Exit-level gate flags (dungeon transitions)
   'arrived_meridian',
   'chose_path_control',
@@ -3425,6 +3524,8 @@ const EXPLORE_FLAGS = [
   'kappa_coordinates_received',
   'meridian_umbrasite_quest_complete',
   'reached_underlumen_threshold',
+  'array_overseer_defeated',
+  'supply_sabotage_complete',
   // Spire of Vigil gate flags (boss kills, puzzles, and progression)
   'garrison_warlord_killed',
   'armory_gate_opened',
@@ -3477,6 +3578,14 @@ function runExplore(gameLoop, bot) {
       if (medSupplies) {
         for (let i = 0; i < 50; i++) {
           player.inventory.push({ type: 'medical_supplies', name: medSupplies.name, rarity: medSupplies.rarity, category: 'consumable' });
+        }
+      }
+      // Grant key items needed for hasItem exit gates
+      const gateItems = ['array_clearance_badge'];
+      for (const itemId of gateItems) {
+        const itemDef = content.getItem(itemId);
+        if (itemDef) {
+          player.inventory.push({ type: itemId, name: itemDef.name, rarity: itemDef.rarity || 'common', category: itemDef.type || 'key' });
         }
       }
       // Boost health — explore bot needs to survive heavy rooms while still
