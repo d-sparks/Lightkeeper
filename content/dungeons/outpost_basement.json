@@ -283,9 +283,9 @@
     1,
     1,
     1,
-    6,
     1,
-    6,
+    1,
+    1,
     2,
     1,
     1,
@@ -454,50 +454,9 @@
       "type": "stairs_down",
       "spawnX": 2,
       "spawnY": 2
-    },
-    {
-      "x": 10,
-      "y": 11,
-      "leadsTo": "elevation_demo",
-      "type": "stairs_down",
-      "spawnX": 2,
-      "spawnY": 2
-    },
-    {
-      "x": 12,
-      "y": 11,
-      "leadsTo": "light_sentry_demo",
-      "type": "stairs_down",
-      "spawnX": 2,
-      "spawnY": 2
-    },
-    {
-      "x": 14,
-      "y": 11,
-      "leadsTo": "pulse_cannon_demo",
-      "type": "stairs_down",
-      "spawnX": 2,
-      "spawnY": 2
     }
   ],
   "triggers": [
-    {
-      "id": "training_room_hint",
-      "event": "room_entered",
-      "conditions": [
-        { "hasFlag": "received_sol_unit" },
-        { "not": { "hasFlag": "training_rooms_hint_seen" } }
-      ],
-      "actions": [
-        { "type": "setFlag", "flag": "training_rooms_hint_seen" },
-        { "type": "showMessage", "lines": [
-          "A handwritten sign is posted above three stairwells along the lower corridor:",
-          "'SOL UNIT TRAINING — Authorized Personnel Only. Simulators calibrated for Hover, Sentry, and Demolition modules.'",
-          "The engineer set these up before the luddite attacks. They're still operational."
-        ]}
-      ],
-      "once": true
-    },
     {
       "id": "find_journal_fragment",
       "event": "room_entered",

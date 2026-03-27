@@ -4,6 +4,16 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Ability Chamber Stairs Removed from Outpost Basement (2026-03-27)
+
+Removed exits and stair tiles for `elevation_demo`, `light_sentry_demo`, and `pulse_cannon_demo` from `outpost_basement.json`. These three ability demo chambers are not meant to be accessible at the current stage of the game. Also removed the `training_room_hint` trigger that referenced the now-removed stairwells.
+
+Note: the task description said to edit `outpost_workshop.json`, but the exits to the ability chambers were in `outpost_basement.json` (the hidden lower level accessed from the workshop). The fix was applied to the correct file.
+
+### Outstanding Follow-ups
+- [ ] Decide when ability chambers should be re-introduced to the game (likely gated behind a later story flag)
+- [ ] Update `sol_unit_training` quest if it still references `elevation_demo`, `light_sentry_demo`, `pulse_cannon_demo` as objectives — players won't be able to complete those objectives until the exits are restored
+
 ## Pack Aura Damage Compounding Bug Fix (2026-03-27)
 
 Fixed exponential damage compounding in `updateMonsters`. The pack leader aura temporarily multiplies `mob.damage` each tick, with the original value restored at the end of the loop iteration. However, 6 `continue` statements (lunge, knockback, no-target, boss_retreat, ambush dormant, out-of-aggro-range) skipped the restore, causing the aura multiplier to compound every tick (~15 Hz). A frostfang_hunter near a frostfang_alpha would see damage grow as `15 * 1.25^N` per tick, reaching millions within seconds.

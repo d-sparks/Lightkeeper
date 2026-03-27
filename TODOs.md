@@ -8,3 +8,16 @@
 - [sonnet] Generate missing tileset PNGs. greenway.png (31 tiles), biolab.png (21 tiles), spire_winds.png extended (23-26 tiles), and new frost_crypt tiles (23-26) all need sprite strips. Without these, Act 2-3 zones render with missing tile art.
 - [opus] Commission Batch 1 sprite art. 10 priority entities (14 PNGs): player character (4 variants), Warden Holt, MERIDIAN-7, Sol Engineer, Councillor Asha, dusk_crawler, frostfang_hunter, shade_stalker, Crystal Guardian, Dural Voss. Brief ready at docs/art-commission-brief.md. Find and engage a pixel artist.
 - [opus] Full human playtest of Acts 2-3. Everything beyond Lighthouse Mara is unverified by human play. Need 2-3 testers logging 5-10 hours each through Acts 2-3 and all 3 ending paths. Document pacing, balance issues, narrative gaps, and soft locks.
+
+### From Tester playtest (Mar 15-26)
+
+- [opus] Fix frostfang_hunter astronomical damage. Dealt 120,559,064 damage in lighthouse_mara_f02 and 16,024 in lighthouse_mara_caverns — likely integer overflow or corrupt stat. Player got one-shot twice across 2 sessions, making lighthouse area unplayable. Check frostfang_hunter in monsters.json.
+- [opus] Fix poison DoT persisting through death. Player died in dead_road, respawned at outpost_entrance, and immediately took 3 poison ticks (4 dmg each) in the safe zone. Clear all DoT/debuff timers on death in game-loop.js.
+- [opus] Cap proc dungeon nesting depth. proc_quarantine spawns inside itself up to depth 3 (`proc:proc_quarantine:proc:proc_quarantine:proc:proc_quarantine:...`). Could cause infinite recursion or extremely long room IDs. Limit to max 1-2 nesting levels.
+- [sonnet] Remove ability chamber stairs from outpost_workshop. Per tester: "The three ability chambers aren't supposed to happen at this stage of the game." Remove stair tiles/exits leading to ability chambers in outpost_workshop.json.
+- [sonnet] Fix charging_tech_maren dialogue for early game. Per tester: "You shouldn't get a rechargeable battery at this point, but the tech should offer to recharge your worn battery." Change NPC to offer recharge instead of granting received_first_battery.
+- [sonnet] Remove cold DoT from lighthouse_mara_caverns. Per tester: "The DOT in lighthouse mara is too annoying." Cold ticks (2 dmg every ~3s) drain HP steadily, leaving players low for f02. Remove environmental damage from lighthouse_mara_caverns.json and lighthouse_mara_f02.json.
+- [sonnet] Reduce dead_road difficulty spike. First player death — overlapping shade_stalker, dusk_crawler, poison, and feral_hound attacks killed in ~4 seconds. Reduce monster density or stagger spawns to avoid simultaneous multi-source pressure.
+- [sonnet] Add heal point between lighthouse_mara_caverns and f02. Player entered f02 at 42/175 HP due to cold DoT attrition through caverns. Place frost_salve or rest area at the transition.
+- [sonnet] Move proc_quarantine entrance away from sol_engineer in outpost_workshop. Player accidentally entered the proc dungeon 3 times in 6 seconds while trying to talk to the NPC. Move entrance tile further from sol_engineer_1.
+- [sonnet] Improve equipment/sol grid UI clarity. Player triggered damage_booster_equipped 4 times in quick succession, suggesting confusion with the UI. Consider adding a tutorial prompt on first equipment pickup.
