@@ -4,6 +4,18 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Art Commission — Batch 1 Sprite Engagement (2026-03-27)
+
+Brief is ready at `docs/art-commission-brief.md` with art style guide at `docs/art-style-guide.md`. 10 entities, 14 PNGs, 64x16 animation strips with 4 frames each.
+
+### Action Items
+- [ ] Post commission listing on Fiverr, r/gameDevClassifieds, or itch.io community — link to the brief
+- [ ] Review artist portfolios for 16x16 dark sci-fi pixel art experience (readability at small scale is key)
+- [ ] Request 1 test sprite (e.g. `dusk_crawler.png`) before committing to full batch — verify palette compliance and animation frame layout
+- [ ] Once artist is selected, share `docs/art-style-guide.md` master palette and confirm 64x16 strip delivery format
+- [ ] After delivery: drop replacement PNGs into `content/sprites/`, test against Dark Perimeter and Stone Crypt tilesets
+- [ ] Verify `crystal_shard_minion` still looks acceptable reusing the new `crystal_guardian.png` — may need its own sprite in Batch 2
+
 ## Campaign NPC Conditional Dialogue (2026-03-27)
 
 Added state-dependent dialogue sets and rules for four key campaign NPCs:
