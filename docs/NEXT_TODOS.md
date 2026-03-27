@@ -4,6 +4,40 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Frost Crypt Pedestal Puzzle — Scope Bug Fix (2026-03-27)
+
+Fixed scope mismatch in `nightside_frost_crypt.json` pedestal puzzle. Both pedestal triggers set flags with `"scope": "room"`, but the `crypt_puzzle_check` trigger's conditions checked `hasFlag` without specifying scope (defaults to `"player"`). The puzzle could never be solved because the player-scoped flags were never set.
+
+### Fix Applied
+- Added `"scope": "room"` to both `hasFlag` conditions in `crypt_puzzle_check` trigger (lines 170-171)
+
+### Outstanding Follow-ups
+- [ ] Verify fix in-game: activate both pedestals in frost crypt and confirm central chamber opens
+- [ ] Check if any other room-scoped flag puzzles have the same scope mismatch pattern (search for `"scope": "room"` in set actions paired with unscoped `hasFlag` checks)
+
+## Disconnected Flags Audit — Acts 2-3 (2026-03-27)
+
+10+ flags are set by triggers but never checked by any condition, NPC dialogue, or exit gate. These are harmless but represent unused content hooks:
+
+| Flag | Set In | Purpose |
+|------|--------|---------|
+| `found_refined_umbrasite` | nightside_depths | Lore collection |
+| `resonant_core_collected` | nightside_depths | Lore collection |
+| `met_unbounded_elder` | nightside_depths | Quest tracking |
+| `found_geometric_tablet` | nightside_frost_crypt | Lore collection |
+| `depths_warmth_noted` | nightside_depths | Narrative marker |
+| `sable_guiding` | nightside_passage | Companion state |
+| `elder_merge_path_revealed` | nightside_depths | Path indicator |
+| `crypt_guardian_warned` | nightside_frost_crypt | Warning (set twice) |
+| `found_raider_manifest` | nightside_outpost | Lore collection |
+| `found_raider_journal` | nightside_outpost | Lore collection |
+
+### Outstanding Follow-ups
+- [ ] Wire lore collection flags to NPC dialogue (e.g., MERIDIAN-7 reacts to `found_refined_umbrasite`, Unbounded Elder reacts to `found_geometric_tablet`)
+- [ ] Wire `sable_guiding` to Sable NPC behavior changes or dialogue in subsequent rooms
+- [ ] Wire `elder_merge_path_revealed` to merge ending path content (prerequisite or bonus dialogue)
+- [ ] Remove or document `crypt_guardian_warned` double-set — likely a copy-paste issue
+
 ## Art Commission — Batch 1 Sprite Engagement (2026-03-27)
 
 Brief is ready at `docs/art-commission-brief.md` with art style guide at `docs/art-style-guide.md`. 10 entities, 14 PNGs, 64x16 animation strips with 4 frames each.

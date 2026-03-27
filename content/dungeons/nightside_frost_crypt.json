@@ -167,8 +167,8 @@
       "id": "crypt_puzzle_check",
       "event": "flag_changed",
       "conditions": [
-        { "hasFlag": "crypt_left_pedestal" },
-        { "hasFlag": "crypt_right_pedestal" },
+        { "hasFlag": "crypt_left_pedestal", "scope": "room" },
+        { "hasFlag": "crypt_right_pedestal", "scope": "room" },
         { "not": { "hasFlag": "crypt_puzzle_solved" } }
       ],
       "actions": [

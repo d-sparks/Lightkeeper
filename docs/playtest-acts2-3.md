@@ -140,6 +140,7 @@ Target: 2-3 testers, 5-10 hours each through Acts 2-3 and all 3 ending paths.
 - [ ] **proc_quarantine nesting bug**: Main quest steps "find_warlord_key" and "open_supply_crate" reference procedural dungeon that has a known recursive nesting bug. This is an Act 1 blocker — testers must have this resolved or skip past it via flag grants.
 - [ ] **spire_winds_cleared flag not checked**: Player can potentially skip Spire of Winds and still access Act 3. Verify if this is intentional.
 - [ ] **One-way exits**: merge_nexus→array_deep_processing and underlumen_threshold→train_station are intentional one-ways. Testers should be aware.
+- [ ] **Spire Radiance replay tier logic**: The `spire_radiance_replay_tier` flag condition may prevent hard/legendary reward triggers from firing on subsequent clears. Verify replay rewards work after first clear.
 
 ### Technical
 
@@ -165,3 +166,5 @@ Target: 2-3 testers, 5-10 hours each through Acts 2-3 and all 3 ending paths.
 3. **Spire Radiance Forge** — Heat + combat is brutal. Log if it feels unfair.
 4. **NPC dialogue is mostly static** — Expected limitation; note if it breaks immersion at key story beats.
 5. **dayside_raid_defense** — Recently populated with enemies. May need balance tuning.
+6. **nightside_frost_crypt pedestal puzzle** — Had a scope mismatch bug preventing puzzle completion (fixed 2026-03-27). Verify both pedestals activate and central chamber opens correctly.
+7. **Disconnected lore flags** — 10+ flags (found_refined_umbrasite, found_geometric_tablet, etc.) are set but never checked. No gameplay impact but lore pickups currently have no payoff.
