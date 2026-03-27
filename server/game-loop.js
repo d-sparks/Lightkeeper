@@ -5156,6 +5156,16 @@ class GameLoop {
       player.hoverTime = 0;
       player.elevation = 0;
 
+      // Clear all DoT and debuff timers so they don't persist through respawn
+      player.poisonTime = 0;
+      player.poisonDps = 0;
+      player.poisonTickTimer = 0;
+      player.woundTime = 0;
+      player.woundHealReduction = 0;
+      player.stunTime = 0;
+      player.knockbackTime = 0;
+      player.channeling = null;
+
       // If player was on an expedition, clear expedition state (failed/abandoned)
       // and return them to the expedition origin (meridian_station) instead of the global spawn
       let expeditionOrigin = null;
