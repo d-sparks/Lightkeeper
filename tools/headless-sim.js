@@ -1264,12 +1264,43 @@ class Bot {
             if (roomInfo) {
               console.log(`[Bot] Exit blocked by flag "${cond.hasFlag}"; navigating to ${roomInfo.roomId} to resolve`);
               goal._lastResolvedHop = hopKey;
-              // Push in reverse order (stack — last pushed = first executed)
+              const triggerEvent = roomInfo.trigger ? roomInfo.trigger.event : null;
+
+              // Push goals in reverse order (stack — last pushed = first executed)
               this.pushGoal({ type: 'wait_for_flag', flag: cond.hasFlag, retryInteract: true, retryTicks: 15 });
-              this.pushGoal({ type: 'explore_room' });
-              if (roomInfo.npcType) {
-                this.pushGoal({ type: 'interact_with_npc', npcType: roomInfo.npcType, room: roomInfo.roomId });
+
+              if (triggerEvent === 'monster_killed') {
+                // Flag set by killing a monster — fight everything in the room
+                this.pushGoal({ type: 'kill_monsters' });
+              } else if (triggerEvent === 'flag_changed' && roomInfo.trigger.conditions) {
+                // Flag set reactively when prerequisite flags change —
+                // resolve each prerequisite (e.g. activate pedestals in order)
+                this.pushGoal({ type: 'explore_room' });
+                const prereqFlags = extractPositiveFlags(roomInfo.trigger.conditions);
+                for (let i = prereqFlags.length - 1; i >= 0; i--) {
+                  const prereqFlag = prereqFlags[i];
+                  const doorInfo = findDoorThatSetsFlag(prereqFlag, roomInfo.roomId);
+                  if (doorInfo) {
+                    this.pushGoal({ type: 'wait_for_flag', flag: prereqFlag, retryInteract: true, retryTicks: 15 });
+                    this.pushGoal({ type: 'interact_with_tile', tileX: doorInfo.tileX, tileY: doorInfo.tileY, room: roomInfo.roomId });
+                  }
+                }
+                // Kill monsters that may block access to pedestals/tiles
+                this.pushGoal({ type: 'kill_monsters' });
+              } else {
+                // Default: explore room (NPC interaction, doors, items)
+                this.pushGoal({ type: 'explore_room' });
+                if (roomInfo.npcType) {
+                  this.pushGoal({ type: 'interact_with_npc', npcType: roomInfo.npcType, room: roomInfo.roomId });
+                } else {
+                  // Check for door_interacted trigger with specific tile coordinates
+                  const doorInfo = findDoorThatSetsFlag(cond.hasFlag, roomInfo.roomId);
+                  if (doorInfo) {
+                    this.pushGoal({ type: 'interact_with_tile', tileX: doorInfo.tileX, tileY: doorInfo.tileY, room: roomInfo.roomId });
+                  }
+                }
               }
+
               this.pushGoal({ type: 'navigate_to_room', room: roomInfo.roomId });
               return;
             }
@@ -2643,8 +2674,22 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
               goals.push({ type: 'pick_up_item', itemType, room: itemLoc.roomId, questId });
             }
           } else {
+            const triggerEvent = flagSource.trigger ? flagSource.trigger.event : null;
             goals.push({ type: 'navigate_to_room', room: flagSource.roomId, questId });
-            if (flagSource.npcType) {
+            if (triggerEvent === 'monster_killed') {
+              goals.push({ type: 'kill_monsters', questId });
+            } else if (triggerEvent === 'flag_changed' && flagSource.trigger.conditions) {
+              goals.push({ type: 'kill_monsters', questId });
+              const prereqFlags = extractPositiveFlags(flagSource.trigger.conditions);
+              for (const prereqFlag of prereqFlags) {
+                const doorInfo = findDoorThatSetsFlag(prereqFlag, flagSource.roomId);
+                if (doorInfo) {
+                  goals.push({ type: 'interact_with_tile', tileX: doorInfo.tileX, tileY: doorInfo.tileY, room: flagSource.roomId, questId });
+                  goals.push({ type: 'wait_for_flag', flag: prereqFlag, retryInteract: true, retryTicks: 15, questId });
+                }
+              }
+              goals.push({ type: 'explore_room', questId });
+            } else if (flagSource.npcType) {
               goals.push({ type: 'interact_with_npc', npcType: flagSource.npcType, room: flagSource.roomId, questId });
             } else {
               goals.push({ type: 'explore_room', questId });
