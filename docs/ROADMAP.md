@@ -1,6 +1,6 @@
 # Lightkeeper Roadmap
 
-Last updated: 2026-03-23. Mainline sim: 46/124 rooms (37.1%), 165 kills, 10 deaths — bot reaches Nightside/Spire approach but can't navigate to spire_vigil_core/sanctum (abandoned after 16 attempts), then enters fast-travel loop. Explore sim: 9/124 rooms (7.3%) — severe regression, bot loops between workshop/training_range, combat completely broken (0 damage dealt). Content validator: 2 errors (lighthouse_siege flags never set), 5 warnings. Unit tests: 320/320 pass. Major completed since last update: HP scaling (sol mods + per-Spire bonus + medipacs), Act 3 difficulty bump, stun immunity windows, art commission brief, sprite field wiring. Critical remaining: sim bot navigation loops, explore combat broken, Spire Vigil navigation, lighthouse_siege flag wiring, array_door_override dead item, spire_winds_chest missing loot, weapon progression plateau, NPC conditional dialogue, full human playtest.
+Last updated: 2026-03-27. Mainline sim: 5/124 rooms (4.0%), 11 kills, 0 deaths — REGRESSION from 46/124 (37.1%). Bot now stuck in proc_quarantine depth 2 looking for stairs_down exit. Explore sim: 13/124 rooms (10.5%), 47 kills, 0 deaths — combat fixed (was 0 kills), but A* fails at perimeter_outer_ring (13,6) causing soft lock. Content validator: 7 errors (3 unreachable demo rooms, training quest broken, training_rooms_hint_seen flag unset), 8 warnings. Major completed since last update: onboarding hint on equip, dead_road difficulty reduction, ability chamber removal from basement, pack aura damage compounding fix, frost crypt scope fix, lighthouse siege flag wiring, conditional dialogue for 4 key NPCs (Asha, Holt, MERIDIAN-7, Maren), cold DoT removal from lighthouse_mara, proc_quarantine entrance repositioned. Critical remaining: mainline sim regression (proc_quarantine depth stuck), sol_unit_training quest broken (references unreachable demo rooms), explore A* failures, weapon progression plateau, full human playtest, sprite art commission.
 
 ## Big Picture
 
@@ -8,10 +8,10 @@ Lightkeeper is a multiplayer browser dungeon crawler with a solid engine, deep e
 
 The game needs four things to go from "structurally complete" to "shippable":
 
-1. **Sim coverage** — Mainline reaches 46/124 rooms (37%) but can't navigate into Spire of Vigil interior. Explore mode regressed to 9/124 (7%) with combat completely broken (0 damage). Bot enters navigation loops (workshop↔training_range, fast-travel bouncing). Everything past Act 1 midpoint is testing-dark.
-2. **Content wiring** — Lighthouse siege flags never set (validator errors). Array door override is a dead item. Spire winds chest has no loot table. Greenway assault has no quest definition. 70/74 NPCs have no conditional dialogue.
-3. **Game feel & balance** — Weapon progression plateaus in Act 2 (no intermediate upgrade). General Thorne phase 3 overwhelming. Spire Radiance Forge heat hazard has no warning. HP scaling partially fixed but unverified by playtest.
-4. **Art & polish** — All 118 sprites are placeholders. Commission brief written but no artist engaged. Missing tileset PNGs for greenway, biolab, spire_winds.
+1. **Sim coverage** — Mainline REGRESSED to 5/124 rooms (4%) from 46/124 (37%). Bot stuck in proc_quarantine depth 2 looking for stairs_down. Explore mode at 13/124 (10.5%) with combat working (47 kills) but A* fails at perimeter_outer_ring. Everything past early Outpost is testing-dark.
+2. **Content wiring** — sol_unit_training quest references 3 unreachable demo rooms (content validator errors). training_rooms_hint_seen flag never set. ~10 lore flags disconnected. siege_cooldown_active never cleared. Merge ending fires on tile, not NPC interaction. No endgame quest definition.
+3. **Game feel & balance** — Weapon progression plateaus in Act 2 (no intermediate upgrade). General Thorne phase 3 overwhelming. Spire Radiance Forge heat hazard has no warning. HP scaling added but unverified by playtest.
+4. **Art & polish** — All 118 sprites are placeholders. Commission brief written but no artist engaged. Tileset PNGs generated as placeholders.
 
 ## Project Status Overview
 
@@ -221,7 +221,7 @@ These are done and don't need further investment:
 
 | Doc | Status | Next Action |
 |-----|--------|-------------|
-| docs/storyboard.md | Active | **Content structurally complete, needs testing + polish.** Act I ~95% (sim reaches 46/124 rooms in mainline, blocks at Spire Vigil interior navigation). Act II ~85% (Greenway + Bulwark + Spire of Winds + bio-lab + MERIDIAN-7 alliance all built; missing spire_winds_chest loot, array_door_override wiring, greenway_assault quest def). Act III ~70% (ending dungeons + Spire of Radiance built, main quest routing done, post-choice world state done; sim can't verify, showChoice unhandled, no ending quest tracking). |
+| docs/storyboard.md | Active | **Content structurally complete, needs testing + polish.** Act I ~95% (sim regressed to 5/124 rooms — proc_quarantine depth stuck; sol_unit_training quest broken). Act II ~85% (all built; weapon progression plateau). Act III ~70% (ending dungeons + Spire of Radiance built; sim can't verify, showChoice unhandled, no ending quest tracking). |
 | docs/endgame-loop.md | Active | Phases 1-7 engine done. Spire replay tiers done. Remaining: Deep Expedition (Tier 6), Faction Rally |
 | docs/progression-system.md | Active | Core systems done. HP scaling added (sol mods + per-Spire bonus + medipacs). Harvester scaling done (levels 11-20). All 3 Spire ability unlocks wired. Needs playtest verification. |
 | docs/automation_screen.md | Done | All phases implemented |
