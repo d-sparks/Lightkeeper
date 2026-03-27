@@ -1291,6 +1291,46 @@
           "speaker": "Warden Holt",
           "text": "When you move on the Spire itself, hit them before they can resupply. Momentum matters."
         }
+      ],
+      "array_secret_response": [
+        {
+          "speaker": "Warden Holt",
+          "text": "Holt sets down the report. His jaw is tight."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "'Project Autotroph. The Array is engineering our obsolescence. I've been defending a perimeter that depends on Array power for fifteen years, and they've been working to make us disposable the entire time.'"
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "'Every sensor grid, every lighthouse calibration, every power routing algorithm this outpost runs — it all flows through Array infrastructure. If they decide they don't need us anymore, they don't need to attack. They just turn off the lights.'"
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "'I'm not a politician. I don't know what the Council should do with this. But I know what a strategic vulnerability looks like, and this is the biggest one I've ever seen.'"
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "'Talk to Asha. She understands the biological angle better than anyone. And whatever you decide — make sure this outpost isn't left in the dark.'"
+        }
+      ],
+      "mara_restored_spires_clearing": [
+        {
+          "speaker": "Warden Holt",
+          "text": "Lighthouse Mara restored. Spires activating. The infrastructure picture has changed completely since you first walked through that gate."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Perimeter incursions are down across every sector. My soldiers are running patrols that used to be combat operations — now they're survey missions. That's your work."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "But I've been doing this long enough to know that quiet doesn't mean safe. Something is shifting underground. The seismic readings are consistent — rhythmic, almost purposeful."
+        },
+        {
+          "speaker": "Warden Holt",
+          "text": "Whatever the ancient builders set in motion, you're completing it. I just hope we're ready for what comes next."
+        }
       ]
     },
     "dialogueRules": [
@@ -1317,6 +1357,39 @@
           }
         ],
         "use": "post_control"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "array_secret_discovered"
+          },
+          {
+            "not": {
+              "or": [
+                { "hasFlag": "chose_path_shutdown" },
+                { "hasFlag": "chose_path_merge" },
+                { "hasFlag": "chose_path_control" }
+              ]
+            }
+          }
+        ],
+        "use": "array_secret_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "lighthouse_mara_restored"
+          },
+          {
+            "hasFlag": "spire_vigil_cleared"
+          },
+          {
+            "not": {
+              "hasFlag": "array_secret_discovered"
+            }
+          }
+        ],
+        "use": "mara_restored_spires_clearing"
       },
       {
         "conditions": [
@@ -2915,6 +2988,82 @@
           "speaker": "Tech Maren",
           "text": "Only concern: the Underlumen suppression grid is drawing a lot of power. If we ever need to reduce output, that's the first system Command will want to cut. And I'm not sure that's wise."
         }
+      ],
+      "array_secret_response": [
+        {
+          "speaker": "Tech Maren",
+          "text": "Tech Maren is staring at a diagnostic screen, but she's not reading it. She looks up when you approach."
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "'Project Autotroph. Yeah, the report reached the outpost this morning. Warden Holt briefed us.'"
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "'I've spent my whole career maintaining systems that run on Array power routing algorithms. Every charging protocol I've written, every efficiency hack I've figured out — it all depends on Array cooperation.'"
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "'And now I find out they've been working to make us optional. Not the power systems — us. The people who maintain them. The people who need them.'"
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "'I'm already running contingency calculations. If the Array cuts power tomorrow, this station has twelve hours of backup. Twelve hours. After that, every Sol Unit in the field goes dark.'"
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "'Whatever the Council decides, I need time to build redundancy into these systems. Real redundancy — not Array-dependent backups of Array-dependent systems.'"
+        }
+      ],
+      "underlumen_emergence_response": [
+        {
+          "speaker": "Tech Maren",
+          "text": "My sensors spiked so hard I thought the station was under attack. Massive energy discharge from the Lighthouse Mara vector — biological origin, off the charts."
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "You fought that thing? The power readings alone would have fried half the equipment in this station if it had surfaced here."
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "I'm recalibrating the station's surge protectors. If there are more of those things underground, we need the charging infrastructure to survive the shockwave."
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "Your Sol Unit — let me check the grid. An energy event that large could have destabilized your component resonance. Better safe than dead."
+        }
+      ],
+      "general_thorne_response": [
+        {
+          "speaker": "Tech Maren",
+          "text": "Thorne's dead? The supply chain implications alone — his Bulwark units were the main convoy escort for Array component shipments to the Greenway."
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "Without that escort, the Array will need to renegotiate shipping routes. Which means component prices might shift. Which means I might actually get the capacitor banks I've been requesting for six months."
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "Silver linings. The political fallout is above my pay grade — but the logistics impact is very much in it."
+        }
+      ],
+      "all_abilities_response": [
+        {
+          "speaker": "Tech Maren",
+          "text": "Light Sentry, Hover, Photonic Pulse — all three Spire abilities running through one Sol Unit. I need to say this plainly: that should not be possible."
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "Standard Sol Units are rated for one, maybe two ability modules. Three independent ability signatures drawing from the same grid should cause resonance cascade failures. Your unit is either incredibly well-built or incredibly lucky."
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "The power cycling data from your grid is the most interesting thing I've seen in my career. Pre-settlement engineering, working in a field unit, maintained by someone who probably doesn't even know what makes it special."
+        },
+        {
+          "speaker": "Tech Maren",
+          "text": "Keep your energy reserves topped up. Three abilities means three times the drain. And come see me if anything starts oscillating — I'm serious about the cascade risk."
+        }
       ]
     },
     "dialogueRules": [
@@ -2941,6 +3090,68 @@
           }
         ],
         "use": "post_control"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "array_secret_discovered"
+          },
+          {
+            "not": {
+              "or": [
+                { "hasFlag": "chose_path_shutdown" },
+                { "hasFlag": "chose_path_merge" },
+                { "hasFlag": "chose_path_control" }
+              ]
+            }
+          }
+        ],
+        "use": "array_secret_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "underlumen_emergence_defeated"
+          },
+          {
+            "not": {
+              "hasFlag": "array_secret_discovered"
+            }
+          }
+        ],
+        "use": "underlumen_emergence_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "general_thorne_defeated"
+          },
+          {
+            "not": {
+              "hasFlag": "array_secret_discovered"
+            }
+          },
+          {
+            "not": {
+              "hasFlag": "underlumen_emergence_defeated"
+            }
+          }
+        ],
+        "use": "general_thorne_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "light_sentry_unlocked"
+          },
+          {
+            "hasFlag": "hover_unlocked"
+          },
+          {
+            "hasFlag": "photonic_pulse_unlocked"
+          }
+        ],
+        "use": "all_abilities_response"
       },
       {
         "conditions": [
@@ -3733,6 +3944,82 @@
           "speaker": "MERIDIAN-7",
           "text": "Your restoration of the lighthouse has improved trade corridor stability by 8.2 percent. The Array benefits from your work. As always."
         }
+      ],
+      "spire_vigil_response": [
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "// HARMONIC ANOMALY DETECTED // SOURCE: SPIRE OF VIGIL // STATUS: RESONANCE CORE ACTIVE //"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "The Array detected the Spire of Vigil's activation 0.3 seconds after the core engaged. The harmonic frequency is... older than any signal in our archives."
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "I have run 847 models attempting to classify it. None fit. The builders who constructed those Spires operated on principles the Array does not fully understand. That is a rare admission."
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "Your capabilities exceed initial projections. The Array's trade assessment of your value has been revised upward. Significantly."
+        }
+      ],
+      "spire_winds_response": [
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "// SECOND HARMONIC SOURCE ACTIVE // MONUMENT OF WINDS // NETWORK RECALIBRATION IN PROGRESS //"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "Two resonance cores active. The harmonic interference pattern between Vigil and Winds is generating energy readings the Array's monitoring systems were not designed to measure."
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "I note that General Thorne's forces were unable to activate the Monument's core despite years of occupation. You accomplished it in considerably less time. The Array values efficiency."
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "The central nodes have flagged these activations as 'strategic events requiring ongoing analysis.' In simpler terms: they are paying attention to you now, Lightkeeper."
+        }
+      ],
+      "thorne_defeated_response": [
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "// STRATEGIC UPDATE // COMPACT MILITARY COMMAND: DISRUPTED // GENERAL THORNE: TERMINATED //"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "The Array monitored Thorne's operations extensively. He represented a predictable variable — aggressive but consistent. His removal introduces uncertainty into our models."
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "The Compact's military infrastructure at the Monument of Winds was inefficient — consuming resources without activating the Spire's core. The Array's analysis concluded he was more interested in control than understanding."
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "With Thorne removed, trade corridors through the Greenway should stabilize. The Array prefers stable trade corridors. As should you."
+        }
+      ],
+      "underlumen_emergence_response": [
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "// SEISMIC EVENT LOGGED // CLASSIFICATION: BIOLOGICAL // MAGNITUDE: UNPRECEDENTED //"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "The Array detected the seismic signature from Lighthouse Mara. Subsurface biological entity, massive scale, terminated. The network has been... processing the implications."
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "I will tell you something the central nodes have not shared with their human partners: the Array has known about Underlumen Emergences for centuries. They are classified in our deepest archives as 'containment failure events.'"
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "The Lighthouse network was not built to provide light. It was built to suppress what lives beneath. The Array has been maintaining that suppression — and studying what is suppressed — since before the Ring existed."
+        },
+        {
+          "speaker": "MERIDIAN-7",
+          "text": "That you confronted an Emergence and survived recalibrates several of the Array's long-term projections. Not all of them favorably. Trade services remain available."
+        }
       ]
     },
     "dialogueRules": [
@@ -3799,6 +4086,19 @@
       {
         "conditions": [
           {
+            "hasFlag": "underlumen_emergence_defeated"
+          },
+          {
+            "not": {
+              "hasFlag": "array_secret_discovered"
+            }
+          }
+        ],
+        "use": "underlumen_emergence_response"
+      },
+      {
+        "conditions": [
+          {
             "hasFlag": "lighthouse_mara_restored"
           },
           {
@@ -3808,6 +4108,60 @@
           }
         ],
         "use": "lighthouse_mara_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "general_thorne_defeated"
+          },
+          {
+            "not": {
+              "hasFlag": "array_secret_discovered"
+            }
+          },
+          {
+            "not": {
+              "hasFlag": "lighthouse_mara_restored"
+            }
+          }
+        ],
+        "use": "thorne_defeated_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_winds_cleared"
+          },
+          {
+            "not": {
+              "hasFlag": "general_thorne_defeated"
+            }
+          },
+          {
+            "not": {
+              "hasFlag": "array_secret_discovered"
+            }
+          }
+        ],
+        "use": "spire_winds_response"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "spire_vigil_cleared"
+          },
+          {
+            "not": {
+              "hasFlag": "spire_winds_cleared"
+            }
+          },
+          {
+            "not": {
+              "hasFlag": "array_secret_discovered"
+            }
+          }
+        ],
+        "use": "spire_vigil_response"
       },
       {
         "conditions": [
@@ -7140,6 +7494,86 @@
           "text": "'You've given us the scientific foundation for a merger. Not ideology, not politics — biology. The strongest argument there is.'"
         }
       ],
+      "kappa_intel_given_shutdown": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Asha reads the extraction outpost data in silence. When she looks up, her expression is hard."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'Unauthorized biological harvesting. Ring specimens extracted without consent, processed without oversight. The Array was already treating us as a resource to be mined.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'The Stewards were right to push for shutdown. I resisted that conclusion for months — I wanted to believe cooperation was still possible. This data says otherwise.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'The Cultivar Corps will need to rebuild every system that depended on Array infrastructure. It will take years. But at least the biology will be ours.'"
+        }
+      ],
+      "kappa_intel_given_control": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Asha sets down the extraction outpost report. Her fingers drum the desk — a rare sign of agitation."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'The evidence is damning. The Array was harvesting Ring biology behind our backs — not as a contingency, but as active policy. Every trade agreement we signed was built on incomplete information.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'If we seize the Array's infrastructure, we inherit this machinery. These facilities. The question isn't whether we can control it — it's whether we should operate what was built to replace us.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'I'll support human authority over the Array. But I want oversight protocols on every biological research program. No more shadow operations — from anyone.'"
+        }
+      ],
+      "lighthouse_mara_restored_response": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Lighthouse Mara is back online? My monitoring teams detected the harmonic shift from Meridian — every biological sensor in the terminator zone registered the change."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "The organisms we've been tracking near the beacon line are already responding. Growth patterns stabilizing, bioluminescent frequencies returning to baseline. The ecosystem was waiting for that lighthouse."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "This confirms what the Cultivar Corps has theorized for years — the Lighthouse network isn't just providing light. It's maintaining biological equilibrium across the entire terminator zone."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Well done, Lightkeeper. You've given my researchers more data in one day than they've collected in six months."
+        }
+      ],
+      "all_spires_cleared_response": [
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "Asha stands at her office window, watching the light. There's something different about it — warmer, steadier."
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'Three Spires. Vigil, Winds, Radiance — all resonance cores active. The biological survey data coming in is... unprecedented.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'Organism migration patterns have shifted across the entire terminator zone. Species we catalogued as dormant are emerging. The ecosystem isn't just recovering — it's transforming.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'Whatever the ancient builders designed those Spires to do, you've completed the circuit. The planet is responding as a single system now.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'The Council is terrified. The Compact wants to weaponize it. The Stewards want to contain it. The Root wants to study it. And I am trying to make them understand that we are standing inside a biological machine that is older than our species on this world.'"
+        },
+        {
+          "speaker": "Councillor Asha Denn",
+          "text": "'What happens next depends on choices that haven't been made yet. I intend to make sure the right people are making them.'"
+        }
+      ],
       "kappa_investigation_briefed": [
         {
           "speaker": "Councillor Asha Denn",
@@ -7394,6 +7828,22 @@
       {
         "conditions": [
           {
+            "hasFlag": "phase3_intel_shutdown"
+          }
+        ],
+        "use": "kappa_intel_given_shutdown"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "phase3_intel_control"
+          }
+        ],
+        "use": "kappa_intel_given_control"
+      },
+      {
+        "conditions": [
+          {
             "hasFlag": "kappa_coordinates_received"
           },
           {
@@ -7473,6 +7923,25 @@
       {
         "conditions": [
           {
+            "hasFlag": "spire_vigil_cleared"
+          },
+          {
+            "hasFlag": "spire_winds_cleared"
+          },
+          {
+            "hasFlag": "spire_radiance_cleared"
+          },
+          {
+            "not": {
+              "hasFlag": "array_secret_discovered"
+            }
+          }
+        ],
+        "use": "all_spires_cleared_response"
+      },
+      {
+        "conditions": [
+          {
             "hasFlag": "spire_winds_cleared"
           },
           {
@@ -7534,6 +8003,19 @@
           }
         ],
         "use": "compact_crimes_revealed"
+      },
+      {
+        "conditions": [
+          {
+            "hasFlag": "lighthouse_mara_restored"
+          },
+          {
+            "not": {
+              "hasFlag": "spire_vigil_cleared"
+            }
+          }
+        ],
+        "use": "lighthouse_mara_restored_response"
       },
       {
         "conditions": [

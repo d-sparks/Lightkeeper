@@ -4,6 +4,20 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Campaign NPC Conditional Dialogue (2026-03-27)
+
+Added state-dependent dialogue sets and rules for four key campaign NPCs:
+- **Councillor Asha**: lighthouse_mara_restored reaction, kappa_intel for shutdown/control paths (was merge-only), all_spires_cleared combined response
+- **Warden Holt**: array_secret_discovered military perspective, mara_restored + spire combined response
+- **MERIDIAN-7 (train)**: spire_vigil/winds reactions, general_thorne_defeated analysis, underlumen_emergence data response
+- **Tech Maren**: array_secret power grid implications, underlumen_emergence sensor spike, general_thorne supply chain impact, all_abilities combined response
+
+### Outstanding Follow-ups
+- [ ] MERIDIAN-7 hub (`meridian_7_hub`) already has extensive dialogue; the train station variant (`meridian_7`) was the primary gap. Consider whether hub needs similar spire/thorne additions for parity.
+- [ ] Councillor Asha's `councillor_asha_denn` (Greenway variant) has no conditional dialogue — could add Act 2/3 progression reactions there too.
+- [ ] Tech Maren's `all_abilities_response` fires when all 3 Spire abilities are unlocked simultaneously. If abilities can be unlocked in different orders, verify the rule priority doesn't skip intermediate ability dialogues.
+- [ ] Many of the 70+ other NPCs still have minimal or no dialogueRules — consider a broader pass on NPCs in frequently-visited rooms (mess_cook_brannigan, quartermaster_voss, etc.)
+
 ## Lighthouse Siege — Flag Wiring (2026-03-27)
 
 Wired `lighthouse_siege_last_clear` and `siege_cooldown_active` flags to `siege_completed` event in `lighthouse_siege_arena.json`. Victory trigger (once) sets all three flags including `lighthouse_siege_cleared`; cooldown trigger (non-once) refreshes the cooldown pair on every completion.
