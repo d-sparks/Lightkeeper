@@ -52,11 +52,16 @@ class DungeonGenerator {
   // context: { fromDungeon, exitX, exitY, depth, serverEpoch }
   // Returns: { dungeon, instanceId } or null on failure
   generate(template, context) {
-    // Enforce hard nesting cap — refuse to generate if depth exceeds engine limit
+    // Enforce hard nesting cap — refuse to generate if a proc dungeon tries to
+    // spawn inside another proc dungeon beyond the allowed nesting limit.
+    // This prevents runaway room IDs like proc:X:proc:X:proc:X:...
+    // Floor depth within a single template (depth 1→2→3) is NOT nesting.
     const depth = context.depth || 0;
     const maxNesting = CONSTANTS.MAX_PROC_NESTING_DEPTH;
-    if (depth > maxNesting) {
-      console.warn(`[DungeonGen] Blocked generation of "${template.id}" — depth ${depth} exceeds cap ${maxNesting}`);
+    const from = context.fromDungeon || '';
+    const nestingLevel = (from.match(/proc:/g) || []).length;
+    if (nestingLevel > maxNesting) {
+      console.warn(`[DungeonGen] Blocked generation of "${template.id}" — nesting level ${nestingLevel} exceeds cap ${maxNesting}`);
       return null;
     }
 
@@ -477,8 +482,6 @@ class DungeonGenerator {
     const depth = context.depth || 0;
     // context.maxDepth (from expedition) overrides the template's depth.max
     const maxDepth = context.maxDepth || (template.depth && template.depth.max) || 10;
-    // Hard engine cap on proc nesting depth
-    const maxNesting = CONSTANTS.MAX_PROC_NESTING_DEPTH;
 
     // Entrance exit (stairs back to source)
     if (exitsCfg.entrance && entranceRoom) {
@@ -498,7 +501,7 @@ class DungeonGenerator {
 
     // Descent exit (stairs to next depth or terminal)
     // If hideDescentOnLast is set, skip descent stairs on the final level
-    const isLastLevel = depth >= maxDepth || depth >= maxNesting;
+    const isLastLevel = depth >= maxDepth;
     const hideDescent = exitsCfg.descent && exitsCfg.descent.hideDescentOnLast && isLastLevel;
     if (exitsCfg.descent && exitRoom && !hideDescent) {
       const ex = exitRoom.cx;
