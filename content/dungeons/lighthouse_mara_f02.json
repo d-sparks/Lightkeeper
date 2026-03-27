@@ -475,6 +475,11 @@
   "itemSpawns": [
     {
       "type": "frost_salve",
+      "x": 4,
+      "y": 2
+    },
+    {
+      "type": "frost_salve",
       "x": 5,
       "y": 3
     },
