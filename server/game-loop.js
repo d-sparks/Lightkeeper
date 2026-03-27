@@ -656,7 +656,8 @@ class GameLoop {
 
       // Check if a procedural instance already exists for this exact context
       // (same exit tile + server epoch = same seed = same instanceId)
-      const seedStr = `${genContext.fromDungeon}_${genContext.exitX}_${genContext.exitY}_${genContext.serverEpoch}`;
+      const origin = DungeonGenerator.extractOriginDungeon(genContext.fromDungeon);
+      const seedStr = `${origin}_${genContext.exitX}_${genContext.exitY}_d${genContext.depth || 0}_${genContext.serverEpoch}`;
       const expectedId = `proc:${template.id}:${seedStr}`;
       room = this.rooms.get(expectedId);
       if (room) return room;

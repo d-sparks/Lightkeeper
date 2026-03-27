@@ -20,6 +20,29 @@ function hashString(str) {
   return hash;
 }
 
+// Extract the original (non-proc) source dungeon from a potentially nested proc room ID
+// e.g. "proc:quarantine:outpost_workshop_23_9_epoch" -> "outpost_workshop"
+// Also handles legacy deeply-nested IDs: "proc:X:proc:X:outpost_23_9_epoch" -> "outpost"
+function extractOriginDungeon(roomId) {
+  if (!roomId || !roomId.startsWith('proc:')) return roomId;
+  // Walk through nested proc: prefixes to find the non-proc root
+  let current = roomId;
+  while (current.startsWith('proc:')) {
+    const afterProc = current.indexOf(':', 5); // skip "proc:"
+    if (afterProc === -1) break;
+    current = current.substring(afterProc + 1);
+  }
+  // current is now the seed string starting with the origin dungeon name
+  // Extract the dungeon name (everything before trailing numeric segments)
+  const parts = current.split('_');
+  let nameEnd = parts.length;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    if (/^\d+$/.test(parts[i]) || /^d\d+$/.test(parts[i])) nameEnd = i;
+    else break;
+  }
+  return parts.slice(0, Math.max(1, nameEnd)).join('_');
+}
+
 class DungeonGenerator {
   constructor(content) {
     this.content = content;
@@ -29,7 +52,18 @@ class DungeonGenerator {
   // context: { fromDungeon, exitX, exitY, depth, serverEpoch }
   // Returns: { dungeon, instanceId } or null on failure
   generate(template, context) {
-    const seedStr = `${context.fromDungeon}_${context.exitX}_${context.exitY}_${context.serverEpoch}`;
+    // Enforce hard nesting cap — refuse to generate if depth exceeds engine limit
+    const depth = context.depth || 0;
+    const maxNesting = CONSTANTS.MAX_PROC_NESTING_DEPTH;
+    if (depth > maxNesting) {
+      console.warn(`[DungeonGen] Blocked generation of "${template.id}" — depth ${depth} exceeds cap ${maxNesting}`);
+      return null;
+    }
+
+    // Use origin dungeon + depth for seed instead of full parent room ID
+    // This keeps instance IDs from growing with each nesting level
+    const origin = extractOriginDungeon(context.fromDungeon);
+    const seedStr = `${origin}_${context.exitX}_${context.exitY}_d${context.depth || 0}_${context.serverEpoch}`;
     const seed = hashString(seedStr);
 
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -443,6 +477,8 @@ class DungeonGenerator {
     const depth = context.depth || 0;
     // context.maxDepth (from expedition) overrides the template's depth.max
     const maxDepth = context.maxDepth || (template.depth && template.depth.max) || 10;
+    // Hard engine cap on proc nesting depth
+    const maxNesting = CONSTANTS.MAX_PROC_NESTING_DEPTH;
 
     // Entrance exit (stairs back to source)
     if (exitsCfg.entrance && entranceRoom) {
@@ -462,7 +498,7 @@ class DungeonGenerator {
 
     // Descent exit (stairs to next depth or terminal)
     // If hideDescentOnLast is set, skip descent stairs on the final level
-    const isLastLevel = depth >= maxDepth;
+    const isLastLevel = depth >= maxDepth || depth >= maxNesting;
     const hideDescent = exitsCfg.descent && exitsCfg.descent.hideDescentOnLast && isLastLevel;
     if (exitsCfg.descent && exitRoom && !hideDescent) {
       const ex = exitRoom.cx;
@@ -687,4 +723,5 @@ class DungeonGenerator {
   }
 }
 
+DungeonGenerator.extractOriginDungeon = extractOriginDungeon;
 module.exports = DungeonGenerator;
