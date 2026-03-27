@@ -46,6 +46,7 @@
   const worldmapBtn = document.getElementById('worldmap-btn');
   const onboardMove = document.getElementById('onboard-move');
   const onboardInteract = document.getElementById('onboard-interact');
+  const onboardEquip = document.getElementById('onboard-equip');
   const expeditionHud = document.getElementById('expedition-hud');
   const expeditionTier = document.getElementById('expedition-tier');
   const expeditionFloor = document.getElementById('expedition-floor');
@@ -117,6 +118,8 @@
   let onboardMoveShown = false;
   let onboardMoveDismissed = false;
   let onboardInteractDismissed = false;
+  let onboardEquipShown = false;
+  let onboardEquipDismissed = false;
 
   function dismissOnboardHint(el, onDone) {
     if (!el || el.style.display === 'none') return;
@@ -909,6 +912,11 @@
     characterMenu.style.display = 'block';
     switchTab(tab || 'equipment');
     audio.play('menu_open');
+    // Dismiss equip onboarding hint when player opens the menu for the first time
+    if (!onboardEquipDismissed) {
+      onboardEquipDismissed = true;
+      dismissOnboardHint(onboardEquip);
+    }
   }
 
   function closeMenu() {
@@ -3691,6 +3699,16 @@
     inventoryItems = msg.items || [];
     if (msg.equipment) {
       equipmentState = msg.equipment;
+    }
+    // Show equip onboarding hint on first equipment item pickup (but not during sol grid tutorial)
+    if (!onboardEquipShown && !onboardEquipDismissed && !tutorialPhase) {
+      const hasEquippable = inventoryItems.some(
+        item => item.category === 'weapon' || item.category === 'equipment' || item.slot
+      );
+      if (hasEquippable) {
+        onboardEquipShown = true;
+        onboardEquip.style.display = '';
+      }
     }
     if (msg.medipacCharges !== undefined) {
       medipacCharges = msg.medipacCharges;

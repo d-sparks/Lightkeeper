@@ -1,5 +1,16 @@
 # Next TODOs
 
+## Equipment/Sol Grid UI Clarity (2026-03-27)
+
+Added onboarding hint (`onboard-equip`) that appears when the player first receives an equipment-type item (weapon/equipment category or slot property) in their inventory. The hint reads "Press [I] → EQUIP to equip items" and is dismissed when the player opens the menu.
+
+Root observation: player triggered `damage_booster_equipped` 4 times in quick succession, suggesting confusion with the sol grid placement UI.
+
+### Outstanding Follow-ups
+- [ ] Consider a separate `onboard-sol-component` hint for when the player first receives a `sol_component`-type item, guiding them to the SOL tab specifically
+- [ ] Investigate whether the `damage_booster_equipped` flag should be idempotent (i.e. only fire the quest event on the first placement, not re-placements) to avoid repeated quest triggers when the player removes and re-places the chip
+- [ ] Consider adding a brief in-grid tooltip on empty cells adjacent to an ability ("Place modifier here") on first sol grid open
+
 ## dead_road Difficulty Reduction (2026-03-27)
 
 Reduced simultaneous multi-source pressure in `dead_road.json` that was killing players in ~4s on first encounter.
