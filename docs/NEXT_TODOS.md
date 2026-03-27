@@ -4,6 +4,13 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Lighthouse Siege — Flag Wiring (2026-03-27)
+
+Wired `lighthouse_siege_last_clear` and `siege_cooldown_active` flags to `siege_completed` event in `lighthouse_siege_arena.json`. Victory trigger (once) sets all three flags including `lighthouse_siege_cleared`; cooldown trigger (non-once) refreshes the cooldown pair on every completion.
+
+### Outstanding Follow-ups
+- [ ] `siege_cooldown_active` has no clear mechanism — the challenge system tracks `lighthouse_siege_last_clear` as a timestamp for 7-day cooldown, but `siege_cooldown_active` is a persistent flag never cleared. If the engine doesn't clear it when the cooldown expires, the NPC will permanently show cooldown dialogue. Either the challenge system should clear it after 604800s, or switch the NPC dialogue rule to check cooldown timestamp directly instead of a boolean flag.
+
 ## Tileset Sprite Strips — Generated (2026-03-23)
 
 Added placeholder PNG sprite strips for 6 missing tilesets: dayside, fungal_forest, nightside, meridian, station, spire_radiance. All generated via `node tools/generate-sprites.js`. Existing tilesets (greenway, biolab, spire_winds, frost_crypt) were already up-to-date.
