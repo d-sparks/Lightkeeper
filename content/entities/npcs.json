@@ -2832,17 +2832,11 @@
       "give_battery": [
         {
           "speaker": "Tech Maren",
-          "text": "Running low? Here — field cell, single-use, hundred energy units. Slot it into your Sol Grid."
+          "text": "Your rechargeable battery's worn down. Let me top it off — that's what the station's here for."
         },
         {
           "speaker": "Tech Maren",
-          "text": "Come back when it's drained. I'll have another ready."
-        }
-      ],
-      "has_battery": [
-        {
-          "speaker": "Tech Maren",
-          "text": "You've still got that field cell. Come back once you've used it up — I'll have another one ready."
+          "text": "Come back any time your reserves run low. And once your Sol Unit's stable, I've got a generator chip that'll help between fights."
         }
       ],
       "give_generator": [
@@ -2858,7 +2852,7 @@
       "has_sol_unit": [
         {
           "speaker": "Tech Maren",
-          "text": "Got a Sol Unit? Finish your training, then come back — I'll set you up with a field cell."
+          "text": "Got a Sol Unit? Finish your training, then come back — I'll recharge your battery and get you a generator chip."
         }
       ],
       "lighthouse_mara_restored": [
@@ -3223,17 +3217,6 @@
           }
         ],
         "use": "give_generator"
-      },
-      {
-        "conditions": [
-          {
-            "hasFlag": "sol_training_complete"
-          },
-          {
-            "hasItem": "single_use_battery_chip"
-          }
-        ],
-        "use": "has_battery"
       },
       {
         "conditions": [
