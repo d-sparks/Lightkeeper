@@ -4243,6 +4243,8 @@ class GameLoop {
             }
           }
         }
+        mob.speed = origSpeed;
+        mob.damage = origDamage;
         continue; // Skip normal AI while lunging
       }
 
@@ -4259,6 +4261,8 @@ class GameLoop {
           mob.knockbackVy = 0;
           mob.knockbackTime = 0;
         }
+        mob.speed = origSpeed;
+        mob.damage = origDamage;
         continue; // Skip AI while being knocked back
       }
 
@@ -4293,13 +4297,19 @@ class GameLoop {
         }
       }
 
-      if (!nearest) continue;
+      if (!nearest) {
+        mob.speed = origSpeed;
+        mob.damage = origDamage;
+        continue;
+      }
 
       const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
 
       // Boss retreat: check retreat even when out of aggro range
       if (mob.ai === 'boss_retreat') {
         this._updateBossRetreat(mob, nearest, nearestDist, room, dt);
+        mob.speed = origSpeed;
+        mob.damage = origDamage;
         continue;
       }
 
@@ -4315,6 +4325,8 @@ class GameLoop {
             x: mob.x, y: mob.y,
           });
         } else {
+          mob.speed = origSpeed;
+          mob.damage = origDamage;
           continue; // Stay dormant
         }
       }
@@ -4332,6 +4344,8 @@ class GameLoop {
             mob.facing = Math.atan2(nearest.y - mob.y, nearest.x - mob.x);
           }
         }
+        mob.speed = origSpeed;
+        mob.damage = origDamage;
         continue;
       }
 

@@ -4,6 +4,17 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
+## Pack Aura Damage Compounding Bug Fix (2026-03-27)
+
+Fixed exponential damage compounding in `updateMonsters`. The pack leader aura temporarily multiplies `mob.damage` each tick, with the original value restored at the end of the loop iteration. However, 6 `continue` statements (lunge, knockback, no-target, boss_retreat, ambush dormant, out-of-aggro-range) skipped the restore, causing the aura multiplier to compound every tick (~15 Hz). A frostfang_hunter near a frostfang_alpha would see damage grow as `15 * 1.25^N` per tick, reaching millions within seconds.
+
+### Fix Applied
+- Added `mob.speed = origSpeed; mob.damage = origDamage;` before all 6 `continue` statements in the `updateMonsters` loop (`server/game-loop.js`)
+
+### Outstanding Follow-ups
+- [ ] Playtest lighthouse_mara_f02 and lighthouse_mara_caverns with frostfang packs to confirm damage is now reasonable
+- [ ] Consider refactoring aura buff to use a `baseDamage` property instead of save/restore pattern to prevent similar regressions
+
 ## Frost Crypt Pedestal Puzzle — Scope Bug Fix (2026-03-27)
 
 Fixed scope mismatch in `nightside_frost_crypt.json` pedestal puzzle. Both pedestal triggers set flags with `"scope": "room"`, but the `crypt_puzzle_check` trigger's conditions checked `hasFlag` without specifying scope (defaults to `"player"`). The puzzle could never be solved because the player-scoped flags were never set.
