@@ -1,5 +1,19 @@
 # Next TODOs
 
+## dead_road Difficulty Reduction (2026-03-27)
+
+Reduced simultaneous multi-source pressure in `dead_road.json` that was killing players in ~4s on first encounter.
+
+### Changes Applied
+- Moved `shade_stalker` from (11, 8) → (4, 4) — northwest corner, no longer flanks the player's initial north corridor
+- Moved `shade_stalker` from (17, 7) → (24, 3) — northeast corner, separated from center
+- Reduced `dusk_crawler` at (22, 12) count 2 → 1
+- Moved `feral_hound` from (8, 12) to (3, 9) and reduced count 2 → 1 — was spawning 1-2 tiles from player start
+
+### Outstanding Follow-ups
+- [ ] Playtest dead_road to confirm pacing feels like gradual escalation rather than an instant wall
+- [ ] Consider adding a warning trigger when the shade_stalkers aggro ("A low hiss — something large moves in the shadows") to give players a moment to react
+
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
