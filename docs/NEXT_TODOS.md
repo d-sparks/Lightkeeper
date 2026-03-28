@@ -1,5 +1,13 @@
 # Next TODOs
 
+## perimeter_outer_ring Alcove Fix (2026-03-27)
+
+Opened walled-off 2-tile alcove at (13,6)-(14,6) in `perimeter_outer_ring.json` — changed west wall tile (12,6) from stone_wall to stone_floor so the ration_pack item is reachable. Also added retry limit in `doExploreRoom` items phase to prevent soft-locks on any future unreachable items.
+
+### Outstanding Follow-ups
+- [ ] Audit other dungeons for similar walled-off item spawns (tile type 2 surrounded by walls with no entry)
+- [ ] Investigate nondeterministic `proc_quarantine` quest failure in `--mainline` sim — `wait_for_item` for `titanium_cylinders` sometimes gets stuck (pre-existing, unrelated to this fix)
+
 ## Equipment/Sol Grid UI Clarity (2026-03-27)
 
 Added onboarding hint (`onboard-equip`) that appears when the player first receives an equipment-type item (weapon/equipment category or slot property) in their inventory. The hint reads "Press [I] → EQUIP to equip items" and is dismissed when the player opens the menu.

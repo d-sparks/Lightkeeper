@@ -2442,8 +2442,10 @@ class Bot {
     }
 
     if (exp.phase === 'items') {
-      // Pick up any remaining items
-      if (room.items.size > 0) {
+      // Pick up any remaining items (limit retries to avoid soft-lock on unreachable items)
+      if (!exp._itemAttempts) exp._itemAttempts = 0;
+      if (room.items.size > 0 && exp._itemAttempts < room.items.size + 2) {
+        exp._itemAttempts++;
         this.pushGoal({ type: 'pick_up_item', room: this.currentRoom });
         return;
       }
