@@ -139,7 +139,7 @@ Added state-dependent dialogue sets and rules for four key campaign NPCs:
 Wired `lighthouse_siege_last_clear` and `siege_cooldown_active` flags to `siege_completed` event in `lighthouse_siege_arena.json`. Victory trigger (once) sets all three flags including `lighthouse_siege_cleared`; cooldown trigger (non-once) refreshes the cooldown pair on every completion.
 
 ### Outstanding Follow-ups
-- [ ] `siege_cooldown_active` has no clear mechanism — the challenge system tracks `lighthouse_siege_last_clear` as a timestamp for 7-day cooldown, but `siege_cooldown_active` is a persistent flag never cleared. If the engine doesn't clear it when the cooldown expires, the NPC will permanently show cooldown dialogue. Either the challenge system should clear it after 604800s, or switch the NPC dialogue rule to check cooldown timestamp directly instead of a boolean flag.
+- [x] `siege_cooldown_active` permanent flag fixed: removed the boolean flag entirely. NPC dialogue now uses `flagWithinSeconds` condition on `lighthouse_siege_last_clear` timestamp directly, so cooldown dialogue expires automatically after 604800s.
 
 ## Tileset Sprite Strips — Generated (2026-03-23)
 

@@ -57,8 +57,7 @@
           "Siege Warden Kael: 'Take what the darkness dropped — you've earned it. Use the portal when you're ready to return.'"
         ]},
         { "type": "setFlag", "flag": "lighthouse_siege_cleared" },
-        { "type": "setFlag", "flag": "lighthouse_siege_last_clear" },
-        { "type": "setFlag", "flag": "siege_cooldown_active" }
+        { "type": "setFlag", "flag": "lighthouse_siege_last_clear" }
       ],
       "once": true
     },
@@ -66,8 +65,7 @@
       "id": "siege_completion_cooldown",
       "event": "siege_completed",
       "actions": [
-        { "type": "setFlag", "flag": "lighthouse_siege_last_clear" },
-        { "type": "setFlag", "flag": "siege_cooldown_active" }
+        { "type": "setFlag", "flag": "lighthouse_siege_last_clear" }
       ]
     },
     {

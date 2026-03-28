@@ -1391,7 +1391,6 @@ class GameLoop {
       // Set cooldown flag
       if (siege.challenge.cooldownFlag) {
         this.flagStore.setPlayerFlag(pid, siege.challenge.cooldownFlag, Date.now());
-        this.flagStore.setPlayerFlag(pid, 'siege_cooldown_active', true);
       }
 
       // Set story progression flag (persistent — marks first-ever clear)

@@ -14023,8 +14023,7 @@
     "dialogueRules": [
       {
         "conditions": [
-          { "hasFlag": "lighthouse_siege_last_clear" },
-          { "hasFlag": "siege_cooldown_active" }
+          { "flagWithinSeconds": { "flag": "lighthouse_siege_last_clear", "seconds": 604800 } }
         ],
         "use": "cooldown"
       },
