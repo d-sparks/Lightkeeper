@@ -1172,6 +1172,14 @@ class Bot {
           messageLog.splice(i, 1);
           return;
         }
+        // Act 3 ending: default to the "restore" path (broker symbiosis / merge).
+        // The three options are shutdown/merge/control; "merge" is the restore path.
+        if (msg.choiceId === 'three_paths') {
+          this.pendingChoiceId = msg.choiceId;
+          this.pendingChoiceValue = 'merge';
+          messageLog.splice(i, 1);
+          return;
+        }
         // Auto-select first option for other choices
         this.pendingChoiceId = msg.choiceId;
         this.pendingChoiceValue = msg.options && msg.options[0] ? msg.options[0].value : null;
@@ -2275,7 +2283,23 @@ class Bot {
     // Track the room where combat started so we can return after death
     if (!goal._combatRoom) goal._combatRoom = this.currentRoom;
 
+    // Block all exit tiles during combat to prevent accidental transitions.
+    // Cleared on combat completion so subsequent navigation can use exits.
+    if (!goal._exitsBlocked && room && room.monsters.size > 0) {
+      goal._exitsBlocked = true;
+      const roomExits = this.exitGraph.get(this.currentRoom) || [];
+      for (const exit of roomExits) {
+        const alreadyBlocked = this._blockedExitTiles.some(
+          e => e.x === exit.exitX && e.y === exit.exitY && e.room === this.currentRoom);
+        if (!alreadyBlocked) {
+          this._blockedExitTiles.push({ x: exit.exitX, y: exit.exitY, room: this.currentRoom });
+        }
+      }
+    }
+
     if (!room || room.monsters.size === 0) {
+      // Clear combat exit blocks so the next goal can navigate to exits freely.
+      this._blockedExitTiles = this._blockedExitTiles.filter(e => e.room !== this.currentRoom);
       // If we respawned in a different room (death), navigate back to continue.
       // Proc rooms are transient and not in the exit graph, so skip the return
       // attempt — subsequent goals (wait_for_item) have their own recovery logic.
@@ -2324,6 +2348,7 @@ class Bot {
     } else {
       goal._stuckTicks++;
       if (goal._stuckTicks > 450) {
+        this._blockedExitTiles = this._blockedExitTiles.filter(e => e.room !== this.currentRoom);
         this.popGoal(); // Can't reach/damage remaining monsters
         return;
       }

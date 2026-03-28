@@ -1,5 +1,13 @@
 # Next TODOs
 
+## Sim Bot showChoice Handling (2026-03-27)
+
+Added special-case handling in `checkForChoices()` for the Act 3 ending choice (`choiceId: "three_paths"`). Bot now selects `merge` (Broker Symbiosis / "restore" path) instead of defaulting to the first option (`shutdown`).
+
+### Outstanding Follow-ups
+- [ ] The Act 3 content path beyond `three_paths` is not yet simable end-to-end — bot gets stuck at `proc_quarantine` before reaching `meridian_civic` where the choice fires; fix the proc soft-lock first
+- [ ] Consider adding named choice overrides for other story-significant choices (`autotroph_confrontation`, `kappa_merge_delivery`) so the mainline path is explicit rather than "first option"
+
 ## perimeter_outer_ring Alcove Fix (2026-03-27)
 
 Opened walled-off 2-tile alcove at (13,6)-(14,6) in `perimeter_outer_ring.json` — changed west wall tile (12,6) from stone_wall to stone_floor so the ration_pack item is reachable. Also added retry limit in `doExploreRoom` items phase to prevent soft-locks on any future unreachable items.
