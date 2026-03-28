@@ -1062,34 +1062,6 @@
           "text": "Watch your footing in there. And report anything else you see — I need to know how fast it's getting worse."
         }
       ],
-      "post_junction_cleared": [
-        {
-          "speaker": "Warden Holt",
-          "text": "The dusk crawler nest at Station Junction — you cleared it? My scouts have been avoiding that tunnel for weeks."
-        },
-        {
-          "speaker": "Warden Holt",
-          "text": "Those nests were blocking the only safe rail corridor to the interior. With them gone, supply lines to Meridian can reopen."
-        },
-        {
-          "speaker": "Warden Holt",
-          "text": "Good work, Lightkeeper. Every threat you remove out there makes the Ring a little more livable."
-        }
-      ],
-      "post_raid_defense": [
-        {
-          "speaker": "Warden Holt",
-          "text": "Word came through the relay — you held the line during a raider assault on the Dayside perimeter."
-        },
-        {
-          "speaker": "Warden Holt",
-          "text": "Those raids have been increasing. The raiders are getting bolder, better equipped. Most of our patrols can't hold a fixed position against that kind of pressure."
-        },
-        {
-          "speaker": "Warden Holt",
-          "text": "You did. That buys the frontier settlements time. I've updated your operational clearance — you've earned it."
-        }
-      ],
       "post_raider_journal": [
         {
           "speaker": "Warden Holt",
@@ -1493,32 +1465,6 @@
           }
         ],
         "use": "supply_sabotage_done"
-      },
-      {
-        "conditions": [
-          {
-            "hasFlag": "raid_defense_complete"
-          },
-          {
-            "not": {
-              "hasFlag": "supply_sabotage_complete"
-            }
-          }
-        ],
-        "use": "post_raid_defense"
-      },
-      {
-        "conditions": [
-          {
-            "hasFlag": "junction_crawlers_cleared"
-          },
-          {
-            "not": {
-              "hasFlag": "raid_defense_complete"
-            }
-          }
-        ],
-        "use": "post_junction_cleared"
       },
       {
         "conditions": [
@@ -4036,46 +3982,6 @@
           "text": "With Thorne removed, trade corridors through the Greenway should stabilize. The Array prefers stable trade corridors. As should you."
         }
       ],
-      "post_raider_intel": [
-        {
-          "speaker": "MERIDIAN-7",
-          "text": "// INTELLIGENCE UPDATE // RAIDER OPERATIONAL DATA DETECTED IN YOUR POSSESSION //"
-        },
-        {
-          "speaker": "MERIDIAN-7",
-          "text": "The Array monitors raider movements along trade corridors. Your field intelligence supplements our surveillance data with ground-level detail we cannot acquire remotely."
-        },
-        {
-          "speaker": "MERIDIAN-7",
-          "text": "Of particular interest: their supply chains suggest external coordination. Someone is directing resources to these groups — resources beyond what scavenging could provide."
-        },
-        {
-          "speaker": "MERIDIAN-7",
-          "text": "The Array's trade models now incorporate your data. Corridor risk assessments have been updated. You have made commerce marginally safer, which the Array appreciates."
-        }
-      ],
-      "post_refined_umbrasite": [
-        {
-          "speaker": "MERIDIAN-7",
-          "text": "// MINERAL SCAN COMPLETE // REFINED UMBRACITE DETECTED // PURITY: EXCEPTIONAL //"
-        },
-        {
-          "speaker": "MERIDIAN-7",
-          "text": "You found refined umbrasite in the Nightside depths. The crystalline structure has been processed by geological pressures the Array cannot replicate in fabrication."
-        },
-        {
-          "speaker": "MERIDIAN-7",
-          "text": "Standard umbracite is useful. Refined umbrasite is transformative. The harmonic resonance frequency is 340% above baseline — enough to serve as a permanent relay amplifier rather than a consumable fuel source."
-        },
-        {
-          "speaker": "MERIDIAN-7",
-          "text": "The central nodes will want this. I am choosing not to report it immediately. Consider that a measure of the trust you have built with this terminal."
-        },
-        {
-          "speaker": "MERIDIAN-7",
-          "text": "Hold onto it. When the time comes to make your decision about the Array's future, refined umbrasite may be the most valuable thing you carry."
-        }
-      ],
       "underlumen_emergence_response": [
         {
           "speaker": "MERIDIAN-7",
@@ -4159,40 +4065,6 @@
           }
         ],
         "use": "array_secret_known"
-      },
-      {
-        "conditions": [
-          {
-            "hasFlag": "found_refined_umbrasite"
-          },
-          {
-            "not": {
-              "hasFlag": "array_secret_discovered"
-            }
-          }
-        ],
-        "use": "post_refined_umbrasite"
-      },
-      {
-        "conditions": [
-          {
-            "or": [
-              { "hasFlag": "found_raider_manifest" },
-              { "hasFlag": "found_raider_journal" }
-            ]
-          },
-          {
-            "not": {
-              "hasFlag": "array_secret_discovered"
-            }
-          },
-          {
-            "not": {
-              "hasFlag": "found_refined_umbrasite"
-            }
-          }
-        ],
-        "use": "post_raider_intel"
       },
       {
         "conditions": [
@@ -5875,24 +5747,6 @@
           "speaker": "Sable",
           "text": "The Unbounded call the cavern system 'the First Dark.' It's where we learned to live without light. What stirs beneath it now... that's what I came to warn you about."
         }
-      ],
-      "guiding_return": [
-        {
-          "speaker": "Sable",
-          "text": "You came back to the Dead Road. I told you — the dark doesn't forget a path once you've walked it."
-        },
-        {
-          "speaker": "Sable",
-          "text": "The passages below are shifting. I can feel it through the rock. The Underlumen responds to movement — ours, the Array's, everyone's."
-        },
-        {
-          "speaker": "Sable",
-          "text": "My grandmother's charts are still good for the upper tunnels, but the deeper we go, the more the crystal changes. The planet is rewriting its own map."
-        },
-        {
-          "speaker": "Sable",
-          "text": "Stay close when we're down there. I know the signs — the temperature shifts, the way the bioluminescence moves before the ground does. Trust the guide, Lightkeeper."
-        }
       ]
     },
     "dialogueRules": [
@@ -5903,25 +5757,6 @@
           }
         ],
         "use": "post_array_secret"
-      },
-      {
-        "conditions": [
-          {
-            "hasFlag": "sable_guiding"
-          },
-          {
-            "hasFlag": "arrived_meridian"
-          }
-        ],
-        "use": "post_meridian"
-      },
-      {
-        "conditions": [
-          {
-            "hasFlag": "sable_guiding"
-          }
-        ],
-        "use": "guiding_return"
       },
       {
         "conditions": [
@@ -6030,57 +5865,9 @@
           "speaker": "Perimeter Scout",
           "text": "Comms Officer Daley at Outpost Balor has been monitoring deep-earth signals. Whatever you found down there, she might be able to cross-reference it with what she's picking up. Worth the trip back."
         }
-      ],
-      "post_raid_defense_scout": [
-        {
-          "speaker": "Perimeter Scout",
-          "text": "Heard about the raid defense on the Dayside. The relay chatter was... intense. Sounded like you caught the worst of it."
-        },
-        {
-          "speaker": "Perimeter Scout",
-          "text": "Raiders have been probing our perimeter too. Small groups, testing response times. Whatever hit you was the main force."
-        },
-        {
-          "speaker": "Perimeter Scout",
-          "text": "With the main assault broken, the probing parties have pulled back. We're breathing easier out here. For now."
-        }
-      ],
-      "post_perimeter_stabilized": [
-        {
-          "speaker": "Perimeter Scout",
-          "text": "The perimeter is holding. First time in months I can say that without lying."
-        },
-        {
-          "speaker": "Perimeter Scout",
-          "text": "After you cleared that siege, the creature pressure dropped. We're still getting stragglers, but nothing like before."
-        },
-        {
-          "speaker": "Perimeter Scout",
-          "text": "Command is talking about extending patrol routes further into the dark. That's new. Usually we just lose ground."
-        },
-        {
-          "speaker": "Perimeter Scout",
-          "text": "Whatever you did out there — keep doing it."
-        }
       ]
     },
     "dialogueRules": [
-      {
-        "conditions": [
-          {
-            "hasFlag": "perimeter_stabilized"
-          }
-        ],
-        "use": "post_perimeter_stabilized"
-      },
-      {
-        "conditions": [
-          {
-            "hasFlag": "raid_defense_complete"
-          }
-        ],
-        "use": "post_raid_defense_scout"
-      },
       {
         "conditions": [
           {
@@ -6344,20 +6131,6 @@
           "speaker": "Sable",
           "text": "Come find me in Meridian. The garden district. This isn't a conversation for a train platform."
         }
-      ],
-      "guiding_station": [
-        {
-          "speaker": "Sable",
-          "text": "Back at the station. I remember when I first saw this platform — all that light after days in the tunnels. It hurt my eyes."
-        },
-        {
-          "speaker": "Sable",
-          "text": "The passages below are open to us now. My grandmother mapped routes the Ring never knew existed — service tunnels, crystal veins, fault lines wide enough to walk."
-        },
-        {
-          "speaker": "Sable",
-          "text": "When you're ready to go deeper, I'll be with you. The Nightside is less dangerous with someone who can read it."
-        }
       ]
     },
     "dialogueRules": [
@@ -6368,19 +6141,6 @@
           }
         ],
         "use": "post_array_secret_station"
-      },
-      {
-        "conditions": [
-          {
-            "hasFlag": "sable_guiding"
-          },
-          {
-            "not": {
-              "hasFlag": "arrived_meridian"
-            }
-          }
-        ],
-        "use": "guiding_station"
       },
       {
         "conditions": [
@@ -13645,24 +13405,6 @@
           "text": "The Unbounded have walked the dark for generations waiting for someone to ask the right question. You asked it. Go."
         }
       ],
-      "post_geometric_tablet": [
-        {
-          "speaker": "Elder Vael",
-          "text": "You carry one of the old maps. A geometric tablet — Underlumen cartography etched in crystal."
-        },
-        {
-          "speaker": "Elder Vael",
-          "text": "My mother had one like it. She said the Unbounded made them generations ago, when we first learned to read the crystal lattice. The geometry is not abstract — it maps the real structure of the Underlumen network."
-        },
-        {
-          "speaker": "Elder Vael",
-          "text": "The spires are nodes. The crystal veins are connections. The Underlumen is not a creature — it is an infrastructure. Older than anything the Array has built, and far more patient."
-        },
-        {
-          "speaker": "Elder Vael",
-          "text": "Show that tablet to Archivist Solen in the city. He studies the old geometries. But remember: the map is not the territory. The Underlumen changes. It grows. What was mapped once may have shifted since."
-        }
-      ],
       "low_trust": [
         {
           "speaker": "Elder Vael",
@@ -13690,17 +13432,6 @@
           }
         ],
         "use": "post_merge_path"
-      },
-      {
-        "conditions": [
-          {
-            "hasFlag": "found_geometric_tablet"
-          },
-          {
-            "hasFlag": "helped_sable"
-          }
-        ],
-        "use": "post_geometric_tablet"
       },
       {
         "conditions": [
@@ -14023,7 +13754,8 @@
     "dialogueRules": [
       {
         "conditions": [
-          { "flagWithinSeconds": { "flag": "lighthouse_siege_last_clear", "seconds": 604800 } }
+          { "hasFlag": "lighthouse_siege_last_clear" },
+          { "hasFlag": "siege_cooldown_active" }
         ],
         "use": "cooldown"
       },

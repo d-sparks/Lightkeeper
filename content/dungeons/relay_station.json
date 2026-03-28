@@ -58,6 +58,16 @@
       "once": true
     },
     {
+      "id": "relay_reopen_hatch",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "relay_junction_complete" }
+      ],
+      "actions": [
+        { "type": "setTile", "x": 8, "y": 6, "tileId": 5 }
+      ]
+    },
+    {
       "id": "junction_a_interact",
       "event": "door_interacted",
       "filter": { "tileX": 3, "tileY": 10 },

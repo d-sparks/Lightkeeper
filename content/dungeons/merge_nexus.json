@@ -204,6 +204,42 @@
       "once": true
     },
     {
+      "id": "npc_talk_asha_merge",
+      "event": "npc_interacted",
+      "filter": { "npcType": "asha_merge" },
+      "conditions": [
+        { "not": { "hasFlag": "talked_to_asha_merge" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "talked_to_asha_merge" }
+      ],
+      "once": true
+    },
+    {
+      "id": "npc_talk_sable_merge",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sable_merge" },
+      "conditions": [
+        { "not": { "hasFlag": "talked_to_sable_merge" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "talked_to_sable_merge" }
+      ],
+      "once": true
+    },
+    {
+      "id": "npc_talk_meridian_7_merge",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_merge" },
+      "conditions": [
+        { "not": { "hasFlag": "talked_to_meridian_7_merge" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "talked_to_meridian_7_merge" }
+      ],
+      "once": true
+    },
+    {
       "id": "symbiosis_communion_locked",
       "event": "door_interacted",
       "filter": { "tileX": 12, "tileY": 11 },
@@ -216,11 +252,32 @@
       "once": false
     },
     {
+      "id": "symbiosis_communion_npcs_required",
+      "event": "door_interacted",
+      "filter": { "tileX": 12, "tileY": 11 },
+      "conditions": [
+        { "hasFlag": "convergence_guardian_defeated" },
+        { "not": { "hasFlag": "ending_merge_complete" } },
+        { "not": { "and": [
+          { "hasFlag": "talked_to_asha_merge" },
+          { "hasFlag": "talked_to_sable_merge" },
+          { "hasFlag": "talked_to_meridian_7_merge" }
+        ]}}
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The convergence pool awaits, but communion requires consent from all three. Speak with Councillor Asha Denn, Sable, and MERIDIAN-7 before you begin." }
+      ],
+      "once": false
+    },
+    {
       "id": "symbiosis_communion_begin",
       "event": "door_interacted",
       "filter": { "tileX": 12, "tileY": 11 },
       "conditions": [
         { "hasFlag": "convergence_guardian_defeated" },
+        { "hasFlag": "talked_to_asha_merge" },
+        { "hasFlag": "talked_to_sable_merge" },
+        { "hasFlag": "talked_to_meridian_7_merge" },
         { "not": { "hasFlag": "ending_merge_complete" } }
       ],
       "actions": [

@@ -8,7 +8,6 @@
 //   { "hasFlag": "flag_name", "value": 5 }              - flag equals value
 //   { "flagGreaterThan": { "flag": "name", "value": 3 } }
 //   { "flagLessThan": { "flag": "name", "value": 3 } }
-//   { "flagWithinSeconds": { "flag": "name", "seconds": 604800 } } - flag timestamp is within N seconds of now
 //   { "hasItem": "item_type" }                          - player has item in inventory
 //   { "singleUseEnergyBelow": 15 }                       - single-use battery energy below threshold
 //   { "not": <condition> }
@@ -62,13 +61,6 @@ class ConditionEvaluator {
       const { flag, value, scope } = condition.flagLessThan;
       const actual = this.flagStore.getFlag(context.playerId, context.roomId, flag, scope || 'player');
       return (actual || 0) < value;
-    }
-
-    if (condition.flagWithinSeconds) {
-      const { flag, seconds, scope } = condition.flagWithinSeconds;
-      const ts = this.flagStore.getFlag(context.playerId, context.roomId, flag, scope || 'player');
-      if (!ts) return false;
-      return (Date.now() - ts) / 1000 < seconds;
     }
 
     // --- Sol grid energy checks ---
