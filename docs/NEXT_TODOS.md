@@ -92,11 +92,21 @@ Fixed scope mismatch in `nightside_frost_crypt.json` pedestal puzzle. Both pedes
 | `found_raider_manifest` | nightside_outpost | Lore collection |
 | `found_raider_journal` | nightside_outpost | Lore collection |
 
+### Wired (2026-03-27)
+- [x] `found_refined_umbrasite` → MERIDIAN-7 `post_refined_umbrasite` dialogue + rule
+- [x] `found_geometric_tablet` → Elder Vael `post_geometric_tablet` dialogue + rule
+- [x] `sable_guiding` → Sable (dead_road) `guiding_return` dialogue + rule
+- [x] `sable_guiding` → Sable (station) `guiding_station` dialogue + rule
+- [x] `elder_merge_path_revealed` → merge_nexus `elder_merge_blessing` room trigger
+- [x] `raid_defense_complete` → Warden Holt `post_raid_defense` dialogue + rule
+- [x] `perimeter_stabilized` → Perimeter Scout `post_perimeter_stabilized` dialogue + rule
+- [x] `junction_crawlers_cleared` → Warden Holt `post_junction_cleared` dialogue + rule
+- [x] `found_raider_manifest` / `found_raider_journal` → MERIDIAN-7 `post_raider_intel` dialogue + rule
+- [x] `raid_defense_complete` → Perimeter Scout `post_raid_defense_scout` dialogue + rule
+
 ### Outstanding Follow-ups
-- [ ] Wire lore collection flags to NPC dialogue (e.g., MERIDIAN-7 reacts to `found_refined_umbrasite`, Unbounded Elder reacts to `found_geometric_tablet`)
-- [ ] Wire `sable_guiding` to Sable NPC behavior changes or dialogue in subsequent rooms
-- [ ] Wire `elder_merge_path_revealed` to merge ending path content (prerequisite or bonus dialogue)
 - [ ] Remove or document `crypt_guardian_warned` double-set — likely a copy-paste issue
+- [ ] Wire `resonant_core_collected` and `depths_warmth_noted` to NPC dialogue if narrative content is designed for them
 
 ## Art Commission — Batch 1 Sprite Engagement (2026-03-27)
 

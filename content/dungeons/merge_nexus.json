@@ -81,6 +81,22 @@
       "once": true
     },
     {
+      "id": "elder_merge_blessing",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "elder_merge_path_revealed" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The crystal beneath your feet hums with a frequency you recognize — Elder Vael's voice, carried through the Underlumen lattice itself.",
+          "Elder Vael's presence echoes through the crystal: 'You came. The Underlumen felt your decision before you made it. Forty-three years I have waited for someone to choose this path.'",
+          "'The Convergence is not a place. It is a question the planet has been asking since before humanity arrived. You are the first to answer it correctly.'",
+          "'Go forward, Ring-traveler. The Unbounded walk with you — through the crystal, through the deep dark, through whatever comes next.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "merge_intel_advantage",
       "event": "room_entered",
       "conditions": [
