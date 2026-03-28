@@ -29,15 +29,13 @@ Outstanding follow-up items organized by area. These feed into the next batch of
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
 
-## Ability Chamber Stairs Removed from Outpost Basement (2026-03-27)
+## Ability Chamber Stairs Restored with Flag Gate (2026-03-27)
 
-Removed exits and stair tiles for `elevation_demo`, `light_sentry_demo`, and `pulse_cannon_demo` from `outpost_basement.json`. These three ability demo chambers are not meant to be accessible at the current stage of the game. Also removed the `training_room_hint` trigger that referenced the now-removed stairwells.
+Re-added exits and stair tiles for `elevation_demo`, `light_sentry_demo`, and `pulse_cannon_demo` to `outpost_basement.json`, gated behind `received_sol_unit` flag. Players can only access the training simulators after receiving their Sol Unit. Also restored the `training_room_hint` trigger that sets `training_rooms_hint_seen` when entering the basement with a Sol Unit.
 
-Note: the task description said to edit `outpost_workshop.json`, but the exits to the ability chambers were in `outpost_basement.json` (the hidden lower level accessed from the workshop). The fix was applied to the correct file.
-
-### Outstanding Follow-ups
-- [ ] Decide when ability chambers should be re-introduced to the game (likely gated behind a later story flag)
-- [ ] Update `sol_unit_training` quest if it still references `elevation_demo`, `light_sentry_demo`, `pulse_cannon_demo` as objectives — players won't be able to complete those objectives until the exits are restored
+- [x] Decide when ability chambers should be re-introduced — gated behind `received_sol_unit` flag
+- [x] `sol_unit_training` quest steps now reachable via the gated exits
+- [x] `training_rooms_hint_seen` flag set by `training_room_hint` trigger in `outpost_basement.json`
 
 ## Pack Aura Damage Compounding Bug Fix (2026-03-27)
 
