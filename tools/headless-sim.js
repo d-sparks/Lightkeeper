@@ -8,6 +8,8 @@
 //   node tools/headless-sim.js --quest=lost_tool   # Specific quest
 //   node tools/headless-sim.js --explore           # Visit every room
 //   node tools/headless-sim.js --all-quests --json # JSON output for CI
+//   node tools/headless-sim.js --mainline --godmode # Invulnerable + high damage
+//   node tools/headless-sim.js --mainline --dump-save # Write save file at end for human debugging
 
 const path = require('path');
 const CONSTANTS = require('../shared/constants');
@@ -39,6 +41,7 @@ const STUCK_THRESHOLD = 500;             // ticks with no progress = soft lock
 const MAX_GAME_SECONDS = 5400;           // 90 minutes max per quest
 const PLAYER_ID = 'bot_1';
 const PLAYER_NAME = 'TestBot';
+let godMode = false;  // --godmode: invulnerable + one-shot kills
 
 // ─── Message Log ─────────────────────────────────────────────────────
 const messageLog = [];
@@ -210,6 +213,30 @@ function processTransitions(gameLoop, botState) {
             e => e.x === t.exitX && e.y === t.exitY && e.room === t.fromRoom);
           if (!alreadyBlocked) {
             botState._blockedExitTiles.push({ x: t.exitX, y: t.exitY, room: t.fromRoom });
+          }
+          continue;
+        }
+      }
+    }
+
+    // Block transitions through exit tiles that were explicitly marked as blocked
+    // (by doFindExitInRoom / doTraverseProcedural to prevent wrong-exit accidents).
+    // This applies to ALL rooms including proc rooms.
+    if (!t.deathRespawn) {
+      const isBlockedExit = botState._blockedExitTiles.some(
+        e => e.x === t.exitX && e.y === t.exitY && e.room === t.fromRoom);
+      if (isBlockedExit) {
+        const currentRoom = gameLoop.getRoom(t.fromRoom);
+        if (currentRoom) {
+          const exitPX = (t.exitX + 0.5) * TILE_SIZE;
+          const exitPY = (t.exitY + 0.5) * TILE_SIZE;
+          const playerInRoom = currentRoom.players.get(PLAYER_ID);
+          if (playerInRoom) {
+            const dx = playerInRoom.x - exitPX;
+            const dy = playerInRoom.y - exitPY;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            playerInRoom.x += (dx / len) * TILE_SIZE;
+            playerInRoom.y += (dy / len) * TILE_SIZE;
           }
           continue;
         }
@@ -693,7 +720,7 @@ function getWaypointGraph(dungeon) {
       if (dist > maxDist) continue;
 
       // Verify connectivity with a short A* (capped at small area)
-      const path = astarPath(dungeon, waypoints[i].x, waypoints[i].y, waypoints[j].x, waypoints[j].y);
+      const path = astarPath(dungeon, waypoints[i].x, waypoints[i].y, waypoints[j].x, waypoints[j].y, null, playerFlags);
       if (path && path.length > 0) {
         edges[i].push({ to: j, cost: path.length });
         edges[j].push({ to: i, cost: path.length });
@@ -1034,10 +1061,28 @@ class Bot {
     // During navigation or explore mode, only fight nearby monsters to avoid
     // wasting time on optional encounters. Explore uses 5 tiles (covers most
     // corridor widths), navigation uses 3 tiles, general uses full aggro range.
+    // When stalled on a path node, widen engage range to clear blocking monsters
+    const moveGoal = this.goals.length > 0 ? this.goals[this.goals.length - 1] : null;
+    const navStalled = isNavigating && moveGoal && (moveGoal._nodeStallTicks || 0) > 20;
     const engageRange = this.lightCombat ? 5 * TILE_SIZE
-      : isNavigating ? 3 * TILE_SIZE
+      : (isNavigating && !navStalled) ? 3 * TILE_SIZE
       : CONSTANTS.MONSTER_AGGRO_RANGE * TILE_SIZE;
     if (nearestDist > engageRange) return false;
+
+    // Skip combat with monsters unreachable via A* (behind walls/locked doors).
+    // Only check when combat has stalled for 60+ ticks to avoid expensive A*
+    // checks on every tick. Use a flag per monster to avoid rechecking.
+    if ((this._combatStuckTicks || 0) > 60 && nearest) {
+      const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
+      const mobTile = pixelToTile(nearest.x, nearest.y);
+      const flags = this.gameLoop.flagStore.getPlayerFlags(PLAYER_ID);
+      const path = astarPath(room.dungeon, ptx, pty, mobTile.tx, mobTile.ty, null, flags);
+      if (!path) {
+        // Monster is unreachable — skip combat to let kill_monsters timeout properly
+        this._combatSkipTicks = Math.max(this._combatSkipTicks || 0, 120);
+        return false;
+      }
+    }
 
     // Combat skip cooldown: after combat timeout, ignore combat for a while
     if (this._combatSkipTicks > 0) {
@@ -1085,7 +1130,8 @@ class Bot {
         // Close distance using A* pathfinding to navigate around walls
         const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
         const mobTile = pixelToTile(nearest.x, nearest.y);
-        const path = astarPath(room.dungeon, ptx, pty, mobTile.tx, mobTile.ty);
+        const combatFlags = this.gameLoop.flagStore.getPlayerFlags(PLAYER_ID);
+        const path = astarPath(room.dungeon, ptx, pty, mobTile.tx, mobTile.ty, null, combatFlags);
         if (path && path.length > 0) {
           this.moveTowardTile(player, path[0].x, path[0].y, { avoidExits: true });
         } else {
@@ -1108,7 +1154,8 @@ class Bot {
         if (combatStalled) {
           const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
           const mobTile = pixelToTile(nearest.x, nearest.y);
-          const path = astarPath(room.dungeon, ptx, pty, mobTile.tx, mobTile.ty);
+          const combatFlags = this.gameLoop.flagStore.getPlayerFlags(PLAYER_ID);
+          const path = astarPath(room.dungeon, ptx, pty, mobTile.tx, mobTile.ty, null, combatFlags);
           if (path && path.length > 0) {
             this.moveTowardTile(player, path[0].x, path[0].y, { avoidExits: true });
           } else {
@@ -1747,6 +1794,14 @@ class Bot {
   doInteractWithTile(goal, player, room) {
     if (!room) { this.popGoal(); return; }
 
+    // Timeout: abandon if interaction is stuck
+    goal._interactTicks = (goal._interactTicks || 0) + 1;
+    if (goal._interactTicks > 300) {
+      console.log(`[Bot] interact_with_tile TIMEOUT at (${goal.tileX},${goal.tileY}) in ${this.currentRoom}`);
+      this.popGoal();
+      return;
+    }
+
     // Check if we're in the right room
     if (goal.room && this.currentRoom !== goal.room) {
       this.pushGoal({ type: 'navigate_to_room', room: goal.room });
@@ -1767,7 +1822,25 @@ class Bot {
 
     // Close enough — use targeted tile interaction to avoid picking up nearby ground items
     this.gameLoop.setPlayerInput(this.currentRoom, PLAYER_ID, { up: false, down: false, left: false, right: false });
-    const result = this.gameLoop.tryInteractTile(this.currentRoom, PLAYER_ID, targetTX, targetTY);
+    let result = this.gameLoop.tryInteractTile(this.currentRoom, PLAYER_ID, targetTX, targetTY);
+    // If out of range (e.g. diagonally 2 tiles away), walk to a cardinal-adjacent tile
+    if (!result && dist >= 2 && !goal._closerAttempted) {
+      goal._closerAttempted = true;
+      // Target a cardinal-adjacent tile (N/S/E/W) instead of diagonal
+      const adjacents = [
+        { x: targetTX, y: targetTY - 1 },
+        { x: targetTX, y: targetTY + 1 },
+        { x: targetTX - 1, y: targetTY },
+        { x: targetTX + 1, y: targetTY },
+      ];
+      const best = adjacents
+        .filter(a => a.x >= 0 && a.y >= 0 && a.x < room.dungeon.width && a.y < room.dungeon.height && !isTileSolid(room.dungeon, a.x, a.y))
+        .sort((a, b) => (Math.abs(a.x - ptx) + Math.abs(a.y - pty)) - (Math.abs(b.x - ptx) + Math.abs(b.y - pty)))[0];
+      if (best) {
+        this.pushGoal({ type: 'move_to_position', tileX: best.x, tileY: best.y, tolerance: 0 });
+        return;
+      }
+    }
     if (result && result.interactType === 'message') {
       // Tile conditions not met (e.g., locked) — log and pop, prereqs should handle this
       console.log(`[Bot] Tile (${targetTX},${targetTY}) blocked: ${result.text}`);
@@ -2348,6 +2421,7 @@ class Bot {
     } else {
       goal._stuckTicks++;
       if (goal._stuckTicks > 450) {
+
         this._blockedExitTiles = this._blockedExitTiles.filter(e => e.room !== this.currentRoom);
         this.popGoal(); // Can't reach/damage remaining monsters
         return;
@@ -2365,13 +2439,14 @@ class Bot {
     }
     monsters.sort((a, b) => a.dist - b.dist);
 
+    let anyReachable = false;
     for (const { mob, dist } of monsters) {
       // If at melee range, stop navigating — combat handles it from here.
       // But if stuck for a while, the monster may be behind a wall (close in
       // straight-line distance but unreachable). In that case, fall through to
       // A* navigation so the bot paths around the obstacle.
       const meleeRange = (CONSTANTS.PLAYER_ATTACK_RANGE || 1.5) * TILE_SIZE;
-      if (dist <= meleeRange && (goal._stuckTicks || 0) < 60) return;
+      if (dist <= meleeRange && (goal._stuckTicks || 0) < 60) { anyReachable = true; return; }
 
       const mobTile = pixelToTile(mob.x, mob.y);
       // If monster is standing on an exit tile, target an adjacent non-exit floor
@@ -2398,8 +2473,10 @@ class Bot {
           if (!redirected) continue; // No safe approach tile — skip this monster
         }
       }
-      const path = astarPath(room.dungeon, ptx, pty, targetTX, targetTY);
+      const kmFlags = this.gameLoop.flagStore.getPlayerFlags(PLAYER_ID);
+      const path = astarPath(room.dungeon, ptx, pty, targetTX, targetTY, null, kmFlags);
       if (path && path.length > 0) {
+        anyReachable = true;
         // Push a move_to_position sub-goal to walk to the monster's tile.
         // tolerance=0 so the bot navigates fully around walls rather than
         // prematurely stopping when diagonally adjacent but line-of-sight-blocked.
@@ -2407,7 +2484,23 @@ class Bot {
         return;
       }
     }
-    // No reachable monster or all within combat range — doCombat handles it
+    // No reachable monster via A* — track consecutive unreachable ticks.
+    // Suppress doCombat so this function actually runs each tick instead of
+    // being preempted by the combat handler (which would prevent stuckTicks
+    // from ever reaching the timeout).
+    if (!anyReachable && monsters.length > 0) {
+      goal._noPathTicks = (goal._noPathTicks || 0) + 1;
+      // Force-skip combat so doKillMonsters runs every tick and can time out
+      this._combatSkipTicks = Math.max(this._combatSkipTicks || 0, 30);
+      if (goal._noPathTicks > 60) {
+        console.log(`[Bot] kill_monsters: all ${monsters.length} monsters unreachable via A* in ${this.currentRoom} — skipping`);
+        this._blockedExitTiles = this._blockedExitTiles.filter(e => e.room !== this.currentRoom);
+        this.popGoal();
+        return;
+      }
+    } else {
+      goal._noPathTicks = 0;
+    }
   }
 
   doExploreRoom(goal, player, room) {
@@ -2525,7 +2618,19 @@ class Bot {
         return;
       }
 
-      // We're in the entry dungeon — walk to the exit tile
+      // We're in the entry dungeon — walk to the exit tile.
+      // Block all other exits so the bot doesn't accidentally walk through them.
+      const entryRoom = this.getRoom();
+      if (entryRoom && entryRoom.dungeon.exits) {
+        for (const exit of entryRoom.dungeon.exits) {
+          if (exit.x === entry.exitX && exit.y === entry.exitY) continue;
+          const alreadyBlocked = this._blockedExitTiles.some(
+            e => e.x === exit.x && e.y === exit.y && e.room === this.currentRoom);
+          if (!alreadyBlocked) {
+            this._blockedExitTiles.push({ x: exit.x, y: exit.y, room: this.currentRoom });
+          }
+        }
+      }
       this.pushGoal({ type: 'move_to_position', tileX: entry.exitX, tileY: entry.exitY, tolerance: 0 });
       return;
     }
@@ -2599,6 +2704,18 @@ class Bot {
       // Standing on exit — transition should happen automatically
       this.popGoal();
       return;
+    }
+
+    // Block all OTHER exit tiles so the bot doesn't accidentally walk through
+    // the wrong exit while heading for the target (e.g. stepping on stairs_down
+    // while trying to reach stairs_up in proc rooms).
+    for (const exit of room.dungeon.exits) {
+      if (exit.x === targetExit.x && exit.y === targetExit.y) continue;
+      const alreadyBlocked = this._blockedExitTiles.some(
+        e => e.x === exit.x && e.y === exit.y && e.room === this.currentRoom);
+      if (!alreadyBlocked) {
+        this._blockedExitTiles.push({ x: exit.x, y: exit.y, room: this.currentRoom });
+      }
     }
 
     // Move to the exit tile
@@ -2688,12 +2805,18 @@ class Bot {
       up: dy < -2,
     };
 
-    // Avoid exit tiles during combat to prevent accidental transitions
-    if (opts && opts.avoidExits) {
+    // Avoid blocked exit tiles to prevent accidental transitions.
+    // Always check _blockedExitTiles (set by doFindExitInRoom/doTraverseProcedural);
+    // additionally avoid ALL exits when avoidExits flag is set (combat mode).
+    {
       const room = this.getRoom();
       if (room && room.dungeon.exits && this.transitionCooldownTicks <= 0) {
         const { tx: ptx, ty: pty } = pixelToTile(player.x, player.y);
+        const blockedSet = this._getBlockedExitSet(room.dungeon);
         for (const exit of room.dungeon.exits) {
+          const isBlocked = (opts && opts.avoidExits) ||
+            (blockedSet && blockedSet.has(exit.y * room.dungeon.width + exit.x));
+          if (!isBlocked) continue;
           if (input.right && ptx + 1 === exit.x && pty === exit.y) input.right = false;
           if (input.left && ptx - 1 === exit.x && pty === exit.y) input.left = false;
           if (input.down && ptx === exit.x && pty + 1 === exit.y) input.down = false;
@@ -2872,6 +2995,31 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
         }
 
         if (npcType) {
+          // Check if the trigger that sets this flag requires an item in inventory
+          const flagSource = findRoomThatSetsFlag(cond.hasFlag);
+          if (flagSource && flagSource.trigger && flagSource.trigger.conditions) {
+            for (const tc of flagSource.trigger.conditions) {
+              if (tc.hasItem) {
+                // Find the item pickup location
+                const itemTrigger = findItemGiveTrigger(tc.hasItem);
+                if (itemTrigger) {
+                  goals.push({ type: 'navigate_to_room', room: itemTrigger.roomId, stepId, questId });
+                  if (itemTrigger.tileX != null) {
+                    goals.push({ type: 'kill_monsters', stepId, questId });
+                    goals.push({ type: 'interact_with_tile', tileX: itemTrigger.tileX, tileY: itemTrigger.tileY, room: itemTrigger.roomId, stepId, questId });
+                  } else {
+                    goals.push({ type: 'explore_room', stepId, questId });
+                  }
+                } else {
+                  const groundItem = findGroundItem(tc.hasItem);
+                  if (groundItem) {
+                    goals.push({ type: 'navigate_to_room', room: groundItem.roomId, stepId, questId });
+                    goals.push({ type: 'pick_up_item', itemType: tc.hasItem, room: groundItem.roomId, stepId, questId });
+                  }
+                }
+              }
+            }
+          }
           goals.push({ type: 'interact_with_npc', npcType, room: roomId, stepId, questId });
         } else if (roomId && !isTemplate) {
           // Flag not set by an NPC in the objective room — search globally
@@ -2896,6 +3044,11 @@ function buildQuestGoals(questId, gameLoop, exitGraph) {
               // Check if flag is set by a monster_killed trigger in this room
               const flagSource = globalFlagSource || findRoomThatSetsFlag(cond.hasFlag);
               if (flagSource && flagSource.trigger && flagSource.trigger.event === 'monster_killed') {
+                goals.push({ type: 'kill_monsters', stepId, questId });
+              } else if (flagSource && flagSource.trigger &&
+                         (flagSource.trigger.event === 'room_cleared' ||
+                          (flagSource.trigger.conditions && JSON.stringify(flagSource.trigger.conditions).includes('noHostilesInRoom')))) {
+                // Flag requires room to be cleared of hostiles
                 goals.push({ type: 'kill_monsters', stepId, questId });
               } else {
                 // General interaction fallback
@@ -3207,6 +3360,26 @@ function findRoomThatSetsFlag(flagName) {
   return null;
 }
 
+// Find a trigger that gives a specific item (via giveItem or spawnItem action)
+// Returns { roomId, tileX, tileY } or null
+function findItemGiveTrigger(itemType) {
+  const dungeons = content.getAllDungeons();
+  for (const [roomId, dungeon] of Object.entries(dungeons)) {
+    if (!dungeon.triggers) continue;
+    for (const trigger of dungeon.triggers) {
+      if (!trigger.actions) continue;
+      for (const action of trigger.actions) {
+        if ((action.type === 'giveItem' || action.type === 'spawnItem') && action.itemType === itemType) {
+          const tileX = trigger.filter && trigger.filter.tileX != null ? trigger.filter.tileX : null;
+          const tileY = trigger.filter && trigger.filter.tileY != null ? trigger.filter.tileY : null;
+          return { roomId, tileX, tileY };
+        }
+      }
+    }
+  }
+  return null;
+}
+
 // Find which quest has a step whose completion sets a given flag (via trigger/action)
 function findQuestThatSetsFlag(flagName) {
   // First check: does a quest step's completionConditions reference this flag?
@@ -3363,6 +3536,12 @@ function runSimulation(gameLoop, bot, maxGameSeconds, label) {
 
     // 2. Advance engine one tick
     gameLoop.update(DT);
+
+    // 2b. God mode: keep player at full health every tick
+    if (godMode) {
+      const gPlayer = bot.getPlayer();
+      if (gPlayer) gPlayer.health = gPlayer.maxHealth;
+    }
 
     // 3. Track combat events BEFORE transitions — rooms may be destroyed
     //    during processTransitions (death respawn empties the room), which
@@ -3819,10 +3998,21 @@ function runExplore(gameLoop, bot) {
 function main() {
   const args = process.argv.slice(2);
   const jsonOutput = args.includes('--json');
+  godMode = args.includes('--godmode');
+  const dumpSave = args.includes('--dump-save');
   const mode = parseMode(args);
 
   // Create engine
   const gameLoop = createEngine();
+
+  // God mode: one-shot kills via massive attack damage
+  if (godMode) {
+    const origGetDamage = gameLoop.getPlayerAttackDamage.bind(gameLoop);
+    gameLoop.getPlayerAttackDamage = function (player) {
+      if (player.id === PLAYER_ID) return 9999;
+      return origGetDamage(player);
+    };
+  }
   const exitGraph = buildExitGraph();
   const stats = new Stats();
 
@@ -3866,6 +4056,70 @@ function main() {
     case 'explore':
       runExplore(gameLoop, bot);
       break;
+  }
+
+  // Dump save file for human debugging
+  if (dumpSave) {
+    const fs = require('fs');
+    const savesDir = path.join(__dirname, '..', 'saves');
+    if (!fs.existsSync(savesDir)) fs.mkdirSync(savesDir, { recursive: true });
+
+    // If bot ended in a proc room, find the last static room it was in
+    let saveRoom = bot.currentRoom;
+    if (saveRoom.startsWith('proc:')) {
+      // Walk backwards through transition history to find last static room
+      for (let i = (bot._roomTransitionHistory || []).length - 1; i >= 0; i--) {
+        if (!bot._roomTransitionHistory[i].startsWith('proc:')) {
+          saveRoom = bot._roomTransitionHistory[i];
+          break;
+        }
+      }
+      if (saveRoom.startsWith('proc:')) {
+        saveRoom = content.getSpawnRoom() || 'outpost_entrance';
+      }
+      // Move player to the static room so save has valid position
+      gameLoop.getOrCreateRoom(saveRoom);
+      const spawn = gameLoop.rooms.get(saveRoom).dungeon.spawns[0] || { x: 2, y: 2 };
+      gameLoop.addPlayerAt(saveRoom, PLAYER_ID, PLAYER_NAME, spawn.x, spawn.y);
+    }
+    const room = gameLoop.getRoom(saveRoom);
+    const botPlayer = room && room.players.get(PLAYER_ID);
+    if (botPlayer) {
+      // Use the room's first spawn point for a clean start position
+      const dungeon = content.getDungeon(saveRoom);
+      const spawn = (dungeon && dungeon.spawns && dungeon.spawns[0]) || { x: 2, y: 2 };
+      const saveName = 'sim_debug';
+      const saveData = {
+        name: saveName,
+        room: saveRoom,
+        x: (spawn.x + 0.5) * TILE_SIZE,
+        y: (spawn.y + 0.5) * TILE_SIZE,
+        health: botPlayer.health,
+        maxHealth: botPlayer.maxHealth,
+        inventory: JSON.parse(JSON.stringify(botPlayer.inventory)),
+        equipment: JSON.parse(JSON.stringify(botPlayer.equipment)),
+        solGrid: botPlayer.solGrid ? JSON.parse(JSON.stringify(botPlayer.solGrid)) : null,
+        weaponUpgrades: botPlayer.weaponUpgrades ? JSON.parse(JSON.stringify(botPlayer.weaponUpgrades)) : null,
+        energy: botPlayer.energy,
+        maxEnergy: botPlayer.maxEnergy,
+        solGridEnergyRegen: botPlayer.solGridEnergyRegen,
+        flags: JSON.parse(JSON.stringify(gameLoop.flagStore.getPlayerFlags(PLAYER_ID))),
+        questState: gameLoop.questTracker.serializePlayerState(PLAYER_ID),
+        xp: botPlayer.xp,
+        level: botPlayer.level,
+        xpToNextLevel: botPlayer.xpToNextLevel,
+        medipacCharges: botPlayer.medipacCharges,
+        credits: botPlayer.credits || 0,
+        revealedChunks: {},
+      };
+      const savePath = path.join(savesDir, `${saveName}.json`);
+      fs.writeFileSync(savePath, JSON.stringify(saveData, null, 2));
+      const goal = bot.currentGoal();
+      console.log(`\n[dump-save] Saved to ${savePath}`);
+      console.log(`[dump-save] Room: ${saveRoom} | Spawn: (${spawn.x}, ${spawn.y})`);
+      console.log(`[dump-save] Goal: ${goal ? goal.type + (goal.tileX != null ? ` (${goal.tileX},${goal.tileY})` : '') : 'none'}`);
+      console.log(`[dump-save] To play: npm start, then open browser and enter name "sim_debug"`);
+    }
   }
 
   // Output results

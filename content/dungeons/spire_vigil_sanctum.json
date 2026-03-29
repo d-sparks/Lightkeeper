@@ -164,6 +164,36 @@
           {
             "type": "setTile",
             "x": 9,
+            "y": 13,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 13,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 14,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 14,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 15,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
             "y": 15,
             "tileId": 1
           },
@@ -209,6 +239,36 @@
           {
             "type": "setTile",
             "x": 9,
+            "y": 13,
+            "tileId": 3
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 13,
+            "tileId": 3
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 14,
+            "tileId": 3
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 14,
+            "tileId": 3
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 15,
+            "tileId": 3
+          },
+          {
+            "type": "setTile",
+            "x": 10,
             "y": 15,
             "tileId": 3
           }
@@ -227,6 +287,36 @@
           {
             "type": "setTile",
             "x": 9,
+            "y": 13,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 13,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 14,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 14,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 15,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
             "y": 15,
             "tileId": 1
           }
