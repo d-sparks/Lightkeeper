@@ -13,6 +13,7 @@
   const energySingleUseFill = document.getElementById('energy-single-use-fill');
   const energyText = document.getElementById('energy-text');
   const hudName = document.getElementById('hud-name');
+  const debugCoords = document.getElementById('debug-coords');
   const xpFill = document.getElementById('xp-fill');
   const xpText = document.getElementById('xp-text');
   const dialogueOverlay = document.getElementById('dialogue-overlay');
@@ -3251,6 +3252,11 @@
       if (me) {
         const pct = (me.health / me.maxHealth) * 100;
         healthFill.style.width = `${pct}%`;
+        if (debugCoords) {
+          const tx = Math.floor(me.x / 32);
+          const ty = Math.floor(me.y / 32);
+          debugCoords.textContent = `(${tx}, ${ty})`;
+        }
         if (me.maxEnergy > 0) {
           energyBar.style.display = 'block';
           const suEnergy = me.singleUseEnergy || 0;

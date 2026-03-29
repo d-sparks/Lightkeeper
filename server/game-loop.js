@@ -3792,6 +3792,8 @@ class GameLoop {
 
       // Update each player's movement and cooldowns
       for (const [pid, player] of room.players) {
+        // God mode: keep health full every tick
+        if (player._godMode) player.health = player.maxHealth;
         // Tick down stun time
         if (player.stunTime > 0) {
           player.stunTime -= dt;
@@ -6355,6 +6357,7 @@ class GameLoop {
   }
 
   getPlayerAttackDamage(player) {
+    if (player._godMode) return 9999;
     let damage = CONSTANTS.PLAYER_ATTACK_DAMAGE;
     for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
       const item = player.equipment[slot];

@@ -1350,7 +1350,8 @@ class Bot {
       const playerObj = this.getPlayer();
       const inventory = playerObj ? playerObj.inventory : [];
 
-      for (const cond of firstHop.conditions) {
+      const hopConds = Array.isArray(firstHop.conditions) ? firstHop.conditions : [firstHop.conditions];
+      for (const cond of hopConds) {
         if (cond.hasFlag && !flags[cond.hasFlag]) {
           // Try direct flag resolution — simpler and more resilient than
           // running a full quest, which can fail and permanently block the exit.
@@ -1363,8 +1364,12 @@ class Bot {
             // Push goals in reverse order (stack — last pushed = first executed)
             this.pushGoal({ type: 'wait_for_flag', flag: cond.hasFlag, retryInteract: true, retryTicks: 15 });
 
-            if (triggerEvent === 'monster_killed') {
-              // Flag set by killing a monster — fight everything in the room
+            // Check if trigger requires room to be clear of hostiles
+            const needsClear = triggerEvent === 'room_cleared' ||
+              (roomInfo.trigger.conditions && JSON.stringify(roomInfo.trigger.conditions).includes('noHostilesInRoom'));
+
+            if (triggerEvent === 'monster_killed' || needsClear) {
+              // Flag set by killing monsters or clearing the room
               this.pushGoal({ type: 'kill_monsters' });
             } else if (triggerEvent === 'flag_changed' && roomInfo.trigger.conditions) {
               // Flag set reactively when prerequisite flags change —
@@ -4091,6 +4096,7 @@ function main() {
       const saveName = 'sim_debug';
       const saveData = {
         name: saveName,
+        godMode: godMode,
         room: saveRoom,
         x: (spawn.x + 0.5) * TILE_SIZE,
         y: (spawn.y + 0.5) * TILE_SIZE,
