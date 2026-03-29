@@ -1350,7 +1350,25 @@ class Bot {
       const playerObj = this.getPlayer();
       const inventory = playerObj ? playerObj.inventory : [];
 
-      const hopConds = Array.isArray(firstHop.conditions) ? firstHop.conditions : [firstHop.conditions];
+      const hopCondsRaw = Array.isArray(firstHop.conditions) ? firstHop.conditions : [firstHop.conditions];
+      // Flatten 'or' conditions: if any sub-condition is satisfiable, use that one
+      const hopConds = [];
+      for (const c of hopCondsRaw) {
+        if (c.or && Array.isArray(c.or)) {
+          // Pick the first sub-condition we can resolve (have item or can find it)
+          let picked = null;
+          for (const sub of c.or) {
+            if (sub.hasFlag && flags[sub.hasFlag]) { picked = null; break; } // already met
+            if (sub.hasItem && inventory.some(i => i.type === sub.hasItem)) { picked = null; break; } // already have
+            if (sub.hasItem && findGroundItem(sub.hasItem)) { picked = sub; break; }
+            if (sub.hasFlag && findRoomThatSetsFlag(sub.hasFlag)) { picked = picked || sub; }
+            if (!picked && sub.hasItem && findItemGiveTrigger(sub.hasItem)) { picked = sub; }
+          }
+          if (picked) hopConds.push(picked);
+        } else {
+          hopConds.push(c);
+        }
+      }
       for (const cond of hopConds) {
         if (cond.hasFlag && !flags[cond.hasFlag]) {
           // Try direct flag resolution — simpler and more resilient than
@@ -1401,6 +1419,23 @@ class Bot {
             }
 
             this.pushGoal({ type: 'navigate_to_room', room: roomInfo.roomId });
+            // If the trigger requires items, plan to pick them up first
+            if (roomInfo.trigger && roomInfo.trigger.conditions) {
+              for (const tc of flattenConditions(roomInfo.trigger.conditions)) {
+                if (tc.hasItem && !inventory.some(i => i.type === tc.hasItem)) {
+                  const itemLoc = findGroundItem(tc.hasItem) || findItemGiveTrigger(tc.hasItem);
+                  if (itemLoc) {
+                    const pickRoom = itemLoc.roomId;
+                    if (itemLoc.tileX != null) {
+                      this.pushGoal({ type: 'interact_with_tile', tileX: itemLoc.tileX, tileY: itemLoc.tileY, room: pickRoom });
+                    } else {
+                      this.pushGoal({ type: 'pick_up_item', itemType: tc.hasItem, room: pickRoom });
+                    }
+                    this.pushGoal({ type: 'navigate_to_room', room: pickRoom });
+                  }
+                }
+              }
+            }
             // Block all exit tiles in the resolution room so the bot doesn't
             // accidentally transition while fighting/interacting
             if (roomInfo.roomId === this.currentRoom) {
