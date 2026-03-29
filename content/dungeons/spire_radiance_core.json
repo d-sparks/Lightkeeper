@@ -320,16 +320,27 @@
         "actions": [
           {
             "type": "setFlag",
-            "flag": "visited_spire_radiance_core",
-            "scope": "player"
+            "flag": "visited_spire_radiance_core"
           },
           {
             "type": "setFlag",
-            "flag": "spire_radiance_core_reached",
-            "scope": "player"
+            "flag": "spire_radiance_core_reached"
           }
-        ],
-        "once": true
+        ]
+      },
+      {
+        "id": "mark_core_visited_cleared",
+        "event": "room_cleared",
+        "actions": [
+          {
+            "type": "setFlag",
+            "flag": "visited_spire_radiance_core"
+          },
+          {
+            "type": "setFlag",
+            "flag": "spire_radiance_core_reached"
+          }
+        ]
       }
     ]
 }
