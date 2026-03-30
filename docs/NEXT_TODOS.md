@@ -1,8 +1,240 @@
 # Next TODOs
 
+## Sim Bot showChoice Handling (2026-03-27)
+
+Added special-case handling in `checkForChoices()` for the Act 3 ending choice (`choiceId: "three_paths"`). Bot now selects `merge` (Broker Symbiosis / "restore" path) instead of defaulting to the first option (`shutdown`).
+
+### Outstanding Follow-ups
+- [ ] The Act 3 content path beyond `three_paths` is not yet simable end-to-end — bot gets stuck at `proc_quarantine` before reaching `meridian_civic` where the choice fires; fix the proc soft-lock first
+- [ ] Consider adding named choice overrides for other story-significant choices (`autotroph_confrontation`, `kappa_merge_delivery`) so the mainline path is explicit rather than "first option"
+
+## perimeter_outer_ring Alcove Fix (2026-03-27)
+
+Opened walled-off 2-tile alcove at (13,6)-(14,6) in `perimeter_outer_ring.json` — changed west wall tile (12,6) from stone_wall to stone_floor so the ration_pack item is reachable. Also added retry limit in `doExploreRoom` items phase to prevent soft-locks on any future unreachable items.
+
+### Outstanding Follow-ups
+- [ ] Audit other dungeons for similar walled-off item spawns (tile type 2 surrounded by walls with no entry)
+- [ ] Investigate nondeterministic `proc_quarantine` quest failure in `--mainline` sim — `wait_for_item` for `titanium_cylinders` sometimes gets stuck (pre-existing, unrelated to this fix)
+
+## Equipment/Sol Grid UI Clarity (2026-03-27)
+
+Added onboarding hint (`onboard-equip`) that appears when the player first receives an equipment-type item (weapon/equipment category or slot property) in their inventory. The hint reads "Press [I] → EQUIP to equip items" and is dismissed when the player opens the menu.
+
+Root observation: player triggered `damage_booster_equipped` 4 times in quick succession, suggesting confusion with the sol grid placement UI.
+
+### Outstanding Follow-ups
+- [ ] Consider a separate `onboard-sol-component` hint for when the player first receives a `sol_component`-type item, guiding them to the SOL tab specifically
+- [ ] Investigate whether the `damage_booster_equipped` flag should be idempotent (i.e. only fire the quest event on the first placement, not re-placements) to avoid repeated quest triggers when the player removes and re-places the chip
+- [ ] Consider adding a brief in-grid tooltip on empty cells adjacent to an ability ("Place modifier here") on first sol grid open
+
+## dead_road Difficulty Reduction (2026-03-27)
+
+Reduced simultaneous multi-source pressure in `dead_road.json` that was killing players in ~4s on first encounter.
+
+### Changes Applied
+- Moved `shade_stalker` from (11, 8) → (4, 4) — northwest corner, no longer flanks the player's initial north corridor
+- Moved `shade_stalker` from (17, 7) → (24, 3) — northeast corner, separated from center
+- Reduced `dusk_crawler` at (22, 12) count 2 → 1
+- Moved `feral_hound` from (8, 12) to (3, 9) and reduced count 2 → 1 — was spawning 1-2 tiles from player start
+
+### Outstanding Follow-ups
+- [ ] Playtest dead_road to confirm pacing feels like gradual escalation rather than an instant wall
+- [ ] Consider adding a warning trigger when the shade_stalkers aggro ("A low hiss — something large moves in the shadows") to give players a moment to react
+
 Outstanding follow-up items organized by area. These feed into the next batch of TODOs.md tasks.
 
 Last cleaned: 2026-03-15 late (full three-act playtest audit; content validator: 0 errors, 4 warnings; sim explore mode: 14/124 rooms (11.3%); all-quests mode blocked by proc room nesting bug).
+
+## Ability Chamber Stairs Restored with Flag Gate (2026-03-27)
+
+Re-added exits and stair tiles for `elevation_demo`, `light_sentry_demo`, and `pulse_cannon_demo` to `outpost_basement.json`, gated behind `received_sol_unit` flag. Players can only access the training simulators after receiving their Sol Unit. Also restored the `training_room_hint` trigger that sets `training_rooms_hint_seen` when entering the basement with a Sol Unit.
+
+- [x] Decide when ability chambers should be re-introduced — gated behind `received_sol_unit` flag
+- [x] `sol_unit_training` quest steps now reachable via the gated exits
+- [x] `training_rooms_hint_seen` flag set by `training_room_hint` trigger in `outpost_basement.json`
+
+## Pack Aura Damage Compounding Bug Fix (2026-03-27)
+
+Fixed exponential damage compounding in `updateMonsters`. The pack leader aura temporarily multiplies `mob.damage` each tick, with the original value restored at the end of the loop iteration. However, 6 `continue` statements (lunge, knockback, no-target, boss_retreat, ambush dormant, out-of-aggro-range) skipped the restore, causing the aura multiplier to compound every tick (~15 Hz). A frostfang_hunter near a frostfang_alpha would see damage grow as `15 * 1.25^N` per tick, reaching millions within seconds.
+
+### Fix Applied
+- Added `mob.speed = origSpeed; mob.damage = origDamage;` before all 6 `continue` statements in the `updateMonsters` loop (`server/game-loop.js`)
+
+### Outstanding Follow-ups
+- [ ] Playtest lighthouse_mara_f02 and lighthouse_mara_caverns with frostfang packs to confirm damage is now reasonable
+- [ ] Consider refactoring aura buff to use a `baseDamage` property instead of save/restore pattern to prevent similar regressions
+
+## Frost Crypt Pedestal Puzzle — Scope Bug Fix (2026-03-27)
+
+Fixed scope mismatch in `nightside_frost_crypt.json` pedestal puzzle. Both pedestal triggers set flags with `"scope": "room"`, but the `crypt_puzzle_check` trigger's conditions checked `hasFlag` without specifying scope (defaults to `"player"`). The puzzle could never be solved because the player-scoped flags were never set.
+
+### Fix Applied
+- Added `"scope": "room"` to both `hasFlag` conditions in `crypt_puzzle_check` trigger (lines 170-171)
+
+### Outstanding Follow-ups
+- [ ] Verify fix in-game: activate both pedestals in frost crypt and confirm central chamber opens
+- [ ] Check if any other room-scoped flag puzzles have the same scope mismatch pattern (search for `"scope": "room"` in set actions paired with unscoped `hasFlag` checks)
+
+## Disconnected Flags Audit — Acts 2-3 (2026-03-27)
+
+10+ flags are set by triggers but never checked by any condition, NPC dialogue, or exit gate. These are harmless but represent unused content hooks:
+
+| Flag | Set In | Purpose |
+|------|--------|---------|
+| `found_refined_umbrasite` | nightside_depths | Lore collection |
+| `resonant_core_collected` | nightside_depths | Lore collection |
+| `met_unbounded_elder` | nightside_depths | Quest tracking |
+| `found_geometric_tablet` | nightside_frost_crypt | Lore collection |
+| `depths_warmth_noted` | nightside_depths | Narrative marker |
+| `sable_guiding` | nightside_passage | Companion state |
+| `elder_merge_path_revealed` | nightside_depths | Path indicator |
+| `crypt_guardian_warned` | nightside_frost_crypt | Warning (set twice) |
+| `found_raider_manifest` | nightside_outpost | Lore collection |
+| `found_raider_journal` | nightside_outpost | Lore collection |
+
+### Wired (2026-03-27)
+- [x] `found_refined_umbrasite` → MERIDIAN-7 `post_refined_umbrasite` dialogue + rule
+- [x] `found_geometric_tablet` → Elder Vael `post_geometric_tablet` dialogue + rule
+- [x] `sable_guiding` → Sable (dead_road) `guiding_return` dialogue + rule
+- [x] `sable_guiding` → Sable (station) `guiding_station` dialogue + rule
+- [x] `elder_merge_path_revealed` → merge_nexus `elder_merge_blessing` room trigger
+- [x] `raid_defense_complete` → Warden Holt `post_raid_defense` dialogue + rule
+- [x] `perimeter_stabilized` → Perimeter Scout `post_perimeter_stabilized` dialogue + rule
+- [x] `junction_crawlers_cleared` → Warden Holt `post_junction_cleared` dialogue + rule
+- [x] `found_raider_manifest` / `found_raider_journal` → MERIDIAN-7 `post_raider_intel` dialogue + rule
+- [x] `raid_defense_complete` → Perimeter Scout `post_raid_defense_scout` dialogue + rule
+
+### Outstanding Follow-ups
+- [ ] Remove or document `crypt_guardian_warned` double-set — likely a copy-paste issue
+- [ ] Wire `resonant_core_collected` and `depths_warmth_noted` to NPC dialogue if narrative content is designed for them
+
+## Art Commission — Batch 1 Sprite Engagement (2026-03-27)
+
+Brief is ready at `docs/art-commission-brief.md` with art style guide at `docs/art-style-guide.md`. 10 entities, 14 PNGs, 64x16 animation strips with 4 frames each.
+
+### Action Items
+- [ ] Post commission listing on Fiverr, r/gameDevClassifieds, or itch.io community — link to the brief
+- [ ] Review artist portfolios for 16x16 dark sci-fi pixel art experience (readability at small scale is key)
+- [ ] Request 1 test sprite (e.g. `dusk_crawler.png`) before committing to full batch — verify palette compliance and animation frame layout
+- [ ] Once artist is selected, share `docs/art-style-guide.md` master palette and confirm 64x16 strip delivery format
+- [ ] After delivery: drop replacement PNGs into `content/sprites/`, test against Dark Perimeter and Stone Crypt tilesets
+- [ ] Verify `crystal_shard_minion` still looks acceptable reusing the new `crystal_guardian.png` — may need its own sprite in Batch 2
+
+## Campaign NPC Conditional Dialogue (2026-03-27)
+
+Added state-dependent dialogue sets and rules for four key campaign NPCs:
+- **Councillor Asha**: lighthouse_mara_restored reaction, kappa_intel for shutdown/control paths (was merge-only), all_spires_cleared combined response
+- **Warden Holt**: array_secret_discovered military perspective, mara_restored + spire combined response
+- **MERIDIAN-7 (train)**: spire_vigil/winds reactions, general_thorne_defeated analysis, underlumen_emergence data response
+- **Tech Maren**: array_secret power grid implications, underlumen_emergence sensor spike, general_thorne supply chain impact, all_abilities combined response
+
+### Outstanding Follow-ups
+- [ ] MERIDIAN-7 hub (`meridian_7_hub`) already has extensive dialogue; the train station variant (`meridian_7`) was the primary gap. Consider whether hub needs similar spire/thorne additions for parity.
+- [ ] Councillor Asha's `councillor_asha_denn` (Greenway variant) has no conditional dialogue — could add Act 2/3 progression reactions there too.
+- [ ] Tech Maren's `all_abilities_response` fires when all 3 Spire abilities are unlocked simultaneously. If abilities can be unlocked in different orders, verify the rule priority doesn't skip intermediate ability dialogues.
+- [ ] Many of the 70+ other NPCs still have minimal or no dialogueRules — consider a broader pass on NPCs in frequently-visited rooms (mess_cook_brannigan, quartermaster_voss, etc.)
+
+## Lighthouse Siege — Flag Wiring (2026-03-27)
+
+Wired `lighthouse_siege_last_clear` and `siege_cooldown_active` flags to `siege_completed` event in `lighthouse_siege_arena.json`. Victory trigger (once) sets all three flags including `lighthouse_siege_cleared`; cooldown trigger (non-once) refreshes the cooldown pair on every completion.
+
+### Outstanding Follow-ups
+- [x] `siege_cooldown_active` permanent flag fixed: removed the boolean flag entirely. NPC dialogue now uses `flagWithinSeconds` condition on `lighthouse_siege_last_clear` timestamp directly, so cooldown dialogue expires automatically after 604800s.
+
+## Tileset Sprite Strips — Generated (2026-03-23)
+
+Added placeholder PNG sprite strips for 6 missing tilesets: dayside, fungal_forest, nightside, meridian, station, spire_radiance. All generated via `node tools/generate-sprites.js`. Existing tilesets (greenway, biolab, spire_winds, frost_crypt) were already up-to-date.
+
+### Outstanding Follow-ups
+- [ ] All generated tilesets are placeholder pixel art — commission proper art before release (see `docs/art-commission-brief.md`)
+- [ ] dayside and fungal_forest tilesets lack dungeon JSON files using them — verify they render correctly once dungeons reference them
+- [ ] nightside tileset ID 9 (transit_portal) is non-standard — confirm no engine path collision with the existing portal system
+
+## Bot Navigation — Loop Fixes (2026-03-27)
+
+Fixed two navigation loop bugs: (1) accidental transitions during explore_room/non-navigate goals causing workshop↔proc_quarantine bouncing, (2) room-level bouncing defeating stuck detection. Three changes: loop-detecting transition blocker in processTransitions (blocks transitions to rooms visited 3+ times in recent history), navigate_to_room loop detector (abandons goals after 4+ visits without flag/inventory progress), and smarter stuck detection that ignores room revisits.
+
+Results: explore mode still 16/124 rooms (no regression), mainline deaths reduced 4→1 (fewer entrance↔perimeter bounces), no more proc_quarantine infinite cycling in explore mode.
+
+### Outstanding Follow-ups
+- [ ] A* fails from (33,22) to (48,22) in outpost_perimeter — lighthouse_siege_arena exit unreachable from east spawn. Map may need a walkable corridor or the exit tile needs repositioning.
+- [ ] A* fails from (11,6) to (13,6) in perimeter_outer_ring — bot gets stuck exploring interactable tiles behind walls. explore_room should skip tiles A* can't reach.
+- [ ] Bot can't physically reach solid-adjacent exit tiles when approach path hugs a wall (e.g., perimeter_gate (9,0)). The move_to_position distance threshold (0.4 * TILE_SIZE) prevents convergence when the player collision radius keeps the center too far from tile center. Consider tile-based arrival check for the final path node.
+- [ ] Explore mode only visits 16/124 rooms — many rooms behind procedural dungeons or multi-hop chains still unreachable by sim bot. Needs deeper investigation of remaining blockers.
+
+## Spire of Vigil — Bot Navigation Fix (2026-03-23)
+
+Added 14 spire vigil gate flags to EXPLORE_FLAGS, added exit condition + tile-opening trigger to sanctum→descent exit, and added objective.roomId to all spire_vigil quest steps (47 goals now generated vs 7 bare wait_for_flag before).
+
+### Outstanding Follow-ups
+- [ ] Quest sim can't reach nightside_outpost due to pre-existing outpost_perimeter A* failure — spire_vigil quest goals are correct but untested end-to-end
+- [ ] Underlumen puzzle solving in quest mode: bot needs to interact with pedestals in correct order; explore_room may not reliably solve multi-step puzzles in a single pass
+- [ ] Resonance chamber puzzle (3 sequential pedestal interactions) may need explicit ordered goals in buildQuestGoals for quest mode
+- [ ] buildQuestGoals doesn't resolve flags globally when step has no objective.roomId — general engine improvement for quests with array-format steps
+
+## Art Commission — Batch 1 Sprites (2026-03-23)
+
+Prepared commission brief for 10 priority entities (14 PNG files). See `docs/art-commission-brief.md` for full visual specs and `docs/art-style-guide.md` for palette/conventions.
+
+### Outstanding Follow-ups
+- [ ] Post commission listing from `docs/art-commission-posting.md` to artist platforms (r/PixelArt, r/gameDevClassifieds, Fiverr, Pixel Joint, Twitter #pixelart)
+- [ ] Review artist portfolios — look for dark/moody 16x16 pixel art, palette discipline, readable silhouettes
+- [ ] Select artist, agree on rate and timeline, send `docs/art-commission-brief.md` + `docs/art-style-guide.md`
+- [ ] Request 1-2 test sprites first (e.g. player_blue + dusk_crawler) before committing to full batch
+- [ ] When sprites are delivered, drop PNGs into `content/sprites/` and verify rendering at 32x32 upscale
+- [ ] Test all 14 sprites against dark tilesets (Dark Perimeter, Stone Crypt) for readability
+- [ ] Verify `crystal_shard_minion` still looks acceptable reusing the new `crystal_guardian.png` — if not, add minion sprite to Batch 2
+- [ ] Update `PLACEHOLDER_ASSETS.md` to remove Batch 1 entries once final art is integrated
+- [ ] Plan Batch 2 commission (Sable, General Thorne, Wren Alcott, Nest Mother, skeletons, luddites)
+
+## Act 2→3 Difficulty Curve (2026-03-23)
+
+Bumped Act 3 Array regular enemy stats (+3 dmg, +30 HP) to create a noticeable difficulty step entering the Dayside. Act 2 Bulwark regulars top out at 16 dmg; Act 3 now starts at 15-21 dmg instead of 12-18 dmg.
+
+### Changes Applied
+- `array_sentinel`: 130 HP / 12 dmg → 160 HP / 15 dmg
+- `array_fabricator`: 150 HP / 12 dmg → 180 HP / 15 dmg
+- `hybrid_drone`: 110 HP / 14 dmg → 140 HP / 17 dmg
+- `hybrid_stalker`: 160 HP / 18 dmg → 190 HP / 21 dmg
+- `radiance_construct`: 200 HP / 16 dmg → 230 HP / 19 dmg
+- Bosses (`array_overseer`, `nexus_guardian`) left unchanged
+
+### Outstanding Follow-ups
+- [ ] Playtest Act 3 entry rooms to verify difficulty feel — new dmg values may require gear check at merge_nexus
+- [ ] Consider whether `vent_spewer` (geothermal, 14 dmg / 70 HP) should also receive a bump for consistency
+- [ ] The old audit note (line: "Act 3 (110-900 HP, 12-26 dmg)") in this file is now stale — min dmg is 15, update if re-auditing
+
+## Large-Map Waypoint Navigation (2026-03-23)
+
+Added waypoint-based pathfinding decomposition for maps exceeding 100 tiles in either dimension (currently only `outer_expanse` at 200x120). Pre-computes a coarse waypoint grid (every 25 tiles) with A*-verified connectivity, then decomposes long paths into short waypoint-to-waypoint segments.
+
+### Changes Applied
+1. **Waypoint graph system**: `getWaypointGraph()` computes and caches a coarse navigation graph for large dungeons. Waypoints placed every 25 tiles at walkable positions, plus exit tiles. Adjacency verified via short A* calls.
+2. **Waypoint-segmented move_to_position**: `doMoveToPosition()` detects large maps and decomposes long paths (>37 tiles) into waypoint sub-goals. Each segment is a separate `move_to_position` with tolerance=2, allowing independent re-planning when combat disrupts a segment.
+3. **Extended timeout for large maps**: 800 ticks (~53s) vs 500 ticks (~33s) for move_to_position on large maps.
+4. **Waypoint graph A***: Separate lightweight A* on the waypoint graph (~42 nodes for outer_expanse) to find optimal waypoint route before decomposing into tile-level paths.
+
+### Outstanding Follow-ups
+- [ ] Bot cannot reach outer_expanse in sim due to upstream quest chain blockers (main_quest gets stuck at `spire_vigil_cleared` flag). Once fixed, the waypoint system will activate automatically.
+- [ ] Consider adding waypoint graph visualization to the editor for debugging large maps.
+- [ ] If more large maps are added, verify WAYPOINT_SPACING=25 gives good coverage — may need tuning per dungeon.
+- [ ] Waypoint graph cache is never invalidated — if dungeons are hot-reloaded in editor, stale graphs could cause issues.
+
+## HP Scaling Balance Pass (2026-03-23)
+
+Three-pronged fix for player HP never scaling to match monster damage in Acts 2-3:
+
+### Changes Applied
+1. **Sol grid HP modifiers**: 4 new sol components (vitality_node +15HP, fortification_matrix +25HP, resilience_core +40HP, immortal_lattice +60HP) placed in the sol grid for passive max health. Engine updated to sum maxHealthBonus from placed modifiers.
+2. **Per-Spire permanent HP bonus**: +25 HP per spire cleared (3 spires = +75 HP). Configurable via `settings.json > xpSystem.hpPerSpireCleared`.
+3. **HP medipac equipment**: reinforced_medipac (+20 HP, uncommon) and combat_medipac (+35 HP, rare) provide HP in the medipac slot alongside heal ability.
+
+### Outstanding Follow-ups
+- [ ] Playtest balance curve through Acts 2-3 with new HP sources — verify bosses no longer near-one-shot
+- [ ] Consider adding maxHealthBonus to sol unit innate bonuses (e.g., Greenway Bioframe could grant +30 HP innate)
+- [ ] The spire cleared flags are hardcoded in _recalcMaxHealth — if new spires are added, update the flag list
+- [ ] Consider a HUD element showing HP breakdown (base + level + equipment + sol grid + spire) on hover
+- [ ] Tune loot table weights for HP components after playtesting — current distribution may need adjustment
 
 ## Full Three-Act Campaign Playtest Audit (2026-03-15 late)
 
@@ -34,7 +266,7 @@ Comprehensive end-to-end audit of all 124 rooms across 3 acts, all 3 ending path
 
 ### Outstanding Issues
 
-1. **[opus] Sim bot can't traverse outpost_perimeter**: The 45x43 map with 27-30 monsters is a death trap for the sim bot (735 deaths in explore mode). The bot can't pathfind through dense monster rooms and lacks the combat AI to survive. This blocks all content beyond Act 1 outpost. Consider sim-only monster reduction or passthrough option for perimeter.
+1. **[opus] Sim bot stuck in perimeter_outer_ring**: A* pathfinding fails at tile (13,6) in perimeter_outer_ring, causing the bot to softlock. The combat fix (issue #5) resolved the 735-death loop — bot now kills monsters and survives — but the navigation issue blocks explore mode at 11/124 rooms. Investigate pathfinding in perimeter_outer_ring.
 
 2. **[opus] Proc room nesting bug**: In all-quests mode, the bot enters `proc:proc_quarantine:proc:proc_quarantine:proc:proc_quarantine:...` — a triply-nested procedural room. The exit at (24,4) has no A* path (returns null). The proc room generator may be creating recursive entries from the same exit tile.
 
@@ -42,7 +274,7 @@ Comprehensive end-to-end audit of all 124 rooms across 3 acts, all 3 ending path
 
 4. **[sonnet] Ending path quest tracking**: No quest definition covers the Act 3 ending choice (choosing shutdown/control/merge path and completing it). The `nightside_expedition` quest tracks the path choice but not the actual ending execution. Consider adding an `endgame` quest.
 
-5. **[opus] Sim explore mode combat**: The bot deals 0 damage and kills 0 monsters in explore mode despite taking 90,120 damage (735 deaths). The combat AI appears completely broken in explore mode — investigate `skipCombat` flag or weapon/ability initialization.
+5. ~~**[opus] Sim explore mode combat**~~: **FIXED** (2026-03-23). Bot now gets pulse_rifle + sol_unit + medipac at explore start, `lightCombat` mode fights only nearby monsters with short stall timeout. Result: 38 kills, 2362 damage dealt, 1 death (was 0 kills, 0 damage, 735 deaths).
 
 6. **[sonnet] Act 2-3 NPC conditional dialogue**: Most NPCs (70/74) have only 1 dialogue set with 0 conditions. Only corporal_venn (5 sets), keeper_mara (4 sets), wounded_unbounded_scout (2), and unbounded_elder (2) react to game state. Key NPCs like councillor_asha, warden_holt, and MERIDIAN-7 should have state-dependent dialogue as the player progresses through acts.
 
@@ -71,7 +303,7 @@ Full end-to-end audit of Acts 1-3, ending paths, and endgame loop. Sim verified 
 These issues were identified through content review but need human playtesting to confirm severity:
 
 **HIGH priority (potential blockers):**
-- [ ] **Nexus Guardian stun+wound combo**: 1.5s stun guarantees a free 50-damage slam, wound then reduces healing 60% for 7s. Solo players may find this mechanically impossible. Consider: make wound and stun mutually exclusive on the same boss, or add a 2s stun immunity window after being stunned.
+- [x] **Nexus Guardian stun+wound combo**: Fixed — 2s post-stun immunity window now blocks both re-stun and wound application. Damage still goes through but the debuff is resisted, breaking the guaranteed combo.
 - [ ] **General Thorne phase 3**: 28-damage projectiles at 0.9s interval + conscript summons creates an overwhelming combination. May need longer summon interval (10→15s) or lower phase 3 projectile damage.
 - [x] **Player max HP never scales**: Fixed — hpPerLevel increased 10→15 (max level 20 = 385 HP), added 7 accessory-slot equipment items with +maxHP (25/40/60/60/80/100/125 by rarity tier), distributed across loot tables from Act 1 through endgame. With best accessory at level 20: 510 HP. Follow-up: consider per-Spire-cleared +25 HP permanent bonus and HP-boosting sol components as future enhancements.
 
@@ -380,6 +612,25 @@ Remaining follow-ups:
 - **Siege arena monster spawns** — `lighthouse_siege_arena.json` has no monster spawns defined at the dungeon level; wave monsters are spawned by the challenge system (engine). Verify wave spawn positions work with the arena layout.
 - **Siege arena solo blocker** — `minPlayers: 2` means solo players can never start the siege. Consider adding an NPC hint about this requirement.
 - **Breach clear as a quest step** — perimeter_breach is visited during early exploration but has no quest formally directing players there. The `gloom_wraith` kill flag ties it in organically, but a quest step would make it explicit.
+
+## Lighthouse Siege Story Integration (2026-03-23)
+
+Connected siege to story progression: NPC start trigger, arena narrative, victory/defeat triggers, post-siege reactions.
+
+Changes made:
+- **`entities/npcs.json`** — Siege Warden Kael dialogueRules fixed: was checking `expedition_tier_4_cleared`, now uses `perimeter_breach_cleared` for unlock. Added `siege_cleared` dialogue (post-victory), cooldown dialogue rule (checks `siege_cooldown_active` + `lighthouse_siege_last_clear`).
+- **`lighthouse_siege_arena.json`** — Rich entry narrative with Kael relay comms and repair instructions. Added `siege_completed` and `siege_failed` triggers with narrative and `lighthouse_siege_cleared` flag.
+- **`server/game-loop.js`** — `_completeSiege()` now sets `lighthouse_siege_cleared` and `siege_cooldown_active` flags on all players. Both `_completeSiege()` and `_failSiege()` emit game events (`siege_completed`/`siege_failed`) through the trigger system.
+- **`server/scripting/event-bus.js`** — Added `SIEGE_COMPLETED` and `SIEGE_FAILED` event types.
+- **`outpost_perimeter.json`** — Post-siege return trigger: narrative about stabilized perimeter + `perimeter_stabilized` flag.
+- **`meridian_station.json`** — Post-siege station trigger: NPC reactions, dispatch runner flavor, Kael acknowledgment.
+
+Remaining follow-ups:
+- **`siege_cooldown_active` expiry** — Flag is set on victory but never cleared when cooldown expires. Needs a time-based check or a condition that compares `lighthouse_siege_last_clear` timestamp to current time.
+- **Light Sentry placement in siege** — Planned inter-wave mechanic not yet implemented.
+- **Siege keyboard shortcut for repair** — Currently repair is button-click only; a keyboard shortcut (e.g., `R`) would improve accessibility.
+- **Lighthouse Mara siege variant** — Narrative tie-in for defending the restored Lighthouse Mara as a harder siege variant.
+- **Fast travel block during siege** — Not yet implemented (only blocked during expeditions).
 
 ## Content — Lighthouse Mara Main Quest Integration (2026-03-15)
 
@@ -716,3 +967,40 @@ Created art commission brief (`docs/art-commission-brief.md`) and improved place
 - **Remaining NPC sprites** — Many NPCs beyond the priority 10 still use `npc_default.png` fallback. Next batch should cover: old_keeper, farmer_dael, farmer_lissa, archivist_solen, fence_elara.
 - **Remaining monster sprites** — All monster sprites are placeholders. After the priority batch, next priorities: luddite_warlord, gloom_wraith, magma_brute, array_overseer (boss-tier enemies seen in later acts).
 - **Tileset art** — All tilesets are also placeholders. Consider commissioning tileset art alongside entity sprites for visual consistency.
+
+## Mara Core Boss Tuning — Sim Death Loop Fix (2026-03-23)
+
+Rebalanced lighthouse_mara_core to fix sim bot death loop (78 deaths to shade_stalker_alpha + cold stacking). Changes: boss HP 80→65, dmg 14→12, lunge CD 5→7s, stun duration 0.8→0.5s, cold interval 3.5→5.0s, removed 1 gloom_wraith, added field_medkit at boss corridor entrance.
+
+- **Re-run sim** — Verify bot can now clear mara_core with <10 deaths and reach rooms beyond Act 1 (target: >60% reachability, up from 38%).
+- **Manual playtest** — Confirm the boss fight still feels threatening. The lunge+stun combo is the signature mechanic; reduced cooldown/duration should preserve the danger without being a death sentence.
+- **Consider cold resistance item** — If cold damage is still a problem in extended fights, a cold-resist consumable or equipment drop on an earlier Mara floor could help. The nightcaster_frame sol unit already grants cold resist but may not be available at this progression point.
+
+## Acts 2-3 Human Playtest Prep (2026-03-23)
+
+Full playtest checklist created at `docs/playtest-acts2-3.md`. Target: 2-3 testers, 5-10 hours each through Acts 2-3 and all 3 ending paths.
+
+### Fixes Applied This Session
+
+1. **dayside_raid_defense was completely empty**: Added 8 monsters (4 hybrid_drones, 2 hybrid_stalkers, 2 vent_spewers), 2 healing items (field_medkit, bandage), and a room_cleared trigger that sets `raid_defense_complete` flag. Room trigger message says "defend the solar infrastructure" — now there are actually enemies to defend against.
+
+### Blockers for Human Playtest
+
+- [ ] **proc_quarantine recursive nesting bug (Act 1)**: Testers will hit this before reaching Acts 2-3. The procedural dungeon template exists (`content/dungeons/templates/proc_quarantine.json`) but generates recursive room IDs (`proc:proc_quarantine:proc:proc_quarantine:...`). Either fix the proc generator or provide testers with flag-skip instructions to bypass the quarantine quest steps.
+- [ ] **spire_winds_cleared not gating Act 3 entry**: Player can skip the Spire of Winds entirely and still access Dayside. Consider adding `hasFlag: spire_winds_cleared` condition to the train_station → dayside exit or the dayside_solar_fields entry trigger.
+
+### Balance Items Requiring Playtest Verification
+
+- [ ] **General Thorne phase 3**: 28-dmg projectiles at 0.9s interval + conscript summons — potentially overwhelming. May need summon interval 10→15s or phase 3 dmg reduction.
+- [ ] **Spire Radiance Forge heat**: 6 dmg/1.8s heat + combat is brutal without heat resist. Need warning NPC or earlier heat resist availability.
+- [ ] **Weapon progression plateau**: No meaningful weapon upgrade between Sol Unit (12 dmg) and epic sol units (14-18 dmg). Entire Act 2 may feel stagnant. Consider rare weapon drop from General Thorne.
+- [ ] **Ranged build cap**: Best ranged weapon is Bulwark Combat Rifle (+8 dmg). Ranged builds fall behind melee by Act 3. Need rare/epic ranged weapon.
+- [ ] **Act 3 healing economy**: Array sentinels now drop field_medkits (weight 3) but verify this is frequent enough across 12 Spire Radiance floors.
+- [ ] **dayside_raid_defense tuning**: Newly populated — 8 enemies may be too many or too few for the 20x20 arena. Needs playtest feedback.
+
+### Narrative Items Requiring Playtest Verification
+
+- [ ] **NPC dialogue staleness**: 70/74 NPCs have 1 dialogue set. Key NPCs (Asha, Holt, MERIDIAN-7) need state-dependent dialogue for Acts 2-3 progression beats.
+- [ ] **Merge ending NPC ordering**: merge_nexus communion fires on tile interaction, not on talking to all 3 NPCs first. Consider gating communion on NPC conversations for narrative weight.
+- [ ] **Ending path pacing**: Verify shutdown/control/merge paths take roughly equal time and have adequate narrative payoff.
+- [ ] **Deep Array reveal**: End of Act 2 when MERIDIAN-7 is compromised — does this land dramatically or feel abrupt?

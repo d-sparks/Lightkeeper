@@ -287,7 +287,7 @@
     1,
     6,
     2,
-    1,
+    6,
     1,
     6,
     1,
@@ -461,7 +461,9 @@
       "leadsTo": "elevation_demo",
       "type": "stairs_down",
       "spawnX": 2,
-      "spawnY": 2
+      "spawnY": 2,
+      "conditions": [{ "hasFlag": "received_sol_unit" }],
+      "failMessage": "The stairwell is sealed. You need a Sol Unit to access the training simulators."
     },
     {
       "x": 12,
@@ -469,7 +471,9 @@
       "leadsTo": "light_sentry_demo",
       "type": "stairs_down",
       "spawnX": 2,
-      "spawnY": 2
+      "spawnY": 2,
+      "conditions": [{ "hasFlag": "received_sol_unit" }],
+      "failMessage": "The stairwell is sealed. You need a Sol Unit to access the training simulators."
     },
     {
       "x": 14,
@@ -477,7 +481,9 @@
       "leadsTo": "pulse_cannon_demo",
       "type": "stairs_down",
       "spawnX": 2,
-      "spawnY": 2
+      "spawnY": 2,
+      "conditions": [{ "hasFlag": "received_sol_unit" }],
+      "failMessage": "The stairwell is sealed. You need a Sol Unit to access the training simulators."
     }
   ],
   "triggers": [
@@ -490,11 +496,14 @@
       ],
       "actions": [
         { "type": "setFlag", "flag": "training_rooms_hint_seen" },
-        { "type": "showMessage", "lines": [
-          "A handwritten sign is posted above three stairwells along the lower corridor:",
-          "'SOL UNIT TRAINING — Authorized Personnel Only. Simulators calibrated for Hover, Sentry, and Demolition modules.'",
-          "The engineer set these up before the luddite attacks. They're still operational."
-        ]}
+        {
+          "type": "showMessage",
+          "lines": [
+            "A handwritten sign is posted above three stairwells along the lower corridor:",
+            "'SOL UNIT TRAINING — Authorized Personnel Only. Simulators calibrated for Hover, Sentry, and Demolition modules.'",
+            "The engineer set these up before the luddite attacks. They're still operational."
+          ]
+        }
       ],
       "once": true
     },

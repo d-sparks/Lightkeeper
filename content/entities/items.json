@@ -99,6 +99,32 @@
       "id": "medipac_heal"
     }
   },
+  "reinforced_medipac": {
+    "name": "Reinforced Medipac",
+    "description": "Military-grade medical kit with integrated bio-mesh lining. Heals wounds and passively strengthens the user's constitution.",
+    "type": "equipment",
+    "rarity": "uncommon",
+    "slot": "medipac",
+    "stats": {
+      "maxHealthBonus": 20
+    },
+    "ability": {
+      "id": "medipac_heal"
+    }
+  },
+  "combat_medipac": {
+    "name": "Combat Medipac",
+    "description": "Heavy-duty field surgery kit with reactive armor plating. The integrated nano-weave significantly increases the user's durability.",
+    "type": "equipment",
+    "rarity": "rare",
+    "slot": "medipac",
+    "stats": {
+      "maxHealthBonus": 35
+    },
+    "ability": {
+      "id": "medipac_heal"
+    }
+  },
   "damage_booster_chip": {
     "name": "Damage Booster Chip",
     "description": "A salvaged modifier chip. Place it in a Sol Grid to boost adjacent abilities.",
@@ -1235,6 +1261,21 @@
       "id": "melee_strike"
     }
   },
+  "thorne_command_sidearm": {
+    "name": "Thorne's Command Sidearm",
+    "description": "General Thorne's personal weapon — a heavily modified energy sidearm with a reinforced focusing array. Its output exceeds any standard-issue weapon. Not something a general carries for ceremony.",
+    "type": "weapon",
+    "rarity": "rare",
+    "slot": "weapon",
+    "stats": {
+      "attackDamage": 13,
+      "projectile": true,
+      "projectileType": "pulse_bolt"
+    },
+    "ability": {
+      "id": "pulse_shot"
+    }
+  },
   "military_medkit": {
     "name": "Military Medkit",
     "description": "Compact-issue medical supplies. Better than civilian equipment. Restores 50 health.",
@@ -1440,5 +1481,33 @@
     "stats": {
       "maxHealthBonus": 125
     }
+  },
+  "vitality_node_chip": {
+    "name": "Vitality Node Chip",
+    "description": "A salvaged modifier chip. Place it in a Sol Grid to passively increase maximum health.",
+    "type": "sol_component",
+    "rarity": "uncommon",
+    "solComponentId": "vitality_node"
+  },
+  "fortification_matrix_chip": {
+    "name": "Fortification Matrix Chip",
+    "description": "A rare modifier chip. Place it in a Sol Grid for a significant health boost and faster ability cycling.",
+    "type": "sol_component",
+    "rarity": "rare",
+    "solComponentId": "fortification_matrix"
+  },
+  "resilience_core_chip": {
+    "name": "Resilience Core Chip",
+    "description": "An epic modifier chip. Place it in a Sol Grid for major health increase and damage amplification.",
+    "type": "sol_component",
+    "rarity": "epic",
+    "solComponentId": "resilience_core"
+  },
+  "immortal_lattice_chip": {
+    "name": "Immortal Lattice Chip",
+    "description": "A legendary modifier chip. Place it in a Sol Grid for massive health increase with extended-range damage boost.",
+    "type": "sol_component",
+    "rarity": "legendary",
+    "solComponentId": "immortal_lattice"
   }
 }

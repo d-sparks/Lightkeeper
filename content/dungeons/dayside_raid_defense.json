@@ -36,9 +36,21 @@
     { "x": 11, "y": 10, "type": "player_start" },
     { "x": 10, "y": 9, "type": "player_start" }
   ],
-  "monsterSpawns": [],
+  "monsterSpawns": [
+    { "type": "hybrid_drone", "x": 3, "y": 2, "count": 1, "patrol": "wander" },
+    { "type": "hybrid_drone", "x": 16, "y": 2, "count": 1, "patrol": "wander" },
+    { "type": "hybrid_stalker", "x": 2, "y": 9, "count": 1, "patrol": "wander" },
+    { "type": "hybrid_stalker", "x": 17, "y": 9, "count": 1, "patrol": "wander" },
+    { "type": "hybrid_drone", "x": 5, "y": 15, "count": 1, "patrol": "wander" },
+    { "type": "hybrid_drone", "x": 14, "y": 15, "count": 1, "patrol": "wander" },
+    { "type": "vent_spewer", "x": 10, "y": 3, "count": 1, "patrol": "guard" },
+    { "type": "vent_spewer", "x": 10, "y": 16, "count": 1, "patrol": "guard" }
+  ],
   "npcSpawns": [],
-  "itemSpawns": [],
+  "itemSpawns": [
+    { "type": "field_medkit", "x": 10, "y": 7 },
+    { "type": "bandage", "x": 6, "y": 12 }
+  ],
   "exits": [
     { "x": 10, "y": 18, "leadsTo": "dayside_solar_fields", "type": "stairs_up", "spawnX": 2, "spawnY": 14 }
   ],
@@ -50,6 +62,18 @@
         { "type": "showMessage", "lines": [
           "Nightside creatures are breaching the perimeter! Defend the solar infrastructure!",
           "Eliminate all hostiles to protect your structures."
+        ]}
+      ],
+      "once": true
+    },
+    {
+      "id": "raid_defense_cleared",
+      "event": "room_cleared",
+      "actions": [
+        { "type": "setFlag", "flag": "raid_defense_complete" },
+        { "type": "showMessage", "lines": [
+          "The last creature falls. The solar infrastructure is secure — for now.",
+          "The Nightside breach has been sealed. Return to the Solar Fields."
         ]}
       ],
       "once": true

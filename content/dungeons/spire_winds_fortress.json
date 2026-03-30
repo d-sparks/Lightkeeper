@@ -136,6 +136,10 @@
             "itemType": "thorne_command_tablet"
           },
           {
+            "type": "giveItem",
+            "itemType": "thorne_command_sidearm"
+          },
+          {
             "type": "setQuestObjective",
             "text": "Descend into the Spire's ancient structure"
           }

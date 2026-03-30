@@ -6,11 +6,6 @@
   "theme": "frozen_cavern",
   "tileSize": 32,
   "ambientLight": 0.06,
-  "environmentalHazard": {
-    "type": "cold",
-    "damage": 2,
-    "interval": 3
-  },
   "width": 24,
   "height": 16,
   "data": [
@@ -478,6 +473,11 @@
   ],
   "npcSpawns": [],
   "itemSpawns": [
+    {
+      "type": "frost_salve",
+      "x": 4,
+      "y": 2
+    },
     {
       "type": "frost_salve",
       "x": 5,

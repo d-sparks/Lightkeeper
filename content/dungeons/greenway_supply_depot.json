@@ -87,7 +87,7 @@
     {
       "id": "confiscated_supplies_pickup",
       "event": "door_interacted",
-      "filter": { "tileX": 19, "tileY": 3 },
+      "filter": { "tileX": 22, "tileY": 3 },
       "conditions": [{ "hasFlag": "supply_sabotage_started" }],
       "actions": [
         { "type": "giveItem", "itemType": "confiscated_supplies" },

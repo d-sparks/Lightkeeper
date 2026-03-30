@@ -108,7 +108,7 @@
         },
         {
           "type": "showMessage",
-          "text": "Open your inventory [I] and place the generator chip on your Sol Grid — it works best adjacent to your battery chip."
+          "text": "Open your inventory [I] and place the generator chip on your Sol Grid — it works best adjacent to your rechargeable battery."
         }
       ],
       "once": true
@@ -124,16 +124,13 @@
           "hasFlag": "sol_training_complete"
         },
         {
-          "or": [
-            { "not": { "hasItem": "single_use_battery_chip" } },
-            { "singleUseEnergyBelow": 15 }
-          ]
+          "not": { "hasFlag": "received_first_battery" }
         }
       ],
       "actions": [
         {
-          "type": "giveItem",
-          "itemType": "single_use_battery_chip"
+          "type": "setEnergy",
+          "percent": 100
         },
         {
           "type": "setFlag",
@@ -141,9 +138,10 @@
         },
         {
           "type": "showMessage",
-          "text": "Open your inventory [I] to place the battery chip on your Sol Grid next to your Sol Cone."
+          "text": "Tech Maren hooks a charging cable to your Sol Unit. Your energy reserves fill to capacity."
         }
-      ]
+      ],
+      "once": true
     },
     {
       "id": "maren_acknowledges_restoration",
@@ -171,16 +169,13 @@
           "hasFlag": "sol_training_complete"
         },
         {
-          "or": [
-            { "not": { "hasItem": "single_use_battery_chip" } },
-            { "singleUseEnergyBelow": 15 }
-          ]
+          "not": { "hasFlag": "received_first_battery" }
         }
       ],
       "actions": [
         {
           "type": "showMessage",
-          "text": "Your Sol Unit's energy reserve is drained. Talk to Tech Maren — she keeps field cells for deployment."
+          "text": "Your Sol Unit's energy reserve is drained. Talk to Tech Maren — she can recharge your battery."
         }
       ]
     }

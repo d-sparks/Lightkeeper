@@ -23,6 +23,7 @@ DRY_RUN=false
 START_AT=1
 ONLY=""
 MAX_TURNS=100
+SIM_RETRIES=2         # Max fix attempts if sim regresses after a task
 YOLO=false
 LOG_DIR="$REPO_ROOT/.claude/ralph-logs"
 DAILY_LIMIT=90    # Stop if 5-hour usage >= this %
@@ -57,7 +58,7 @@ ${task}
 - If this is a Game/Engine task, keep changes minimal and focused.
 - If this is an Editor task, changes go in editor/app.js and editor/style.css.
 - If a task is too vague or would require design decisions, implement the most reasonable interpretation and note your assumptions in the commit message.
-- Test these changes to the extent that you can with the sim tools.
+- After committing, run \`node tools/headless-sim.js --mainline\` and verify it passes. If it regresses (FAIL or fewer rooms reached), fix the issue before moving on. The sim runs in <1s.
 - If there are outstanding action items, add those to a list in docs/NEXT_TODOS.md.
 - After all that make sure to commit changes.
 - Do NOT push to remote. Do NOT create a PR. Just commit locally.
@@ -250,6 +251,61 @@ run_tasks_from_file() {
     ) || {
       echo "  Claude exited with non-zero status for ${file_label} #${num}, continuing..."
     }
+
+    # ─── Post-task sim gate ────────────────────────────────────
+    sim_check_passed=false
+    for attempt in $(seq 1 $((SIM_RETRIES + 1))); do
+      echo ""
+      echo "  [sim-gate] Running mainline sim (attempt ${attempt})..."
+      sim_output="$(node "$REPO_ROOT/tools/headless-sim.js" --mainline 2>&1)" || true
+      sim_log="${pass_log_dir}/.claude-ralph-sim-${file_label}-${num}-attempt-${attempt}.txt"
+      echo "$sim_output" > "$sim_log"
+
+      if echo "$sim_output" | grep -q "RESULT: PASS"; then
+        echo "  [sim-gate] PASS"
+        sim_check_passed=true
+        break
+      fi
+
+      # Extract the failure summary (last 30 lines)
+      sim_tail="$(echo "$sim_output" | tail -30)"
+      echo "  [sim-gate] FAIL (attempt ${attempt}/${SIM_RETRIES})"
+
+      if [[ "$attempt" -le "$SIM_RETRIES" ]]; then
+        echo "  [sim-gate] Asking Claude to fix regression..."
+        fix_prompt="$(cat <<FIXPROMPT
+The mainline sim (\`node tools/headless-sim.js --mainline\`) is failing after your last commit. Fix the regression and amend the previous commit.
+
+## Sim output (last 30 lines)
+\`\`\`
+${sim_tail}
+\`\`\`
+
+## Instructions
+- Read the sim output carefully to understand what broke.
+- Fix the issue — do NOT revert the entire commit, just fix the regression.
+- Amend the previous commit with \`git commit --amend\`.
+- Run the sim again to verify: \`node tools/headless-sim.js --mainline\`
+FIXPROMPT
+)"
+        FIX_ARGS=(--max-turns "$MAX_TURNS" --verbose)
+        if [[ -n "$task_model" ]]; then
+          FIX_ARGS+=(--model "$task_model")
+        fi
+        if $YOLO; then
+          FIX_ARGS+=(--dangerously-skip-permissions)
+        fi
+
+        (
+          echo "$fix_prompt" | claude "${FIX_ARGS[@]}" \
+            2>&1 | tee "${pass_log_dir}/.claude-ralph-fix-${file_label}-${num}-attempt-${attempt}.txt"
+        ) || {
+          echo "  Claude fix attempt ${attempt} exited with non-zero status, continuing..."
+        }
+      else
+        echo "  [sim-gate] Max retries exhausted. Moving on."
+      fi
+    done
 
     DONE_TASKS+=("#${num}: ${task:0:80}")
   done

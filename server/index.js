@@ -542,6 +542,13 @@ wss.on('connection', (ws) => {
           // Rebuild abilities from restored equipment/solGrid
           gameLoop._rebuildAbilities(player);
 
+          // God mode: invulnerable + high damage (from headless sim --dump-save --godmode)
+          if (savedSession.godMode) {
+            player.maxHealth = 99999;
+            player.health = 99999;
+            player._godMode = true;
+          }
+
           // Restore revealed chunks
           if (savedSession.revealedChunks) {
             for (const [roomId, chunkKeys] of Object.entries(savedSession.revealedChunks)) {

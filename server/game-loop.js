@@ -656,7 +656,8 @@ class GameLoop {
 
       // Check if a procedural instance already exists for this exact context
       // (same exit tile + server epoch = same seed = same instanceId)
-      const seedStr = `${genContext.fromDungeon}_${genContext.exitX}_${genContext.exitY}_${genContext.serverEpoch}`;
+      const origin = DungeonGenerator.extractOriginDungeon(genContext.fromDungeon);
+      const seedStr = `${origin}_${genContext.exitX}_${genContext.exitY}_d${genContext.depth || 0}_${genContext.serverEpoch}`;
       const expectedId = `proc:${template.id}:${seedStr}`;
       room = this.rooms.get(expectedId);
       if (room) return room;
@@ -1390,7 +1391,11 @@ class GameLoop {
       // Set cooldown flag
       if (siege.challenge.cooldownFlag) {
         this.flagStore.setPlayerFlag(pid, siege.challenge.cooldownFlag, Date.now());
+        this.flagStore.setPlayerFlag(pid, 'siege_cooldown_active', true);
       }
+
+      // Set story progression flag (persistent — marks first-ever clear)
+      this.flagStore.setPlayerFlag(pid, 'lighthouse_siege_cleared', true);
 
       // Send updated inventory
       if (this.actions.sendToPlayer) {
@@ -1421,6 +1426,14 @@ class GameLoop {
           x: portalTX, y: portalTY, tileId: 8,
         });
       }
+    }
+
+    // Emit siege_completed event for trigger system
+    for (const [pid] of room.players) {
+      const ctx = this._scriptContext(pid, room.id);
+      this._emitGameEvent(EventBus.Events.SIEGE_COMPLETED, {
+        playerId: pid, roomId: room.id, challengeId: siege.challengeId,
+      }, ctx);
     }
 
     // Clear siege flags on all party members
@@ -1459,6 +1472,15 @@ class GameLoop {
           x: portalTX, y: portalTY, tileId: 8,
         });
       }
+    }
+
+    // Emit siege_failed event for trigger system
+    for (const [pid] of room.players) {
+      const ctx = this._scriptContext(pid, room.id);
+      this._emitGameEvent(EventBus.Events.SIEGE_FAILED, {
+        playerId: pid, roomId: room.id, challengeId: siege.challengeId,
+        wavesCompleted: siege.wave - 1,
+      }, ctx);
     }
 
     // Clear siege flags
@@ -2183,8 +2205,9 @@ class GameLoop {
       }
     }
 
-    // Sol grid: scan for abilities, generators, and batteries
+    // Sol grid: scan for abilities, generators, batteries, and passive HP
     player.solGridEnergyRegen = 0;
+    player.solGridMaxHealthBonus = 0;
     let extraMaxEnergy = 0;
     let singleUseMaxEnergy = 0;
     if (player.solGrid) {
@@ -2245,6 +2268,14 @@ class GameLoop {
               }
             }
           }
+
+          // Modifiers with maxHealthBonus — passive HP from placed components
+          if (cell.modifierId) {
+            const compDef = this.content.getSolComponent(cell.modifierId);
+            if (compDef && compDef.bonus && compDef.bonus.maxHealthBonus) {
+              player.solGridMaxHealthBonus += compDef.bonus.maxHealthBonus;
+            }
+          }
         }
       }
       player.maxEnergy += extraMaxEnergy;
@@ -2256,6 +2287,9 @@ class GameLoop {
       // Clamp current energy to new max in case capacity was reduced (e.g. battery removed)
       if (player.energy > player.maxEnergy) player.energy = player.maxEnergy;
     }
+
+    // Recalc max health to pick up sol grid HP modifiers
+    this._recalcMaxHealth(player);
   }
 
   // Consume energy from a player, drawing from rechargeable pool first, then single-use.
@@ -3758,13 +3792,15 @@ class GameLoop {
 
       // Update each player's movement and cooldowns
       for (const [pid, player] of room.players) {
+        // God mode: keep health full every tick
+        if (player._godMode) player.health = player.maxHealth;
         // Tick down stun time
         if (player.stunTime > 0) {
           player.stunTime -= dt;
           if (player.stunTime <= 0) {
             player.stunTime = 0;
-            // Grant immunity window after stun expires to prevent stun-lock
-            player.stunImmunityTime = Math.max(player.stunImmunityTime || 0, 1.5);
+            // Grant immunity window after stun expires to prevent stun-lock and stun+wound combos
+            player.stunImmunityTime = Math.max(player.stunImmunityTime || 0, 2.0);
           }
         }
         // Apply player knockback (from ground slam etc.)
@@ -4210,6 +4246,8 @@ class GameLoop {
             }
           }
         }
+        mob.speed = origSpeed;
+        mob.damage = origDamage;
         continue; // Skip normal AI while lunging
       }
 
@@ -4226,6 +4264,8 @@ class GameLoop {
           mob.knockbackVy = 0;
           mob.knockbackTime = 0;
         }
+        mob.speed = origSpeed;
+        mob.damage = origDamage;
         continue; // Skip AI while being knocked back
       }
 
@@ -4260,13 +4300,19 @@ class GameLoop {
         }
       }
 
-      if (!nearest) continue;
+      if (!nearest) {
+        mob.speed = origSpeed;
+        mob.damage = origDamage;
+        continue;
+      }
 
       const aggroRange = CONSTANTS.MONSTER_AGGRO_RANGE * CONSTANTS.TILE_SIZE;
 
       // Boss retreat: check retreat even when out of aggro range
       if (mob.ai === 'boss_retreat') {
         this._updateBossRetreat(mob, nearest, nearestDist, room, dt);
+        mob.speed = origSpeed;
+        mob.damage = origDamage;
         continue;
       }
 
@@ -4282,6 +4328,8 @@ class GameLoop {
             x: mob.x, y: mob.y,
           });
         } else {
+          mob.speed = origSpeed;
+          mob.damage = origDamage;
           continue; // Stay dormant
         }
       }
@@ -4299,6 +4347,8 @@ class GameLoop {
             mob.facing = Math.atan2(nearest.y - mob.y, nearest.x - mob.x);
           }
         }
+        mob.speed = origSpeed;
+        mob.damage = origDamage;
         continue;
       }
 
@@ -4991,24 +5041,29 @@ class GameLoop {
         }
       } else if (sa.type === 'wound') {
         // Wound: reduce healing received for a duration
+        // Wound is blocked during stun immunity to prevent stun+wound combo
         if (dist <= (sa.range || mob.attackRange) && mob.attackTimer <= 0) {
           const woundDmg = Math.round(mob.damage * (sa.damage || 0.4));
           target.health -= woundDmg;
           const duration = sa.duration || 6.0;
           const healReduction = sa.healReduction || 0.5;
-          target.woundTime = Math.max(target.woundTime || 0, duration);
-          target.woundHealReduction = Math.max(target.woundHealReduction || 0, healReduction);
+          if (!(target.stunImmunityTime > 0)) {
+            target.woundTime = Math.max(target.woundTime || 0, duration);
+            target.woundHealReduction = Math.max(target.woundHealReduction || 0, healReduction);
+          }
           mob.attackTimer = mob.attackCooldown;
           sa.timer = sa.cooldown;
           room.events.push({
             type: 'damage', targetId: target.id,
             amount: woundDmg, x: target.x, y: target.y,
           });
-          room.events.push({
-            type: 'debuff', targetId: target.id,
-            debuffType: 'wound', duration,
-            x: target.x, y: target.y,
-          });
+          if (!(target.stunImmunityTime > 0)) {
+            room.events.push({
+              type: 'debuff', targetId: target.id,
+              debuffType: 'wound', duration,
+              x: target.x, y: target.y,
+            });
+          }
           this._checkPlayerDeath(target, room);
           return true;
         }
@@ -5103,6 +5158,16 @@ class GameLoop {
       player.hovering = false;
       player.hoverTime = 0;
       player.elevation = 0;
+
+      // Clear all DoT and debuff timers so they don't persist through respawn
+      player.poisonTime = 0;
+      player.poisonDps = 0;
+      player.poisonTickTimer = 0;
+      player.woundTime = 0;
+      player.woundHealReduction = 0;
+      player.stunTime = 0;
+      player.knockbackTime = 0;
+      player.channeling = null;
 
       // If player was on an expedition, clear expedition state (failed/abandoned)
       // and return them to the expedition origin (meridian_station) instead of the global spawn
@@ -6260,15 +6325,28 @@ class GameLoop {
     return bonus;
   }
 
-  // Recalculate player maxHealth from base + levels + equipment.
+  // Recalculate player maxHealth from base + levels + equipment + sol grid + spire bonuses.
   // Adjusts current health proportionally: heals on increase, clamps on decrease.
   _recalcMaxHealth(player) {
     const settings = this.content.getSettings();
     const xpSys = (settings && settings.xpSystem) || {};
     const hpPerLevel = xpSys.hpPerLevel || 10;
+    const hpPerSpire = xpSys.hpPerSpireCleared || 0;
+    // Count cleared spires for permanent HP bonus
+    let spireBonus = 0;
+    if (hpPerSpire > 0 && player.id) {
+      const spireFlags = ['light_sentry_unlocked', 'hover_unlocked', 'photonic_pulse_unlocked'];
+      for (const flag of spireFlags) {
+        if (this.flagStore.getPlayerFlag(player.id, flag)) {
+          spireBonus += hpPerSpire;
+        }
+      }
+    }
     const newMax = CONSTANTS.PLAYER_MAX_HEALTH
       + (player.level - 1) * hpPerLevel
-      + this._getEquipmentMaxHealthBonus(player);
+      + this._getEquipmentMaxHealthBonus(player)
+      + (player.solGridMaxHealthBonus || 0)
+      + spireBonus;
     const delta = newMax - player.maxHealth;
     player.maxHealth = newMax;
     if (delta > 0) {
@@ -6279,6 +6357,7 @@ class GameLoop {
   }
 
   getPlayerAttackDamage(player) {
+    if (player._godMode) return 9999;
     let damage = CONSTANTS.PLAYER_ATTACK_DAMAGE;
     for (const slot of CONSTANTS.EQUIPMENT_SLOTS) {
       const item = player.equipment[slot];

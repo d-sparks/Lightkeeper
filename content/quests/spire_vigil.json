@@ -8,6 +8,7 @@
     {
       "id": "find_outpost",
       "description": "Locate the raider forward camp in the Nightside",
+      "objective": { "roomId": "nightside_outpost" },
       "completionConditions": [
         { "hasFlag": "visited_nightside_outpost" }
       ],
@@ -18,6 +19,7 @@
     {
       "id": "reach_spire",
       "description": "Follow the raider trail to the Spire of Vigil",
+      "objective": { "roomId": "spire_vigil_approach" },
       "completionConditions": [
         { "hasFlag": "visited_spire_approach" }
       ],
@@ -28,6 +30,7 @@
     {
       "id": "breach_garrison",
       "description": "Break through the Spire's outer garrison",
+      "objective": { "roomId": "spire_vigil_garrison" },
       "completionConditions": [
         { "hasFlag": "garrison_warlord_killed" }
       ],
@@ -38,6 +41,7 @@
     {
       "id": "breach_fortress",
       "description": "Defeat the fortress captain and reach the inner sanctum",
+      "objective": { "roomId": "spire_vigil_fortress" },
       "completionConditions": [
         { "hasFlag": "fortress_captain_killed" }
       ],
@@ -48,6 +52,7 @@
     {
       "id": "confront_voss",
       "description": "Confront Dural Voss in the Spire's sanctum",
+      "objective": { "roomId": "spire_vigil_sanctum" },
       "completionConditions": [
         { "hasFlag": "voss_confronted" }
       ],
@@ -58,6 +63,7 @@
     {
       "id": "explore_underlumen",
       "description": "Explore the ancient Underlumen chambers beneath the Spire",
+      "objective": { "roomId": "spire_vigil_underlumen" },
       "completionConditions": [
         { "hasFlag": "underlumen_puzzle_2_solved" }
       ],
@@ -68,6 +74,7 @@
     {
       "id": "reach_core",
       "description": "Reach the Spire's resonance core and unlock its power",
+      "objective": { "roomId": "spire_vigil_core" },
       "completionConditions": [
         { "hasFlag": "light_sentry_unlocked" }
       ],

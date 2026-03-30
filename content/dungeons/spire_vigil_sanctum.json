@@ -58,7 +58,14 @@
   ],
   "exits": [
     { "x": 1, "y": 3, "leadsTo": "spire_vigil_archives", "type": "stairs_up", "spawnX": 17, "spawnY": 15 },
-    { "x": 9, "y": 16, "leadsTo": "spire_vigil_descent", "type": "stairs_down", "spawnX": 9, "spawnY": 1 }
+    {
+      "x": 9, "y": 16,
+      "leadsTo": "spire_vigil_descent",
+      "type": "stairs_down",
+      "spawnX": 9, "spawnY": 1,
+      "conditions": [{ "hasFlag": "spire_vigil_cleared" }],
+      "failMessage": "The passage deeper into the Spire is sealed. Dural Voss must be defeated first."
+    }
   ],
   "triggers": [
       {
@@ -157,6 +164,36 @@
           {
             "type": "setTile",
             "x": 9,
+            "y": 13,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 13,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 14,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 14,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 15,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
             "y": 15,
             "tileId": 1
           },
@@ -202,11 +239,88 @@
           {
             "type": "setTile",
             "x": 9,
+            "y": 13,
+            "tileId": 3
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 13,
+            "tileId": 3
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 14,
+            "tileId": 3
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 14,
+            "tileId": 3
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 15,
+            "tileId": 3
+          },
+          {
+            "type": "setTile",
+            "x": 10,
             "y": 15,
             "tileId": 3
           }
         ],
         "once": true
+      },
+      {
+        "id": "underlumen_passage_open",
+        "event": "room_entered",
+        "conditions": [
+          {
+            "hasFlag": "spire_vigil_cleared"
+          }
+        ],
+        "actions": [
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 13,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 13,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 14,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 14,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 9,
+            "y": 15,
+            "tileId": 1
+          },
+          {
+            "type": "setTile",
+            "x": 10,
+            "y": 15,
+            "tileId": 1
+          }
+        ]
       },
       {
         "id": "chest_loot_spire_vigil",

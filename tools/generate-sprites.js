@@ -3780,6 +3780,1861 @@ function generateMissingSprites() {
 }
 
 // ============================================================================
+// TILESET: Greenway (31 tiles: 496×16)
+// Agricultural/civilian zone — earthy greens, wood fences, Bulwark checkpoints
+// ============================================================================
+
+function generateGreenwayTileset() {
+  const png = createPNG(496, 16); // 31 tiles × 16px
+
+  const G2 = {
+    floorDark:  hex('#1a1f10'),
+    floorMid:   hex('#252e15'),
+    floorLight: hex('#2f3a1a'),
+    wallDark:   hex('#3a4a20'),
+    wallMid:    hex('#4a5c2a'),
+    wallLight:  hex('#5a6e36'),
+    wallTop:    hex('#6a8040'),
+    dirtDark:   hex('#2a1e10'),
+    dirtMid:    hex('#3c2c18'),
+    dirtLight:  hex('#503c24'),
+    wood:       hex('#6a4c28'),
+    woodDark:   hex('#4a3018'),
+    woodLight:  hex('#8a6438'),
+    green1:     hex('#2a5a14'),
+    green2:     hex('#3a7820'),
+    green3:     hex('#4a9628'),
+    stone:      hex('#5a5a50'),
+    stoneDark:  hex('#3c3c34'),
+    stoneLight: hex('#706e64'),
+    voidColor:  hex('#0c0e08'),
+    water1:     hex('#1a2a1a'),
+    water2:     hex('#243824'),
+    water3:     hex('#2e4830'),
+  };
+
+  // --- Tile 0: Void (near-black green-tinted) ---
+  for (let y = 0; y < 16; y++)
+    for (let x = 0; x < 16; x++) {
+      const v = 8 + ((x * 7 + y * 13) % 5);
+      setPixel(png, x, y, rgba(Math.floor(v * 0.7), v, Math.floor(v * 0.6)));
+    }
+
+  // --- Tile 1: Dirt Path (packed earth with ruts) ---
+  const ox1 = 16;
+  fillRect(png, ox1, 0, 16, 16, G2.dirtMid);
+  for (let i = 0; i < 16; i++) { setPixel(png, ox1 + i, 7, G2.dirtDark); setPixel(png, ox1 + 7, i, G2.dirtDark); }
+  for (let i = 0; i < 7; i++) { setPixel(png, ox1 + i, 0, G2.dirtLight); setPixel(png, ox1, i, G2.dirtLight); setPixel(png, ox1 + 8 + i, 8, G2.dirtLight); setPixel(png, ox1 + 8, 8 + i, G2.dirtLight); }
+  for (const [sx, sy] of [[3,3],[11,11],[5,9],[13,4]]) setPixel(png, ox1 + sx, sy, G2.dirtLight);
+  for (const [sx, sy] of [[6,2],[2,6],[10,10],[14,8]]) setPixel(png, ox1 + sx, sy, G2.dirtDark);
+
+  // --- Tile 2: Grass Floor (green, blade highlights) ---
+  const ox2 = 32;
+  fillRect(png, ox2, 0, 16, 16, G2.floorMid);
+  for (const [sx, sy] of [[1,1],[4,0],[8,2],[12,0],[3,4],[7,3],[11,5],[2,7],[5,6],[9,8],[14,6],[0,10],[6,9],[10,11],[13,10],[3,13],[7,14],[11,13],[15,12]]) setPixel(png, ox2 + sx, sy, G2.green2);
+  for (const [sx, sy] of [[2,2],[6,1],[10,3],[4,5],[8,4],[12,6],[1,8],[5,10],[9,9],[13,11],[0,12],[7,15]]) setPixel(png, ox2 + sx, sy, G2.green3);
+
+  // --- Tile 3: Hedge Wall (dense green foliage) ---
+  const ox3 = 48;
+  fillRect(png, ox3, 0, 16, 16, G2.green1);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, G2.green2);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 15, G2.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + 15, i, G2.wallDark);
+  for (const [sx, sy] of [[2,2],[5,1],[9,3],[13,2],[1,5],[7,4],[11,6],[4,8],[8,7],[14,5],[3,10],[6,11],[10,9],[12,12],[2,13],[9,14]]) setPixel(png, ox3 + sx, sy, G2.green2);
+  for (const [sx, sy] of [[3,3],[7,2],[11,4],[5,6],[9,5],[1,9],[6,10],[13,8]]) setPixel(png, ox3 + sx, sy, G2.green3);
+
+  // --- Tile 4: Door Closed (wooden gate, dark wood frame) ---
+  const ox4 = 64;
+  fillRect(png, ox4, 0, 16, 16, G2.wood);
+  fillRect(png, ox4, 0, 2, 16, G2.woodDark); fillRect(png, ox4 + 14, 0, 2, 16, G2.woodDark);
+  fillRect(png, ox4 + 2, 0, 12, 2, G2.woodDark); fillRect(png, ox4 + 2, 14, 12, 2, G2.woodDark);
+  fillRect(png, ox4 + 2, 4, 12, 2, G2.woodLight); fillRect(png, ox4 + 2, 10, 12, 2, G2.woodLight);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox4 + 8, vy, G2.woodDark);
+  setPixel(png, ox4 + 12, 7, G2.stoneLight); setPixel(png, ox4 + 12, 8, G2.stoneLight);
+
+  // --- Tile 5: Door Open (open gate, dark recess) ---
+  const ox5 = 80;
+  fillRect(png, ox5, 0, 16, 16, G2.floorDark);
+  fillRect(png, ox5, 0, 2, 16, G2.woodDark); fillRect(png, ox5 + 14, 0, 2, 16, G2.woodDark);
+  fillRect(png, ox5 + 4, 2, 8, 12, rgba(15, 18, 10));
+
+  // --- Tile 6: Stairs Down (earthy steps, green glow) ---
+  const ox6 = 96;
+  fillRect(png, ox6, 0, 16, 16, G2.dirtMid);
+  fillRect(png, ox6 + 2, 2, 12, 3, G2.dirtLight); fillRect(png, ox6 + 3, 5, 10, 3, G2.dirtMid);
+  fillRect(png, ox6 + 4, 8, 8, 3, G2.dirtDark); fillRect(png, ox6 + 5, 11, 6, 3, rgba(15, 18, 10));
+  setPixel(png, ox6 + 7, 13, G2.green3); setPixel(png, ox6 + 8, 13, G2.green3);
+  setPixel(png, ox6 + 6, 12, G2.green3); setPixel(png, ox6 + 9, 12, G2.green3);
+
+  // --- Tile 7: Irrigation Canal (dark water channel) ---
+  const ox7 = 112;
+  fillRect(png, ox7, 0, 16, 16, G2.water1);
+  for (const [wx, wy] of [[2,3],[3,3],[8,5],[9,5],[1,9],[2,9],[7,11],[8,11],[12,7],[4,14]]) setPixel(png, ox7 + wx, wy, G2.water2);
+  for (const [wx, wy] of [[3,2],[9,4],[2,8],[8,10],[13,6],[5,13]]) setPixel(png, ox7 + wx, wy, G2.water3);
+
+  // --- Tile 8: Stairs Up (earthy steps, bone arrow) ---
+  const ox8 = 128;
+  fillRect(png, ox8, 0, 16, 16, G2.dirtMid);
+  fillRect(png, ox8 + 5, 2, 6, 3, rgba(15, 18, 10)); fillRect(png, ox8 + 4, 5, 8, 3, G2.dirtDark);
+  fillRect(png, ox8 + 3, 8, 10, 3, G2.dirtMid); fillRect(png, ox8 + 2, 11, 12, 3, G2.dirtLight);
+  setPixel(png, ox8 + 7, 1, C.bone); setPixel(png, ox8 + 8, 1, C.bone);
+  setPixel(png, ox8 + 6, 2, C.bone); setPixel(png, ox8 + 9, 2, C.bone);
+
+  // --- Tile 9: Checkpoint Gate (military barrier, red indicator) ---
+  const ox9 = 144;
+  fillRect(png, ox9, 0, 16, 16, G2.stoneDark);
+  fillRect(png, ox9, 0, 2, 16, G2.stone); fillRect(png, ox9 + 14, 0, 2, 16, G2.stone);
+  fillRect(png, ox9 + 2, 0, 12, 2, G2.stone); fillRect(png, ox9 + 2, 14, 12, 2, G2.stone);
+  fillRect(png, ox9 + 2, 4, 12, 2, C.red); fillRect(png, ox9 + 2, 10, 12, 2, C.red);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox9 + 8, vy, G2.stone);
+  setPixel(png, ox9 + 5, 7, C.red); setPixel(png, ox9 + 5, 8, C.red);
+
+  // --- Tile 10: Supply Crate Closed (wooden crate, Sol Gold lock) ---
+  const ox10 = 160;
+  fillRect(png, ox10, 0, 1, 16, G2.woodDark); fillRect(png, ox10 + 15, 0, 1, 16, G2.woodDark);
+  fillRect(png, ox10 + 1, 0, 14, 16, G2.wood);
+  fillRect(png, ox10 + 1, 0, 14, 5, G2.woodLight);
+  fillRect(png, ox10 + 1, 5, 14, 1, G2.woodDark); fillRect(png, ox10 + 1, 14, 14, 2, G2.woodDark);
+  for (let i = 2; i < 14; i++) setPixel(png, ox10 + i, 1, G2.woodLight);
+  setPixel(png, ox10 + 2, 1, G2.dirtLight); setPixel(png, ox10 + 13, 1, G2.dirtLight);
+  setPixel(png, ox10 + 2, 13, G2.dirtLight); setPixel(png, ox10 + 13, 13, G2.dirtLight);
+  fillRect(png, ox10 + 6, 7, 4, 4, C.solGold);
+  setPixel(png, ox10 + 7, 8, G2.woodDark); setPixel(png, ox10 + 8, 8, G2.woodDark);
+
+  // --- Tile 11: Supply Crate Opened (open crate, dark interior) ---
+  const ox11 = 176;
+  fillRect(png, ox11, 0, 1, 16, G2.woodDark); fillRect(png, ox11 + 15, 0, 1, 16, G2.woodDark);
+  fillRect(png, ox11 + 1, 0, 14, 16, G2.wood);
+  fillRect(png, ox11 + 1, 14, 14, 2, G2.woodDark);
+  fillRect(png, ox11 + 2, 1, 12, 10, G2.woodDark);
+  fillRect(png, ox11 + 3, 2, 10, 8, rgba(20, 14, 8));
+  setPixel(png, ox11 + 2, 12, G2.dirtLight); setPixel(png, ox11 + 13, 12, G2.dirtLight);
+  for (let i = 2; i < 14; i++) setPixel(png, ox11 + i, 0, G2.woodLight);
+
+  // --- Tile 12: Locked Supply Crate (reinforced, Sol Gold keylock) ---
+  const ox12 = 192;
+  fillRect(png, ox12, 0, 1, 16, G2.woodDark); fillRect(png, ox12 + 15, 0, 1, 16, G2.woodDark);
+  fillRect(png, ox12 + 1, 0, 14, 16, G2.wood);
+  fillRect(png, ox12 + 1, 0, 14, 5, G2.woodLight);
+  fillRect(png, ox12 + 1, 5, 14, 1, G2.woodDark); fillRect(png, ox12 + 1, 14, 14, 2, G2.woodDark);
+  fillRect(png, ox12 + 1, 3, 14, 1, G2.stoneDark); fillRect(png, ox12 + 1, 11, 14, 1, G2.stoneDark);
+  fillRect(png, ox12 + 6, 7, 4, 4, C.solGold);
+  setPixel(png, ox12 + 7, 8, G2.woodDark); setPixel(png, ox12 + 8, 8, G2.woodDark);
+  setPixel(png, ox12 + 7, 9, G2.woodDark);
+
+  // --- Tile 13: Crop Row (planted furrows with green shoots) ---
+  const ox13 = 208;
+  fillRect(png, ox13, 0, 16, 16, G2.dirtDark);
+  for (let row = 0; row < 4; row++) {
+    const ry = row * 4;
+    fillRect(png, ox13, ry, 16, 2, G2.dirtMid);
+    for (let col = 1; col < 15; col += 3) {
+      setPixel(png, ox13 + col, ry, G2.green2);
+      setPixel(png, ox13 + col, ry + 1, G2.green1);
+    }
+  }
+
+  // --- Tile 14: Plowed Field (dark ridged earth) ---
+  const ox14 = 224;
+  fillRect(png, ox14, 0, 16, 16, G2.dirtDark);
+  for (let row = 0; row < 4; row++) fillRect(png, ox14, row * 4, 16, 2, G2.dirtMid);
+  for (const [sx, sy] of [[2,1],[6,1],[10,1],[14,1],[0,5],[4,5],[8,5],[12,5],[2,9],[6,9],[10,9],[14,9],[0,13],[4,13],[8,13],[12,13]]) setPixel(png, ox14 + sx, sy, G2.dirtLight);
+
+  // --- Tile 15: Wooden Fence (horizontal planks, post) ---
+  const ox15 = 240;
+  fillRect(png, ox15, 0, 16, 16, rgba(20, 28, 12));
+  fillRect(png, ox15, 4, 16, 3, G2.wood);
+  fillRect(png, ox15, 10, 16, 3, G2.wood);
+  for (let i = 0; i < 3; i++) { setPixel(png, ox15 + i, 4, G2.woodLight); setPixel(png, ox15 + i, 10, G2.woodLight); }
+  fillRect(png, ox15 + 7, 0, 2, 16, G2.woodDark); fillRect(png, ox15 + 8, 0, 2, 16, G2.wood);
+
+  // --- Tile 16: Stone Wall (field stone, mossy) ---
+  const ox16 = 256;
+  fillRect(png, ox16, 0, 16, 16, G2.stoneDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + i, 0, G2.stoneLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + i, 15, G2.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + 15, i, G2.wallDark);
+  for (const [sx, sy] of [[2,2],[6,3],[10,2],[3,5],[8,6],[12,4],[1,8],[5,9],[9,8],[13,7],[2,11],[7,12],[11,10],[4,14]]) setPixel(png, ox16 + sx, sy, G2.stone);
+  for (const [sx, sy] of [[4,3],[9,4],[1,7],[6,8],[11,9],[3,12],[8,13]]) setPixel(png, ox16 + sx, sy, G2.green1);
+
+  // --- Tile 17: Barricade (hasty wood/rubble barrier) ---
+  const ox17 = 272;
+  fillRect(png, ox17, 0, 16, 16, rgba(20, 28, 12));
+  fillRect(png, ox17 + 1, 2, 14, 12, G2.wood);
+  fillRect(png, ox17 + 1, 2, 14, 2, G2.woodLight);
+  fillRect(png, ox17 + 1, 12, 14, 2, G2.woodDark);
+  for (let i = 0; i < 12; i += 3) fillRect(png, ox17 + 1 + i, 4, 2, 8, G2.woodDark);
+  setPixel(png, ox17 + 3, 5, G2.woodLight); setPixel(png, ox17 + 9, 7, G2.woodLight);
+
+  // --- Tile 18: Trellis Wall (lattice with vines) ---
+  const ox18 = 288;
+  fillRect(png, ox18, 0, 16, 16, G2.wallDark);
+  for (let i = 0; i < 16; i += 2) { fillRect(png, ox18 + i, 0, 1, 16, G2.wood); fillRect(png, ox18, i, 16, 1, G2.wood); }
+  for (const [sx, sy] of [[1,3],[5,1],[9,5],[3,7],[11,3],[7,9],[13,7],[2,11],[6,13],[10,11],[14,9],[4,15]]) setPixel(png, ox18 + sx, sy, G2.green2);
+  for (const [sx, sy] of [[2,4],[6,2],[10,6],[8,10],[12,8]]) setPixel(png, ox18 + sx, sy, G2.green3);
+
+  // --- Tile 19: Depot Gate (heavy metal door, keylock) ---
+  const ox19 = 304;
+  fillRect(png, ox19, 0, 16, 16, G2.stoneDark);
+  fillRect(png, ox19, 0, 2, 16, G2.stone); fillRect(png, ox19 + 14, 0, 2, 16, G2.stone);
+  fillRect(png, ox19 + 2, 0, 12, 2, G2.stone); fillRect(png, ox19 + 2, 14, 12, 2, G2.stone);
+  fillRect(png, ox19 + 2, 4, 12, 2, G2.stoneLight); fillRect(png, ox19 + 2, 10, 12, 2, G2.stoneLight);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox19 + 8, vy, G2.stone);
+  fillRect(png, ox19 + 6, 6, 4, 4, C.solGold);
+  setPixel(png, ox19 + 7, 7, G2.stoneDark); setPixel(png, ox19 + 8, 7, G2.stoneDark);
+
+  // --- Tile 20: Notice Board (wooden board, sign) ---
+  const ox20 = 320;
+  fillRect(png, ox20, 0, 16, 16, G2.dirtMid);
+  fillRect(png, ox20 + 2, 1, 12, 11, G2.wood);
+  fillRect(png, ox20 + 2, 1, 12, 2, G2.woodLight);
+  fillRect(png, ox20 + 3, 3, 10, 8, G2.woodLight);
+  fillRect(png, ox20 + 4, 4, 8, 6, G2.dirtLight);
+  for (let row = 0; row < 3; row++) fillRect(png, ox20 + 5, 5 + row * 2, 6, 1, G2.dirtDark);
+  fillRect(png, ox20 + 6, 12, 4, 4, G2.woodDark);
+
+  // --- Tile 21: Greenhouse Floor (pale glass-lit tiles) ---
+  const ox21 = 336;
+  fillRect(png, ox21, 0, 16, 16, hex('#1e2818'));
+  for (let i = 0; i < 16; i++) { setPixel(png, ox21 + i, 7, hex('#151e10')); setPixel(png, ox21 + 7, i, hex('#151e10')); }
+  for (let i = 0; i < 7; i++) { setPixel(png, ox21 + i, 0, G2.floorLight); setPixel(png, ox21, i, G2.floorLight); setPixel(png, ox21 + 8 + i, 8, G2.floorLight); setPixel(png, ox21 + 8, 8 + i, G2.floorLight); }
+  for (const [sx, sy] of [[3,3],[11,11],[9,5],[5,9]]) setPixel(png, ox21 + sx, sy, G2.green3);
+
+  // --- Tile 22: Greenhouse Wall (metal frame + glass panes) ---
+  const ox22 = 352;
+  fillRect(png, ox22, 0, 16, 16, hex('#1a2814'));
+  fillRect(png, ox22, 0, 2, 16, G2.stoneDark); fillRect(png, ox22 + 14, 0, 2, 16, G2.stoneDark);
+  fillRect(png, ox22, 0, 16, 2, G2.stoneDark); fillRect(png, ox22, 14, 16, 2, G2.stoneDark);
+  fillRect(png, ox22 + 7, 0, 2, 16, G2.stoneDark); fillRect(png, ox22, 7, 16, 2, G2.stoneDark);
+  fillRect(png, ox22 + 2, 2, 5, 5, rgba(30, 50, 20)); fillRect(png, ox22 + 9, 2, 5, 5, rgba(30, 50, 20));
+  fillRect(png, ox22 + 2, 9, 5, 5, rgba(30, 50, 20)); fillRect(png, ox22 + 9, 9, 5, 5, rgba(30, 50, 20));
+
+  // --- Tile 23: Confiscated Crate (sealed Bulwark crate, red seal) ---
+  const ox23 = 368;
+  fillRect(png, ox23, 0, 1, 16, G2.woodDark); fillRect(png, ox23 + 15, 0, 1, 16, G2.woodDark);
+  fillRect(png, ox23 + 1, 0, 14, 16, G2.wood);
+  fillRect(png, ox23 + 1, 0, 14, 5, G2.woodLight);
+  fillRect(png, ox23 + 1, 5, 14, 1, G2.woodDark); fillRect(png, ox23 + 1, 14, 14, 2, G2.woodDark);
+  fillRect(png, ox23 + 1, 3, 14, 1, C.darkRed); fillRect(png, ox23 + 1, 11, 14, 1, C.darkRed);
+  fillRect(png, ox23 + 5, 7, 6, 3, C.red);
+  setPixel(png, ox23 + 7, 8, G2.woodDark); setPixel(png, ox23 + 8, 8, G2.woodDark);
+
+  // --- Tile 24: Hay Bale (golden-yellow straw block) ---
+  const ox24 = 384;
+  fillRect(png, ox24, 0, 16, 16, C.orange);
+  fillRect(png, ox24, 0, 16, 2, C.yellow); fillRect(png, ox24, 14, 16, 2, C.darkBrown);
+  for (let i = 0; i < 16; i += 3) { setPixel(png, ox24 + i, 3, C.yellow); setPixel(png, ox24 + i + 1, 7, C.darkBrown); setPixel(png, ox24 + i, 11, C.yellow); }
+  fillRect(png, ox24 + 7, 2, 2, 12, C.darkBrown);
+
+  // --- Tile 25: Water Trough (carved stone, shallow water) ---
+  const ox25 = 400;
+  fillRect(png, ox25, 0, 16, 16, G2.stoneDark);
+  fillRect(png, ox25 + 2, 2, 12, 12, G2.stone);
+  fillRect(png, ox25 + 3, 3, 10, 10, G2.water1);
+  fillRect(png, ox25 + 4, 4, 8, 8, G2.water2);
+  for (const [sx, sy] of [[5,5],[8,6],[11,5],[6,8],[9,9]]) setPixel(png, ox25 + sx, sy, G2.water3);
+  fillRect(png, ox25 + 2, 2, 12, 1, G2.stoneLight); fillRect(png, ox25 + 2, 2, 1, 12, G2.stoneLight);
+
+  // --- Tile 26: Elevated Walkway (raised platform, wood planks) ---
+  const ox26 = 416;
+  fillRect(png, ox26, 0, 16, 16, G2.wood);
+  fillRect(png, ox26, 0, 16, 2, G2.woodLight);
+  fillRect(png, ox26, 14, 16, 2, G2.woodDark);
+  for (let i = 2; i < 14; i += 4) { fillRect(png, ox26 + i, 2, 2, 12, G2.woodDark); }
+
+  // --- Tile 27: Ramp North (rising earth ramp toward north) ---
+  const ox27 = 432;
+  fillRect(png, ox27, 0, 16, 16, G2.dirtMid);
+  for (let row = 0; row < 8; row++) fillRect(png, ox27, row * 2, 16, 1, G2.dirtLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox27 + i, 0, G2.dirtLight);
+
+  // --- Tile 28: Ramp South (rising earth ramp toward south) ---
+  const ox28 = 448;
+  fillRect(png, ox28, 0, 16, 16, G2.dirtMid);
+  for (let row = 0; row < 8; row++) fillRect(png, ox28, 15 - row * 2, 16, 1, G2.dirtLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox28 + i, 15, G2.dirtLight);
+
+  // --- Tile 29: Watchtower Wall (tall stone, elevation marker) ---
+  const ox29 = 464;
+  fillRect(png, ox29, 0, 16, 16, G2.stoneDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox29 + i, 0, G2.stoneLight);
+  fillRect(png, ox29, 2, 3, 14, G2.stone); fillRect(png, ox29 + 13, 2, 3, 14, G2.stone);
+  fillRect(png, ox29 + 3, 12, 10, 4, G2.stone);
+  for (const [sx, sy] of [[5,4],[9,6],[2,8],[12,10]]) setPixel(png, ox29 + sx, sy, G2.stoneLight);
+  setPixel(png, ox29 + 7, 2, C.solGold); setPixel(png, ox29 + 8, 2, C.solGold);
+
+  // --- Tile 30: Elevated Wall (raised stone parapet) ---
+  const ox30 = 480;
+  fillRect(png, ox30, 0, 16, 16, G2.stoneDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox30 + i, 0, G2.stoneLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox30 + i, 15, G2.wallDark);
+  fillRect(png, ox30 + 3, 1, 3, 4, G2.stone); fillRect(png, ox30 + 10, 1, 3, 4, G2.stone);
+  for (const [sx, sy] of [[4,2],[11,3],[2,7],[7,8],[12,6]]) setPixel(png, ox30 + sx, sy, G2.stoneLight);
+
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'greenway.png'));
+}
+
+// ============================================================================
+// TILESET: Biolab (21 tiles: 336×16)
+// Bio-contaminated research facility — sterile grays, growth greens
+// ============================================================================
+
+function generateBiolabTileset() {
+  const png = createPNG(336, 16); // 21 tiles × 16px
+
+  const BL = {
+    floorDark:  hex('#141814'),
+    floorMid:   hex('#1c221c'),
+    floorLight: hex('#242c24'),
+    wallDark:   hex('#1e2a1e'),
+    wallMid:    hex('#2a3c2a'),
+    wallLight:  hex('#364e36'),
+    wallTop:    hex('#405840'),
+    bioGreen:   hex('#246024'),
+    bioGlow:    hex('#38923a'),
+    bioLight:   hex('#50c050'),
+    bioVein:    hex('#1a4a1a'),
+    glass:      hex('#2a4a4a'),
+    glassBright:hex('#3a7878'),
+    metal:      hex('#303838'),
+    metalLight: hex('#485a5a'),
+    voidColor:  hex('#080e08'),
+  };
+
+  // --- Tile 0: Void ---
+  for (let y = 0; y < 16; y++)
+    for (let x = 0; x < 16; x++) {
+      const v = 7 + ((x * 7 + y * 11) % 5);
+      setPixel(png, x, y, rgba(Math.floor(v * 0.6), v, Math.floor(v * 0.6)));
+    }
+
+  // --- Tile 1: Lab Floor (clean tile grid) ---
+  const ox1 = 16;
+  fillRect(png, ox1, 0, 16, 16, BL.floorMid);
+  for (let i = 0; i < 16; i++) { setPixel(png, ox1 + i, 7, BL.floorDark); setPixel(png, ox1 + 7, i, BL.floorDark); }
+  for (let i = 0; i < 7; i++) { setPixel(png, ox1 + i, 0, BL.floorLight); setPixel(png, ox1, i, BL.floorLight); setPixel(png, ox1 + 8 + i, 8, BL.floorLight); setPixel(png, ox1 + 8, 8 + i, BL.floorLight); }
+  for (const [sx, sy] of [[3,3],[11,11]]) setPixel(png, ox1 + sx, sy, BL.floorLight);
+
+  // --- Tile 2: Lab Floor Overgrown (cracked tile with growth) ---
+  const ox2 = 32;
+  fillRect(png, ox2, 0, 16, 16, BL.floorMid);
+  for (let i = 0; i < 16; i++) { setPixel(png, ox2 + i, 7, BL.floorDark); setPixel(png, ox2 + 7, i, BL.floorDark); }
+  const crack2 = [[2,1],[3,2],[3,3],[4,4],[5,5],[6,6],[5,7],[6,8],[7,9],[8,10],[9,11],[10,12]];
+  for (const [cx, cy] of crack2) setPixel(png, ox2 + cx, cy, BL.bioVein);
+  for (const [sx, sy] of [[2,3],[5,2],[9,4],[4,7],[8,9],[11,7],[3,11],[7,13]]) setPixel(png, ox2 + sx, sy, BL.bioGreen);
+
+  // --- Tile 3: Lab Wall (reinforced white-gray with panel lines) ---
+  const ox3 = 48;
+  fillRect(png, ox3, 0, 16, 16, BL.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, BL.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 15, BL.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + 15, i, BL.wallDark);
+  fillRect(png, ox3 + 2, 3, 12, 1, BL.wallLight); fillRect(png, ox3 + 2, 11, 12, 1, BL.wallLight);
+  fillRect(png, ox3 + 7, 1, 1, 14, BL.wallDark);
+  for (const [sx, sy] of [[3,5],[9,5],[3,9],[9,9]]) setPixel(png, ox3 + sx, sy, BL.wallLight);
+
+  // --- Tile 4: Lab Door Closed (sliding door, green indicator) ---
+  const ox4 = 64;
+  fillRect(png, ox4, 0, 16, 16, BL.metal);
+  fillRect(png, ox4, 0, 1, 16, BL.wallDark); fillRect(png, ox4 + 15, 0, 1, 16, BL.wallDark);
+  fillRect(png, ox4 + 1, 3, 14, 2, BL.metalLight); fillRect(png, ox4 + 1, 11, 14, 2, BL.metalLight);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox4 + 8, vy, BL.wallDark);
+  setPixel(png, ox4 + 12, 7, BL.bioGlow); setPixel(png, ox4 + 12, 8, BL.bioGlow);
+
+  // --- Tile 5: Lab Door Open (open metal recess) ---
+  const ox5 = 80;
+  fillRect(png, ox5, 0, 16, 16, BL.floorDark);
+  fillRect(png, ox5, 0, 2, 16, BL.metal); fillRect(png, ox5 + 14, 0, 2, 16, BL.metal);
+  fillRect(png, ox5 + 4, 2, 8, 12, rgba(10, 14, 10));
+
+  // --- Tile 6: Stairs Down (lab stairs, green glow) ---
+  const ox6 = 96;
+  fillRect(png, ox6, 0, 16, 16, BL.floorMid);
+  fillRect(png, ox6 + 2, 2, 12, 3, BL.floorLight); fillRect(png, ox6 + 3, 5, 10, 3, BL.floorMid);
+  fillRect(png, ox6 + 4, 8, 8, 3, BL.floorDark); fillRect(png, ox6 + 5, 11, 6, 3, rgba(8, 12, 8));
+  setPixel(png, ox6 + 7, 13, BL.bioGlow); setPixel(png, ox6 + 8, 13, BL.bioGlow);
+  setPixel(png, ox6 + 6, 12, BL.bioGlow); setPixel(png, ox6 + 9, 12, BL.bioGlow);
+
+  // --- Tile 7: Growth Tank (cylindrical glass tank with bio fluid) ---
+  const ox7 = 112;
+  fillRect(png, ox7, 0, 16, 16, BL.wallDark);
+  fillRect(png, ox7 + 1, 0, 14, 16, BL.glass);
+  fillRect(png, ox7 + 3, 1, 10, 14, BL.bioVein);
+  fillRect(png, ox7 + 4, 2, 8, 12, rgba(20, 60, 20));
+  for (const [sx, sy] of [[5,3],[8,4],[6,7],[9,8],[5,11],[8,13],[11,6],[7,10]]) setPixel(png, ox7 + sx, sy, BL.bioGlow);
+  fillRect(png, ox7 + 1, 0, 14, 1, BL.glassBright); fillRect(png, ox7 + 1, 0, 1, 16, BL.glassBright);
+
+  // --- Tile 8: Stairs Up (lab stairs, bone marker) ---
+  const ox8 = 128;
+  fillRect(png, ox8, 0, 16, 16, BL.floorMid);
+  fillRect(png, ox8 + 5, 2, 6, 3, rgba(8, 12, 8)); fillRect(png, ox8 + 4, 5, 8, 3, BL.floorDark);
+  fillRect(png, ox8 + 3, 8, 10, 3, BL.floorMid); fillRect(png, ox8 + 2, 11, 12, 3, BL.floorLight);
+  setPixel(png, ox8 + 7, 1, C.bone); setPixel(png, ox8 + 8, 1, C.bone);
+  setPixel(png, ox8 + 6, 2, C.bone); setPixel(png, ox8 + 9, 2, C.bone);
+
+  // --- Tile 9: Locked Lab Door (metal, Sol Gold keycard slot) ---
+  const ox9 = 144;
+  fillRect(png, ox9, 0, 16, 16, BL.metal);
+  fillRect(png, ox9, 0, 1, 16, BL.wallDark); fillRect(png, ox9 + 15, 0, 1, 16, BL.wallDark);
+  fillRect(png, ox9 + 1, 3, 14, 2, BL.metalLight); fillRect(png, ox9 + 1, 11, 14, 2, BL.metalLight);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox9 + 8, vy, BL.wallDark);
+  fillRect(png, ox9 + 6, 6, 4, 4, C.solGold);
+  setPixel(png, ox9 + 7, 7, BL.wallDark); setPixel(png, ox9 + 8, 7, BL.wallDark);
+
+  // --- Tile 10: Containment Wall (thick reinforced concrete, bio stain) ---
+  const ox10 = 160;
+  fillRect(png, ox10, 0, 16, 16, BL.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox10 + i, 0, BL.wallLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox10 + i, 15, BL.floorDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox10 + 15, i, BL.floorDark);
+  fillRect(png, ox10 + 2, 2, 12, 2, BL.wallMid); fillRect(png, ox10 + 2, 12, 12, 2, BL.wallMid);
+  for (const [sx, sy] of [[3,5],[7,4],[11,6],[5,9],[9,10],[2,12],[13,8]]) setPixel(png, ox10 + sx, sy, BL.bioVein);
+
+  // --- Tile 11: Research Terminal (dark screen with green readout) ---
+  const ox11 = 176;
+  fillRect(png, ox11, 0, 16, 16, BL.metal);
+  fillRect(png, ox11 + 2, 0, 12, 11, BL.wallDark);
+  fillRect(png, ox11 + 3, 1, 10, 9, rgba(5, 20, 5));
+  for (const [sx, sy] of [[4,2],[6,2],[8,2],[10,2],[4,4],[5,4],[7,4],[9,4],[4,6],[6,6],[8,6],[10,6]]) setPixel(png, ox11 + sx, sy, BL.bioGlow);
+  setPixel(png, ox11 + 4, 8, BL.bioGlow); setPixel(png, ox11 + 5, 8, BL.bioGlow);
+  fillRect(png, ox11 + 5, 11, 6, 2, BL.wallMid);
+  fillRect(png, ox11 + 2, 13, 12, 3, BL.wallMid);
+
+  // --- Tile 12: Growth Medium (pale bio-gel floor) ---
+  const ox12 = 192;
+  fillRect(png, ox12, 0, 16, 16, BL.bioVein);
+  for (let i = 0; i < 16; i++) { setPixel(png, ox12 + i, 7, BL.floorDark); setPixel(png, ox12 + 7, i, BL.floorDark); }
+  for (const [sx, sy] of [[2,2],[5,3],[9,1],[12,4],[1,6],[7,5],[13,3],[3,8],[8,9],[11,7],[4,11],[10,12],[6,13],[14,10]]) setPixel(png, ox12 + sx, sy, BL.bioGreen);
+  for (const [sx, sy] of [[3,3],[8,2],[11,5],[5,8],[9,10],[2,12]]) setPixel(png, ox12 + sx, sy, BL.bioGlow);
+
+  // --- Tile 13: Broken Glass (shattered floor debris) ---
+  const ox13 = 208;
+  fillRect(png, ox13, 0, 16, 16, BL.floorMid);
+  for (const [sx, sy] of [[2,1],[4,2],[7,1],[10,3],[13,2],[1,4],[5,5],[8,4],[11,6],[14,5],[3,7],[6,8],[9,7],[12,9],[2,10],[5,11],[8,10],[11,12],[14,11],[3,13],[7,14],[10,13]]) setPixel(png, ox13 + sx, sy, BL.glassBright);
+  for (const [sx, sy] of [[3,2],[6,3],[9,2],[12,4],[4,6],[7,7],[10,8],[13,9],[2,11],[6,12],[9,13]]) setPixel(png, ox13 + sx, sy, BL.glass);
+
+  // --- Tile 14: Nutrient Pipe (vertical bio tube, green fluid) ---
+  const ox14 = 224;
+  fillRect(png, ox14, 0, 16, 16, BL.wallDark);
+  fillRect(png, ox14 + 5, 0, 6, 16, BL.metal);
+  fillRect(png, ox14 + 6, 0, 4, 16, BL.bioVein);
+  fillRect(png, ox14 + 7, 0, 2, 16, rgba(20, 60, 20));
+  for (const [sx, sy] of [[7,2],[8,5],[7,8],[8,11],[7,14]]) setPixel(png, ox14 + sx, sy, BL.bioGlow);
+  fillRect(png, ox14 + 5, 5, 6, 2, BL.metalLight); fillRect(png, ox14 + 5, 10, 6, 2, BL.metalLight);
+
+  // --- Tile 15: Ventilation Grate (floor grate, dark beneath) ---
+  const ox15 = 240;
+  fillRect(png, ox15, 0, 16, 16, BL.floorDark);
+  for (let i = 0; i < 16; i += 2) { fillRect(png, ox15 + i, 0, 1, 16, BL.metalLight); fillRect(png, ox15, i, 16, 1, BL.metalLight); }
+  for (let gy = 1; gy < 15; gy += 2) for (let gx = 1; gx < 15; gx += 2) setPixel(png, ox15 + gx, gy, rgba(8, 12, 8));
+
+  // --- Tile 16: Reinforced Wall (thick armored plating) ---
+  const ox16 = 256;
+  fillRect(png, ox16, 0, 16, 16, BL.metal);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + i, 0, BL.metalLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + i, 15, BL.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + 15, i, BL.wallDark);
+  fillRect(png, ox16 + 2, 3, 12, 2, BL.metalLight); fillRect(png, ox16 + 2, 10, 12, 2, BL.metalLight);
+  fillRect(png, ox16 + 6, 1, 2, 14, BL.wallDark); fillRect(png, ox16 + 8, 1, 2, 14, BL.wallDark);
+  for (const [sx, sy] of [[3,4],[5,5],[11,4],[13,5]]) setPixel(png, ox16 + sx, sy, C.lightGray);
+
+  // --- Tile 17: Vine Barricade (bio-vines blocking path) ---
+  const ox17 = 272;
+  fillRect(png, ox17, 0, 16, 16, BL.floorDark);
+  fillRect(png, ox17 + 1, 1, 14, 14, BL.bioVein);
+  fillRect(png, ox17 + 2, 2, 12, 12, rgba(20, 50, 20));
+  for (const [sx, sy] of [[3,2],[5,3],[7,2],[9,3],[11,2],[13,3],[2,4],[4,5],[6,4],[8,5],[10,4],[12,5],[14,4],[3,6],[5,7],[7,6],[9,7],[11,6],[13,7],[2,8],[4,9],[6,8],[8,9],[10,8],[12,9],[14,8],[3,10],[5,11],[7,10],[9,11],[11,10],[13,11],[2,12],[4,13],[6,12],[8,13],[10,12],[12,13]]) setPixel(png, ox17 + sx, sy, BL.bioGreen);
+
+  // --- Tile 18: Planter Bed (soil box with growth) ---
+  const ox18 = 288;
+  fillRect(png, ox18, 0, 16, 16, BL.metal);
+  fillRect(png, ox18 + 1, 4, 14, 11, hex('#1a2010'));
+  fillRect(png, ox18 + 2, 5, 12, 9, hex('#141a0c'));
+  for (const [sx, sy] of [[3,4],[6,3],[9,4],[12,3],[2,6],[5,5],[8,6],[11,5],[14,6],[3,8],[7,7],[10,8],[13,7],[4,10],[8,9],[12,11]]) setPixel(png, ox18 + sx, sy, BL.bioGreen);
+  for (const [sx, sy] of [[5,4],[9,3],[13,4],[6,6],[10,5],[7,8],[11,7]]) setPixel(png, ox18 + sx, sy, BL.bioGlow);
+  fillRect(png, ox18 + 1, 4, 14, 2, BL.wallMid); fillRect(png, ox18 + 1, 4, 1, 12, BL.wallMid);
+  fillRect(png, ox18 + 14, 4, 1, 12, BL.wallMid); fillRect(png, ox18 + 1, 14, 14, 1, BL.wallMid);
+
+  // --- Tile 19: Specimen Locker (sealed locker, Sol Gold key) ---
+  const ox19 = 304;
+  fillRect(png, ox19, 0, 1, 16, BL.wallDark); fillRect(png, ox19 + 15, 0, 1, 16, BL.wallDark);
+  fillRect(png, ox19 + 1, 0, 14, 16, BL.metal);
+  fillRect(png, ox19 + 1, 0, 14, 4, BL.metalLight);
+  fillRect(png, ox19 + 1, 4, 14, 1, BL.wallDark); fillRect(png, ox19 + 1, 14, 14, 2, BL.wallDark);
+  for (let i = 2; i < 14; i++) setPixel(png, ox19 + i, 1, BL.glassBright);
+  fillRect(png, ox19 + 5, 6, 6, 6, C.solGold);
+  setPixel(png, ox19 + 7, 8, BL.wallDark); setPixel(png, ox19 + 8, 8, BL.wallDark);
+  setPixel(png, ox19 + 7, 9, BL.wallDark);
+
+  // --- Tile 20: Decontamination Pad (glowing floor panel, teal glow) ---
+  const ox20 = 320;
+  fillRect(png, ox20, 0, 16, 16, BL.floorMid);
+  fillRect(png, ox20 + 1, 1, 14, 14, BL.glass);
+  fillRect(png, ox20 + 2, 2, 12, 12, rgba(10, 40, 40));
+  fillRect(png, ox20 + 3, 3, 10, 10, rgba(15, 55, 55));
+  for (const [sx, sy] of [[4,4],[7,3],[11,4],[4,11],[8,12],[12,11],[3,7],[12,8],[7,7],[8,7],[7,8],[8,8]]) setPixel(png, ox20 + sx, sy, C.teal);
+  for (const [sx, sy] of [[7,7],[8,7],[7,8],[8,8]]) setPixel(png, ox20 + sx, sy, C.lightTeal);
+
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'biolab.png'));
+}
+
+// ============================================================================
+// TILESET: Spire Winds (32 tiles: 512×16)
+// Ancient fortress + Bulwark military — stone, metal, wind/air elements
+// ============================================================================
+
+function generateSpireWindsTileset() {
+  const png = createPNG(512, 16); // 32 tiles × 16px
+
+  const SW = {
+    floorDark:   hex('#1e1c1a'),
+    floorMid:    hex('#2a2826'),
+    floorLight:  hex('#343230'),
+    wallDark:    hex('#3c3830'),
+    wallMid:     hex('#504c44'),
+    wallLight:   hex('#605c54'),
+    wallTop:     hex('#706c64'),
+    ancientDark: hex('#362e24'),
+    ancientMid:  hex('#4a4038'),
+    ancientLight:hex('#5a5046'),
+    metalDark:   hex('#282c38'),
+    metalMid:    hex('#384050'),
+    metalLight:  hex('#485868'),
+    windBlue:    hex('#2060a0'),
+    windLight:   hex('#50a0d0'),
+    windGlow:    hex('#80c8f0'),
+    voidColor:   hex('#0e0c0a'),
+  };
+
+  // --- Tile 0: Void (warm-dark tinted) ---
+  for (let y = 0; y < 16; y++)
+    for (let x = 0; x < 16; x++) {
+      const v = 10 + ((x * 7 + y * 13) % 5);
+      setPixel(png, x, y, rgba(v, Math.floor(v * 0.9), Math.floor(v * 0.8)));
+    }
+
+  // --- Tile 1: Stone Floor (ancient flagstones) ---
+  const ox1 = 16;
+  fillRect(png, ox1, 0, 16, 16, SW.floorMid);
+  for (let i = 0; i < 16; i++) { setPixel(png, ox1 + i, 7, SW.floorDark); setPixel(png, ox1 + 7, i, SW.floorDark); }
+  for (let i = 0; i < 7; i++) { setPixel(png, ox1 + i, 0, SW.floorLight); setPixel(png, ox1, i, SW.floorLight); setPixel(png, ox1 + 8 + i, 8, SW.floorLight); setPixel(png, ox1 + 8, 8 + i, SW.floorLight); }
+  for (const [sx, sy] of [[3,3],[11,11],[5,9],[13,4]]) setPixel(png, ox1 + sx, sy, SW.floorLight);
+
+  // --- Tile 2: Cracked Floor (stone with fracture) ---
+  const ox2 = 32;
+  fillRect(png, ox2, 0, 16, 16, SW.floorMid);
+  for (let i = 0; i < 16; i++) { setPixel(png, ox2 + i, 7, SW.floorDark); setPixel(png, ox2 + 7, i, SW.floorDark); }
+  for (const [cx, cy] of [[3,2],[4,3],[4,4],[5,5],[6,6],[5,7],[6,8],[7,9],[8,10],[9,11],[10,12]]) setPixel(png, ox2 + cx, cy, SW.floorDark);
+  setPixel(png, ox2 + 2, 2, SW.floorLight);
+
+  // --- Tile 3: Fortress Wall (heavy stone, carved blocks) ---
+  const ox3 = 48;
+  fillRect(png, ox3, 0, 16, 16, SW.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, SW.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 15, SW.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + 15, i, SW.wallDark);
+  fillRect(png, ox3, 6, 16, 1, SW.wallDark); fillRect(png, ox3, 12, 16, 1, SW.wallDark);
+  for (const [sx, sy] of [[2,2],[6,3],[10,2],[3,5],[8,4],[12,5],[1,8],[5,9],[9,8],[13,9],[2,11],[7,10],[11,11],[4,13]]) setPixel(png, ox3 + sx, sy, SW.wallLight);
+  for (const [sx, sy] of [[5,3],[1,5],[9,3],[3,8],[7,9],[12,10],[10,12]]) setPixel(png, ox3 + sx, sy, SW.wallDark);
+
+  // --- Tile 4: Door Closed (stone door, metal band) ---
+  const ox4 = 64;
+  fillRect(png, ox4, 0, 16, 16, SW.wallMid);
+  fillRect(png, ox4, 0, 1, 16, SW.wallDark); fillRect(png, ox4 + 15, 0, 1, 16, SW.wallDark);
+  fillRect(png, ox4 + 1, 3, 14, 2, SW.metalLight); fillRect(png, ox4 + 1, 11, 14, 2, SW.metalLight);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox4 + 7, vy, SW.wallDark);
+  setPixel(png, ox4 + 12, 7, SW.windBlue); setPixel(png, ox4 + 12, 8, SW.windBlue);
+
+  // --- Tile 5: Door Open ---
+  const ox5 = 80;
+  fillRect(png, ox5, 0, 16, 16, SW.floorDark);
+  fillRect(png, ox5, 0, 2, 16, SW.wallDark); fillRect(png, ox5 + 14, 0, 2, 16, SW.wallDark);
+  fillRect(png, ox5 + 4, 2, 8, 12, rgba(15, 14, 12));
+
+  // --- Tile 6: Stairs Down (wind-carved steps, blue glow) ---
+  const ox6 = 96;
+  fillRect(png, ox6, 0, 16, 16, SW.floorMid);
+  fillRect(png, ox6 + 2, 2, 12, 3, SW.floorLight); fillRect(png, ox6 + 3, 5, 10, 3, SW.floorMid);
+  fillRect(png, ox6 + 4, 8, 8, 3, SW.floorDark); fillRect(png, ox6 + 5, 11, 6, 3, rgba(12, 11, 10));
+  setPixel(png, ox6 + 7, 13, SW.windGlow); setPixel(png, ox6 + 8, 13, SW.windGlow);
+  setPixel(png, ox6 + 6, 12, SW.windGlow); setPixel(png, ox6 + 9, 12, SW.windGlow);
+
+  // --- Tile 7: Wind Chasm (bottomless shaft, wind swirls) ---
+  const ox7 = 112;
+  fillRect(png, ox7, 0, 16, 16, SW.voidColor);
+  fillRect(png, ox7, 0, 3, 16, SW.wallDark); fillRect(png, ox7 + 13, 0, 3, 16, SW.wallDark);
+  for (const [sx, sy] of [[4,3],[6,2],[8,4],[10,3],[12,2],[3,6],[5,5],[7,7],[9,6],[11,5],[4,9],[6,8],[8,10],[10,9],[12,8],[3,12],[5,11],[7,13],[9,12],[11,11]]) setPixel(png, ox7 + sx, sy, SW.windBlue);
+  for (const [sx, sy] of [[5,4],[8,3],[11,4],[6,7],[9,8],[5,11],[8,12]]) setPixel(png, ox7 + sx, sy, SW.windLight);
+
+  // --- Tile 8: Stairs Up (ascending stone, bone marker) ---
+  const ox8 = 128;
+  fillRect(png, ox8, 0, 16, 16, SW.floorMid);
+  fillRect(png, ox8 + 5, 2, 6, 3, rgba(12, 11, 10)); fillRect(png, ox8 + 4, 5, 8, 3, SW.floorDark);
+  fillRect(png, ox8 + 3, 8, 10, 3, SW.floorMid); fillRect(png, ox8 + 2, 11, 12, 3, SW.floorLight);
+  setPixel(png, ox8 + 7, 1, C.bone); setPixel(png, ox8 + 8, 1, C.bone);
+  setPixel(png, ox8 + 6, 2, C.bone); setPixel(png, ox8 + 9, 2, C.bone);
+
+  // --- Tile 9: Security Door (keycard slot, Sol Gold lock) ---
+  const ox9 = 144;
+  fillRect(png, ox9, 0, 16, 16, SW.metalDark);
+  fillRect(png, ox9, 0, 1, 16, SW.wallDark); fillRect(png, ox9 + 15, 0, 1, 16, SW.wallDark);
+  fillRect(png, ox9 + 1, 3, 14, 2, SW.metalLight); fillRect(png, ox9 + 1, 11, 14, 2, SW.metalLight);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox9 + 8, vy, SW.wallDark);
+  fillRect(png, ox9 + 6, 6, 4, 4, C.solGold);
+  setPixel(png, ox9 + 7, 7, SW.wallDark); setPixel(png, ox9 + 8, 7, SW.wallDark);
+
+  // --- Tile 10: Chest Closed ---
+  const ox10 = 160;
+  fillRect(png, ox10, 0, 1, 16, SW.wallDark); fillRect(png, ox10 + 15, 0, 1, 16, SW.wallDark);
+  fillRect(png, ox10 + 1, 0, 14, 16, SW.wallMid);
+  fillRect(png, ox10 + 1, 0, 14, 5, SW.wallLight);
+  fillRect(png, ox10 + 1, 5, 14, 1, SW.wallDark); fillRect(png, ox10 + 1, 14, 14, 2, SW.wallDark);
+  for (let i = 2; i < 14; i++) setPixel(png, ox10 + i, 1, SW.wallTop);
+  setPixel(png, ox10 + 2, 1, C.bone); setPixel(png, ox10 + 13, 1, C.bone);
+  setPixel(png, ox10 + 2, 13, C.bone); setPixel(png, ox10 + 13, 13, C.bone);
+  fillRect(png, ox10 + 6, 7, 4, 4, C.solGold);
+  setPixel(png, ox10 + 7, 8, SW.wallDark); setPixel(png, ox10 + 8, 8, SW.wallDark);
+
+  // --- Tile 11: Chest Opened ---
+  const ox11 = 176;
+  fillRect(png, ox11, 0, 1, 16, SW.wallDark); fillRect(png, ox11 + 15, 0, 1, 16, SW.wallDark);
+  fillRect(png, ox11 + 1, 0, 14, 16, SW.wallMid);
+  fillRect(png, ox11 + 1, 14, 14, 2, SW.wallDark);
+  fillRect(png, ox11 + 2, 1, 12, 10, SW.wallDark);
+  fillRect(png, ox11 + 3, 2, 10, 8, rgba(15, 14, 12));
+  setPixel(png, ox11 + 2, 12, C.bone); setPixel(png, ox11 + 13, 12, C.bone);
+  for (let i = 2; i < 14; i++) setPixel(png, ox11 + i, 0, C.bone);
+
+  // --- Tile 12: Ancient Floor (worn carved stone, rune detail) ---
+  const ox12 = 192;
+  fillRect(png, ox12, 0, 16, 16, SW.ancientMid);
+  for (let i = 0; i < 16; i++) { setPixel(png, ox12 + i, 7, SW.ancientDark); setPixel(png, ox12 + 7, i, SW.ancientDark); }
+  for (const [sx, sy] of [[2,2],[12,2],[2,12],[12,12]]) { fillRect(png, ox12 + sx, sy, 2, 2, SW.ancientLight); }
+  fillRect(png, ox12 + 6, 6, 4, 4, SW.ancientLight);
+  setPixel(png, ox12 + 7, 7, SW.ancientDark); setPixel(png, ox12 + 8, 8, SW.ancientDark);
+
+  // --- Tile 13: Ancient Wall (carved stone, runes) ---
+  const ox13 = 208;
+  fillRect(png, ox13, 0, 16, 16, SW.ancientMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox13 + i, 0, SW.ancientLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox13 + i, 15, SW.ancientDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox13 + 15, i, SW.ancientDark);
+  for (const [sx, sy] of [[2,3],[6,2],[10,4],[3,7],[8,6],[12,8],[5,10],[9,12],[2,13]]) setPixel(png, ox13 + sx, sy, SW.ancientLight);
+  for (const [sx, sy] of [[4,4],[8,3],[11,5],[3,9],[7,11],[10,9]]) setPixel(png, ox13 + sx, sy, SW.windBlue);
+
+  // --- Tile 14: Wind Grate (open metal grate, wind effect) ---
+  const ox14 = 224;
+  fillRect(png, ox14, 0, 16, 16, rgba(12, 16, 28));
+  for (let i = 0; i < 16; i += 3) { fillRect(png, ox14 + i, 0, 2, 16, SW.metalMid); fillRect(png, ox14, i, 16, 2, SW.metalMid); }
+  for (let gy = 2; gy < 15; gy += 3) for (let gx = 2; gx < 15; gx += 3) setPixel(png, ox14 + gx, gy, SW.windLight);
+
+  // --- Tile 15: Barricade (fortress barricade, destructible) ---
+  const ox15 = 240;
+  fillRect(png, ox15, 0, 16, 16, SW.floorDark);
+  fillRect(png, ox15 + 1, 2, 14, 12, SW.wallMid);
+  fillRect(png, ox15 + 1, 2, 14, 2, SW.wallLight);
+  fillRect(png, ox15 + 1, 12, 14, 2, SW.wallDark);
+  for (let i = 0; i < 12; i += 4) fillRect(png, ox15 + 1 + i, 4, 2, 8, SW.wallDark);
+  for (const [sx, sy] of [[3,3],[9,5],[5,9],[13,7]]) setPixel(png, ox15 + sx, sy, SW.wallLight);
+
+  // --- Tile 16: Metal Wall (military plating) ---
+  const ox16 = 256;
+  fillRect(png, ox16, 0, 16, 16, SW.metalMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + i, 0, SW.metalLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + i, 15, SW.metalDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + 15, i, SW.metalDark);
+  fillRect(png, ox16 + 2, 3, 12, 2, SW.metalLight); fillRect(png, ox16 + 2, 10, 12, 2, SW.metalLight);
+  fillRect(png, ox16 + 6, 1, 2, 14, SW.metalDark); fillRect(png, ox16 + 8, 1, 2, 14, SW.metalDark);
+  for (const [sx, sy] of [[3,5],[5,4],[11,5],[13,4]]) setPixel(png, ox16 + sx, sy, C.lightGray);
+
+  // --- Tile 17: Control Panel (console, active indicators) ---
+  const ox17 = 272;
+  fillRect(png, ox17, 0, 16, 16, SW.metalDark);
+  fillRect(png, ox17 + 2, 0, 12, 11, SW.metalMid);
+  fillRect(png, ox17 + 3, 1, 10, 9, rgba(10, 12, 20));
+  for (const [sx, sy] of [[4,2],[6,2],[8,2],[10,2]]) setPixel(png, ox17 + sx, sy, SW.windBlue);
+  for (const [sx, sy] of [[4,4],[6,4],[8,4],[10,4]]) setPixel(png, ox17 + sx, sy, C.solGold);
+  for (const [sx, sy] of [[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[11,6]]) setPixel(png, ox17 + sx, sy, SW.windLight);
+  fillRect(png, ox17 + 5, 11, 6, 2, SW.metalLight);
+  fillRect(png, ox17 + 2, 13, 12, 3, SW.metalMid);
+
+  // --- Tile 18: Wind Bridge (floating platform over chasm) ---
+  const ox18 = 288;
+  fillRect(png, ox18, 0, 16, 16, rgba(10, 14, 24));
+  for (const [sx, sy] of [[3,3],[5,2],[8,4],[10,3],[12,2],[4,6],[6,5],[9,7],[11,6],[3,9],[6,8],[9,10],[12,9],[5,12],[8,11],[11,13]]) setPixel(png, ox18 + sx, sy, SW.windBlue);
+  fillRect(png, ox18 + 1, 7, 14, 2, SW.metalMid);
+  fillRect(png, ox18 + 1, 7, 14, 1, SW.metalLight);
+  fillRect(png, ox18 + 1, 8, 14, 1, SW.metalDark);
+  for (const [sx, sy] of [[3,7],[7,7],[11,7]]) setPixel(png, ox18 + sx, sy, SW.windGlow);
+
+  // --- Tile 19: Elevated Platform (raised stone/metal) ---
+  const ox19 = 304;
+  fillRect(png, ox19, 0, 16, 16, SW.floorLight);
+  fillRect(png, ox19, 0, 16, 2, SW.wallTop);
+  fillRect(png, ox19, 14, 16, 2, SW.wallDark);
+  for (let i = 2; i < 14; i += 4) fillRect(png, ox19 + i, 2, 2, 12, SW.floorDark);
+
+  // --- Tile 20: Ramp North ---
+  const ox20 = 320;
+  fillRect(png, ox20, 0, 16, 16, SW.floorMid);
+  for (let row = 0; row < 8; row++) fillRect(png, ox20, row * 2, 16, 1, SW.floorLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox20 + i, 0, SW.floorLight);
+
+  // --- Tile 21: Ramp South ---
+  const ox21 = 336;
+  fillRect(png, ox21, 0, 16, 16, SW.floorMid);
+  for (let row = 0; row < 8; row++) fillRect(png, ox21, 15 - row * 2, 16, 1, SW.floorLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox21 + i, 15, SW.floorLight);
+
+  // --- Tile 22: Ramp East ---
+  const ox22 = 352;
+  fillRect(png, ox22, 0, 16, 16, SW.floorMid);
+  for (let col = 0; col < 8; col++) fillRect(png, ox22 + col * 2, 0, 1, 16, SW.floorLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox22 + 15, i, SW.floorLight);
+
+  // --- Tile 23: Ramp West ---
+  const ox23 = 368;
+  fillRect(png, ox23, 0, 16, 16, SW.floorMid);
+  for (let col = 0; col < 8; col++) fillRect(png, ox23 + 15 - col * 2, 0, 1, 16, SW.floorLight);
+  for (let i = 0; i < 16; i++) setPixel(png, ox23, i, SW.floorLight);
+
+  // --- Tile 24: Elevated Wall ---
+  const ox24 = 384;
+  fillRect(png, ox24, 0, 16, 16, SW.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox24 + i, 0, SW.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox24 + i, 15, SW.floorDark);
+  fillRect(png, ox24 + 3, 1, 3, 4, SW.wallMid); fillRect(png, ox24 + 10, 1, 3, 4, SW.wallMid);
+  for (const [sx, sy] of [[4,2],[11,3],[2,7],[7,8],[12,6]]) setPixel(png, ox24 + sx, sy, SW.wallLight);
+
+  // --- Tile 25: Full Wall (tall solid fortress wall) ---
+  const ox25 = 400;
+  fillRect(png, ox25, 0, 16, 16, SW.wallDark);
+  fillRect(png, ox25, 0, 3, 16, SW.wallMid); fillRect(png, ox25 + 13, 0, 3, 16, SW.wallMid);
+  fillRect(png, ox25 + 3, 12, 10, 4, SW.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox25 + i, 0, SW.wallTop);
+  for (const [sx, sy] of [[5,4],[9,6],[2,8],[12,10]]) setPixel(png, ox25 + sx, sy, SW.wallLight);
+
+  // --- Tile 26: Resonance Pedestal (ancient altar, wind energy) ---
+  const ox26 = 416;
+  fillRect(png, ox26, 0, 16, 16, SW.ancientDark);
+  fillRect(png, ox26 + 3, 0, 10, 16, SW.ancientMid);
+  fillRect(png, ox26 + 4, 1, 8, 14, SW.ancientLight);
+  fillRect(png, ox26 + 5, 2, 6, 12, rgba(30, 36, 50));
+  fillRect(png, ox26 + 6, 5, 4, 6, SW.windBlue);
+  for (const [sx, sy] of [[7,5],[8,6],[6,8],[9,9],[7,10]]) setPixel(png, ox26 + sx, sy, SW.windGlow);
+  setPixel(png, ox26 + 7, 7, SW.windGlow); setPixel(png, ox26 + 8, 7, SW.windGlow);
+
+  // --- Tile 27: Supply Crate Closed ---
+  const ox27 = 432;
+  fillRect(png, ox27, 0, 1, 16, SW.wallDark); fillRect(png, ox27 + 15, 0, 1, 16, SW.wallDark);
+  fillRect(png, ox27 + 1, 0, 14, 16, SW.wallMid);
+  fillRect(png, ox27 + 1, 0, 14, 5, SW.wallLight);
+  fillRect(png, ox27 + 1, 5, 14, 1, SW.wallDark); fillRect(png, ox27 + 1, 14, 14, 2, SW.wallDark);
+  for (let i = 2; i < 14; i++) setPixel(png, ox27 + i, 1, SW.wallTop);
+  fillRect(png, ox27 + 6, 7, 4, 4, C.solGold);
+  setPixel(png, ox27 + 7, 8, SW.wallDark); setPixel(png, ox27 + 8, 8, SW.wallDark);
+
+  // --- Tile 28: Supply Crate Opened ---
+  const ox28 = 448;
+  fillRect(png, ox28, 0, 1, 16, SW.wallDark); fillRect(png, ox28 + 15, 0, 1, 16, SW.wallDark);
+  fillRect(png, ox28 + 1, 0, 14, 16, SW.wallMid);
+  fillRect(png, ox28 + 1, 14, 14, 2, SW.wallDark);
+  fillRect(png, ox28 + 2, 1, 12, 10, SW.wallDark);
+  fillRect(png, ox28 + 3, 2, 10, 8, rgba(15, 14, 12));
+  for (let i = 2; i < 14; i++) setPixel(png, ox28 + i, 0, C.bone);
+
+  // --- Tile 29: Blast Door (heavy blast door, flag-locked) ---
+  const ox29 = 464;
+  fillRect(png, ox29, 0, 16, 16, SW.metalDark);
+  fillRect(png, ox29 + 1, 1, 14, 14, SW.metalMid);
+  fillRect(png, ox29 + 1, 1, 14, 2, SW.metalLight);
+  fillRect(png, ox29 + 1, 6, 14, 2, SW.metalLight);
+  fillRect(png, ox29 + 1, 11, 14, 2, SW.metalLight);
+  fillRect(png, ox29 + 7, 1, 2, 14, SW.metalDark);
+  setPixel(png, ox29 + 2, 2, C.lightGray); setPixel(png, ox29 + 13, 2, C.lightGray);
+  setPixel(png, ox29 + 2, 13, C.lightGray); setPixel(png, ox29 + 13, 13, C.lightGray);
+  fillRect(png, ox29 + 5, 7, 2, 2, C.red); fillRect(png, ox29 + 9, 7, 2, 2, C.red);
+
+  // --- Tile 30: Wind Shaft Gate (power-locked, wind indicator) ---
+  const ox30 = 480;
+  fillRect(png, ox30, 0, 16, 16, SW.metalDark);
+  for (let bar = 2; bar <= 13; bar += 4) {
+    fillRect(png, ox30 + bar, 0, 2, 16, SW.metalMid);
+    for (let i = 0; i < 16; i++) setPixel(png, ox30 + bar, i, SW.metalLight);
+  }
+  fillRect(png, ox30, 7, 16, 2, SW.metalMid);
+  setPixel(png, ox30 + 7, 8, SW.windGlow); setPixel(png, ox30 + 8, 8, SW.windGlow);
+
+  // --- Tile 31: Tier Pedestal (glowing reward pedestal, Sol Gold) ---
+  const ox31 = 496;
+  fillRect(png, ox31, 0, 16, 16, SW.ancientDark);
+  fillRect(png, ox31 + 2, 10, 12, 6, SW.ancientMid);
+  fillRect(png, ox31 + 3, 11, 10, 5, SW.ancientLight);
+  fillRect(png, ox31 + 4, 4, 8, 7, SW.ancientLight);
+  fillRect(png, ox31 + 5, 5, 6, 5, C.solGold);
+  for (const [sx, sy] of [[7,4],[8,4],[6,6],[9,6],[7,8],[8,8]]) setPixel(png, ox31 + sx, sy, C.yellow);
+  setPixel(png, ox31 + 7, 0, C.yellow); setPixel(png, ox31 + 8, 1, C.yellow);
+  setPixel(png, ox31 + 3, 3, C.yellow); setPixel(png, ox31 + 12, 3, C.yellow);
+
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'spire_winds.png'));
+}
+
+// ============================================================================
+// TILESET: Frost Crypt (27 tiles, IDs 0-26 with gap at 9: 432×16)
+// Icy tomb + Mara core — ice blues, frozen stone, cryo-machinery
+// ============================================================================
+
+function generateFrostCryptTileset() {
+  const png = createPNG(432, 16); // 27 tiles × 16px (tile 9 slot is unused placeholder)
+
+  const FC = {
+    floorDark:   hex('#0e141e'),
+    floorMid:    hex('#14202e'),
+    floorLight:  hex('#1a2c3c'),
+    wallDark:    hex('#1e3050'),
+    wallMid:     hex('#2a4268'),
+    wallLight:   hex('#385480'),
+    wallTop:     hex('#4870a0'),
+    iceBlue:     hex('#5080b0'),
+    iceMid:      hex('#6090c0'),
+    iceLight:    hex('#80b0d8'),
+    iceCyan:     hex('#70c0d8'),
+    iceSpark:    hex('#a8d8f0'),
+    frozenDark:  hex('#1a2838'),
+    frozenMid:   hex('#243444'),
+    frozenLight: hex('#304858'),
+    metalDark:   hex('#1c2028'),
+    metalMid:    hex('#283040'),
+    metalLight:  hex('#384858'),
+    powerGlow:   hex('#40a0ff'),
+    powerBright: hex('#80c8ff'),
+    voidColor:   hex('#080c14'),
+  };
+
+  // --- Tile 0: Void (deep cold blue-black) ---
+  for (let y = 0; y < 16; y++)
+    for (let x = 0; x < 16; x++) {
+      const v = 8 + ((x * 7 + y * 13) % 5);
+      setPixel(png, x, y, rgba(Math.floor(v * 0.5), Math.floor(v * 0.65), v));
+    }
+
+  // --- Tile 1: Frozen Stone Floor (ice-glazed flagstone) ---
+  const ox1 = 16;
+  fillRect(png, ox1, 0, 16, 16, FC.floorMid);
+  for (let i = 0; i < 16; i++) { setPixel(png, ox1 + i, 7, FC.floorDark); setPixel(png, ox1 + 7, i, FC.floorDark); }
+  for (let i = 0; i < 7; i++) { setPixel(png, ox1 + i, 0, FC.floorLight); setPixel(png, ox1, i, FC.floorLight); setPixel(png, ox1 + 8 + i, 8, FC.floorLight); setPixel(png, ox1 + 8, 8 + i, FC.floorLight); }
+  for (const [sx, sy] of [[3,3],[11,11],[5,9],[9,5]]) setPixel(png, ox1 + sx, sy, FC.iceSpark);
+
+  // --- Tile 2: Ice Patch (slick blue-white ice surface) ---
+  const ox2 = 32;
+  fillRect(png, ox2, 0, 16, 16, FC.iceBlue);
+  for (const [sx, sy] of [[2,1],[5,0],[9,2],[12,1],[3,4],[7,3],[11,5],[1,7],[6,6],[10,8],[14,5],[4,9],[8,10],[13,9],[2,12],[7,13],[11,12],[15,11]]) setPixel(png, ox2 + sx, sy, FC.iceMid);
+  for (const [sx, sy] of [[4,2],[8,1],[12,3],[6,5],[10,4],[2,8],[9,9],[5,11],[13,10],[7,14]]) setPixel(png, ox2 + sx, sy, FC.iceSpark);
+  for (const [sx, sy] of [[1,2],[6,1],[10,3],[3,6],[8,7],[12,6],[5,10],[10,11]]) setPixel(png, ox2 + sx, sy, FC.iceLight);
+
+  // --- Tile 3: Frost Wall (ice-encrusted stone) ---
+  const ox3 = 48;
+  fillRect(png, ox3, 0, 16, 16, FC.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 0, FC.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + i, 15, FC.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox3 + 15, i, FC.wallDark);
+  for (const [sx, sy] of [[2,2],[6,3],[10,2],[3,5],[8,4],[12,6],[1,8],[5,9],[9,7],[13,10],[2,12],[7,11],[11,13]]) setPixel(png, ox3 + sx, sy, FC.wallLight);
+  for (const [sx, sy] of [[4,3],[9,5],[11,3],[3,8],[7,10],[12,9]]) setPixel(png, ox3 + sx, sy, FC.iceSpark);
+  for (const [sx, sy] of [[5,4],[1,6],[8,7],[3,11],[10,12]]) setPixel(png, ox3 + sx, sy, FC.iceBlue);
+
+  // --- Tile 4: Frozen Door Closed (iced-over door) ---
+  const ox4 = 64;
+  fillRect(png, ox4, 0, 16, 16, FC.wallMid);
+  fillRect(png, ox4, 0, 1, 16, FC.wallDark); fillRect(png, ox4 + 15, 0, 1, 16, FC.wallDark);
+  fillRect(png, ox4 + 1, 3, 14, 2, FC.iceBlue); fillRect(png, ox4 + 1, 11, 14, 2, FC.iceBlue);
+  for (let vy = 0; vy < 16; vy++) setPixel(png, ox4 + 7, vy, FC.wallDark);
+  for (const [sx, sy] of [[3,4],[12,4],[3,12],[12,12]]) setPixel(png, ox4 + sx, sy, FC.iceSpark);
+  setPixel(png, ox4 + 12, 7, FC.iceCyan); setPixel(png, ox4 + 12, 8, FC.iceCyan);
+
+  // --- Tile 5: Frozen Door Open ---
+  const ox5 = 80;
+  fillRect(png, ox5, 0, 16, 16, FC.floorDark);
+  fillRect(png, ox5, 0, 2, 16, FC.wallDark); fillRect(png, ox5 + 14, 0, 2, 16, FC.wallDark);
+  fillRect(png, ox5 + 4, 2, 8, 12, rgba(8, 12, 20));
+  for (const [sx, sy] of [[0,3],[0,7],[0,11],[14,5],[14,9],[14,13]]) setPixel(png, ox5 + sx, sy, FC.iceSpark);
+
+  // --- Tile 6: Ice Stairs Down (frozen steps, cyan glow) ---
+  const ox6 = 96;
+  fillRect(png, ox6, 0, 16, 16, FC.floorMid);
+  fillRect(png, ox6 + 2, 2, 12, 3, FC.floorLight); fillRect(png, ox6 + 3, 5, 10, 3, FC.floorMid);
+  fillRect(png, ox6 + 4, 8, 8, 3, FC.floorDark); fillRect(png, ox6 + 5, 11, 6, 3, rgba(8, 12, 20));
+  setPixel(png, ox6 + 7, 13, FC.iceCyan); setPixel(png, ox6 + 8, 13, FC.iceCyan);
+  setPixel(png, ox6 + 6, 12, FC.iceCyan); setPixel(png, ox6 + 9, 12, FC.iceCyan);
+
+  // --- Tile 7: Frozen Pool (solid frozen water, cracks) ---
+  const ox7 = 112;
+  fillRect(png, ox7, 0, 16, 16, FC.iceBlue);
+  fillRect(png, ox7 + 1, 1, 14, 14, FC.iceMid);
+  fillRect(png, ox7 + 2, 2, 12, 12, FC.iceLight);
+  for (const [cx, cy] of [[3,3],[5,4],[6,5],[5,6],[7,7],[8,8],[9,9],[10,10],[11,9],[12,10],[11,11],[10,12]]) setPixel(png, ox7 + cx, cy, FC.iceBlue);
+  for (const [sx, sy] of [[4,2],[9,3],[2,7],[7,5],[12,6],[5,10],[10,8],[3,13],[13,13]]) setPixel(png, ox7 + sx, sy, FC.iceSpark);
+
+  // --- Tile 8: Ice Stairs Up (frozen ascent) ---
+  const ox8 = 128;
+  fillRect(png, ox8, 0, 16, 16, FC.floorMid);
+  fillRect(png, ox8 + 5, 2, 6, 3, rgba(8, 12, 20)); fillRect(png, ox8 + 4, 5, 8, 3, FC.floorDark);
+  fillRect(png, ox8 + 3, 8, 10, 3, FC.floorMid); fillRect(png, ox8 + 2, 11, 12, 3, FC.floorLight);
+  setPixel(png, ox8 + 7, 1, FC.iceSpark); setPixel(png, ox8 + 8, 1, FC.iceSpark);
+  setPixel(png, ox8 + 6, 2, FC.iceSpark); setPixel(png, ox8 + 9, 2, FC.iceSpark);
+
+  // --- Tile 9: (unused/placeholder slot — tile ID 9 not in frost_crypt.json) ---
+  const ox9 = 144;
+  fillRect(png, ox9, 0, 16, 16, FC.voidColor);
+
+  // --- Tile 10: Chest Closed ---
+  const ox10 = 160;
+  fillRect(png, ox10, 0, 1, 16, FC.wallDark); fillRect(png, ox10 + 15, 0, 1, 16, FC.wallDark);
+  fillRect(png, ox10 + 1, 0, 14, 16, FC.wallMid);
+  fillRect(png, ox10 + 1, 0, 14, 5, FC.wallLight);
+  fillRect(png, ox10 + 1, 5, 14, 1, FC.wallDark); fillRect(png, ox10 + 1, 14, 14, 2, FC.wallDark);
+  for (let i = 2; i < 14; i++) setPixel(png, ox10 + i, 1, FC.iceSpark);
+  setPixel(png, ox10 + 2, 1, FC.iceBlue); setPixel(png, ox10 + 13, 1, FC.iceBlue);
+  setPixel(png, ox10 + 2, 13, FC.iceBlue); setPixel(png, ox10 + 13, 13, FC.iceBlue);
+  fillRect(png, ox10 + 6, 7, 4, 4, C.solGold);
+  setPixel(png, ox10 + 7, 8, FC.wallDark); setPixel(png, ox10 + 8, 8, FC.wallDark);
+
+  // --- Tile 11: Chest Opened ---
+  const ox11 = 176;
+  fillRect(png, ox11, 0, 1, 16, FC.wallDark); fillRect(png, ox11 + 15, 0, 1, 16, FC.wallDark);
+  fillRect(png, ox11 + 1, 0, 14, 16, FC.wallMid);
+  fillRect(png, ox11 + 1, 14, 14, 2, FC.wallDark);
+  fillRect(png, ox11 + 2, 1, 12, 10, FC.wallDark);
+  fillRect(png, ox11 + 3, 2, 10, 8, rgba(8, 12, 20));
+  setPixel(png, ox11 + 2, 12, FC.iceBlue); setPixel(png, ox11 + 13, 12, FC.iceBlue);
+  for (let i = 2; i < 14; i++) setPixel(png, ox11 + i, 0, FC.iceSpark);
+
+  // --- Tile 12: Power Conduit A (glowing energy conduit, activatable) ---
+  const ox12 = 192;
+  fillRect(png, ox12, 0, 16, 16, FC.metalDark);
+  fillRect(png, ox12 + 5, 0, 6, 16, FC.metalMid);
+  fillRect(png, ox12 + 6, 0, 4, 16, FC.frozenDark);
+  fillRect(png, ox12 + 7, 0, 2, 16, rgba(10, 30, 70));
+  for (const [sx, sy] of [[7,1],[8,4],[7,7],[8,10],[7,13]]) setPixel(png, ox12 + sx, sy, FC.powerGlow);
+  fillRect(png, ox12 + 5, 5, 6, 2, FC.metalLight); fillRect(png, ox12 + 5, 10, 6, 2, FC.metalLight);
+  for (const [sx, sy] of [[3,7],[4,8],[11,7],[12,8]]) setPixel(png, ox12 + sx, sy, FC.powerBright);
+
+  // --- Tile 13: Power Conduit B (second conduit, condition-locked) ---
+  const ox13 = 208;
+  fillRect(png, ox13, 0, 16, 16, FC.metalDark);
+  fillRect(png, ox13 + 5, 0, 6, 16, FC.metalMid);
+  fillRect(png, ox13 + 6, 0, 4, 16, FC.frozenDark);
+  fillRect(png, ox13 + 7, 0, 2, 16, rgba(10, 20, 50));
+  for (const [sx, sy] of [[7,3],[8,6],[7,9],[8,12]]) setPixel(png, ox13 + sx, sy, FC.iceBlue);
+  fillRect(png, ox13 + 5, 5, 6, 2, FC.metalMid); fillRect(png, ox13 + 5, 10, 6, 2, FC.metalMid);
+  for (const [sx, sy] of [[2,7],[3,8],[12,7],[13,8]]) setPixel(png, ox13 + sx, sy, FC.iceBlue);
+
+  // --- Tile 14: Core Hatch (sealed hatch, conduit-locked) ---
+  const ox14 = 224;
+  fillRect(png, ox14, 0, 16, 16, FC.metalDark);
+  fillRect(png, ox14 + 1, 1, 14, 14, FC.metalMid);
+  fillRect(png, ox14 + 2, 2, 12, 12, FC.frozenDark);
+  fillRect(png, ox14 + 3, 3, 10, 10, rgba(15, 30, 60));
+  fillRect(png, ox14 + 5, 5, 6, 6, FC.metalLight);
+  fillRect(png, ox14 + 6, 6, 4, 4, FC.powerGlow);
+  setPixel(png, ox14 + 7, 7, FC.powerBright); setPixel(png, ox14 + 8, 8, FC.powerBright);
+  for (const [sx, sy] of [[3,3],[12,3],[3,12],[12,12]]) setPixel(png, ox14 + sx, sy, FC.iceSpark);
+
+  // --- Tile 15: Survey Marker (survey peg, scientific marker) ---
+  const ox15 = 240;
+  fillRect(png, ox15, 0, 16, 16, FC.floorMid);
+  fillRect(png, ox15 + 7, 2, 2, 12, FC.metalLight);
+  fillRect(png, ox15 + 4, 2, 8, 2, FC.metalLight);
+  fillRect(png, ox15 + 3, 3, 10, 2, C.orange);
+  for (const [sx, sy] of [[6,2],[9,2],[6,4],[9,4]]) setPixel(png, ox15 + sx, sy, C.yellow);
+  setPixel(png, ox15 + 7, 1, C.yellow); setPixel(png, ox15 + 8, 1, C.yellow);
+
+  // --- Tile 16: Cracked Ice Wall (fractured ice barrier) ---
+  const ox16 = 256;
+  fillRect(png, ox16, 0, 16, 16, FC.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + i, 0, FC.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + i, 15, FC.wallDark);
+  for (let i = 0; i < 16; i++) setPixel(png, ox16 + 15, i, FC.wallDark);
+  const crack16 = [[2,1],[3,2],[4,3],[5,4],[6,5],[7,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13]];
+  for (const [cx, cy] of crack16) setPixel(png, ox16 + cx, cy, FC.floorDark);
+  for (const [sx, sy] of [[4,2],[8,5],[11,9],[3,11],[9,4],[13,7]]) setPixel(png, ox16 + sx, sy, FC.iceSpark);
+
+  // --- Tile 17: Geometric Fracture (mathematical ice fracture pattern) ---
+  const ox17 = 272;
+  fillRect(png, ox17, 0, 16, 16, FC.wallMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox17 + i, 0, FC.wallTop);
+  for (let i = 0; i < 16; i++) setPixel(png, ox17 + i, 15, FC.wallDark);
+  fillRect(png, ox17 + 6, 0, 4, 16, FC.floorDark); fillRect(png, ox17, 6, 16, 4, FC.floorDark);
+  fillRect(png, ox17 + 7, 0, 2, 16, FC.voidColor); fillRect(png, ox17, 7, 16, 2, FC.voidColor);
+  for (const [sx, sy] of [[2,2],[12,2],[2,12],[12,12],[5,5],[10,5],[5,10],[10,10]]) setPixel(png, ox17 + sx, sy, FC.iceSpark);
+
+  // --- Tile 18: Broken Machinery (cryo-machine wreckage, interactable) ---
+  const ox18 = 288;
+  fillRect(png, ox18, 0, 16, 16, FC.metalDark);
+  fillRect(png, ox18 + 1, 1, 14, 14, FC.metalMid);
+  fillRect(png, ox18 + 2, 2, 12, 6, FC.frozenDark);
+  fillRect(png, ox18 + 2, 8, 12, 6, FC.metalDark);
+  for (const [sx, sy] of [[3,3],[5,4],[8,3],[11,4],[4,6],[9,5],[12,6]]) setPixel(png, ox18 + sx, sy, FC.metalLight);
+  for (const [sx, sy] of [[3,9],[6,10],[9,9],[12,10],[5,12],[8,11],[11,13]]) setPixel(png, ox18 + sx, sy, FC.iceBlue);
+  setPixel(png, ox18 + 7, 5, FC.powerGlow); setPixel(png, ox18 + 8, 5, FC.powerGlow);
+
+  // --- Tile 19: Frozen Pillar (thick ice column) ---
+  const ox19 = 304;
+  fillRect(png, ox19, 0, 16, 16, FC.floorDark);
+  fillRect(png, ox19 + 3, 0, 10, 16, FC.wallMid);
+  fillRect(png, ox19 + 4, 0, 8, 16, FC.wallLight);
+  fillRect(png, ox19 + 5, 0, 6, 16, FC.iceBlue);
+  fillRect(png, ox19 + 4, 0, 2, 16, FC.iceMid);
+  for (const [sx, sy] of [[5,2],[8,4],[6,7],[9,10],[5,13],[8,1],[7,5],[9,8],[6,12]]) setPixel(png, ox19 + sx, sy, FC.iceSpark);
+
+  // --- Tile 20: Ice Rubble (broken ice fragments on floor) ---
+  const ox20 = 320;
+  fillRect(png, ox20, 0, 16, 16, FC.floorMid);
+  for (const [sx, sy] of [[2,2],[4,1],[6,3],[9,2],[12,1],[14,3],[1,5],[5,6],[8,5],[11,6],[14,7],[3,8],[6,9],[9,10],[12,9],[15,8],[2,11],[5,12],[8,13],[11,12],[14,11],[0,13],[3,14],[7,15],[10,14],[13,15]]) setPixel(png, ox20 + sx, sy, FC.iceBlue);
+  for (const [sx, sy] of [[3,2],[7,3],[10,1],[4,5],[9,6],[13,5],[2,9],[6,10],[10,11],[1,13],[5,14]]) setPixel(png, ox20 + sx, sy, FC.iceSpark);
+
+  // --- Tile 21: Metal Floor (cryo-facility plating) ---
+  const ox21 = 336;
+  fillRect(png, ox21, 0, 16, 16, FC.metalMid);
+  for (let i = 0; i < 16; i++) { setPixel(png, ox21 + i, 7, FC.metalDark); setPixel(png, ox21 + 7, i, FC.metalDark); }
+  for (let i = 0; i < 7; i++) { setPixel(png, ox21 + i, 0, FC.metalLight); setPixel(png, ox21, i, FC.metalLight); setPixel(png, ox21 + 8 + i, 8, FC.metalLight); setPixel(png, ox21 + 8, 8 + i, FC.metalLight); }
+  for (const [sx, sy] of [[2,2],[14,2],[2,14],[14,14]]) setPixel(png, ox21 + sx, sy, FC.metalLight);
+
+  // --- Tile 22: Damaged Panel (cracked cryo-panel) ---
+  const ox22 = 352;
+  fillRect(png, ox22, 0, 16, 16, FC.metalMid);
+  for (let i = 0; i < 16; i++) setPixel(png, ox22 + i, 0, FC.metalLight);
+  fillRect(png, ox22 + 2, 1, 12, 12, FC.frozenDark);
+  fillRect(png, ox22 + 3, 2, 10, 10, rgba(12, 18, 35));
+  for (const [sx, sy] of [[4,3],[6,4],[8,3],[10,4],[12,3],[4,7],[6,8],[8,7],[10,8],[12,7],[4,11],[7,11],[10,11]]) setPixel(png, ox22 + sx, sy, FC.iceBlue);
+  for (const [cx, cy] of [[5,4],[7,5],[9,6],[8,8],[10,9]]) setPixel(png, ox22 + cx, cy, FC.metalDark);
+  setPixel(png, ox22 + 7, 6, FC.powerGlow);
+
+  // --- Tile 23: Ice Stalagmite (solid upward ice spike) ---
+  const ox23 = 368;
+  fillRect(png, ox23, 0, 16, 16, FC.floorDark);
+  fillRect(png, ox23 + 5, 12, 6, 4, FC.iceBlue);
+  fillRect(png, ox23 + 6, 8, 4, 4, FC.iceMid);
+  fillRect(png, ox23 + 7, 4, 2, 4, FC.iceLight);
+  setPixel(png, ox23 + 7, 2, FC.iceSpark); setPixel(png, ox23 + 8, 3, FC.iceSpark);
+  setPixel(png, ox23 + 6, 9, FC.iceSpark); setPixel(png, ox23 + 9, 10, FC.iceSpark);
+  for (const [sx, sy] of [[5,13],[10,12],[6,8],[9,9]]) setPixel(png, ox23 + sx, sy, FC.iceSpark);
+
+  // --- Tile 24: Collapsed Rubble (ice/stone debris, non-solid) ---
+  const ox24 = 384;
+  fillRect(png, ox24, 0, 16, 16, FC.floorMid);
+  for (const [sx, sy] of [[1,8],[2,7],[3,9],[4,8],[5,7],[6,9],[7,8],[8,10],[9,9],[10,8],[11,10],[12,9],[13,8],[14,10],[15,9],[2,10],[4,10],[6,11],[8,11],[10,12],[12,11],[14,11],[3,12],[5,13],[7,12],[9,14],[11,13],[13,12]]) setPixel(png, ox24 + sx, sy, FC.frozenLight);
+  for (const [sx, sy] of [[2,8],[5,9],[8,8],[11,9],[14,9],[3,11],[7,10],[10,11],[4,13],[9,13]]) setPixel(png, ox24 + sx, sy, FC.iceBlue);
+  for (const [sx, sy] of [[3,8],[6,10],[9,9],[12,10],[5,12],[8,12]]) setPixel(png, ox24 + sx, sy, FC.iceSpark);
+
+  // --- Tile 25: Frozen Pipe (solid cryo pipe, horizontal run) ---
+  const ox25 = 400;
+  fillRect(png, ox25, 0, 16, 16, FC.floorDark);
+  fillRect(png, ox25, 5, 16, 6, FC.metalMid);
+  fillRect(png, ox25, 6, 16, 4, FC.metalDark);
+  fillRect(png, ox25, 7, 16, 2, rgba(10, 25, 60));
+  for (let col = 0; col < 16; col += 4) { setPixel(png, ox25 + col, 7, FC.powerGlow); setPixel(png, ox25 + col, 8, FC.powerGlow); }
+  fillRect(png, ox25, 5, 16, 1, FC.metalLight);
+  fillRect(png, ox25, 10, 16, 1, FC.wallDark);
+  for (const [sx, sy] of [[0,6],[4,5],[8,6],[12,5]]) setPixel(png, ox25 + sx, sy, FC.iceBlue);
+
+  // --- Tile 26: Seismic Crack (non-solid fault line on floor) ---
+  const ox26 = 416;
+  fillRect(png, ox26, 0, 16, 16, FC.floorMid);
+  for (const [cx, cy] of [[0,6],[1,7],[2,8],[3,7],[4,8],[5,9],[6,8],[7,9],[8,8],[9,7],[10,8],[11,9],[12,8],[13,7],[14,8],[15,7]]) setPixel(png, ox26 + cx, cy, FC.floorDark);
+  for (const [cx, cy] of [[1,6],[2,7],[3,8],[4,7],[5,8],[6,9],[7,8],[8,9],[9,8],[10,7],[11,8],[12,9],[13,8],[14,7],[15,8]]) setPixel(png, ox26 + cx, cy, FC.voidColor);
+  for (const [sx, sy] of [[3,6],[7,5],[11,6],[1,9],[5,10],[9,9],[13,10]]) setPixel(png, ox26 + sx, sy, FC.iceSpark);
+  for (const [sx, sy] of [[2,5],[6,4],[10,5],[14,4],[0,11],[4,12],[8,11],[12,12]]) setPixel(png, ox26 + sx, sy, FC.floorLight);
+
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'frost_crypt.png'));
+}
+
+// ============================================================================
+// DAYSIDE TILESET (12 tiles — warm sandy stone, bright surfaces)
+// ============================================================================
+
+function generateDaysideTileset() {
+  const png = createPNG(192, 16); // 12 tiles × 16px
+  const DS = {
+    floorDark:  hex('#5a4a28'), floorMid:   hex('#7a6438'), floorLight: hex('#9a8050'),
+    wallDark:   hex('#7c6440'), wallMid:    hex('#9a8058'), wallLight:  hex('#c0a070'), wallTop: hex('#d0b080'),
+    doorMid:    hex('#8c7044'), doorDark:   hex('#6a5030'), doorLight:  hex('#b08858'),
+    water1:     hex('#284878'), water2:     hex('#3860a0'), water3:     hex('#4880c0'),
+  };
+  // Tile 0: Void
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { const v = 8 + ((x*7+y*13)%5); setPixel(png, x, y, rgba(v, Math.floor(v*0.7), Math.floor(v*0.4))); }
+  // Tile 1: Stone Floor
+  const ox1=16; fillRect(png,ox1,0,16,16,DS.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox1+i,7,DS.floorDark);setPixel(png,ox1+7,i,DS.floorDark);}
+  for (let i=0;i<7;i++){setPixel(png,ox1+i,0,DS.floorLight);setPixel(png,ox1,i,DS.floorLight);setPixel(png,ox1+8+i,8,DS.floorLight);setPixel(png,ox1+8,8+i,DS.floorLight);}
+  // Tile 2: Cracked Floor
+  const ox2=32; fillRect(png,ox2,0,16,16,DS.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox2+i,7,DS.floorDark);setPixel(png,ox2+7,i,DS.floorDark);}
+  for (const [cx,cy] of [[3,2],[4,3],[5,5],[6,6],[7,9],[8,10],[10,11],[12,13]]) setPixel(png,ox2+cx,cy,DS.floorDark);
+  // Tile 3: Stone Wall
+  const ox3=48; fillRect(png,ox3,0,16,16,DS.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox3+i,0,DS.wallTop);setPixel(png,ox3+i,15,DS.wallDark);setPixel(png,ox3+15,i,DS.wallDark);}
+  for (const [sx,sy] of [[2,2],[7,2],[10,3],[5,7],[1,9],[6,11]]) setPixel(png,ox3+sx,sy,DS.wallLight);
+  for (const [sx,sy] of [[5,3],[1,5],[8,4],[4,8],[7,10]]) setPixel(png,ox3+sx,sy,DS.wallDark);
+  // Tile 4: Door Closed
+  const ox4=64; fillRect(png,ox4,0,16,16,DS.doorMid);
+  fillRect(png,ox4,0,1,16,DS.doorDark); fillRect(png,ox4+15,0,1,16,DS.doorDark);
+  fillRect(png,ox4+1,3,14,2,DS.doorLight); fillRect(png,ox4+1,11,14,2,DS.doorLight);
+  for (let vy=0;vy<16;vy++) setPixel(png,ox4+7,vy,DS.doorDark);
+  setPixel(png,ox4+12,7,C.orange); setPixel(png,ox4+12,8,C.orange);
+  // Tile 5: Door Open
+  const ox5=80; fillRect(png,ox5,0,16,16,DS.floorDark);
+  fillRect(png,ox5,0,2,16,DS.doorDark); fillRect(png,ox5+14,0,2,16,DS.doorDark);
+  fillRect(png,ox5+4,2,8,12,rgba(20,14,8));
+  // Tile 6: Stairs Down
+  const ox6=96; fillRect(png,ox6,0,16,16,DS.floorMid);
+  fillRect(png,ox6+2,2,12,3,DS.floorLight); fillRect(png,ox6+3,5,10,3,DS.floorMid);
+  fillRect(png,ox6+4,8,8,3,DS.floorDark); fillRect(png,ox6+5,11,6,3,rgba(20,14,8));
+  setPixel(png,ox6+7,13,C.orange); setPixel(png,ox6+8,13,C.orange);
+  setPixel(png,ox6+6,12,C.orange); setPixel(png,ox6+9,12,C.orange);
+  // Tile 7: Water
+  const ox7=112; fillRect(png,ox7,0,16,16,DS.water1);
+  for (const [wx,wy] of [[2,3],[3,3],[8,5],[9,5],[1,9],[2,9],[7,11],[8,11],[12,7]]) setPixel(png,ox7+wx,wy,DS.water2);
+  for (const [wx,wy] of [[3,2],[9,4],[2,8],[8,10]]) setPixel(png,ox7+wx,wy,DS.water3);
+  // Tile 8: Stairs Up
+  const ox8=128; fillRect(png,ox8,0,16,16,DS.floorMid);
+  fillRect(png,ox8+5,2,6,3,rgba(20,14,8)); fillRect(png,ox8+4,5,8,3,DS.floorDark);
+  fillRect(png,ox8+3,8,10,3,DS.floorMid); fillRect(png,ox8+2,11,12,3,DS.floorLight);
+  setPixel(png,ox8+7,1,C.solGold); setPixel(png,ox8+8,1,C.solGold);
+  setPixel(png,ox8+6,2,C.solGold); setPixel(png,ox8+9,2,C.solGold);
+  // Tile 9: Locked Door
+  const ox9=144; fillRect(png,ox9,0,16,16,DS.doorMid);
+  fillRect(png,ox9,0,1,16,DS.doorDark); fillRect(png,ox9+15,0,1,16,DS.doorDark);
+  fillRect(png,ox9+1,3,14,2,DS.doorLight); fillRect(png,ox9+1,11,14,2,DS.doorLight);
+  for (let vy=0;vy<16;vy++) setPixel(png,ox9+7,vy,DS.doorDark);
+  fillRect(png,ox9+6,6,4,4,C.solGold); setPixel(png,ox9+7,7,DS.doorDark); setPixel(png,ox9+8,7,DS.doorDark); setPixel(png,ox9+7,8,DS.doorDark);
+  // Tile 10: Chest Closed
+  const ox10=160; fillRect(png,ox10,0,1,16,DS.wallDark); fillRect(png,ox10+15,0,1,16,DS.wallDark);
+  fillRect(png,ox10+1,0,14,16,DS.doorMid); fillRect(png,ox10+1,0,14,5,DS.wallMid);
+  fillRect(png,ox10+1,5,14,1,DS.wallDark); fillRect(png,ox10+1,14,14,2,DS.wallDark);
+  for (let i=2;i<14;i++) setPixel(png,ox10+i,1,DS.wallLight);
+  setPixel(png,ox10+2,1,C.bone); setPixel(png,ox10+13,1,C.bone); setPixel(png,ox10+2,13,C.bone); setPixel(png,ox10+13,13,C.bone);
+  fillRect(png,ox10+6,7,4,4,C.solGold); setPixel(png,ox10+7,8,DS.wallDark); setPixel(png,ox10+8,8,DS.wallDark);
+  // Tile 11: Chest Opened
+  const ox11=176; fillRect(png,ox11,0,1,16,DS.wallDark); fillRect(png,ox11+15,0,1,16,DS.wallDark);
+  fillRect(png,ox11+1,0,14,16,DS.doorMid); fillRect(png,ox11+1,14,14,2,DS.wallDark);
+  fillRect(png,ox11+2,1,12,10,DS.wallDark); fillRect(png,ox11+3,2,10,8,rgba(20,14,8));
+  setPixel(png,ox11+2,12,C.bone); setPixel(png,ox11+13,12,C.bone);
+  for (let i=2;i<14;i++) setPixel(png,ox11+i,0,C.bone);
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'dayside.png'));
+}
+
+// ============================================================================
+// FUNGAL FOREST TILESET (12 slots — organic earth, bioluminescent greens)
+// ============================================================================
+
+function generateFungalForestTileset() {
+  const png = createPNG(192, 16); // 12 tile slots × 16px (ID 9 unused)
+  const FF = {
+    floorDark:  hex('#1a2818'), floorMid:   hex('#243820'), floorLight: hex('#304a28'),
+    fungalDark: hex('#1e2808'), fungalMid:  hex('#2a3812'), fungalLight:hex('#3c5018'),
+    sporeDark:  hex('#281e38'), sporeMid:   hex('#3c2c50'), sporeLight: hex('#5a4070'),
+    poolDark:   hex('#0e1810'), poolMid:    hex('#142014'), poolLight:  hex('#1e3020'),
+    biolum:     hex('#64d280'), sporePurp:  hex('#b478d2'),
+  };
+  // Tile 0: Void
+  for (let y=0;y<16;y++) for (let x=0;x<16;x++) { const v=6+((x*7+y*13)%4); setPixel(png,x,y,rgba(Math.floor(v*0.7),v,Math.floor(v*0.6))); }
+  // Tile 1: Mossy Ground
+  const ox1=16; fillRect(png,ox1,0,16,16,FF.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox1+i,7,FF.floorDark);setPixel(png,ox1+7,i,FF.floorDark);}
+  for (const [sx,sy] of [[2,2],[5,1],[9,3],[12,2],[3,6],[11,7],[1,10],[8,11]]) setPixel(png,ox1+sx,sy,FF.fungalLight);
+  for (const [sx,sy] of [[4,4],[7,6],[10,5],[2,9],[6,12]]) setPixel(png,ox1+sx,sy,hex('#46a046'));
+  // Tile 2: Mycelium Floor
+  const ox2=32; fillRect(png,ox2,0,16,16,FF.fungalMid);
+  for (const [sx,sy] of [[1,1],[3,5],[7,2],[11,4],[13,1],[0,8],[5,9],[9,7],[14,8],[2,12],[8,14]]) setPixel(png,ox2+sx,sy,FF.sporeLight);
+  for (const [sx,sy] of [[4,0],[8,3],[12,6],[2,7],[6,10],[10,12]]) setPixel(png,ox2+sx,sy,FF.sporeDark);
+  // Tile 3: Fungal Wall
+  const ox3=48; fillRect(png,ox3,0,16,16,FF.fungalDark);
+  for (let i=0;i<16;i++){setPixel(png,ox3+i,0,FF.fungalMid);setPixel(png,ox3+i,15,hex('#0a0d0a'));setPixel(png,ox3+15,i,hex('#0a0d0a'));}
+  for (const [sx,sy] of [[3,3],[8,2],[12,5],[2,8],[6,6],[10,9],[4,11]]) setPixel(png,ox3+sx,sy,FF.fungalLight);
+  for (const [sx,sy] of [[5,2],[1,6],[9,4],[13,8],[7,10],[3,13]]) setPixel(png,ox3+sx,sy,FF.biolum);
+  // Tile 4: Spore Door Closed
+  const ox4=64; fillRect(png,ox4,0,16,16,FF.sporeMid);
+  fillRect(png,ox4,0,1,16,FF.sporeDark); fillRect(png,ox4+15,0,1,16,FF.sporeDark);
+  fillRect(png,ox4+1,3,14,2,FF.sporeLight); fillRect(png,ox4+1,11,14,2,FF.sporeLight);
+  for (let vy=0;vy<16;vy++) setPixel(png,ox4+7,vy,FF.sporeDark);
+  setPixel(png,ox4+12,7,FF.biolum); setPixel(png,ox4+12,8,FF.biolum);
+  // Tile 5: Spore Door Open
+  const ox5=80; fillRect(png,ox5,0,16,16,FF.floorDark);
+  fillRect(png,ox5,0,2,16,FF.sporeDark); fillRect(png,ox5+14,0,2,16,FF.sporeDark);
+  fillRect(png,ox5+4,2,8,12,rgba(14,20,12));
+  for (const [sx,sy] of [[3,4],[5,3],[10,3],[12,5],[4,9],[11,8]]) setPixel(png,ox5+sx,sy,FF.biolum);
+  // Tile 6: Root Stairs Down
+  const ox6=96; fillRect(png,ox6,0,16,16,FF.floorMid);
+  fillRect(png,ox6+2,2,12,3,FF.floorLight); fillRect(png,ox6+3,5,10,3,FF.floorMid);
+  fillRect(png,ox6+4,8,8,3,FF.floorDark); fillRect(png,ox6+5,11,6,3,rgba(10,16,8));
+  setPixel(png,ox6+7,13,FF.biolum); setPixel(png,ox6+8,13,FF.biolum);
+  setPixel(png,ox6+6,12,FF.biolum); setPixel(png,ox6+9,12,FF.biolum);
+  // Tile 7: Spore Pool
+  const ox7=112; fillRect(png,ox7,0,16,16,FF.poolDark);
+  for (const [wx,wy] of [[2,3],[3,3],[8,5],[9,5],[1,9],[2,9],[7,11],[8,11]]) setPixel(png,ox7+wx,wy,FF.poolMid);
+  for (const [wx,wy] of [[3,2],[9,4],[2,8],[8,10]]) setPixel(png,ox7+wx,wy,FF.poolLight);
+  for (const [wx,wy] of [[4,6],[7,4],[11,7],[5,13]]) setPixel(png,ox7+wx,wy,FF.biolum);
+  // Tile 8: Root Stairs Up
+  const ox8=128; fillRect(png,ox8,0,16,16,FF.floorMid);
+  fillRect(png,ox8+5,2,6,3,rgba(10,16,8)); fillRect(png,ox8+4,5,8,3,FF.floorDark);
+  fillRect(png,ox8+3,8,10,3,FF.floorMid); fillRect(png,ox8+2,11,12,3,FF.floorLight);
+  setPixel(png,ox8+7,1,FF.biolum); setPixel(png,ox8+8,1,FF.biolum);
+  setPixel(png,ox8+6,2,FF.biolum); setPixel(png,ox8+9,2,FF.biolum);
+  // Tile 9: Unused slot
+  const ox9=144; fillRect(png,ox9,0,16,16,rgba(10,13,10));
+  // Tile 10: Chest Closed
+  const ox10=160; fillRect(png,ox10,0,1,16,FF.fungalDark); fillRect(png,ox10+15,0,1,16,FF.fungalDark);
+  fillRect(png,ox10+1,0,14,16,FF.fungalMid); fillRect(png,ox10+1,0,14,5,FF.fungalLight);
+  fillRect(png,ox10+1,5,14,1,FF.fungalDark); fillRect(png,ox10+1,14,14,2,FF.fungalDark);
+  for (let i=2;i<14;i++) setPixel(png,ox10+i,1,FF.fungalLight);
+  setPixel(png,ox10+2,1,FF.biolum); setPixel(png,ox10+13,1,FF.biolum); setPixel(png,ox10+2,13,FF.biolum); setPixel(png,ox10+13,13,FF.biolum);
+  fillRect(png,ox10+6,7,4,4,C.solGold); setPixel(png,ox10+7,8,FF.fungalDark); setPixel(png,ox10+8,8,FF.fungalDark);
+  // Tile 11: Chest Opened
+  const ox11=176; fillRect(png,ox11,0,1,16,FF.fungalDark); fillRect(png,ox11+15,0,1,16,FF.fungalDark);
+  fillRect(png,ox11+1,0,14,16,FF.fungalMid); fillRect(png,ox11+1,14,14,2,FF.fungalDark);
+  fillRect(png,ox11+2,1,12,10,FF.fungalDark); fillRect(png,ox11+3,2,10,8,rgba(10,16,8));
+  setPixel(png,ox11+2,12,FF.biolum); setPixel(png,ox11+13,12,FF.biolum);
+  for (let i=2;i<14;i++) setPixel(png,ox11+i,0,FF.biolum);
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'fungal_forest.png'));
+}
+
+// ============================================================================
+// NIGHTSIDE TILESET (13 tiles — void dark, umbracite purple crystal)
+// ============================================================================
+
+function generateNightsideTileset() {
+  const png = createPNG(208, 16); // 13 tiles × 16px
+  const NS = {
+    floorDark:  hex('#0e0e14'), floorMid:   hex('#141420'), floorLight: hex('#1e1e30'),
+    wallDark:   hex('#1e1430'), wallMid:    hex('#2e2048'), wallLight:  hex('#3e2c5a'), wallTop: hex('#4e3870'),
+    crystalDark:hex('#3c1e64'), crystalMid: hex('#5a2e8c'), crystalLight:hex('#7840aa'),
+    poolDark:   hex('#050508'), poolMid:    hex('#0a0a14'), poolLight:  hex('#12122a'),
+    portalGlow: hex('#b478d2'),
+  };
+  // Tile 0: Void
+  for (let y=0;y<16;y++) for (let x=0;x<16;x++) { const v=4+((x*7+y*13)%4); setPixel(png,x,y,rgba(Math.floor(v*0.6),Math.floor(v*0.5),Math.floor(v*0.9))); }
+  // Tile 1: Dark Stone Floor
+  const ox1=16; fillRect(png,ox1,0,16,16,NS.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox1+i,7,NS.floorDark);setPixel(png,ox1+7,i,NS.floorDark);}
+  for (let i=0;i<7;i++){setPixel(png,ox1+i,0,NS.floorLight);setPixel(png,ox1,i,NS.floorLight);setPixel(png,ox1+8+i,8,NS.floorLight);setPixel(png,ox1+8,8+i,NS.floorLight);}
+  // Tile 2: Umbracite Floor (purple vein streaks)
+  const ox2=32; fillRect(png,ox2,0,16,16,NS.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox2+i,7,NS.floorDark);setPixel(png,ox2+7,i,NS.floorDark);}
+  for (const [vx,vy] of [[1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,9],[10,10]]) setPixel(png,ox2+vx,vy,NS.crystalMid);
+  for (const [vx,vy] of [[14,2],[13,3],[12,4],[11,5],[10,6]]) setPixel(png,ox2+vx,vy,NS.crystalDark);
+  // Tile 3: Umbracite Vein Wall
+  const ox3=48; fillRect(png,ox3,0,16,16,NS.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox3+i,0,NS.wallTop);setPixel(png,ox3+i,15,NS.wallDark);setPixel(png,ox3+15,i,NS.wallDark);}
+  for (const [sx,sy] of [[2,2],[7,2],[10,3],[5,7],[1,9],[6,11]]) setPixel(png,ox3+sx,sy,NS.wallLight);
+  for (const [vx,vy] of [[4,3],[5,4],[5,5],[6,6],[7,7],[8,8],[3,4],[11,9],[12,10]]) setPixel(png,ox3+vx,vy,NS.crystalMid);
+  // Tile 4: Crystal Door Closed
+  const ox4=64; fillRect(png,ox4,0,16,16,NS.crystalDark);
+  fillRect(png,ox4,0,1,16,NS.wallDark); fillRect(png,ox4+15,0,1,16,NS.wallDark);
+  fillRect(png,ox4+1,3,14,2,NS.crystalLight); fillRect(png,ox4+1,11,14,2,NS.crystalLight);
+  for (let vy=0;vy<16;vy++) setPixel(png,ox4+7,vy,NS.wallDark);
+  for (const [cx,cy] of [[3,6],[4,5],[5,4],[11,6],[12,5],[11,10],[12,11]]) setPixel(png,ox4+cx,cy,NS.crystalLight);
+  setPixel(png,ox4+12,7,NS.portalGlow); setPixel(png,ox4+12,8,NS.portalGlow);
+  // Tile 5: Crystal Door Open
+  const ox5=80; fillRect(png,ox5,0,16,16,NS.floorDark);
+  fillRect(png,ox5,0,2,16,NS.wallDark); fillRect(png,ox5+14,0,2,16,NS.wallDark);
+  fillRect(png,ox5+4,2,8,12,rgba(5,5,10));
+  for (const [cx,cy] of [[2,4],[2,8],[2,12],[13,4],[13,8],[13,12]]) setPixel(png,ox5+cx,cy,NS.crystalMid);
+  // Tile 6: Deep Stairs Down
+  const ox6=96; fillRect(png,ox6,0,16,16,NS.floorMid);
+  fillRect(png,ox6+2,2,12,3,NS.floorLight); fillRect(png,ox6+3,5,10,3,NS.floorMid);
+  fillRect(png,ox6+4,8,8,3,NS.floorDark); fillRect(png,ox6+5,11,6,3,rgba(5,5,10));
+  setPixel(png,ox6+7,13,NS.portalGlow); setPixel(png,ox6+8,13,NS.portalGlow);
+  setPixel(png,ox6+6,12,NS.crystalMid); setPixel(png,ox6+9,12,NS.crystalMid);
+  // Tile 7: Dark Pool
+  const ox7=112; fillRect(png,ox7,0,16,16,NS.poolDark);
+  for (const [wx,wy] of [[2,3],[3,3],[8,5],[9,5],[1,9],[7,11],[8,11]]) setPixel(png,ox7+wx,wy,NS.poolMid);
+  for (const [wx,wy] of [[3,2],[9,4],[2,8],[8,10]]) setPixel(png,ox7+wx,wy,NS.poolLight);
+  setPixel(png,ox7+4,7,NS.crystalDark); setPixel(png,ox7+11,5,NS.crystalDark);
+  // Tile 8: Deep Stairs Up
+  const ox8=128; fillRect(png,ox8,0,16,16,NS.floorMid);
+  fillRect(png,ox8+5,2,6,3,rgba(5,5,10)); fillRect(png,ox8+4,5,8,3,NS.floorDark);
+  fillRect(png,ox8+3,8,10,3,NS.floorMid); fillRect(png,ox8+2,11,12,3,NS.floorLight);
+  setPixel(png,ox8+7,1,NS.crystalMid); setPixel(png,ox8+8,1,NS.crystalMid);
+  setPixel(png,ox8+6,2,NS.portalGlow); setPixel(png,ox8+9,2,NS.portalGlow);
+  // Tile 9: Transit Portal (glowing ring on floor)
+  const ox9=144; fillRect(png,ox9,0,16,16,NS.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox9+i,7,NS.floorDark);setPixel(png,ox9+7,i,NS.floorDark);}
+  for (const [px,py] of [[5,3],[9,3],[11,5],[12,8],[11,11],[9,12],[5,12],[3,11],[2,8],[3,5]]) setPixel(png,ox9+px,py,NS.crystalMid);
+  for (const [px,py] of [[6,4],[10,6],[11,9],[6,11],[4,9],[3,6]]) setPixel(png,ox9+px,py,NS.portalGlow);
+  setPixel(png,ox9+7,8,NS.crystalLight); setPixel(png,ox9+8,8,NS.crystalLight);
+  // Tile 10: Chest Closed
+  const ox10=160; fillRect(png,ox10,0,1,16,NS.wallDark); fillRect(png,ox10+15,0,1,16,NS.wallDark);
+  fillRect(png,ox10+1,0,14,16,NS.wallMid); fillRect(png,ox10+1,0,14,5,NS.wallLight);
+  fillRect(png,ox10+1,5,14,1,NS.wallDark); fillRect(png,ox10+1,14,14,2,NS.wallDark);
+  for (let i=2;i<14;i++) setPixel(png,ox10+i,1,NS.crystalDark);
+  setPixel(png,ox10+2,1,NS.crystalMid); setPixel(png,ox10+13,1,NS.crystalMid); setPixel(png,ox10+2,13,NS.crystalMid); setPixel(png,ox10+13,13,NS.crystalMid);
+  fillRect(png,ox10+6,7,4,4,C.solGold); setPixel(png,ox10+7,8,NS.wallDark); setPixel(png,ox10+8,8,NS.wallDark);
+  // Tile 11: Chest Opened
+  const ox11=176; fillRect(png,ox11,0,1,16,NS.wallDark); fillRect(png,ox11+15,0,1,16,NS.wallDark);
+  fillRect(png,ox11+1,0,14,16,NS.wallMid); fillRect(png,ox11+1,14,14,2,NS.wallDark);
+  fillRect(png,ox11+2,1,12,10,NS.wallDark); fillRect(png,ox11+3,2,10,8,rgba(5,5,10));
+  setPixel(png,ox11+2,12,NS.crystalMid); setPixel(png,ox11+13,12,NS.crystalMid);
+  for (let i=2;i<14;i++) setPixel(png,ox11+i,0,NS.crystalMid);
+  // Tile 12: Tier Pedestal
+  const ox12=192; fillRect(png,ox12,0,16,16,NS.floorMid);
+  fillRect(png,ox12+3,6,10,8,NS.wallDark); fillRect(png,ox12+4,5,8,7,NS.wallMid);
+  fillRect(png,ox12+4,5,8,2,NS.wallLight); fillRect(png,ox12+5,7,6,4,NS.crystalDark);
+  fillRect(png,ox12+6,8,4,2,NS.crystalMid);
+  setPixel(png,ox12+7,8,NS.portalGlow); setPixel(png,ox12+8,8,NS.portalGlow);
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'nightside.png'));
+}
+
+// ============================================================================
+// MERIDIAN TILESET (40 tiles — cold military grey-blue stone)
+// ============================================================================
+
+function generateMeridianTileset() {
+  const png = createPNG(640, 16); // 40 tiles × 16px
+  const M = {
+    floorDark:  hex('#1a1e28'), floorMid:   hex('#242a38'), floorLight: hex('#2e3448'),
+    wallDark:   hex('#34384c'), wallMid:    hex('#444860'), wallLight:  hex('#545870'), wallTop: hex('#5e6280'),
+    doorMid:    hex('#383e52'), doorDark:   hex('#262c40'), doorLight:  hex('#484e62'),
+    water1:     hex('#1a2a3c'), water2:     hex('#243550'), water3:     hex('#2e4060'),
+  };
+  // Tile 0: Void
+  for (let y=0;y<16;y++) for (let x=0;x<16;x++) { const v=8+((x*7+y*13)%5); setPixel(png,x,y,rgba(Math.floor(v*0.7),Math.floor(v*0.75),v)); }
+  // Tile 1: Stone Floor
+  const ox1=16; fillRect(png,ox1,0,16,16,M.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox1+i,7,M.floorDark);setPixel(png,ox1+7,i,M.floorDark);}
+  for (let i=0;i<7;i++){setPixel(png,ox1+i,0,M.floorLight);setPixel(png,ox1,i,M.floorLight);setPixel(png,ox1+8+i,8,M.floorLight);setPixel(png,ox1+8,8+i,M.floorLight);}
+  // Tile 2: Cracked Floor
+  const ox2=32; fillRect(png,ox2,0,16,16,M.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox2+i,7,M.floorDark);setPixel(png,ox2+7,i,M.floorDark);}
+  for (let i=0;i<7;i++){setPixel(png,ox2+i,0,M.floorLight);setPixel(png,ox2,i,M.floorLight);}
+  for (const [cx,cy] of [[3,2],[4,3],[4,4],[5,5],[6,6],[5,7],[6,8],[7,9],[8,10],[9,11],[10,11],[11,12],[12,13]]) setPixel(png,ox2+cx,cy,M.floorDark);
+  // Tile 3: Stone Wall
+  const ox3=48; fillRect(png,ox3,0,16,16,M.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox3+i,0,M.wallTop);setPixel(png,ox3+i,15,M.wallDark);setPixel(png,ox3+15,i,M.wallDark);}
+  for (const [sx,sy] of [[2,2],[3,4],[7,2],[10,3],[13,5],[5,7],[9,6],[1,9],[6,11],[11,8]]) setPixel(png,ox3+sx,sy,M.wallLight);
+  for (const [sx,sy] of [[5,3],[1,5],[8,4],[11,6],[4,8],[7,10],[2,11],[10,9]]) setPixel(png,ox3+sx,sy,M.wallDark);
+  // Tile 4: Door Closed
+  const ox4=64; fillRect(png,ox4,0,16,16,M.doorMid);
+  fillRect(png,ox4,0,1,16,M.doorDark); fillRect(png,ox4+15,0,1,16,M.doorDark);
+  fillRect(png,ox4+1,0,14,1,M.doorDark); fillRect(png,ox4+1,15,14,1,M.doorDark);
+  fillRect(png,ox4+1,3,14,2,M.doorLight); fillRect(png,ox4+1,11,14,2,M.doorLight);
+  for (let vy=0;vy<16;vy++) setPixel(png,ox4+7,vy,M.doorDark);
+  setPixel(png,ox4+12,7,C.teal); setPixel(png,ox4+12,8,C.teal);
+  // Tile 5: Door Open
+  const ox5=80; fillRect(png,ox5,0,16,16,M.floorDark);
+  fillRect(png,ox5,0,2,16,M.doorDark); fillRect(png,ox5+14,0,2,16,M.doorDark);
+  fillRect(png,ox5+4,2,8,12,rgba(18,20,30));
+  // Tile 6: Stairs Down
+  const ox6=96; fillRect(png,ox6,0,16,16,M.floorMid);
+  fillRect(png,ox6+2,2,12,3,M.floorLight); fillRect(png,ox6+3,5,10,3,M.floorMid);
+  fillRect(png,ox6+4,8,8,3,M.floorDark); fillRect(png,ox6+5,11,6,3,rgba(15,18,30));
+  setPixel(png,ox6+7,13,C.lightTeal); setPixel(png,ox6+8,13,C.lightTeal);
+  setPixel(png,ox6+6,12,C.lightTeal); setPixel(png,ox6+9,12,C.lightTeal);
+  // Tile 7: Water
+  const ox7=112; fillRect(png,ox7,0,16,16,M.water1);
+  for (const [wx,wy] of [[2,3],[3,3],[4,3],[8,5],[9,5],[10,5],[1,9],[2,9],[3,9],[7,11],[8,11],[9,11],[12,7],[13,7]]) setPixel(png,ox7+wx,wy,M.water2);
+  for (const [wx,wy] of [[3,2],[9,4],[2,8],[8,10],[13,6]]) setPixel(png,ox7+wx,wy,M.water3);
+  // Tile 8: Stairs Up
+  const ox8=128; fillRect(png,ox8,0,16,16,M.floorMid);
+  fillRect(png,ox8+5,2,6,3,rgba(15,18,30)); fillRect(png,ox8+4,5,8,3,M.floorDark);
+  fillRect(png,ox8+3,8,10,3,M.floorMid); fillRect(png,ox8+2,11,12,3,M.floorLight);
+  setPixel(png,ox8+7,1,C.bone); setPixel(png,ox8+8,1,C.bone);
+  setPixel(png,ox8+6,2,C.bone); setPixel(png,ox8+9,2,C.bone);
+  // Tile 9: Locked Door
+  const ox9=144; fillRect(png,ox9,0,16,16,M.doorMid);
+  fillRect(png,ox9,0,1,16,M.doorDark); fillRect(png,ox9+15,0,1,16,M.doorDark);
+  fillRect(png,ox9+1,3,14,2,M.doorLight); fillRect(png,ox9+1,11,14,2,M.doorLight);
+  for (let vy=0;vy<16;vy++) setPixel(png,ox9+7,vy,M.doorDark);
+  fillRect(png,ox9+6,6,4,4,C.solGold); setPixel(png,ox9+7,7,M.doorDark); setPixel(png,ox9+8,7,M.doorDark); setPixel(png,ox9+7,8,M.doorDark);
+  // Tile 10: Chest Closed
+  const ox10=160; fillRect(png,ox10,0,1,16,M.wallDark); fillRect(png,ox10+15,0,1,16,M.wallDark);
+  fillRect(png,ox10+1,0,14,16,M.doorMid); fillRect(png,ox10+1,0,14,5,M.wallMid);
+  fillRect(png,ox10+1,5,14,1,M.wallDark); fillRect(png,ox10+1,14,14,2,M.wallDark);
+  for (let i=2;i<14;i++) setPixel(png,ox10+i,1,M.wallLight);
+  setPixel(png,ox10+2,1,C.bone); setPixel(png,ox10+13,1,C.bone); setPixel(png,ox10+2,13,C.bone); setPixel(png,ox10+13,13,C.bone);
+  fillRect(png,ox10+6,7,4,4,C.solGold); setPixel(png,ox10+7,8,M.wallDark); setPixel(png,ox10+8,8,M.wallDark);
+  // Tile 11: Chest Opened
+  const ox11=176; fillRect(png,ox11,0,1,16,M.wallDark); fillRect(png,ox11+15,0,1,16,M.wallDark);
+  fillRect(png,ox11+1,0,14,16,M.doorMid); fillRect(png,ox11+1,14,14,2,M.wallDark);
+  fillRect(png,ox11+2,1,12,10,M.wallDark); fillRect(png,ox11+3,2,10,8,rgba(18,20,30));
+  setPixel(png,ox11+2,12,C.bone); setPixel(png,ox11+13,12,C.bone);
+  for (let i=2;i<14;i++) setPixel(png,ox11+i,0,C.bone);
+  // Tile 12: Sealed Gate
+  const ox12=192; fillRect(png,ox12,0,16,16,M.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox12+bar,0,2,16,M.wallMid);for (let i=0;i<16;i++) setPixel(png,ox12+bar,i,M.wallDark);}
+  fillRect(png,ox12,7,16,2,M.wallMid); setPixel(png,ox12+7,8,C.teal); setPixel(png,ox12+8,8,C.teal);
+  // Tile 13: Sealed Gate Workshop
+  const ox13=208; fillRect(png,ox13,0,16,16,M.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox13+bar,0,2,16,M.wallMid);for (let i=0;i<16;i++) setPixel(png,ox13+bar,i,M.wallDark);}
+  fillRect(png,ox13,7,16,2,M.wallMid); setPixel(png,ox13+7,8,C.solGold); setPixel(png,ox13+8,8,C.solGold);
+  // Tile 14: Sealed Gate Charger
+  const ox14=224; fillRect(png,ox14,0,16,16,M.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox14+bar,0,2,16,M.wallMid);for (let i=0;i<16;i++) setPixel(png,ox14+bar,i,M.wallDark);}
+  fillRect(png,ox14,7,16,2,M.wallMid); setPixel(png,ox14+7,8,C.lightTeal); setPixel(png,ox14+8,8,C.lightTeal);
+  // Tile 15: Hidden Passage
+  const ox15=240; fillRect(png,ox15,0,16,16,M.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox15+i,0,M.wallTop);setPixel(png,ox15+i,15,M.wallDark);setPixel(png,ox15+15,i,M.wallDark);}
+  for (let i=1;i<15;i++) setPixel(png,ox15+8,i,M.wallLight);
+  // Tile 16: Blast Door
+  const ox16=256; fillRect(png,ox16,0,16,16,M.wallDark);
+  fillRect(png,ox16+1,1,14,14,M.wallMid); fillRect(png,ox16+1,1,14,2,M.wallLight);
+  fillRect(png,ox16+1,6,14,2,M.wallLight); fillRect(png,ox16+1,11,14,2,M.wallLight);
+  fillRect(png,ox16+7,1,2,14,M.wallDark);
+  setPixel(png,ox16+2,2,M.floorLight); setPixel(png,ox16+13,2,M.floorLight); setPixel(png,ox16+2,13,M.floorLight); setPixel(png,ox16+13,13,M.floorLight);
+  // Tile 17: Junction Box B
+  const ox17=272; fillRect(png,ox17,0,16,16,M.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox17+i,0,M.wallTop);setPixel(png,ox17+i,15,M.wallDark);}
+  fillRect(png,ox17+3,4,10,8,M.floorDark); fillRect(png,ox17+4,5,8,6,M.floorMid);
+  setPixel(png,ox17+5,7,C.teal); setPixel(png,ox17+7,7,C.solGold); setPixel(png,ox17+9,7,M.wallLight);
+  // Tile 18: Maintenance Hatch
+  const ox18=288; fillRect(png,ox18,0,16,16,M.floorMid);
+  fillRect(png,ox18+2,2,12,1,M.wallMid); fillRect(png,ox18+2,13,12,1,M.wallMid);
+  fillRect(png,ox18+2,2,1,12,M.wallMid); fillRect(png,ox18+13,2,1,12,M.wallMid);
+  fillRect(png,ox18+3,3,10,10,M.floorDark);
+  setPixel(png,ox18+7,7,C.teal); setPixel(png,ox18+8,7,C.teal); setPixel(png,ox18+7,8,C.teal); setPixel(png,ox18+8,8,C.teal);
+  // Tile 19: Transit Gate
+  const ox19=304; fillRect(png,ox19,0,16,16,M.floorDark);
+  fillRect(png,ox19,0,2,16,M.wallMid); fillRect(png,ox19+14,0,2,16,M.wallMid);
+  fillRect(png,ox19+2,0,12,2,M.wallMid); fillRect(png,ox19+2,14,12,2,M.wallMid);
+  fillRect(png,ox19+7,2,2,12,M.wallLight); fillRect(png,ox19+2,7,12,2,M.wallLight);
+  setPixel(png,ox19+12,3,C.blue); setPixel(png,ox19+12,4,C.blue);
+  // Tile 20: Garden Plot
+  const ox20=320; fillRect(png,ox20,0,16,16,hex('#1a1a12'));
+  for (const [sx,sy] of [[2,2],[5,1],[9,3],[12,2],[1,6],[7,5],[14,4],[3,8],[10,7],[6,10],[13,9]]) setPixel(png,ox20+sx,sy,C.darkBrown);
+  for (const [gx,gy] of [[3,1],[8,0],[12,1],[5,3],[1,7],[13,6]]) setPixel(png,ox20+gx,gy,C.darkGreen);
+  // Tile 21: Notice Board
+  const ox21=336; fillRect(png,ox21,0,16,16,M.wallMid);
+  fillRect(png,ox21+2,1,12,13,C.darkBrown); fillRect(png,ox21+3,2,10,11,C.tan);
+  for (const [ly] of [[4],[6],[8],[10]]) fillRect(png,ox21+4,ly,8,1,C.bone);
+  // Tile 22: Seed Pot
+  const ox22=352; fillRect(png,ox22,0,16,16,M.floorMid);
+  fillRect(png,ox22+3,10,10,5,C.brown); fillRect(png,ox22+4,9,8,2,hex('#1a1a12'));
+  fillRect(png,ox22+3,10,10,1,C.tan); setPixel(png,ox22+8,8,C.darkGreen); setPixel(png,ox22+7,7,C.green);
+  // Tile 23: Personal Log
+  const ox23=368; fillRect(png,ox23,0,16,16,M.floorMid);
+  fillRect(png,ox23+3,2,10,12,C.darkBrown); fillRect(png,ox23+3,2,2,12,C.brown);
+  fillRect(png,ox23+5,2,8,12,hex('#d0c8b0'));
+  for (const [ly] of [[4],[6],[8],[10]]) fillRect(png,ox23+6,ly,6,1,C.darkBrown);
+  // Tile 24: Homestead Gate
+  const ox24=384; fillRect(png,ox24,0,16,16,M.floorDark);
+  for (let bar=2;bar<=14;bar+=3) fillRect(png,ox24+bar,0,1,16,M.wallLight);
+  fillRect(png,ox24+1,2,14,2,M.wallLight); fillRect(png,ox24+1,12,14,2,M.wallLight);
+  for (let bar=2;bar<=14;bar+=3) setPixel(png,ox24+bar,0,C.teal);
+  // Tile 25: Cache Entrance
+  const ox25=400; fillRect(png,ox25,0,16,16,M.wallMid);
+  fillRect(png,ox25+5,5,6,6,M.wallDark); fillRect(png,ox25+6,6,4,4,rgba(15,15,25));
+  for (const [rx,ry] of [[1,14],[3,14],[5,13],[7,12],[9,14],[11,13],[13,15]]) setPixel(png,ox25+rx,ry,M.wallDark);
+  setPixel(png,ox25+5,5,M.wallLight); setPixel(png,ox25+10,5,M.wallLight);
+  // Tile 26: Resonance Point
+  const ox26=416; fillRect(png,ox26,0,16,16,M.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox26+i,7,M.floorDark);setPixel(png,ox26+7,i,M.floorDark);}
+  setPixel(png,ox26+8,8,C.solGold);
+  setPixel(png,ox26+7,8,C.teal); setPixel(png,ox26+9,8,C.teal); setPixel(png,ox26+8,7,C.teal); setPixel(png,ox26+8,9,C.teal);
+  setPixel(png,ox26+6,8,C.darkTeal); setPixel(png,ox26+10,8,C.darkTeal); setPixel(png,ox26+8,6,C.darkTeal); setPixel(png,ox26+8,10,C.darkTeal);
+  // Tile 27: Survey Marker
+  const ox27=432; fillRect(png,ox27,0,16,16,M.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox27+i,7,M.floorDark);setPixel(png,ox27+7,i,M.floorDark);}
+  fillRect(png,ox27+7,3,2,9,C.bone); fillRect(png,ox27+6,3,4,2,C.bone);
+  setPixel(png,ox27+7,2,C.lightGray); fillRect(png,ox27+5,11,6,2,C.darkBone);
+  // Tile 28: Sealed Gate Briefing
+  const ox28=448; fillRect(png,ox28,0,16,16,M.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox28+bar,0,2,16,M.wallMid);for (let i=0;i<16;i++) setPixel(png,ox28+bar,i,M.wallDark);}
+  fillRect(png,ox28,7,16,2,M.wallMid); setPixel(png,ox28+6,8,C.solGold); setPixel(png,ox28+9,8,C.solGold);
+  // Tile 29: Sealed Gate Training
+  const ox29=464; fillRect(png,ox29,0,16,16,M.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox29+bar,0,2,16,M.wallMid);for (let i=0;i<16;i++) setPixel(png,ox29+bar,i,M.wallDark);}
+  fillRect(png,ox29,7,16,2,M.wallMid); setPixel(png,ox29+6,8,C.teal); setPixel(png,ox29+9,8,C.teal);
+  // Tile 30: Crate Closed
+  const ox30=480; fillRect(png,ox30,0,16,1,M.wallDark); fillRect(png,ox30,0,1,16,M.wallDark);
+  fillRect(png,ox30+15,0,1,16,M.wallDark); fillRect(png,ox30,15,16,1,M.wallDark);
+  fillRect(png,ox30+1,1,14,14,C.brown); fillRect(png,ox30+1,5,14,1,C.darkBrown);
+  fillRect(png,ox30+1,10,14,1,C.darkBrown); fillRect(png,ox30+7,1,1,14,C.darkBrown);
+  for (let i=2;i<14;i++) setPixel(png,ox30+i,1,C.tan); fillRect(png,ox30+9,6,3,3,C.tan);
+  // Tile 31: Crate Opened
+  const ox31=496; fillRect(png,ox31,0,16,1,M.wallDark); fillRect(png,ox31,0,1,16,M.wallDark);
+  fillRect(png,ox31+15,0,1,16,M.wallDark); fillRect(png,ox31,15,16,1,M.wallDark);
+  fillRect(png,ox31+1,1,14,14,C.brown); fillRect(png,ox31+1,5,14,1,C.darkBrown);
+  fillRect(png,ox31+7,1,1,14,C.darkBrown); fillRect(png,ox31+2,2,12,8,M.wallDark);
+  fillRect(png,ox31+3,3,10,6,rgba(15,18,25)); for (let i=2;i<14;i++) setPixel(png,ox31+i,1,C.tan);
+  // Tile 32: Elevated Floor
+  const ox32=512; fillRect(png,ox32,0,16,16,M.floorLight);
+  for (let i=0;i<16;i++){setPixel(png,ox32+i,7,M.floorMid);setPixel(png,ox32+7,i,M.floorMid);}
+  for (let i=0;i<7;i++){setPixel(png,ox32+i,0,M.wallDark);setPixel(png,ox32,i,M.wallDark);}
+  // Tile 33: Ramp North
+  const ox33=528; for (let y=0;y<16;y++){const t=y/15;const r=Math.round(M.floorLight.r*t+M.floorDark.r*(1-t));const g=Math.round(M.floorLight.g*t+M.floorDark.g*(1-t));const b=Math.round(M.floorLight.b*t+M.floorDark.b*(1-t));for (let x=0;x<16;x++) setPixel(png,ox33+x,y,rgba(r,g,b));}
+  setPixel(png,ox33+8,3,M.wallLight); setPixel(png,ox33+7,4,M.wallLight); setPixel(png,ox33+8,4,M.wallLight); setPixel(png,ox33+9,4,M.wallLight); setPixel(png,ox33+8,5,M.wallLight);
+  // Tile 34: Ramp South
+  const ox34=544; for (let y=0;y<16;y++){const t=(15-y)/15;const r=Math.round(M.floorLight.r*t+M.floorDark.r*(1-t));const g=Math.round(M.floorLight.g*t+M.floorDark.g*(1-t));const b=Math.round(M.floorLight.b*t+M.floorDark.b*(1-t));for (let x=0;x<16;x++) setPixel(png,ox34+x,y,rgba(r,g,b));}
+  setPixel(png,ox34+8,13,M.wallLight); setPixel(png,ox34+7,12,M.wallLight); setPixel(png,ox34+8,12,M.wallLight); setPixel(png,ox34+9,12,M.wallLight); setPixel(png,ox34+8,11,M.wallLight);
+  // Tile 35: Ramp East
+  const ox35=560; for (let x=0;x<16;x++){const t=x/15;const r=Math.round(M.floorDark.r*t+M.floorLight.r*(1-t));const g=Math.round(M.floorDark.g*t+M.floorLight.g*(1-t));const b=Math.round(M.floorDark.b*t+M.floorLight.b*(1-t));for (let y=0;y<16;y++) setPixel(png,ox35+x,y,rgba(r,g,b));}
+  setPixel(png,ox35+13,8,M.wallLight); setPixel(png,ox35+12,7,M.wallLight); setPixel(png,ox35+12,8,M.wallLight); setPixel(png,ox35+12,9,M.wallLight); setPixel(png,ox35+11,8,M.wallLight);
+  // Tile 36: Ramp West
+  const ox36=576; for (let x=0;x<16;x++){const t=(15-x)/15;const r=Math.round(M.floorDark.r*t+M.floorLight.r*(1-t));const g=Math.round(M.floorDark.g*t+M.floorLight.g*(1-t));const b=Math.round(M.floorDark.b*t+M.floorLight.b*(1-t));for (let y=0;y<16;y++) setPixel(png,ox36+x,y,rgba(r,g,b));}
+  setPixel(png,ox36+3,8,M.wallLight); setPixel(png,ox36+4,7,M.wallLight); setPixel(png,ox36+4,8,M.wallLight); setPixel(png,ox36+4,9,M.wallLight); setPixel(png,ox36+5,8,M.wallLight);
+  // Tile 37: Full Wall
+  const ox37=592; fillRect(png,ox37,0,16,16,M.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox37+i,0,M.wallTop);setPixel(png,ox37+i,15,M.wallDark);setPixel(png,ox37+15,i,M.wallDark);}
+  for (const [sx,sy] of [[1,3],[4,1],[8,3],[12,2],[6,6],[2,8],[10,7],[3,11],[9,10]]) setPixel(png,ox37+sx,sy,M.wallLight);
+  for (const [sx,sy] of [[6,2],[2,5],[9,4],[13,6],[4,9],[8,11],[1,12]]) setPixel(png,ox37+sx,sy,M.wallDark);
+  // Tile 38: Elevated Wall
+  const ox38=608; fillRect(png,ox38,0,16,16,M.wallDark);
+  for (let i=0;i<16;i++){setPixel(png,ox38+i,0,M.wallMid);setPixel(png,ox38+i,15,M.floorDark);setPixel(png,ox38+15,i,M.floorDark);}
+  for (const [sx,sy] of [[3,3],[7,2],[11,4],[2,7],[8,6],[5,10]]) setPixel(png,ox38+sx,sy,M.wallMid);
+  for (const [sx,sy] of [[5,4],[1,6],[10,3],[13,7],[3,9]]) setPixel(png,ox38+sx,sy,M.floorDark);
+  // Tile 39: Cracked Wall
+  const ox39=624; fillRect(png,ox39,0,16,16,M.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox39+i,0,M.wallTop);setPixel(png,ox39+i,15,M.wallDark);setPixel(png,ox39+15,i,M.wallDark);}
+  for (const [sx,sy] of [[2,2],[10,3],[5,7],[13,5],[1,9]]) setPixel(png,ox39+sx,sy,M.wallLight);
+  for (const [cx,cy] of [[4,1],[4,2],[5,3],[5,4],[6,5],[7,5],[8,6],[8,7],[9,8],[9,9],[10,10],[10,11],[11,12],[11,13]]) setPixel(png,ox39+cx,cy,M.floorDark);
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'meridian.png'));
+}
+
+// ============================================================================
+// STATION TILESET (40 tiles — transit infrastructure, warm industrial gray)
+// ============================================================================
+
+function generateStationTileset() {
+  const png = createPNG(640, 16); // 40 tiles × 16px
+  const ST = {
+    floorDark:  hex('#282420'), floorMid:   hex('#363028'), floorLight: hex('#463c30'),
+    wallDark:   hex('#4a423a'), wallMid:    hex('#5c5248'), wallLight:  hex('#706458'), wallTop: hex('#807470'),
+    doorMid:    hex('#504840'), doorDark:   hex('#38322c'), doorLight:  hex('#6a5e54'),
+    water1:     hex('#1e2c38'), water2:     hex('#283850'), water3:     hex('#324468'),
+  };
+  // Tile 0: Void
+  for (let y=0;y<16;y++) for (let x=0;x<16;x++) { const v=8+((x*7+y*13)%5); setPixel(png,x,y,rgba(Math.floor(v*0.9),Math.floor(v*0.8),Math.floor(v*0.7))); }
+  // Tile 1: Stone Floor
+  const ox1=16; fillRect(png,ox1,0,16,16,ST.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox1+i,7,ST.floorDark);setPixel(png,ox1+7,i,ST.floorDark);}
+  for (let i=0;i<7;i++){setPixel(png,ox1+i,0,ST.floorLight);setPixel(png,ox1,i,ST.floorLight);setPixel(png,ox1+8+i,8,ST.floorLight);setPixel(png,ox1+8,8+i,ST.floorLight);}
+  // Tile 2: Cracked Floor
+  const ox2=32; fillRect(png,ox2,0,16,16,ST.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox2+i,7,ST.floorDark);setPixel(png,ox2+7,i,ST.floorDark);}
+  for (let i=0;i<7;i++){setPixel(png,ox2+i,0,ST.floorLight);setPixel(png,ox2,i,ST.floorLight);}
+  for (const [cx,cy] of [[3,2],[4,3],[4,4],[5,5],[6,6],[5,7],[6,8],[7,9],[8,10],[9,11],[10,11],[11,12],[12,13]]) setPixel(png,ox2+cx,cy,ST.floorDark);
+  // Tile 3: Stone Wall
+  const ox3=48; fillRect(png,ox3,0,16,16,ST.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox3+i,0,ST.wallTop);setPixel(png,ox3+i,15,ST.wallDark);setPixel(png,ox3+15,i,ST.wallDark);}
+  for (const [sx,sy] of [[2,2],[3,4],[7,2],[10,3],[13,5],[5,7],[9,6],[1,9],[6,11]]) setPixel(png,ox3+sx,sy,ST.wallLight);
+  for (const [sx,sy] of [[5,3],[1,5],[8,4],[11,6],[4,8],[7,10],[2,11]]) setPixel(png,ox3+sx,sy,ST.wallDark);
+  // Tile 4: Door Closed
+  const ox4=64; fillRect(png,ox4,0,16,16,ST.doorMid);
+  fillRect(png,ox4,0,1,16,ST.doorDark); fillRect(png,ox4+15,0,1,16,ST.doorDark);
+  fillRect(png,ox4+1,3,14,2,ST.doorLight); fillRect(png,ox4+1,11,14,2,ST.doorLight);
+  for (let vy=0;vy<16;vy++) setPixel(png,ox4+7,vy,ST.doorDark);
+  setPixel(png,ox4+12,7,C.blue); setPixel(png,ox4+12,8,C.blue);
+  // Tile 5: Door Open
+  const ox5=80; fillRect(png,ox5,0,16,16,ST.floorDark);
+  fillRect(png,ox5,0,2,16,ST.doorDark); fillRect(png,ox5+14,0,2,16,ST.doorDark);
+  fillRect(png,ox5+4,2,8,12,rgba(20,18,15));
+  // Tile 6: Stairs Down
+  const ox6=96; fillRect(png,ox6,0,16,16,ST.floorMid);
+  fillRect(png,ox6+2,2,12,3,ST.floorLight); fillRect(png,ox6+3,5,10,3,ST.floorMid);
+  fillRect(png,ox6+4,8,8,3,ST.floorDark); fillRect(png,ox6+5,11,6,3,rgba(20,18,15));
+  setPixel(png,ox6+7,13,C.lightBlue); setPixel(png,ox6+8,13,C.lightBlue);
+  setPixel(png,ox6+6,12,C.blue); setPixel(png,ox6+9,12,C.blue);
+  // Tile 7: Water
+  const ox7=112; fillRect(png,ox7,0,16,16,ST.water1);
+  for (const [wx,wy] of [[2,3],[3,3],[4,3],[8,5],[9,5],[10,5],[1,9],[2,9],[3,9],[7,11],[8,11],[9,11],[12,7]]) setPixel(png,ox7+wx,wy,ST.water2);
+  for (const [wx,wy] of [[3,2],[9,4],[2,8],[8,10],[13,6]]) setPixel(png,ox7+wx,wy,ST.water3);
+  // Tile 8: Stairs Up
+  const ox8=128; fillRect(png,ox8,0,16,16,ST.floorMid);
+  fillRect(png,ox8+5,2,6,3,rgba(20,18,15)); fillRect(png,ox8+4,5,8,3,ST.floorDark);
+  fillRect(png,ox8+3,8,10,3,ST.floorMid); fillRect(png,ox8+2,11,12,3,ST.floorLight);
+  setPixel(png,ox8+7,1,C.lightBlue); setPixel(png,ox8+8,1,C.lightBlue);
+  setPixel(png,ox8+6,2,C.blue); setPixel(png,ox8+9,2,C.blue);
+  // Tile 9: Locked Door
+  const ox9=144; fillRect(png,ox9,0,16,16,ST.doorMid);
+  fillRect(png,ox9,0,1,16,ST.doorDark); fillRect(png,ox9+15,0,1,16,ST.doorDark);
+  fillRect(png,ox9+1,3,14,2,ST.doorLight); fillRect(png,ox9+1,11,14,2,ST.doorLight);
+  for (let vy=0;vy<16;vy++) setPixel(png,ox9+7,vy,ST.doorDark);
+  fillRect(png,ox9+6,6,4,4,C.solGold); setPixel(png,ox9+7,7,ST.doorDark); setPixel(png,ox9+8,7,ST.doorDark); setPixel(png,ox9+7,8,ST.doorDark);
+  // Tile 10: Chest Closed
+  const ox10=160; fillRect(png,ox10,0,1,16,ST.wallDark); fillRect(png,ox10+15,0,1,16,ST.wallDark);
+  fillRect(png,ox10+1,0,14,16,ST.doorMid); fillRect(png,ox10+1,0,14,5,ST.wallMid);
+  fillRect(png,ox10+1,5,14,1,ST.wallDark); fillRect(png,ox10+1,14,14,2,ST.wallDark);
+  for (let i=2;i<14;i++) setPixel(png,ox10+i,1,ST.wallLight);
+  setPixel(png,ox10+2,1,C.bone); setPixel(png,ox10+13,1,C.bone); setPixel(png,ox10+2,13,C.bone); setPixel(png,ox10+13,13,C.bone);
+  fillRect(png,ox10+6,7,4,4,C.solGold); setPixel(png,ox10+7,8,ST.wallDark); setPixel(png,ox10+8,8,ST.wallDark);
+  // Tile 11: Chest Opened
+  const ox11=176; fillRect(png,ox11,0,1,16,ST.wallDark); fillRect(png,ox11+15,0,1,16,ST.wallDark);
+  fillRect(png,ox11+1,0,14,16,ST.doorMid); fillRect(png,ox11+1,14,14,2,ST.wallDark);
+  fillRect(png,ox11+2,1,12,10,ST.wallDark); fillRect(png,ox11+3,2,10,8,rgba(20,18,15));
+  setPixel(png,ox11+2,12,C.bone); setPixel(png,ox11+13,12,C.bone);
+  for (let i=2;i<14;i++) setPixel(png,ox11+i,0,C.bone);
+  // Tiles 12-29: same gates/interactables as meridian with station palette
+  const ox12=192; fillRect(png,ox12,0,16,16,ST.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox12+bar,0,2,16,ST.wallMid);for (let i=0;i<16;i++) setPixel(png,ox12+bar,i,ST.wallDark);}
+  fillRect(png,ox12,7,16,2,ST.wallMid); setPixel(png,ox12+7,8,C.blue); setPixel(png,ox12+8,8,C.blue);
+  const ox13=208; fillRect(png,ox13,0,16,16,ST.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox13+bar,0,2,16,ST.wallMid);for (let i=0;i<16;i++) setPixel(png,ox13+bar,i,ST.wallDark);}
+  fillRect(png,ox13,7,16,2,ST.wallMid); setPixel(png,ox13+7,8,C.solGold); setPixel(png,ox13+8,8,C.solGold);
+  const ox14=224; fillRect(png,ox14,0,16,16,ST.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox14+bar,0,2,16,ST.wallMid);for (let i=0;i<16;i++) setPixel(png,ox14+bar,i,ST.wallDark);}
+  fillRect(png,ox14,7,16,2,ST.wallMid); setPixel(png,ox14+7,8,C.lightBlue); setPixel(png,ox14+8,8,C.lightBlue);
+  const ox15=240; fillRect(png,ox15,0,16,16,ST.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox15+i,0,ST.wallTop);setPixel(png,ox15+i,15,ST.wallDark);setPixel(png,ox15+15,i,ST.wallDark);}
+  for (let i=1;i<15;i++) setPixel(png,ox15+8,i,ST.wallLight);
+  const ox16=256; fillRect(png,ox16,0,16,16,ST.wallDark);
+  fillRect(png,ox16+1,1,14,14,ST.wallMid); fillRect(png,ox16+1,1,14,2,ST.wallLight);
+  fillRect(png,ox16+1,6,14,2,ST.wallLight); fillRect(png,ox16+1,11,14,2,ST.wallLight);
+  fillRect(png,ox16+7,1,2,14,ST.wallDark);
+  const ox17=272; fillRect(png,ox17,0,16,16,ST.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox17+i,0,ST.wallTop);setPixel(png,ox17+i,15,ST.wallDark);}
+  fillRect(png,ox17+3,4,10,8,ST.floorDark); fillRect(png,ox17+4,5,8,6,ST.floorMid);
+  setPixel(png,ox17+5,7,C.blue); setPixel(png,ox17+7,7,C.solGold); setPixel(png,ox17+9,7,ST.wallLight);
+  const ox18=288; fillRect(png,ox18,0,16,16,ST.floorMid);
+  fillRect(png,ox18+2,2,12,1,ST.wallMid); fillRect(png,ox18+2,13,12,1,ST.wallMid);
+  fillRect(png,ox18+2,2,1,12,ST.wallMid); fillRect(png,ox18+13,2,1,12,ST.wallMid);
+  fillRect(png,ox18+3,3,10,10,ST.floorDark);
+  setPixel(png,ox18+7,7,C.blue); setPixel(png,ox18+8,7,C.blue); setPixel(png,ox18+7,8,C.blue); setPixel(png,ox18+8,8,C.blue);
+  const ox19=304; fillRect(png,ox19,0,16,16,ST.floorDark);
+  fillRect(png,ox19,0,2,16,ST.wallMid); fillRect(png,ox19+14,0,2,16,ST.wallMid);
+  fillRect(png,ox19+2,0,12,2,ST.wallMid); fillRect(png,ox19+2,14,12,2,ST.wallMid);
+  fillRect(png,ox19+7,2,2,12,ST.wallLight); fillRect(png,ox19+2,7,12,2,ST.wallLight);
+  setPixel(png,ox19+12,3,C.blue); setPixel(png,ox19+12,4,C.blue);
+  const ox20=320; fillRect(png,ox20,0,16,16,hex('#1a1a12'));
+  for (const [gx,gy] of [[3,1],[8,0],[12,1],[5,3],[1,7],[13,6]]) setPixel(png,ox20+gx,gy,C.darkGreen);
+  for (const [sx,sy] of [[2,2],[5,1],[9,3],[12,2],[1,6],[7,5],[14,4]]) setPixel(png,ox20+sx,sy,C.darkBrown);
+  const ox21=336; fillRect(png,ox21,0,16,16,ST.wallMid);
+  fillRect(png,ox21+2,1,12,13,C.darkBrown); fillRect(png,ox21+3,2,10,11,C.tan);
+  for (const [ly] of [[4],[6],[8],[10]]) fillRect(png,ox21+4,ly,8,1,C.bone);
+  const ox22=352; fillRect(png,ox22,0,16,16,ST.floorMid);
+  fillRect(png,ox22+3,10,10,5,C.brown); fillRect(png,ox22+4,9,8,2,hex('#1a1a12'));
+  fillRect(png,ox22+3,10,10,1,C.tan); setPixel(png,ox22+8,8,C.darkGreen); setPixel(png,ox22+7,7,C.green);
+  const ox23=368; fillRect(png,ox23,0,16,16,ST.floorMid);
+  fillRect(png,ox23+3,2,10,12,C.darkBrown); fillRect(png,ox23+3,2,2,12,C.brown);
+  fillRect(png,ox23+5,2,8,12,hex('#d0c8b0'));
+  for (const [ly] of [[4],[6],[8],[10]]) fillRect(png,ox23+6,ly,6,1,C.darkBrown);
+  const ox24=384; fillRect(png,ox24,0,16,16,ST.floorDark);
+  for (let bar=2;bar<=14;bar+=3) fillRect(png,ox24+bar,0,1,16,ST.wallLight);
+  fillRect(png,ox24+1,2,14,2,ST.wallLight); fillRect(png,ox24+1,12,14,2,ST.wallLight);
+  for (let bar=2;bar<=14;bar+=3) setPixel(png,ox24+bar,0,C.blue);
+  const ox25=400; fillRect(png,ox25,0,16,16,ST.wallMid);
+  fillRect(png,ox25+5,5,6,6,ST.wallDark); fillRect(png,ox25+6,6,4,4,rgba(15,15,20));
+  for (const [rx,ry] of [[1,14],[3,14],[5,13],[7,12],[9,14],[11,13],[13,15]]) setPixel(png,ox25+rx,ry,ST.wallDark);
+  const ox26=416; fillRect(png,ox26,0,16,16,ST.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox26+i,7,ST.floorDark);setPixel(png,ox26+7,i,ST.floorDark);}
+  setPixel(png,ox26+8,8,C.solGold);
+  setPixel(png,ox26+7,8,C.blue); setPixel(png,ox26+9,8,C.blue); setPixel(png,ox26+8,7,C.blue); setPixel(png,ox26+8,9,C.blue);
+  const ox27=432; fillRect(png,ox27,0,16,16,ST.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox27+i,7,ST.floorDark);setPixel(png,ox27+7,i,ST.floorDark);}
+  fillRect(png,ox27+7,3,2,9,C.bone); fillRect(png,ox27+6,3,4,2,C.bone); fillRect(png,ox27+5,11,6,2,C.darkBone);
+  const ox28=448; fillRect(png,ox28,0,16,16,ST.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox28+bar,0,2,16,ST.wallMid);for (let i=0;i<16;i++) setPixel(png,ox28+bar,i,ST.wallDark);}
+  fillRect(png,ox28,7,16,2,ST.wallMid); setPixel(png,ox28+6,8,C.solGold); setPixel(png,ox28+9,8,C.solGold);
+  const ox29=464; fillRect(png,ox29,0,16,16,ST.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox29+bar,0,2,16,ST.wallMid);for (let i=0;i<16;i++) setPixel(png,ox29+bar,i,ST.wallDark);}
+  fillRect(png,ox29,7,16,2,ST.wallMid); setPixel(png,ox29+6,8,C.blue); setPixel(png,ox29+9,8,C.blue);
+  // Tiles 30-31: Crates
+  const ox30=480; fillRect(png,ox30,0,16,1,ST.wallDark); fillRect(png,ox30,0,1,16,ST.wallDark);
+  fillRect(png,ox30+15,0,1,16,ST.wallDark); fillRect(png,ox30,15,16,1,ST.wallDark);
+  fillRect(png,ox30+1,1,14,14,C.brown); fillRect(png,ox30+1,5,14,1,C.darkBrown);
+  fillRect(png,ox30+1,10,14,1,C.darkBrown); fillRect(png,ox30+7,1,1,14,C.darkBrown);
+  for (let i=2;i<14;i++) setPixel(png,ox30+i,1,C.tan); fillRect(png,ox30+9,6,3,3,C.tan);
+  const ox31=496; fillRect(png,ox31,0,16,1,ST.wallDark); fillRect(png,ox31,0,1,16,ST.wallDark);
+  fillRect(png,ox31+15,0,1,16,ST.wallDark); fillRect(png,ox31,15,16,1,ST.wallDark);
+  fillRect(png,ox31+1,1,14,14,C.brown); fillRect(png,ox31+1,5,14,1,C.darkBrown);
+  fillRect(png,ox31+7,1,1,14,C.darkBrown); fillRect(png,ox31+2,2,12,8,ST.wallDark);
+  fillRect(png,ox31+3,3,10,6,rgba(20,18,15)); for (let i=2;i<14;i++) setPixel(png,ox31+i,1,C.tan);
+  // Tiles 32-39: Elevated/ramps/walls (same as meridian)
+  const ox32=512; fillRect(png,ox32,0,16,16,ST.floorLight);
+  for (let i=0;i<16;i++){setPixel(png,ox32+i,7,ST.floorMid);setPixel(png,ox32+7,i,ST.floorMid);}
+  for (let i=0;i<7;i++){setPixel(png,ox32+i,0,ST.wallDark);setPixel(png,ox32,i,ST.wallDark);}
+  const ox33=528; for (let y=0;y<16;y++){const t=y/15;const r=Math.round(ST.floorLight.r*t+ST.floorDark.r*(1-t));const g=Math.round(ST.floorLight.g*t+ST.floorDark.g*(1-t));const b=Math.round(ST.floorLight.b*t+ST.floorDark.b*(1-t));for (let x=0;x<16;x++) setPixel(png,ox33+x,y,rgba(r,g,b));}
+  setPixel(png,ox33+8,3,ST.wallLight); setPixel(png,ox33+7,4,ST.wallLight); setPixel(png,ox33+8,4,ST.wallLight); setPixel(png,ox33+9,4,ST.wallLight);
+  const ox34=544; for (let y=0;y<16;y++){const t=(15-y)/15;const r=Math.round(ST.floorLight.r*t+ST.floorDark.r*(1-t));const g=Math.round(ST.floorLight.g*t+ST.floorDark.g*(1-t));const b=Math.round(ST.floorLight.b*t+ST.floorDark.b*(1-t));for (let x=0;x<16;x++) setPixel(png,ox34+x,y,rgba(r,g,b));}
+  setPixel(png,ox34+8,13,ST.wallLight); setPixel(png,ox34+7,12,ST.wallLight); setPixel(png,ox34+8,12,ST.wallLight); setPixel(png,ox34+9,12,ST.wallLight);
+  const ox35=560; for (let x=0;x<16;x++){const t=x/15;const r=Math.round(ST.floorDark.r*t+ST.floorLight.r*(1-t));const g=Math.round(ST.floorDark.g*t+ST.floorLight.g*(1-t));const b=Math.round(ST.floorDark.b*t+ST.floorLight.b*(1-t));for (let y=0;y<16;y++) setPixel(png,ox35+x,y,rgba(r,g,b));}
+  setPixel(png,ox35+13,8,ST.wallLight); setPixel(png,ox35+12,7,ST.wallLight); setPixel(png,ox35+12,8,ST.wallLight); setPixel(png,ox35+12,9,ST.wallLight);
+  const ox36=576; for (let x=0;x<16;x++){const t=(15-x)/15;const r=Math.round(ST.floorDark.r*t+ST.floorLight.r*(1-t));const g=Math.round(ST.floorDark.g*t+ST.floorLight.g*(1-t));const b=Math.round(ST.floorDark.b*t+ST.floorLight.b*(1-t));for (let y=0;y<16;y++) setPixel(png,ox36+x,y,rgba(r,g,b));}
+  setPixel(png,ox36+3,8,ST.wallLight); setPixel(png,ox36+4,7,ST.wallLight); setPixel(png,ox36+4,8,ST.wallLight); setPixel(png,ox36+4,9,ST.wallLight);
+  const ox37=592; fillRect(png,ox37,0,16,16,ST.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox37+i,0,ST.wallTop);setPixel(png,ox37+i,15,ST.wallDark);setPixel(png,ox37+15,i,ST.wallDark);}
+  for (const [sx,sy] of [[1,3],[4,1],[8,3],[12,2],[6,6],[2,8],[10,7],[3,11]]) setPixel(png,ox37+sx,sy,ST.wallLight);
+  const ox38=608; fillRect(png,ox38,0,16,16,ST.wallDark);
+  for (let i=0;i<16;i++){setPixel(png,ox38+i,0,ST.wallMid);setPixel(png,ox38+i,15,ST.floorDark);setPixel(png,ox38+15,i,ST.floorDark);}
+  for (const [sx,sy] of [[3,3],[7,2],[11,4],[2,7],[8,6]]) setPixel(png,ox38+sx,sy,ST.wallMid);
+  const ox39=624; fillRect(png,ox39,0,16,16,ST.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox39+i,0,ST.wallTop);setPixel(png,ox39+i,15,ST.wallDark);setPixel(png,ox39+15,i,ST.wallDark);}
+  for (const [cx,cy] of [[4,1],[4,2],[5,3],[5,4],[6,5],[7,5],[8,6],[8,7],[9,8],[9,9],[10,10],[11,12],[11,13]]) setPixel(png,ox39+cx,cy,ST.floorDark);
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'station.png'));
+}
+
+// ============================================================================
+// SPIRE RADIANCE TILESET (32 tiles — solar array tech, energy blues/gold)
+// ============================================================================
+
+function generateSpireRadianceTileset() {
+  const png = createPNG(512, 16); // 32 tiles × 16px
+  const SR = {
+    floorDark:  hex('#141c28'), floorMid:   hex('#1c2838'), floorLight: hex('#263448'),
+    wallDark:   hex('#1e2a3c'), wallMid:    hex('#2c3c58'), wallLight:  hex('#3c5070'), wallTop: hex('#4c6080'),
+    ancFloorD:  hex('#28201c'), ancFloorM:  hex('#3a2e28'), ancFloorL:  hex('#4e3e36'),
+    ancWallD:   hex('#342820'), ancWallM:   hex('#4a3c30'), ancWallL:   hex('#5e5040'),
+    doorMid:    hex('#243040'), doorDark:   hex('#182030'), doorLight:  hex('#30405a'),
+    coolant1:   hex('#0a1820'), coolant2:   hex('#0e2030'), coolant3:   hex('#143040'),
+    energy:     C.lightTeal,   energyDim:  C.teal,         solar:      C.solGold,
+  };
+  // Tile 0: Void
+  for (let y=0;y<16;y++) for (let x=0;x<16;x++) { const v=6+((x*7+y*13)%4); setPixel(png,x,y,rgba(Math.floor(v*0.5),Math.floor(v*0.6),v)); }
+  // Tile 1: Array Floor
+  const ox1=16; fillRect(png,ox1,0,16,16,SR.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox1+i,7,SR.floorDark);setPixel(png,ox1+7,i,SR.floorDark);}
+  for (let i=0;i<7;i++){setPixel(png,ox1+i,0,SR.floorLight);setPixel(png,ox1,i,SR.floorLight);setPixel(png,ox1+8+i,8,SR.floorLight);setPixel(png,ox1+8,8+i,SR.floorLight);}
+  for (const [sx,sy] of [[3,3],[11,11]]) setPixel(png,ox1+sx,sy,SR.energy);
+  // Tile 2: Cracked Floor
+  const ox2=32; fillRect(png,ox2,0,16,16,SR.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox2+i,7,SR.floorDark);setPixel(png,ox2+7,i,SR.floorDark);}
+  for (const [cx,cy] of [[3,2],[4,3],[4,4],[5,5],[6,6],[7,9],[8,10],[9,11],[10,11],[11,12],[12,13]]) setPixel(png,ox2+cx,cy,SR.floorDark);
+  // Tile 3: Array Wall
+  const ox3=48; fillRect(png,ox3,0,16,16,SR.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox3+i,0,SR.wallTop);setPixel(png,ox3+i,15,SR.wallDark);setPixel(png,ox3+15,i,SR.wallDark);}
+  for (const [sx,sy] of [[2,2],[7,2],[10,3],[5,7],[1,9],[6,11]]) setPixel(png,ox3+sx,sy,SR.wallLight);
+  for (const [ex,ey] of [[4,4],[8,8],[12,4],[12,12]]) setPixel(png,ox3+ex,ey,SR.energyDim);
+  // Tile 4: Door Closed
+  const ox4=64; fillRect(png,ox4,0,16,16,SR.doorMid);
+  fillRect(png,ox4,0,1,16,SR.doorDark); fillRect(png,ox4+15,0,1,16,SR.doorDark);
+  fillRect(png,ox4+1,3,14,2,SR.doorLight); fillRect(png,ox4+1,11,14,2,SR.doorLight);
+  for (let vy=0;vy<16;vy++) setPixel(png,ox4+7,vy,SR.doorDark);
+  setPixel(png,ox4+12,7,SR.energy); setPixel(png,ox4+12,8,SR.energy);
+  // Tile 5: Door Open
+  const ox5=80; fillRect(png,ox5,0,16,16,SR.floorDark);
+  fillRect(png,ox5,0,2,16,SR.doorDark); fillRect(png,ox5+14,0,2,16,SR.doorDark);
+  fillRect(png,ox5+4,2,8,12,rgba(10,14,22));
+  for (const [ex,ey] of [[2,4],[2,8],[2,12],[13,4],[13,8],[13,12]]) setPixel(png,ox5+ex,ey,SR.energyDim);
+  // Tile 6: Stairs Down
+  const ox6=96; fillRect(png,ox6,0,16,16,SR.floorMid);
+  fillRect(png,ox6+2,2,12,3,SR.floorLight); fillRect(png,ox6+3,5,10,3,SR.floorMid);
+  fillRect(png,ox6+4,8,8,3,SR.floorDark); fillRect(png,ox6+5,11,6,3,rgba(10,14,22));
+  setPixel(png,ox6+7,13,SR.energy); setPixel(png,ox6+8,13,SR.energy);
+  setPixel(png,ox6+6,12,SR.energyDim); setPixel(png,ox6+9,12,SR.energyDim);
+  // Tile 7: Coolant Pool
+  const ox7=112; fillRect(png,ox7,0,16,16,SR.coolant1);
+  for (const [wx,wy] of [[2,3],[3,3],[8,5],[9,5],[1,9],[2,9],[7,11],[8,11],[12,7]]) setPixel(png,ox7+wx,wy,SR.coolant2);
+  for (const [wx,wy] of [[3,2],[9,4],[2,8],[8,10]]) setPixel(png,ox7+wx,wy,SR.coolant3);
+  for (const [ex,ey] of [[5,5],[10,9]]) setPixel(png,ox7+ex,ey,SR.energyDim);
+  // Tile 8: Stairs Up
+  const ox8=128; fillRect(png,ox8,0,16,16,SR.floorMid);
+  fillRect(png,ox8+5,2,6,3,rgba(10,14,22)); fillRect(png,ox8+4,5,8,3,SR.floorDark);
+  fillRect(png,ox8+3,8,10,3,SR.floorMid); fillRect(png,ox8+2,11,12,3,SR.floorLight);
+  setPixel(png,ox8+7,1,SR.energy); setPixel(png,ox8+8,1,SR.energy);
+  setPixel(png,ox8+6,2,SR.energyDim); setPixel(png,ox8+9,2,SR.energyDim);
+  // Tile 9: Security Door
+  const ox9=144; fillRect(png,ox9,0,16,16,SR.doorMid);
+  fillRect(png,ox9,0,1,16,SR.doorDark); fillRect(png,ox9+15,0,1,16,SR.doorDark);
+  fillRect(png,ox9+1,3,14,2,SR.doorLight); fillRect(png,ox9+1,11,14,2,SR.doorLight);
+  for (let vy=0;vy<16;vy++) setPixel(png,ox9+7,vy,SR.doorDark);
+  fillRect(png,ox9+6,6,4,4,C.red); setPixel(png,ox9+7,7,SR.doorDark); setPixel(png,ox9+8,7,SR.doorDark); setPixel(png,ox9+7,8,SR.doorDark);
+  // Tile 10: Chest Closed
+  const ox10=160; fillRect(png,ox10,0,1,16,SR.wallDark); fillRect(png,ox10+15,0,1,16,SR.wallDark);
+  fillRect(png,ox10+1,0,14,16,SR.doorMid); fillRect(png,ox10+1,0,14,5,SR.wallMid);
+  fillRect(png,ox10+1,5,14,1,SR.wallDark); fillRect(png,ox10+1,14,14,2,SR.wallDark);
+  for (let i=2;i<14;i++) setPixel(png,ox10+i,1,SR.wallLight);
+  setPixel(png,ox10+2,1,SR.energyDim); setPixel(png,ox10+13,1,SR.energyDim); setPixel(png,ox10+2,13,SR.energyDim); setPixel(png,ox10+13,13,SR.energyDim);
+  fillRect(png,ox10+6,7,4,4,SR.solar); setPixel(png,ox10+7,8,SR.wallDark); setPixel(png,ox10+8,8,SR.wallDark);
+  // Tile 11: Chest Opened
+  const ox11=176; fillRect(png,ox11,0,1,16,SR.wallDark); fillRect(png,ox11+15,0,1,16,SR.wallDark);
+  fillRect(png,ox11+1,0,14,16,SR.doorMid); fillRect(png,ox11+1,14,14,2,SR.wallDark);
+  fillRect(png,ox11+2,1,12,10,SR.wallDark); fillRect(png,ox11+3,2,10,8,rgba(10,14,22));
+  setPixel(png,ox11+2,12,SR.energyDim); setPixel(png,ox11+13,12,SR.energyDim);
+  for (let i=2;i<14;i++) setPixel(png,ox11+i,0,SR.energyDim);
+  // Tile 12: Ancient Floor
+  const ox12=192; fillRect(png,ox12,0,16,16,SR.ancFloorM);
+  for (let i=0;i<16;i++){setPixel(png,ox12+i,7,SR.ancFloorD);setPixel(png,ox12+7,i,SR.ancFloorD);}
+  for (let i=0;i<7;i++){setPixel(png,ox12+i,0,SR.ancFloorL);setPixel(png,ox12,i,SR.ancFloorL);setPixel(png,ox12+8+i,8,SR.ancFloorL);setPixel(png,ox12+8,8+i,SR.ancFloorL);}
+  // Tile 13: Ancient Wall
+  const ox13=208; fillRect(png,ox13,0,16,16,SR.ancWallM);
+  for (let i=0;i<16;i++){setPixel(png,ox13+i,0,SR.ancWallL);setPixel(png,ox13+i,15,SR.ancWallD);setPixel(png,ox13+15,i,SR.ancWallD);}
+  for (const [sx,sy] of [[2,2],[7,3],[11,2],[4,7],[9,6],[2,10],[12,9]]) setPixel(png,ox13+sx,sy,SR.ancWallL);
+  // Tile 14: Energy Grate (floor with teal grid lines)
+  const ox14=224; fillRect(png,ox14,0,16,16,SR.floorDark);
+  for (let i=0;i<16;i+=4){for (let j=0;j<16;j++){setPixel(png,ox14+i,j,SR.energyDim);setPixel(png,ox14+j,i,SR.energyDim);}}
+  for (const [ex,ey] of [[4,4],[8,4],[12,4],[4,8],[8,8],[12,8],[4,12],[8,12],[12,12]]) setPixel(png,ox14+ex,ey,SR.energy);
+  // Tile 15: Barricade
+  const ox15=240; fillRect(png,ox15,0,16,16,SR.floorDark);
+  fillRect(png,ox15+1,2,14,12,SR.wallMid); fillRect(png,ox15+1,2,14,2,SR.wallLight);
+  fillRect(png,ox15+1,12,14,2,SR.wallDark); fillRect(png,ox15+8,2,1,12,SR.wallDark);
+  for (const [bx,by] of [[3,4],[3,9],[12,5],[12,10]]) setPixel(png,ox15+bx,by,SR.energyDim);
+  // Tile 16: Hybrid Wall
+  const ox16=256; fillRect(png,ox16,0,16,16,SR.ancWallM);
+  for (let i=0;i<16;i++){setPixel(png,ox16+i,0,SR.wallTop);setPixel(png,ox16+i,15,SR.wallDark);setPixel(png,ox16+15,i,SR.wallDark);}
+  for (const [ex,ey] of [[4,4],[8,8],[12,4],[4,12],[12,12]]) setPixel(png,ox16+ex,ey,SR.energyDim);
+  // Tile 17: Control Panel
+  const ox17=272; fillRect(png,ox17,0,16,16,SR.wallMid);
+  for (let i=0;i<16;i++){setPixel(png,ox17+i,0,SR.wallTop);setPixel(png,ox17+i,15,SR.wallDark);}
+  fillRect(png,ox17+2,3,12,10,SR.floorDark); fillRect(png,ox17+3,4,10,8,SR.floorMid);
+  setPixel(png,ox17+4,6,SR.energy); setPixel(png,ox17+6,6,SR.solar); setPixel(png,ox17+8,6,SR.energy); setPixel(png,ox17+10,6,C.red);
+  fillRect(png,ox17+4,8,8,2,SR.wallDark); setPixel(png,ox17+7,9,SR.energy);
+  // Tile 18: Energy Bridge (floor tile with bright energy center)
+  const ox18=288; fillRect(png,ox18,0,16,16,SR.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox18+i,7,SR.energyDim);setPixel(png,ox18+7,i,SR.energyDim);}
+  fillRect(png,ox18+5,5,6,6,SR.floorDark); fillRect(png,ox18+6,6,4,4,SR.energyDim);
+  setPixel(png,ox18+7,7,SR.energy); setPixel(png,ox18+8,7,SR.energy); setPixel(png,ox18+7,8,SR.energy); setPixel(png,ox18+8,8,SR.energy);
+  // Tile 19: Elevated Platform
+  const ox19=304; fillRect(png,ox19,0,16,16,SR.floorLight);
+  for (let i=0;i<16;i++){setPixel(png,ox19+i,7,SR.floorMid);setPixel(png,ox19+7,i,SR.floorMid);}
+  for (let i=0;i<7;i++){setPixel(png,ox19+i,0,SR.wallMid);setPixel(png,ox19,i,SR.wallMid);}
+  for (const [ex,ey] of [[3,3],[11,11]]) setPixel(png,ox19+ex,ey,SR.energyDim);
+  // Tile 20: Ramp North
+  const ox20=320; for (let y=0;y<16;y++){const t=y/15;const r=Math.round(SR.floorLight.r*t+SR.floorDark.r*(1-t));const g=Math.round(SR.floorLight.g*t+SR.floorDark.g*(1-t));const b=Math.round(SR.floorLight.b*t+SR.floorDark.b*(1-t));for (let x=0;x<16;x++) setPixel(png,ox20+x,y,rgba(r,g,b));}
+  setPixel(png,ox20+8,3,SR.wallLight); setPixel(png,ox20+7,4,SR.wallLight); setPixel(png,ox20+8,4,SR.wallLight); setPixel(png,ox20+9,4,SR.wallLight);
+  // Tile 21: Ramp South
+  const ox21=336; for (let y=0;y<16;y++){const t=(15-y)/15;const r=Math.round(SR.floorLight.r*t+SR.floorDark.r*(1-t));const g=Math.round(SR.floorLight.g*t+SR.floorDark.g*(1-t));const b=Math.round(SR.floorLight.b*t+SR.floorDark.b*(1-t));for (let x=0;x<16;x++) setPixel(png,ox21+x,y,rgba(r,g,b));}
+  setPixel(png,ox21+8,13,SR.wallLight); setPixel(png,ox21+7,12,SR.wallLight); setPixel(png,ox21+8,12,SR.wallLight); setPixel(png,ox21+9,12,SR.wallLight);
+  // Tile 22: Ramp East
+  const ox22=352; for (let x=0;x<16;x++){const t=x/15;const r=Math.round(SR.floorDark.r*t+SR.floorLight.r*(1-t));const g=Math.round(SR.floorDark.g*t+SR.floorLight.g*(1-t));const b=Math.round(SR.floorDark.b*t+SR.floorLight.b*(1-t));for (let y=0;y<16;y++) setPixel(png,ox22+x,y,rgba(r,g,b));}
+  setPixel(png,ox22+13,8,SR.wallLight); setPixel(png,ox22+12,7,SR.wallLight); setPixel(png,ox22+12,8,SR.wallLight); setPixel(png,ox22+12,9,SR.wallLight);
+  // Tile 23: Ramp West
+  const ox23=368; for (let x=0;x<16;x++){const t=(15-x)/15;const r=Math.round(SR.floorDark.r*t+SR.floorLight.r*(1-t));const g=Math.round(SR.floorDark.g*t+SR.floorLight.g*(1-t));const b=Math.round(SR.floorDark.b*t+SR.floorLight.b*(1-t));for (let y=0;y<16;y++) setPixel(png,ox23+x,y,rgba(r,g,b));}
+  setPixel(png,ox23+3,8,SR.wallLight); setPixel(png,ox23+4,7,SR.wallLight); setPixel(png,ox23+4,8,SR.wallLight); setPixel(png,ox23+4,9,SR.wallLight);
+  // Tile 24: Elevated Wall
+  const ox24=384; fillRect(png,ox24,0,16,16,SR.wallDark);
+  for (let i=0;i<16;i++){setPixel(png,ox24+i,0,SR.wallMid);setPixel(png,ox24+i,15,SR.floorDark);setPixel(png,ox24+15,i,SR.floorDark);}
+  for (const [ex,ey] of [[4,4],[8,8],[12,4]]) setPixel(png,ox24+ex,ey,SR.energyDim);
+  // Tile 25: Solar Conduit (floor with vertical energy lines)
+  const ox25=400; fillRect(png,ox25,0,16,16,SR.floorMid);
+  for (let i=0;i<16;i++){setPixel(png,ox25+4,i,SR.energyDim);setPixel(png,ox25+11,i,SR.energyDim);}
+  for (const [ex,ey] of [[4,3],[4,7],[4,11],[11,3],[11,7],[11,11]]) setPixel(png,ox25+ex,ey,SR.solar);
+  setPixel(png,ox25+4,0,SR.solar); setPixel(png,ox25+11,0,SR.solar);
+  // Tile 26: Radiance Pedestal
+  const ox26=416; fillRect(png,ox26,0,16,16,SR.floorMid);
+  fillRect(png,ox26+3,6,10,8,SR.wallDark); fillRect(png,ox26+4,5,8,7,SR.wallMid);
+  fillRect(png,ox26+4,5,8,2,SR.wallLight); fillRect(png,ox26+5,7,6,4,SR.floorDark);
+  fillRect(png,ox26+6,8,4,2,SR.energyDim);
+  setPixel(png,ox26+7,8,SR.solar); setPixel(png,ox26+8,8,SR.solar);
+  // Tile 27: Supply Crate Closed
+  const ox27=432; fillRect(png,ox27,0,16,1,SR.wallDark); fillRect(png,ox27,0,1,16,SR.wallDark);
+  fillRect(png,ox27+15,0,1,16,SR.wallDark); fillRect(png,ox27,15,16,1,SR.wallDark);
+  fillRect(png,ox27+1,1,14,14,SR.wallMid); fillRect(png,ox27+1,5,14,1,SR.wallDark);
+  fillRect(png,ox27+1,10,14,1,SR.wallDark); fillRect(png,ox27+7,1,1,14,SR.wallDark);
+  for (let i=2;i<14;i++) setPixel(png,ox27+i,1,SR.wallLight); setPixel(png,ox27+9,6,SR.energy); setPixel(png,ox27+9,7,SR.energy);
+  // Tile 28: Supply Crate Opened
+  const ox28=448; fillRect(png,ox28,0,16,1,SR.wallDark); fillRect(png,ox28,0,1,16,SR.wallDark);
+  fillRect(png,ox28+15,0,1,16,SR.wallDark); fillRect(png,ox28,15,16,1,SR.wallDark);
+  fillRect(png,ox28+1,1,14,14,SR.wallMid); fillRect(png,ox28+7,1,1,14,SR.wallDark);
+  fillRect(png,ox28+2,2,12,8,SR.wallDark); fillRect(png,ox28+3,3,10,6,rgba(10,14,22));
+  for (let i=2;i<14;i++) setPixel(png,ox28+i,1,SR.wallLight);
+  // Tile 29: Nexus Blast Door
+  const ox29=464; fillRect(png,ox29,0,16,16,SR.wallDark);
+  fillRect(png,ox29+1,1,14,14,SR.wallMid); fillRect(png,ox29+1,1,14,2,SR.wallLight);
+  fillRect(png,ox29+1,6,14,2,SR.energy); fillRect(png,ox29+1,11,14,2,SR.wallLight);
+  fillRect(png,ox29+7,1,2,14,SR.wallDark);
+  setPixel(png,ox29+2,2,SR.energy); setPixel(png,ox29+13,2,SR.energy); setPixel(png,ox29+2,13,SR.energy); setPixel(png,ox29+13,13,SR.energy);
+  // Tile 30: Solar Gate
+  const ox30=480; fillRect(png,ox30,0,16,16,SR.floorDark);
+  for (let bar=2;bar<=13;bar+=4){fillRect(png,ox30+bar,0,2,16,SR.wallMid);for (let i=0;i<16;i++) setPixel(png,ox30+bar,i,SR.wallDark);}
+  fillRect(png,ox30,7,16,2,SR.wallMid); setPixel(png,ox30+7,8,SR.solar); setPixel(png,ox30+8,8,SR.solar);
+  // Tile 31: Tier Pedestal
+  const ox31=496; fillRect(png,ox31,0,16,16,SR.floorMid);
+  fillRect(png,ox31+3,6,10,8,SR.wallDark); fillRect(png,ox31+4,5,8,7,SR.wallMid);
+  fillRect(png,ox31+4,5,8,2,SR.wallLight); fillRect(png,ox31+5,7,6,4,SR.floorDark);
+  fillRect(png,ox31+6,8,4,2,SR.energyDim);
+  setPixel(png,ox31+7,8,SR.energy); setPixel(png,ox31+8,8,SR.energy);
+  savePNG(png, path.join(CONTENT_DIR, 'tilesets', 'spire_radiance.png'));
+}
+
+// ============================================================================
 // MAIN
 // ============================================================================
 
@@ -3788,6 +5643,16 @@ generateCryptTileset();
 generateOutpostTileset();
 generateQuarantineTileset();
 generateDarkCityTileset();
+generateGreenwayTileset();
+generateBiolabTileset();
+generateSpireWindsTileset();
+generateFrostCryptTileset();
+generateDaysideTileset();
+generateFungalForestTileset();
+generateNightsideTileset();
+generateMeridianTileset();
+generateStationTileset();
+generateSpireRadianceTileset();
 generateMonsterSprites();
 generatePlayerSprites();
 generateNPCSprites();

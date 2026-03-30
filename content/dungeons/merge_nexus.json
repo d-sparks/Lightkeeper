@@ -81,6 +81,22 @@
       "once": true
     },
     {
+      "id": "elder_merge_blessing",
+      "event": "room_entered",
+      "conditions": [
+        { "hasFlag": "elder_merge_path_revealed" }
+      ],
+      "actions": [
+        { "type": "showMessage", "lines": [
+          "The crystal beneath your feet hums with a frequency you recognize — Elder Vael's voice, carried through the Underlumen lattice itself.",
+          "Elder Vael's presence echoes through the crystal: 'You came. The Underlumen felt your decision before you made it. Forty-three years I have waited for someone to choose this path.'",
+          "'The Convergence is not a place. It is a question the planet has been asking since before humanity arrived. You are the first to answer it correctly.'",
+          "'Go forward, Ring-traveler. The Unbounded walk with you — through the crystal, through the deep dark, through whatever comes next.'"
+        ]}
+      ],
+      "once": true
+    },
+    {
       "id": "merge_intel_advantage",
       "event": "room_entered",
       "conditions": [
@@ -188,6 +204,42 @@
       "once": true
     },
     {
+      "id": "npc_talk_asha_merge",
+      "event": "npc_interacted",
+      "filter": { "npcType": "asha_merge" },
+      "conditions": [
+        { "not": { "hasFlag": "talked_to_asha_merge" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "talked_to_asha_merge" }
+      ],
+      "once": true
+    },
+    {
+      "id": "npc_talk_sable_merge",
+      "event": "npc_interacted",
+      "filter": { "npcType": "sable_merge" },
+      "conditions": [
+        { "not": { "hasFlag": "talked_to_sable_merge" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "talked_to_sable_merge" }
+      ],
+      "once": true
+    },
+    {
+      "id": "npc_talk_meridian_7_merge",
+      "event": "npc_interacted",
+      "filter": { "npcType": "meridian_7_merge" },
+      "conditions": [
+        { "not": { "hasFlag": "talked_to_meridian_7_merge" } }
+      ],
+      "actions": [
+        { "type": "setFlag", "flag": "talked_to_meridian_7_merge" }
+      ],
+      "once": true
+    },
+    {
       "id": "symbiosis_communion_locked",
       "event": "door_interacted",
       "filter": { "tileX": 12, "tileY": 11 },
@@ -200,11 +252,32 @@
       "once": false
     },
     {
+      "id": "symbiosis_communion_npcs_required",
+      "event": "door_interacted",
+      "filter": { "tileX": 12, "tileY": 11 },
+      "conditions": [
+        { "hasFlag": "convergence_guardian_defeated" },
+        { "not": { "hasFlag": "ending_merge_complete" } },
+        { "not": { "and": [
+          { "hasFlag": "talked_to_asha_merge" },
+          { "hasFlag": "talked_to_sable_merge" },
+          { "hasFlag": "talked_to_meridian_7_merge" }
+        ]}}
+      ],
+      "actions": [
+        { "type": "showMessage", "text": "The convergence pool awaits, but communion requires consent from all three. Speak with Councillor Asha Denn, Sable, and MERIDIAN-7 before you begin." }
+      ],
+      "once": false
+    },
+    {
       "id": "symbiosis_communion_begin",
       "event": "door_interacted",
       "filter": { "tileX": 12, "tileY": 11 },
       "conditions": [
         { "hasFlag": "convergence_guardian_defeated" },
+        { "hasFlag": "talked_to_asha_merge" },
+        { "hasFlag": "talked_to_sable_merge" },
+        { "hasFlag": "talked_to_meridian_7_merge" },
         { "not": { "hasFlag": "ending_merge_complete" } }
       ],
       "actions": [

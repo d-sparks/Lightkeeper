@@ -12,6 +12,9 @@ const CONSTANTS = {
   SPRITE_SIZE: 16,            // Native sprite size (scaled up 2x to TILE_SIZE)
   CHUNK_SIZE: 16,             // Tiles per chunk side for map streaming
 
+  // Procedural dungeon generation
+  MAX_PROC_NESTING_DEPTH: 2,  // Hard cap on proc dungeon nesting (proc:X:proc:X:...)
+
   // Isometric rendering
   ISO_DIAMOND_W: 96,          // Diamond footprint width in pixels
   ISO_DIAMOND_H: 48,          // Diamond footprint height in pixels

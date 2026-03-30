@@ -41,7 +41,8 @@
       { "item": "rechargeable_battery_chip", "weight": 4 },
       { "item": "void_resonator_chip", "weight": 3 },
       { "item": "advanced_rechargeable_battery_chip", "weight": 2 },
-      { "item": "guardian_core_chip", "weight": 1 }
+      { "item": "guardian_core_chip", "weight": 1 },
+      { "item": "fortification_matrix_chip", "weight": 3 }
     ]
   },
   "spire_vigil_replay_legendary": {
@@ -54,7 +55,8 @@
       { "item": "rechargeable_battery_l2", "weight": 3 },
       { "item": "array_harmonic_stabilizer_chip", "weight": 3 },
       { "item": "uranium_generator_chip", "weight": 2 },
-      { "item": "resonance_fragment", "weight": 2 }
+      { "item": "resonance_fragment", "weight": 2 },
+      { "item": "resilience_core_chip", "weight": 3 }
     ]
   },
 

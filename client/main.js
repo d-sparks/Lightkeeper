@@ -13,6 +13,7 @@
   const energySingleUseFill = document.getElementById('energy-single-use-fill');
   const energyText = document.getElementById('energy-text');
   const hudName = document.getElementById('hud-name');
+  const debugCoords = document.getElementById('debug-coords');
   const xpFill = document.getElementById('xp-fill');
   const xpText = document.getElementById('xp-text');
   const dialogueOverlay = document.getElementById('dialogue-overlay');
@@ -46,6 +47,7 @@
   const worldmapBtn = document.getElementById('worldmap-btn');
   const onboardMove = document.getElementById('onboard-move');
   const onboardInteract = document.getElementById('onboard-interact');
+  const onboardEquip = document.getElementById('onboard-equip');
   const expeditionHud = document.getElementById('expedition-hud');
   const expeditionTier = document.getElementById('expedition-tier');
   const expeditionFloor = document.getElementById('expedition-floor');
@@ -117,6 +119,8 @@
   let onboardMoveShown = false;
   let onboardMoveDismissed = false;
   let onboardInteractDismissed = false;
+  let onboardEquipShown = false;
+  let onboardEquipDismissed = false;
 
   function dismissOnboardHint(el, onDone) {
     if (!el || el.style.display === 'none') return;
@@ -909,6 +913,11 @@
     characterMenu.style.display = 'block';
     switchTab(tab || 'equipment');
     audio.play('menu_open');
+    // Dismiss equip onboarding hint when player opens the menu for the first time
+    if (!onboardEquipDismissed) {
+      onboardEquipDismissed = true;
+      dismissOnboardHint(onboardEquip);
+    }
   }
 
   function closeMenu() {
@@ -2295,6 +2304,9 @@
                 if (mod.bonus.energyCostReduction) {
                   html += '<div class="sol-mod-tag">-' + Math.round(mod.bonus.energyCostReduction * 100) + '% cost</div>';
                 }
+                if (mod.bonus.maxHealthBonus) {
+                  html += '<div class="sol-mod-tag">+' + mod.bonus.maxHealthBonus + ' HP</div>';
+                }
               }
             }
             cell.innerHTML = html;
@@ -2309,6 +2321,7 @@
               if (comp.bonus.cooldownReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.cooldownReduction * 100) + '% cd</div>';
               if (comp.bonus.healOnHit) html += '<div class="sol-mod-tag">+' + comp.bonus.healOnHit + ' heal</div>';
               if (comp.bonus.energyCostReduction) html += '<div class="sol-mod-tag">-' + Math.round(comp.bonus.energyCostReduction * 100) + '% cost</div>';
+              if (comp.bonus.maxHealthBonus) html += '<div class="sol-mod-tag">+' + comp.bonus.maxHealthBonus + ' HP</div>';
             }
             // Show durability indicator
             if (comp.durability !== undefined) {
@@ -3239,6 +3252,11 @@
       if (me) {
         const pct = (me.health / me.maxHealth) * 100;
         healthFill.style.width = `${pct}%`;
+        if (debugCoords) {
+          const tx = Math.floor(me.x / 32);
+          const ty = Math.floor(me.y / 32);
+          debugCoords.textContent = `(${tx}, ${ty})`;
+        }
         if (me.maxEnergy > 0) {
           energyBar.style.display = 'block';
           const suEnergy = me.singleUseEnergy || 0;
@@ -3687,6 +3705,16 @@
     inventoryItems = msg.items || [];
     if (msg.equipment) {
       equipmentState = msg.equipment;
+    }
+    // Show equip onboarding hint on first equipment item pickup (but not during sol grid tutorial)
+    if (!onboardEquipShown && !onboardEquipDismissed && !tutorialPhase) {
+      const hasEquippable = inventoryItems.some(
+        item => item.category === 'weapon' || item.category === 'equipment' || item.slot
+      );
+      if (hasEquippable) {
+        onboardEquipShown = true;
+        onboardEquip.style.display = '';
+      }
     }
     if (msg.medipacCharges !== undefined) {
       medipacCharges = msg.medipacCharges;
