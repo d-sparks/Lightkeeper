@@ -1,6 +1,7 @@
 extends Node3D
 
 const KeeperScript := preload("res://scripts/player.gd")
+const TouchControlsScript := preload("res://scripts/touch_controls.gd")
 const DARK_THRESHOLD_Z := -11.0
 
 var player: Keeper
@@ -11,15 +12,19 @@ var _sol_bar: ProgressBar
 var _objective_label: Label
 var _status_label: Label
 var _zone_label: Label
+var _ui_layer: CanvasLayer
+var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	_rng.seed = 74291
 	_build_environment()
 	_build_world()
 	_spawn_keeper()
 	_build_mineral()
 	_build_return_zone()
 	_build_ui()
+	_build_touch_controls()
 
 
 func _process(_delta: float) -> void:
@@ -46,14 +51,23 @@ func _process(_delta: float) -> void:
 func _build_environment() -> void:
 	var world_environment := WorldEnvironment.new()
 	var environment := Environment.new()
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color("02050a")
+	var sky_material := ProceduralSkyMaterial.new()
+	sky_material.sky_top_color = Color("08101d")
+	sky_material.sky_horizon_color = Color("bb6d4f")
+	sky_material.ground_bottom_color = Color("010307")
+	sky_material.ground_horizon_color = Color("503f42")
+	sky_material.sun_angle_max = 4.0
+	sky_material.sun_curve = 0.08
+	var sky := Sky.new()
+	sky.sky_material = sky_material
+	environment.sky = sky
+	environment.background_mode = Environment.BG_SKY
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("526170")
-	environment.ambient_light_energy = 0.2
+	environment.ambient_light_color = Color("6d7c8a")
+	environment.ambient_light_energy = 0.34
 	environment.fog_enabled = true
-	environment.fog_light_color = Color("101c2b")
-	environment.fog_density = 0.018
+	environment.fog_light_color = Color("142334")
+	environment.fog_density = 0.014
 	environment.fog_sky_affect = 0.0
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	world_environment.environment = environment
@@ -62,13 +76,23 @@ func _build_environment() -> void:
 	var dusk_light := DirectionalLight3D.new()
 	dusk_light.rotation_degrees = Vector3(-48, -32, 0)
 	dusk_light.light_color = Color("f0a45d")
-	dusk_light.light_energy = 0.7
+	dusk_light.light_energy = 1.05
 	dusk_light.shadow_enabled = true
 	add_child(dusk_light)
 
+	# Huge crescent-like world body beyond the relay, echoing the concept board.
+	var planet := MeshInstance3D.new()
+	var planet_mesh := SphereMesh.new()
+	planet_mesh.radius = 14.0
+	planet_mesh.height = 28.0
+	planet_mesh.material = _make_material(Color("273754"), true)
+	planet.mesh = planet_mesh
+	planet.position = Vector3(31, 18, -78)
+	add_child(planet)
+
 
 func _build_world() -> void:
-	_make_solid_box("DuskPlatform", Vector3(0, -0.5, 5), Vector3(18, 1, 16), Color("5d4936"))
+	_make_solid_box("DuskPlatform", Vector3(0, -0.5, 5), Vector3(18, 1, 16), Color("66513c"))
 	_make_solid_box("Threshold", Vector3(0, -0.5, -7), Vector3(10, 1, 8), Color("394044"))
 	_make_solid_box("DarkRoad", Vector3(0, -0.5, -26), Vector3(10, 1, 30), Color("1d2932"))
 	_make_solid_box("RelayFloor", Vector3(0, -0.5, -45), Vector3(18, 1, 12), Color("18252e"))
@@ -79,10 +103,49 @@ func _build_world() -> void:
 	_make_solid_box("RelayWallLeft", Vector3(-9, 1.6, -45), Vector3(0.8, 4.2, 12), Color("202b35"))
 	_make_solid_box("RelayWallRight", Vector3(9, 1.6, -45), Vector3(0.8, 4.2, 12), Color("202b35"))
 
+	# Home industry: squat solar fields and an improvised vertical settlement.
+	for x in [-6.2, -3.7, 3.7, 6.2]:
+		var panel := _make_visual_box(Vector3(x, 0.35, 2.2), Vector3(2.0, 0.12, 2.8), Color("263d53"), true)
+		panel.rotation_degrees.x = -15.0
+		_make_visual_box(Vector3(x, 0.0, 2.45), Vector3(0.18, 0.85, 0.18), Color("332c24"))
+
+	for tower_data in [
+		[Vector3(-7.4, 2.0, 8.2), Vector3(1.5, 5.0, 1.5)],
+		[Vector3(6.8, 2.8, 9.0), Vector3(1.8, 6.6, 1.8)],
+		[Vector3(4.5, 1.3, 11.0), Vector3(2.2, 3.5, 1.7)]
+	]:
+		_make_visual_box(tower_data[0], tower_data[1], Color("4f4940"))
+		_make_visual_box(tower_data[0] + Vector3(0, tower_data[1].y * 0.55, 0), Vector3(tower_data[1].x * 1.25, 0.18, tower_data[1].z * 1.25), Color("ad7744"), true)
+
+	# Monumental relay gate at the edge of permanent night.
+	_make_solid_box("ThresholdLeft", Vector3(-3.8, 2.4, -10.2), Vector3(1.2, 5.8, 1.4), Color("494642"))
+	_make_solid_box("ThresholdRight", Vector3(3.8, 2.4, -10.2), Vector3(1.2, 5.8, 1.4), Color("494642"))
+	_make_visual_box(Vector3(0, 5.0, -10.2), Vector3(8.6, 0.8, 1.4), Color("383d40"))
+	_make_visual_box(Vector3(0, 4.95, -9.45), Vector3(2.4, 0.15, 0.12), Color("f3a957"), true)
+
 	# Lighthouse infrastructure silhouettes.
 	for x in [-6.5, 6.5]:
 		_make_solid_box("RelayPylon", Vector3(x, 3.0, -47), Vector3(1.2, 7.0, 1.2), Color("3a4349"))
 		_make_visual_box(Vector3(x, 6.8, -47), Vector3(1.8, 0.35, 1.8), Color("8bb9c8"), true)
+
+	# Broken stone, frost and nightglass lead the eye toward the relay core.
+	for i in range(34):
+		var z := _rng.randf_range(-46.0, -13.0)
+		var side := -1.0 if i % 2 == 0 else 1.0
+		var x := side * _rng.randf_range(3.4, 4.75)
+		_make_rock(Vector3(x, _rng.randf_range(0.0, 0.16), z), Vector3(
+			_rng.randf_range(0.35, 1.2),
+			_rng.randf_range(0.25, 0.9),
+			_rng.randf_range(0.35, 1.25)
+		))
+	for crystal_data in [
+		[Vector3(-3.7, 0.65, -20), Color("7350d8"), 0.75],
+		[Vector3(4.1, 0.55, -27), Color("3d9ed1"), 0.62],
+		[Vector3(-4.0, 0.8, -35), Color("7545ca"), 0.95],
+		[Vector3(5.8, 0.9, -44), Color("4db7dc"), 1.15],
+		[Vector3(-6.3, 0.7, -46), Color("7b4ed1"), 0.9]
+	]:
+		_make_crystal(crystal_data[0], crystal_data[1], crystal_data[2])
 
 	# A readable warm home landmark and a dead blue relay ahead.
 	_make_visual_box(Vector3(-5.8, 2.4, 7.5), Vector3(2.0, 4.8, 2.0), Color("8b5c32"))
@@ -170,25 +233,25 @@ func _on_return_zone_entered(body: Node3D) -> void:
 
 
 func _build_ui() -> void:
-	var layer := CanvasLayer.new()
-	add_child(layer)
+	_ui_layer = CanvasLayer.new()
+	add_child(_ui_layer)
 
 	var shade := ColorRect.new()
 	shade.color = Color(0.015, 0.025, 0.035, 0.82)
 	shade.position = Vector2(24, 22)
 	shade.size = Vector2(540, 142)
-	layer.add_child(shade)
+	_ui_layer.add_child(shade)
 
 	_zone_label = Label.new()
 	_zone_label.position = Vector2(44, 36)
 	_zone_label.add_theme_font_size_override("font_size", 16)
 	_zone_label.text = "HOME — TERMINATOR DUSK"
-	layer.add_child(_zone_label)
+	_ui_layer.add_child(_zone_label)
 
 	_status_label = Label.new()
 	_status_label.position = Vector2(44, 67)
 	_status_label.add_theme_font_size_override("font_size", 18)
-	layer.add_child(_status_label)
+	_ui_layer.add_child(_status_label)
 
 	_sol_bar = ProgressBar.new()
 	_sol_bar.position = Vector2(44, 97)
@@ -196,13 +259,13 @@ func _build_ui() -> void:
 	_sol_bar.max_value = 100
 	_sol_bar.value = 100
 	_sol_bar.show_percentage = false
-	layer.add_child(_sol_bar)
+	_ui_layer.add_child(_sol_bar)
 
 	_objective_label = Label.new()
 	_objective_label.position = Vector2(44, 128)
 	_objective_label.add_theme_font_size_override("font_size", 15)
 	_objective_label.modulate = Color("e6c47a")
-	layer.add_child(_objective_label)
+	_ui_layer.add_child(_objective_label)
 
 	var controls := Label.new()
 	controls.text = "WASD / ARROWS  MOVE     MOUSE  LOOK     F  SOL LIGHT     ESC  RELEASE CURSOR"
@@ -212,7 +275,23 @@ func _build_ui() -> void:
 	controls.offset_bottom = -18
 	controls.add_theme_font_size_override("font_size", 14)
 	controls.modulate = Color(0.8, 0.85, 0.88, 0.88)
-	layer.add_child(controls)
+	controls.visible = not _uses_touch_controls()
+	_ui_layer.add_child(controls)
+
+
+func _build_touch_controls() -> void:
+	var touch_controls: TouchControls = TouchControlsScript.new()
+	touch_controls.name = "TouchControls"
+	_ui_layer.add_child(touch_controls)
+	touch_controls.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	touch_controls.move_changed.connect(player.set_mobile_move)
+	touch_controls.look_changed.connect(player.apply_mobile_look)
+	touch_controls.light_pressed.connect(player.toggle_flashlight)
+	touch_controls.set_enabled_for_device(_uses_touch_controls())
+
+
+func _uses_touch_controls() -> bool:
+	return DisplayServer.is_touchscreen_available() or OS.has_feature("web_android") or OS.has_feature("web_ios")
 
 
 func _make_solid_box(node_name: String, at: Vector3, size: Vector3, color: Color) -> void:
@@ -233,7 +312,7 @@ func _make_solid_box(node_name: String, at: Vector3, size: Vector3, color: Color
 	add_child(body)
 
 
-func _make_visual_box(at: Vector3, size: Vector3, color: Color, emissive := false) -> void:
+func _make_visual_box(at: Vector3, size: Vector3, color: Color, emissive := false) -> MeshInstance3D:
 	var mesh_node := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = size
@@ -241,15 +320,50 @@ func _make_visual_box(at: Vector3, size: Vector3, color: Color, emissive := fals
 	mesh_node.mesh = mesh
 	mesh_node.position = at
 	add_child(mesh_node)
+	return mesh_node
+
+
+func _make_rock(at: Vector3, scale_value: Vector3) -> void:
+	var mesh_node := MeshInstance3D.new()
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.5
+	mesh.height = 1.0
+	mesh.radial_segments = 7
+	mesh.rings = 4
+	mesh.material = _make_material(Color("303840"), false)
+	mesh_node.mesh = mesh
+	mesh_node.position = at
+	mesh_node.scale = scale_value
+	mesh_node.rotation_degrees = Vector3(_rng.randf_range(-16, 16), _rng.randf_range(0, 180), _rng.randf_range(-12, 12))
+	add_child(mesh_node)
+
+
+func _make_crystal(at: Vector3, color: Color, scale_value: float) -> void:
+	for i in range(3):
+		var crystal := MeshInstance3D.new()
+		var mesh := PrismMesh.new()
+		mesh.size = Vector3(0.34, 1.5, 0.34) * scale_value * (1.0 - i * 0.14)
+		mesh.material = _make_material(color, true)
+		crystal.mesh = mesh
+		crystal.position = at + Vector3((i - 1) * 0.3 * scale_value, i * 0.12, 0)
+		crystal.rotation_degrees.z = (i - 1) * 13.0
+		add_child(crystal)
+	var glow := OmniLight3D.new()
+	glow.position = at + Vector3(0, 0.5, 0)
+	glow.light_color = color
+	glow.light_energy = 1.1
+	glow.omni_range = 4.0 * scale_value
+	add_child(glow)
 
 
 func _make_material(color: Color, emissive: bool) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	material.roughness = 0.88
+	material.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	material.specular_mode = BaseMaterial3D.SPECULAR_TOON
 	if emissive:
 		material.emission_enabled = true
 		material.emission = color
 		material.emission_energy_multiplier = 2.5
 	return material
-
