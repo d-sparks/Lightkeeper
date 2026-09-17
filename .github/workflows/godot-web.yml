@@ -9,6 +9,12 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 env:
   GODOT_VERSION: "4.7.2"
@@ -54,3 +60,27 @@ jobs:
           path: build/web
           if-no-files-found: error
 
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload GitHub Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: build/web
+
+  deploy-pages:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-web
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
