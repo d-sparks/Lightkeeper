@@ -1,6 +1,0 @@
-TODOs
-
-## Meta
-- [opus] Update TODOs.md by removing all existing tasks and filling it with the most impactful next tasks we could execute on. First run the headless sim to assess game length and any content issues. Check the storyboard to see how our content is mapping onto the storyboard target. Think carefully about the big picture. Look through and feel free to update docs in the docs folder. Then decide what are the best short and long term investments we can make to work toward finishing the game? Focus on connecting existing content where it is disconnected. This should cover testing, game quality, fun, content, theme, design, graphics, etc. Come up with 10-20 next tasks and write them in TODOs.md. The format should be one task per line, line starts with a hyphen.
-- [sonnet] Look through each task in TODOs.md and remove any that are already fully implemented. Remove any annotations or checkboxs at the beginning of each task. Then, annotate each task with [sonnet] or [opus]. (Look at TODOs_loop.md for example of how this should look.) Use [sonnet] for straightforward content additions, JSON wiring, simple bug fixes, and mechanical tasks; use [opus] for architecture changes, complex features, AI design, and tasks requiring judgment. Commit any changes!
-

@@ -1,7 +1,6 @@
-node_modules/
-.DS_Store
+.godot/
+build/
+*.tmp
 *.log
-.claude/worktrees
-.claude
-saves/
-logs/
+.DS_Store
+
