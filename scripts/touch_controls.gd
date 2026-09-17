@@ -8,6 +8,7 @@ signal light_pressed
 const JOYSTICK_RADIUS := 72.0
 const KNOB_RADIUS := 30.0
 const BUTTON_RADIUS := 48.0
+const MAX_LOOK_DELTA := 28.0
 
 var enabled_for_device := false
 var _move_touch := -1
@@ -15,6 +16,7 @@ var _look_touch := -1
 var _move_value := Vector2.ZERO
 var _joystick_center := Vector2.ZERO
 var _button_center := Vector2.ZERO
+var _look_last_position := Vector2.ZERO
 
 
 func _ready() -> void:
@@ -52,6 +54,7 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 			elif _look_touch < 0:
 				_look_touch = event.index
+				_look_last_position = event.position
 				get_viewport().set_input_as_handled()
 		else:
 			if event.index == _move_touch:
@@ -69,7 +72,12 @@ func _input(event: InputEvent) -> void:
 			_update_move(event.position)
 			get_viewport().set_input_as_handled()
 		elif event.index == _look_touch:
-			look_changed.emit(event.relative)
+			# Browser touch drivers occasionally report a very large `relative`
+			# value when a second finger is added. Derive the delta from this
+			# finger's own tracked position and cap any remaining spike.
+			var look_delta := event.position - _look_last_position
+			_look_last_position = event.position
+			look_changed.emit(look_delta.limit_length(MAX_LOOK_DELTA))
 			get_viewport().set_input_as_handled()
 
 
@@ -100,4 +108,3 @@ func _draw() -> void:
 	draw_string(font, _button_center + Vector2(-18, 7), "SOL", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("ffd28a"))
 
 	draw_string(font, Vector2(size.x - 250, size.y - 176), "SWIPE TO LOOK", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.76, 0.82, 0.86, 0.52))
-
