@@ -23,7 +23,7 @@ env:
 jobs:
   build-web:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
       - name: Check out source
@@ -48,10 +48,28 @@ jobs:
       - name: Import project and validate scripts
         run: godot --headless --path . --editor --quit
 
+      - name: Test export versioning
+        run: python3 -m unittest tests/test_version_web_export.py
+
       - name: Export browser build
         run: |
           mkdir -p build/web
           godot --headless --path . --export-release Web build/web/index.html
+
+      - name: Version browser runtime files
+        run: python3 tools/version_web_export.py build/web "${GITHUB_SHA}"
+
+      - name: Install browser test engines
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium webkit
+
+      - name: Smoke test mobile browser boot
+        run: |
+          python3 -m http.server 8000 --directory build/web > /tmp/lightkeeper-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "${server_pid}"' EXIT
+          node tests/web_boot_smoke.mjs
 
       - name: Upload playable browser build
         uses: actions/upload-artifact@v4
