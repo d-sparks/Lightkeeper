@@ -5,10 +5,12 @@ const WALK_SPEED := 6.0
 const ACCELERATION := 22.0
 const MOUSE_SENSITIVITY := 0.0024
 const LIGHT_DRAIN_PER_SECOND := 2.6
+const TOUCH_LOOK_SENSITIVITY := 0.0042
 
 var sol_charge := 100.0
 var flashlight_on := true
 var is_in_dark := false
+var mobile_move_vector := Vector2.ZERO
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _camera_pitch := -0.18
@@ -26,20 +28,14 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotation.y -= event.relative.x * MOUSE_SENSITIVITY
-		_camera_pitch = clampf(
-			_camera_pitch - event.relative.y * MOUSE_SENSITIVITY,
-			-0.85,
-			0.42
-		)
-		_camera_pivot.rotation.x = _camera_pitch
+		_apply_look(event.relative, MOUSE_SENSITIVITY)
 	elif event is InputEventMouseButton and event.pressed:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		elif event.keycode == KEY_F:
-			_set_flashlight(not flashlight_on)
+			toggle_flashlight()
 
 
 func _physics_process(delta: float) -> void:
@@ -55,6 +51,8 @@ func _physics_process(delta: float) -> void:
 		input_vector.y += 1.0
 	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
 		input_vector.y -= 1.0
+	if mobile_move_vector.length_squared() > input_vector.length_squared():
+		input_vector = Vector2(mobile_move_vector.x, -mobile_move_vector.y)
 	input_vector = input_vector.normalized()
 
 	var forward := -global_transform.basis.z
@@ -73,6 +71,24 @@ func _physics_process(delta: float) -> void:
 func recharge() -> void:
 	sol_charge = 100.0
 	_set_flashlight(true)
+
+
+func set_mobile_move(direction: Vector2) -> void:
+	mobile_move_vector = direction
+
+
+func apply_mobile_look(delta: Vector2) -> void:
+	_apply_look(delta, TOUCH_LOOK_SENSITIVITY)
+
+
+func toggle_flashlight() -> void:
+	_set_flashlight(not flashlight_on)
+
+
+func _apply_look(delta: Vector2, sensitivity: float) -> void:
+	rotation.y -= delta.x * sensitivity
+	_camera_pitch = clampf(_camera_pitch - delta.y * sensitivity, -0.85, 0.42)
+	_camera_pivot.rotation.x = _camera_pitch
 
 
 func _set_flashlight(enabled: bool) -> void:
@@ -123,10 +139,17 @@ func _build_keeper_visual() -> void:
 	_add_box("ChestHarness", Vector3(0, 1.35, -0.46), Vector3(0.72, 0.48, 0.16), Color("3b3028"))
 	_add_sphere("Head", Vector3(0, 2.05, 0), Vector3(0.53, 0.48, 0.48), Color("b49364"))
 	_add_box("Mask", Vector3(0, 1.98, -0.43), Vector3(0.48, 0.32, 0.34), Color("514b40"))
+	_add_box("MaskFilter", Vector3(0, 1.88, -0.62), Vector3(0.28, 0.24, 0.24), Color("282a27"))
 	_add_sphere("LeftGoggle", Vector3(-0.2, 2.12, -0.58), Vector3(0.16, 0.16, 0.10), Color("9bc3bd"), true)
 	_add_sphere("RightGoggle", Vector3(0.2, 2.12, -0.58), Vector3(0.16, 0.16, 0.10), Color("9bc3bd"), true)
 	_add_box("Backpack", Vector3(0, 1.35, 0.48), Vector3(0.85, 1.08, 0.42), Color("303b39"))
+	_add_box("PackFrame", Vector3(0, 1.35, 0.73), Vector3(1.0, 1.2, 0.08), Color("171b1a"))
+	_add_box("LeftCanister", Vector3(-0.34, 1.4, 0.77), Vector3(0.22, 0.78, 0.22), Color("6b6d62"))
+	_add_box("RightCanister", Vector3(0.34, 1.4, 0.77), Vector3(0.22, 0.78, 0.22), Color("6b6d62"))
 	_add_sphere("SolCore", Vector3(0, 1.42, 0.76), Vector3(0.25, 0.25, 0.13), Color("ffb84d"), true)
+	_add_box("Belt", Vector3(0, 0.9, -0.02), Vector3(1.0, 0.16, 0.64), Color("292823"))
+	_add_box("LeftKneePad", Vector3(-0.25, 0.52, -0.3), Vector3(0.36, 0.28, 0.12), Color("45443d"))
+	_add_box("RightKneePad", Vector3(0.25, 0.52, -0.3), Vector3(0.36, 0.28, 0.12), Color("45443d"))
 
 	_add_capsule("LeftArm", Vector3(-0.62, 1.25, 0), 0.19, 0.72, Color("7a5939"))
 	_add_capsule("RightArm", Vector3(0.62, 1.25, 0), 0.19, 0.72, Color("7a5939"))
@@ -167,6 +190,8 @@ func _add_mesh(node_name: String, at: Vector3, mesh: PrimitiveMesh, color: Color
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	material.roughness = 0.82
+	material.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	material.specular_mode = BaseMaterial3D.SPECULAR_TOON
 	if emissive:
 		material.emission_enabled = true
 		material.emission = color
@@ -178,4 +203,3 @@ func _add_mesh(node_name: String, at: Vector3, mesh: PrimitiveMesh, color: Color
 	instance.position = at
 	_visual.add_child(instance)
 	return instance
-

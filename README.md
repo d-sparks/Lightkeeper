@@ -22,6 +22,8 @@ The placeholder Keeper already follows the agreed silhouette: rugged utility gea
 | `F` | Toggle sol light |
 | `Esc` | Release mouse cursor |
 
+On phones and tablets, use the left virtual stick to move, swipe the right side to look, and tap **SOL** to toggle the light. Landscape orientation is recommended.
+
 ## Run locally
 
 Install Godot 4.7.2 or another compatible Godot 4 release, open `project.godot`, and press **F6/F5**.
@@ -48,4 +50,3 @@ GitHub Actions validates the project and publishes a downloadable `lightkeeper-w
 - Add death, carried-item loss, and rare-gear durability damage.
 - Add the first dusk-side solar harvester and expedition loadout screen.
 - Test one metroidvania return path with the hover module.
-
