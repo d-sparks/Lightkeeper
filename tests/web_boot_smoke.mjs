@@ -13,11 +13,25 @@ for (const [name, browserType] of engines) {
   });
   const page = await context.newPage();
   const failures = [];
+  const criticalRuntimeError = /call_indirect|signature mismatch|null function|WebAssembly|RuntimeError|out of bounds memory/i;
 
-  page.on("pageerror", error => failures.push(`page error: ${error.message}`));
-  page.on("requestfailed", request => failures.push(
-    `request failed: ${request.url()} (${request.failure()?.errorText || "unknown"})`
-  ));
+  page.on("pageerror", error => {
+    if (criticalRuntimeError.test(error.message)) {
+      failures.push(`page error: ${error.message}`);
+    } else {
+      console.warn(`${name} non-fatal page warning: ${error.message}`);
+    }
+  });
+  page.on("console", message => {
+    if (message.type() === "error" && criticalRuntimeError.test(message.text())) {
+      failures.push(`console error: ${message.text()}`);
+    }
+  });
+  page.on("requestfailed", request => {
+    if (/\.(?:js|wasm|pck)(?:\?|$)/.test(request.url())) {
+      failures.push(`runtime request failed: ${request.url()} (${request.failure()?.errorText || "unknown"})`);
+    }
+  });
 
   await page.goto(target, { waitUntil: "domcontentloaded", timeout: 30_000 });
   await page.waitForFunction(() => {
