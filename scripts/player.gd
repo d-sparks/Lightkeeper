@@ -169,7 +169,7 @@ func _build_keeper_visual() -> void:
 	_add_box("LeftMaskStrap", Vector3(-0.47, 2.02, -0.02), Vector3(0.08, 0.12, 0.62), Color("242724"))
 	_add_box("RightMaskStrap", Vector3(0.47, 2.02, -0.02), Vector3(0.08, 0.12, 0.62), Color("242724"))
 	for side in [-1.0, 1.0]:
-		var x := side * 0.2
+		var x: float = side * 0.2
 		var rim := _add_cylinder("GoggleRim", Vector3(x, 2.11, -0.61), 0.18, 0.18, 0.12, Color("242927"))
 		rim.rotation_degrees.x = 90.0
 		var lens := _add_cylinder("GoggleGlass", Vector3(x, 2.11, -0.69), 0.135, 0.135, 0.04, Color("7fb3af"), true)

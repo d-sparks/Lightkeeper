@@ -75,7 +75,7 @@ func _input(event: InputEvent) -> void:
 			# Browser touch drivers occasionally report a very large `relative`
 			# value when a second finger is added. Derive the delta from this
 			# finger's own tracked position and cap any remaining spike.
-			var look_delta := event.position - _look_last_position
+			var look_delta: Vector2 = event.position - _look_last_position
 			_look_last_position = event.position
 			look_changed.emit(look_delta.limit_length(MAX_LOOK_DELTA))
 			get_viewport().set_input_as_handled()
