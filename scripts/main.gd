@@ -5,6 +5,8 @@ const TouchControlsScript := preload("res://scripts/touch_controls.gd")
 const NightEnemyScript := preload("res://scripts/night_enemy.gd")
 const RelayMirrorScript := preload("res://scripts/relay_mirror.gd")
 const DARK_THRESHOLD_Z := -11.0
+const PULSE_RANGE := 34.0
+const AUTO_TARGET_ANGLE := 18.0
 
 var player: Keeper
 var mineral_count := 0
@@ -25,6 +27,9 @@ var _puzzle_beam_final: MeshInstance3D
 var _gate_open := false
 var _event_message := ""
 var _event_message_time := 0.0
+var _current_pulse_target: Node3D
+var _target_indicator: Label
+var _target_name_label: Label
 
 
 func _ready() -> void:
@@ -55,6 +60,7 @@ func _process(delta: float) -> void:
 		mineral_count,
 		"ON" if player.flashlight_on else "OFF"
 	]
+	_update_pulse_target()
 	if _event_message_time > 0.0:
 		_objective_label.text = _event_message
 		_objective_label.modulate = Color("efc47a")
@@ -209,10 +215,10 @@ func _spawn_keeper() -> void:
 	player.position = Vector3(0, 0.05, 7)
 	var collision := CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()
-	capsule.radius = 0.5
-	capsule.height = 2.2
+	capsule.radius = 0.42
+	capsule.height = 2.7
 	collision.shape = capsule
-	collision.position = Vector3(0, 1.1, 0)
+	collision.position = Vector3(0, 1.35, 0)
 	player.add_child(collision)
 	add_child(player)
 	player.pulse_fired.connect(_on_pulse_fired)
@@ -265,27 +271,123 @@ func _build_puzzle() -> void:
 
 
 func _on_pulse_fired(ray_origin: Vector3, ray_direction: Vector3) -> void:
-	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_direction * 34.0)
+	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_direction * PULSE_RANGE)
 	query.exclude = [player.get_rid()]
 	query.collide_with_areas = true
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
-	var hit_position := ray_origin + ray_direction * 34.0
+	var hit_position := ray_origin + ray_direction * PULSE_RANGE
+	var pulse_target: Node3D
 	if not hit.is_empty():
 		hit_position = hit["position"]
-		var collider: Object = hit["collider"]
-		var collider_node := collider as Node3D
-		if collider.has_method("receive_pulse") and is_instance_valid(collider_node):
-			var accepted := false
-			var rejected_for_order := false
-			if _mirrors.size() > 1 and collider_node == _mirrors[1] and not _mirrors[0].aligned:
-				rejected_for_order = true
-				_show_event("NO LIGHT PATH — ALIGN THE WEST MIRROR FIRST")
-			else:
-				var illuminated := player.is_point_illuminated(collider_node.global_position)
-				accepted = bool(collider.call("receive_pulse", 1, illuminated))
-			if not accepted and not rejected_for_order:
-				_show_event("THE TARGET RESISTS — HOLD THE SOL LIGHT ON IT")
+		var direct_hit := hit["collider"] as Node3D
+		if is_instance_valid(direct_hit) and direct_hit.has_method("receive_pulse"):
+			pulse_target = direct_hit
+	if not is_instance_valid(pulse_target) and is_instance_valid(_current_pulse_target):
+		pulse_target = _current_pulse_target
+		hit_position = _pulse_target_position(pulse_target)
+	if is_instance_valid(pulse_target):
+		_apply_pulse_to_target(pulse_target)
+	else:
+		_show_event("NO TARGET — CENTER A CREATURE OR RELAY MIRROR")
 	_spawn_pulse_trace(player.get_pulse_muzzle_position(), hit_position)
+
+
+func _apply_pulse_to_target(target: Node3D) -> void:
+	var accepted := false
+	var rejected_for_order := false
+	if _mirrors.size() > 1 and target == _mirrors[1] and not _mirrors[0].aligned:
+		rejected_for_order = true
+		_show_event("NO LIGHT PATH — ALIGN THE WEST MIRROR FIRST")
+	else:
+		var illuminated := player.is_point_illuminated(_pulse_target_position(target))
+		accepted = bool(target.call("receive_pulse", 1, illuminated))
+	if not accepted and not rejected_for_order:
+		_show_event("TARGET RESISTS — HOLD THE SOL LIGHT ON IT")
+	elif accepted and target is NightEnemy and int(target.get("health")) > 0:
+		_show_event("%s HIT — %d PULSE%s REMAIN" % [
+			_pulse_target_label(target),
+			int(target.get("health")),
+			"" if int(target.get("health")) == 1 else "S"
+		])
+
+
+func _update_pulse_target() -> void:
+	_current_pulse_target = _find_best_pulse_target()
+	if not is_instance_valid(_target_indicator) or not is_instance_valid(_target_name_label):
+		return
+	if not is_instance_valid(_current_pulse_target):
+		_target_indicator.visible = false
+		_target_name_label.visible = false
+		return
+	var camera := player.get_view_camera()
+	var target_position := _pulse_target_position(_current_pulse_target)
+	if not is_instance_valid(camera) or camera.is_position_behind(target_position):
+		_target_indicator.visible = false
+		_target_name_label.visible = false
+		return
+	var screen_position := camera.unproject_position(target_position)
+	_target_indicator.position = screen_position - _target_indicator.size * 0.5
+	_target_name_label.position = screen_position + Vector2(-90.0, 34.0)
+	_target_indicator.visible = true
+	_target_name_label.visible = true
+	_target_name_label.text = _pulse_target_label(_current_pulse_target) + "  •  LOCKED"
+	var ready_color := Color("ffd07a") if player.is_point_illuminated(target_position) else Color("78d9e5")
+	_target_indicator.modulate = ready_color
+	_target_name_label.modulate = ready_color
+
+
+func _find_best_pulse_target() -> Node3D:
+	var origin := player.get_aim_origin()
+	var forward := player.get_aim_direction()
+	var direct_query := PhysicsRayQueryParameters3D.create(origin, origin + forward * PULSE_RANGE)
+	direct_query.exclude = [player.get_rid()]
+	direct_query.collide_with_areas = true
+	var direct_result := get_world_3d().direct_space_state.intersect_ray(direct_query)
+	if not direct_result.is_empty():
+		var direct_target := direct_result["collider"] as Node3D
+		if is_instance_valid(direct_target) and direct_target.has_method("receive_pulse"):
+			return direct_target
+	var best_target: Node3D
+	var best_score := -INF
+	for candidate_node in get_tree().get_nodes_in_group("pulse_targets"):
+		var candidate := candidate_node as Node3D
+		if not is_instance_valid(candidate) or not candidate.has_method("receive_pulse"):
+			continue
+		var target_position := _pulse_target_position(candidate)
+		var offset := target_position - origin
+		var distance := offset.length()
+		if distance <= 0.01 or distance > PULSE_RANGE:
+			continue
+		var aim_alignment := forward.dot(offset / distance)
+		if aim_alignment < cos(deg_to_rad(AUTO_TARGET_ANGLE)):
+			continue
+		if not _has_target_line_of_sight(origin, target_position, candidate):
+			continue
+		var score := aim_alignment * 5.0 - distance / PULSE_RANGE
+		if score > best_score:
+			best_score = score
+			best_target = candidate
+	return best_target
+
+
+func _has_target_line_of_sight(origin: Vector3, target_position: Vector3, target: Node3D) -> bool:
+	var query := PhysicsRayQueryParameters3D.create(origin, target_position)
+	query.exclude = [player.get_rid()]
+	query.collide_with_areas = true
+	var result := get_world_3d().direct_space_state.intersect_ray(query)
+	return not result.is_empty() and result["collider"] == target
+
+
+func _pulse_target_position(target: Node3D) -> Vector3:
+	if target.has_method("get_pulse_target_position"):
+		return target.call("get_pulse_target_position") as Vector3
+	return target.global_position + Vector3.UP
+
+
+func _pulse_target_label(target: Node3D) -> String:
+	if target.has_method("get_pulse_target_label"):
+		return String(target.call("get_pulse_target_label"))
+	return target.name.to_snake_case().replace("_", " ").to_upper()
 
 
 func _on_enemy_defeated(enemy_title: String) -> void:
@@ -431,6 +533,26 @@ func _build_ui() -> void:
 	crosshair.add_theme_font_size_override("font_size", 23)
 	crosshair.modulate = Color(0.75, 0.93, 0.94, 0.82)
 	_ui_layer.add_child(crosshair)
+
+	_target_indicator = Label.new()
+	_target_indicator.name = "PulseTargetIndicator"
+	_target_indicator.text = "◎"
+	_target_indicator.size = Vector2(58, 58)
+	_target_indicator.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_target_indicator.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_target_indicator.add_theme_font_size_override("font_size", 46)
+	_target_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_target_indicator.visible = false
+	_ui_layer.add_child(_target_indicator)
+
+	_target_name_label = Label.new()
+	_target_name_label.name = "PulseTargetName"
+	_target_name_label.size = Vector2(180, 24)
+	_target_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_target_name_label.add_theme_font_size_override("font_size", 13)
+	_target_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_target_name_label.visible = false
+	_ui_layer.add_child(_target_name_label)
 
 
 func _build_touch_controls() -> void:

@@ -145,6 +145,18 @@ func get_pulse_muzzle_position() -> Vector3:
 	return _weapon_muzzle.global_position if is_instance_valid(_weapon_muzzle) else global_position + Vector3.UP
 
 
+func get_aim_origin() -> Vector3:
+	return _camera.global_position if is_instance_valid(_camera) else global_position + Vector3.UP * 1.8
+
+
+func get_aim_direction() -> Vector3:
+	return -_camera.global_transform.basis.z.normalized() if is_instance_valid(_camera) else -global_transform.basis.z
+
+
+func get_view_camera() -> Camera3D:
+	return _camera
+
+
 func _apply_look(delta: Vector2, sensitivity: float) -> void:
 	var safe_delta := delta.limit_length(80.0)
 	rotation.y -= safe_delta.x * sensitivity
@@ -181,10 +193,12 @@ func _animate_keeper(delta: float, speed_ratio: float) -> void:
 	_pose_part("RightGlove", opposing_stride * 0.25 - _attack_recoil * 0.7, Vector3(0, 0, -_attack_recoil * 0.1))
 	_pose_part("LeftTrouserLeg", opposing_stride * 0.48, Vector3(0, maxf(0.0, stride) * 0.035, stride * 0.07))
 	_pose_part("LeftKneePad", opposing_stride * 0.42, Vector3(0, maxf(0.0, stride) * 0.035, stride * 0.09))
+	_pose_part("LeftShin", -opposing_stride * 0.22, Vector3(0, maxf(0.0, stride) * 0.05, stride * 0.08))
 	_pose_part("LeftBoot", opposing_stride * 0.38, Vector3(0, maxf(0.0, stride) * 0.08, stride * 0.12))
 	_pose_part("LeftBootSole", opposing_stride * 0.38, Vector3(0, maxf(0.0, stride) * 0.08, stride * 0.12))
 	_pose_part("RightTrouserLeg", stride * 0.48, Vector3(0, maxf(0.0, opposing_stride) * 0.035, opposing_stride * 0.07))
 	_pose_part("RightKneePad", stride * 0.42, Vector3(0, maxf(0.0, opposing_stride) * 0.035, opposing_stride * 0.09))
+	_pose_part("RightShin", -stride * 0.22, Vector3(0, maxf(0.0, opposing_stride) * 0.05, opposing_stride * 0.08))
 	_pose_part("RightBoot", stride * 0.38, Vector3(0, maxf(0.0, opposing_stride) * 0.08, opposing_stride * 0.12))
 	_pose_part("RightBootSole", stride * 0.38, Vector3(0, maxf(0.0, opposing_stride) * 0.08, opposing_stride * 0.12))
 	_pose_part("CoatSkirt", -stride * 0.08, Vector3(0, 0, -movement * 0.035))
@@ -217,8 +231,8 @@ func _capture_animation_pose() -> void:
 	for node_name in [
 		"LeftUpperSleeve", "LeftForearm", "LeftGlove",
 		"RightUpperSleeve", "RightForearm", "RightGlove",
-		"LeftTrouserLeg", "LeftKneePad", "LeftBoot", "LeftBootSole",
-		"RightTrouserLeg", "RightKneePad", "RightBoot", "RightBootSole",
+		"LeftTrouserLeg", "LeftKneePad", "LeftShin", "LeftBoot", "LeftBootSole",
+		"RightTrouserLeg", "RightKneePad", "RightShin", "RightBoot", "RightBootSole",
 		"CoatSkirt", "PackBody", "CoreHousing", "SolCore",
 		"PulseProjector", "PulseBarrel", "PulseCoil", "PulseMuzzle"
 	]:
@@ -238,7 +252,7 @@ func _set_flashlight(enabled: bool) -> void:
 func _build_camera() -> void:
 	_camera_pivot = Node3D.new()
 	_camera_pivot.name = "CameraPivot"
-	_camera_pivot.position = Vector3(0.0, 2.15, 0.0)
+	_camera_pivot.position = Vector3(0.0, 2.35, 0.0)
 	_camera_pivot.rotation.x = _camera_pitch
 	add_child(_camera_pivot)
 
@@ -273,89 +287,90 @@ func _build_keeper_visual() -> void:
 	add_child(_visual)
 
 	# Layered workwear keeps the silhouette practical and slightly old-fashioned.
-	_add_capsule("WaxedCoat", Vector3(0, 1.18, 0), 0.53, 1.18, Color("82613f"))
-	_add_box("CoatSkirt", Vector3(0, 0.91, 0.04), Vector3(0.94, 0.52, 0.68), Color("765436"))
-	_add_box("ChestBib", Vector3(0, 1.38, -0.48), Vector3(0.72, 0.55, 0.12), Color("37332b"))
-	var left_strap := _add_box("LeftChestStrap", Vector3(-0.25, 1.48, -0.56), Vector3(0.1, 0.78, 0.08), Color("ba8b52"))
+	_add_capsule("WaxedCoat", Vector3(0, 1.62, 0), 0.44, 1.16, Color("82613f"))
+	_add_box("CoatSkirt", Vector3(0, 1.27, 0.04), Vector3(0.78, 0.48, 0.58), Color("765436"))
+	_add_box("ChestBib", Vector3(0, 1.69, -0.40), Vector3(0.6, 0.54, 0.1), Color("37332b"))
+	var left_strap := _add_box("LeftChestStrap", Vector3(-0.21, 1.76, -0.47), Vector3(0.08, 0.74, 0.07), Color("ba8b52"))
 	left_strap.rotation_degrees.z = -12.0
-	var right_strap := _add_box("RightChestStrap", Vector3(0.25, 1.48, -0.56), Vector3(0.1, 0.78, 0.08), Color("ba8b52"))
+	var right_strap := _add_box("RightChestStrap", Vector3(0.21, 1.76, -0.47), Vector3(0.08, 0.74, 0.07), Color("ba8b52"))
 	right_strap.rotation_degrees.z = 12.0
-	_add_box("ChestBuckle", Vector3(0, 1.28, -0.64), Vector3(0.22, 0.2, 0.08), Color("c7a66b"))
-	_add_box("LeftPocket", Vector3(-0.31, 1.03, -0.52), Vector3(0.28, 0.27, 0.13), Color("5b4935"))
-	_add_box("RightPocket", Vector3(0.31, 1.03, -0.52), Vector3(0.28, 0.27, 0.13), Color("5b4935"))
-	_add_box("RaisedCollar", Vector3(0, 1.74, -0.02), Vector3(0.76, 0.18, 0.54), Color("5f4934"))
-	for button_y in [1.18, 1.38, 1.58]:
-		_add_sphere("CoatFastener", Vector3(0, button_y, -0.575), Vector3(0.045, 0.045, 0.025), Color("d0a45f"), true)
+	_add_box("ChestBuckle", Vector3(0, 1.51, -0.53), Vector3(0.18, 0.17, 0.07), Color("c7a66b"))
+	_add_box("LeftPocket", Vector3(-0.26, 1.37, -0.44), Vector3(0.23, 0.25, 0.11), Color("5b4935"))
+	_add_box("RightPocket", Vector3(0.26, 1.37, -0.44), Vector3(0.23, 0.25, 0.11), Color("5b4935"))
+	_add_box("RaisedCollar", Vector3(0, 2.05, -0.02), Vector3(0.62, 0.17, 0.46), Color("5f4934"))
+	for button_y in [1.48, 1.68, 1.88]:
+		_add_sphere("CoatFastener", Vector3(0, button_y, -0.485), Vector3(0.04, 0.04, 0.022), Color("d0a45f"), true)
 
 	# Full-face respirator with distinct round glass eyes; deliberately no hood.
-	_add_sphere("Head", Vector3(0, 2.03, 0), Vector3(0.48, 0.48, 0.46), Color("5c5546"))
-	_add_box("MaskFace", Vector3(0, 1.99, -0.43), Vector3(0.54, 0.5, 0.25), Color("403f37"))
-	_add_box("MaskBrow", Vector3(0, 2.18, -0.57), Vector3(0.68, 0.12, 0.1), Color("292d2b"))
-	_add_box("LeftMaskStrap", Vector3(-0.47, 2.02, -0.02), Vector3(0.08, 0.12, 0.62), Color("242724"))
-	_add_box("RightMaskStrap", Vector3(0.47, 2.02, -0.02), Vector3(0.08, 0.12, 0.62), Color("242724"))
+	_add_sphere("Head", Vector3(0, 2.38, 0), Vector3(0.35, 0.39, 0.34), Color("5c5546"))
+	_add_box("MaskFace", Vector3(0, 2.34, -0.31), Vector3(0.44, 0.43, 0.21), Color("403f37"))
+	_add_box("MaskBrow", Vector3(0, 2.49, -0.42), Vector3(0.56, 0.1, 0.08), Color("292d2b"))
+	_add_box("LeftMaskStrap", Vector3(-0.34, 2.36, -0.02), Vector3(0.06, 0.1, 0.48), Color("242724"))
+	_add_box("RightMaskStrap", Vector3(0.34, 2.36, -0.02), Vector3(0.06, 0.1, 0.48), Color("242724"))
 	for side in [-1.0, 1.0]:
-		var x: float = side * 0.2
-		var rim := _add_cylinder("GoggleRim", Vector3(x, 2.11, -0.61), 0.18, 0.18, 0.12, Color("242927"))
+		var x: float = side * 0.145
+		var rim := _add_cylinder("GoggleRim", Vector3(x, 2.42, -0.45), 0.135, 0.135, 0.1, Color("242927"))
 		rim.rotation_degrees.x = 90.0
-		var lens := _add_cylinder("GoggleGlass", Vector3(x, 2.11, -0.69), 0.135, 0.135, 0.04, Color("7fb3af"), true)
+		var lens := _add_cylinder("GoggleGlass", Vector3(x, 2.42, -0.51), 0.1, 0.1, 0.035, Color("7fb3af"), true)
 		lens.rotation_degrees.x = 90.0
-	var filter := _add_cylinder("RespiratorFilter", Vector3(0, 1.86, -0.68), 0.17, 0.2, 0.26, Color("292d2a"))
+	var filter := _add_cylinder("RespiratorFilter", Vector3(0, 2.2, -0.49), 0.13, 0.16, 0.22, Color("292d2a"))
 	filter.rotation_degrees.x = 90.0
-	var filter_cap := _add_cylinder("FilterCap", Vector3(0, 1.86, -0.83), 0.13, 0.13, 0.04, Color("8b795a"))
+	var filter_cap := _add_cylinder("FilterCap", Vector3(0, 2.2, -0.61), 0.1, 0.1, 0.035, Color("8b795a"))
 	filter_cap.rotation_degrees.x = 90.0
 	for side in [-1.0, 1.0]:
-		var valve := _add_cylinder("MaskValve", Vector3(side * 0.31, 1.91, -0.61), 0.075, 0.095, 0.1, Color("7d6b50"))
+		var valve := _add_cylinder("MaskValve", Vector3(side * 0.235, 2.24, -0.45), 0.06, 0.075, 0.08, Color("7d6b50"))
 		valve.rotation_degrees.x = 90.0
 
 	# Articulated sleeves, gloves, trousers and reinforced boots.
 	for side in [-1.0, 1.0]:
 		var prefix := "Left" if side < 0 else "Right"
-		_add_sphere(prefix + "Shoulder", Vector3(side * 0.58, 1.53, 0), Vector3(0.25, 0.22, 0.25), Color("735235"))
-		_add_capsule(prefix + "UpperSleeve", Vector3(side * 0.63, 1.28, 0), 0.18, 0.58, Color("7a5939"))
-		_add_box(prefix + "ElbowPad", Vector3(side * 0.64, 1.11, -0.18), Vector3(0.28, 0.25, 0.13), Color("3c3e37"))
-		_add_capsule(prefix + "Forearm", Vector3(side * 0.64, 0.96, -0.01), 0.16, 0.45, Color("6d4e33"))
-		_add_sphere(prefix + "Glove", Vector3(side * 0.64, 0.75, -0.02), Vector3(0.2, 0.18, 0.22), Color("292b28"))
-		_add_box(prefix + "TrouserLeg", Vector3(side * 0.25, 0.59, 0.02), Vector3(0.38, 0.58, 0.46), Color("4f493b"))
-		_add_box(prefix + "KneePad", Vector3(side * 0.25, 0.57, -0.27), Vector3(0.35, 0.27, 0.12), Color("3f423b"))
-		_add_box(prefix + "Boot", Vector3(side * 0.25, 0.26, -0.05), Vector3(0.4, 0.48, 0.58), Color("242522"))
-		_add_box(prefix + "BootSole", Vector3(side * 0.25, 0.06, -0.09), Vector3(0.44, 0.09, 0.64), Color("121514"))
+		_add_sphere(prefix + "Shoulder", Vector3(side * 0.48, 1.86, 0), Vector3(0.2, 0.19, 0.21), Color("735235"))
+		_add_capsule(prefix + "UpperSleeve", Vector3(side * 0.52, 1.58, 0), 0.145, 0.62, Color("7a5939"))
+		_add_box(prefix + "ElbowPad", Vector3(side * 0.53, 1.38, -0.14), Vector3(0.23, 0.23, 0.11), Color("3c3e37"))
+		_add_capsule(prefix + "Forearm", Vector3(side * 0.53, 1.18, -0.01), 0.13, 0.5, Color("6d4e33"))
+		_add_sphere(prefix + "Glove", Vector3(side * 0.53, 0.93, -0.02), Vector3(0.16, 0.16, 0.18), Color("292b28"))
+		_add_box(prefix + "TrouserLeg", Vector3(side * 0.21, 0.94, 0.02), Vector3(0.31, 0.52, 0.38), Color("4f493b"))
+		_add_box(prefix + "KneePad", Vector3(side * 0.21, 0.68, -0.22), Vector3(0.29, 0.22, 0.1), Color("3f423b"))
+		_add_box(prefix + "Shin", Vector3(side * 0.21, 0.48, 0.02), Vector3(0.29, 0.42, 0.34), Color("474338"))
+		_add_box(prefix + "Boot", Vector3(side * 0.21, 0.22, -0.04), Vector3(0.34, 0.35, 0.49), Color("242522"))
+		_add_box(prefix + "BootSole", Vector3(side * 0.21, 0.035, -0.07), Vector3(0.37, 0.07, 0.54), Color("121514"))
 
-	_add_box("UtilityBelt", Vector3(0, 0.91, -0.02), Vector3(1.04, 0.16, 0.7), Color("242622"))
-	_add_box("LeftBeltPouch", Vector3(-0.52, 0.91, 0), Vector3(0.22, 0.34, 0.34), Color("594630"))
-	_add_box("RightBeltPouch", Vector3(0.52, 0.91, 0), Vector3(0.22, 0.34, 0.34), Color("594630"))
-	_add_cylinder("LeftHipLantern", Vector3(-0.56, 0.72, -0.12), 0.11, 0.11, 0.34, Color("c8853f"), true)
+	_add_box("UtilityBelt", Vector3(0, 1.19, -0.02), Vector3(0.86, 0.14, 0.58), Color("242622"))
+	_add_box("LeftBeltPouch", Vector3(-0.43, 1.16, 0), Vector3(0.19, 0.3, 0.29), Color("594630"))
+	_add_box("RightBeltPouch", Vector3(0.43, 1.16, 0), Vector3(0.19, 0.3, 0.29), Color("594630"))
+	_add_cylinder("LeftHipLantern", Vector3(-0.46, 0.92, -0.1), 0.09, 0.09, 0.3, Color("c8853f"), true)
 
 	# The backpack-mounted sol unit is the visual center of the character.
-	_add_box("PackBody", Vector3(0, 1.38, 0.52), Vector3(0.9, 1.12, 0.44), Color("303b39"))
-	_add_box("PackFrameTop", Vector3(0, 1.94, 0.72), Vector3(1.04, 0.1, 0.11), Color("171b1a"))
-	_add_box("PackFrameBottom", Vector3(0, 0.83, 0.72), Vector3(1.04, 0.1, 0.11), Color("171b1a"))
-	_add_box("PackRailLeft", Vector3(-0.46, 1.38, 0.72), Vector3(0.09, 1.18, 0.1), Color("171b1a"))
-	_add_box("PackRailRight", Vector3(0.46, 1.38, 0.72), Vector3(0.09, 1.18, 0.1), Color("171b1a"))
+	_add_box("PackBody", Vector3(0, 1.66, 0.45), Vector3(0.74, 1.0, 0.38), Color("303b39"))
+	_add_box("PackFrameTop", Vector3(0, 2.17, 0.62), Vector3(0.86, 0.09, 0.1), Color("171b1a"))
+	_add_box("PackFrameBottom", Vector3(0, 1.14, 0.62), Vector3(0.86, 0.09, 0.1), Color("171b1a"))
+	_add_box("PackRailLeft", Vector3(-0.37, 1.66, 0.62), Vector3(0.08, 1.08, 0.09), Color("171b1a"))
+	_add_box("PackRailRight", Vector3(0.37, 1.66, 0.62), Vector3(0.08, 1.08, 0.09), Color("171b1a"))
 	for side in [-1.0, 1.0]:
-		_add_cylinder("SolCanister", Vector3(side * 0.32, 1.43, 0.79), 0.13, 0.13, 0.75, Color("737267"))
-		_add_cylinder("CanisterCap", Vector3(side * 0.32, 1.84, 0.79), 0.16, 0.16, 0.09, Color("292d2a"))
-		_add_box("CanisterClamp", Vector3(side * 0.32, 1.43, 0.93), Vector3(0.3, 0.1, 0.08), Color("ad7c45"))
-		_add_box("CanisterLowerClamp", Vector3(side * 0.32, 1.14, 0.93), Vector3(0.3, 0.08, 0.08), Color("6c5337"))
-	_add_box("CoreHousing", Vector3(0, 1.36, 0.82), Vector3(0.44, 0.5, 0.16), Color("171b1a"))
-	_add_sphere("SolCore", Vector3(0, 1.39, 0.93), Vector3(0.2, 0.26, 0.11), Color("ffb84d"), true)
-	_add_box("CoreGuardTop", Vector3(0, 1.69, 0.94), Vector3(0.52, 0.07, 0.08), Color("8e6438"))
-	_add_box("CoreGuardBottom", Vector3(0, 1.08, 0.94), Vector3(0.52, 0.07, 0.08), Color("8e6438"))
-	_add_cylinder("Antenna", Vector3(0.36, 2.13, 0.63), 0.025, 0.025, 0.55, Color("222725"))
-	_add_sphere("AntennaTip", Vector3(0.36, 2.42, 0.63), Vector3(0.07, 0.07, 0.07), Color("e79543"), true)
-	var gauge := _add_cylinder("PackGauge", Vector3(-0.19, 1.83, 0.89), 0.1, 0.1, 0.04, Color("8fc1bd"), true)
+		_add_cylinder("SolCanister", Vector3(side * 0.265, 1.7, 0.68), 0.105, 0.105, 0.72, Color("737267"))
+		_add_cylinder("CanisterCap", Vector3(side * 0.265, 2.09, 0.68), 0.13, 0.13, 0.08, Color("292d2a"))
+		_add_box("CanisterClamp", Vector3(side * 0.265, 1.76, 0.8), Vector3(0.25, 0.09, 0.07), Color("ad7c45"))
+		_add_box("CanisterLowerClamp", Vector3(side * 0.265, 1.45, 0.8), Vector3(0.25, 0.07, 0.07), Color("6c5337"))
+	_add_box("CoreHousing", Vector3(0, 1.66, 0.71), Vector3(0.36, 0.46, 0.14), Color("171b1a"))
+	_add_sphere("SolCore", Vector3(0, 1.68, 0.8), Vector3(0.16, 0.23, 0.095), Color("ffb84d"), true)
+	_add_box("CoreGuardTop", Vector3(0, 1.94, 0.81), Vector3(0.43, 0.06, 0.07), Color("8e6438"))
+	_add_box("CoreGuardBottom", Vector3(0, 1.39, 0.81), Vector3(0.43, 0.06, 0.07), Color("8e6438"))
+	_add_cylinder("Antenna", Vector3(0.3, 2.33, 0.55), 0.022, 0.022, 0.5, Color("222725"))
+	_add_sphere("AntennaTip", Vector3(0.3, 2.59, 0.55), Vector3(0.055, 0.055, 0.055), Color("e79543"), true)
+	var gauge := _add_cylinder("PackGauge", Vector3(-0.16, 2.07, 0.77), 0.08, 0.08, 0.035, Color("8fc1bd"), true)
 	gauge.rotation_degrees.x = 90.0
-	_add_box("PackSerialPlate", Vector3(0.18, 1.82, 0.91), Vector3(0.22, 0.12, 0.025), Color("b18b55"))
+	_add_box("PackSerialPlate", Vector3(0.15, 2.06, 0.79), Vector3(0.18, 0.1, 0.02), Color("b18b55"))
 
 	# Compact industrial pulse projector, carried as a tool rather than a rifle.
-	_add_box("PulseProjector", Vector3(0.72, 0.95, -0.32), Vector3(0.3, 0.34, 0.58), Color("3b403c"))
-	var pulse_barrel := _add_cylinder("PulseBarrel", Vector3(0.72, 0.98, -0.67), 0.12, 0.15, 0.48, Color("6d6a5d"))
+	_add_box("PulseProjector", Vector3(0.6, 1.16, -0.27), Vector3(0.25, 0.29, 0.5), Color("3b403c"))
+	var pulse_barrel := _add_cylinder("PulseBarrel", Vector3(0.6, 1.19, -0.57), 0.1, 0.125, 0.42, Color("6d6a5d"))
 	pulse_barrel.rotation_degrees.x = 90.0
-	var pulse_coil := _add_cylinder("PulseCoil", Vector3(0.72, 0.98, -0.48), 0.18, 0.18, 0.13, Color("ffad4f"), true)
+	var pulse_coil := _add_cylinder("PulseCoil", Vector3(0.6, 1.19, -0.41), 0.15, 0.15, 0.11, Color("ffad4f"), true)
 	pulse_coil.rotation_degrees.x = 90.0
-	_add_box("PulseGrip", Vector3(0.72, 0.78, -0.29), Vector3(0.16, 0.3, 0.18), Color("242824"))
+	_add_box("PulseGrip", Vector3(0.6, 0.99, -0.25), Vector3(0.14, 0.27, 0.16), Color("242824"))
 	_weapon_muzzle = Marker3D.new()
 	_weapon_muzzle.name = "PulseMuzzle"
-	_weapon_muzzle.position = Vector3(0.72, 0.98, -0.94)
+	_weapon_muzzle.position = Vector3(0.6, 1.19, -0.8)
 	_visual.add_child(_weapon_muzzle)
 	_muzzle_flash = OmniLight3D.new()
 	_muzzle_flash.name = "PulseFlash"
@@ -366,17 +381,17 @@ func _build_keeper_visual() -> void:
 
 	# A segmented breathing/power hose links mask and pack without costly curves.
 	for hose_data in [
-		[Vector3(0.39, 1.89, -0.35), Vector3(0, 0, -26)],
-		[Vector3(0.48, 1.72, -0.16), Vector3(22, 0, -24)],
-		[Vector3(0.53, 1.53, 0.08), Vector3(34, 0, -18)],
-		[Vector3(0.5, 1.38, 0.32), Vector3(48, 0, -9)]
+		[Vector3(0.29, 2.24, -0.25), Vector3(0, 0, -24)],
+		[Vector3(0.37, 2.07, -0.1), Vector3(20, 0, -22)],
+		[Vector3(0.42, 1.88, 0.08), Vector3(33, 0, -16)],
+		[Vector3(0.4, 1.7, 0.27), Vector3(46, 0, -8)]
 	]:
 		var hose := _add_cylinder("HoseSegment", hose_data[0], 0.055, 0.055, 0.3, Color("191d1c"))
 		hose.rotation_degrees = hose_data[1]
 
 	_sol_glow = OmniLight3D.new()
 	_sol_glow.name = "SolAura"
-	_sol_glow.position = Vector3(0, 1.42, 0.65)
+	_sol_glow.position = Vector3(0, 1.7, 0.57)
 	_sol_glow.light_color = Color("ffb85c")
 	_sol_glow.light_energy = 1.35
 	_sol_glow.omni_range = 5.5

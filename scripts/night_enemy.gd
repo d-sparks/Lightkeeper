@@ -27,8 +27,17 @@ func configure(new_target: Keeper, new_behavior: Behavior) -> void:
 
 
 func _ready() -> void:
+	add_to_group("pulse_targets")
 	_build_collision()
 	_build_visual()
+
+
+func get_pulse_target_position() -> Vector3:
+	return global_position + Vector3.UP * (1.1 if behavior == Behavior.GLOOM_STALKER else 0.65)
+
+
+func get_pulse_target_label() -> String:
+	return enemy_title.to_upper()
 
 
 func _physics_process(delta: float) -> void:
