@@ -54,6 +54,15 @@ jobs:
             exit 1
           fi
 
+      - name: Run gameplay scene smoke test
+        run: |
+          log_file="$(mktemp)"
+          godot --headless --path . --script tests/gameplay_smoke.gd 2>&1 | tee "${log_file}"
+          if grep -E 'GAMEPLAY SMOKE FAILED|SCRIPT ERROR:|ERROR: Failed to load script|Parse Error:|Compile Error:' "${log_file}"; then
+            echo "Gameplay scene smoke test failed."
+            exit 1
+          fi
+
       - name: Test export versioning
         run: python3 -m unittest tests/test_version_web_export.py
 

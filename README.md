@@ -8,10 +8,11 @@ This branch intentionally replaces the earlier JavaScript/Canvas draft. That imp
 
 1. Leave the warm dusk platform.
 2. Cross into permanent night while the portable sol unit drains.
-3. Recover a glowing nightglass mineral sample from the dead relay chamber.
-4. Return the sample safely to the dusk platform.
+3. Use sol pulses against two creatures with different reactions to light.
+4. Illuminate and pulse two relay mirrors to unseal the deeper vault.
+5. Recover a glowing nightglass mineral sample and return it safely to dusk.
 
-The placeholder Keeper already follows the agreed silhouette: rugged utility gear, no hood, a pronounced mask with two separate goggles, heavy boots, and a visually dominant backpack-mounted sol core.
+The articulated Keeper follows the agreed silhouette: layered frontier workwear, no hood, a pronounced respirator with separate circular goggles, heavy boots, a compact pulse projector, and a visually dominant backpack-mounted sol core. Procedural idle, walk, recoil, coat, and pack motion keep the browser-friendly model alive in motion.
 
 ## Controls
 
@@ -20,9 +21,10 @@ The placeholder Keeper already follows the agreed silhouette: rugged utility gea
 | `WASD` / arrow keys | Move |
 | Mouse | Look |
 | `F` | Toggle sol light |
+| Left click / `Space` / `Q` | Fire sol pulse |
 | `Esc` | Release mouse cursor |
 
-On phones and tablets, use the left virtual stick to move, swipe the right side to look, and tap **SOL** to toggle the light. Landscape orientation is recommended.
+On phones and tablets, use the left virtual stick to move, swipe the right side to look, tap **SOL** to toggle the light, and tap **PULSE** to attack or operate illuminated relay mirrors. Landscape orientation is recommended.
 
 ## Run locally
 
@@ -44,9 +46,7 @@ GitHub Actions validates the project and publishes a downloadable `lightkeeper-w
 
 ## Prototype roadmap
 
-- Add one light-reactive enemy.
-- Add a pulse tool with explicit sol cost.
-- Add the first mirror-and-beam door puzzle.
 - Add death, carried-item loss, and rare-gear durability damage.
 - Add the first dusk-side solar harvester and expedition loadout screen.
 - Test one metroidvania return path with the hover module.
+- Replace selected procedural props with authored production assets after the loop is proven.
