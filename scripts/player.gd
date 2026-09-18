@@ -1,6 +1,8 @@
 class_name Keeper
 extends CharacterBody3D
 
+signal pulse_fired(ray_origin: Vector3, ray_direction: Vector3)
+
 const WALK_SPEED := 6.0
 const ACCELERATION := 22.0
 const MOUSE_SENSITIVITY := 0.0024
@@ -8,6 +10,8 @@ const LIGHT_DRAIN_PER_SECOND := 2.6
 const TOUCH_LOOK_SENSITIVITY := 0.0032
 const CAMERA_LENGTH := 5.2
 const CAMERA_MIN_LENGTH := 0.9
+const PULSE_COST := 4.0
+const PULSE_COOLDOWN := 0.34
 
 var sol_charge := 100.0
 var flashlight_on := true
@@ -22,6 +26,13 @@ var _camera: Camera3D
 var _spotlight: SpotLight3D
 var _sol_glow: OmniLight3D
 var _visual: Node3D
+var _weapon_muzzle: Marker3D
+var _muzzle_flash: OmniLight3D
+var _pulse_cooldown := 0.0
+var _attack_recoil := 0.0
+var _gait_phase := 0.0
+var _visual_bob := 0.0
+var _rest_pose: Dictionary = {}
 
 
 func _ready() -> void:
@@ -34,15 +45,22 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		_apply_look(event.relative, MOUSE_SENSITIVITY)
 	elif event is InputEventMouseButton and event.pressed:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		elif event.button_index == MOUSE_BUTTON_LEFT:
+			try_pulse_attack()
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		elif event.keycode == KEY_F:
 			toggle_flashlight()
+		elif event.keycode == KEY_SPACE or event.keycode == KEY_Q:
+			try_pulse_attack()
 
 
 func _physics_process(delta: float) -> void:
+	_pulse_cooldown = maxf(0.0, _pulse_cooldown - delta)
+	_attack_recoil = move_toward(_attack_recoil, 0.0, 5.5 * delta)
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
 
@@ -66,6 +84,7 @@ func _physics_process(delta: float) -> void:
 	velocity.z = move_toward(velocity.z, desired.z, ACCELERATION * delta)
 	move_and_slide()
 	_update_camera_collision(delta)
+	_animate_keeper(delta, Vector2(velocity.x, velocity.z).length() / WALK_SPEED)
 
 	if is_in_dark and flashlight_on:
 		sol_charge = maxf(0.0, sol_charge - LIGHT_DRAIN_PER_SECOND * delta)
@@ -90,6 +109,42 @@ func toggle_flashlight() -> void:
 	_set_flashlight(not flashlight_on)
 
 
+func try_pulse_attack() -> void:
+	if _pulse_cooldown > 0.0 or sol_charge < PULSE_COST or not is_instance_valid(_camera):
+		return
+	sol_charge -= PULSE_COST
+	_pulse_cooldown = PULSE_COOLDOWN
+	_attack_recoil = 1.0
+	var ray_direction := -_camera.global_transform.basis.z.normalized()
+	pulse_fired.emit(_camera.global_position, ray_direction)
+	if is_instance_valid(_muzzle_flash):
+		_muzzle_flash.light_energy = 5.0
+		var flash_tween := create_tween()
+		flash_tween.tween_property(_muzzle_flash, "light_energy", 0.0, 0.12)
+
+
+func take_sol_damage(amount: float) -> void:
+	sol_charge = maxf(0.0, sol_charge - amount)
+	_attack_recoil = -0.55
+	if sol_charge <= 0.0:
+		_set_flashlight(false)
+
+
+func is_point_illuminated(point: Vector3) -> bool:
+	if not flashlight_on or not is_instance_valid(_camera):
+		return false
+	var offset := point - _camera.global_position
+	var distance := offset.length()
+	if distance <= 0.01 or distance > _spotlight.spot_range:
+		return false
+	var beam_direction := -_camera.global_transform.basis.z.normalized()
+	return beam_direction.dot(offset / distance) > cos(deg_to_rad(_spotlight.spot_angle * 0.82))
+
+
+func get_pulse_muzzle_position() -> Vector3:
+	return _weapon_muzzle.global_position if is_instance_valid(_weapon_muzzle) else global_position + Vector3.UP
+
+
 func _apply_look(delta: Vector2, sensitivity: float) -> void:
 	var safe_delta := delta.limit_length(80.0)
 	rotation.y -= safe_delta.x * sensitivity
@@ -103,6 +158,73 @@ func _update_camera_collision(delta: float) -> void:
 	var target_length := clampf(_camera_probe.get_hit_length() - 0.12, CAMERA_MIN_LENGTH, CAMERA_LENGTH)
 	var response := 16.0 if target_length < _camera.position.z else 7.0
 	_camera.position.z = lerpf(_camera.position.z, target_length, 1.0 - exp(-response * delta))
+
+
+func _animate_keeper(delta: float, speed_ratio: float) -> void:
+	var movement := clampf(speed_ratio, 0.0, 1.0)
+	_gait_phase += delta * lerpf(2.0, 10.5, movement)
+	var stride := sin(_gait_phase) * movement
+	var opposing_stride := sin(_gait_phase + PI) * movement
+	var step_bob := absf(sin(_gait_phase)) * 0.055 * movement
+	var breathing := sin(Time.get_ticks_msec() * 0.0017) * 0.012 * (1.0 - movement)
+	_visual_bob = lerpf(_visual_bob, step_bob + breathing, 1.0 - exp(-10.0 * delta))
+	_visual.position.y = _visual_bob
+	_visual.rotation.z = lerpf(_visual.rotation.z, -velocity.x / WALK_SPEED * 0.055, 1.0 - exp(-7.0 * delta))
+	_visual.rotation.x = lerpf(_visual.rotation.x, -movement * 0.035 + _attack_recoil * 0.025, 1.0 - exp(-8.0 * delta))
+
+	_reset_animated_pose()
+	_pose_part("LeftUpperSleeve", stride * 0.48, Vector3.ZERO)
+	_pose_part("LeftForearm", stride * 0.34, Vector3(0, 0, stride * 0.055))
+	_pose_part("LeftGlove", stride * 0.3, Vector3(0, 0, stride * 0.09))
+	_pose_part("RightUpperSleeve", opposing_stride * 0.34 - _attack_recoil * 0.5, Vector3.ZERO)
+	_pose_part("RightForearm", opposing_stride * 0.28 - _attack_recoil * 0.68, Vector3(0, 0, -_attack_recoil * 0.08))
+	_pose_part("RightGlove", opposing_stride * 0.25 - _attack_recoil * 0.7, Vector3(0, 0, -_attack_recoil * 0.1))
+	_pose_part("LeftTrouserLeg", opposing_stride * 0.48, Vector3(0, maxf(0.0, stride) * 0.035, stride * 0.07))
+	_pose_part("LeftKneePad", opposing_stride * 0.42, Vector3(0, maxf(0.0, stride) * 0.035, stride * 0.09))
+	_pose_part("LeftBoot", opposing_stride * 0.38, Vector3(0, maxf(0.0, stride) * 0.08, stride * 0.12))
+	_pose_part("LeftBootSole", opposing_stride * 0.38, Vector3(0, maxf(0.0, stride) * 0.08, stride * 0.12))
+	_pose_part("RightTrouserLeg", stride * 0.48, Vector3(0, maxf(0.0, opposing_stride) * 0.035, opposing_stride * 0.07))
+	_pose_part("RightKneePad", stride * 0.42, Vector3(0, maxf(0.0, opposing_stride) * 0.035, opposing_stride * 0.09))
+	_pose_part("RightBoot", stride * 0.38, Vector3(0, maxf(0.0, opposing_stride) * 0.08, opposing_stride * 0.12))
+	_pose_part("RightBootSole", stride * 0.38, Vector3(0, maxf(0.0, opposing_stride) * 0.08, opposing_stride * 0.12))
+	_pose_part("CoatSkirt", -stride * 0.08, Vector3(0, 0, -movement * 0.035))
+	_pose_part("PackBody", 0.0, Vector3(0, -step_bob * 0.34, movement * 0.02))
+	_pose_part("CoreHousing", 0.0, Vector3(0, -step_bob * 0.42, 0))
+	_pose_part("SolCore", 0.0, Vector3(0, -step_bob * 0.42, 0))
+	_pose_part("PulseProjector", -_attack_recoil * 0.18, Vector3(0, 0, _attack_recoil * 0.12))
+	_pose_part("PulseBarrel", -_attack_recoil * 0.18, Vector3(0, 0, _attack_recoil * 0.12))
+	_pose_part("PulseCoil", -_attack_recoil * 0.18, Vector3(0, 0, _attack_recoil * 0.12))
+	_pose_part("PulseMuzzle", -_attack_recoil * 0.18, Vector3(0, 0, _attack_recoil * 0.12))
+
+
+func _reset_animated_pose() -> void:
+	for node_name in _rest_pose:
+		var part := _visual.get_node_or_null(String(node_name)) as Node3D
+		if is_instance_valid(part):
+			var rest_transform: Transform3D = _rest_pose[node_name]
+			part.transform = rest_transform
+
+
+func _pose_part(node_name: String, rotation_x: float, offset: Vector3) -> void:
+	var part := _visual.get_node_or_null(node_name) as Node3D
+	if not is_instance_valid(part):
+		return
+	part.rotation.x += rotation_x
+	part.position += offset
+
+
+func _capture_animation_pose() -> void:
+	for node_name in [
+		"LeftUpperSleeve", "LeftForearm", "LeftGlove",
+		"RightUpperSleeve", "RightForearm", "RightGlove",
+		"LeftTrouserLeg", "LeftKneePad", "LeftBoot", "LeftBootSole",
+		"RightTrouserLeg", "RightKneePad", "RightBoot", "RightBootSole",
+		"CoatSkirt", "PackBody", "CoreHousing", "SolCore",
+		"PulseProjector", "PulseBarrel", "PulseCoil", "PulseMuzzle"
+	]:
+		var part := _visual.get_node_or_null(node_name) as Node3D
+		if is_instance_valid(part):
+			_rest_pose[node_name] = part.transform
 
 
 func _set_flashlight(enabled: bool) -> void:
@@ -161,6 +283,9 @@ func _build_keeper_visual() -> void:
 	_add_box("ChestBuckle", Vector3(0, 1.28, -0.64), Vector3(0.22, 0.2, 0.08), Color("c7a66b"))
 	_add_box("LeftPocket", Vector3(-0.31, 1.03, -0.52), Vector3(0.28, 0.27, 0.13), Color("5b4935"))
 	_add_box("RightPocket", Vector3(0.31, 1.03, -0.52), Vector3(0.28, 0.27, 0.13), Color("5b4935"))
+	_add_box("RaisedCollar", Vector3(0, 1.74, -0.02), Vector3(0.76, 0.18, 0.54), Color("5f4934"))
+	for button_y in [1.18, 1.38, 1.58]:
+		_add_sphere("CoatFastener", Vector3(0, button_y, -0.575), Vector3(0.045, 0.045, 0.025), Color("d0a45f"), true)
 
 	# Full-face respirator with distinct round glass eyes; deliberately no hood.
 	_add_sphere("Head", Vector3(0, 2.03, 0), Vector3(0.48, 0.48, 0.46), Color("5c5546"))
@@ -178,6 +303,9 @@ func _build_keeper_visual() -> void:
 	filter.rotation_degrees.x = 90.0
 	var filter_cap := _add_cylinder("FilterCap", Vector3(0, 1.86, -0.83), 0.13, 0.13, 0.04, Color("8b795a"))
 	filter_cap.rotation_degrees.x = 90.0
+	for side in [-1.0, 1.0]:
+		var valve := _add_cylinder("MaskValve", Vector3(side * 0.31, 1.91, -0.61), 0.075, 0.095, 0.1, Color("7d6b50"))
+		valve.rotation_degrees.x = 90.0
 
 	# Articulated sleeves, gloves, trousers and reinforced boots.
 	for side in [-1.0, 1.0]:
@@ -195,6 +323,7 @@ func _build_keeper_visual() -> void:
 	_add_box("UtilityBelt", Vector3(0, 0.91, -0.02), Vector3(1.04, 0.16, 0.7), Color("242622"))
 	_add_box("LeftBeltPouch", Vector3(-0.52, 0.91, 0), Vector3(0.22, 0.34, 0.34), Color("594630"))
 	_add_box("RightBeltPouch", Vector3(0.52, 0.91, 0), Vector3(0.22, 0.34, 0.34), Color("594630"))
+	_add_cylinder("LeftHipLantern", Vector3(-0.56, 0.72, -0.12), 0.11, 0.11, 0.34, Color("c8853f"), true)
 
 	# The backpack-mounted sol unit is the visual center of the character.
 	_add_box("PackBody", Vector3(0, 1.38, 0.52), Vector3(0.9, 1.12, 0.44), Color("303b39"))
@@ -206,12 +335,34 @@ func _build_keeper_visual() -> void:
 		_add_cylinder("SolCanister", Vector3(side * 0.32, 1.43, 0.79), 0.13, 0.13, 0.75, Color("737267"))
 		_add_cylinder("CanisterCap", Vector3(side * 0.32, 1.84, 0.79), 0.16, 0.16, 0.09, Color("292d2a"))
 		_add_box("CanisterClamp", Vector3(side * 0.32, 1.43, 0.93), Vector3(0.3, 0.1, 0.08), Color("ad7c45"))
+		_add_box("CanisterLowerClamp", Vector3(side * 0.32, 1.14, 0.93), Vector3(0.3, 0.08, 0.08), Color("6c5337"))
 	_add_box("CoreHousing", Vector3(0, 1.36, 0.82), Vector3(0.44, 0.5, 0.16), Color("171b1a"))
 	_add_sphere("SolCore", Vector3(0, 1.39, 0.93), Vector3(0.2, 0.26, 0.11), Color("ffb84d"), true)
 	_add_box("CoreGuardTop", Vector3(0, 1.69, 0.94), Vector3(0.52, 0.07, 0.08), Color("8e6438"))
 	_add_box("CoreGuardBottom", Vector3(0, 1.08, 0.94), Vector3(0.52, 0.07, 0.08), Color("8e6438"))
 	_add_cylinder("Antenna", Vector3(0.36, 2.13, 0.63), 0.025, 0.025, 0.55, Color("222725"))
 	_add_sphere("AntennaTip", Vector3(0.36, 2.42, 0.63), Vector3(0.07, 0.07, 0.07), Color("e79543"), true)
+	var gauge := _add_cylinder("PackGauge", Vector3(-0.19, 1.83, 0.89), 0.1, 0.1, 0.04, Color("8fc1bd"), true)
+	gauge.rotation_degrees.x = 90.0
+	_add_box("PackSerialPlate", Vector3(0.18, 1.82, 0.91), Vector3(0.22, 0.12, 0.025), Color("b18b55"))
+
+	# Compact industrial pulse projector, carried as a tool rather than a rifle.
+	_add_box("PulseProjector", Vector3(0.72, 0.95, -0.32), Vector3(0.3, 0.34, 0.58), Color("3b403c"))
+	var pulse_barrel := _add_cylinder("PulseBarrel", Vector3(0.72, 0.98, -0.67), 0.12, 0.15, 0.48, Color("6d6a5d"))
+	pulse_barrel.rotation_degrees.x = 90.0
+	var pulse_coil := _add_cylinder("PulseCoil", Vector3(0.72, 0.98, -0.48), 0.18, 0.18, 0.13, Color("ffad4f"), true)
+	pulse_coil.rotation_degrees.x = 90.0
+	_add_box("PulseGrip", Vector3(0.72, 0.78, -0.29), Vector3(0.16, 0.3, 0.18), Color("242824"))
+	_weapon_muzzle = Marker3D.new()
+	_weapon_muzzle.name = "PulseMuzzle"
+	_weapon_muzzle.position = Vector3(0.72, 0.98, -0.94)
+	_visual.add_child(_weapon_muzzle)
+	_muzzle_flash = OmniLight3D.new()
+	_muzzle_flash.name = "PulseFlash"
+	_muzzle_flash.light_color = Color("ffbd68")
+	_muzzle_flash.light_energy = 0.0
+	_muzzle_flash.omni_range = 4.5
+	_weapon_muzzle.add_child(_muzzle_flash)
 
 	# A segmented breathing/power hose links mask and pack without costly curves.
 	for hose_data in [
@@ -230,6 +381,7 @@ func _build_keeper_visual() -> void:
 	_sol_glow.light_energy = 1.35
 	_sol_glow.omni_range = 5.5
 	_visual.add_child(_sol_glow)
+	_capture_animation_pose()
 
 
 func _add_box(node_name: String, at: Vector3, size: Vector3, color: Color, emissive := false) -> MeshInstance3D:
