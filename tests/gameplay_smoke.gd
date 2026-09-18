@@ -34,6 +34,15 @@ func _run_checks() -> void:
 	_assert(stalker.health == stalker_health, "a resisted pulse must not damage the Gloom Stalker")
 	_assert(stalker.receive_pulse(1, true), "Gloom Stalker must take damage while illuminated")
 	_assert(stalker.health == stalker_health - 1, "an illuminated pulse must damage the Gloom Stalker")
+	keeper.global_position = Vector3(0.0, 0.05, -20.0)
+	keeper.rotation.y = 0.0
+	await physics_frame
+	var auto_target := game.call("_find_best_pulse_target") as Node3D
+	_assert(auto_target == stalker, "soft targeting must acquire a visible enemy near the center of aim")
+	game.set("_current_pulse_target", stalker)
+	var health_before_auto_aim := stalker.health
+	game.call("_on_pulse_fired", keeper.get_aim_origin(), keeper.get_aim_direction())
+	_assert(stalker.health == health_before_auto_aim - 1, "a pulse must damage the selected soft target")
 
 	var mite := game.get_node("LumenMite") as NightEnemy
 	var mite_health := mite.health
@@ -49,8 +58,14 @@ func _run_checks() -> void:
 	_assert(bool(game.get("_gate_open")), "aligning both mirrors must unseal the relay vault")
 
 	var animation_pose: Dictionary = keeper.get("_rest_pose")
-	_assert(animation_pose.size() >= 20, "Keeper must have a detailed animated pose")
-	print("Gameplay smoke passed: controls, combat rules, enemies, puzzle, and Keeper animation rig are present.")
+	_assert(animation_pose.size() >= 24, "Keeper must have a detailed animated pose")
+	var keeper_visual := keeper.get_node("FrontierKeeper")
+	var head := keeper_visual.get_node("Head") as MeshInstance3D
+	var shoulder := keeper_visual.get_node("LeftShoulder") as MeshInstance3D
+	_assert(head.position.y >= 2.3 and head.scale.x <= 0.72, "Keeper must use a smaller head on a taller frame")
+	_assert(absf(shoulder.position.x) <= 0.5, "Keeper shoulders must retain natural humanoid width")
+	_assert(game.find_child("PulseTargetIndicator", true, false) != null, "target lock indicator must exist")
+	print("Gameplay smoke passed: proportions, auto-targeting, combat rules, puzzle, and mobile controls are present.")
 	quit(0)
 
 

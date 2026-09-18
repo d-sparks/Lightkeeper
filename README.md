@@ -24,7 +24,7 @@ The articulated Keeper follows the agreed silhouette: layered frontier workwear,
 | Left click / `Space` / `Q` | Fire sol pulse |
 | `Esc` | Release mouse cursor |
 
-On phones and tablets, use the left virtual stick to move, swipe the right side to look, tap **SOL** to toggle the light, and tap **PULSE** to attack or operate illuminated relay mirrors. Landscape orientation is recommended.
+On phones and tablets, use the left virtual stick to move, swipe the right side to look, tap **SOL** to toggle the light, and tap **PULSE** to attack or operate illuminated relay mirrors. Landscape orientation is recommended. Center an enemy or mirror inside the targeting cone; the cyan/amber lock indicator confirms where the next pulse will land.
 
 ## Run locally
 

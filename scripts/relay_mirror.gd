@@ -9,6 +9,7 @@ var _glow: OmniLight3D
 
 
 func _ready() -> void:
+	add_to_group("pulse_targets")
 	var collision := CollisionShape3D.new()
 	var shape := BoxShape3D.new()
 	shape.size = Vector3(1.4, 2.2, 0.5)
@@ -47,18 +48,28 @@ func _ready() -> void:
 	add_child(_glow)
 
 
+func get_pulse_target_position() -> Vector3:
+	return global_position + Vector3.UP * 1.65
+
+
+func get_pulse_target_label() -> String:
+	return "RELAY MIRROR"
+
+
 func receive_pulse(_power: int, illuminated: bool) -> bool:
 	if not illuminated:
 		var reject := create_tween()
 		reject.tween_property(_disc, "rotation_degrees:z", _disc.rotation_degrees.z + 8.0, 0.08)
 		reject.tween_property(_disc, "rotation_degrees:z", _disc.rotation_degrees.z - 8.0, 0.08)
 		return false
-	aligned = not aligned
-	var target_angle := 35.0 if aligned else -35.0
+	if aligned:
+		return true
+	aligned = true
+	var target_angle := 35.0
 	var tween := create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(_disc, "rotation_degrees:z", target_angle, 0.36)
-	_glow.light_color = Color("ffb65c") if aligned else Color("6d8f9f")
-	_glow.light_energy = 2.2 if aligned else 0.6
+	_glow.light_color = Color("ffb65c")
+	_glow.light_energy = 2.2
 	alignment_changed.emit(self, aligned)
 	return true
 
