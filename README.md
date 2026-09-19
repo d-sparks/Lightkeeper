@@ -7,10 +7,12 @@ This branch intentionally replaces the earlier JavaScript/Canvas draft. That imp
 ## Current playable loop
 
 1. Prepare at the terminator encampment: repair and recharge, inspect upgrades, or route solar power through the construction gantry.
-2. Cross into permanent night while the portable sol unit drains.
+2. Use Night Dispatch to ride from the enemy-free home area to the separate forward expedition platform.
 3. Use sol pulses against two creatures with different reactions to light.
 4. Illuminate and pulse two relay mirrors to unseal the deeper vault.
-5. Recover a glowing nightglass mineral sample, return to dusk, and secure it in the Keeper House stash.
+5. Recover a glowing nightglass mineral sample, take the return train to dusk, and secure it in the Keeper House stash.
+
+The encampment and expedition are isolated scene areas rather than one continuous combat map. Home contains no enemy actors. Its dusty terrain, service lane, work sheds, train, and solar infrastructure use lightweight procedural textures that remain suitable for a browser build.
 
 The articulated Keeper follows the agreed silhouette: layered frontier workwear, no hood, a pronounced respirator with separate circular goggles, heavy boots, a compact pulse projector, and a visually dominant backpack-mounted sol core. Procedural idle, walk, recoil, coat, and pack motion keep the browser-friendly model alive in motion.
 

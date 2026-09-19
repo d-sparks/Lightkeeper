@@ -37,18 +37,35 @@ var _construction_boom: Node3D
 var _deployed_harvester: Node3D
 var _harvester_deployed := false
 var _grid_output := 1
+var _home_root: Node3D
+var _expedition_root: Node3D
+var _build_parent: Node3D
+var _at_home := true
+var _surface_textures: Dictionary = {}
 
 
 func _ready() -> void:
 	_rng.seed = 74291
 	_build_environment()
+	_home_root = Node3D.new()
+	_home_root.name = "HomeArea"
+	add_child(_home_root)
+	_expedition_root = Node3D.new()
+	_expedition_root.name = "ExpeditionArea"
+	_expedition_root.position = Vector3(0, 0, -240)
+	add_child(_expedition_root)
+
+	_build_parent = _expedition_root
 	_build_world()
-	_build_encampment()
-	_spawn_keeper()
 	_build_puzzle()
-	_spawn_enemies()
 	_build_mineral()
 	_build_return_zone()
+	_build_expedition_station()
+	_build_parent = _home_root
+	_build_encampment()
+	_build_parent = null
+	_spawn_keeper()
+	_spawn_enemies()
 	_build_ui()
 	_build_touch_controls()
 
@@ -58,14 +75,20 @@ func _process(delta: float) -> void:
 		return
 	_event_message_time = maxf(0.0, _event_message_time - delta)
 	_objective_label.modulate = Color("e6c47a")
-	player.is_in_dark = player.global_position.z < DARK_THRESHOLD_Z
+	var expedition_position := _expedition_root.to_local(player.global_position)
+	player.is_in_dark = not _at_home and expedition_position.z < DARK_THRESHOLD_Z
 	_sol_bar.value = player.sol_charge
-	_zone_label.text = "PERMANENT NIGHT" if player.is_in_dark else "HOME — TERMINATOR DUSK"
+	if _at_home:
+		_zone_label.text = "HOME — TERMINATOR ENCAMPMENT"
+	elif player.is_in_dark:
+		_zone_label.text = "PERMANENT NIGHT"
+	else:
+		_zone_label.text = "NIGHT LINE — FORWARD PLATFORM"
 	_zone_label.modulate = Color("8ab8d8") if player.is_in_dark else Color("f0b36b")
 	_status_label.text = "SOL %03d%%  •  GRID %d MW  •  HOSTILES %d  •  CARGO %d  •  LIGHT: %s" % [
 		int(player.sol_charge),
 		_grid_output,
-		_enemies_remaining,
+		0 if _at_home else _enemies_remaining,
 		mineral_count,
 		"ON" if player.flashlight_on else "OFF"
 	]
@@ -78,7 +101,9 @@ func _process(delta: float) -> void:
 		_objective_label.text = "RELAY SAMPLE SECURED — PROTOTYPE LOOP COMPLETE"
 		_objective_label.modulate = Color("90e0a7")
 	elif mineral_count > 0:
-		_objective_label.text = "SECURE THE NIGHTGLASS SAMPLE IN THE KEEPER HOUSE STASH"
+		_objective_label.text = "SECURE THE NIGHTGLASS SAMPLE IN THE KEEPER HOUSE STASH" if _at_home else "RETURN TO THE TRAIN WITH THE NIGHTGLASS SAMPLE"
+	elif _at_home:
+		_objective_label.text = "PREPARE AT CAMP OR BOARD THE NIGHT TRAIN"
 	elif _gate_open:
 		_objective_label.text = "THE RELAY VAULT IS OPEN — RECOVER THE NIGHTGLASS"
 	elif _mirrors_aligned_count() > 0:
@@ -133,15 +158,15 @@ func _build_environment() -> void:
 
 
 func _build_world() -> void:
-	_make_solid_box("DuskPlatform", Vector3(0, -0.5, 7), Vector3(30, 1, 24), Color("66513c"))
-	_make_solid_box("Threshold", Vector3(0, -0.5, -7), Vector3(14, 1, 8), Color("394044"))
-	_make_solid_box("DarkRoad", Vector3(0, -0.5, -26), Vector3(14, 1, 30), Color("1d2932"))
-	_make_solid_box("RelayFloor", Vector3(0, -0.5, -45), Vector3(18, 1, 12), Color("18252e"))
-	_make_solid_box("MirrorGalleryFloor", Vector3(0, -0.5, -62), Vector3(14, 1, 22), Color("17212b"))
-	_make_solid_box("RelayVaultFloor", Vector3(0, -0.5, -72), Vector3(12, 1, 8), Color("101b24"))
+	_make_solid_box("DuskPlatform", Vector3(0, -0.5, 7), Vector3(18, 1, 16), Color("66513c"), "ground")
+	_make_solid_box("Threshold", Vector3(0, -0.5, -7), Vector3(10, 1, 8), Color("394044"), "ground")
+	_make_solid_box("DarkRoad", Vector3(0, -0.5, -26), Vector3(10, 1, 30), Color("1d2932"), "ground")
+	_make_solid_box("RelayFloor", Vector3(0, -0.5, -45), Vector3(18, 1, 12), Color("18252e"), "ground")
+	_make_solid_box("MirrorGalleryFloor", Vector3(0, -0.5, -62), Vector3(14, 1, 22), Color("17212b"), "ground")
+	_make_solid_box("RelayVaultFloor", Vector3(0, -0.5, -72), Vector3(12, 1, 8), Color("101b24"), "ground")
 
-	_make_solid_box("RoadWallLeft", Vector3(-7.4, 1.6, -26), Vector3(0.8, 4.2, 31), Color("26333d"))
-	_make_solid_box("RoadWallRight", Vector3(7.4, 1.6, -26), Vector3(0.8, 4.2, 31), Color("26333d"))
+	_make_solid_box("RoadWallLeft", Vector3(-5.4, 1.6, -26), Vector3(0.8, 4.2, 31), Color("26333d"))
+	_make_solid_box("RoadWallRight", Vector3(5.4, 1.6, -26), Vector3(0.8, 4.2, 31), Color("26333d"))
 	_make_solid_box("RelayWallLeft", Vector3(-9, 1.6, -45), Vector3(0.8, 4.2, 12), Color("202b35"))
 	_make_solid_box("RelayWallRight", Vector3(9, 1.6, -45), Vector3(0.8, 4.2, 12), Color("202b35"))
 	_make_solid_box("GalleryWallLeft", Vector3(-7, 1.8, -62), Vector3(0.8, 4.8, 22), Color("1b2833"))
@@ -155,9 +180,9 @@ func _build_world() -> void:
 		_make_visual_box(Vector3(0, 4.25, arch_z), Vector3(12.8, 0.35, 0.65), Color("303b43"))
 
 	# Monumental relay gate at the edge of permanent night.
-	_make_solid_box("ThresholdLeft", Vector3(-5.8, 2.4, -10.2), Vector3(1.2, 5.8, 1.4), Color("494642"))
-	_make_solid_box("ThresholdRight", Vector3(5.8, 2.4, -10.2), Vector3(1.2, 5.8, 1.4), Color("494642"))
-	_make_visual_box(Vector3(0, 5.0, -10.2), Vector3(12.6, 0.8, 1.4), Color("383d40"))
+	_make_solid_box("ThresholdLeft", Vector3(-3.8, 2.4, -10.2), Vector3(1.2, 5.8, 1.4), Color("494642"))
+	_make_solid_box("ThresholdRight", Vector3(3.8, 2.4, -10.2), Vector3(1.2, 5.8, 1.4), Color("494642"))
+	_make_visual_box(Vector3(0, 5.0, -10.2), Vector3(8.6, 0.8, 1.4), Color("383d40"))
 	_make_visual_box(Vector3(0, 4.95, -9.45), Vector3(2.4, 0.15, 0.12), Color("f3a957"), true)
 
 	# Lighthouse infrastructure silhouettes.
@@ -193,16 +218,17 @@ func _build_world() -> void:
 	relay_light.light_color = Color("6fa5c5")
 	relay_light.light_energy = 1.4
 	relay_light.omni_range = 10.0
-	add_child(relay_light)
+	_current_build_parent().add_child(relay_light)
 
 
 func _build_encampment() -> void:
 	var camp := Node3D.new()
 	camp.name = "StartingEncampment"
-	add_child(camp)
+	_current_build_parent().add_child(camp)
 
 	# A broad central service lane makes the stations readable from the spawn point.
-	_make_child_box(camp, Vector3(0, 0.025, 7), Vector3(8.5, 0.05, 21.0), Color("7b6b55"))
+	_make_solid_box_child(camp, "CampGround", Vector3(0, -0.5, 7), Vector3(30, 1, 24), Color("66513c"), "ground")
+	_make_child_box(camp, Vector3(0, 0.025, 7), Vector3(8.5, 0.05, 21.0), Color("7b6b55"), false, "ground")
 	for marker_z in [-1.0, 3.0, 7.0, 11.0, 15.0]:
 		_make_child_box(camp, Vector3(0, 0.06, marker_z), Vector3(0.13, 0.03, 1.6), Color("d09a52"), true)
 
@@ -388,7 +414,7 @@ func _spawn_keeper() -> void:
 	collision.shape = capsule
 	collision.position = Vector3(0, 1.35, 0)
 	player.add_child(collision)
-	add_child(player)
+	_home_root.add_child(player)
 	player.pulse_fired.connect(_on_pulse_fired)
 	player.interact_pressed.connect(_use_nearby_station)
 
@@ -399,14 +425,14 @@ func _spawn_enemies() -> void:
 	stalker.configure(player, NightEnemy.Behavior.GLOOM_STALKER)
 	stalker.position = Vector3(-1.7, 0.05, -30.0)
 	stalker.defeated.connect(_on_enemy_defeated)
-	add_child(stalker)
+	_expedition_root.add_child(stalker)
 
 	var mite: NightEnemy = NightEnemyScript.new()
 	mite.name = "LumenMite"
 	mite.configure(player, NightEnemy.Behavior.LUMEN_MITE)
 	mite.position = Vector3(3.2, 0.05, -47.0)
 	mite.defeated.connect(_on_enemy_defeated)
-	add_child(mite)
+	_expedition_root.add_child(mite)
 
 
 func _build_puzzle() -> void:
@@ -418,7 +444,7 @@ func _build_puzzle() -> void:
 	mirror_one.name = "WestRelayMirror"
 	mirror_one.position = Vector3(-3.4, 0.0, -57.0)
 	mirror_one.alignment_changed.connect(_on_mirror_alignment_changed)
-	add_child(mirror_one)
+	_current_build_parent().add_child(mirror_one)
 	_mirrors.append(mirror_one)
 
 	var mirror_two: RelayMirror = RelayMirrorScript.new()
@@ -426,7 +452,7 @@ func _build_puzzle() -> void:
 	mirror_two.position = Vector3(3.2, 0.0, -63.0)
 	mirror_two.rotation_degrees.y = 180.0
 	mirror_two.alignment_changed.connect(_on_mirror_alignment_changed)
-	add_child(mirror_two)
+	_current_build_parent().add_child(mirror_two)
 	_mirrors.append(mirror_two)
 
 	_make_visual_box(Vector3(0, 1.4, -52.0), Vector3(1.4, 2.8, 0.8), Color("3b4b52"))
@@ -640,7 +666,28 @@ func _use_nearby_station() -> void:
 		"solar":
 			_activate_solar_construction()
 		"dispatch":
-			_show_event("NIGHT LINE READY — FOLLOW THE RAILS THROUGH THE GATE")
+			_travel_to_expedition()
+		"return_train":
+			_travel_home()
+
+
+func _travel_to_expedition() -> void:
+	_at_home = false
+	player.reparent(_expedition_root, false)
+	player.position = Vector3(0, 0.05, 7)
+	player.velocity = Vector3.ZERO
+	_show_event("NIGHT LINE ARRIVAL — FORWARD PLATFORM")
+
+
+func _travel_home() -> void:
+	_at_home = true
+	player.reparent(_home_root, false)
+	player.position = Vector3(0, 0.05, 7)
+	player.velocity = Vector3.ZERO
+	if mineral_count > 0:
+		_show_event("CARGO HOME — SECURE IT IN THE KEEPER HOUSE STASH")
+	else:
+		_show_event("TERMINATOR CAMP — KEEPER RETURNED")
 
 
 func _activate_solar_construction() -> void:
@@ -678,7 +725,7 @@ func _build_mineral() -> void:
 	mesh_node.mesh = mesh
 	_mineral.add_child(mesh_node)
 	_mineral.body_entered.connect(_on_mineral_collected)
-	add_child(_mineral)
+	_current_build_parent().add_child(_mineral)
 
 
 func _build_return_zone() -> void:
@@ -691,7 +738,15 @@ func _build_return_zone() -> void:
 	shape_node.shape = shape
 	return_zone.add_child(shape_node)
 	return_zone.body_entered.connect(_on_return_zone_entered)
-	add_child(return_zone)
+	_current_build_parent().add_child(return_zone)
+
+
+func _build_expedition_station() -> void:
+	var platform := Node3D.new()
+	platform.name = "ReturnPlatform"
+	_current_build_parent().add_child(platform)
+	_make_child_box(platform, Vector3(3.0, 0.06, 7.0), Vector3(3.8, 0.12, 4.8), Color("4b4c48"), false, "ground")
+	_add_home_station(platform, "return_train", "RETURN TRAIN", "TRAVEL TO TERMINATOR CAMP", Vector3(3.0, 0, 7.0), Color("78b7d1"))
 
 
 func _on_mineral_collected(body: Node3D) -> void:
@@ -705,7 +760,7 @@ func _on_return_zone_entered(body: Node3D) -> void:
 	if body != player:
 		return
 	if mineral_count > 0 and not extracted:
-		_show_event("CARGO HOME — SECURE IT IN THE KEEPER HOUSE STASH")
+		_show_event("CARGO AT FORWARD PLATFORM — USE THE RETURN TRAIN")
 
 
 func _build_ui() -> void:
@@ -814,7 +869,11 @@ func _uses_touch_controls() -> bool:
 	return DisplayServer.is_touchscreen_available() or OS.has_feature("web_android") or OS.has_feature("web_ios")
 
 
-func _make_solid_box(node_name: String, at: Vector3, size: Vector3, color: Color) -> StaticBody3D:
+func _current_build_parent() -> Node3D:
+	return _build_parent if is_instance_valid(_build_parent) else self
+
+
+func _make_solid_box(node_name: String, at: Vector3, size: Vector3, color: Color, surface_kind := "metal") -> StaticBody3D:
 	var body := StaticBody3D.new()
 	body.name = node_name
 	body.position = at
@@ -826,14 +885,14 @@ func _make_solid_box(node_name: String, at: Vector3, size: Vector3, color: Color
 	var mesh_node := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = size
-	mesh.material = _make_material(color, false)
+	mesh.material = _make_material(color, false, surface_kind)
 	mesh_node.mesh = mesh
 	body.add_child(mesh_node)
-	add_child(body)
+	_current_build_parent().add_child(body)
 	return body
 
 
-func _make_solid_box_child(parent: Node3D, node_name: String, at: Vector3, size: Vector3, color: Color) -> StaticBody3D:
+func _make_solid_box_child(parent: Node3D, node_name: String, at: Vector3, size: Vector3, color: Color, surface_kind := "metal") -> StaticBody3D:
 	var body := StaticBody3D.new()
 	body.name = node_name
 	body.position = at
@@ -845,29 +904,29 @@ func _make_solid_box_child(parent: Node3D, node_name: String, at: Vector3, size:
 	var mesh_node := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = size
-	mesh.material = _make_material(color, false)
+	mesh.material = _make_material(color, false, surface_kind)
 	mesh_node.mesh = mesh
 	body.add_child(mesh_node)
 	parent.add_child(body)
 	return body
 
 
-func _make_visual_box(at: Vector3, size: Vector3, color: Color, emissive := false) -> MeshInstance3D:
+func _make_visual_box(at: Vector3, size: Vector3, color: Color, emissive := false, surface_kind := "metal") -> MeshInstance3D:
 	var mesh_node := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = size
-	mesh.material = _make_material(color, emissive)
+	mesh.material = _make_material(color, emissive, surface_kind)
 	mesh_node.mesh = mesh
 	mesh_node.position = at
-	add_child(mesh_node)
+	_current_build_parent().add_child(mesh_node)
 	return mesh_node
 
 
-func _make_child_box(parent: Node3D, at: Vector3, size: Vector3, color: Color, emissive := false) -> MeshInstance3D:
+func _make_child_box(parent: Node3D, at: Vector3, size: Vector3, color: Color, emissive := false, surface_kind := "metal") -> MeshInstance3D:
 	var mesh_node := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = size
-	mesh.material = _make_material(color, emissive)
+	mesh.material = _make_material(color, emissive, surface_kind)
 	mesh_node.mesh = mesh
 	mesh_node.position = at
 	parent.add_child(mesh_node)
@@ -900,7 +959,7 @@ func _make_rock(at: Vector3, scale_value: Vector3) -> void:
 	mesh_node.position = at
 	mesh_node.scale = scale_value
 	mesh_node.rotation_degrees = Vector3(_rng.randf_range(-16, 16), _rng.randf_range(0, 180), _rng.randf_range(-12, 12))
-	add_child(mesh_node)
+	_current_build_parent().add_child(mesh_node)
 
 
 func _make_crystal(at: Vector3, color: Color, scale_value: float) -> void:
@@ -912,13 +971,13 @@ func _make_crystal(at: Vector3, color: Color, scale_value: float) -> void:
 		crystal.mesh = mesh
 		crystal.position = at + Vector3((i - 1) * 0.3 * scale_value, i * 0.12, 0)
 		crystal.rotation_degrees.z = (i - 1) * 13.0
-		add_child(crystal)
+		_current_build_parent().add_child(crystal)
 	var glow := OmniLight3D.new()
 	glow.position = at + Vector3(0, 0.5, 0)
 	glow.light_color = color
 	glow.light_energy = 1.1
 	glow.omni_range = 4.0 * scale_value
-	add_child(glow)
+	_current_build_parent().add_child(glow)
 
 
 func _make_energy_beam(start: Vector3, end: Vector3, color: Color) -> MeshInstance3D:
@@ -931,7 +990,7 @@ func _make_energy_beam(start: Vector3, end: Vector3, color: Color) -> MeshInstan
 	mesh.material = _make_material(color, true)
 	beam.mesh = mesh
 	beam.position = (start + end) * 0.5
-	add_child(beam)
+	_current_build_parent().add_child(beam)
 	beam.look_at(end, Vector3.UP)
 	beam.rotate_object_local(Vector3.RIGHT, PI * 0.5)
 	return beam
@@ -944,7 +1003,7 @@ func _spawn_pulse_trace(start: Vector3, end: Vector3) -> void:
 	tween.tween_callback(trace.queue_free)
 
 
-func _make_material(color: Color, emissive: bool) -> StandardMaterial3D:
+func _make_material(color: Color, emissive: bool, surface_kind := "metal") -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	material.roughness = 0.88
@@ -954,4 +1013,34 @@ func _make_material(color: Color, emissive: bool) -> StandardMaterial3D:
 		material.emission_enabled = true
 		material.emission = color
 		material.emission_energy_multiplier = 2.5
+	else:
+		material.albedo_texture = _surface_texture(surface_kind)
+		material.uv1_triplanar = true
+		material.uv1_world_triplanar = true
+		material.uv1_scale = Vector3(0.55, 0.55, 0.55) if surface_kind == "ground" else Vector3(1.15, 1.15, 1.15)
 	return material
+
+
+func _surface_texture(surface_kind: String) -> Texture2D:
+	if _surface_textures.has(surface_kind):
+		return _surface_textures[surface_kind] as Texture2D
+	var noise := FastNoiseLite.new()
+	noise.seed = 1947 if surface_kind == "ground" else 6113
+	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	noise.frequency = 0.035 if surface_kind == "ground" else 0.085
+	noise.fractal_octaves = 4 if surface_kind == "ground" else 2
+	var ramp := Gradient.new()
+	if surface_kind == "ground":
+		ramp.offsets = PackedFloat32Array([0.0, 0.42, 0.7, 1.0])
+		ramp.colors = PackedColorArray([Color("777777"), Color("a4a4a4"), Color("d0d0d0"), Color("8b8b8b")])
+	else:
+		ramp.offsets = PackedFloat32Array([0.0, 0.38, 0.72, 1.0])
+		ramp.colors = PackedColorArray([Color("686868"), Color("929292"), Color("bababa"), Color("747474")])
+	var texture := NoiseTexture2D.new()
+	texture.width = 128
+	texture.height = 128
+	texture.seamless = true
+	texture.noise = noise
+	texture.color_ramp = ramp
+	_surface_textures[surface_kind] = texture
+	return texture
