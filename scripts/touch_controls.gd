@@ -5,11 +5,13 @@ signal move_changed(direction: Vector2)
 signal look_changed(delta: Vector2)
 signal light_pressed
 signal attack_pressed
+signal use_pressed
 
 const JOYSTICK_RADIUS := 72.0
 const KNOB_RADIUS := 30.0
 const BUTTON_RADIUS := 48.0
 const ATTACK_RADIUS := 43.0
+const USE_RADIUS := 40.0
 const MAX_LOOK_DELTA := 28.0
 
 var enabled_for_device := false
@@ -19,6 +21,7 @@ var _move_value := Vector2.ZERO
 var _joystick_center := Vector2.ZERO
 var _button_center := Vector2.ZERO
 var _attack_center := Vector2.ZERO
+var _use_center := Vector2.ZERO
 var _look_last_position := Vector2.ZERO
 
 
@@ -40,6 +43,7 @@ func _update_layout() -> void:
 	_joystick_center = Vector2(118.0, size.y - 122.0)
 	_button_center = Vector2(size.x - 88.0, size.y - 104.0)
 	_attack_center = Vector2(size.x - 205.0, size.y - 90.0)
+	_use_center = Vector2(size.x - 310.0, size.y - 98.0)
 	queue_redraw()
 
 
@@ -49,7 +53,10 @@ func _input(event: InputEvent) -> void:
 
 	if event is InputEventScreenTouch:
 		if event.pressed:
-			if event.position.distance_to(_attack_center) <= ATTACK_RADIUS * 1.35:
+			if event.position.distance_to(_use_center) <= USE_RADIUS * 1.35:
+				use_pressed.emit()
+				get_viewport().set_input_as_handled()
+			elif event.position.distance_to(_attack_center) <= ATTACK_RADIUS * 1.35:
 				attack_pressed.emit()
 				get_viewport().set_input_as_handled()
 			elif event.position.distance_to(_button_center) <= BUTTON_RADIUS * 1.35:
@@ -118,5 +125,10 @@ func _draw() -> void:
 	draw_circle(_attack_center, ATTACK_RADIUS, Color(0.08, 0.13, 0.16, 0.8))
 	draw_arc(_attack_center, ATTACK_RADIUS, 0, TAU, 48, Color("73c9d5"), 3.0, true)
 	draw_string(font, _attack_center + Vector2(-25, 7), "PULSE", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("a9f2f5"))
+
+	draw_circle(_use_center, USE_RADIUS + 7.0, dark)
+	draw_circle(_use_center, USE_RADIUS, Color(0.12, 0.16, 0.11, 0.8))
+	draw_arc(_use_center, USE_RADIUS, 0, TAU, 48, Color("91c98b"), 3.0, true)
+	draw_string(font, _use_center + Vector2(-15, 7), "USE", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("c8efbc"))
 
 	draw_string(font, Vector2(size.x - 310, size.y - 174), "SWIPE TO LOOK", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.76, 0.82, 0.86, 0.52))

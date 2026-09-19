@@ -4,6 +4,7 @@ const KeeperScript := preload("res://scripts/player.gd")
 const TouchControlsScript := preload("res://scripts/touch_controls.gd")
 const NightEnemyScript := preload("res://scripts/night_enemy.gd")
 const RelayMirrorScript := preload("res://scripts/relay_mirror.gd")
+const HomeStationScript := preload("res://scripts/home_station.gd")
 const DARK_THRESHOLD_Z := -11.0
 const PULSE_RANGE := 34.0
 const AUTO_TARGET_ANGLE := 18.0
@@ -30,12 +31,19 @@ var _event_message_time := 0.0
 var _current_pulse_target: Node3D
 var _target_indicator: Label
 var _target_name_label: Label
+var _current_home_station: HomeStation
+var _interaction_label: Label
+var _construction_boom: Node3D
+var _deployed_harvester: Node3D
+var _harvester_deployed := false
+var _grid_output := 1
 
 
 func _ready() -> void:
 	_rng.seed = 74291
 	_build_environment()
 	_build_world()
+	_build_encampment()
 	_spawn_keeper()
 	_build_puzzle()
 	_spawn_enemies()
@@ -54,13 +62,15 @@ func _process(delta: float) -> void:
 	_sol_bar.value = player.sol_charge
 	_zone_label.text = "PERMANENT NIGHT" if player.is_in_dark else "HOME — TERMINATOR DUSK"
 	_zone_label.modulate = Color("8ab8d8") if player.is_in_dark else Color("f0b36b")
-	_status_label.text = "SOL %03d%%  •  HOSTILES %d  •  MINERALS %d  •  LIGHT: %s" % [
+	_status_label.text = "SOL %03d%%  •  GRID %d MW  •  HOSTILES %d  •  CARGO %d  •  LIGHT: %s" % [
 		int(player.sol_charge),
+		_grid_output,
 		_enemies_remaining,
 		mineral_count,
 		"ON" if player.flashlight_on else "OFF"
 	]
 	_update_pulse_target()
+	_update_home_station()
 	if _event_message_time > 0.0:
 		_objective_label.text = _event_message
 		_objective_label.modulate = Color("efc47a")
@@ -68,7 +78,7 @@ func _process(delta: float) -> void:
 		_objective_label.text = "RELAY SAMPLE SECURED — PROTOTYPE LOOP COMPLETE"
 		_objective_label.modulate = Color("90e0a7")
 	elif mineral_count > 0:
-		_objective_label.text = "RETURN THE NIGHTGLASS SAMPLE TO THE DUSK PLATFORM"
+		_objective_label.text = "SECURE THE NIGHTGLASS SAMPLE IN THE KEEPER HOUSE STASH"
 	elif _gate_open:
 		_objective_label.text = "THE RELAY VAULT IS OPEN — RECOVER THE NIGHTGLASS"
 	elif _mirrors_aligned_count() > 0:
@@ -123,15 +133,15 @@ func _build_environment() -> void:
 
 
 func _build_world() -> void:
-	_make_solid_box("DuskPlatform", Vector3(0, -0.5, 5), Vector3(18, 1, 16), Color("66513c"))
-	_make_solid_box("Threshold", Vector3(0, -0.5, -7), Vector3(10, 1, 8), Color("394044"))
-	_make_solid_box("DarkRoad", Vector3(0, -0.5, -26), Vector3(10, 1, 30), Color("1d2932"))
+	_make_solid_box("DuskPlatform", Vector3(0, -0.5, 7), Vector3(30, 1, 24), Color("66513c"))
+	_make_solid_box("Threshold", Vector3(0, -0.5, -7), Vector3(14, 1, 8), Color("394044"))
+	_make_solid_box("DarkRoad", Vector3(0, -0.5, -26), Vector3(14, 1, 30), Color("1d2932"))
 	_make_solid_box("RelayFloor", Vector3(0, -0.5, -45), Vector3(18, 1, 12), Color("18252e"))
 	_make_solid_box("MirrorGalleryFloor", Vector3(0, -0.5, -62), Vector3(14, 1, 22), Color("17212b"))
 	_make_solid_box("RelayVaultFloor", Vector3(0, -0.5, -72), Vector3(12, 1, 8), Color("101b24"))
 
-	_make_solid_box("RoadWallLeft", Vector3(-5.4, 1.6, -26), Vector3(0.8, 4.2, 31), Color("26333d"))
-	_make_solid_box("RoadWallRight", Vector3(5.4, 1.6, -26), Vector3(0.8, 4.2, 31), Color("26333d"))
+	_make_solid_box("RoadWallLeft", Vector3(-7.4, 1.6, -26), Vector3(0.8, 4.2, 31), Color("26333d"))
+	_make_solid_box("RoadWallRight", Vector3(7.4, 1.6, -26), Vector3(0.8, 4.2, 31), Color("26333d"))
 	_make_solid_box("RelayWallLeft", Vector3(-9, 1.6, -45), Vector3(0.8, 4.2, 12), Color("202b35"))
 	_make_solid_box("RelayWallRight", Vector3(9, 1.6, -45), Vector3(0.8, 4.2, 12), Color("202b35"))
 	_make_solid_box("GalleryWallLeft", Vector3(-7, 1.8, -62), Vector3(0.8, 4.8, 22), Color("1b2833"))
@@ -144,24 +154,10 @@ func _build_world() -> void:
 		_make_visual_box(Vector3(6.2, 3.6, arch_z), Vector3(0.45, 1.5, 0.65), Color("3b464d"))
 		_make_visual_box(Vector3(0, 4.25, arch_z), Vector3(12.8, 0.35, 0.65), Color("303b43"))
 
-	# Home industry: squat solar fields and an improvised vertical settlement.
-	for x in [-6.2, -3.7, 3.7, 6.2]:
-		var panel := _make_visual_box(Vector3(x, 0.35, 2.2), Vector3(2.0, 0.12, 2.8), Color("263d53"), true)
-		panel.rotation_degrees.x = -15.0
-		_make_visual_box(Vector3(x, 0.0, 2.45), Vector3(0.18, 0.85, 0.18), Color("332c24"))
-
-	for tower_data in [
-		[Vector3(-7.4, 2.0, 8.2), Vector3(1.5, 5.0, 1.5)],
-		[Vector3(6.8, 2.8, 9.0), Vector3(1.8, 6.6, 1.8)],
-		[Vector3(4.5, 1.3, 11.0), Vector3(2.2, 3.5, 1.7)]
-	]:
-		_make_visual_box(tower_data[0], tower_data[1], Color("4f4940"))
-		_make_visual_box(tower_data[0] + Vector3(0, tower_data[1].y * 0.55, 0), Vector3(tower_data[1].x * 1.25, 0.18, tower_data[1].z * 1.25), Color("ad7744"), true)
-
 	# Monumental relay gate at the edge of permanent night.
-	_make_solid_box("ThresholdLeft", Vector3(-3.8, 2.4, -10.2), Vector3(1.2, 5.8, 1.4), Color("494642"))
-	_make_solid_box("ThresholdRight", Vector3(3.8, 2.4, -10.2), Vector3(1.2, 5.8, 1.4), Color("494642"))
-	_make_visual_box(Vector3(0, 5.0, -10.2), Vector3(8.6, 0.8, 1.4), Color("383d40"))
+	_make_solid_box("ThresholdLeft", Vector3(-5.8, 2.4, -10.2), Vector3(1.2, 5.8, 1.4), Color("494642"))
+	_make_solid_box("ThresholdRight", Vector3(5.8, 2.4, -10.2), Vector3(1.2, 5.8, 1.4), Color("494642"))
+	_make_visual_box(Vector3(0, 5.0, -10.2), Vector3(12.6, 0.8, 1.4), Color("383d40"))
 	_make_visual_box(Vector3(0, 4.95, -9.45), Vector3(2.4, 0.15, 0.12), Color("f3a957"), true)
 
 	# Lighthouse infrastructure silhouettes.
@@ -191,22 +187,194 @@ func _build_world() -> void:
 	]:
 		_make_crystal(crystal_data[0], crystal_data[1], crystal_data[2])
 
-	# A readable warm home landmark and a dead blue relay ahead.
-	_make_visual_box(Vector3(-5.8, 2.4, 7.5), Vector3(2.0, 4.8, 2.0), Color("8b5c32"))
-	_make_visual_box(Vector3(-5.8, 5.0, 7.5), Vector3(2.6, 0.35, 2.6), Color("f2a64d"), true)
-	var home_light := OmniLight3D.new()
-	home_light.position = Vector3(-5.8, 4.8, 7.5)
-	home_light.light_color = Color("ffad55")
-	home_light.light_energy = 4.0
-	home_light.omni_range = 13.0
-	add_child(home_light)
-
+	# The dead blue relay remains the night-side landmark.
 	var relay_light := OmniLight3D.new()
 	relay_light.position = Vector3(0, 2.0, -47)
 	relay_light.light_color = Color("6fa5c5")
 	relay_light.light_energy = 1.4
 	relay_light.omni_range = 10.0
 	add_child(relay_light)
+
+
+func _build_encampment() -> void:
+	var camp := Node3D.new()
+	camp.name = "StartingEncampment"
+	add_child(camp)
+
+	# A broad central service lane makes the stations readable from the spawn point.
+	_make_child_box(camp, Vector3(0, 0.025, 7), Vector3(8.5, 0.05, 21.0), Color("7b6b55"))
+	for marker_z in [-1.0, 3.0, 7.0, 11.0, 15.0]:
+		_make_child_box(camp, Vector3(0, 0.06, marker_z), Vector3(0.13, 0.03, 1.6), Color("d09a52"), true)
+
+	_build_keeper_house(camp)
+	_build_repair_bay(camp)
+	_build_upgrade_shop(camp)
+	_build_solar_operations(camp)
+	_build_construction_gantry(camp)
+	_build_power_bank(camp)
+	_build_dispatch_tower(camp)
+	_build_night_train(camp)
+	_build_solar_field(camp)
+
+	_add_home_station(camp, "stash", "KEEPER HOUSE", "SECURE CARRIED MATERIALS", Vector3(-5.2, 0, 11.0), Color("8fc58b"))
+	_add_home_station(camp, "repair", "REPAIR SHED", "REPAIR GEAR & RECHARGE SOL", Vector3(-5.0, 0, 3.2), Color("e29a50"))
+	_add_home_station(camp, "upgrade", "UPGRADE SHOP", "INSPECT AVAILABLE MODULES", Vector3(-5.8, 0, 16.4), Color("cf9b62"))
+	_add_home_station(camp, "solar", "SOLAR OPERATIONS", "ROUTE POWER TO CONSTRUCTION", Vector3(5.0, 0, 11.0), Color("f5bc58"))
+	_add_home_station(camp, "dispatch", "NIGHT DISPATCH", "REVIEW EXPEDITION ROUTE", Vector3(2.4, 0, -2.2), Color("78b7d1"))
+
+
+func _build_keeper_house(camp: Node3D) -> void:
+	var house := Node3D.new()
+	house.name = "KeeperHouse"
+	camp.add_child(house)
+	_make_solid_box_child(house, "HouseBody", Vector3(-9.0, 1.55, 11.0), Vector3(6.0, 3.1, 5.5), Color("5b5143"))
+	_make_child_box(house, Vector3(-9.0, 3.22, 11.0), Vector3(6.5, 0.25, 6.0), Color("282c2a"))
+	_make_child_box(house, Vector3(-5.92, 1.35, 11.0), Vector3(0.12, 2.25, 1.25), Color("d88943"), true)
+	_make_child_box(house, Vector3(-8.8, 1.65, 8.2), Vector3(2.6, 1.2, 0.1), Color("d09a55"), true)
+	for z_value in [9.0, 13.0]:
+		_make_child_box(house, Vector3(-12.08, 1.1, z_value), Vector3(0.12, 1.8, 0.22), Color("2a2e2d"))
+
+
+func _build_repair_bay(camp: Node3D) -> void:
+	var bay := Node3D.new()
+	bay.name = "RepairBay"
+	camp.add_child(bay)
+	_make_solid_box_child(bay, "RepairBack", Vector3(-11.8, 1.55, 3.0), Vector3(0.45, 3.1, 6.0), Color("414743"))
+	_make_solid_box_child(bay, "RepairNorth", Vector3(-8.8, 1.0, 5.8), Vector3(5.7, 2.0, 0.35), Color("4c4a40"))
+	_make_solid_box_child(bay, "RepairSouth", Vector3(-8.8, 1.0, 0.2), Vector3(5.7, 2.0, 0.35), Color("4c4a40"))
+	_make_child_box(bay, Vector3(-9.0, 3.05, 3.0), Vector3(6.2, 0.22, 6.4), Color("2b302f"))
+	_make_child_box(bay, Vector3(-9.3, 0.65, 3.0), Vector3(2.7, 1.0, 1.0), Color("252a28"))
+	for x_value in [-10.2, -8.4]:
+		_make_child_box(bay, Vector3(x_value, 1.25, 5.55), Vector3(0.7, 1.5, 0.12), Color("d79148"), true)
+	var repair_light := OmniLight3D.new()
+	repair_light.position = Vector3(-8.5, 2.5, 3.0)
+	repair_light.light_color = Color("ffb96b")
+	repair_light.light_energy = 2.8
+	repair_light.omni_range = 7.0
+	bay.add_child(repair_light)
+
+
+func _build_upgrade_shop(camp: Node3D) -> void:
+	var shop := Node3D.new()
+	shop.name = "UpgradeShop"
+	camp.add_child(shop)
+	_make_solid_box_child(shop, "UpgradeBody", Vector3(-9.2, 1.45, 16.4), Vector3(5.6, 2.9, 3.8), Color("50483d"))
+	_make_child_box(shop, Vector3(-9.2, 3.03, 16.4), Vector3(6.0, 0.24, 4.2), Color("292d2b"))
+	_make_child_box(shop, Vector3(-6.32, 1.25, 16.4), Vector3(0.12, 1.8, 1.3), Color("c78a4d"), true)
+	for x_value in [-10.6, -9.2, -7.8]:
+		_make_child_box(shop, Vector3(x_value, 1.7, 14.44), Vector3(0.72, 0.72, 0.1), Color("92704a"), true)
+
+
+func _build_solar_operations(camp: Node3D) -> void:
+	var operations := Node3D.new()
+	operations.name = "SolarOperations"
+	camp.add_child(operations)
+	_make_solid_box_child(operations, "OperationsBase", Vector3(8.6, 1.35, 11.2), Vector3(6.0, 2.7, 5.0), Color("4b4b42"))
+	_make_solid_box_child(operations, "OperationsTower", Vector3(10.0, 4.1, 11.4), Vector3(2.2, 3.2, 2.2), Color("605746"))
+	_make_child_box(operations, Vector3(10.0, 5.85, 11.4), Vector3(3.0, 0.22, 3.0), Color("d18c43"), true)
+	_make_child_box(operations, Vector3(5.52, 1.25, 11.0), Vector3(0.12, 1.5, 1.6), Color("f0b14e"), true)
+	for z_value in [9.5, 11.2, 12.9]:
+		_make_child_box(operations, Vector3(8.5, 2.15, z_value), Vector3(1.0, 0.12, 0.28), Color("b58a50"), true)
+
+
+func _build_construction_gantry(camp: Node3D) -> void:
+	var gantry := Node3D.new()
+	gantry.name = "ConstructionGantry"
+	camp.add_child(gantry)
+	for z_value in [2.0, 6.0]:
+		_make_solid_box_child(gantry, "GantryColumn", Vector3(9.2, 2.1, z_value), Vector3(0.65, 4.2, 0.65), Color("6b5538"))
+	_make_child_box(gantry, Vector3(9.2, 4.25, 4.0), Vector3(0.8, 0.45, 5.2), Color("8a653a"))
+	_construction_boom = Node3D.new()
+	_construction_boom.name = "ConstructionBoom"
+	_construction_boom.position = Vector3(9.2, 4.55, 4.0)
+	gantry.add_child(_construction_boom)
+	_make_child_box(_construction_boom, Vector3(-2.7, 0, 0), Vector3(5.8, 0.42, 0.52), Color("9a713e"))
+	_make_child_box(_construction_boom, Vector3(-5.45, -1.25, 0), Vector3(0.35, 2.5, 0.35), Color("252a29"))
+	_make_child_box(_construction_boom, Vector3(-5.45, -2.35, 0), Vector3(1.2, 0.3, 1.2), Color("c28b48"), true)
+
+	_deployed_harvester = Node3D.new()
+	_deployed_harvester.name = "DeployedHarvester"
+	_deployed_harvester.position = Vector3(12.1, 0, 3.8)
+	_deployed_harvester.visible = false
+	_deployed_harvester.scale = Vector3(0.2, 0.2, 0.2)
+	camp.add_child(_deployed_harvester)
+	_make_child_box(_deployed_harvester, Vector3(0, 0.85, 0), Vector3(0.35, 1.7, 0.35), Color("383b37"))
+	var new_panel := _make_child_box(_deployed_harvester, Vector3(0, 1.65, 0), Vector3(2.8, 0.13, 2.0), Color("31506a"), true)
+	new_panel.rotation_degrees.x = -18.0
+
+
+func _build_power_bank(camp: Node3D) -> void:
+	var bank := Node3D.new()
+	bank.name = "SolBank"
+	camp.add_child(bank)
+	for z_value in [8.2, 10.5, 12.8, 15.1]:
+		_make_solid_box_child(bank, "BatteryCell", Vector3(13.0, 1.25, z_value), Vector3(1.25, 2.5, 1.5), Color("3a4240"))
+		_make_child_box(bank, Vector3(12.34, 1.25, z_value), Vector3(0.1, 1.55, 0.62), Color("e39542"), true)
+	_make_child_box(bank, Vector3(11.8, 0.15, 11.6), Vector3(0.35, 0.25, 8.2), Color("252d2c"))
+
+
+func _build_dispatch_tower(camp: Node3D) -> void:
+	var dispatch := Node3D.new()
+	dispatch.name = "DispatchTower"
+	camp.add_child(dispatch)
+	_make_solid_box_child(dispatch, "DispatchBase", Vector3(3.7, 1.5, -3.5), Vector3(3.0, 3.0, 3.0), Color("3e494d"))
+	_make_child_box(dispatch, Vector3(3.7, 3.3, -3.5), Vector3(3.7, 0.22, 3.7), Color("718692"))
+	_make_child_box(dispatch, Vector3(3.7, 5.3, -3.5), Vector3(0.18, 4.0, 0.18), Color("303737"))
+	_make_child_box(dispatch, Vector3(3.7, 7.2, -3.5), Vector3(1.8, 0.18, 0.18), Color("78b8d2"), true)
+
+
+func _build_night_train(camp: Node3D) -> void:
+	var train := Node3D.new()
+	train.name = "NightTrain"
+	camp.add_child(train)
+	for x_value in [3.65, 5.35]:
+		_make_child_box(train, Vector3(x_value, 0.08, 0), Vector3(0.14, 0.14, 19.0), Color("252929"))
+	for z_value in range(-9, 10, 2):
+		_make_child_box(train, Vector3(4.5, 0.05, float(z_value)), Vector3(2.3, 0.08, 0.2), Color("37322a"))
+	_make_child_box(train, Vector3(8.1, 0.2, 0), Vector3(3.0, 0.4, 18.0), Color("4a4640"))
+	_make_solid_box_child(train, "TrainBody", Vector3(4.5, 1.5, 3.7), Vector3(2.55, 2.6, 6.4), Color("313b40"))
+	_make_child_box(train, Vector3(4.5, 2.9, 3.7), Vector3(2.8, 0.22, 6.7), Color("20272a"))
+	_make_child_box(train, Vector3(4.5, 1.75, 0.43), Vector3(1.5, 0.85, 0.1), Color("f0aa50"), true)
+	for z_value in [2.1, 4.0, 5.9]:
+		_make_child_box(train, Vector3(3.18, 1.65, z_value), Vector3(0.08, 0.72, 0.9), Color("d48840"), true)
+	for z_value in [1.4, 5.8]:
+		for x_value in [3.5, 5.5]:
+			var wheel := _make_child_cylinder(train, Vector3(x_value, 0.45, z_value), 0.42, 0.28, Color("151919"))
+			wheel.rotation_degrees.z = 90.0
+
+
+func _build_solar_field(camp: Node3D) -> void:
+	var field := Node3D.new()
+	field.name = "SolarHarvesterField"
+	camp.add_child(field)
+	for panel_data in [
+		[Vector3(-13.0, 1.15, 2.5), -12.0], [Vector3(-13.0, 1.15, 7.0), -12.0],
+		[Vector3(-13.0, 1.15, 11.5), -12.0], [Vector3(-13.0, 1.15, 16.0), -12.0]
+	]:
+		_make_child_box(field, panel_data[0] - Vector3(0, 0.75, 0), Vector3(0.22, 1.5, 0.22), Color("332f29"))
+		var panel := _make_child_box(field, panel_data[0], Vector3(2.8, 0.13, 3.1), Color("2c4a64"), true)
+		panel.rotation_degrees.x = panel_data[1]
+
+
+func _add_home_station(camp: Node3D, station_id: String, title: String, prompt: String, at: Vector3, color: Color) -> HomeStation:
+	var station: HomeStation = HomeStationScript.new()
+	station.name = title.to_pascal_case().replace(" ", "") + "Station"
+	station.position = at
+	station.configure(station_id, title, prompt)
+	camp.add_child(station)
+	_make_solid_box_child(station, "Console", Vector3(0, 0.58, 0), Vector3(1.15, 1.15, 0.75), Color("343a37"))
+	var screen := _make_child_box(station, Vector3(0, 1.0, -0.4), Vector3(0.78, 0.38, 0.08), color, true)
+	screen.rotation_degrees.x = -12.0
+	var label := Label3D.new()
+	label.name = "StationLabel"
+	label.text = title
+	label.position = Vector3(0, 1.75, 0)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.font_size = 32
+	label.pixel_size = 0.006
+	label.modulate = color
+	station.add_child(label)
+	return station
 
 
 func _spawn_keeper() -> void:
@@ -222,6 +390,7 @@ func _spawn_keeper() -> void:
 	player.add_child(collision)
 	add_child(player)
 	player.pulse_fired.connect(_on_pulse_fired)
+	player.interact_pressed.connect(_use_nearby_station)
 
 
 func _spawn_enemies() -> void:
@@ -424,6 +593,69 @@ func _show_event(message: String) -> void:
 	_event_message_time = 2.6
 
 
+func _update_home_station() -> void:
+	_current_home_station = null
+	var nearest_distance := 3.0
+	for station_node in get_tree().get_nodes_in_group("home_stations"):
+		var station := station_node as HomeStation
+		if not is_instance_valid(station):
+			continue
+		var distance := player.global_position.distance_to(station.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			_current_home_station = station
+	if not is_instance_valid(_interaction_label):
+		return
+	_interaction_label.visible = is_instance_valid(_current_home_station)
+	if is_instance_valid(_current_home_station):
+		var input_name := "USE" if _uses_touch_controls() else "E"
+		_interaction_label.text = "[%s]  %s — %s" % [
+			input_name,
+			_current_home_station.station_title,
+			_current_home_station.get_interaction_prompt()
+		]
+
+
+func _use_nearby_station() -> void:
+	if not is_instance_valid(_current_home_station):
+		_show_event("MOVE CLOSER TO A CAMP CONSOLE")
+		return
+	match _current_home_station.station_id:
+		"repair":
+			player.recharge()
+			_show_event("REPAIR CYCLE COMPLETE — SOL UNIT FULLY CHARGED")
+		"upgrade":
+			if extracted:
+				_show_event("NIGHTGLASS CATALOGUED — HOVER MODULE SCHEMATICS AVAILABLE")
+			else:
+				_show_event("UPGRADE BENCH ONLINE — NIGHTGLASS SAMPLE REQUIRED")
+		"stash":
+			if mineral_count > 0:
+				mineral_count = 0
+				extracted = true
+				player.recharge()
+				_show_event("NIGHTGLASS SECURED — EXPEDITION COMPLETE")
+			else:
+				_show_event("SAFE STASH EMPTY — CARRIED GEAR IS PROTECTED HERE")
+		"solar":
+			_activate_solar_construction()
+		"dispatch":
+			_show_event("NIGHT LINE READY — FOLLOW THE RAILS THROUGH THE GATE")
+
+
+func _activate_solar_construction() -> void:
+	if _harvester_deployed:
+		_show_event("SOLAR GRID STABLE — %d MW AVAILABLE" % _grid_output)
+		return
+	_harvester_deployed = true
+	_grid_output = 2
+	_deployed_harvester.visible = true
+	var construction_tween := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	construction_tween.tween_property(_construction_boom, "rotation:y", deg_to_rad(-58.0), 1.0)
+	construction_tween.parallel().tween_property(_deployed_harvester, "scale", Vector3.ONE, 1.0)
+	_show_event("NEW HARVESTER ONLINE — GRID OUTPUT INCREASED TO 2 MW")
+
+
 func _build_mineral() -> void:
 	_mineral = Area3D.new()
 	_mineral.name = "NightglassSample"
@@ -473,8 +705,7 @@ func _on_return_zone_entered(body: Node3D) -> void:
 	if body != player:
 		return
 	if mineral_count > 0 and not extracted:
-		extracted = true
-		player.recharge()
+		_show_event("CARGO HOME — SECURE IT IN THE KEEPER HOUSE STASH")
 
 
 func _build_ui() -> void:
@@ -513,7 +744,7 @@ func _build_ui() -> void:
 	_ui_layer.add_child(_objective_label)
 
 	var controls := Label.new()
-	controls.text = "WASD  MOVE     MOUSE  LOOK     LMB / SPACE  PULSE     F  SOL LIGHT     ESC  CURSOR"
+	controls.text = "WASD  MOVE     MOUSE  LOOK     E  USE     LMB / SPACE  PULSE     F  SOL LIGHT     ESC  CURSOR"
 	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	controls.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	controls.offset_top = -46
@@ -554,6 +785,17 @@ func _build_ui() -> void:
 	_target_name_label.visible = false
 	_ui_layer.add_child(_target_name_label)
 
+	_interaction_label = Label.new()
+	_interaction_label.name = "InteractionPrompt"
+	_interaction_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_interaction_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	_interaction_label.offset_top = -92
+	_interaction_label.offset_bottom = -58
+	_interaction_label.add_theme_font_size_override("font_size", 17)
+	_interaction_label.modulate = Color("d8e8c6")
+	_interaction_label.visible = false
+	_ui_layer.add_child(_interaction_label)
+
 
 func _build_touch_controls() -> void:
 	var touch_controls: TouchControls = TouchControlsScript.new()
@@ -564,6 +806,7 @@ func _build_touch_controls() -> void:
 	touch_controls.look_changed.connect(player.apply_mobile_look)
 	touch_controls.light_pressed.connect(player.toggle_flashlight)
 	touch_controls.attack_pressed.connect(player.try_pulse_attack)
+	touch_controls.use_pressed.connect(player.try_interact)
 	touch_controls.set_enabled_for_device(_uses_touch_controls())
 
 
@@ -590,6 +833,25 @@ func _make_solid_box(node_name: String, at: Vector3, size: Vector3, color: Color
 	return body
 
 
+func _make_solid_box_child(parent: Node3D, node_name: String, at: Vector3, size: Vector3, color: Color) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	body.name = node_name
+	body.position = at
+	var collision := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = size
+	collision.shape = shape
+	body.add_child(collision)
+	var mesh_node := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	mesh.material = _make_material(color, false)
+	mesh_node.mesh = mesh
+	body.add_child(mesh_node)
+	parent.add_child(body)
+	return body
+
+
 func _make_visual_box(at: Vector3, size: Vector3, color: Color, emissive := false) -> MeshInstance3D:
 	var mesh_node := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
@@ -605,6 +867,20 @@ func _make_child_box(parent: Node3D, at: Vector3, size: Vector3, color: Color, e
 	var mesh_node := MeshInstance3D.new()
 	var mesh := BoxMesh.new()
 	mesh.size = size
+	mesh.material = _make_material(color, emissive)
+	mesh_node.mesh = mesh
+	mesh_node.position = at
+	parent.add_child(mesh_node)
+	return mesh_node
+
+
+func _make_child_cylinder(parent: Node3D, at: Vector3, radius: float, height: float, color: Color, emissive := false) -> MeshInstance3D:
+	var mesh_node := MeshInstance3D.new()
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = radius
+	mesh.bottom_radius = radius
+	mesh.height = height
+	mesh.radial_segments = 12
 	mesh.material = _make_material(color, emissive)
 	mesh_node.mesh = mesh
 	mesh_node.position = at

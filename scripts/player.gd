@@ -2,6 +2,7 @@ class_name Keeper
 extends CharacterBody3D
 
 signal pulse_fired(ray_origin: Vector3, ray_direction: Vector3)
+signal interact_pressed
 
 const WALK_SPEED := 6.0
 const ACCELERATION := 22.0
@@ -56,6 +57,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			toggle_flashlight()
 		elif event.keycode == KEY_SPACE or event.keycode == KEY_Q:
 			try_pulse_attack()
+		elif event.keycode == KEY_E:
+			try_interact()
 
 
 func _physics_process(delta: float) -> void:
@@ -107,6 +110,10 @@ func apply_mobile_look(delta: Vector2) -> void:
 
 func toggle_flashlight() -> void:
 	_set_flashlight(not flashlight_on)
+
+
+func try_interact() -> void:
+	interact_pressed.emit()
 
 
 func try_pulse_attack() -> void:
